@@ -11,6 +11,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -529,106 +530,111 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetAverageConcurrencyResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "Runs");
-                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "Runs");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                    var averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
-        "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
-        "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+                        var averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
+            "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
+            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
 
-                    foreach (DataRow stresstestsRow in stresstests.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        int stresstestId = (int)stresstestsRow.ItemArray[0];
-
-                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
-                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                        int runs = (int)stresstestsRow.ItemArray[3];
-
-                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, new string[] { "Id", "StartedAt", "StoppedAt", "Concurrency" });
-                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
-
-                        foreach (DataRow crRow in concurrencyResults.Rows) {
+                        foreach (DataRow stresstestsRow in stresstests.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            ConcurrencyResult concurrencyResult = new ConcurrencyResult((int)crRow.ItemArray[3], runs);
-                            concurrencyResult.StartedAt = (DateTime)crRow.ItemArray[1];
-                            concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
+                            int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, (int)crRow.ItemArray[0], "Id", "Run", "TotalLogEntryCount");
-                            if (runResults == null || runResults.Rows.Count == 0) continue;
+                            var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+                            if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                            int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
-                            var runResultIds = new List<int>(runResults.Rows.Count);
-                            var totalLogEntryCountsPerUser = new List<ulong>(runResults.Rows.Count);
-                            foreach (DataRow rrRow in runResults.Rows) {
+                            string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                            int runs = (int)stresstestsRow.ItemArray[3];
+
+                            var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, new string[] { "Id", "StartedAt", "StoppedAt", "Concurrency" });
+                            if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                            foreach (DataRow crRow in concurrencyResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                runResultIds.Add((int)rrRow.ItemArray[0]);
-                                concurrencyResult.RunResults.Add(new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency));
+                                ConcurrencyResult concurrencyResult = new ConcurrencyResult((int)crRow.ItemArray[3], runs);
+                                concurrencyResult.StartedAt = (DateTime)crRow.ItemArray[1];
+                                concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
 
-                                totalLogEntryCountsPerUser.Add((ulong)rrRow.ItemArray[2] / (ulong)concurrencyResult.Concurrency);
-                            }
+                                var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, (int)crRow.ItemArray[0], "Id", "Run", "TotalLogEntryCount");
+                                if (runResults == null || runResults.Rows.Count == 0) continue;
 
-                            var ler = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
-                                new string[] { "RunResultId", "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error" });
-                            if (ler == null || ler.Rows.Count == 0) continue;
-
-                            for (int i = 0; i != concurrencyResult.RunResults.Count; i++) {
-                                if (cancellationToken.IsCancellationRequested) return null;
-
-                                var runResult = concurrencyResult.RunResults[i];
-                                int runResultId = runResultIds[i];
-                                var virtualUserResults = new ConcurrentDictionary<string, VirtualUserResult>();
-                                var logEntryResults = new ConcurrentDictionary<string, List<LogEntryResult>>(); //Key == virtual user.
-
-                                foreach (DataRow lerRow in ler.Rows) {
+                                var runResultIds = new List<int>(runResults.Rows.Count);
+                                var totalLogEntryCountsPerUser = new List<ulong>(runResults.Rows.Count);
+                                foreach (DataRow rrRow in runResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    if ((int)lerRow.ItemArray[0] == runResultId) {
-                                        string virtualUser = (lerRow.ItemArray[1] as string);
-                                        logEntryResults.TryAdd(virtualUser, new List<LogEntryResult>());
+                                    runResultIds.Add((int)rrRow.ItemArray[0]);
+                                    concurrencyResult.RunResults.Add(new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency));
 
-                                        logEntryResults[virtualUser].Add(new LogEntryResult() {
-                                            VirtualUser = virtualUser, UserAction = lerRow.ItemArray[2] as string, LogEntryIndex = lerRow.ItemArray[3] as string,
-                                            TimeToLastByteInTicks = (long)lerRow.ItemArray[4], DelayInMilliseconds = (int)lerRow.ItemArray[5], Error = lerRow.ItemArray[6] as string
-                                        });
-                                    }
+                                    totalLogEntryCountsPerUser.Add((ulong)rrRow.ItemArray[2] / (ulong)concurrencyResult.Concurrency);
                                 }
 
-                                //Add empty ones for broken runs.
-                                Parallel.ForEach(logEntryResults, (item, loopState) => {
-                                    if (cancellationToken.IsCancellationRequested) loopState.Break();
+                                var ler = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
+                                    new string[] { "RunResultId", "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error" });
+                                if (ler == null || ler.Rows.Count == 0) continue;
 
-                                    while ((ulong)item.Value.Count < totalLogEntryCountsPerUser[i])
-                                        item.Value.Add(new LogEntryResult());
-                                });
+                                for (int i = 0; i != concurrencyResult.RunResults.Count; i++) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                                //Add the log entry result to the virtual users.
-                                Parallel.ForEach(logEntryResults, (item, loopState) => {
-                                    if (cancellationToken.IsCancellationRequested) loopState.Break();
+                                    var runResult = concurrencyResult.RunResults[i];
+                                    int runResultId = runResultIds[i];
+                                    var virtualUserResults = new ConcurrentDictionary<string, VirtualUserResult>();
+                                    var logEntryResults = new ConcurrentDictionary<string, List<LogEntryResult>>(); //Key == virtual user.
 
-                                    virtualUserResults.TryAdd(item.Key, new VirtualUserResult(logEntryResults[item.Key].Count) { VirtualUser = item.Key });
+                                    foreach (DataRow lerRow in ler.Rows) {
+                                        if (cancellationToken.IsCancellationRequested) return null;
 
-                                    for (int k = 0; k != item.Value.Count; k++)
-                                        virtualUserResults[item.Key].LogEntryResults[k] = item.Value[k];
-                                });
-                                if (cancellationToken.IsCancellationRequested) return null;
+                                        if ((int)lerRow.ItemArray[0] == runResultId) {
+                                            string virtualUser = (lerRow.ItemArray[1] as string);
+                                            logEntryResults.TryAdd(virtualUser, new List<LogEntryResult>());
 
-                                runResult.VirtualUserResults = virtualUserResults.Values.ToArray();
+                                            logEntryResults[virtualUser].Add(new LogEntryResult() {
+                                                VirtualUser = virtualUser, UserAction = lerRow.ItemArray[2] as string, LogEntryIndex = lerRow.ItemArray[3] as string,
+                                                TimeToLastByteInTicks = (long)lerRow.ItemArray[4], DelayInMilliseconds = (int)lerRow.ItemArray[5], Error = lerRow.ItemArray[6] as string
+                                            });
+                                        }
+                                    }
+
+                                    //Add empty ones for broken runs.
+                                    Parallel.ForEach(logEntryResults, (item, loopState) => {
+                                        if (cancellationToken.IsCancellationRequested) loopState.Break();
+
+                                        while ((ulong)item.Value.Count < totalLogEntryCountsPerUser[i])
+                                            item.Value.Add(new LogEntryResult());
+                                    });
+
+                                    //Add the log entry result to the virtual users.
+                                    Parallel.ForEach(logEntryResults, (item, loopState) => {
+                                        if (cancellationToken.IsCancellationRequested) loopState.Break();
+
+                                        virtualUserResults.TryAdd(item.Key, new VirtualUserResult(logEntryResults[item.Key].Count) { VirtualUser = item.Key });
+
+                                        for (int k = 0; k != item.Value.Count; k++)
+                                            virtualUserResults[item.Key].LogEntryResults[k] = item.Value[k];
+                                    });
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    runResult.VirtualUserResults = virtualUserResults.Values.ToArray();
+                                }
+
+                                var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, true);
+
+                                averageConcurrentUsers.Rows.Add(stresstest, metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
+                                    metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
+                                    Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2), Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
+                                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2), metrics.Errors);
                             }
-
-                            var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, true);
-
-                            averageConcurrentUsers.Rows.Add(stresstest, metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
-                                metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
-                                Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2), Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
-                                Math.Round(metrics.AverageDelay.TotalMilliseconds, 2), metrics.Errors);
                         }
+                        cacheEntry.ReturnValue = averageConcurrentUsers;
                     }
-                    return averageConcurrentUsers;
+                    return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
@@ -653,223 +659,228 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         private DataTable GetAverageUserActionResults(CancellationToken cancellationToken, bool withConcurrencyResultId, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
-                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), withConcurrencyResultId, stresstestIds);
+                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                    var averageUserActions = withConcurrencyResultId ? CreateEmptyDataTable("AverageUserActions", "Stresstest", "ConcurrencyId", "Concurrency", "User Action", "Avg. Response Time (ms)",
-                        "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors") :
-                        CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
-                        "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+                        var averageUserActions = withConcurrencyResultId ? CreateEmptyDataTable("AverageUserActions", "Stresstest", "ConcurrencyId", "Concurrency", "User Action", "Avg. Response Time (ms)",
+                            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors") :
+                            CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
+                            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
 
 
 
-                    foreach (DataRow stresstestsRow in stresstests.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        int stresstestId = (int)stresstestsRow.ItemArray[0];
-
-                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
-                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-
-                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency");
-                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
-
-                        foreach (DataRow crRow in concurrencyResults.Rows) {
+                        foreach (DataRow stresstestsRow in stresstests.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            int concurrencyResultId = (int)crRow.ItemArray[0];
-                            int concurrency = (int)crRow.ItemArray[1];
+                            int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Id", "RerunCount");
-                            if (runResults == null || runResults.Rows.Count == 0) continue;
+                            var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+                            if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                            int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
-                            var runResultIds = new List<int>(runResults.Rows.Count);
-                            foreach (DataRow rrRow in runResults.Rows) {
+                            string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+
+                            var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency");
+                            if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                            foreach (DataRow crRow in concurrencyResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                runResultIds.Add((int)rrRow.ItemArray[0]);
-                            }
+                                int concurrencyResultId = (int)crRow.ItemArray[0];
+                                int concurrency = (int)crRow.ItemArray[1];
 
-                            var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
-                               new string[] { "RunResultId", "VirtualUser", "UserAction", "LogEntryIndex", "SameAsLogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "Rerun" });
-                            if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+                                var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Id", "RerunCount");
+                                if (runResults == null || runResults.Rows.Count == 0) continue;
 
-                            //Place the log entry results under the right virtual user and the right user action
-                            var userActions = new List<KeyValuePair<string, List<KeyValuePair<string, List<LogEntryResult>>>>>(); // <VirtualUser,<UserAction, LogEntryResult
-                            foreach (DataRow rrRow in runResults.Rows) {
-                                if (cancellationToken.IsCancellationRequested) return null;
-
-                                int runResultId = (int)rrRow.ItemArray[0];
-
-                                //Keeping reruns in mind (break on last)
-                                int runs = ((int)rrRow.ItemArray[1]) + 1;
-                                var userActionsMap = new Dictionary<string, string>(); //Map duplicate user actions to the original ones.
-                                for (int reRun = 0; reRun != runs; reRun++) {
+                                var runResultIds = new List<int>(runResults.Rows.Count);
+                                foreach (DataRow rrRow in runResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    var uas = new Dictionary<string, Dictionary<string, List<LogEntryResult>>>(); // <VirtualUser,<UserAction, LogEntryResult
-                                    foreach (DataRow lerRow in logEntryResults.Rows) {
-                                        if (cancellationToken.IsCancellationRequested) return null;
-
-                                        object[] row = lerRow.ItemArray;
-                                        if ((int)row[0] == runResultId && (int)row[8] == reRun) {
-                                            string virtualUser = row[1] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct average doing it like this.
-                                            string userAction = lerRow.ItemArray[2] as string;
-
-                                            string logEntryIndex = lerRow.ItemArray[4] as string; //Combine results when using distribe like this.
-                                            if (logEntryIndex == string.Empty) {
-                                                logEntryIndex = lerRow.ItemArray[3] as string;
-
-                                                //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used.
-                                                //Map using the log entry index
-                                                if (!userActionsMap.ContainsKey(logEntryIndex)) userActionsMap.Add(logEntryIndex, userAction);
-                                            }
-
-                                            var logEntryResult = new LogEntryResult() { LogEntryIndex = logEntryIndex, TimeToLastByteInTicks = (long)lerRow.ItemArray[5], DelayInMilliseconds = (int)lerRow.ItemArray[6], Error = lerRow.ItemArray[7] as string };
-
-                                            if (!uas.ContainsKey(virtualUser)) uas.Add(virtualUser, new Dictionary<string, List<LogEntryResult>>());
-                                            if (!uas[virtualUser].ContainsKey(userAction)) uas[virtualUser].Add(userAction, new List<LogEntryResult>());
-
-                                            uas[virtualUser][userAction].Add(logEntryResult);
-                                        }
-                                    }
-                                    foreach (string virtualUser in uas.Keys) {
-                                        if (cancellationToken.IsCancellationRequested) return null;
-
-                                        var kvp = new KeyValuePair<string, List<KeyValuePair<string, List<LogEntryResult>>>>(virtualUser, new List<KeyValuePair<string, List<LogEntryResult>>>());
-                                        foreach (string userAction in uas[virtualUser].Keys) {
-                                            string mappedUserAction = userAction;
-                                            var lers = uas[virtualUser][userAction];
-                                            if (lers.Count != 0) {
-                                                var leri = lers[0].LogEntryIndex;
-                                                if (userActionsMap.ContainsKey(leri)) mappedUserAction = userActionsMap[leri];
-                                            }
-                                            kvp.Value.Add(new KeyValuePair<string, List<LogEntryResult>>(mappedUserAction, lers));
-                                        }
-                                        userActions.Add(kvp);
-                                    }
+                                    runResultIds.Add((int)rrRow.ItemArray[0]);
                                 }
-                            }
 
-                            //Calculate following for each user action
-                            var userActionResults = CreateEmptyDataTable("UserActionResults", "UserAction", "TimeToLastByteInTicks", "DelayInMilliseconds", "Errors");
-                            for (int i = 0; i != userActions.Count; i++) {
-                                if (cancellationToken.IsCancellationRequested) return null;
+                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
+                                   new string[] { "RunResultId", "VirtualUser", "UserAction", "LogEntryIndex", "SameAsLogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "Rerun" });
+                                if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
-                                foreach (var kvp in userActions[i].Value) {
+                                //Place the log entry results under the right virtual user and the right user action
+                                var userActions = new List<KeyValuePair<string, List<KeyValuePair<string, List<LogEntryResult>>>>>(); // <VirtualUser,<UserAction, LogEntryResult
+                                foreach (DataRow rrRow in runResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    long ttlb = 0;
-                                    int delay = -1;
-                                    long ers = 0;
+                                    int runResultId = (int)rrRow.ItemArray[0];
 
-                                    string userAction = kvp.Key;
-                                    var lers = kvp.Value;
-
-                                    for (int j = lers.Count - 1; j != -1; j--) {
+                                    //Keeping reruns in mind (break on last)
+                                    int runs = ((int)rrRow.ItemArray[1]) + 1;
+                                    var userActionsMap = new Dictionary<string, string>(); //Map duplicate user actions to the original ones.
+                                    for (int reRun = 0; reRun != runs; reRun++) {
                                         if (cancellationToken.IsCancellationRequested) return null;
 
-                                        var ler = lers[j];
-                                        if (delay == -1) {
-                                            delay = ler.DelayInMilliseconds;
-                                            ttlb = ler.TimeToLastByteInTicks;
-                                        } else {
-                                            ttlb += ler.TimeToLastByteInTicks + ler.DelayInMilliseconds;
+                                        var uas = new Dictionary<string, Dictionary<string, List<LogEntryResult>>>(); // <VirtualUser,<UserAction, LogEntryResult
+                                        foreach (DataRow lerRow in logEntryResults.Rows) {
+                                            if (cancellationToken.IsCancellationRequested) return null;
+
+                                            object[] row = lerRow.ItemArray;
+                                            if ((int)row[0] == runResultId && (int)row[8] == reRun) {
+                                                string virtualUser = row[1] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct average doing it like this.
+                                                string userAction = lerRow.ItemArray[2] as string;
+
+                                                string logEntryIndex = lerRow.ItemArray[4] as string; //Combine results when using distribe like this.
+                                                if (logEntryIndex == string.Empty) {
+                                                    logEntryIndex = lerRow.ItemArray[3] as string;
+
+                                                    //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used.
+                                                    //Map using the log entry index
+                                                    if (!userActionsMap.ContainsKey(logEntryIndex)) userActionsMap.Add(logEntryIndex, userAction);
+                                                }
+
+                                                var logEntryResult = new LogEntryResult() { LogEntryIndex = logEntryIndex, TimeToLastByteInTicks = (long)lerRow.ItemArray[5], DelayInMilliseconds = (int)lerRow.ItemArray[6], Error = lerRow.ItemArray[7] as string };
+
+                                                if (!uas.ContainsKey(virtualUser)) uas.Add(virtualUser, new Dictionary<string, List<LogEntryResult>>());
+                                                if (!uas[virtualUser].ContainsKey(userAction)) uas[virtualUser].Add(userAction, new List<LogEntryResult>());
+
+                                                uas[virtualUser][userAction].Add(logEntryResult);
+                                            }
                                         }
-                                        if (!string.IsNullOrEmpty(ler.Error)) ++ers;
+                                        foreach (string virtualUser in uas.Keys) {
+                                            if (cancellationToken.IsCancellationRequested) return null;
+
+                                            var kvp = new KeyValuePair<string, List<KeyValuePair<string, List<LogEntryResult>>>>(virtualUser, new List<KeyValuePair<string, List<LogEntryResult>>>());
+                                            foreach (string userAction in uas[virtualUser].Keys) {
+                                                string mappedUserAction = userAction;
+                                                var lers = uas[virtualUser][userAction];
+                                                if (lers.Count != 0) {
+                                                    var leri = lers[0].LogEntryIndex;
+                                                    if (userActionsMap.ContainsKey(leri)) mappedUserAction = userActionsMap[leri];
+                                                }
+                                                kvp.Value.Add(new KeyValuePair<string, List<LogEntryResult>>(mappedUserAction, lers));
+                                            }
+                                            userActions.Add(kvp);
+                                        }
                                     }
-                                    userActionResults.Rows.Add(userAction, ttlb, delay, ers);
                                 }
-                            }
 
-                            var uniqueUserActionCounts = new Dictionary<string, int>(); //To make a correct average.
-                            foreach (DataRow uarRow in userActionResults.Rows) {
-                                if (cancellationToken.IsCancellationRequested) return null;
+                                //Calculate following for each user action
+                                var userActionResults = CreateEmptyDataTable("UserActionResults", "UserAction", "TimeToLastByteInTicks", "DelayInMilliseconds", "Errors");
+                                for (int i = 0; i != userActions.Count; i++) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                                string userAction = uarRow[0] as string;
+                                    foreach (var kvp in userActions[i].Value) {
+                                        if (cancellationToken.IsCancellationRequested) return null;
 
-                                if (uniqueUserActionCounts.ContainsKey(userAction)) ++uniqueUserActionCounts[userAction];
-                                else uniqueUserActionCounts.Add(userAction, 1);
-                            }
+                                        long ttlb = 0;
+                                        int delay = -1;
+                                        long ers = 0;
 
-                            //Finally the averages
-                            //The key of the entries for following collections are user actions.
-                            var avgTimeToLastByteInTicks = new Dictionary<string, double>();
-                            var maxTimeToLastByteInTicks = new Dictionary<string, long>();
-                            var timeToLastBytesInTicks = new Dictionary<string, List<long>>();
-                            var percTimeToLastBytesInTicks = new Dictionary<string, long>();
+                                        string userAction = kvp.Key;
+                                        var lers = kvp.Value;
 
-                            var avgDelay = new Dictionary<string, double>();
-                            var errors = new Dictionary<string, long>();
+                                        for (int j = lers.Count - 1; j != -1; j--) {
+                                            if (cancellationToken.IsCancellationRequested) return null;
 
-                            foreach (DataRow uarRow in userActionResults.Rows) {
-                                if (cancellationToken.IsCancellationRequested) return null;
-
-                                object[] row = uarRow.ItemArray;
-                                string userAction = row[0] as string;
-                                long ttlb = (long)row[1];
-                                int delay = (int)row[2];
-                                long ers = (long)row[3];
-
-                                if (avgTimeToLastByteInTicks.ContainsKey(userAction)) avgTimeToLastByteInTicks[userAction] += (((double)ttlb) / uniqueUserActionCounts[userAction]);
-                                else avgTimeToLastByteInTicks.Add(userAction, (((double)ttlb) / uniqueUserActionCounts[userAction]));
-
-                                if (maxTimeToLastByteInTicks.ContainsKey(userAction)) { if (maxTimeToLastByteInTicks[userAction] < ttlb) maxTimeToLastByteInTicks[userAction] = ttlb; } else maxTimeToLastByteInTicks.Add(userAction, ttlb);
-
-                                if (!timeToLastBytesInTicks.ContainsKey(userAction)) timeToLastBytesInTicks.Add(userAction, new List<long>(uniqueUserActionCounts[userAction]));
-                                timeToLastBytesInTicks[userAction].Add(ttlb);
-
-                                if (avgDelay.ContainsKey(userAction)) avgDelay[userAction] += (((double)delay) / uniqueUserActionCounts[userAction]);
-                                else avgDelay.Add(userAction, ((double)delay) / uniqueUserActionCounts[userAction]);
-
-                                if (errors.ContainsKey(userAction)) errors[userAction] += ers;
-                                else errors.Add(userAction, ers);
-                            }
-
-                            //95th percentile
-                            foreach (string userAction in timeToLastBytesInTicks.Keys) {
-                                if (cancellationToken.IsCancellationRequested) return null;
-
-                                var l = timeToLastBytesInTicks[userAction];
-
-                                int percent5 = (int)(l.Count * 0.05);
-                                if (percent5 == 0)
-                                    percTimeToLastBytesInTicks.Add(userAction, maxTimeToLastByteInTicks[userAction]);
-                                else {
-                                    l.Sort();
-                                    percTimeToLastBytesInTicks.Add(userAction, l[l.Count - percent5 - 1]);
+                                            var ler = lers[j];
+                                            if (delay == -1) {
+                                                delay = ler.DelayInMilliseconds;
+                                                ttlb = ler.TimeToLastByteInTicks;
+                                            } else {
+                                                ttlb += ler.TimeToLastByteInTicks + ler.DelayInMilliseconds;
+                                            }
+                                            if (!string.IsNullOrEmpty(ler.Error)) ++ers;
+                                        }
+                                        userActionResults.Rows.Add(userAction, ttlb, delay, ers);
+                                    }
                                 }
-                            }
 
-                            //Sort the user actions
-                            List<string> sortedUserActions = avgTimeToLastByteInTicks.Keys.ToList();
-                            sortedUserActions.Sort(UserActionComparer.GetInstance);
+                                var uniqueUserActionCounts = new Dictionary<string, int>(); //To make a correct average.
+                                foreach (DataRow uarRow in userActionResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                            //Add the sorted user actions to the whole.
-                            foreach (string userAction in sortedUserActions) {
-                                if (cancellationToken.IsCancellationRequested) return null;
+                                    string userAction = uarRow[0] as string;
 
-                                if (withConcurrencyResultId)
-                                    averageUserActions.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
+                                    if (uniqueUserActionCounts.ContainsKey(userAction)) ++uniqueUserActionCounts[userAction];
+                                    else uniqueUserActionCounts.Add(userAction, 1);
+                                }
+
+                                //Finally the averages
+                                //The key of the entries for following collections are user actions.
+                                var avgTimeToLastByteInTicks = new Dictionary<string, double>();
+                                var maxTimeToLastByteInTicks = new Dictionary<string, long>();
+                                var timeToLastBytesInTicks = new Dictionary<string, List<long>>();
+                                var percTimeToLastBytesInTicks = new Dictionary<string, long>();
+
+                                var avgDelay = new Dictionary<string, double>();
+                                var errors = new Dictionary<string, long>();
+
+                                foreach (DataRow uarRow in userActionResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    object[] row = uarRow.ItemArray;
+                                    string userAction = row[0] as string;
+                                    long ttlb = (long)row[1];
+                                    int delay = (int)row[2];
+                                    long ers = (long)row[3];
+
+                                    if (avgTimeToLastByteInTicks.ContainsKey(userAction)) avgTimeToLastByteInTicks[userAction] += (((double)ttlb) / uniqueUserActionCounts[userAction]);
+                                    else avgTimeToLastByteInTicks.Add(userAction, (((double)ttlb) / uniqueUserActionCounts[userAction]));
+
+                                    if (maxTimeToLastByteInTicks.ContainsKey(userAction)) { if (maxTimeToLastByteInTicks[userAction] < ttlb) maxTimeToLastByteInTicks[userAction] = ttlb; } else maxTimeToLastByteInTicks.Add(userAction, ttlb);
+
+                                    if (!timeToLastBytesInTicks.ContainsKey(userAction)) timeToLastBytesInTicks.Add(userAction, new List<long>(uniqueUserActionCounts[userAction]));
+                                    timeToLastBytesInTicks[userAction].Add(ttlb);
+
+                                    if (avgDelay.ContainsKey(userAction)) avgDelay[userAction] += (((double)delay) / uniqueUserActionCounts[userAction]);
+                                    else avgDelay.Add(userAction, ((double)delay) / uniqueUserActionCounts[userAction]);
+
+                                    if (errors.ContainsKey(userAction)) errors[userAction] += ers;
+                                    else errors.Add(userAction, ers);
+                                }
+
+                                //95th percentile
+                                foreach (string userAction in timeToLastBytesInTicks.Keys) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    var l = timeToLastBytesInTicks[userAction];
+
+                                    int percent5 = (int)(l.Count * 0.05);
+                                    if (percent5 == 0)
+                                        percTimeToLastBytesInTicks.Add(userAction, maxTimeToLastByteInTicks[userAction]);
+                                    else {
+                                        l.Sort();
+                                        percTimeToLastBytesInTicks.Add(userAction, l[l.Count - percent5 - 1]);
+                                    }
+                                }
+
+                                //Sort the user actions
+                                List<string> sortedUserActions = avgTimeToLastByteInTicks.Keys.ToList();
+                                sortedUserActions.Sort(UserActionComparer.GetInstance);
+
+                                //Add the sorted user actions to the whole.
+                                foreach (string userAction in sortedUserActions) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    if (withConcurrencyResultId)
+                                        averageUserActions.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
+                                            Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
+                                            Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
+                                            Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
+                                            Math.Round(avgDelay[userAction], 2),
+                                            errors[userAction]);
+                                    else
+                                        averageUserActions.Rows.Add(stresstest, concurrency, userAction,
                                         Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
                                         Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
                                         Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
                                         Math.Round(avgDelay[userAction], 2),
                                         errors[userAction]);
-                                else
-                                    averageUserActions.Rows.Add(stresstest, concurrency, userAction,
-                                    Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(avgDelay[userAction], 2),
-                                    errors[userAction]);
+                                }
                             }
                         }
+                        cacheEntry.ReturnValue = averageUserActions;
                     }
-                    return averageUserActions;
+                    return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
@@ -883,142 +894,147 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetAverageLogEntryResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
-                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                    var averageLogEntries = CreateEmptyDataTable("AverageLogEntries", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
-    "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+                        var averageLogEntries = CreateEmptyDataTable("AverageLogEntries", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
+        "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
 
-                    foreach (DataRow stresstestsRow in stresstests.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        int stresstestId = (int)stresstestsRow.ItemArray[0];
-
-                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
-                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency");
-                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
-
-                        foreach (DataRow crRow in concurrencyResults.Rows) {
+                        foreach (DataRow stresstestsRow in stresstests.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            int concurrencyResultId = (int)crRow.ItemArray[0];
-                            int concurrency = (int)crRow.ItemArray[1];
+                            int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Id");
-                            if (runResults == null || runResults.Rows.Count == 0) continue;
+                            var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+                            if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                            int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
-                            var runResultIds = new List<int>(runResults.Rows.Count);
-                            foreach (DataRow rrRow in runResults.Rows) {
+                            string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                            var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency");
+                            if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                            foreach (DataRow crRow in concurrencyResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                runResultIds.Add((int)rrRow.ItemArray[0]);
-                            }
+                                int concurrencyResultId = (int)crRow.ItemArray[0];
+                                int concurrency = (int)crRow.ItemArray[1];
 
-                            var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
-                                new string[] { "LogEntryIndex", "SameAsLogEntryIndex", "UserAction", "LogEntry", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error" });
-                            if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+                                var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Id");
+                                if (runResults == null || runResults.Rows.Count == 0) continue;
 
-                            //We don't need to keep the run ids for this one, it's much faster and simpler like this.
-                            var uniqueLogEntryCounts = new Dictionary<string, int>(); //To make a correct average.
-                            var userActions = new Dictionary<string, string>(); //log entry index, User Action
-                            foreach (DataRow lerRow in logEntryResults.Rows) {
-                                if (cancellationToken.IsCancellationRequested) return null;
+                                var runResultIds = new List<int>(runResults.Rows.Count);
+                                foreach (DataRow rrRow in runResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                                object[] row = lerRow.ItemArray;
-                                string logEntryIndex = row[1] as string; //Combine results when using distribution like this.
-                                if (logEntryIndex == string.Empty) {
-                                    logEntryIndex = row[0] as string;
+                                    runResultIds.Add((int)rrRow.ItemArray[0]);
+                                }
 
-                                    //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used. 
-                                    if (!userActions.ContainsKey(logEntryIndex)) {
-                                        string userAction = row[2] as string;
-                                        userActions.Add(logEntryIndex, userAction);
+                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
+                                    new string[] { "LogEntryIndex", "SameAsLogEntryIndex", "UserAction", "LogEntry", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error" });
+                                if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+
+                                //We don't need to keep the run ids for this one, it's much faster and simpler like this.
+                                var uniqueLogEntryCounts = new Dictionary<string, int>(); //To make a correct average.
+                                var userActions = new Dictionary<string, string>(); //log entry index, User Action
+                                foreach (DataRow lerRow in logEntryResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    object[] row = lerRow.ItemArray;
+                                    string logEntryIndex = row[1] as string; //Combine results when using distribution like this.
+                                    if (logEntryIndex == string.Empty) {
+                                        logEntryIndex = row[0] as string;
+
+                                        //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used. 
+                                        if (!userActions.ContainsKey(logEntryIndex)) {
+                                            string userAction = row[2] as string;
+                                            userActions.Add(logEntryIndex, userAction);
+                                        }
+                                    }
+
+                                    if (uniqueLogEntryCounts.ContainsKey(logEntryIndex)) ++uniqueLogEntryCounts[logEntryIndex];
+                                    else uniqueLogEntryCounts.Add(logEntryIndex, 1);
+                                }
+
+                                var logEntries = new Dictionary<string, string>(); //log entry index, log entry
+
+                                var avgTimeToLastByteInTicks = new Dictionary<string, double>();
+                                var maxTimeToLastByteInTicks = new Dictionary<string, long>();
+                                var timeToLastBytesInTicks = new Dictionary<string, List<long>>();
+                                var percTimeToLastBytesInTicks = new Dictionary<string, long>();
+
+                                var avgDelay = new Dictionary<string, double>();
+                                var errors = new Dictionary<string, long>();
+
+                                foreach (DataRow lerRow in logEntryResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    object[] row = lerRow.ItemArray;
+                                    string logEntryIndex = row[1] as string; //Combine results when using distribution like this.
+                                    if (logEntryIndex == string.Empty) logEntryIndex = row[0] as string;
+
+                                    string userAction = row[2] as string;
+                                    string logEntry = row[3] as string;
+                                    long ttlb = (long)row[4];
+                                    int delay = (int)row[5];
+                                    string error = row[6] as string;
+
+                                    int uniqueLogEntryCount = uniqueLogEntryCounts[logEntryIndex];
+
+                                    if (!userActions.ContainsKey(logEntryIndex)) userActions.Add(logEntryIndex, userAction);
+                                    if (!logEntries.ContainsKey(logEntryIndex)) logEntries.Add(logEntryIndex, logEntry);
+
+                                    if (avgTimeToLastByteInTicks.ContainsKey(logEntryIndex)) avgTimeToLastByteInTicks[logEntryIndex] += (((double)ttlb) / uniqueLogEntryCount);
+                                    else avgTimeToLastByteInTicks.Add(logEntryIndex, (((double)ttlb) / uniqueLogEntryCount));
+
+                                    if (maxTimeToLastByteInTicks.ContainsKey(logEntryIndex)) { if (maxTimeToLastByteInTicks[logEntryIndex] < ttlb) maxTimeToLastByteInTicks[logEntryIndex] = ttlb; } else maxTimeToLastByteInTicks.Add(logEntryIndex, ttlb);
+
+                                    if (!timeToLastBytesInTicks.ContainsKey(logEntryIndex)) timeToLastBytesInTicks.Add(logEntryIndex, new List<long>(uniqueLogEntryCount));
+                                    timeToLastBytesInTicks[logEntryIndex].Add(ttlb);
+
+                                    if (avgDelay.ContainsKey(logEntryIndex)) avgDelay[logEntryIndex] += (((double)delay) / uniqueLogEntryCount);
+                                    else avgDelay.Add(logEntryIndex, ((double)delay) / uniqueLogEntryCount);
+
+
+                                    if (!errors.ContainsKey(logEntryIndex)) errors.Add(logEntryIndex, 0);
+                                    if (!string.IsNullOrEmpty(error)) ++errors[logEntryIndex];
+                                }
+
+                                //95th percentile
+                                foreach (string logEntryIndex in timeToLastBytesInTicks.Keys) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    var l = timeToLastBytesInTicks[logEntryIndex];
+
+                                    int percent5 = (int)(l.Count * 0.05);
+                                    if (percent5 == 0)
+                                        percTimeToLastBytesInTicks.Add(logEntryIndex, maxTimeToLastByteInTicks[logEntryIndex]);
+                                    else {
+                                        l.Sort();
+                                        percTimeToLastBytesInTicks.Add(logEntryIndex, l[l.Count - percent5 - 1]);
                                     }
                                 }
 
-                                if (uniqueLogEntryCounts.ContainsKey(logEntryIndex)) ++uniqueLogEntryCounts[logEntryIndex];
-                                else uniqueLogEntryCounts.Add(logEntryIndex, 1);
-                            }
+                                List<string> sortedLogEntryIndices = logEntries.Keys.ToList();
+                                sortedLogEntryIndices.Sort(LogEntryIndexComparer.GetInstance);
 
-                            var logEntries = new Dictionary<string, string>(); //log entry index, log entry
+                                foreach (string s in sortedLogEntryIndices) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                            var avgTimeToLastByteInTicks = new Dictionary<string, double>();
-                            var maxTimeToLastByteInTicks = new Dictionary<string, long>();
-                            var timeToLastBytesInTicks = new Dictionary<string, List<long>>();
-                            var percTimeToLastBytesInTicks = new Dictionary<string, long>();
-
-                            var avgDelay = new Dictionary<string, double>();
-                            var errors = new Dictionary<string, long>();
-
-                            foreach (DataRow lerRow in logEntryResults.Rows) {
-                                if (cancellationToken.IsCancellationRequested) return null;
-
-                                object[] row = lerRow.ItemArray;
-                                string logEntryIndex = row[1] as string; //Combine results when using distribution like this.
-                                if (logEntryIndex == string.Empty) logEntryIndex = row[0] as string;
-
-                                string userAction = row[2] as string;
-                                string logEntry = row[3] as string;
-                                long ttlb = (long)row[4];
-                                int delay = (int)row[5];
-                                string error = row[6] as string;
-
-                                int uniqueLogEntryCount = uniqueLogEntryCounts[logEntryIndex];
-
-                                if (!userActions.ContainsKey(logEntryIndex)) userActions.Add(logEntryIndex, userAction);
-                                if (!logEntries.ContainsKey(logEntryIndex)) logEntries.Add(logEntryIndex, logEntry);
-
-                                if (avgTimeToLastByteInTicks.ContainsKey(logEntryIndex)) avgTimeToLastByteInTicks[logEntryIndex] += (((double)ttlb) / uniqueLogEntryCount);
-                                else avgTimeToLastByteInTicks.Add(logEntryIndex, (((double)ttlb) / uniqueLogEntryCount));
-
-                                if (maxTimeToLastByteInTicks.ContainsKey(logEntryIndex)) { if (maxTimeToLastByteInTicks[logEntryIndex] < ttlb) maxTimeToLastByteInTicks[logEntryIndex] = ttlb; } else maxTimeToLastByteInTicks.Add(logEntryIndex, ttlb);
-
-                                if (!timeToLastBytesInTicks.ContainsKey(logEntryIndex)) timeToLastBytesInTicks.Add(logEntryIndex, new List<long>(uniqueLogEntryCount));
-                                timeToLastBytesInTicks[logEntryIndex].Add(ttlb);
-
-                                if (avgDelay.ContainsKey(logEntryIndex)) avgDelay[logEntryIndex] += (((double)delay) / uniqueLogEntryCount);
-                                else avgDelay.Add(logEntryIndex, ((double)delay) / uniqueLogEntryCount);
-
-
-                                if (!errors.ContainsKey(logEntryIndex)) errors.Add(logEntryIndex, 0);
-                                if (!string.IsNullOrEmpty(error)) ++errors[logEntryIndex];
-                            }
-
-                            //95th percentile
-                            foreach (string logEntryIndex in timeToLastBytesInTicks.Keys) {
-                                if (cancellationToken.IsCancellationRequested) return null;
-
-                                var l = timeToLastBytesInTicks[logEntryIndex];
-
-                                int percent5 = (int)(l.Count * 0.05);
-                                if (percent5 == 0)
-                                    percTimeToLastBytesInTicks.Add(logEntryIndex, maxTimeToLastByteInTicks[logEntryIndex]);
-                                else {
-                                    l.Sort();
-                                    percTimeToLastBytesInTicks.Add(logEntryIndex, l[l.Count - percent5 - 1]);
+                                    averageLogEntries.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
+                                        Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
+                                        Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
+                                        Math.Round(((double)percTimeToLastBytesInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
+                                        Math.Round(avgDelay[s], 2),
+                                        errors[s]);
                                 }
                             }
-
-                            List<string> sortedLogEntryIndices = logEntries.Keys.ToList();
-                            sortedLogEntryIndices.Sort(LogEntryIndexComparer.GetInstance);
-
-                            foreach (string s in sortedLogEntryIndices) {
-                                if (cancellationToken.IsCancellationRequested) return null;
-
-                                averageLogEntries.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
-                                    Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(((double)percTimeToLastBytesInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
-                                    Math.Round(avgDelay[s], 2),
-                                    errors[s]);
-                            }
                         }
+                        cacheEntry.ReturnValue = averageLogEntries;
                     }
-                    return averageLogEntries;
+                    return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
@@ -1032,51 +1048,56 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetErrors(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
-                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                    var errors = CreateEmptyDataTable("Error", "Stresstest", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
+                        var errors = CreateEmptyDataTable("Error", "Stresstest", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
 
-                    foreach (DataRow stresstestsRow in stresstests.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        int stresstestId = (int)stresstestsRow.ItemArray[0];
-
-                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
-                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency");
-                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
-
-                        foreach (DataRow crRow in concurrencyResults.Rows) {
+                        foreach (DataRow stresstestsRow in stresstests.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            int concurrencyResultId = (int)crRow.ItemArray[0];
-                            object concurrency = crRow.ItemArray[1];
+                            int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Id", "Run");
-                            if (runResults == null || runResults.Rows.Count == 0) continue;
+                            var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+                            if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                            int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
-                            foreach (DataRow rrRow in runResults.Rows) {
+                            string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                            var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency");
+                            if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                            foreach (DataRow crRow in concurrencyResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                int runResultId = (int)rrRow.ItemArray[0];
-                                object run = rrRow.ItemArray[1];
+                                int concurrencyResultId = (int)crRow.ItemArray[0];
+                                object concurrency = crRow.ItemArray[1];
 
-                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Error) != 0", runResultId, "RunResultId", "VirtualUser", "UserAction", "LogEntry", "Error");
-                                if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+                                var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Id", "Run");
+                                if (runResults == null || runResults.Rows.Count == 0) continue;
 
-                                foreach (DataRow ldr in logEntryResults.Rows) {
+                                foreach (DataRow rrRow in runResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    errors.Rows.Add(stresstest, concurrency, run, ldr.ItemArray[1], ldr.ItemArray[2], ldr.ItemArray[3], ldr.ItemArray[4]);
+                                    int runResultId = (int)rrRow.ItemArray[0];
+                                    object run = rrRow.ItemArray[1];
+
+                                    var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Error) != 0", runResultId, "RunResultId", "VirtualUser", "UserAction", "LogEntry", "Error");
+                                    if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+
+                                    foreach (DataRow ldr in logEntryResults.Rows) {
+                                        if (cancellationToken.IsCancellationRequested) return null;
+
+                                        errors.Rows.Add(stresstest, concurrency, run, ldr.ItemArray[1], ldr.ItemArray[2], ldr.ItemArray[3], ldr.ItemArray[4]);
+                                    }
                                 }
                             }
                         }
+                        cacheEntry.ReturnValue = errors;
                     }
-                    return errors;
+                    return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
@@ -1092,69 +1113,75 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetUserActionComposition(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
-                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
-                if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                var userActionComposition = CreateEmptyDataTable("UserActionComposition", "Stresstest", "User Action", "Log Entry");
+                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                foreach (DataRow stresstestsRow in stresstests.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
+                    var userActionComposition = CreateEmptyDataTable("UserActionComposition", "Stresstest", "User Action", "Log Entry");
 
-                    int stresstestId = (int)stresstestsRow.ItemArray[0];
-
-                    var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-                    if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
-
-                    int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                    string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                    var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id");
-                    if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
-
-                    foreach (DataRow crRow in concurrencyResults.Rows) {
+                    foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, (int)crRow.ItemArray[0], "Id");
-                        if (runResults == null || runResults.Rows.Count == 0) continue;
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
 
-                        foreach (DataRow rrRow in runResults.Rows) {
+                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+
+                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
+
+                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id");
+                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                        foreach (DataRow crRow in concurrencyResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1'", (int)rrRow.ItemArray[0], "UserAction", "LogEntry", "SameAsLogEntryIndex");
-                            if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+                            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, (int)crRow.ItemArray[0], "Id");
+                            if (runResults == null || runResults.Rows.Count == 0) continue;
 
-                            var userActions = new Dictionary<string, List<string>>();
-                            foreach (DataRow lerRow in logEntryResults.Rows) {
+                            foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
-                                object[] row = lerRow.ItemArray;
 
-                                if (row[2] as string == string.Empty) { //We don't want duplicates
-                                    string userAction = row[0] as string;
-                                    string logEntry = row[1] as string;
-                                    if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
-                                    if (!userActions[userAction].Contains(logEntry)) userActions[userAction].Add(logEntry);
+                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1'", (int)rrRow.ItemArray[0], "UserAction", "LogEntry", "SameAsLogEntryIndex");
+                                if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+
+                                var userActions = new Dictionary<string, List<string>>();
+                                foreach (DataRow lerRow in logEntryResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+                                    object[] row = lerRow.ItemArray;
+
+                                    if (row[2] as string == string.Empty) { //We don't want duplicates
+                                        string userAction = row[0] as string;
+                                        string logEntry = row[1] as string;
+                                        if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
+                                        if (!userActions[userAction].Contains(logEntry)) userActions[userAction].Add(logEntry);
+                                    }
                                 }
-                            }
 
-                            //Sort the user actions
-                            List<string> sortedUserActions = userActions.Keys.ToList();
-                            sortedUserActions.Sort(UserActionComparer.GetInstance);
+                                //Sort the user actions
+                                List<string> sortedUserActions = userActions.Keys.ToList();
+                                sortedUserActions.Sort(UserActionComparer.GetInstance);
 
-                            foreach (string userAction in sortedUserActions) {
-                                if (cancellationToken.IsCancellationRequested) return null;
-
-                                foreach (string logEntry in userActions[userAction]) {
+                                foreach (string userAction in sortedUserActions) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    userActionComposition.Rows.Add(stresstest, userAction, logEntry);
+                                    foreach (string logEntry in userActions[userAction]) {
+                                        if (cancellationToken.IsCancellationRequested) return null;
+
+                                        userActionComposition.Rows.Add(stresstest, userAction, logEntry);
+                                    }
                                 }
+                                break;
                             }
                             break;
                         }
-                        break;
                     }
+                    cacheEntry.ReturnValue = userActionComposition;
                 }
-                return userActionComposition;
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
         /// <summary>
@@ -1167,63 +1194,68 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
-                if (stresstestIds.Length == 0) {
-                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
-                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    if (stresstestIds.Length == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                    stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
-                }
-
-                var averageUserActions = GetAverageUserActionResults(cancellationToken, true, stresstestIds);
-                if (averageUserActions == null) return null;
-
-                var averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
-                if (averageConcurrentUsers == null) return null;
-
-                var averageResponseTimesAndThroughput = CreateEmptyDataTable("AverageResponseTimesAndThroughput", "Stresstest", "Concurrency");
-                int range = 0; //The range of values (avg response times) to place under the right user action
-                char colon = ':';
-                string sColon = ":";
-                int userActionIndex = 1;
-                int currentConcurrencyResultId = -1;
-                foreach (DataRow uaRow in averageUserActions.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    int concurrencyResultId = (int)uaRow.ItemArray[1];
-                    if (currentConcurrencyResultId != concurrencyResultId) {
-                        userActionIndex = 1; //Do not forget to reset this, otherwise we will only get one row.
-                        currentConcurrencyResultId = concurrencyResultId;
+                        stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
                     }
 
-                    string userAction = uaRow.ItemArray[3] as string;
-                    string[] splittedUserAction = userAction.Split(colon);
-                    userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
-                    if (!averageResponseTimesAndThroughput.Columns.Contains(userAction)) {
-                        averageResponseTimesAndThroughput.Columns.Add(userAction);
-                        range++;
-                    }
-                }
-                averageResponseTimesAndThroughput.Columns.Add("Throughput");
-                averageResponseTimesAndThroughput.Columns.Add("Errors");
+                    var averageUserActions = GetAverageUserActionResults(cancellationToken, true, stresstestIds);
+                    if (averageUserActions == null) return null;
 
-                for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
-                    if (cancellationToken.IsCancellationRequested) return null;
+                    var averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
+                    if (averageConcurrentUsers == null) return null;
 
-                    var row = new List<object>(range + 3);
-                    row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
-                    row.Add(averageUserActions.Rows[offset].ItemArray[2]); //Add concurrency
-                    for (int i = offset; i != offset + range; i++) { //Add the avg response times
+                    var averageResponseTimesAndThroughput = CreateEmptyDataTable("AverageResponseTimesAndThroughput", "Stresstest", "Concurrency");
+                    int range = 0; //The range of values (avg response times) to place under the right user action
+                    char colon = ':';
+                    string sColon = ":";
+                    int userActionIndex = 1;
+                    int currentConcurrencyResultId = -1;
+                    foreach (DataRow uaRow in averageUserActions.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[4] : 0d);
+                        int concurrencyResultId = (int)uaRow.ItemArray[1];
+                        if (currentConcurrencyResultId != concurrencyResultId) {
+                            userActionIndex = 1; //Do not forget to reset this, otherwise we will only get one row.
+                            currentConcurrencyResultId = concurrencyResultId;
+                        }
+
+                        string userAction = uaRow.ItemArray[3] as string;
+                        string[] splittedUserAction = userAction.Split(colon);
+                        userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
+                        if (!averageResponseTimesAndThroughput.Columns.Contains(userAction)) {
+                            averageResponseTimesAndThroughput.Columns.Add(userAction);
+                            range++;
+                        }
                     }
-                    row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
-                    row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[12]); //And the errors: Bonus
-                    averageResponseTimesAndThroughput.Rows.Add(row.ToArray());
+                    averageResponseTimesAndThroughput.Columns.Add("Throughput");
+                    averageResponseTimesAndThroughput.Columns.Add("Errors");
+
+                    for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        var row = new List<object>(range + 3);
+                        row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
+                        row.Add(averageUserActions.Rows[offset].ItemArray[2]); //Add concurrency
+                        for (int i = offset; i != offset + range; i++) { //Add the avg response times
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[4] : 0d);
+                        }
+                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
+                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[12]); //And the errors: Bonus
+                        averageResponseTimesAndThroughput.Rows.Add(row.ToArray());
+                    }
+
+
+                    cacheEntry.ReturnValue = averageResponseTimesAndThroughput;
                 }
-
-
-                return averageResponseTimesAndThroughput;
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
 
@@ -1236,27 +1268,32 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetMachineConfigurations(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
-                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                    var machineConfigurations = CreateEmptyDataTable("MachineConfigurations", "Stresstest", "Monitor", "Monitor Source", "Machine Configuration");
-                    foreach (DataRow stresstestsRow in stresstests.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        int stresstestId = (int)stresstestsRow.ItemArray[0];
-                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-
-                        var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestId, "Monitor", "MonitorSource", "MachineConfiguration");
-                        if (monitors == null || monitors.Rows.Count == 0) continue;
-
-                        foreach (DataRow monitorRow in monitors.Rows) {
+                        var machineConfigurations = CreateEmptyDataTable("MachineConfigurations", "Stresstest", "Monitor", "Monitor Source", "Machine Configuration");
+                        foreach (DataRow stresstestsRow in stresstests.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            machineConfigurations.Rows.Add(stresstest, monitorRow.ItemArray[0], monitorRow.ItemArray[1], monitorRow.ItemArray[2]);
-                        }
-                    }
+                            int stresstestId = (int)stresstestsRow.ItemArray[0];
+                            string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
 
-                    return machineConfigurations;
+                            var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestId, "Monitor", "MonitorSource", "MachineConfiguration");
+                            if (monitors == null || monitors.Rows.Count == 0) continue;
+
+                            foreach (DataRow monitorRow in monitors.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
+
+                                machineConfigurations.Rows.Add(stresstest, monitorRow.ItemArray[0], monitorRow.ItemArray[1], monitorRow.ItemArray[2]);
+                            }
+                        }
+
+                        cacheEntry.ReturnValue = machineConfigurations;
+                    }
+                    return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
@@ -1270,187 +1307,192 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetAverageMonitorResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
-                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "MonitorBeforeInMinutes", "MonitorAfterInMinutes");
-                if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                //Get the monitors + values
-                var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, null, stresstestIds, "Id", "StresstestId", "Monitor", "ResultHeaders");
-                if (monitors == null || monitors.Rows.Count == 0) return CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Result Headers");
+                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "MonitorBeforeInMinutes", "MonitorAfterInMinutes");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time (ms)", "Concurrency" });
-                var resultHeaders = new List<string>();
-                var monitorColumnOffsets = new Dictionary<int, int>(); //key monitorID, value offset
+                    //Get the monitors + values
+                    var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, null, stresstestIds, "Id", "StresstestId", "Monitor", "ResultHeaders");
+                    if (monitors == null || monitors.Rows.Count == 0) return CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Result Headers");
 
-                foreach (DataRow monitorRow in monitors.Rows) {
-                    int monitorId = (int)monitorRow.ItemArray[0];
-                    var rh = (monitorRow[3] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                    var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time (ms)", "Concurrency" });
+                    var resultHeaders = new List<string>();
+                    var monitorColumnOffsets = new Dictionary<int, int>(); //key monitorID, value offset
 
-                    monitorColumnOffsets.Add(monitorId, resultHeaders.Count);
-                    resultHeaders.AddRange(rh);
-                }
+                    foreach (DataRow monitorRow in monitors.Rows) {
+                        int monitorId = (int)monitorRow.ItemArray[0];
+                        var rh = (monitorRow[3] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
-                columnNames.AddRange(resultHeaders);
-                var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", columnNames.ToArray());
+                        monitorColumnOffsets.Add(monitorId, resultHeaders.Count);
+                        resultHeaders.AddRange(rh);
+                    }
 
-                foreach (DataRow stresstestsRow in stresstests.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
+                    columnNames.AddRange(resultHeaders);
+                    var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", columnNames.ToArray());
 
-                    int stresstestId = (int)stresstestsRow.ItemArray[0];
-                    string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-                    int monitorBeforeInMinutes = (int)stresstestsRow.ItemArray[3];
-                    int monitorAfterInMinutes = (int)stresstestsRow.ItemArray[4];
-
-                    var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-                    if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
-                    int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                    //Get the timestamps to calculate the averages
-                    var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency", "StartedAt", "StoppedAt");
-                    if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
-
-                    var concurrencyDelimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
-                    var runDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
-                    var concurrencies = new Dictionary<int, int>();
-                    foreach (DataRow crRow in concurrencyResults.Rows) {
+                    foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        int concurrencyResultId = (int)crRow.ItemArray[0];
-                        int concurrency = (int)crRow.ItemArray[1];
-                        concurrencyDelimiters.Add(concurrencyResultId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
+                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                        int monitorBeforeInMinutes = (int)stresstestsRow.ItemArray[3];
+                        int monitorAfterInMinutes = (int)stresstestsRow.ItemArray[4];
 
-                        var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "StartedAt", "StoppedAt");
-                        if (runResults == null || runResults.Rows.Count == 0) continue;
+                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+                        if (stresstestResults == null || stresstestResults.Rows.Count == 0) continue;
+                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
 
-                        var d = new Dictionary<DateTime, DateTime>(runResults.Rows.Count);
-                        foreach (DataRow rrRow in runResults.Rows) {
+                        //Get the timestamps to calculate the averages
+                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id", "Concurrency", "StartedAt", "StoppedAt");
+                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                        var concurrencyDelimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                        var runDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                        var concurrencies = new Dictionary<int, int>();
+                        foreach (DataRow crRow in concurrencyResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var start = (DateTime)rrRow.ItemArray[0];
-                            if (!d.ContainsKey(start)) d.Add(start, (DateTime)rrRow.ItemArray[1]);
-                        }
-                        runDelimiters.Add(concurrencyResultId, d);
-                        concurrencies.Add(concurrencyResultId, concurrency);
-                    }
+                            int concurrencyResultId = (int)crRow.ItemArray[0];
+                            int concurrency = (int)crRow.ItemArray[1];
+                            concurrencyDelimiters.Add(concurrencyResultId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
 
-                    //Make a bogus run and concurrency to be able to calcullate averages for monitor before and after.
-                    if (monitorAfterInMinutes != 0 && runDelimiters.Count != 0) {
-                        int lastConcurrencyID = 0;
-                        foreach (int concId in runDelimiters.Keys)
-                            lastConcurrencyID = concId;
+                            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "StartedAt", "StoppedAt");
+                            if (runResults == null || runResults.Rows.Count == 0) continue;
 
-                        var lastConcurrency = runDelimiters[lastConcurrencyID];
-
-                        int i = 0;
-                        foreach (var lastStop in lastConcurrency.Values)
-                            if (i++ == lastConcurrency.Count - 1) {
-                                var bogusStart = lastStop.AddMilliseconds(1);
-                                var bogusStop = bogusStart.AddMinutes(monitorAfterInMinutes);
-                                var monitorAfterBogusRuns = new Dictionary<DateTime, DateTime>(0);
-                                monitorAfterBogusRuns.Add(bogusStart, bogusStop);
-                                int concurrencyId = lastConcurrencyID + 1;
-                                runDelimiters.Add(concurrencyId, monitorAfterBogusRuns);
-                                concurrencyDelimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>(bogusStart, bogusStop));
-                                concurrencies.Add(concurrencyId, 0);
-                            }
-                    }
-                    if (monitorBeforeInMinutes != 0 && runDelimiters.Count != 0) {
-                        var newRunDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
-                        var newConcurrencyDelimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
-                        var newConcurrencies = new Dictionary<int, int>();
-
-                        var firstConcurrency = runDelimiters[1];
-                        foreach (var firstStart in firstConcurrency.Keys) {
-                            var bogusStop = firstStart.Subtract(new TimeSpan(TimeSpan.TicksPerMillisecond));
-                            var bogusStart = bogusStop.Subtract(new TimeSpan(monitorAfterInMinutes * TimeSpan.TicksPerMinute));
-                            var monitorBeforeBogusRuns = new Dictionary<DateTime, DateTime>(0);
-                            monitorBeforeBogusRuns.Add(bogusStart, bogusStop);
-                            newRunDelimiters.Add(0, monitorBeforeBogusRuns);
-                            newConcurrencyDelimiters.Add(0, new KeyValuePair<DateTime, DateTime>(bogusStart, bogusStop));
-                            newConcurrencies.Add(0, 0);
-                            break;
-                        }
-                        foreach (var concurrency in runDelimiters)
-                            newRunDelimiters.Add(concurrency.Key, concurrency.Value);
-                        foreach (var concurrency in concurrencyDelimiters)
-                            newConcurrencyDelimiters.Add(concurrency.Key, concurrency.Value);
-                        foreach (var concurrency in concurrencies)
-                            newConcurrencies.Add(concurrency.Key, concurrency.Value);
-
-                        runDelimiters = newRunDelimiters;
-                        concurrencyDelimiters = newConcurrencyDelimiters;
-                        concurrencies = newConcurrencies;
-                    }
-
-                    //Calcullate the averages
-                    foreach (int concurrencyId in runDelimiters.Keys) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        var delimiterValues = runDelimiters[concurrencyId];
-                        foreach (DataRow monitorRow in monitors.Rows) {
-                            if (cancellationToken.IsCancellationRequested) return null;
-
-                            int monitorStresstestId = (int)monitorRow.ItemArray[1];
-                            if (monitorStresstestId != stresstestId) continue;
-
-                            int monitorId = (int)monitorRow.ItemArray[0];
-                            object monitor = monitorRow.ItemArray[2];
-
-                            var monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
-                            if (monitorResults == null || monitorResults.Rows.Count == 0) continue;
-
-                            var monitorValues = new List<KeyValuePair<DateTime, float[]>>(monitorResults.Rows.Count);
-                            foreach (DataRow monitorResultsRow in monitorResults.Rows) {
+                            var d = new Dictionary<DateTime, DateTime>(runResults.Rows.Count);
+                            foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                var timeStamp = (DateTime)monitorResultsRow[0];
-
-                                bool canAdd = false;
-                                foreach (var start in delimiterValues.Keys) {
-                                    if (cancellationToken.IsCancellationRequested) return null;
-
-                                    if (timeStamp >= start && timeStamp <= delimiterValues[start]) {
-                                        canAdd = true;
-                                        break;
-                                    }
-                                }
-
-                                if (canAdd) {
-                                    string[] splittedValue = (monitorResultsRow[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
-                                    float[] values = new float[splittedValue.Length];
-
-                                    for (long l = 0; l != splittedValue.LongLength; l++) {
-                                        if (cancellationToken.IsCancellationRequested) return null;
-
-                                        values[l] = float.Parse(splittedValue[l].Trim());
-                                    }
-                                    monitorValues.Add(new KeyValuePair<DateTime, float[]>(timeStamp, values));
-                                }
+                                var start = (DateTime)rrRow.ItemArray[0];
+                                if (!d.ContainsKey(start)) d.Add(start, (DateTime)rrRow.ItemArray[1]);
                             }
+                            runDelimiters.Add(concurrencyResultId, d);
+                            concurrencies.Add(concurrencyResultId, concurrency);
+                        }
 
-                            float[] averages = GetAverageMonitorResults(cancellationToken, monitorValues);
+                        //Make a bogus run and concurrency to be able to calcullate averages for monitor before and after.
+                        if (monitorAfterInMinutes != 0 && runDelimiters.Count != 0) {
+                            int lastConcurrencyID = 0;
+                            foreach (int concId in runDelimiters.Keys)
+                                lastConcurrencyID = concId;
+
+                            var lastConcurrency = runDelimiters[lastConcurrencyID];
+
+                            int i = 0;
+                            foreach (var lastStop in lastConcurrency.Values)
+                                if (i++ == lastConcurrency.Count - 1) {
+                                    var bogusStart = lastStop.AddMilliseconds(1);
+                                    var bogusStop = bogusStart.AddMinutes(monitorAfterInMinutes);
+                                    var monitorAfterBogusRuns = new Dictionary<DateTime, DateTime>(0);
+                                    monitorAfterBogusRuns.Add(bogusStart, bogusStop);
+                                    int concurrencyId = lastConcurrencyID + 1;
+                                    runDelimiters.Add(concurrencyId, monitorAfterBogusRuns);
+                                    concurrencyDelimiters.Add(concurrencyId, new KeyValuePair<DateTime, DateTime>(bogusStart, bogusStop));
+                                    concurrencies.Add(concurrencyId, 0);
+                                }
+                        }
+                        if (monitorBeforeInMinutes != 0 && runDelimiters.Count != 0) {
+                            var newRunDelimiters = new Dictionary<int, Dictionary<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                            var newConcurrencyDelimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
+                            var newConcurrencies = new Dictionary<int, int>();
+
+                            var firstConcurrency = runDelimiters[1];
+                            foreach (var firstStart in firstConcurrency.Keys) {
+                                var bogusStop = firstStart.Subtract(new TimeSpan(TimeSpan.TicksPerMillisecond));
+                                var bogusStart = bogusStop.Subtract(new TimeSpan(monitorAfterInMinutes * TimeSpan.TicksPerMinute));
+                                var monitorBeforeBogusRuns = new Dictionary<DateTime, DateTime>(0);
+                                monitorBeforeBogusRuns.Add(bogusStart, bogusStop);
+                                newRunDelimiters.Add(0, monitorBeforeBogusRuns);
+                                newConcurrencyDelimiters.Add(0, new KeyValuePair<DateTime, DateTime>(bogusStart, bogusStop));
+                                newConcurrencies.Add(0, 0);
+                                break;
+                            }
+                            foreach (var concurrency in runDelimiters)
+                                newRunDelimiters.Add(concurrency.Key, concurrency.Value);
+                            foreach (var concurrency in concurrencyDelimiters)
+                                newConcurrencyDelimiters.Add(concurrency.Key, concurrency.Value);
+                            foreach (var concurrency in concurrencies)
+                                newConcurrencies.Add(concurrency.Key, concurrency.Value);
+
+                            runDelimiters = newRunDelimiters;
+                            concurrencyDelimiters = newConcurrencyDelimiters;
+                            concurrencies = newConcurrencies;
+                        }
+
+                        //Calcullate the averages
+                        foreach (int concurrencyId in runDelimiters.Keys) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var startedAt = concurrencyDelimiters[concurrencyId].Key;
-                            var measuredRunTime = Math.Round((concurrencyDelimiters[concurrencyId].Value - startedAt).TotalMilliseconds, 2);
+                            var delimiterValues = runDelimiters[concurrencyId];
+                            foreach (DataRow monitorRow in monitors.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
 
-                            string concurrency = concurrencies[concurrencyId] == 0 ? "--" : concurrencies[concurrencyId].ToString();
+                                int monitorStresstestId = (int)monitorRow.ItemArray[1];
+                                if (monitorStresstestId != stresstestId) continue;
 
-                            var newRow = new List<object>(new object[] { stresstest, monitor, startedAt, measuredRunTime, concurrency });
+                                int monitorId = (int)monitorRow.ItemArray[0];
+                                object monitor = monitorRow.ItemArray[2];
 
-                            var fragmentedAverages = new object[resultHeaders.Count];
-                            for (long p = 0; p != fragmentedAverages.Length; p++)
-                                fragmentedAverages[p] = "--";
+                                var monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
+                                if (monitorResults == null || monitorResults.Rows.Count == 0) continue;
 
-                            int offset = monitorColumnOffsets[monitorId];
-                            averages.CopyTo(fragmentedAverages, offset);
+                                var monitorValues = new List<KeyValuePair<DateTime, float[]>>(monitorResults.Rows.Count);
+                                foreach (DataRow monitorResultsRow in monitorResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                            newRow.AddRange(fragmentedAverages);
-                            averageMonitorResults.Rows.Add(newRow.ToArray());
+                                    var timeStamp = (DateTime)monitorResultsRow[0];
+
+                                    bool canAdd = false;
+                                    foreach (var start in delimiterValues.Keys) {
+                                        if (cancellationToken.IsCancellationRequested) return null;
+
+                                        if (timeStamp >= start && timeStamp <= delimiterValues[start]) {
+                                            canAdd = true;
+                                            break;
+                                        }
+                                    }
+
+                                    if (canAdd) {
+                                        string[] splittedValue = (monitorResultsRow[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                                        float[] values = new float[splittedValue.Length];
+
+                                        for (long l = 0; l != splittedValue.LongLength; l++) {
+                                            if (cancellationToken.IsCancellationRequested) return null;
+
+                                            values[l] = float.Parse(splittedValue[l].Trim());
+                                        }
+                                        monitorValues.Add(new KeyValuePair<DateTime, float[]>(timeStamp, values));
+                                    }
+                                }
+
+                                float[] averages = GetAverageMonitorResults(cancellationToken, monitorValues);
+                                if (cancellationToken.IsCancellationRequested) return null;
+
+                                var startedAt = concurrencyDelimiters[concurrencyId].Key;
+                                var measuredRunTime = Math.Round((concurrencyDelimiters[concurrencyId].Value - startedAt).TotalMilliseconds, 2);
+
+                                string concurrency = concurrencies[concurrencyId] == 0 ? "--" : concurrencies[concurrencyId].ToString();
+
+                                var newRow = new List<object>(new object[] { stresstest, monitor, startedAt, measuredRunTime, concurrency });
+
+                                var fragmentedAverages = new object[resultHeaders.Count];
+                                for (long p = 0; p != fragmentedAverages.Length; p++)
+                                    fragmentedAverages[p] = "--";
+
+                                int offset = monitorColumnOffsets[monitorId];
+                                averages.CopyTo(fragmentedAverages, offset);
+
+                                newRow.AddRange(fragmentedAverages);
+                                averageMonitorResults.Rows.Add(newRow.ToArray());
+                            }
                         }
                     }
+                    cacheEntry.ReturnValue = averageMonitorResults;
                 }
-
-                return averageMonitorResults;
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
         /// <summary>
@@ -1498,62 +1540,67 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
-                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
-                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDts = cacheEntry.ReturnValue as List<DataTable>;
+                if (cacheEntryDts == null || cacheEntryDts.Count == 0) {
+                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                var dts = new List<DataTable>();
+                    var dts = new List<DataTable>();
 
-                foreach (DataRow stresstestsRow in stresstests.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
+                    foreach (DataRow stresstestsRow in stresstests.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                    int stresstestId = (int)stresstestsRow.ItemArray[0];
-                    string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
+                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
 
-                    var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
 
-                    if (stresstestResults.Rows.Count == 0) continue;
-                    object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
+                        if (stresstestResults.Rows.Count == 0) continue;
+                        object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
 
-                    //Get the monitors + values
-                    var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestId, "Id", "Monitor", "ResultHeaders");
+                        //Get the monitors + values
+                        var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestId, "Id", "Monitor", "ResultHeaders");
 
-                    if (monitors == null || monitors.Rows.Count == 0) continue;
+                        if (monitors == null || monitors.Rows.Count == 0) continue;
 
-                    foreach (DataRow monitorRow in monitors.Rows) {
-                        int monitorId = (int)monitorRow.ItemArray[0];
-                        object monitor = monitorRow.ItemArray[1];
-                        string[] headers = (monitorRow.ItemArray[2] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                        foreach (DataRow monitorRow in monitors.Rows) {
+                            int monitorId = (int)monitorRow.ItemArray[0];
+                            object monitor = monitorRow.ItemArray[1];
+                            string[] headers = (monitorRow.ItemArray[2] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
-                        var columns = new List<string>();
-                        columns.AddRange("Monitor", "Timestamp");
+                            var columns = new List<string>();
+                            columns.AddRange("Monitor", "Timestamp");
 
-                        int headerIndex = 1;
-                        foreach (string header in headers)
-                            columns.Add((headerIndex++) + ") " + header);
+                            int headerIndex = 1;
+                            foreach (string header in headers)
+                                columns.Add((headerIndex++) + ") " + header);
 
-                        var monitorResults = CreateEmptyDataTable("MonitorResults", "Stresstest", columns.ToArray());
+                            var monitorResults = CreateEmptyDataTable("MonitorResults", "Stresstest", columns.ToArray());
 
-                        var mrs = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
+                            var mrs = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
 
-                        var monitorValues = new Dictionary<DateTime, float[]>(mrs.Rows.Count);
-                        foreach (DataRow monitorResultsRow in mrs.Rows) {
-                            if (cancellationToken.IsCancellationRequested) return null;
+                            var monitorValues = new Dictionary<DateTime, float[]>(mrs.Rows.Count);
+                            foreach (DataRow monitorResultsRow in mrs.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
 
-                            string[] values = (monitorResultsRow.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                                string[] values = (monitorResultsRow.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
-                            var row = new List<object>();
-                            row.Add(stresstest);
-                            row.Add(monitor);
-                            row.Add(monitorResultsRow.ItemArray[0]);
-                            row.AddRange(values);
+                                var row = new List<object>();
+                                row.Add(stresstest);
+                                row.Add(monitor);
+                                row.Add(monitorResultsRow.ItemArray[0]);
+                                row.AddRange(values);
 
-                            monitorResults.Rows.Add(row.ToArray());
+                                monitorResults.Rows.Add(row.ToArray());
+                            }
+
+                            dts.Add(monitorResults);
                         }
-
-                        dts.Add(monitorResults);
                     }
+                    cacheEntry.ReturnValue = dts;
                 }
-                return dts;
+                return cacheEntry.ReturnValue as List<DataTable>;
             }
         }
 
@@ -1569,82 +1616,89 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <returns></returns>
         public DataTable GetRunsOverTime(CancellationToken cancellationToken, out Dictionary<string, List<string>> concurrencyAndRunsDic, params int[] stresstestIds) {
             lock (_lock) {
-                concurrencyAndRunsDic = new Dictionary<string, List<string>>();
+                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    concurrencyAndRunsDic = new Dictionary<string, List<string>>();
 
-                if (_databaseActions == null) return null;
+                    if (_databaseActions == null) return null;
 
-                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
-                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                DataTable runsOverTime = CreateEmptyDataTable("RunsOverTime", "Stresstest");
+                    DataTable runsOverTime = CreateEmptyDataTable("RunsOverTime", "Stresstest");
 
-                var rows = new List<List<object>>();
-                int longestRowCount = 0;
-                foreach (DataRow stresstestsRow in stresstests.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    int stresstestId = (int)stresstestsRow.ItemArray[0];
-                    string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-
-                    //To link the run index to the correct run
-                    concurrencyAndRunsDic.Add(stresstest, new List<string>());
-
-                    var row = new List<object>();
-                    row.Add(stresstest);
-                    var stoppedAts = new List<DateTime>();
-
-                    var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-
-                    if (stresstestResults.Rows.Count == 0) continue;
-                    int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                    var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, new string[] { "Id", "Concurrency" });
-                    if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
-
-                    foreach (DataRow crRow in concurrencyResults.Rows) {
+                    var rows = new List<List<object>>();
+                    int longestRowCount = 0;
+                    foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
-                        int concurrencyResultId = (int)crRow.ItemArray[0];
-                        int concurrency = (int)crRow.ItemArray[1];
 
-                        var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Run", "StartedAt", "StoppedAt");
-                        if (runResults == null || runResults.Rows.Count == 0) continue;
+                        int stresstestId = (int)stresstestsRow.ItemArray[0];
+                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
 
-                        foreach (DataRow rrRow in runResults.Rows) {
+                        //To link the run index to the correct run
+                        concurrencyAndRunsDic.Add(stresstest, new List<string>());
+
+                        var row = new List<object>();
+                        row.Add(stresstest);
+                        var stoppedAts = new List<DateTime>();
+
+                        var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+
+                        if (stresstestResults.Rows.Count == 0) continue;
+                        int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
+
+                        var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, new string[] { "Id", "Concurrency" });
+                        if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                        foreach (DataRow crRow in concurrencyResults.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
-                            int run = (int)rrRow.ItemArray[0];
-                            var startedAt = (DateTime)rrRow.ItemArray[1];
-                            var stoppedAt = (DateTime)rrRow.ItemArray[2];
+                            int concurrencyResultId = (int)crRow.ItemArray[0];
+                            int concurrency = (int)crRow.ItemArray[1];
 
-                            if (stoppedAts.Count != 0) row.Add(startedAt - stoppedAts[stoppedAts.Count - 1]); //Add gap (test init time and write db results time)
-                            stoppedAts.Add(stoppedAt);
+                            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Run", "StartedAt", "StoppedAt");
+                            if (runResults == null || runResults.Rows.Count == 0) continue;
 
-                            row.Add(stoppedAt - startedAt); //run time
+                            foreach (DataRow rrRow in runResults.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
+                                int run = (int)rrRow.ItemArray[0];
+                                var startedAt = (DateTime)rrRow.ItemArray[1];
+                                var stoppedAt = (DateTime)rrRow.ItemArray[2];
 
-                            concurrencyAndRunsDic[stresstest].Add(concurrency + "." + run);
+                                if (stoppedAts.Count != 0) row.Add(startedAt - stoppedAts[stoppedAts.Count - 1]); //Add gap (test init time and write db results time)
+                                stoppedAts.Add(stoppedAt);
+
+                                row.Add(stoppedAt - startedAt); //run time
+
+                                concurrencyAndRunsDic[stresstest].Add(concurrency + "." + run);
+                            }
                         }
+
+                        if (row.Count > longestRowCount) longestRowCount = row.Count;
+                        rows.Add(row);
                     }
 
-                    if (row.Count > longestRowCount) longestRowCount = row.Count;
-                    rows.Add(row);
-                }
+                    //Add run time and gap columns.
+                    float longestRowCountMod = ((float)longestRowCount / 2) + 0.5f;
+                    for (float f = 1f; f != longestRowCountMod; f += 0.5f) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+                        int i = (int)f;
+                        runsOverTime.Columns.Add((f - i == 0.5) ? "Init time " + i : i.ToString());
+                    }
 
-                //Add run time and gap columns.
-                float longestRowCountMod = ((float)longestRowCount / 2) + 0.5f;
-                for (float f = 1f; f != longestRowCountMod; f += 0.5f) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-                    int i = (int)f;
-                    runsOverTime.Columns.Add((f - i == 0.5) ? "Init time " + i : i.ToString());
-                }
+                    //Add the rows.
+                    foreach (var row in rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+                        var newRow = new object[longestRowCount];
+                        row.ToArray().CopyTo(newRow, 0);
+                        runsOverTime.Rows.Add(newRow);
+                    }
 
-                //Add the rows.
-                foreach (var row in rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-                    var newRow = new object[longestRowCount];
-                    row.ToArray().CopyTo(newRow, 0);
-                    runsOverTime.Rows.Add(newRow);
+                    cacheEntry.OutputArguments = new object[] { concurrencyAndRunsDic };
+                    cacheEntry.ReturnValue = runsOverTime;
                 }
-
-                return runsOverTime;
+                concurrencyAndRunsDic = cacheEntry.OutputArguments[0] as Dictionary<string, List<string>>;
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
 
@@ -1660,55 +1714,60 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <returns></returns>
         public DataTable GetGeomeanThroughputPerWattOverTime(CancellationToken cancellationToken, string powerMonitorName, string wattCounter, string secondaryMonitorName, string secondaryCounter) {
             lock (_lock) {
-                //Get all the needed datatables and check if they have rows.
-                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
-                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), powerMonitorName, wattCounter, secondaryMonitorName, secondaryCounter);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    //Get all the needed datatables and check if they have rows.
+                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                int stresstestsRowCount = stresstests.Rows.Count;
-                var tpsPerWatt = new List<List<double>>();
-                var secondaryCounterValues = new List<float>();
+                    int stresstestsRowCount = stresstests.Rows.Count;
+                    var tpsPerWatt = new List<List<double>>();
+                    var secondaryCounterValues = new List<float>();
 
-                bool hasSecondaryCounterValues = secondaryMonitorName != null && secondaryCounter != null;
+                    bool hasSecondaryCounterValues = secondaryMonitorName != null && secondaryCounter != null;
 
-                //Get all the tp per watts and the performance counter values.
-                for (int stresstestsRowIndex = 0; stresstestsRowIndex != stresstests.Rows.Count; stresstestsRowIndex++) {
-                    DataRow row = stresstests.Rows[stresstestsRowIndex];
-                    var dt = GetThroughputPerWattOverTime(cancellationToken, (int)row.ItemArray[0], powerMonitorName, wattCounter, secondaryMonitorName, secondaryCounter);
+                    //Get all the tp per watts and the performance counter values.
+                    for (int stresstestsRowIndex = 0; stresstestsRowIndex != stresstests.Rows.Count; stresstestsRowIndex++) {
+                        DataRow row = stresstests.Rows[stresstestsRowIndex];
+                        var dt = GetThroughputPerWattOverTime(cancellationToken, (int)row.ItemArray[0], powerMonitorName, wattCounter, secondaryMonitorName, secondaryCounter);
 
-                    for (int dtRowIndex = 0; dtRowIndex != dt.Rows.Count; dtRowIndex++) {
-                        if (dtRowIndex >= tpsPerWatt.Count) tpsPerWatt.Add(new List<double>());
-                        var l = tpsPerWatt[dtRowIndex];
+                        for (int dtRowIndex = 0; dtRowIndex != dt.Rows.Count; dtRowIndex++) {
+                            if (dtRowIndex >= tpsPerWatt.Count) tpsPerWatt.Add(new List<double>());
+                            var l = tpsPerWatt[dtRowIndex];
 
-                        DataRow dtRow = dt.Rows[dtRowIndex];
-                        double tpPerWatt = (double)dtRow.ItemArray[1];
-                        if (tpPerWatt != 0d) l.Add(tpPerWatt);
+                            DataRow dtRow = dt.Rows[dtRowIndex];
+                            double tpPerWatt = (double)dtRow.ItemArray[1];
+                            if (tpPerWatt != 0d) l.Add(tpPerWatt);
 
-                        if (hasSecondaryCounterValues && dtRowIndex >= secondaryCounterValues.Count) secondaryCounterValues.Add((float)dtRow.ItemArray[2]);
+                            if (hasSecondaryCounterValues && dtRowIndex >= secondaryCounterValues.Count) secondaryCounterValues.Add((float)dtRow.ItemArray[2]);
+                        }
                     }
-                }
 
-                var throughputPerWattOverTime = hasSecondaryCounterValues ?
-                    CreateEmptyDataTable("ThroughputPerWatt", "Minute", "Geomean Throughput per Watt", "Average " + secondaryCounter) :
-                    CreateEmptyDataTable("ThroughputPerWatt", "Minute", "Geomean Throughput per Watt");
+                    var throughputPerWattOverTime = hasSecondaryCounterValues ?
+                        CreateEmptyDataTable("ThroughputPerWatt", "Minute", "Geomean Throughput per Watt", "Average " + secondaryCounter) :
+                        CreateEmptyDataTable("ThroughputPerWatt", "Minute", "Geomean Throughput per Watt");
 
-                for (int i = 0; i != tpsPerWatt.Count; i++) {
-                    var entry = tpsPerWatt[i];
+                    for (int i = 0; i != tpsPerWatt.Count; i++) {
+                        var entry = tpsPerWatt[i];
 
-                    double geomeanTpPerWatt;
-                    if (entry.Count == 1) { //Branching goes a bit faster I think, result would be the same regardlesly.
-                        geomeanTpPerWatt = entry[0];
-                    } else {
-                        geomeanTpPerWatt = 1;
-                        foreach (double tpPerWatt in entry) geomeanTpPerWatt *= tpPerWatt;
-                        geomeanTpPerWatt = Math.Pow(geomeanTpPerWatt, (1d / entry.Count));
+                        double geomeanTpPerWatt;
+                        if (entry.Count == 1) { //Branching goes a bit faster I think, result would be the same regardlesly.
+                            geomeanTpPerWatt = entry[0];
+                        } else {
+                            geomeanTpPerWatt = 1;
+                            foreach (double tpPerWatt in entry) geomeanTpPerWatt *= tpPerWatt;
+                            geomeanTpPerWatt = Math.Pow(geomeanTpPerWatt, (1d / entry.Count));
+                        }
+                        if (hasSecondaryCounterValues)
+                            throughputPerWattOverTime.Rows.Add(new object[] { (i + 1), geomeanTpPerWatt, secondaryCounterValues[i] });
+                        else
+                            throughputPerWattOverTime.Rows.Add(new object[] { (i + 1), geomeanTpPerWatt });
                     }
-                    if (hasSecondaryCounterValues)
-                        throughputPerWattOverTime.Rows.Add(new object[] { (i + 1), geomeanTpPerWatt, secondaryCounterValues[i] });
-                    else
-                        throughputPerWattOverTime.Rows.Add(new object[] { (i + 1), geomeanTpPerWatt });
-                }
 
-                return throughputPerWattOverTime;
+                    cacheEntry.ReturnValue = throughputPerWattOverTime;
+                }
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
         /// <summary>
@@ -1985,46 +2044,51 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
         public DataTable GetGeomeanThroughputPerWatt(CancellationToken cancellationToken, string powerMonitorName, string wattCounter) {
             lock (_lock) {
-                //Get all the needed datatables and check if they have rows.
-                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
-                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), powerMonitorName, wattCounter);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    //Get all the needed datatables and check if they have rows.
+                    var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                int stresstestsRowCount = stresstests.Rows.Count;
-                var tpsPerWatt = new List<double[]>();
+                    int stresstestsRowCount = stresstests.Rows.Count;
+                    var tpsPerWatt = new List<double[]>();
 
-                //Get all the tp per watts and the performance counter values.
-                for (int stresstestsRowIndex = 0; stresstestsRowIndex != stresstests.Rows.Count; stresstestsRowIndex++) {
-                    DataRow row = stresstests.Rows[stresstestsRowIndex];
-                    var dt = GetThroughputPerWatt(cancellationToken, (int)row.ItemArray[0], powerMonitorName, wattCounter);
+                    //Get all the tp per watts and the performance counter values.
+                    for (int stresstestsRowIndex = 0; stresstestsRowIndex != stresstests.Rows.Count; stresstestsRowIndex++) {
+                        DataRow row = stresstests.Rows[stresstestsRowIndex];
+                        var dt = GetThroughputPerWatt(cancellationToken, (int)row.ItemArray[0], powerMonitorName, wattCounter);
 
-                    for (int dtRowIndex = 0; dtRowIndex != dt.Rows.Count; dtRowIndex++) {
-                        if (dtRowIndex >= tpsPerWatt.Count) tpsPerWatt.Add(new double[stresstestsRowCount]);
-                        var arr = tpsPerWatt[dtRowIndex];
+                        for (int dtRowIndex = 0; dtRowIndex != dt.Rows.Count; dtRowIndex++) {
+                            if (dtRowIndex >= tpsPerWatt.Count) tpsPerWatt.Add(new double[stresstestsRowCount]);
+                            var arr = tpsPerWatt[dtRowIndex];
 
-                        DataRow dtRow = dt.Rows[dtRowIndex];
-                        double tpPerWatt = (double)dtRow.ItemArray[0];
-                        arr[stresstestsRowIndex] = tpPerWatt;
-                    }
-                }
-
-                var throughputPerWatt = CreateEmptyDataTable("ThroughputPerWatt", new string[] { "Geomean Throughput per Watt" }, new Type[] { typeof(double) });
-
-                for (int i = 0; i != tpsPerWatt.Count; i++) {
-                    var entry = tpsPerWatt[i];
-
-                    double geomeanTpPerWatt;
-                    if (entry.Length == 1) { //Branching goes a bit faster I think, result would be the same regardlesly.
-                        geomeanTpPerWatt = entry[0];
-                    } else {
-                        geomeanTpPerWatt = 1;
-                        foreach (double tpPerWatt in entry) geomeanTpPerWatt *= tpPerWatt;
-                        geomeanTpPerWatt = Math.Pow(geomeanTpPerWatt, (1d / entry.Length));
+                            DataRow dtRow = dt.Rows[dtRowIndex];
+                            double tpPerWatt = (double)dtRow.ItemArray[0];
+                            arr[stresstestsRowIndex] = tpPerWatt;
+                        }
                     }
 
-                    throughputPerWatt.Rows.Add(geomeanTpPerWatt);
-                }
+                    var throughputPerWatt = CreateEmptyDataTable("ThroughputPerWatt", new string[] { "Geomean Throughput per Watt" }, new Type[] { typeof(double) });
 
-                return throughputPerWatt;
+                    for (int i = 0; i != tpsPerWatt.Count; i++) {
+                        var entry = tpsPerWatt[i];
+
+                        double geomeanTpPerWatt;
+                        if (entry.Length == 1) { //Branching goes a bit faster I think, result would be the same regardlesly.
+                            geomeanTpPerWatt = entry[0];
+                        } else {
+                            geomeanTpPerWatt = 1;
+                            foreach (double tpPerWatt in entry) geomeanTpPerWatt *= tpPerWatt;
+                            geomeanTpPerWatt = Math.Pow(geomeanTpPerWatt, (1d / entry.Length));
+                        }
+
+                        throughputPerWatt.Rows.Add(geomeanTpPerWatt);
+                    }
+
+                    cacheEntry.ReturnValue = throughputPerWatt;
+                }
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
         private DataTable GetThroughputPerWatt(CancellationToken cancellationToken, int stresstestId, string powerMonitorName, string wattCounter) {
@@ -2129,6 +2193,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         #endregion
 
         #region Other
+        ~ResultsHelper() {
+            ResultsHelperCache.Clear();
+        }
         /// <summary>
         /// Connect to an existing database to execute the procedures on or add slave side data to it.
         /// </summary>
@@ -2139,6 +2206,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="password"></param>
         public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
             lock (_lock) {
+                ResultsHelperCache.Clear();
                 try {
                     _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;table cache = true", host, port, databaseName, user, password) };
                     if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
@@ -2153,6 +2221,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// Last resort.
         /// </summary>
         public void KillConnection() {
+            ResultsHelperCache.Clear();
             if (_databaseActions != null) {
                 try { _databaseActions.ReleaseConnection(); } catch { }
                 _databaseActions = null;

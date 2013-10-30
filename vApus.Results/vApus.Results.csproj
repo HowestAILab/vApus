@@ -98,6 +98,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataAccess\ReaderAndCombiner.cs" />
+    <Compile Include="DataAccess\ResultsHelperCache.cs" />
     <Compile Include="DataAccess\Schema.cs" />
     <Compile Include="DescriptionAndTagsInputDialog.cs">
       <SubType>Form</SubType>

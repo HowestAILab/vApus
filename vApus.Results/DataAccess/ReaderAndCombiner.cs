@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
+using System.Reflection;
 using System.Threading;
 using vApus.Util;
 
@@ -20,13 +21,31 @@ namespace vApus.Results {
     public static class ReaderAndCombiner {
 
         #region Public
-        public static DataTable GetDescription(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select Description FROM description"); }
-        public static DataTable GetTags(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select Tag FROM tags"); }
+        public static DataTable GetDescription(DatabaseActions databaseActions) {
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod());
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
+                cacheEntry.ReturnValue = databaseActions.GetDataTable("Select Description FROM description");
+            return cacheEntry.ReturnValue as DataTable;
+        }
+        public static DataTable GetTags(DatabaseActions databaseActions) {
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod());
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
+                cacheEntry.ReturnValue = databaseActions.GetDataTable("Select Tag FROM tags");
+            return cacheEntry.ReturnValue as DataTable;
+        }
 
         /// <summary>
         /// Get all the vApus instances used, divided stresstests are not taken into account.
         /// </summary>
-        public static DataTable GetvApusInstances(DatabaseActions databaseActions) { return databaseActions.GetDataTable("Select * FROM vapusinstances"); }
+        public static DataTable GetvApusInstances(DatabaseActions databaseActions) {
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod());
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
+                cacheEntry.ReturnValue = databaseActions.GetDataTable("Select * FROM vapusinstances");
+            return cacheEntry.ReturnValue as DataTable;
+        }
 
         public static DataTable GetStresstests(CancellationToken cancellationToken, DatabaseActions databaseActions, params string[] selectColumns) { return GetStresstests(cancellationToken, databaseActions, new int[0], selectColumns); }
         public static DataTable GetStresstests(CancellationToken cancellationToken, DatabaseActions databaseActions, int stresstestId, params string[] selectColumns) { return GetStresstests(cancellationToken, databaseActions, new int[] { stresstestId }, selectColumns); }
@@ -38,41 +57,46 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetStresstests(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
-            //The select columns can place a column at another index.
-            int stresstestIndex = 2;
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                //The select columns can place a column at another index.
+                int stresstestIndex = 2;
 
-            if (selectColumns.Length != 0) {
-                stresstestIndex = selectColumns.IndexOf("Stresstest");
-                if (!selectColumns.Contains("Stresstest")) {
-                    var copy = new string[selectColumns.Length + 1];
-                    selectColumns.CopyTo(copy, 0);
-                    copy[selectColumns.Length] = "Stresstest";
-                    selectColumns = copy;
+                if (selectColumns.Length != 0) {
+                    stresstestIndex = selectColumns.IndexOf("Stresstest");
+                    if (!selectColumns.Contains("Stresstest")) {
+                        var copy = new string[selectColumns.Length + 1];
+                        selectColumns.CopyTo(copy, 0);
+                        copy[selectColumns.Length] = "Stresstest";
+                        selectColumns = copy;
+                    }
                 }
-            }
 
-            var stresstestsAndDividedRows = GetStresstestsAndDividedStresstestRows(cancellationToken, databaseActions, stresstestIds, selectColumns);
-            if (cancellationToken.IsCancellationRequested) return null;
-
-            DataTable combined = null;
-
-            foreach (string stresstest in stresstestsAndDividedRows.Keys) {
+                var stresstestsAndDividedRows = GetStresstestsAndDividedStresstestRows(cancellationToken, databaseActions, stresstestIds, selectColumns);
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                var part = stresstestsAndDividedRows[stresstest];
-                object[] row = part.Rows[0].ItemArray;
+                DataTable combined = null;
 
-                var combinedRow = new object[row.Length];
-                row.CopyTo(combinedRow, 0);
+                foreach (string stresstest in stresstestsAndDividedRows.Keys) {
+                    if (cancellationToken.IsCancellationRequested) return null;
 
-                if (stresstestIndex != -1)
-                    combinedRow[stresstestIndex] = stresstest;
+                    var part = stresstestsAndDividedRows[stresstest];
+                    object[] row = part.Rows[0].ItemArray;
 
-                if (combined == null) combined = MakeEmptyCopy(part);
-                combined.Rows.Add(combinedRow);
+                    var combinedRow = new object[row.Length];
+                    row.CopyTo(combinedRow, 0);
+
+                    if (stresstestIndex != -1)
+                        combinedRow[stresstestIndex] = stresstest;
+
+                    if (combined == null) combined = MakeEmptyCopy(part);
+                    combined.Rows.Add(combinedRow);
+                }
+
+                cacheEntry.ReturnValue = combined;
             }
-
-            return combined;
+            return cacheEntry.ReturnValue as DataTable;
         }
 
         public static DataTable GetStresstestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int stresstestId, params string[] selectColumns) { return GetStresstestResults(cancellationToken, databaseActions, new int[] { stresstestId }, selectColumns); }
@@ -84,68 +108,73 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetStresstestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
-            int startedAtIndex = 2;
-            int stoppedAtIndex = 3;
-            int statusIndex = 4;
-            int statusMessageIndex = 5;
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                int startedAtIndex = 2;
+                int stoppedAtIndex = 3;
+                int statusIndex = 4;
+                int statusMessageIndex = 5;
 
-            if (selectColumns.Length != 0) {
-                startedAtIndex = selectColumns.IndexOf("StartedAt");
-                stoppedAtIndex = selectColumns.IndexOf("StoppedAt");
-                statusIndex = selectColumns.IndexOf("Status");
-                statusMessageIndex = selectColumns.IndexOf("StatusMessage");
-            }
-
-            var stresstestsAndDividedRows = GetStresstestsAndDividedStresstestResultRows(cancellationToken, databaseActions, stresstestIds, selectColumns);
-            if (cancellationToken.IsCancellationRequested) return null;
-
-            DataTable combined = null;
-
-            foreach (string stresstest in stresstestsAndDividedRows.Keys) {
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                var part = stresstestsAndDividedRows[stresstest];
-                object[] row = part.Rows[0].ItemArray;
-
-                var combinedRow = new object[row.Length];
-                row.CopyTo(combinedRow, 0);
-
-                for (int i = 1; i != part.Rows.Count; i++) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    row = part.Rows[i].ItemArray;
-
-                    if (startedAtIndex != -1) {
-                        var startedAt = (DateTime)row[startedAtIndex];
-                        if (startedAt < (DateTime)combinedRow[startedAtIndex]) combinedRow[startedAtIndex] = startedAt;
-                    }
-
-                    if (stoppedAtIndex != -1) {
-                        var stoppedAt = (DateTime)row[stoppedAtIndex];
-                        if (stoppedAt > (DateTime)combinedRow[stoppedAtIndex]) combinedRow[stoppedAtIndex] = stoppedAt;
-                    }
-
-                    if (statusIndex != -1) {
-                        var status = row[statusIndex] as string;
-                        if (status == "Failed")
-                            combinedRow[statusIndex] = status;
-                        else if (status == "Cancelled" && combinedRow[statusIndex] as string == "OK")
-                            combinedRow[statusIndex] = status;
-                    }
-
-                    if (statusMessageIndex != -1) {
-                        var statusMessage = row[statusMessageIndex] as string;
-                        if (statusMessage.Length != 0)
-                            combinedRow[statusMessageIndex] = ((combinedRow[statusMessageIndex] as string).Length == 0) ?
-                                statusMessage : combinedRow[statusMessageIndex] + "\n" + statusMessage;
-                    }
+                if (selectColumns.Length != 0) {
+                    startedAtIndex = selectColumns.IndexOf("StartedAt");
+                    stoppedAtIndex = selectColumns.IndexOf("StoppedAt");
+                    statusIndex = selectColumns.IndexOf("Status");
+                    statusMessageIndex = selectColumns.IndexOf("StatusMessage");
                 }
 
-                if (combined == null) combined = MakeEmptyCopy(part);
-                combined.Rows.Add(combinedRow);
-            }
+                var stresstestsAndDividedRows = GetStresstestsAndDividedStresstestResultRows(cancellationToken, databaseActions, stresstestIds, selectColumns);
+                if (cancellationToken.IsCancellationRequested) return null;
 
-            return combined;
+                DataTable combined = null;
+
+                foreach (string stresstest in stresstestsAndDividedRows.Keys) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    var part = stresstestsAndDividedRows[stresstest];
+                    object[] row = part.Rows[0].ItemArray;
+
+                    var combinedRow = new object[row.Length];
+                    row.CopyTo(combinedRow, 0);
+
+                    for (int i = 1; i != part.Rows.Count; i++) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        row = part.Rows[i].ItemArray;
+
+                        if (startedAtIndex != -1) {
+                            var startedAt = (DateTime)row[startedAtIndex];
+                            if (startedAt < (DateTime)combinedRow[startedAtIndex]) combinedRow[startedAtIndex] = startedAt;
+                        }
+
+                        if (stoppedAtIndex != -1) {
+                            var stoppedAt = (DateTime)row[stoppedAtIndex];
+                            if (stoppedAt > (DateTime)combinedRow[stoppedAtIndex]) combinedRow[stoppedAtIndex] = stoppedAt;
+                        }
+
+                        if (statusIndex != -1) {
+                            var status = row[statusIndex] as string;
+                            if (status == "Failed")
+                                combinedRow[statusIndex] = status;
+                            else if (status == "Cancelled" && combinedRow[statusIndex] as string == "OK")
+                                combinedRow[statusIndex] = status;
+                        }
+
+                        if (statusMessageIndex != -1) {
+                            var statusMessage = row[statusMessageIndex] as string;
+                            if (statusMessage.Length != 0)
+                                combinedRow[statusMessageIndex] = ((combinedRow[statusMessageIndex] as string).Length == 0) ?
+                                    statusMessage : combinedRow[statusMessageIndex] + "\n" + statusMessage;
+                        }
+                    }
+
+                    if (combined == null) combined = MakeEmptyCopy(part);
+                    combined.Rows.Add(combinedRow);
+                }
+
+                cacheEntry.ReturnValue = combined;
+            }
+            return cacheEntry.ReturnValue as DataTable;
         }
 
         public static DataTable GetConcurrencyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int stresstestResultId, params string[] selectColumns) { return GetConcurrencyResults(cancellationToken, databaseActions, null, stresstestResultId, selectColumns); }
@@ -160,70 +189,75 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetConcurrencyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestResultIds, params string[] selectColumns) {
-            int concurrencyIndex = 2;
-            int startedAtIndex = 3;
-            int stoppedAtIndex = 4;
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestResultIds, selectColumns);
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                int concurrencyIndex = 2;
+                int startedAtIndex = 3;
+                int stoppedAtIndex = 4;
 
-            if (selectColumns.Length != 0) {
-                concurrencyIndex = selectColumns.IndexOf("Concurrency");
-                startedAtIndex = selectColumns.IndexOf("StartedAt");
-                stoppedAtIndex = selectColumns.IndexOf("StoppedAt");
+                if (selectColumns.Length != 0) {
+                    concurrencyIndex = selectColumns.IndexOf("Concurrency");
+                    startedAtIndex = selectColumns.IndexOf("StartedAt");
+                    stoppedAtIndex = selectColumns.IndexOf("StoppedAt");
 
-                if (!selectColumns.Contains("StresstestResultId")) {
-                    var copy = new string[selectColumns.Length + 1];
-                    selectColumns.CopyTo(copy, 0);
-                    copy[selectColumns.Length] = "StresstestResultId";
-                    selectColumns = copy;
+                    if (!selectColumns.Contains("StresstestResultId")) {
+                        var copy = new string[selectColumns.Length + 1];
+                        selectColumns.CopyTo(copy, 0);
+                        copy[selectColumns.Length] = "StresstestResultId";
+                        selectColumns = copy;
+                    }
                 }
-            }
-            var stresstestsAndDividedRows = GetStresstestsAndDividedConcurrencyResultRows(cancellationToken, databaseActions, where, stresstestResultIds, selectColumns);
-            if (cancellationToken.IsCancellationRequested) return null;
-
-            DataTable combined = null;
-
-            foreach (string stresstest in stresstestsAndDividedRows.Keys) {
+                var stresstestsAndDividedRows = GetStresstestsAndDividedConcurrencyResultRows(cancellationToken, databaseActions, where, stresstestResultIds, selectColumns);
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                var dividedParts = stresstestsAndDividedRows[stresstest];
+                DataTable combined = null;
 
-                //Pivot the data table (in a more handleble structure) to be able to do the right merge.
-                var pivotedRows = Pivot(cancellationToken, dividedParts);
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                //Merge
-                foreach (var part in pivotedRows) {
+                foreach (string stresstest in stresstestsAndDividedRows.Keys) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    object[] row = part[0];
+                    var dividedParts = stresstestsAndDividedRows[stresstest];
 
-                    var combinedRow = new object[row.Length];
-                    row.CopyTo(combinedRow, 0);
+                    //Pivot the data table (in a more handleble structure) to be able to do the right merge.
+                    var pivotedRows = Pivot(cancellationToken, dividedParts);
+                    if (cancellationToken.IsCancellationRequested) return null;
 
-                    for (int i = 1; i != part.Count; i++) {
+                    //Merge
+                    foreach (var part in pivotedRows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        row = part[i];
-                        if (concurrencyIndex != -1)
-                            combinedRow[concurrencyIndex] = (int)combinedRow[concurrencyIndex] + (int)row[concurrencyIndex];
+                        object[] row = part[0];
 
-                        if (startedAtIndex != -1) {
-                            var startedAt = (DateTime)row[startedAtIndex];
-                            if (startedAt < (DateTime)combinedRow[startedAtIndex]) combinedRow[startedAtIndex] = startedAt;
+                        var combinedRow = new object[row.Length];
+                        row.CopyTo(combinedRow, 0);
+
+                        for (int i = 1; i != part.Count; i++) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            row = part[i];
+                            if (concurrencyIndex != -1)
+                                combinedRow[concurrencyIndex] = (int)combinedRow[concurrencyIndex] + (int)row[concurrencyIndex];
+
+                            if (startedAtIndex != -1) {
+                                var startedAt = (DateTime)row[startedAtIndex];
+                                if (startedAt < (DateTime)combinedRow[startedAtIndex]) combinedRow[startedAtIndex] = startedAt;
+                            }
+
+                            if (stoppedAtIndex != -1) {
+                                var stoppedAt = (DateTime)row[stoppedAtIndex];
+                                if (stoppedAt > (DateTime)combinedRow[stoppedAtIndex]) combinedRow[stoppedAtIndex] = stoppedAt;
+                            }
                         }
 
-                        if (stoppedAtIndex != -1) {
-                            var stoppedAt = (DateTime)row[stoppedAtIndex];
-                            if (stoppedAt > (DateTime)combinedRow[stoppedAtIndex]) combinedRow[stoppedAtIndex] = stoppedAt;
-                        }
+                        //Copy the table and column names.
+                        if (combined == null) combined = MakeEmptyCopy(dividedParts[0]);
+                        combined.Rows.Add(combinedRow);
                     }
-
-                    //Copy the table and column names.
-                    if (combined == null) combined = MakeEmptyCopy(dividedParts[0]);
-                    combined.Rows.Add(combinedRow);
                 }
-            }
 
-            return combined;
+                cacheEntry.ReturnValue = combined;
+            }
+            return cacheEntry.ReturnValue as DataTable;
         }
 
         public static DataTable GetRunResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int concurrencyResultId, params string[] selectColumns) { return GetRunResults(cancellationToken, databaseActions, null, concurrencyResultId, selectColumns); }
@@ -238,79 +272,84 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetRunResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] concurrencyResultIds, params string[] selectColumns) {
-            int totalLogEntryCountIndex = 3;
-            int rerunCountIndex = 4;
-            int startedAtIndex = 5;
-            int stoppedAtIndex = 6;
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, concurrencyResultIds, selectColumns);
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                int totalLogEntryCountIndex = 3;
+                int rerunCountIndex = 4;
+                int startedAtIndex = 5;
+                int stoppedAtIndex = 6;
 
-            if (selectColumns.Length != 0) {
-                totalLogEntryCountIndex = selectColumns.IndexOf("TotalLogEntryCount");
-                rerunCountIndex = selectColumns.IndexOf("RerunCount");
-                startedAtIndex = selectColumns.IndexOf("StartedAt");
-                stoppedAtIndex = selectColumns.IndexOf("StoppedAt");
+                if (selectColumns.Length != 0) {
+                    totalLogEntryCountIndex = selectColumns.IndexOf("TotalLogEntryCount");
+                    rerunCountIndex = selectColumns.IndexOf("RerunCount");
+                    startedAtIndex = selectColumns.IndexOf("StartedAt");
+                    stoppedAtIndex = selectColumns.IndexOf("StoppedAt");
 
-                if (!selectColumns.Contains("ConcurrencyResultId")) {
-                    var copy = new string[selectColumns.Length + 1];
-                    selectColumns.CopyTo(copy, 0);
-                    copy[selectColumns.Length] = "ConcurrencyResultId";
-                    selectColumns = copy;
+                    if (!selectColumns.Contains("ConcurrencyResultId")) {
+                        var copy = new string[selectColumns.Length + 1];
+                        selectColumns.CopyTo(copy, 0);
+                        copy[selectColumns.Length] = "ConcurrencyResultId";
+                        selectColumns = copy;
+                    }
                 }
-            }
-            var stresstestsAndDividedRows = GetStresstestsAndDividedRunResultRows(cancellationToken, databaseActions, where, concurrencyResultIds, selectColumns);
-            if (cancellationToken.IsCancellationRequested) return null;
-
-            DataTable combined = null;
-
-            foreach (string stresstest in stresstestsAndDividedRows.Keys) {
+                var stresstestsAndDividedRows = GetStresstestsAndDividedRunResultRows(cancellationToken, databaseActions, where, concurrencyResultIds, selectColumns);
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                var dividedParts = stresstestsAndDividedRows[stresstest];
+                DataTable combined = null;
 
-                //Pivot the data table (in a more handleble structure) to be able to do the right merge.
-                var pivotedRows = Pivot(cancellationToken, dividedParts);
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                //Merge
-                foreach (var part in pivotedRows) {
+                foreach (string stresstest in stresstestsAndDividedRows.Keys) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    object[] row = part[0];
+                    var dividedParts = stresstestsAndDividedRows[stresstest];
 
-                    var combinedRow = new object[row.Length];
-                    row.CopyTo(combinedRow, 0);
+                    //Pivot the data table (in a more handleble structure) to be able to do the right merge.
+                    var pivotedRows = Pivot(cancellationToken, dividedParts);
+                    if (cancellationToken.IsCancellationRequested) return null;
 
-                    for (int i = 1; i != part.Count; i++) {
+                    //Merge
+                    foreach (var part in pivotedRows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        row = part[i];
+                        object[] row = part[0];
 
-                        if (totalLogEntryCountIndex != -1)
-                            combinedRow[totalLogEntryCountIndex] = (ulong)combinedRow[totalLogEntryCountIndex] + (ulong)row[totalLogEntryCountIndex];
+                        var combinedRow = new object[row.Length];
+                        row.CopyTo(combinedRow, 0);
 
-                        if (rerunCountIndex != -1) {
-                            int rerunCount = (int)row[rerunCountIndex];
-                            if (rerunCount > (int)combinedRow[rerunCountIndex])
-                                combinedRow[rerunCountIndex] = rerunCount;
+                        for (int i = 1; i != part.Count; i++) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            row = part[i];
+
+                            if (totalLogEntryCountIndex != -1)
+                                combinedRow[totalLogEntryCountIndex] = (ulong)combinedRow[totalLogEntryCountIndex] + (ulong)row[totalLogEntryCountIndex];
+
+                            if (rerunCountIndex != -1) {
+                                int rerunCount = (int)row[rerunCountIndex];
+                                if (rerunCount > (int)combinedRow[rerunCountIndex])
+                                    combinedRow[rerunCountIndex] = rerunCount;
+                            }
+
+                            if (startedAtIndex != -1) {
+                                var startedAt = (DateTime)row[startedAtIndex];
+                                if (startedAt < (DateTime)combinedRow[startedAtIndex]) combinedRow[startedAtIndex] = startedAt;
+                            }
+
+                            if (stoppedAtIndex != -1) {
+                                var stoppedAt = (DateTime)row[stoppedAtIndex];
+                                if (stoppedAt > (DateTime)combinedRow[stoppedAtIndex]) combinedRow[stoppedAtIndex] = stoppedAt;
+                            }
                         }
 
-                        if (startedAtIndex != -1) {
-                            var startedAt = (DateTime)row[startedAtIndex];
-                            if (startedAt < (DateTime)combinedRow[startedAtIndex]) combinedRow[startedAtIndex] = startedAt;
-                        }
-
-                        if (stoppedAtIndex != -1) {
-                            var stoppedAt = (DateTime)row[stoppedAtIndex];
-                            if (stoppedAt > (DateTime)combinedRow[stoppedAtIndex]) combinedRow[stoppedAtIndex] = stoppedAt;
-                        }
+                        //Copy the table and column names.
+                        if (combined == null) combined = MakeEmptyCopy(dividedParts[0]);
+                        combined.Rows.Add(combinedRow);
                     }
-
-                    //Copy the table and column names.
-                    if (combined == null) combined = MakeEmptyCopy(dividedParts[0]);
-                    combined.Rows.Add(combinedRow);
                 }
-            }
 
-            return combined;
+                cacheEntry.ReturnValue = combined;
+            }
+            return cacheEntry.ReturnValue as DataTable;
         }
 
         public static DataTable GetLogEntryResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int runResultId, params string[] selectColumns) { return GetLogEntryResults(cancellationToken, databaseActions, null, runResultId, selectColumns); }
@@ -325,112 +364,117 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetLogEntryResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
-            int idIndex = 0;
-            int runResultIdIndex = 1;
-            int virtualUserIndex = 2;
-            if (selectColumns.Length != 0) {
-                idIndex = selectColumns.IndexOf("Id");
-                virtualUserIndex = selectColumns.IndexOf("VirtualUser");
-                runResultIdIndex = selectColumns.IndexOf("RunResultId");
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, runResultIds, selectColumns);
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                int idIndex = 0;
+                int runResultIdIndex = 1;
+                int virtualUserIndex = 2;
+                if (selectColumns.Length != 0) {
+                    idIndex = selectColumns.IndexOf("Id");
+                    virtualUserIndex = selectColumns.IndexOf("VirtualUser");
+                    runResultIdIndex = selectColumns.IndexOf("RunResultId");
 
-                if (!selectColumns.Contains("RunResultId")) {
-                    var copy = new string[selectColumns.Length + 1];
-                    selectColumns.CopyTo(copy, 0);
-                    copy[selectColumns.Length] = "RunResultId";
-                    selectColumns = copy;
+                    if (!selectColumns.Contains("RunResultId")) {
+                        var copy = new string[selectColumns.Length + 1];
+                        selectColumns.CopyTo(copy, 0);
+                        copy[selectColumns.Length] = "RunResultId";
+                        selectColumns = copy;
+                    }
                 }
-            }
 
-            DataTable combined = null;
-            string virtualUserFirstPart = "vApus Thread Pool Thread #";
+                DataTable combined = null;
+                string virtualUserFirstPart = "vApus Thread Pool Thread #";
 
-            //Instead of pivotting we need to update the ids and the virtual user names, however we need to do this for each divided run in the right order.
-            foreach (int runResultId in runResultIds) {
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                DataTable combinedRun = null;
-
-                var stresstestsAndDividedRows = GetStresstestsAndDividedLogEntryResultRows(cancellationToken, databaseActions, selectColumns, where, runResultId);
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                foreach (string stresstest in stresstestsAndDividedRows.Keys) {
+                //Instead of pivotting we need to update the ids and the virtual user names, however we need to do this for each divided run in the right order.
+                foreach (int runResultId in runResultIds) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    var dividedParts = stresstestsAndDividedRows[stresstest];
-                    ulong correctId = 0;
-                    int correctRunResultId = 0;
-                    var linkReplaceVirtualUsers = new Dictionary<string, string>();
-                    int linkReplaceVirtualUsersCount = 0;
-                    if (combinedRun == null) {
-                        combinedRun = dividedParts[0];
+                    DataTable combinedRun = null;
 
-                        //Only do this when there are multiple parts to be combined.
-                        if (dividedParts.Count != 1) {
-                            if (idIndex != -1)
-                                correctId = (ulong)combinedRun.Rows.Count;
+                    var stresstestsAndDividedRows = GetStresstestsAndDividedLogEntryResultRows(cancellationToken, databaseActions, selectColumns, where, runResultId);
+                    if (cancellationToken.IsCancellationRequested) return null;
 
-                            if (virtualUserIndex != -1 || runResultIdIndex != -1)
-                                foreach (DataRow row in combinedRun.Rows) {
-                                    if (cancellationToken.IsCancellationRequested) return null;
-
-                                    if (virtualUserIndex != -1) {
-                                        string virtualUser = row.ItemArray[virtualUserIndex] as string;
-                                        if (!linkReplaceVirtualUsers.ContainsKey(virtualUser))
-                                            linkReplaceVirtualUsers.Add(virtualUser, null);
-                                    }
-
-                                    if (runResultIdIndex != -1 && correctRunResultId == 0)
-                                        correctRunResultId = (int)row.ItemArray[correctRunResultId];
-                                }
-                        }
-                    }
-
-                    //Add instead of merge, just increase the Id and the vApus Thread Pool Thread # if needed.
-                    string[] linkReplaceVirtualUsersKeys = new string[linkReplaceVirtualUsers.Count];
-                    linkReplaceVirtualUsers.Keys.CopyTo(linkReplaceVirtualUsersKeys, 0);
-                    for (int i = 1; i != dividedParts.Count; i++) {
+                    foreach (string stresstest in stresstestsAndDividedRows.Keys) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        if (virtualUserIndex != -1) {
-                            linkReplaceVirtualUsersCount += linkReplaceVirtualUsers.Count;
-                            foreach (var s in linkReplaceVirtualUsersKeys) {
-                                if (cancellationToken.IsCancellationRequested) return null;
+                        var dividedParts = stresstestsAndDividedRows[stresstest];
+                        ulong correctId = 0;
+                        int correctRunResultId = 0;
+                        var linkReplaceVirtualUsers = new Dictionary<string, string>();
+                        int linkReplaceVirtualUsersCount = 0;
+                        if (combinedRun == null) {
+                            combinedRun = dividedParts[0];
 
-                                int j = int.Parse(s.Substring(virtualUserFirstPart.Length)) + linkReplaceVirtualUsersCount;
-                                linkReplaceVirtualUsers[s] = virtualUserFirstPart + j;
+                            //Only do this when there are multiple parts to be combined.
+                            if (dividedParts.Count != 1) {
+                                if (idIndex != -1)
+                                    correctId = (ulong)combinedRun.Rows.Count;
+
+                                if (virtualUserIndex != -1 || runResultIdIndex != -1)
+                                    foreach (DataRow row in combinedRun.Rows) {
+                                        if (cancellationToken.IsCancellationRequested) return null;
+
+                                        if (virtualUserIndex != -1) {
+                                            string virtualUser = row.ItemArray[virtualUserIndex] as string;
+                                            if (!linkReplaceVirtualUsers.ContainsKey(virtualUser))
+                                                linkReplaceVirtualUsers.Add(virtualUser, null);
+                                        }
+
+                                        if (runResultIdIndex != -1 && correctRunResultId == 0)
+                                            correctRunResultId = (int)row.ItemArray[correctRunResultId];
+                                    }
                             }
                         }
 
-                        var dividedPart = dividedParts[i];
-                        foreach (DataRow row in dividedPart.Rows) {
+                        //Add instead of merge, just increase the Id and the vApus Thread Pool Thread # if needed.
+                        string[] linkReplaceVirtualUsersKeys = new string[linkReplaceVirtualUsers.Count];
+                        linkReplaceVirtualUsers.Keys.CopyTo(linkReplaceVirtualUsersKeys, 0);
+                        for (int i = 1; i != dividedParts.Count; i++) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var itemArray = row.ItemArray;
+                            if (virtualUserIndex != -1) {
+                                linkReplaceVirtualUsersCount += linkReplaceVirtualUsers.Count;
+                                foreach (var s in linkReplaceVirtualUsersKeys) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                            if (idIndex != -1)
-                                itemArray[idIndex] = ++correctId;
+                                    int j = int.Parse(s.Substring(virtualUserFirstPart.Length)) + linkReplaceVirtualUsersCount;
+                                    linkReplaceVirtualUsers[s] = virtualUserFirstPart + j;
+                                }
+                            }
 
-                            if (runResultIdIndex != -1)
-                                itemArray[runResultIdIndex] = correctRunResultId;
+                            var dividedPart = dividedParts[i];
+                            foreach (DataRow row in dividedPart.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
 
-                            if (virtualUserIndex != -1)
-                                itemArray[virtualUserIndex] = linkReplaceVirtualUsers[itemArray[virtualUserIndex] as string];
+                                var itemArray = row.ItemArray;
 
-                            combinedRun.Rows.Add(itemArray);
+                                if (idIndex != -1)
+                                    itemArray[idIndex] = ++correctId;
+
+                                if (runResultIdIndex != -1)
+                                    itemArray[runResultIdIndex] = correctRunResultId;
+
+                                if (virtualUserIndex != -1)
+                                    itemArray[virtualUserIndex] = linkReplaceVirtualUsers[itemArray[virtualUserIndex] as string];
+
+                                combinedRun.Rows.Add(itemArray);
+                            }
+                        }
+
+                        if (combined == null)
+                            combined = MakeEmptyCopy(combinedRun);
+
+                        foreach (DataRow row in combinedRun.Rows) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            combined.Rows.Add(row.ItemArray);
                         }
                     }
-
-                    if (combined == null)
-                        combined = MakeEmptyCopy(combinedRun);
-
-                    foreach (DataRow row in combinedRun.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        combined.Rows.Add(row.ItemArray);
-                    }
                 }
+                cacheEntry.ReturnValue = combined;
             }
-            return combined;
+            return cacheEntry.ReturnValue as DataTable;
         }
 
         public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, params string[] selectColumns) { return GetMonitors(cancellationToken, databaseActions, where, new int[0], selectColumns); }
@@ -443,17 +487,20 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestIds, params string[] selectColumns) {
-            DataTable dt = null;
-            if (databaseActions != null)
-                if (stresstestIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From monitors{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
-                } else {
-                    stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
-                    if (cancellationToken.IsCancellationRequested) return null;
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestIds, selectColumns);
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                if (databaseActions != null)
+                    if (stresstestIds.Length == 0) {
+                        cacheEntry.ReturnValue = databaseActions.GetDataTable(string.Format("Select {0} From monitors{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
+                    } else {
+                        stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From monitors Where StresstestId In({1}){2};", GetValidSelect(selectColumns), stresstestIds.Combine(", "), GetValidWhere(where, false)));
-                }
-            return dt;
+                        cacheEntry.ReturnValue = databaseActions.GetDataTable(string.Format("Select {0} From monitors Where StresstestId In({1}){2};", GetValidSelect(selectColumns), stresstestIds.Combine(", "), GetValidWhere(where, false)));
+                    }
+            }
+            return cacheEntry.ReturnValue as DataTable;
         }
 
         public static DataTable GetMonitorResults(DatabaseActions databaseActions, int monitorId, params string[] selectColumns) { return GetMonitorResults(databaseActions, new int[] { monitorId }, selectColumns); }
@@ -465,11 +512,15 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetMonitorResults(DatabaseActions databaseActions, int[] monitorIds, params string[] selectColumns) {
-            if (databaseActions != null)
-                return (monitorIds.Length == 0) ?
-                    databaseActions.GetDataTable(string.Format("Select {0} From monitorresults;", GetValidSelect(selectColumns))) :
-                    databaseActions.GetDataTable(string.Format("Select {0} From monitorresults Where MonitorId In({1});", GetValidSelect(selectColumns), monitorIds.Combine(", ")));
-            return null;
+            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), monitorIds, selectColumns);
+            var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                if (databaseActions != null)
+                    cacheEntry.ReturnValue = (monitorIds.Length == 0) ?
+                        databaseActions.GetDataTable(string.Format("Select {0} From monitorresults;", GetValidSelect(selectColumns))) :
+                        databaseActions.GetDataTable(string.Format("Select {0} From monitorresults Where MonitorId In({1});", GetValidSelect(selectColumns), monitorIds.Combine(", ")));
+            }
+            return cacheEntry.ReturnValue as DataTable;
         }
 
         public static string GetCombinedStresstestToString(string stresstest) {
