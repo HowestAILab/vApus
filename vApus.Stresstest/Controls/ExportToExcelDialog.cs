@@ -30,7 +30,7 @@ namespace vApus.Stresstest {
         /// A color pallete of 40 colors to be able to visualy match overiew and 5 heaviest user actions charts.
         /// (Filled later on)
         /// </summary>
-        private List<Color> _colorPalette = new List<Color>(25);
+        private List<Color> _colorPalette = new List<Color>(34);
         #endregion
 
         #region Constructor

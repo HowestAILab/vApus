@@ -98,10 +98,6 @@ namespace vApus.Stresstest {
             get { return (_beginParameterTokenDelimiterCanditates.Length * 3) - 1; }
         }
 
-        /// <summary>
-        /// When using a Distribute setting from stresstest this will be the first clone.
-        /// This is needed to be able to make averages.
-        /// </summary>
         public LogEntry SameAs {
             get { return _sameAs; }
             set { _sameAs = value; }

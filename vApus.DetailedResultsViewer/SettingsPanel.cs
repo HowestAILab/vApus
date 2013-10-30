@@ -113,7 +113,7 @@ namespace vApus.DetailedResultsViewer {
                 dgvDatabases.DataSource = null;
                 string[] filter = filterResults.Filter;
                 _dataSource = new DataTable("dataSource");
-                _dataSource.Columns.Add("CreatedAt");
+                _dataSource.Columns.Add("CreatedAt", typeof(DateTime));
                 _dataSource.Columns.Add("Tags");
                 _dataSource.Columns.Add("Description");
                 _dataSource.Columns.Add("Database");

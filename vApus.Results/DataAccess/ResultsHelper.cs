@@ -1649,77 +1649,263 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         }
 
         /// <summary>
-        /// All given stings are case-sensitive
+        /// All given strings are case-sensitive.
+        /// This done for all tests in a database (for the whole distributed test). Throughput per watt is a geomean.
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="powerMonitorName"></param>
+        /// <param name="wattCounter"></param>
+        /// <param name="secondaryMonitorName">can be null</param>
+        /// <param name="secondaryCounter">can be null</param>
+        /// <returns></returns>
+        public DataTable GetGeomeanThroughputPerWattOverTime(CancellationToken cancellationToken, string powerMonitorName, string wattCounter, string secondaryMonitorName, string secondaryCounter) {
+            lock (_lock) {
+                //Get all the needed datatables and check if they have rows.
+                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                int stresstestsRowCount = stresstests.Rows.Count;
+                var tpsPerWatt = new List<List<double>>();
+                var secondaryCounterValues = new List<float>();
+
+                bool hasSecondaryCounterValues = secondaryMonitorName != null && secondaryCounter != null;
+
+                //Get all the tp per watts and the performance counter values.
+                for (int stresstestsRowIndex = 0; stresstestsRowIndex != stresstests.Rows.Count; stresstestsRowIndex++) {
+                    DataRow row = stresstests.Rows[stresstestsRowIndex];
+                    var dt = GetThroughputPerWattOverTime(cancellationToken, (int)row.ItemArray[0], powerMonitorName, wattCounter, secondaryMonitorName, secondaryCounter);
+
+                    for (int dtRowIndex = 0; dtRowIndex != dt.Rows.Count; dtRowIndex++) {
+                        if (dtRowIndex >= tpsPerWatt.Count) tpsPerWatt.Add(new List<double>());
+                        var l = tpsPerWatt[dtRowIndex];
+
+                        DataRow dtRow = dt.Rows[dtRowIndex];
+                        double tpPerWatt = (double)dtRow.ItemArray[1];
+                        if (tpPerWatt != 0d) l.Add(tpPerWatt);
+
+                        if (hasSecondaryCounterValues && dtRowIndex >= secondaryCounterValues.Count) secondaryCounterValues.Add((float)dtRow.ItemArray[2]);
+                    }
+                }
+
+                var throughputPerWattOverTime = hasSecondaryCounterValues ?
+                    CreateEmptyDataTable("ThroughputPerWatt", "Minute", "Geomean Throughput per Watt", "Average " + secondaryCounter) :
+                    CreateEmptyDataTable("ThroughputPerWatt", "Minute", "Geomean Throughput per Watt");
+
+                for (int i = 0; i != tpsPerWatt.Count; i++) {
+                    var entry = tpsPerWatt[i];
+
+                    double geomeanTpPerWatt;
+                    if (entry.Count == 1) { //Branching goes a bit faster I think, result would be the same regardlesly.
+                        geomeanTpPerWatt = entry[0];
+                    } else {
+                        geomeanTpPerWatt = 1;
+                        foreach (double tpPerWatt in entry) geomeanTpPerWatt *= tpPerWatt;
+                        geomeanTpPerWatt = Math.Pow(geomeanTpPerWatt, (1d / entry.Count));
+                    }
+                    if (hasSecondaryCounterValues)
+                        throughputPerWattOverTime.Rows.Add(new object[] { (i + 1), geomeanTpPerWatt, secondaryCounterValues[i] });
+                    else
+                        throughputPerWattOverTime.Rows.Add(new object[] { (i + 1), geomeanTpPerWatt });
+                }
+
+                return throughputPerWattOverTime;
+            }
+        }
+        /// <summary>
+        /// All given strings are case-sensitive
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <param name="stresstestId"></param>
         /// <param name="powerMonitorName"></param>
-        /// <param name="powerMonitorCounter"></param>
-        /// <param name="performanceMonitorName"></param>
-        /// <param name="performanceMonitorCounter"></param>
+        /// <param name="wattCounter"></param>
+        /// <param name="secondaryMonitorName">can be null</param>
+        /// <param name="secondaryCounter">can be null</param>
         /// <returns></returns>
-        private DataTable GetThroughPutPerWattOverTime(CancellationToken cancellationToken, int stresstestId, string powerMonitorName, string powerMonitorCounter, string performanceMonitorName, string performanceMonitorCounter) {
-            lock (_lock) {
-                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestId, "Id", "Stresstest", "Connection");
-                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+        private DataTable GetThroughputPerWattOverTime(CancellationToken cancellationToken, int stresstestId, string powerMonitorName, string wattCounter, string secondaryMonitorName, string secondaryCounter) {
+            //Get all the needed datatables and check if they have rows.
+            var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestId, "Id", "MonitorBeforeInMinutes", "MonitorAfterInMinutes");
+            if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                float[] powerMonitorCounterValues = GetMonitorCounterValues(cancellationToken, powerMonitorName, powerMonitorCounter);
-                if (powerMonitorCounterValues == null) return null;
+            int powerMonitorStresstestId;
+            var wattCounterValues = GetMonitorCounterValues(cancellationToken, powerMonitorName, wattCounter, out powerMonitorStresstestId);
+            if (wattCounterValues == null) return null;
 
-                float[] performanceMonitorCounterValues = GetMonitorCounterValues(cancellationToken, performanceMonitorName, performanceMonitorCounter);
-                if (performanceMonitorCounterValues == null) return null;
-
-                var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-                if (stresstestResults == null || stresstestResults.Rows.Count == 0) return null;
-                int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
-
-                var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id");
-                if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) return null;
-
-
-                var concurrencyResultIds = new List<int>(concurrencyResults.Rows.Count);
-                foreach (DataRow crRow in concurrencyResults.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    concurrencyResultIds.Add((int)crRow.ItemArray[0]);
+            int powerMonitorBefore = 0, powerMonitorAfter = 0;
+            foreach (DataRow row in stresstests.Rows)
+                if ((int)row.ItemArray[0] == powerMonitorStresstestId) {
+                    powerMonitorBefore = (int)row.ItemArray[1];
+                    powerMonitorAfter = (int)row.ItemArray[2];
+                    break;
                 }
 
+            bool hasSecondaryCounterValues = secondaryMonitorName != null && secondaryCounter != null;
 
-                var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultIds.ToArray(), "Id");
-                if (runResults == null || runResults.Rows.Count == 0) return null;
+            int secondaryMonitorBefore = 0, secondaryMonitorAfter = 0;
+            Dictionary<DateTime, float> secondaryCounterValues = null;
 
-                var runResultIds = new List<int>(runResults.Rows.Count);
-                foreach (DataRow rrRow in runResults.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
+            if (hasSecondaryCounterValues) {
+                int secondaryMonitorStresstestId = 0;
+                secondaryCounterValues = GetMonitorCounterValues(cancellationToken, secondaryMonitorName, secondaryCounter, out secondaryMonitorStresstestId);
+                if (secondaryCounterValues == null) return null;
 
-                    runResultIds.Add((int)rrRow.ItemArray[0]);
-                }
-
-
-                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt");
-                if (logEntryResults == null || logEntryResults.Rows.Count == 0) return null;
-
-                //Sort on sent at.
-                var sentAts = new List<DateTime>();
-                foreach (DataRow lerRow in logEntryResults.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    sentAts.Add((DateTime)lerRow.ItemArray[0]);
-                }
-
-                sentAts.Sort();
-
-                //Split 
-                DateTime NextMinute = sentAts[0].AddMinutes(1);
-                foreach (var sentAt in sentAts) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-
-                }
-
-
-                return null;
+                foreach (DataRow row in stresstests.Rows)
+                    if ((int)row.ItemArray[0] == secondaryMonitorStresstestId) {
+                        secondaryMonitorBefore = (int)row.ItemArray[1];
+                        secondaryMonitorAfter = (int)row.ItemArray[2];
+                        break;
+                    }
             }
+
+            //Get all the log entries.
+            var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+            if (stresstestResults == null || stresstestResults.Rows.Count == 0) return null;
+            int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
+
+            var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id");
+            if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) return null;
+
+
+            var concurrencyResultIds = new List<int>(concurrencyResults.Rows.Count);
+            foreach (DataRow crRow in concurrencyResults.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                concurrencyResultIds.Add((int)crRow.ItemArray[0]);
+            }
+
+
+            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultIds.ToArray(), "Id");
+            if (runResults == null || runResults.Rows.Count == 0) return null;
+
+            var runResultIds = new List<int>(runResults.Rows.Count);
+            foreach (DataRow rrRow in runResults.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                runResultIds.Add((int)rrRow.ItemArray[0]);
+            }
+
+
+            var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds");
+            if (logEntryResults == null || logEntryResults.Rows.Count == 0) return null;
+
+
+            //Get the throughput per minute.
+
+            //Following two variables serve at bordering monitor before and after.
+            DateTime firstSentAt = DateTime.MaxValue;
+            DateTime lastSentAt = DateTime.MinValue;
+
+            var logEntries = new List<LogEntry>();
+            foreach (DataRow lerRow in logEntryResults.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                DateTime sentAt = (DateTime)lerRow.ItemArray[0];
+                if (sentAt < firstSentAt) firstSentAt = sentAt;
+                if (sentAt > lastSentAt) lastSentAt = sentAt;
+                logEntries.Add(new LogEntry() { SentAt = sentAt, TimeToLastByteInTicks = (long)lerRow.ItemArray[1], DelayInMilliseconds = (int)lerRow.ItemArray[2] });
+            }
+
+            //Determine all the minutes.The key is the upper border.
+            var minutes = new Dictionary<DateTime, List<LogEntry>>();
+            DateTime nextMinute = firstSentAt;
+            while (nextMinute < lastSentAt) {
+                nextMinute = nextMinute.AddMinutes(1);
+                minutes.Add(nextMinute, new List<LogEntry>());
+            }
+
+            //---
+            var throughputPerMinute = new Dictionary<int, double>(); //Key == the minute, value == the throughput for that minute
+            //---
+
+            //Put log entries in the right "minute".
+            foreach (var logEntry in logEntries) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                foreach (DateTime key in minutes.Keys) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    if (logEntry.SentAt < key) {
+                        minutes[key].Add(logEntry);
+                        break;
+                    }
+                }
+            }
+
+            TimeSpan totalTimeToLastByte, totalDelay;
+            double div;
+            foreach (List<LogEntry> currentMinute in minutes.Values) {
+                double minuteTp = 0d;
+                if (currentMinute.Count != 0) {
+                    totalTimeToLastByte = new TimeSpan();
+                    totalDelay = new TimeSpan();
+                    foreach (var currentMinuteLogEntry in currentMinute) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        totalTimeToLastByte = totalTimeToLastByte.Add(new TimeSpan(currentMinuteLogEntry.TimeToLastByteInTicks));
+                        totalDelay = totalDelay.Add(new TimeSpan(currentMinuteLogEntry.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
+                    }
+
+                    div = ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
+                    minuteTp = ((double)currentMinute.Count) / div;
+                }
+                throughputPerMinute.Add(throughputPerMinute.Count + 1, minuteTp);
+            }
+
+            //Now we need to get the watt and performance counter for each minute of the test. Monitor before and after must be taken into account.
+
+            var wattPerMinute = GetAveragePerMinute(cancellationToken, wattCounterValues);
+            Dictionary<int, float> secondaryCounterPerMinute = null;
+            if (hasSecondaryCounterValues)
+                secondaryCounterPerMinute = GetAveragePerMinute(cancellationToken, secondaryCounterValues);
+
+            //Gather everything and return the data table.
+            var throughputPerWattOverTime = hasSecondaryCounterValues ?
+                CreateEmptyDataTable("ThroughputPerWatt", "Minute", "Throughput per Watt", "Average " + secondaryCounter) :
+                 CreateEmptyDataTable("ThroughputPerWatt", "Minute", "Throughput per Watt");
+
+            if (hasSecondaryCounterValues)
+                for (int minute = 1; minute <= secondaryMonitorBefore; minute++) {
+                    var row = new object[3];
+
+                    row[0] = minute;
+                    row[1] = 0d;
+                    row[2] = secondaryCounterPerMinute[minute];
+
+                    throughputPerWattOverTime.Rows.Add(row);
+                }
+
+            foreach (int minute in throughputPerMinute.Keys) {
+                var row = new object[hasSecondaryCounterValues ? 3 : 2];
+
+                int newMinute = minute + powerMonitorBefore;
+                row[0] = minute + secondaryMonitorBefore;
+
+                double tpm = throughputPerMinute[minute];
+                if (tpm == 0d) {
+                    row[1] = 0d;
+                } else {
+                    float wpm = wattPerMinute[newMinute];
+                    row[1] = wpm == 0f ? 0d : throughputPerMinute[minute] / wpm;
+                }
+
+                if (hasSecondaryCounterValues)
+                    row[2] = secondaryCounterPerMinute[newMinute];
+
+                throughputPerWattOverTime.Rows.Add(row);
+            }
+
+            if (hasSecondaryCounterValues) {
+                secondaryMonitorAfter += throughputPerWattOverTime.Rows.Count + 1;
+                for (int minute = throughputPerWattOverTime.Rows.Count + 1; minute != secondaryMonitorAfter; minute++) {
+                    var row = new object[3];
+
+                    row[0] = minute;
+                    row[1] = 0d;
+                    row[2] = secondaryCounterPerMinute[minute];
+
+                    throughputPerWattOverTime.Rows.Add(row);
+                }
+            }
+            return throughputPerWattOverTime;
         }
         /// <summary>
         /// Returns an array of the values for a given counter.
@@ -1728,30 +1914,214 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="monitorName"></param>
         /// <param name="counter"></param>
         /// <returns></returns>
-        private float[] GetMonitorCounterValues(CancellationToken cancellationToken, string monitorName, string counter) {
-            var monitor = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, "Monitor='" + monitorName + "'", null, new string[] { "Id", "ResultHeaders" });
+        private Dictionary<DateTime, float> GetMonitorCounterValues(CancellationToken cancellationToken, string monitorName, string counter, out int stresstestId) {
+            stresstestId = 0;
+            var monitor = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, "Monitor='" + monitorName + "'", new int[0], new string[] { "Id", "StresstestId", "ResultHeaders" });
             if (monitor == null || monitor.Rows.Count == 0) return null;
 
             DataRow row = monitor.Rows[0];
             int id = (int)row.ItemArray[0];
-            string[] resultHeaders = (row.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+            stresstestId = (int)row.ItemArray[1];
+            string[] resultHeaders = (row.ItemArray[2] as string).Split(new string[] { "; " }, StringSplitOptions.None);
             int resultHeaderIndex = resultHeaders.IndexOf(counter);
 
-            var monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, id, "Value");
+            var monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, id, "TimeStamp", "Value");
             if (monitorResults == null || monitorResults.Rows.Count == 0) return null;
 
-            var arr = new float[monitorResults.Rows.Count];
+            var dict = new Dictionary<DateTime, float>(monitorResults.Rows.Count);
 
             for (int i = 0; i != monitorResults.Rows.Count; i++) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
                 row = monitorResults.Rows[i];
-                string[] value = (row.ItemArray[0] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                string[] value = (row.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
-                arr[i] = float.Parse(value[resultHeaderIndex]);
+                dict.Add((DateTime)row.ItemArray[0], float.Parse(value[resultHeaderIndex]));
             }
 
-            return arr;
+            return dict;
+        }
+        private Dictionary<int, float> GetAveragePerMinute(CancellationToken cancellationToken, Dictionary<DateTime, float> dict) {
+            var averagePerMinute = new Dictionary<int, float>();
+
+            DateTime nextMinute = dict.GetKeyAt(0).AddMinutes(1);
+
+            var currentMinute = new List<float>();
+            float average;
+            int count;
+            foreach (var key in dict.Keys) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                if (key > nextMinute) {
+                    average = 0;
+                    count = currentMinute.Count;
+                    foreach (var currentValue in currentMinute) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        average += (currentValue / count);
+                    }
+
+                    averagePerMinute.Add(averagePerMinute.Count + 1, average);
+
+                    nextMinute = nextMinute.AddMinutes(1);
+                    currentMinute = new List<float>();
+                }
+                currentMinute.Add(dict[key]);
+            }
+
+            if (currentMinute.Count != 0) {
+                average = 0;
+                count = currentMinute.Count;
+                foreach (var currentValue in currentMinute) {
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    average += (currentValue / count);
+                }
+                averagePerMinute.Add(averagePerMinute.Count + 1, average);
+            }
+
+            return averagePerMinute;
+        }
+
+        public DataTable GetGeomeanThroughputPerWatt(CancellationToken cancellationToken, string powerMonitorName, string wattCounter) {
+            lock (_lock) {
+                //Get all the needed datatables and check if they have rows.
+                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                int stresstestsRowCount = stresstests.Rows.Count;
+                var tpsPerWatt = new List<double[]>();
+
+                //Get all the tp per watts and the performance counter values.
+                for (int stresstestsRowIndex = 0; stresstestsRowIndex != stresstests.Rows.Count; stresstestsRowIndex++) {
+                    DataRow row = stresstests.Rows[stresstestsRowIndex];
+                    var dt = GetThroughputPerWatt(cancellationToken, (int)row.ItemArray[0], powerMonitorName, wattCounter);
+
+                    for (int dtRowIndex = 0; dtRowIndex != dt.Rows.Count; dtRowIndex++) {
+                        if (dtRowIndex >= tpsPerWatt.Count) tpsPerWatt.Add(new double[stresstestsRowCount]);
+                        var arr = tpsPerWatt[dtRowIndex];
+
+                        DataRow dtRow = dt.Rows[dtRowIndex];
+                        double tpPerWatt = (double)dtRow.ItemArray[0];
+                        arr[stresstestsRowIndex] = tpPerWatt;
+                    }
+                }
+
+                var throughputPerWatt = CreateEmptyDataTable("ThroughputPerWatt", new string[] { "Geomean Throughput per Watt" }, new Type[] { typeof(double) });
+
+                for (int i = 0; i != tpsPerWatt.Count; i++) {
+                    var entry = tpsPerWatt[i];
+
+                    double geomeanTpPerWatt;
+                    if (entry.Length == 1) { //Branching goes a bit faster I think, result would be the same regardlesly.
+                        geomeanTpPerWatt = entry[0];
+                    } else {
+                        geomeanTpPerWatt = 1;
+                        foreach (double tpPerWatt in entry) geomeanTpPerWatt *= tpPerWatt;
+                        geomeanTpPerWatt = Math.Pow(geomeanTpPerWatt, (1d / entry.Length));
+                    }
+
+                    throughputPerWatt.Rows.Add(geomeanTpPerWatt);
+                }
+
+                return throughputPerWatt;
+            }
+        }
+        private DataTable GetThroughputPerWatt(CancellationToken cancellationToken, int stresstestId, string powerMonitorName, string wattCounter) {
+            int powerMonitorStresstestId;
+            var wattCounterValues = GetMonitorCounterValues(cancellationToken, powerMonitorName, wattCounter, out powerMonitorStresstestId);
+            if (wattCounterValues == null) return null;
+
+            //Get all the log entries.
+            var stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
+            if (stresstestResults == null || stresstestResults.Rows.Count == 0) return null;
+            int stresstestResultId = (int)stresstestResults.Rows[0].ItemArray[0];
+
+            var concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stresstestResultId, "Id");
+            if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) return null;
+
+
+            var concurrencyResultIds = new List<int>(concurrencyResults.Rows.Count);
+            foreach (DataRow crRow in concurrencyResults.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                concurrencyResultIds.Add((int)crRow.ItemArray[0]);
+            }
+
+            var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultIds.ToArray(), "Id");
+            if (runResults == null || runResults.Rows.Count == 0) return null;
+
+            var runResultIds = new List<int>(runResults.Rows.Count);
+            foreach (DataRow rrRow in runResults.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                runResultIds.Add((int)rrRow.ItemArray[0]);
+            }
+
+            var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds");
+            if (logEntryResults == null || logEntryResults.Rows.Count == 0) return null;
+
+
+            //Following two variables serve at bordering monitor before and after.
+            DateTime firstSentAt = DateTime.MaxValue;
+            DateTime lastSentAt = DateTime.MinValue;
+
+            var logEntries = new List<LogEntry>();
+            foreach (DataRow lerRow in logEntryResults.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                DateTime sentAt = (DateTime)lerRow.ItemArray[0];
+                if (sentAt < firstSentAt) firstSentAt = sentAt;
+                if (sentAt > lastSentAt) lastSentAt = sentAt;
+                logEntries.Add(new LogEntry() { SentAt = sentAt, TimeToLastByteInTicks = (long)lerRow.ItemArray[1], DelayInMilliseconds = (int)lerRow.ItemArray[2] });
+            }
+
+            //Get the Throughput
+            //---
+            double throughput = 0d;
+            //---
+
+            TimeSpan totalTimeToLastByte = new TimeSpan();
+            TimeSpan totalDelay = new TimeSpan();
+
+            foreach (var logEntry in logEntries) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                totalTimeToLastByte = totalTimeToLastByte.Add(new TimeSpan(logEntry.TimeToLastByteInTicks));
+                totalDelay = totalDelay.Add(new TimeSpan(logEntry.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
+            }
+
+            double div = ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
+            throughput = ((double)logEntries.Count) / div;
+
+            //Now we need to get the watt and performance counter for each minute of the test. Monitor before and after must be taken into account.
+
+            float averageWatt = GetAverage(cancellationToken, wattCounterValues, firstSentAt, lastSentAt);
+            if (averageWatt == -1f) return null;
+
+            //Gather everything and return the data table.
+            var throughputPerWatt = CreateEmptyDataTable("ThroughputPerWatt", new string[] { "Throughput per Watt" }, new Type[] { typeof(double) });
+            throughputPerWatt.Rows.Add(new object[] { (double)(throughput / averageWatt) });
+
+            return throughputPerWatt;
+        }
+        private float GetAverage(CancellationToken cancellationToken, Dictionary<DateTime, float> dict, DateTime from, DateTime to) {
+            var average = 0f;
+            int count = 0;
+            foreach (var key in dict.Keys) {
+                if (cancellationToken.IsCancellationRequested) return -1f;
+                if (key < from) continue;
+                if (key > to) break;
+                ++count;
+            }
+            foreach (var key in dict.Keys) {
+                if (cancellationToken.IsCancellationRequested) return -1f;
+                if (key < from) continue;
+                if (key > to) break;
+                average += (dict[key] / count);
+            }
+
+            return average;
         }
 
         #endregion
@@ -1770,7 +2140,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
             lock (_lock) {
                 try {
-                    _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password) };
+                    _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;table cache = true", host, port, databaseName, user, password) };
                     if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
                     _databaseName = databaseName;
                 } catch {
@@ -1835,6 +2205,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             return dataTable;
         }
 
+        private DataTable CreateEmptyDataTable(string name, string[] columnNames, Type[] columnDataTypes) {
+            var dataTable = new DataTable(name);
+            for (int i = 0; i != columnNames.Length; i++) dataTable.Columns.Add(columnNames[i], columnDataTypes[i]);
+            return dataTable;
+        }
+
         /// <summary>
         /// Parse a date to a valid string for in a MySQL db.
         /// </summary>
@@ -1855,6 +2231,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             private const char COLON = ':';
 
             private static readonly UserActionComparer _userActionComparer = new UserActionComparer();
+
+            private UserActionComparer() { }
 
             public int Compare(string x, string y) {
                 if (x.StartsWith(LOG)) { //Backwards compatible.
@@ -1898,6 +2276,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
             private static readonly LogEntryIndexComparer _logEntryIndexComparer = new LogEntryIndexComparer();
 
+            private LogEntryIndexComparer() { }
+
             public int Compare(string x, string y) {
                 string[] split1 = x.Split(dot);
                 string[] split2 = y.Split(dot);
@@ -1913,6 +2293,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
 
             public static LogEntryIndexComparer GetInstance { get { return _logEntryIndexComparer; } }
+        }
+        private struct LogEntry {
+            public DateTime SentAt;
+            public long TimeToLastByteInTicks;
+            public int DelayInMilliseconds;
         }
     }
 }
