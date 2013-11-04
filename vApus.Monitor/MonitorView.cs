@@ -336,9 +336,11 @@ namespace vApus.Monitor {
 
             if (exception == null) _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
             _refreshTimeInMS = 20000;
-            _refreshTimeInMS = _monitorProxy.GetRefreshRateInMs(_monitor.MonitorSource.Source, out exception);
-            if (exception == null) configuration = _monitorProxy.GetConfigurationXML(out exception);
-            wdyh = _monitorProxy.GetWDYH(out exception);
+            if (exception == null) _refreshTimeInMS = _monitorProxy.GetRefreshRateInMs(_monitor.MonitorSource.Source, out exception);
+            if (exception == null) {
+                configuration = _monitorProxy.GetConfigurationXML(out exception);
+                wdyh = _monitorProxy.GetWDYH(out exception);
+            }
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (exception == null) {
