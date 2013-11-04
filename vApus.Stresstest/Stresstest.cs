@@ -368,7 +368,7 @@ namespace vApus.Stresstest {
             set { _actionDistribution = value; }
         }
 
-        [Description("The maximum number of user actions that a test pattern for a user can contain. Pinned actions however are always picked. Set this to zero to not use this."),
+        [Description("The Action Distribution property must be ticked off. The maximum number of user actions that a test pattern for a user can contain. Pinned actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum Number of User Actions")]
         [SavableCloneable, PropertyControl(9, true)]
         public int MaximumNumberOfUserActions {
