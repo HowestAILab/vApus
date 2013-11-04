@@ -32,6 +32,8 @@ namespace vApus.Results {
 
         private int _vApusInstanceId, _stresstestId;
         private ulong _stresstestResultId, _concurrencyResultId, _runResultId;
+
+        private FunctionOutputCache _functionOutputCache = new FunctionOutputCache(); //For caching the not so stored procedure data.
         #endregion
 
         #region Properties
@@ -530,7 +532,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetAverageConcurrencyResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                     if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "Runs");
@@ -659,7 +661,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         private DataTable GetAverageUserActionResults(CancellationToken cancellationToken, bool withConcurrencyResultId, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), withConcurrencyResultId, stresstestIds);
+                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), withConcurrencyResultId, stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                     if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
@@ -894,7 +896,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetAverageLogEntryResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                     if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
@@ -1048,7 +1050,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetErrors(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                     if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
@@ -1114,7 +1116,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
-                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                 if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
@@ -1194,7 +1196,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
-                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                 if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                     if (stresstestIds.Length == 0) {
@@ -1268,7 +1270,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetMachineConfigurations(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                     if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
@@ -1308,7 +1310,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
-                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                 if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "MonitorBeforeInMinutes", "MonitorAfterInMinutes");
@@ -1540,7 +1542,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
-                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDts = cacheEntry.ReturnValue as List<DataTable>;
                 if (cacheEntryDts == null || cacheEntryDts.Count == 0) {
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
@@ -1616,7 +1618,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <returns></returns>
         public DataTable GetRunsOverTime(CancellationToken cancellationToken, out Dictionary<string, List<string>> concurrencyAndRunsDic, params int[] stresstestIds) {
             lock (_lock) {
-                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                 if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                     concurrencyAndRunsDic = new Dictionary<string, List<string>>();
@@ -1714,7 +1716,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <returns></returns>
         public DataTable GetGeomeanThroughputPerWattOverTime(CancellationToken cancellationToken, string powerMonitorName, string wattCounter, string secondaryMonitorName, string secondaryCounter) {
             lock (_lock) {
-                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), powerMonitorName, wattCounter, secondaryMonitorName, secondaryCounter);
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), powerMonitorName, wattCounter, secondaryMonitorName, secondaryCounter);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                 if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                     //Get all the needed datatables and check if they have rows.
@@ -2044,7 +2046,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
         public DataTable GetGeomeanThroughputPerWatt(CancellationToken cancellationToken, string powerMonitorName, string wattCounter) {
             lock (_lock) {
-                var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), powerMonitorName, wattCounter);
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), powerMonitorName, wattCounter);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
                 if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                     //Get all the needed datatables and check if they have rows.
@@ -2193,9 +2195,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         #endregion
 
         #region Other
-        ~ResultsHelper() {
-            ResultsHelperCache.Clear();
-        }
         /// <summary>
         /// Connect to an existing database to execute the procedures on or add slave side data to it.
         /// </summary>
@@ -2206,7 +2205,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="password"></param>
         public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
             lock (_lock) {
-                ResultsHelperCache.Clear();
+                ReaderAndCombiner.ClearCache();
+                _functionOutputCache = new FunctionOutputCache();
                 try {
                     _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;table cache = true", host, port, databaseName, user, password) };
                     if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
@@ -2221,7 +2221,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// Last resort.
         /// </summary>
         public void KillConnection() {
-            ResultsHelperCache.Clear();
+            ReaderAndCombiner.ClearCache();
+            if (_functionOutputCache != null) _functionOutputCache.Dispose();
+            _functionOutputCache = new FunctionOutputCache();
             if (_databaseActions != null) {
                 try { _databaseActions.ReleaseConnection(); } catch { }
                 _databaseActions = null;

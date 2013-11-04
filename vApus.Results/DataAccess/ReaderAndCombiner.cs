@@ -19,17 +19,25 @@ namespace vApus.Results {
     /// Caching combined data is something that does not happen, but this can be put in place if the need is there.
     /// </summary>
     public static class ReaderAndCombiner {
+        private static FunctionOutputCache _functionOutputCache = new FunctionOutputCache(); //For caching the combined table data.
 
         #region Public
+        /// <summary>
+        /// Do this always when connecting to a new database.   
+        /// </summary>
+        public static void ClearCache() {
+            _functionOutputCache.Dispose();
+            _functionOutputCache = new FunctionOutputCache();
+        }
         public static DataTable GetDescription(DatabaseActions databaseActions) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod());
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod());
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
                 cacheEntry.ReturnValue = databaseActions.GetDataTable("Select Description FROM description");
             return cacheEntry.ReturnValue as DataTable;
         }
         public static DataTable GetTags(DatabaseActions databaseActions) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod());
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod());
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
                 cacheEntry.ReturnValue = databaseActions.GetDataTable("Select Tag FROM tags");
@@ -40,7 +48,7 @@ namespace vApus.Results {
         /// Get all the vApus instances used, divided stresstests are not taken into account.
         /// </summary>
         public static DataTable GetvApusInstances(DatabaseActions databaseActions) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod());
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod());
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
                 cacheEntry.ReturnValue = databaseActions.GetDataTable("Select * FROM vapusinstances");
@@ -57,7 +65,7 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetStresstests(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                 //The select columns can place a column at another index.
@@ -108,7 +116,7 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetStresstestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                 int startedAtIndex = 2;
@@ -189,7 +197,7 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetConcurrencyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestResultIds, params string[] selectColumns) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestResultIds, selectColumns);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestResultIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                 int concurrencyIndex = 2;
@@ -272,7 +280,7 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetRunResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] concurrencyResultIds, params string[] selectColumns) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, concurrencyResultIds, selectColumns);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, concurrencyResultIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                 int totalLogEntryCountIndex = 3;
@@ -364,7 +372,7 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetLogEntryResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, runResultIds, selectColumns);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, runResultIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                 int idIndex = 0;
@@ -487,7 +495,7 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestIds, params string[] selectColumns) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestIds, selectColumns);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                 if (databaseActions != null)
@@ -512,7 +520,7 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetMonitorResults(DatabaseActions databaseActions, int[] monitorIds, params string[] selectColumns) {
-            var cacheEntry = ResultsHelperCache.GetOrAdd(MethodInfo.GetCurrentMethod(), monitorIds, selectColumns);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), monitorIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
             if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
                 if (databaseActions != null)
@@ -546,30 +554,35 @@ namespace vApus.Results {
         private static Dictionary<string, DataTable> GetStresstestsAndDividedStresstestRows(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var dict = new Dictionary<string, DataTable>();
-            if (databaseActions != null) {
-                DataTable dt = null;
-                string select = GetValidSelect(selectColumns);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
+            var dict = cacheEntry.ReturnValue as Dictionary<string, DataTable>;
+            if (dict == null || dict.Count == 0) {
+                dict = new Dictionary<string, DataTable>();
+                if (databaseActions != null) {
+                    DataTable dt = null;
+                    string select = GetValidSelect(selectColumns);
 
-                if (stresstestIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstests;", select));
-                } else {
-                    stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
-                    if (cancellationToken.IsCancellationRequested) return null;
+                    if (stresstestIds.Length == 0) {
+                        dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstests;", select));
+                    } else {
+                        stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstests Where Id In({1});", select, stresstestIds.Combine(", ")));
+                        dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstests Where Id In({1});", select, stresstestIds.Combine(", ")));
+                    }
+
+                    foreach (DataRow row in dt.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        string stresstest = GetCombinedStresstestToString(row["Stresstest"] as string);
+                        if (!dict.ContainsKey(stresstest))
+                            dict.Add(stresstest, MakeEmptyCopy(dt));
+                        dict[stresstest].Rows.Add(row.ItemArray);
+                    }
                 }
-
-                foreach (DataRow row in dt.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    string stresstest = GetCombinedStresstestToString(row["Stresstest"] as string);
-                    if (!dict.ContainsKey(stresstest))
-                        dict.Add(stresstest, MakeEmptyCopy(dt));
-                    dict[stresstest].Rows.Add(row.ItemArray);
-                }
+                cacheEntry.ReturnValue = dict;
             }
-            return dict;
+            return cacheEntry.ReturnValue as Dictionary<string, DataTable>;
         }
         /// <summary>
         /// The number of result rows in a datatable is the number of divided stresstests.
@@ -577,48 +590,52 @@ namespace vApus.Results {
         private static Dictionary<string, DataTable> GetStresstestsAndDividedStresstestResultRows(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var dict = new Dictionary<string, DataTable>();
-            if (databaseActions != null) {
-
-                DataTable dt = null;
-                if (stresstestIds.Length == 0) {
-                    dt = databaseActions.GetDataTable("Select Id, Stresstest From stresstests;");
-                } else {
-                    stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    dt = databaseActions.GetDataTable(string.Format("Select Id, Stresstest From stresstests Where Id In({0});", stresstestIds.Combine(", ")));
-                }
-
-                var dictStresstest = new Dictionary<string, List<int>>();
-                foreach (DataRow row in dt.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    string stresstest = GetCombinedStresstestToString(row.ItemArray[1] as string);
-                    if (!dictStresstest.ContainsKey(stresstest))
-                        dictStresstest.Add(stresstest, new List<int>());
-                    dictStresstest[stresstest].Add((int)row.ItemArray[0]);
-                }
-
-                string select = GetValidSelect(selectColumns);
-                foreach (string stresstest in dictStresstest.Keys) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    foreach (int stresstestId in dictStresstest[stresstest]) {
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
+            var dict = cacheEntry.ReturnValue as Dictionary<string, DataTable>;
+            if (dict == null || dict.Count == 0) {
+                dict = new Dictionary<string, DataTable>();
+                if (databaseActions != null) {
+                    DataTable dt = null;
+                    if (stresstestIds.Length == 0) {
+                        dt = databaseActions.GetDataTable("Select Id, Stresstest From stresstests;");
+                    } else {
+                        stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstestresults Where StresstestId={1};", select, stresstestId));
+                        dt = databaseActions.GetDataTable(string.Format("Select Id, Stresstest From stresstests Where Id In({0});", stresstestIds.Combine(", ")));
+                    }
 
-                        if (dt.Rows.Count != 0) {
-                            if (!dict.ContainsKey(stresstest))
-                                dict.Add(stresstest, MakeEmptyCopy(dt));
+                    var dictStresstest = new Dictionary<string, List<int>>();
+                    foreach (DataRow row in dt.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                            dict[stresstest].Rows.Add(dt.Rows[0].ItemArray);
+                        string stresstest = GetCombinedStresstestToString(row.ItemArray[1] as string);
+                        if (!dictStresstest.ContainsKey(stresstest))
+                            dictStresstest.Add(stresstest, new List<int>());
+                        dictStresstest[stresstest].Add((int)row.ItemArray[0]);
+                    }
+
+                    string select = GetValidSelect(selectColumns);
+                    foreach (string stresstest in dictStresstest.Keys) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        foreach (int stresstestId in dictStresstest[stresstest]) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstestresults Where StresstestId={1};", select, stresstestId));
+
+                            if (dt.Rows.Count != 0) {
+                                if (!dict.ContainsKey(stresstest))
+                                    dict.Add(stresstest, MakeEmptyCopy(dt));
+
+                                dict[stresstest].Rows.Add(dt.Rows[0].ItemArray);
+                            }
                         }
                     }
                 }
+                cacheEntry.ReturnValue = dict;
             }
-            return dict;
+            return cacheEntry.ReturnValue as Dictionary<string, DataTable>;
         }
 
         /// <summary>
@@ -632,46 +649,51 @@ namespace vApus.Results {
         private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedConcurrencyResultRows(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestResultIds, params string[] selectColumns) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var dict = new Dictionary<string, List<DataTable>>();
-            if (databaseActions != null) {
-                var dictStresstestResults = GetStresstestsAndDividedStresstestResultRows(cancellationToken, databaseActions, new int[0], "Id");
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                DataTable dt = null;
-                if (stresstestResultIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From concurrencyresults{1};", GetValidSelect(selectColumns),
-                        GetValidWhere(where, true)));
-                } else {
-                    stresstestResultIds = GetStresstestResultIdsAndSiblings(cancellationToken, databaseActions, stresstestResultIds);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestResultIds, selectColumns);
+            var dict = cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
+            if (dict == null || dict.Count == 0) {
+                dict = new Dictionary<string, List<DataTable>>();
+                if (databaseActions != null) {
+                    var dictStresstestResults = GetStresstestsAndDividedStresstestResultRows(cancellationToken, databaseActions, new int[0], "Id");
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From concurrencyresults Where StresstestResultId In({1}){2};", GetValidSelect(selectColumns),
-                        stresstestResultIds.Combine(", "), GetValidWhere(where, false)));
-                }
+                    DataTable dt = null;
+                    if (stresstestResultIds.Length == 0) {
+                        dt = databaseActions.GetDataTable(
+                            string.Format("Select {0} From concurrencyresults{1};", GetValidSelect(selectColumns),
+                            GetValidWhere(where, true)));
+                    } else {
+                        stresstestResultIds = GetStresstestResultIdsAndSiblings(cancellationToken, databaseActions, stresstestResultIds);
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                foreach (string stresstest in dictStresstestResults.Keys) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    dict.Add(stresstest, new List<DataTable>());
-                    foreach (DataRow row in dictStresstestResults[stresstest].Rows) {
-                        var emptyCopy = MakeEmptyCopy(dt);
-                        foreach (DataRow toAdd in dt.Rows) {
-                            if (cancellationToken.IsCancellationRequested) return null;
-
-                            if (toAdd["StresstestResultId"].Equals(row["Id"]))
-                                emptyCopy.Rows.Add(toAdd.ItemArray);
-                        }
-
-                        if (emptyCopy.Rows.Count != 0)
-                            dict[stresstest].Add(emptyCopy);
+                        dt = databaseActions.GetDataTable(
+                            string.Format("Select {0} From concurrencyresults Where StresstestResultId In({1}){2};", GetValidSelect(selectColumns),
+                            stresstestResultIds.Combine(", "), GetValidWhere(where, false)));
                     }
-                    if (dict[stresstest].Count == 0)
-                        dict.Remove(stresstest);
+
+                    foreach (string stresstest in dictStresstestResults.Keys) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        dict.Add(stresstest, new List<DataTable>());
+                        foreach (DataRow row in dictStresstestResults[stresstest].Rows) {
+                            var emptyCopy = MakeEmptyCopy(dt);
+                            foreach (DataRow toAdd in dt.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
+
+                                if (toAdd["StresstestResultId"].Equals(row["Id"]))
+                                    emptyCopy.Rows.Add(toAdd.ItemArray);
+                            }
+
+                            if (emptyCopy.Rows.Count != 0)
+                                dict[stresstest].Add(emptyCopy);
+                        }
+                        if (dict[stresstest].Count == 0)
+                            dict.Remove(stresstest);
+                    }
                 }
+                cacheEntry.ReturnValue = dict;
             }
-            return dict;
+            return cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
         }
         /// <summary>
         /// 
@@ -684,52 +706,57 @@ namespace vApus.Results {
         private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedRunResultRows(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] concurrencyResultIds, params string[] selectColumns) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var dict = new Dictionary<string, List<DataTable>>();
-            if (databaseActions != null) {
-                var dictStresstestConcurrencyResults = GetStresstestsAndDividedConcurrencyResultRows(cancellationToken, databaseActions, null, new int[0], "Id", "StresstestResultId");
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                DataTable dt = null;
-                if (concurrencyResultIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From runresults{1} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
-                        GetValidWhere(where, true)));
-                } else {
-                    concurrencyResultIds = GetConcurrencyResultIdsAndSiblings(cancellationToken, databaseActions, concurrencyResultIds);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, concurrencyResultIds, selectColumns);
+            var dict = cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
+            if (dict == null || dict.Count == 0) {
+                dict = new Dictionary<string, List<DataTable>>();
+                if (databaseActions != null) {
+                    var dictStresstestConcurrencyResults = GetStresstestsAndDividedConcurrencyResultRows(cancellationToken, databaseActions, null, new int[0], "Id", "StresstestResultId");
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From runresults Where ConcurrencyResultId In({1}){2} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
-                        concurrencyResultIds.Combine(", "), GetValidWhere(where, false)));
-                }
-
-                foreach (string stresstest in dictStresstestConcurrencyResults.Keys) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    dict.Add(stresstest, new List<DataTable>());
-                    foreach (var crDt in dictStresstestConcurrencyResults[stresstest]) {
+                    DataTable dt = null;
+                    if (concurrencyResultIds.Length == 0) {
+                        dt = databaseActions.GetDataTable(
+                            string.Format("Select {0} From runresults{1} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
+                            GetValidWhere(where, true)));
+                    } else {
+                        concurrencyResultIds = GetConcurrencyResultIdsAndSiblings(cancellationToken, databaseActions, concurrencyResultIds);
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        var emptyCopy = MakeEmptyCopy(dt);
-                        foreach (DataRow row in crDt.Rows) {
+                        dt = databaseActions.GetDataTable(
+                            string.Format("Select {0} From runresults Where ConcurrencyResultId In({1}){2} Order By TotalLogEntryCount Desc;", GetValidSelect(selectColumns),
+                            concurrencyResultIds.Combine(", "), GetValidWhere(where, false)));
+                    }
+
+                    foreach (string stresstest in dictStresstestConcurrencyResults.Keys) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        dict.Add(stresstest, new List<DataTable>());
+                        foreach (var crDt in dictStresstestConcurrencyResults[stresstest]) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            foreach (DataRow toAdd in dt.Rows) {
+                            var emptyCopy = MakeEmptyCopy(dt);
+                            foreach (DataRow row in crDt.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                if (toAdd["ConcurrencyResultId"].Equals(row["Id"]))
-                                    emptyCopy.Rows.Add(toAdd.ItemArray);
-                            }
-                        }
+                                foreach (DataRow toAdd in dt.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
 
-                        if (emptyCopy.Rows.Count != 0)
-                            dict[stresstest].Add(emptyCopy);
+                                    if (toAdd["ConcurrencyResultId"].Equals(row["Id"]))
+                                        emptyCopy.Rows.Add(toAdd.ItemArray);
+                                }
+                            }
+
+                            if (emptyCopy.Rows.Count != 0)
+                                dict[stresstest].Add(emptyCopy);
+                        }
+                        if (dict[stresstest].Count == 0)
+                            dict.Remove(stresstest);
                     }
-                    if (dict[stresstest].Count == 0)
-                        dict.Remove(stresstest);
                 }
+                cacheEntry.ReturnValue = dict;
             }
-            return dict;
+            return cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
         }
         /// <summary>
         /// 
@@ -742,211 +769,236 @@ namespace vApus.Results {
         private static Dictionary<string, List<DataTable>> GetStresstestsAndDividedLogEntryResultRows(CancellationToken cancellationToken, DatabaseActions databaseActions, string[] selectColumns, string where, params int[] runResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var dict = new Dictionary<string, List<DataTable>>();
-            if (databaseActions != null) {
-                var dictStresstestRunResults = GetStresstestsAndDividedRunResultRows(cancellationToken, databaseActions, null, new int[0], "Id", "ConcurrencyResultId");
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                DataTable dt = null;
-                if (runResultIds.Length == 0) {
-                    dt = databaseActions.GetDataTable(string.Format("Select {0} From logentryresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
-                } else {
-                    runResultIds = GetRunResultIdsAndSiblings(cancellationToken, databaseActions, runResultIds);
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), selectColumns, where, runResultIds);
+            var dict = cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
+            if (dict == null || dict.Count == 0) {
+                dict = new Dictionary<string, List<DataTable>>();
+                if (databaseActions != null) {
+                    var dictStresstestRunResults = GetStresstestsAndDividedRunResultRows(cancellationToken, databaseActions, null, new int[0], "Id", "ConcurrencyResultId");
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    dt = databaseActions.GetDataTable(
-                        string.Format("Select {0} From logentryresults Where RunResultId In({1}){2};", GetValidSelect(selectColumns),
-                        runResultIds.Combine(", "), GetValidWhere(where, false)));
-                }
-
-                foreach (string stresstest in dictStresstestRunResults.Keys) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    dict.Add(stresstest, new List<DataTable>());
-                    foreach (var rrDt in dictStresstestRunResults[stresstest]) {
+                    DataTable dt = null;
+                    if (runResultIds.Length == 0) {
+                        dt = databaseActions.GetDataTable(string.Format("Select {0} From logentryresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
+                    } else {
+                        runResultIds = GetRunResultIdsAndSiblings(cancellationToken, databaseActions, runResultIds);
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        var emptyCopy = MakeEmptyCopy(dt);
-                        foreach (DataRow row in rrDt.Rows)
-                            foreach (DataRow toAdd in dt.Rows)
-                                if (toAdd["RunResultId"].Equals(row["Id"]))
-                                    emptyCopy.Rows.Add(toAdd.ItemArray);
-
-                        if (emptyCopy.Rows.Count != 0)
-                            dict[stresstest].Add(emptyCopy);
+                        dt = databaseActions.GetDataTable(
+                            string.Format("Select {0} From logentryresults Where RunResultId In({1}){2};", GetValidSelect(selectColumns),
+                            runResultIds.Combine(", "), GetValidWhere(where, false)));
                     }
-                    if (dict[stresstest].Count == 0)
-                        dict.Remove(stresstest);
+
+                    foreach (string stresstest in dictStresstestRunResults.Keys) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        dict.Add(stresstest, new List<DataTable>());
+                        foreach (var rrDt in dictStresstestRunResults[stresstest]) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            var emptyCopy = MakeEmptyCopy(dt);
+                            foreach (DataRow row in rrDt.Rows)
+                                foreach (DataRow toAdd in dt.Rows)
+                                    if (toAdd["RunResultId"].Equals(row["Id"]))
+                                        emptyCopy.Rows.Add(toAdd.ItemArray);
+
+                            if (emptyCopy.Rows.Count != 0)
+                                dict[stresstest].Add(emptyCopy);
+                        }
+                        if (dict[stresstest].Count == 0)
+                            dict.Remove(stresstest);
+                    }
                 }
+                cacheEntry.ReturnValue = dict;
             }
-            return dict;
+            return cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
         }
 
         private static int[] GetStresstestIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var l = new List<int>();
-            if (databaseActions != null) {
-                var dt = databaseActions.GetDataTable("Select Id, Stresstest From stresstests;");
-                var foundCombinedStresstestToStrings = new List<string>();
-                foreach (DataRow row in dt.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    int id = (int)row.ItemArray[0];
-                    if (stresstestIds.Contains(id)) {
-                        string stresstest = row.ItemArray[1] as string;
-                        string combined = TrimDividedPart(stresstest);
-                        if (!foundCombinedStresstestToStrings.Contains(combined))
-                            foundCombinedStresstestToStrings.Add(combined);
-                    }
-                }
-                foreach (DataRow row in dt.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
-
-                    string stresstest = row.ItemArray[1] as string;
-                    foreach (string combined in foundCombinedStresstestToStrings) {
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+            var arr = cacheEntry.ReturnValue as int[];
+            if (arr == null || arr.Length == 0) {
+                var l = new List<int>();
+                if (databaseActions != null) {
+                    var dt = databaseActions.GetDataTable("Select Id, Stresstest From stresstests;");
+                    var foundCombinedStresstestToStrings = new List<string>();
+                    foreach (DataRow row in dt.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        if (stresstest.Contains(combined)) {
-                            int id = (int)row.ItemArray[0];
-                            l.Add((int)id);
-                            break;
+                        int id = (int)row.ItemArray[0];
+                        if (stresstestIds.Contains(id)) {
+                            string stresstest = row.ItemArray[1] as string;
+                            string combined = TrimDividedPart(stresstest);
+                            if (!foundCombinedStresstestToStrings.Contains(combined))
+                                foundCombinedStresstestToStrings.Add(combined);
+                        }
+                    }
+                    foreach (DataRow row in dt.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        string stresstest = row.ItemArray[1] as string;
+                        foreach (string combined in foundCombinedStresstestToStrings) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            if (stresstest.Contains(combined)) {
+                                int id = (int)row.ItemArray[0];
+                                l.Add((int)id);
+                                break;
+                            }
                         }
                     }
                 }
+                l.Sort();
+                cacheEntry.ReturnValue = l.ToArray();
             }
-            l.Sort();
-            return l.ToArray();
+            return cacheEntry.ReturnValue as int[];
         }
         private static int[] GetStresstestResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var l = new List<int>();
-            if (databaseActions != null) {
-                //Link to FK table.
-                var dt = databaseActions.GetDataTable(string.Format("Select StresstestId From stresstestresults Where Id in({0});", stresstestResultIds.Combine(", ")));
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestResultIds);
+            var arr = cacheEntry.ReturnValue as int[];
+            if (arr == null || arr.Length == 0) {
+                var l = new List<int>();
+                if (databaseActions != null) {
+                    //Link to FK table.
+                    var dt = databaseActions.GetDataTable(string.Format("Select StresstestId From stresstestresults Where Id in({0});", stresstestResultIds.Combine(", ")));
 
-                var stresstestIds = new int[dt.Rows.Count];
-                int i = 0;
-                foreach (DataRow row in dt.Rows)
-                    stresstestIds[i++] = (int)row.ItemArray[0];
+                    var stresstestIds = new int[dt.Rows.Count];
+                    int i = 0;
+                    foreach (DataRow row in dt.Rows)
+                        stresstestIds[i++] = (int)row.ItemArray[0];
 
-                stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
-                if (cancellationToken.IsCancellationRequested) return null;
-
-                dt = databaseActions.GetDataTable(string.Format("Select Id From stresstestresults Where StresstestId in({0});", stresstestIds.Combine(", ")));
-
-                foreach (DataRow row in dt.Rows) {
+                    stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    l.Add((int)row.ItemArray[0]);
-                }
-            }
+                    dt = databaseActions.GetDataTable(string.Format("Select Id From stresstestresults Where StresstestId in({0});", stresstestIds.Combine(", ")));
 
-            l.Sort();
-            return l.ToArray();
+                    foreach (DataRow row in dt.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        l.Add((int)row.ItemArray[0]);
+                    }
+                }
+
+                l.Sort();
+                cacheEntry.ReturnValue = l.ToArray();
+            }
+            return cacheEntry.ReturnValue as int[];
         }
         private static int[] GetConcurrencyResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] concurrencyResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var l = new List<int>();
-            if (databaseActions != null) {
-                //Find to which combined stresstest the different concurrencies belong to.
-                var dt = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From concurrencyresults Where Id in({0});", concurrencyResultIds.Combine(", ")));
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), concurrencyResultIds);
+            var arr = cacheEntry.ReturnValue as int[];
+            if (arr == null || arr.Length == 0) {
+                var l = new List<int>();
+                if (databaseActions != null) {
+                    //Find to which combined stresstest the different concurrencies belong to.
+                    var dt = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From concurrencyresults Where Id in({0});", concurrencyResultIds.Combine(", ")));
 
-                foreach (DataRow row in dt.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
+                    foreach (DataRow row in dt.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                    int concurrencyResultId = (int)row["Id"];
-                    l.Add(concurrencyResultId);
+                        int concurrencyResultId = (int)row["Id"];
+                        l.Add(concurrencyResultId);
 
-                    int stresstestResultId = (int)row["StresstestResultId"];
+                        int stresstestResultId = (int)row["StresstestResultId"];
 
-                    int[] stresstestResultIds = GetStresstestResultIdsAndSiblings(cancellationToken, databaseActions, new int[] { stresstestResultId });
-                    if (cancellationToken.IsCancellationRequested) return null;
+                        int[] stresstestResultIds = GetStresstestResultIdsAndSiblings(cancellationToken, databaseActions, new int[] { stresstestResultId });
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                    if (stresstestResultIds.Length != 1) {
-                        //Find the index of the concurrency.
-                        int concurrencyIndex = 0;
-                        var filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From concurrencyresults Where StresstestResultId={0};", stresstestResultId));
-                        foreach (DataRow row2 in filterOnStresstestResultId.Rows) {
-                            if (cancellationToken.IsCancellationRequested) return null;
+                        if (stresstestResultIds.Length != 1) {
+                            //Find the index of the concurrency.
+                            int concurrencyIndex = 0;
+                            var filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id, StresstestResultId From concurrencyresults Where StresstestResultId={0};", stresstestResultId));
+                            foreach (DataRow row2 in filterOnStresstestResultId.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
 
-                            if ((int)row2["Id"] == concurrencyResultId)
-                                break;
-                            ++concurrencyIndex;
-                        }
+                                if ((int)row2["Id"] == concurrencyResultId)
+                                    break;
+                                ++concurrencyIndex;
+                            }
 
-                        //Find the other concurrency indices.
-                        for (int i = 0; i != stresstestResultIds.Length; i++) {
-                            if (cancellationToken.IsCancellationRequested) return null;
+                            //Find the other concurrency indices.
+                            for (int i = 0; i != stresstestResultIds.Length; i++) {
+                                if (cancellationToken.IsCancellationRequested) return null;
 
-                            if (stresstestResultIds[i] != stresstestResultId) {
-                                filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id From concurrencyresults Where StresstestResultId={0};", stresstestResultIds[i]));
-                                if (concurrencyIndex < filterOnStresstestResultId.Rows.Count) {
-                                    DataRow row2 = filterOnStresstestResultId.Rows[concurrencyIndex];
-                                    int id = (int)row2["Id"];
-                                    if (!l.Contains(id))
-                                        l.Add(id);
+                                if (stresstestResultIds[i] != stresstestResultId) {
+                                    filterOnStresstestResultId = databaseActions.GetDataTable(string.Format("Select Id From concurrencyresults Where StresstestResultId={0};", stresstestResultIds[i]));
+                                    if (concurrencyIndex < filterOnStresstestResultId.Rows.Count) {
+                                        DataRow row2 = filterOnStresstestResultId.Rows[concurrencyIndex];
+                                        int id = (int)row2["Id"];
+                                        if (!l.Contains(id))
+                                            l.Add(id);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                l.Sort();
+                cacheEntry.ReturnValue = l.ToArray();
             }
-            l.Sort();
-            return l.ToArray();
+            return cacheEntry.ReturnValue as int[];
         }
         private static int[] GetRunResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] runResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
 
-            var l = new List<int>();
-            if (databaseActions != null) {
-                //Find to which concurrencies the runs belong to.
-                var dt = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From runresults Where Id in({0});", runResultIds.Combine(", ")));
+            var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), runResultIds);
+            var arr = cacheEntry.ReturnValue as int[];
+            if (arr == null || arr.Length == 0) {
+                var l = new List<int>();
+                if (databaseActions != null) {
+                    //Find to which concurrencies the runs belong to.
+                    var dt = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From runresults Where Id in({0});", runResultIds.Combine(", ")));
 
-                foreach (DataRow row in dt.Rows) {
-                    if (cancellationToken.IsCancellationRequested) return null;
+                    foreach (DataRow row in dt.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                    int runResultId = (int)row["Id"];
-                    l.Add(runResultId);
+                        int runResultId = (int)row["Id"];
+                        l.Add(runResultId);
 
-                    int concurrencyResultId = (int)row["ConcurrencyResultId"];
+                        int concurrencyResultId = (int)row["ConcurrencyResultId"];
 
-                    int[] concurrencyResultIds = GetConcurrencyResultIdsAndSiblings(cancellationToken, databaseActions, new int[] { concurrencyResultId });
-                    if (cancellationToken.IsCancellationRequested) return null;
+                        int[] concurrencyResultIds = GetConcurrencyResultIdsAndSiblings(cancellationToken, databaseActions, new int[] { concurrencyResultId });
+                        if (cancellationToken.IsCancellationRequested) return null;
 
-                    if (concurrencyResultIds.Length != 1) {
-                        //Find the index of the run.
-                        int runIndex = 0;
-                        var filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From runresults Where ConcurrencyResultId={0};", concurrencyResultId));
-                        foreach (DataRow row2 in filterOnConcurrencyResultId.Rows) {
-                            if (cancellationToken.IsCancellationRequested) return null;
+                        if (concurrencyResultIds.Length != 1) {
+                            //Find the index of the run.
+                            int runIndex = 0;
+                            var filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From runresults Where ConcurrencyResultId={0};", concurrencyResultId));
+                            foreach (DataRow row2 in filterOnConcurrencyResultId.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
 
-                            if ((int)row2["Id"] == runResultId)
-                                break;
-                            ++runIndex;
-                        }
+                                if ((int)row2["Id"] == runResultId)
+                                    break;
+                                ++runIndex;
+                            }
 
-                        //Find the other concurrency indices.
-                        for (int i = 0; i != concurrencyResultIds.Length; i++) {
-                            if (cancellationToken.IsCancellationRequested) return null;
+                            //Find the other concurrency indices.
+                            for (int i = 0; i != concurrencyResultIds.Length; i++) {
+                                if (cancellationToken.IsCancellationRequested) return null;
 
-                            if (concurrencyResultIds[i] != concurrencyResultId) {
-                                filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id From runresults Where ConcurrencyResultId={0};", concurrencyResultIds[i]));
-                                if (runIndex < filterOnConcurrencyResultId.Rows.Count) {
-                                    DataRow row2 = filterOnConcurrencyResultId.Rows[runIndex];
-                                    int id = (int)row2["Id"];
-                                    if (!l.Contains(id))
-                                        l.Add(id);
+                                if (concurrencyResultIds[i] != concurrencyResultId) {
+                                    filterOnConcurrencyResultId = databaseActions.GetDataTable(string.Format("Select Id From runresults Where ConcurrencyResultId={0};", concurrencyResultIds[i]));
+                                    if (runIndex < filterOnConcurrencyResultId.Rows.Count) {
+                                        DataRow row2 = filterOnConcurrencyResultId.Rows[runIndex];
+                                        int id = (int)row2["Id"];
+                                        if (!l.Contains(id))
+                                            l.Add(id);
+                                    }
                                 }
                             }
                         }
                     }
                 }
+                l.Sort();
+                cacheEntry.ReturnValue = l.ToArray();
             }
-            l.Sort();
-            return l.ToArray();
+            return cacheEntry.ReturnValue as int[];
         }
 
         private static string TrimDividedPart(string stresstest) {

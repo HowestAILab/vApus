@@ -8,12 +8,14 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
-using System.Data;
 using System.Reflection;
 
-namespace vApus.Results {
-    internal static class ResultsHelperCache {
-        private static List<CacheEntry> _cache = new List<CacheEntry>();
+namespace vApus.Util {
+    public class FunctionOutputCache : IDisposable {
+        private bool _isDisposed;
+        private List<CacheEntry> _cache = new List<CacheEntry>();
+
+        public bool IsDisposed { get { return _isDisposed; } }
 
         /// <summary>
         /// If the data table in the returned entry is null, you need to set it afterwards. The same with output arguments.
@@ -22,7 +24,7 @@ namespace vApus.Results {
         /// <param name="methodBase"></param>
         /// <param name="inputArguments">Exclude cancellationToken and databaseActions; primary datatypes, arrays and ILists are supported. If you pass arrays or list, preserve the order of the entries everywhere to be able to have as much hits as possible.</param>
         /// <returns></returns>
-        public static CacheEntry GetOrAdd(MethodBase methodBase, params object[] inputArguments) {
+        public CacheEntry GetOrAdd(MethodBase methodBase, params object[] inputArguments) {
             foreach (var entry in _cache)
                 if (entry.MethodBase == methodBase && InspectArgumentEquality(entry.InputArguments, inputArguments))
                     return entry;
@@ -32,7 +34,7 @@ namespace vApus.Results {
             _cache.Sort(CacheEntryComparer.GetInstance);
             return newEntry;
         }
-        private static bool InspectArgumentEquality(object a, object b) {
+        private bool InspectArgumentEquality(object a, object b) {
             if ((a == null && b != null) || (a != null && b == null)) return false;
             if ((a == null && b == null) || a.Equals(b)) return true;
             if (a is Array && b is Array) {
@@ -64,9 +66,12 @@ namespace vApus.Results {
 
             return false;
         }
-        //Call this when the connection is killed, results helper is disposed and when a new connection is made.
-        public static void Clear() {
-            _cache.Clear();
+        public void Dispose() {
+            if (!_isDisposed) {
+                _isDisposed = true;
+                _cache = null;
+                GC.Collect();
+            }
         }
         /// <summary>
         /// Contains the results (DataTable), the identifier (MethodBase) and the meta data (Arguments of the method) for the entry.
