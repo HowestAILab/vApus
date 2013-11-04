@@ -360,9 +360,10 @@ namespace vApus.DistributedTesting {
         internal void DefaultTo(Stresstest.Stresstest stresstest) {
             _defaultSettingsTo = stresstest;
 
-            _logs = new KeyValuePair<Log, uint>[_defaultSettingsTo.Logs.Length];
-            _defaultSettingsTo.Logs.CopyTo(_logs, 0);
-            _logs.SetParent(_allLogs, false);
+            var logs = new KeyValuePair<Log, uint>[_defaultSettingsTo.Logs.Length];
+            _defaultSettingsTo.Logs.CopyTo(logs, 0);
+            logs.SetParent(_allLogs, false);
+            Logs = logs;
 
             _concurrencies = new int[_defaultSettingsTo.Concurrencies.Length];
             _defaultSettingsTo.Concurrencies.CopyTo(_concurrencies, 0);
