@@ -32,14 +32,14 @@ namespace vApus.Results {
         public static DataTable GetDescription(DatabaseActions databaseActions) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod());
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
+            if (cacheEntryDt == null)
                 cacheEntry.ReturnValue = databaseActions.GetDataTable("Select Description FROM description");
             return cacheEntry.ReturnValue as DataTable;
         }
         public static DataTable GetTags(DatabaseActions databaseActions) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod());
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
+            if (cacheEntryDt == null)
                 cacheEntry.ReturnValue = databaseActions.GetDataTable("Select Tag FROM tags");
             return cacheEntry.ReturnValue as DataTable;
         }
@@ -50,7 +50,7 @@ namespace vApus.Results {
         public static DataTable GetvApusInstances(DatabaseActions databaseActions) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod());
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0)
+            if (cacheEntryDt == null)
                 cacheEntry.ReturnValue = databaseActions.GetDataTable("Select * FROM vapusinstances");
             return cacheEntry.ReturnValue as DataTable;
         }
@@ -67,7 +67,7 @@ namespace vApus.Results {
         public static DataTable GetStresstests(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+            if (cacheEntryDt == null) {
                 //The select columns can place a column at another index.
                 int stresstestIndex = 2;
 
@@ -118,7 +118,7 @@ namespace vApus.Results {
         public static DataTable GetStresstestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+            if (cacheEntryDt == null) {
                 int startedAtIndex = 2;
                 int stoppedAtIndex = 3;
                 int statusIndex = 4;
@@ -199,7 +199,7 @@ namespace vApus.Results {
         public static DataTable GetConcurrencyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestResultIds, params string[] selectColumns) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestResultIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+            if (cacheEntryDt == null) {
                 int concurrencyIndex = 2;
                 int startedAtIndex = 3;
                 int stoppedAtIndex = 4;
@@ -282,7 +282,7 @@ namespace vApus.Results {
         public static DataTable GetRunResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] concurrencyResultIds, params string[] selectColumns) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, concurrencyResultIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+            if (cacheEntryDt == null) {
                 int totalLogEntryCountIndex = 3;
                 int rerunCountIndex = 4;
                 int startedAtIndex = 5;
@@ -374,7 +374,7 @@ namespace vApus.Results {
         public static DataTable GetLogEntryResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, runResultIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+            if (cacheEntryDt == null) {
                 int idIndex = 0;
                 int runResultIdIndex = 1;
                 int virtualUserIndex = 2;
@@ -497,7 +497,7 @@ namespace vApus.Results {
         public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestIds, params string[] selectColumns) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+            if (cacheEntryDt == null) {
                 if (databaseActions != null)
                     if (stresstestIds.Length == 0) {
                         cacheEntry.ReturnValue = databaseActions.GetDataTable(string.Format("Select {0} From monitors{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
@@ -522,7 +522,7 @@ namespace vApus.Results {
         public static DataTable GetMonitorResults(DatabaseActions databaseActions, int[] monitorIds, params string[] selectColumns) {
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), monitorIds, selectColumns);
             var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-            if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+            if (cacheEntryDt == null) {
                 if (databaseActions != null)
                     cacheEntry.ReturnValue = (monitorIds.Length == 0) ?
                         databaseActions.GetDataTable(string.Format("Select {0} From monitorresults;", GetValidSelect(selectColumns))) :
@@ -556,7 +556,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
             var dict = cacheEntry.ReturnValue as Dictionary<string, DataTable>;
-            if (dict == null || dict.Count == 0) {
+            if (dict == null) {
                 dict = new Dictionary<string, DataTable>();
                 if (databaseActions != null) {
                     DataTable dt = null;
@@ -592,7 +592,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds, selectColumns);
             var dict = cacheEntry.ReturnValue as Dictionary<string, DataTable>;
-            if (dict == null || dict.Count == 0) {
+            if (dict == null) {
                 dict = new Dictionary<string, DataTable>();
                 if (databaseActions != null) {
                     DataTable dt = null;
@@ -651,7 +651,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, stresstestResultIds, selectColumns);
             var dict = cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
-            if (dict == null || dict.Count == 0) {
+            if (dict == null) {
                 dict = new Dictionary<string, List<DataTable>>();
                 if (databaseActions != null) {
                     var dictStresstestResults = GetStresstestsAndDividedStresstestResultRows(cancellationToken, databaseActions, new int[0], "Id");
@@ -708,7 +708,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), where, concurrencyResultIds, selectColumns);
             var dict = cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
-            if (dict == null || dict.Count == 0) {
+            if (dict == null) {
                 dict = new Dictionary<string, List<DataTable>>();
                 if (databaseActions != null) {
                     var dictStresstestConcurrencyResults = GetStresstestsAndDividedConcurrencyResultRows(cancellationToken, databaseActions, null, new int[0], "Id", "StresstestResultId");
@@ -771,7 +771,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), selectColumns, where, runResultIds);
             var dict = cacheEntry.ReturnValue as Dictionary<string, List<DataTable>>;
-            if (dict == null || dict.Count == 0) {
+            if (dict == null) {
                 dict = new Dictionary<string, List<DataTable>>();
                 if (databaseActions != null) {
                     var dictStresstestRunResults = GetStresstestsAndDividedRunResultRows(cancellationToken, databaseActions, null, new int[0], "Id", "ConcurrencyResultId");
@@ -819,7 +819,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
             var arr = cacheEntry.ReturnValue as int[];
-            if (arr == null || arr.Length == 0) {
+            if (arr == null) {
                 var l = new List<int>();
                 if (databaseActions != null) {
                     var dt = databaseActions.GetDataTable("Select Id, Stresstest From stresstests;");
@@ -860,7 +860,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestResultIds);
             var arr = cacheEntry.ReturnValue as int[];
-            if (arr == null || arr.Length == 0) {
+            if (arr == null) {
                 var l = new List<int>();
                 if (databaseActions != null) {
                     //Link to FK table.
@@ -893,7 +893,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), concurrencyResultIds);
             var arr = cacheEntry.ReturnValue as int[];
-            if (arr == null || arr.Length == 0) {
+            if (arr == null) {
                 var l = new List<int>();
                 if (databaseActions != null) {
                     //Find to which combined stresstest the different concurrencies belong to.
@@ -949,7 +949,7 @@ namespace vApus.Results {
 
             var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), runResultIds);
             var arr = cacheEntry.ReturnValue as int[];
-            if (arr == null || arr.Length == 0) {
+            if (arr == null) {
                 var l = new List<int>();
                 if (databaseActions != null) {
                     //Find to which concurrencies the runs belong to.
