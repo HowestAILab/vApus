@@ -49,7 +49,7 @@ namespace vApus.Util {
             _childs = new StringTree[count];
 
             _value = value;
-            _childDelimiter = value;
+            _childDelimiter = childDelimiter;
         }
 
         #endregion
