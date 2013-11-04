@@ -59,6 +59,9 @@ namespace vApus.Results {
         /// <returns></returns>
         public Exception BuildSchemaAndConnect() {
             lock (_lock) {
+                ReaderAndCombiner.ClearCache();
+                _functionOutputCache = new FunctionOutputCache();
+
                 _databaseName = null;
                 try {
                     _databaseName = Schema.Build();
