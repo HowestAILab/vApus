@@ -32,11 +32,12 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\DevelopmentBuild\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;EnableBetaFeature</DefineConstants>
+    <DefineConstants>TRACE;EnableBetaFeature</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|AnyCPU'">
     <OutputPath>bin\TestingBuild\</OutputPath>
