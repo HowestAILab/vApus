@@ -20,7 +20,7 @@ namespace vApus.Stresstest {
 
         #region Fields
         private readonly object _lock = new object();
-        protected string _childDelimiter = string.Empty, _description = string.Empty;
+        private string _childDelimiter = string.Empty, _description = string.Empty;
         #endregion
 
         #region Properties

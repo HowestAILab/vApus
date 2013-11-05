@@ -7,9 +7,12 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     [ContextMenu(new[] { "Activate_Click", "Add_Click", "Clear_Click", "Paste_Click" },
@@ -18,11 +21,10 @@ namespace vApus.Stresstest {
         new[] { Keys.Enter, Keys.Insert, (Keys.Control | Keys.V) })]
     [DisplayName("Connection Proxy Rule Set"), Serializable]
     public class ConnectionProxyRuleSet : BaseRuleSet {
+   
         #region Fields
-
         private bool _connected = true;
         private uint _tracertField = 1;
-
         #endregion
 
         #region Properties
@@ -49,8 +51,43 @@ namespace vApus.Stresstest {
 
         #endregion
 
-        #region Functions
+        #region Constructors
+        public ConnectionProxyRuleSet() { }
+        public ConnectionProxyRuleSet(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                Label = sr.ReadString();
+                ChildDelimiter = sr.ReadString();
+                _connected = sr.ReadBoolean();
 
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+            }
+            sr = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
+        }
+        #endregion
+
+        #region Functions
+        /// <summary>
+        ///     Only for sending from master to slave.
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="context"></param>
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(ChildDelimiter);
+                sw.Write(_connected);
+
+                sw.Write(this);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            //Not pretty, but helps against mem saturation.
+            GC.Collect();
+        }
         protected new void Add_Click(object sender, EventArgs e) {
             Add(new ConnectionProxySyntaxItem());
         }

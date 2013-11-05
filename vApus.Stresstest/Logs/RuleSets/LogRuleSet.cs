@@ -107,7 +107,7 @@ namespace vApus.Stresstest {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
                 Label = sr.ReadString();
-                _childDelimiter = sr.ReadString();
+                ChildDelimiter = sr.ReadString();
                 _beginTimestampIndex = sr.ReadUInt32();
                 _endTimestampIndex = sr.ReadUInt32();
 
@@ -129,7 +129,7 @@ namespace vApus.Stresstest {
             SerializationWriter sw;
             using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(Label);
-                sw.Write(_childDelimiter);
+                sw.Write(ChildDelimiter);
                 sw.Write(_beginTimestampIndex);
                 sw.Write(_endTimestampIndex);
 
