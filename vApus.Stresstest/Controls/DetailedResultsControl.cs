@@ -157,7 +157,17 @@ namespace vApus.Stresstest {
                             } catch { }
                     } else {
                         if (dt.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                        dgvDetailedResults.DataSource = dt;
+                        try {
+                            dgvDetailedResults.DataSource = dt;
+                        } catch {
+                            dgvDetailedResults.DataSource = null;
+                            var errorDt = new DataTable("Error");
+                            errorDt.Columns.Add("Error");
+                            errorDt.Rows.Add("This control cannot handle the amount (" + dt.Columns.Count + ") of columns in the result set.");
+
+                            dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                            dgvDetailedResults.DataSource = errorDt;
+                        }
                     }
                 }
 
