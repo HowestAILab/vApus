@@ -92,6 +92,7 @@
             // 
             // dgvDatabases
             // 
+            this.dgvDatabases.MultiSelect = false;
             this.dgvDatabases.AllowUserToAddRows = false;
             this.dgvDatabases.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;

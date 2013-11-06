@@ -26,7 +26,7 @@ namespace vApus.Results {
         /// Do this always when connecting to a new database.   
         /// </summary>
         public static void ClearCache() {
-            _functionOutputCache.Dispose();
+            if (_functionOutputCache != null) _functionOutputCache.Dispose();
             _functionOutputCache = new FunctionOutputCache();
         }
         public static DataTable GetDescription(DatabaseActions databaseActions) {

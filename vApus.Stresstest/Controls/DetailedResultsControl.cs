@@ -163,7 +163,7 @@ namespace vApus.Stresstest {
                             dgvDetailedResults.DataSource = null;
                             var errorDt = new DataTable("Error");
                             errorDt.Columns.Add("Error");
-                            errorDt.Rows.Add("This control cannot handle the amount (" + dt.Columns.Count + ") of columns in the result set.");
+                            errorDt.Rows.Add("This control cannot handle the amount (" + dt.Columns.Count + ") of columns in the result set. Exporting to Excel should not be a problem.");
 
                             dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                             dgvDetailedResults.DataSource = errorDt;

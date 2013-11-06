@@ -59,9 +59,7 @@ namespace vApus.Results {
         /// <returns></returns>
         public Exception BuildSchemaAndConnect() {
             lock (_lock) {
-                ReaderAndCombiner.ClearCache();
-                _functionOutputCache = new FunctionOutputCache();
-
+                ClearCache();
                 _databaseName = null;
                 try {
                     _databaseName = Schema.Build();
@@ -527,6 +525,81 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
         #region Formatted Results
         /// <summary>
+        /// Only works for the first stresstest. This is a known issue and it will not be fixed: 1 datatable per stressstest only, otherwise the overview is worth nothing. Use a loop to enumerate multiple stresstest ids.
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public DataTable GetOverview(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions == null) return null;
+
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null) {
+                    if (stresstestIds.Length == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                        stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
+                    }
+
+                    var averageUserActions = GetAverageUserActionResults(cancellationToken, true, stresstestIds);
+                    if (averageUserActions == null) return null;
+
+                    var averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
+                    if (averageConcurrentUsers == null) return null;
+
+                    var averageResponseTimesAndThroughput = CreateEmptyDataTable("AverageResponseTimesAndThroughput", "Stresstest", "Concurrency");
+                    int range = 0; //The range of values (avg response times) to place under the right user action
+                    char colon = ':';
+                    string sColon = ":";
+                    int userActionIndex = 1;
+                    int currentConcurrencyResultId = -1;
+                    foreach (DataRow uaRow in averageUserActions.Rows) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        int concurrencyResultId = (int)uaRow.ItemArray[1];
+                        if (currentConcurrencyResultId != concurrencyResultId) {
+                            userActionIndex = 1; //Do not forget to reset this, otherwise we will only get one row.
+                            currentConcurrencyResultId = concurrencyResultId;
+                        }
+
+                        string userAction = uaRow.ItemArray[3] as string;
+                        string[] splittedUserAction = userAction.Split(colon);
+                        userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
+                        if (!averageResponseTimesAndThroughput.Columns.Contains(userAction)) {
+                            averageResponseTimesAndThroughput.Columns.Add(userAction);
+                            range++;
+                        }
+                    }
+                    averageResponseTimesAndThroughput.Columns.Add("Throughput");
+                    averageResponseTimesAndThroughput.Columns.Add("Errors");
+
+                    for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        var row = new List<object>(range + 3);
+                        row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
+                        row.Add(averageUserActions.Rows[offset].ItemArray[2]); //Add concurrency
+                        for (int i = offset; i != offset + range; i++) { //Add the avg response times
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[4] : 0d);
+                        }
+                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
+                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[12]); //And the errors: Bonus
+                        averageResponseTimesAndThroughput.Rows.Add(row.ToArray());
+                    }
+
+                    cacheEntry.ReturnValue = averageResponseTimesAndThroughput;
+                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
+                }
+                return cacheEntry.ReturnValue as DataTable;
+            }
+        }
+
+        /// <summary>
         /// 
         /// </summary>
         /// <param name="cancellationToken">Used in await Tast.Run...</param>
@@ -537,7 +610,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    if (cacheEntryDt == null) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "Runs");
                         if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
@@ -638,12 +711,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             }
                         }
                         cacheEntry.ReturnValue = averageConcurrentUsers;
+                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                     }
                     return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -653,7 +728,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public DataTable GetAverageUserActionResults(CancellationToken cancellationToken, params int[] stresstestIds) {
             return GetAverageUserActionResults(cancellationToken, false, stresstestIds);
         }
-
         /// <summary>
         /// 
         /// </summary>
@@ -664,18 +738,16 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         private DataTable GetAverageUserActionResults(CancellationToken cancellationToken, bool withConcurrencyResultId, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions != null) {
-                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), withConcurrencyResultId, stresstestIds);
+                    //Slightly different way of working, the result for withConcurrencyResultId true and false are calcullated here, the right result is given back. This is way faster.
+                    var methodBase = MethodInfo.GetCurrentMethod();
+                    var cacheEntry = _functionOutputCache.GetOrAdd(methodBase, true, stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    if (cacheEntryDt == null) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
                         if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                        var averageUserActions = withConcurrencyResultId ? CreateEmptyDataTable("AverageUserActions", "Stresstest", "ConcurrencyId", "Concurrency", "User Action", "Avg. Response Time (ms)",
-                            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors") :
-                            CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
+                        var averageUserActions = CreateEmptyDataTable("AverageUserActions", "Stresstest", "ConcurrencyId", "Concurrency", "User Action", "Avg. Response Time (ms)",
                             "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
-
-
 
                         foreach (DataRow stresstestsRow in stresstests.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
@@ -866,15 +938,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 foreach (string userAction in sortedUserActions) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    if (withConcurrencyResultId)
-                                        averageUserActions.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
-                                            Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
-                                            Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
-                                            Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
-                                            Math.Round(avgDelay[userAction], 2),
-                                            errors[userAction]);
-                                    else
-                                        averageUserActions.Rows.Add(stresstest, concurrency, userAction,
+                                    averageUserActions.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
                                         Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
                                         Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
                                         Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
@@ -883,13 +947,29 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 }
                             }
                         }
+
                         cacheEntry.ReturnValue = averageUserActions;
+                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
+
+                        //Add the data table without the concurrency result id column.
+
+                        cacheEntry = _functionOutputCache.GetOrAdd(methodBase, false, stresstestIds);
+
+                        //format the output --> remove the column. Done this way because the calcullation only needs to happen once.
+                        var newAverageUserActions = CreateEmptyDataTable("AverageUserActions", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
+                            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+                        foreach (DataRow row in averageUserActions.Rows) newAverageUserActions.Rows.Add(row.ItemArray[0], row.ItemArray[2], row.ItemArray[3], row.ItemArray[4],
+                            row.ItemArray[5], row.ItemArray[6], row.ItemArray[7], row.ItemArray[8]);
+                        cacheEntry.ReturnValue = newAverageUserActions;
                     }
+
+                    cacheEntry = _functionOutputCache.GetOrAdd(methodBase, withConcurrencyResultId, stresstestIds);
                     return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -901,7 +981,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    if (cacheEntryDt == null) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
                         if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
@@ -1038,12 +1118,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             }
                         }
                         cacheEntry.ReturnValue = averageLogEntries;
+                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                     }
                     return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -1055,7 +1137,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    if (cacheEntryDt == null) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
                         if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
@@ -1101,6 +1183,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             }
                         }
                         cacheEntry.ReturnValue = errors;
+                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                     }
                     return cacheEntry.ReturnValue as DataTable;
                 }
@@ -1121,7 +1204,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                 var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                if (cacheEntryDt == null) {
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
                     if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
@@ -1185,80 +1268,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
                     }
                     cacheEntry.ReturnValue = userActionComposition;
-                }
-                return cacheEntry.ReturnValue as DataTable;
-            }
-        }
-        /// <summary>
-        /// Only works for the first stresstest. This is a known issue and it will not be fixed: 1 datatable per stressstest only, otherwise the overview is worth nothing. Use a loop to enumerate multiple stresstest ids.
-        /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
-        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
-        /// <returns></returns>
-        public DataTable GetOverview(CancellationToken cancellationToken, params int[] stresstestIds) {
-            lock (_lock) {
-                if (_databaseActions == null) return null;
-
-                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
-                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
-                    if (stresstestIds.Length == 0) {
-                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
-                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
-
-                        stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
-                    }
-
-                    var averageUserActions = GetAverageUserActionResults(cancellationToken, true, stresstestIds);
-                    if (averageUserActions == null) return null;
-
-                    var averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
-                    if (averageConcurrentUsers == null) return null;
-
-                    var averageResponseTimesAndThroughput = CreateEmptyDataTable("AverageResponseTimesAndThroughput", "Stresstest", "Concurrency");
-                    int range = 0; //The range of values (avg response times) to place under the right user action
-                    char colon = ':';
-                    string sColon = ":";
-                    int userActionIndex = 1;
-                    int currentConcurrencyResultId = -1;
-                    foreach (DataRow uaRow in averageUserActions.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        int concurrencyResultId = (int)uaRow.ItemArray[1];
-                        if (currentConcurrencyResultId != concurrencyResultId) {
-                            userActionIndex = 1; //Do not forget to reset this, otherwise we will only get one row.
-                            currentConcurrencyResultId = concurrencyResultId;
-                        }
-
-                        string userAction = uaRow.ItemArray[3] as string;
-                        string[] splittedUserAction = userAction.Split(colon);
-                        userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
-                        if (!averageResponseTimesAndThroughput.Columns.Contains(userAction)) {
-                            averageResponseTimesAndThroughput.Columns.Add(userAction);
-                            range++;
-                        }
-                    }
-                    averageResponseTimesAndThroughput.Columns.Add("Throughput");
-                    averageResponseTimesAndThroughput.Columns.Add("Errors");
-
-                    for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        var row = new List<object>(range + 3);
-                        row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
-                        row.Add(averageUserActions.Rows[offset].ItemArray[2]); //Add concurrency
-                        for (int i = offset; i != offset + range; i++) { //Add the avg response times
-                            if (cancellationToken.IsCancellationRequested) return null;
-
-                            row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[4] : 0d);
-                        }
-                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
-                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[12]); //And the errors: Bonus
-                        averageResponseTimesAndThroughput.Rows.Add(row.ToArray());
-                    }
-
-
-                    cacheEntry.ReturnValue = averageResponseTimesAndThroughput;
+                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -1275,7 +1285,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                     var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                    if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                    if (cacheEntryDt == null) {
                         var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
                         if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
@@ -1297,12 +1307,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
 
                         cacheEntry.ReturnValue = machineConfigurations;
+                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                     }
                     return cacheEntry.ReturnValue as DataTable;
                 }
                 return null;
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -1315,7 +1327,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                 var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                if (cacheEntryDt == null) {
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "MonitorBeforeInMinutes", "MonitorAfterInMinutes");
                     if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
@@ -1496,6 +1508,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
                     }
                     cacheEntry.ReturnValue = averageMonitorResults;
+                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -1535,6 +1548,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
             return averageMonitorResults;
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -1604,6 +1618,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
                     }
                     cacheEntry.ReturnValue = dts;
+                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as List<DataTable>;
             }
@@ -1623,7 +1638,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                if (cacheEntryDt == null) {
                     concurrencyAndRunsDic = new Dictionary<string, List<string>>();
 
                     if (_databaseActions == null) return null;
@@ -1701,6 +1716,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                     cacheEntry.OutputArguments = new object[] { concurrencyAndRunsDic };
                     cacheEntry.ReturnValue = runsOverTime;
+                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 concurrencyAndRunsDic = cacheEntry.OutputArguments[0] as Dictionary<string, List<string>>;
                 return cacheEntry.ReturnValue as DataTable;
@@ -1721,7 +1737,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), powerMonitorName, wattCounter, secondaryMonitorName, secondaryCounter);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                if (cacheEntryDt == null) {
                     //Get all the needed datatables and check if they have rows.
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
                     if (stresstests == null || stresstests.Rows.Count == 0) return null;
@@ -1771,6 +1787,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
 
                     cacheEntry.ReturnValue = throughputPerWattOverTime;
+                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -2051,7 +2068,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), powerMonitorName, wattCounter);
                 var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                if (cacheEntryDt == null || cacheEntryDt.Rows.Count == 0) {
+                if (cacheEntryDt == null) {
                     //Get all the needed datatables and check if they have rows.
                     var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
                     if (stresstests == null || stresstests.Rows.Count == 0) return null;
@@ -2092,6 +2109,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
 
                     cacheEntry.ReturnValue = throughputPerWatt;
+                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -2208,8 +2226,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="password"></param>
         public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
             lock (_lock) {
-                ReaderAndCombiner.ClearCache();
-                _functionOutputCache = new FunctionOutputCache();
+                ClearCache();
                 try {
                     _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password) };
                     if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
@@ -2224,13 +2241,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// Last resort.
         /// </summary>
         public void KillConnection() {
-            ReaderAndCombiner.ClearCache();
-            if (_functionOutputCache != null) _functionOutputCache.Dispose();
-            _functionOutputCache = new FunctionOutputCache();
+            ClearCache();
             if (_databaseActions != null) {
                 try { _databaseActions.ReleaseConnection(); } catch { }
                 _databaseActions = null;
             }
+        }
+
+        public void ClearCache() {
+            ReaderAndCombiner.ClearCache();
+            if (_functionOutputCache != null) _functionOutputCache.Dispose();
+            _functionOutputCache = new FunctionOutputCache();
         }
 
         /// <summary>

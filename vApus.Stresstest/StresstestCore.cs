@@ -469,8 +469,6 @@ namespace vApus.Stresstest {
                     delays.Add(delayPattern);
 
                     testableLogEntries.TryAdd(user, null);
-
-                    Thread.Sleep(1); //For the random in the pattern generator.
                 }
 
                 //Get all this stuff here, otherwise locking will slow down all following code.
