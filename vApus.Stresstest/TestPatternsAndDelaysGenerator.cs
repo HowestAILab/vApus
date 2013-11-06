@@ -125,15 +125,15 @@ namespace vApus.Stresstest {
         }
 
         public void GetPatterns(out int[] testPattern, out int[] delayPattern) {
-            int seed = Guid.NewGuid().GetHashCode(); //Not using DateTime.Now or Environement.Ticks because this is updated every few milliseconds.
+            int seed = Guid.NewGuid().GetHashCode(); //Not using DateTime.Now or Environement.Ticks because this is updated every few milliseconds and we need a Thread.Sleep.
             if (seed < 0) seed *= -1;
 
         Retry:
             if (_chosenSeeds == null) _chosenSeeds = new HashSet<int>();
             try {
                 while (!_chosenSeeds.Add(seed)) {
-                    seed += (seed + 11) / 2;
-                    if (seed < 0) seed *= -1; //Simple method for getting a new unique seed (I hope).
+                    seed += (seed + 11) / 2; //Simple method for getting a new unique seed (I hope).
+                    if (seed < 0) seed *= -1;
                 }
             } catch { //To many items.
                 _chosenSeeds = new HashSet<int>();

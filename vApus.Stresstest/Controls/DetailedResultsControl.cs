@@ -326,6 +326,7 @@ namespace vApus.Stresstest {
             _config = new KeyValuePairControl[0];
 
             dgvDetailedResults.DataSource = null;
+            if (_resultsHelper != null) _resultsHelper.ClearCache(); //Keeping the cache as clean as possible.
         }
         /// <summary>
         /// Refresh after testing.
@@ -336,6 +337,7 @@ namespace vApus.Stresstest {
             this.Enabled = true;
 
             _resultsHelper = resultsHelper;
+            if (_resultsHelper != null) _resultsHelper.ClearCache(); //Keeping the cache as clean as possible.
             _stresstestIds = stresstestIds;
             foreach (var ctrl in flpConfiguration.Controls)
                 if (ctrl is LinkButton) {

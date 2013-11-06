@@ -91,9 +91,10 @@ namespace vApus.Results {
                         foreach (var vur in runResult.VirtualUserResults)
                             foreach (var ler in vur.LogEntryResults)
                                 if (ler.VirtualUser != null) {
+                                    long lerTimeToLastByteInTicks = ler.TimeToLastByteInTicks;
                                     for (int i = 0; i != timesToLastByteInTicks.Count; i++)
-                                        if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
-                                            timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
+                                        if (timesToLastByteInTicks[i] < lerTimeToLastByteInTicks) {
+                                            timesToLastByteInTicks.Insert(i, lerTimeToLastByteInTicks);
                                             break;
                                         }
                                     while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);

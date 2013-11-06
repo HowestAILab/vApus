@@ -593,7 +593,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
 
                     cacheEntry.ReturnValue = averageResponseTimesAndThroughput;
-                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -654,30 +653,28 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     totalLogEntryCountsPerUser.Add((ulong)rrRow.ItemArray[2] / (ulong)concurrencyResult.Concurrency);
                                 }
 
-                                var ler = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
-                                    new string[] { "RunResultId", "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error" });
-                                if (ler == null || ler.Rows.Count == 0) continue;
-
                                 for (int i = 0; i != concurrencyResult.RunResults.Count; i++) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
                                     var runResult = concurrencyResult.RunResults[i];
                                     int runResultId = runResultIds[i];
+
+                                    var ler = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultId, "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error");
+                                    if (ler == null || ler.Rows.Count == 0) continue;
+
                                     var virtualUserResults = new ConcurrentDictionary<string, VirtualUserResult>();
                                     var logEntryResults = new ConcurrentDictionary<string, List<LogEntryResult>>(); //Key == virtual user.
 
                                     foreach (DataRow lerRow in ler.Rows) {
                                         if (cancellationToken.IsCancellationRequested) return null;
 
-                                        if ((int)lerRow.ItemArray[0] == runResultId) {
-                                            string virtualUser = (lerRow.ItemArray[1] as string);
-                                            logEntryResults.TryAdd(virtualUser, new List<LogEntryResult>());
+                                        string virtualUser = lerRow["VirtualUser"] as string;
+                                        logEntryResults.TryAdd(virtualUser, new List<LogEntryResult>());
 
-                                            logEntryResults[virtualUser].Add(new LogEntryResult() {
-                                                VirtualUser = virtualUser, UserAction = lerRow.ItemArray[2] as string, LogEntryIndex = lerRow.ItemArray[3] as string,
-                                                TimeToLastByteInTicks = (long)lerRow.ItemArray[4], DelayInMilliseconds = (int)lerRow.ItemArray[5], Error = lerRow.ItemArray[6] as string
-                                            });
-                                        }
+                                        logEntryResults[virtualUser].Add(new LogEntryResult() {
+                                            VirtualUser = virtualUser, UserAction = lerRow["UserAction"] as string, LogEntryIndex = lerRow["LogEntryIndex"] as string,
+                                            TimeToLastByteInTicks = (long)lerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)lerRow["DelayInMilliseconds"], Error = lerRow["Error"] as string
+                                        });
                                     }
 
                                     //Add empty ones for broken runs.
@@ -711,7 +708,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             }
                         }
                         cacheEntry.ReturnValue = averageConcurrentUsers;
-                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                     }
                     return cacheEntry.ReturnValue as DataTable;
                 }
@@ -772,23 +768,16 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 var runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Id", "RerunCount");
                                 if (runResults == null || runResults.Rows.Count == 0) continue;
 
-                                var runResultIds = new List<int>(runResults.Rows.Count);
-                                foreach (DataRow rrRow in runResults.Rows) {
-                                    if (cancellationToken.IsCancellationRequested) return null;
-
-                                    runResultIds.Add((int)rrRow.ItemArray[0]);
-                                }
-
-                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
-                                   new string[] { "RunResultId", "VirtualUser", "UserAction", "LogEntryIndex", "SameAsLogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "Rerun" });
-                                if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
-
                                 //Place the log entry results under the right virtual user and the right user action
                                 var userActions = new List<KeyValuePair<string, List<KeyValuePair<string, List<LogEntryResult>>>>>(); // <VirtualUser,<UserAction, LogEntryResult
                                 foreach (DataRow rrRow in runResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
                                     int runResultId = (int)rrRow.ItemArray[0];
+
+                                    var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultId, "Rerun", "VirtualUser", "UserAction", "SameAsLogEntryIndex", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error");
+                                    if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+
 
                                     //Keeping reruns in mind (break on last)
                                     int runs = ((int)rrRow.ItemArray[1]) + 1;
@@ -800,21 +789,23 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                         foreach (DataRow lerRow in logEntryResults.Rows) {
                                             if (cancellationToken.IsCancellationRequested) return null;
 
-                                            object[] row = lerRow.ItemArray;
-                                            if ((int)row[0] == runResultId && (int)row[8] == reRun) {
-                                                string virtualUser = row[1] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct average doing it like this.
-                                                string userAction = lerRow.ItemArray[2] as string;
+                                            if ((int)lerRow["Rerun"] == reRun) {
+                                                string virtualUser = lerRow["VirtualUser"] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct average doing it like this.
+                                                string userAction = lerRow["UserAction"] as string;
 
-                                                string logEntryIndex = lerRow.ItemArray[4] as string; //Combine results when using distribe like this.
+                                                string logEntryIndex = lerRow["SameAsLogEntryIndex"] as string; //Combine results when using distribe like this.
                                                 if (logEntryIndex == string.Empty) {
-                                                    logEntryIndex = lerRow.ItemArray[3] as string;
+                                                    logEntryIndex = lerRow["LogEntryIndex"] as string;
 
                                                     //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used.
                                                     //Map using the log entry index
                                                     if (!userActionsMap.ContainsKey(logEntryIndex)) userActionsMap.Add(logEntryIndex, userAction);
                                                 }
 
-                                                var logEntryResult = new LogEntryResult() { LogEntryIndex = logEntryIndex, TimeToLastByteInTicks = (long)lerRow.ItemArray[5], DelayInMilliseconds = (int)lerRow.ItemArray[6], Error = lerRow.ItemArray[7] as string };
+                                                var logEntryResult = new LogEntryResult() {
+                                                    LogEntryIndex = logEntryIndex, TimeToLastByteInTicks = (long)lerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)lerRow["DelayInMilliseconds"],
+                                                    Error = lerRow["Error"] as string
+                                                };
 
                                                 if (!uas.ContainsKey(virtualUser)) uas.Add(virtualUser, new Dictionary<string, List<LogEntryResult>>());
                                                 if (!uas[virtualUser].ContainsKey(userAction)) uas[virtualUser].Add(userAction, new List<LogEntryResult>());
@@ -949,7 +940,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
 
                         cacheEntry.ReturnValue = averageUserActions;
-                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
 
                         //Add the data table without the concurrency result id column.
 
@@ -1016,9 +1006,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                                     runResultIds.Add((int)rrRow.ItemArray[0]);
                                 }
-
                                 var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(),
-                                    new string[] { "LogEntryIndex", "SameAsLogEntryIndex", "UserAction", "LogEntry", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error" });
+                                    "SameAsLogEntryIndex", "LogEntryIndex", "UserAction", "LogEntry", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error");
                                 if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
                                 //We don't need to keep the run ids for this one, it's much faster and simpler like this.
@@ -1027,14 +1016,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 foreach (DataRow lerRow in logEntryResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    object[] row = lerRow.ItemArray;
-                                    string logEntryIndex = row[1] as string; //Combine results when using distribution like this.
+                                    string logEntryIndex = lerRow["SameAsLogEntryIndex"] as string; //Combine results when using distribution like this.
                                     if (logEntryIndex == string.Empty) {
-                                        logEntryIndex = row[0] as string;
+                                        logEntryIndex = lerRow["LogEntryIndex"] as string;
 
                                         //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used. 
                                         if (!userActions.ContainsKey(logEntryIndex)) {
-                                            string userAction = row[2] as string;
+                                            string userAction = lerRow["UserAction"] as string;
                                             userActions.Add(logEntryIndex, userAction);
                                         }
                                     }
@@ -1056,15 +1044,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 foreach (DataRow lerRow in logEntryResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    object[] row = lerRow.ItemArray;
-                                    string logEntryIndex = row[1] as string; //Combine results when using distribution like this.
-                                    if (logEntryIndex == string.Empty) logEntryIndex = row[0] as string;
+                                    string logEntryIndex = lerRow["SameAsLogEntryIndex"] as string; //Combine results when using distribution like this.
+                                    if (logEntryIndex == string.Empty) logEntryIndex = lerRow["LogEntryIndex"] as string;
 
-                                    string userAction = row[2] as string;
-                                    string logEntry = row[3] as string;
-                                    long ttlb = (long)row[4];
-                                    int delay = (int)row[5];
-                                    string error = row[6] as string;
+                                    string userAction = lerRow["UserAction"] as string;
+                                    string logEntry = lerRow["LogEntry"] as string;
+                                    long ttlb = (long)lerRow["TimeToLastByteInTicks"];
+                                    int delay = (int)lerRow["DelayInMilliseconds"];
+                                    string error = lerRow["Error"] as string;
 
                                     int uniqueLogEntryCount = uniqueLogEntryCounts[logEntryIndex];
 
@@ -1118,7 +1105,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             }
                         }
                         cacheEntry.ReturnValue = averageLogEntries;
-                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                     }
                     return cacheEntry.ReturnValue as DataTable;
                 }
@@ -1171,19 +1157,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     int runResultId = (int)rrRow.ItemArray[0];
                                     object run = rrRow.ItemArray[1];
 
-                                    var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Error) != 0", runResultId, "RunResultId", "VirtualUser", "UserAction", "LogEntry", "Error");
+                                    var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Error)!=0", runResultId, "VirtualUser", "User Action", "Log Entry", "Error");
                                     if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
                                     foreach (DataRow ldr in logEntryResults.Rows) {
                                         if (cancellationToken.IsCancellationRequested) return null;
-
-                                        errors.Rows.Add(stresstest, concurrency, run, ldr.ItemArray[1], ldr.ItemArray[2], ldr.ItemArray[3], ldr.ItemArray[4]);
+                                        errors.Rows.Add(stresstest, concurrency, run, ldr["VirtualUser"], ldr["UserAction"], ldr["LogEntry"], ldr["Error"]);
                                     }
                                 }
                             }
                         }
                         cacheEntry.ReturnValue = errors;
-                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                     }
                     return cacheEntry.ReturnValue as DataTable;
                 }
@@ -1209,7 +1193,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                     var userActionComposition = CreateEmptyDataTable("UserActionComposition", "Stresstest", "User Action", "Log Entry");
-
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
@@ -1233,20 +1216,19 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             foreach (DataRow rrRow in runResults.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1'", (int)rrRow.ItemArray[0], "UserAction", "LogEntry", "SameAsLogEntryIndex");
+                                //We don't want duplicates
+                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1' AND CHAR_LENGTH(SameAsLogEntryIndex)=0", (int)rrRow.ItemArray[0], 
+                                    "UserAction", "LogEntry");
                                 if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
                                 var userActions = new Dictionary<string, List<string>>();
                                 foreach (DataRow lerRow in logEntryResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
-                                    object[] row = lerRow.ItemArray;
 
-                                    if (row[2] as string == string.Empty) { //We don't want duplicates
-                                        string userAction = row[0] as string;
-                                        string logEntry = row[1] as string;
-                                        if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
-                                        if (!userActions[userAction].Contains(logEntry)) userActions[userAction].Add(logEntry);
-                                    }
+                                    string userAction = lerRow["UserAction"] as string;
+                                    string logEntry = lerRow["LogEntry"] as string;
+                                    if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
+                                    if (!userActions[userAction].Contains(logEntry)) userActions[userAction].Add(logEntry);
                                 }
 
                                 //Sort the user actions
@@ -1268,7 +1250,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
                     }
                     cacheEntry.ReturnValue = userActionComposition;
-                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -1307,7 +1288,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
 
                         cacheEntry.ReturnValue = machineConfigurations;
-                        ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                     }
                     return cacheEntry.ReturnValue as DataTable;
                 }
@@ -1508,7 +1488,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
                     }
                     cacheEntry.ReturnValue = averageMonitorResults;
-                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -1618,7 +1597,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
                     }
                     cacheEntry.ReturnValue = dts;
-                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as List<DataTable>;
             }
@@ -1716,7 +1694,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                     cacheEntry.OutputArguments = new object[] { concurrencyAndRunsDic };
                     cacheEntry.ReturnValue = runsOverTime;
-                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 concurrencyAndRunsDic = cacheEntry.OutputArguments[0] as Dictionary<string, List<string>>;
                 return cacheEntry.ReturnValue as DataTable;
@@ -1787,7 +1764,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
 
                     cacheEntry.ReturnValue = throughputPerWattOverTime;
-                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -1863,11 +1839,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                 runResultIds.Add((int)rrRow.ItemArray[0]);
             }
-
-
             var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds");
             if (logEntryResults == null || logEntryResults.Rows.Count == 0) return null;
-
 
             //Get the throughput per minute.
 
@@ -1879,10 +1852,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             foreach (DataRow lerRow in logEntryResults.Rows) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                DateTime sentAt = (DateTime)lerRow.ItemArray[0];
+                DateTime sentAt = (DateTime)lerRow["SentAt"];
                 if (sentAt < firstSentAt) firstSentAt = sentAt;
                 if (sentAt > lastSentAt) lastSentAt = sentAt;
-                logEntries.Add(new LogEntry() { SentAt = sentAt, TimeToLastByteInTicks = (long)lerRow.ItemArray[1], DelayInMilliseconds = (int)lerRow.ItemArray[2] });
+                logEntries.Add(new LogEntry() { SentAt = sentAt, TimeToLastByteInTicks = (long)lerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)lerRow["DelayInMilliseconds"] });
             }
 
             //Determine all the minutes.The key is the upper border.
@@ -2109,7 +2082,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
 
                     cacheEntry.ReturnValue = throughputPerWatt;
-                    ReaderAndCombiner.ClearCache(); //It is the end result that counts, not the intermediate tables.
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
@@ -2144,10 +2116,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                 runResultIds.Add((int)rrRow.ItemArray[0]);
             }
-
             var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds");
             if (logEntryResults == null || logEntryResults.Rows.Count == 0) return null;
-
 
             //Following two variables serve at bordering monitor before and after.
             DateTime firstSentAt = DateTime.MaxValue;
@@ -2157,10 +2127,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             foreach (DataRow lerRow in logEntryResults.Rows) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                DateTime sentAt = (DateTime)lerRow.ItemArray[0];
+                DateTime sentAt = (DateTime)lerRow["SentAt"];
                 if (sentAt < firstSentAt) firstSentAt = sentAt;
                 if (sentAt > lastSentAt) lastSentAt = sentAt;
-                logEntries.Add(new LogEntry() { SentAt = sentAt, TimeToLastByteInTicks = (long)lerRow.ItemArray[1], DelayInMilliseconds = (int)lerRow.ItemArray[2] });
+                logEntries.Add(new LogEntry() { SentAt = sentAt, TimeToLastByteInTicks = (long)lerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)lerRow["DelayInMilliseconds"] });
             }
 
             //Get the Throughput
@@ -2228,7 +2198,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 ClearCache();
                 try {
-                    _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password) };
+                    _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;table cache = true;", host, port, databaseName, user, password) };
                     if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
                     _databaseName = databaseName;
                 } catch {
@@ -2249,7 +2219,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         }
 
         public void ClearCache() {
-            ReaderAndCombiner.ClearCache();
             if (_functionOutputCache != null) _functionOutputCache.Dispose();
             _functionOutputCache = new FunctionOutputCache();
         }
