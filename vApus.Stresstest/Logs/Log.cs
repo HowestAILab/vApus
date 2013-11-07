@@ -365,7 +365,14 @@ namespace vApus.Stresstest {
             InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        public Log Clone(bool cloneChildren = true, bool applyRuleSet = true) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cloneChildren"></param>
+        /// <param name="applyRuleSet"></param>
+        /// <param name="copyLogEntriesAsImported">Not needed in a distributed test</param>
+        /// <returns></returns>
+        public Log Clone(bool cloneChildren = true, bool applyRuleSet = true, bool copyLogEntriesAsImported = true) {
             var log = new Log();
             log.Parent = Parent;
             log.Label = Label;
@@ -376,7 +383,7 @@ namespace vApus.Stresstest {
 
             if (cloneChildren)
                 foreach (UserAction item in this)
-                    log.AddWithoutInvokingEvent(item.Clone(_logRuleSet, applyRuleSet), false);
+                    log.AddWithoutInvokingEvent(item.Clone(_logRuleSet, applyRuleSet, copyLogEntriesAsImported, true), false);
 
             return log;
         }

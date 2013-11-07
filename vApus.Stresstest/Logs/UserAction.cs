@@ -134,7 +134,7 @@ namespace vApus.Stresstest {
         internal StringTree[] GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope) {
             var parameterizedStructure = new StringTree[Count];
 
-            HashSet<BaseParameter> chosenNextValueParametersForUAScope = parameterTokens == null ? null :  new HashSet<BaseParameter>();
+            HashSet<BaseParameter> chosenNextValueParametersForUAScope = parameterTokens == null ? null : new HashSet<BaseParameter>();
 
             for (int i = 0; i != parameterizedStructure.Length; i++)
                 parameterizedStructure[i] = (this[i] as LogEntry).GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
@@ -291,13 +291,30 @@ namespace vApus.Stresstest {
 
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
-        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet) {
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logRuleSet"></param>
+        /// <param name="applyRuleSet">Not needed in a distributed test</param>
+        /// <param name="copyLogEntryAsImported">Not needed in a distributed test</param>
+        /// <param name="copyLinkedUserActionIndices">Needed in a distributed test</param>
+        /// <returns></returns>
+        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool copyLogEntryAsImported, bool copyLinkedUserActionIndices) {
             UserAction userAction = new UserAction(Label);
             userAction.SetParent(Parent, false);
             userAction.Occurance = _occurance;
             userAction.Pinned = Pinned;
             userAction.UseDelay = _useDelay;
-            userAction.LogEntryStringsAsImported = _logEntryStringsAsImported;
+
+            if (copyLogEntryAsImported) {
+                var arr = new string[_logEntryStringsAsImported.Count];
+                _logEntryStringsAsImported.CopyTo(arr);
+                userAction.LogEntryStringsAsImported = new List<string>(arr);
+            }
+
+            foreach (int i in _linkedToUserActionIndices) userAction._linkedToUserActionIndices.Add(i);
+            userAction._linkColorRGB = _linkColorRGB;
 
             foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(logRuleSet, applyRuleSet), false);
 

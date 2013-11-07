@@ -357,7 +357,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <returns></returns>
         private Log LogTimesOccurancies(Log log) {
-            Log newLog = log.Clone(false, false);
+            Log newLog = log.Clone(false, false, false);
             var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
             foreach (UserAction action in log) {
                 var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.

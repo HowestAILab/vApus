@@ -211,7 +211,7 @@ namespace vApus.DistributedTesting {
                 var logs = new KeyValuePair<Log, uint>[AdvancedTileStresstest.Logs.Length];
                 for (int i = 0; i != logs.Length; i++) {
                     var kvp = AdvancedTileStresstest.Logs[i];
-                    var log = kvp.Key.Clone(true, false);
+                    var log = kvp.Key.Clone(true, false, false);
 
                     log.RemoveDescription();
                     allLogs.AddWithoutInvokingEvent(log);
