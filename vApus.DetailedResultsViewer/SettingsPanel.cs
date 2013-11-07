@@ -227,20 +227,27 @@ namespace vApus.DetailedResultsViewer {
 
                     } else if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
                 } else {
-                    cboStresstest.Items.Add("<All>");
-                    foreach (DataRow stresstestRow in stresstests.Rows)
-                        cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
+                    if (stresstests.Rows.Count == 1) {
+                        cboStresstest.Items.Add((string)stresstests.Rows[0].ItemArray[1] + " " + stresstests.Rows[0].ItemArray[2]);
 
-                    cboStresstest.SelectedIndex = 1;
+                        cboStresstest.SelectedIndex = 0;
+                    } else {
+                        cboStresstest.Items.Add("<All>");
+                        foreach (DataRow stresstestRow in stresstests.Rows)
+                            cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
 
-                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, cboStresstest.SelectedIndex));
+                        cboStresstest.SelectedIndex = 1;
+                    }
+                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, 1));
                 }
 
                 cboStresstest.SelectedIndexChanged += cboStresstest_SelectedIndexChanged;
             }, null);
         }
         private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
-            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, cboStresstest.SelectedIndex));
+            int stresstestId = cboStresstest.SelectedIndex;
+            if (cboStresstest.Items.Count == 1) ++stresstestId;
+            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, stresstestId));
         }
 
         private class FilterDatabasesWorkItem {
