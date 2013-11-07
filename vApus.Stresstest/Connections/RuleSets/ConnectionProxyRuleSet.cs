@@ -51,43 +51,7 @@ namespace vApus.Stresstest {
 
         #endregion
 
-        #region Constructors
-        public ConnectionProxyRuleSet() { }
-        public ConnectionProxyRuleSet(SerializationInfo info, StreamingContext ctxt) {
-            SerializationReader sr;
-            using (sr = SerializationReader.GetReader(info)) {
-                Label = sr.ReadString();
-                ChildDelimiter = sr.ReadString();
-                _connected = sr.ReadBoolean();
-
-                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
-            }
-            sr = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
-        }
-        #endregion
-
         #region Functions
-        /// <summary>
-        ///     Only for sending from master to slave.
-        /// </summary>
-        /// <param name="info"></param>
-        /// <param name="context"></param>
-        public void GetObjectData(SerializationInfo info, StreamingContext context) {
-            SerializationWriter sw;
-            using (sw = SerializationWriter.GetWriter()) {
-                sw.Write(Label);
-                sw.Write(ChildDelimiter);
-                sw.Write(_connected);
-
-                sw.Write(this);
-                sw.AddToInfo(info);
-            }
-            sw = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
-        }
         protected new void Add_Click(object sender, EventArgs e) {
             Add(new ConnectionProxySyntaxItem());
         }
