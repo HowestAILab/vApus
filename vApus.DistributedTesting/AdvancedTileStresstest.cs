@@ -242,7 +242,7 @@ namespace vApus.DistributedTesting {
             set { _actionDistribution = value; }
         }
 
-        [Description("The Action Distribution property must be ticked off. This sets the maximum number of user actions that a test pattern for a user can contain. Pinned actions however are always picked. Set this to zero to not use this."),
+        [Description("This sets the maximum number of user actions that a test pattern for a user can contain. Pinned actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum Number of User Actions")]
         [SavableCloneable, PropertyControl(7)]
         public int MaximumNumberOfUserActions {
