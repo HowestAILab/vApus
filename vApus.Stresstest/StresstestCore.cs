@@ -11,6 +11,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
+using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -346,6 +347,7 @@ namespace vApus.Stresstest {
             logEntries = null;
             logsSortedByWeight = null;
 
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
             _sw.Stop();
             InvokeMessage(string.Format(" ...Log(s) Initialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
@@ -580,6 +582,7 @@ namespace vApus.Stresstest {
                 logEntryIndices = null;
                 logEntryParents = null;
 
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
 
                 _sw.Stop();
