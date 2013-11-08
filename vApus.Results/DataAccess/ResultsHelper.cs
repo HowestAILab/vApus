@@ -587,8 +587,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                             row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[4] : 0d);
                         }
-                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the throughput
-                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[12]); //And the errors: Bonus
+                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[7]); //And the throughput
+                        row.Add(averageConcurrentUsers.Rows[averageResponseTimesAndThroughput.Rows.Count].ItemArray[6]); //And the errors: Bonus
                         averageResponseTimesAndThroughput.Rows.Add(row.ToArray());
                     }
 
@@ -614,8 +614,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
                         var averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
-            "Log Entries Processed", "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
-            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
+            "Log Entries Processed", "Log Entries", "Errors", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
+            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)");
 
                         foreach (DataRow stresstestsRow in stresstests.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
@@ -702,9 +702,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, true);
 
                                 averageConcurrentUsers.Rows.Add(stresstest, metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
-                                    metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
+                                    metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
                                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2), Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
-                                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2), metrics.Errors);
+                                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2));
                             }
                         }
                         cacheEntry.ReturnValue = averageConcurrentUsers;

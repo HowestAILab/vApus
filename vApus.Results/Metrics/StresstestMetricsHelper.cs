@@ -18,28 +18,28 @@ namespace vApus.Results {
         #region Fields
         private static readonly string[] _readableMetricsHeadersConcurrency =
             {
-                "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed",
+                "Started At", "Time Left", "Measured Time", "Concurrency", "Log Entries Processed", "Errors",
                 "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
-                "Avg. Delay (ms)", "Errors"
+                "Avg. Delay (ms)"
             };
         //"95th Percentile of the Response Times (ms)", 
         private static readonly string[] _readableMetricsHeadersRun =
             {
-                "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed",
+                "Started At", "Time Left", "Measured Time", "Concurrency", "Run", "Log Entries Processed", "Errors",
                 "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
-                "Avg. Delay (ms)", "Errors"
+                "Avg. Delay (ms)"
             };
         private static readonly string[] _calculatableMetricsHeadersConcurrency =
             {
                 "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Log Entries Processed",
-                "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
-                "Avg. Delay (ms)", "Errors"
+                "Log Entries", "Errors", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
+                "Avg. Delay (ms)"
             };
         private static readonly string[] _calculatableMetricsHeadersRun =
             {
                 "Started At", "Time Left (ms)", "Measured Time (ms)", "Concurrency", "Run", "Log Entries Processed",
-                "Log Entries", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
-                "Avg. Delay (ms)", "Errors"
+                "Log Entries", "Errors", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)", "Max. Response Time (ms)",
+                "Avg. Delay (ms)"
             };
         #endregion
 
@@ -296,13 +296,12 @@ namespace vApus.Results {
                         metrics.Concurrency,
                         metrics.LogEntriesProcessed + " / " +
                         (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
+                        metrics.Errors,
                         Math.Round(metrics.ResponsesPerSecond, 2),
                         Math.Round(metrics.UserActionsPerSecond, 2),
                         Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                         Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
-                        //Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
-                        Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
-                        metrics.Errors
+                        Math.Round(metrics.AverageDelay.TotalMilliseconds, 2)
                     };
             return new object[]
                 {
@@ -313,13 +312,12 @@ namespace vApus.Results {
                     metrics.Run,
                     metrics.LogEntriesProcessed + " / " +
                     (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
+                    metrics.Errors,
                     Math.Round(metrics.ResponsesPerSecond, 2),
                     Math.Round(metrics.UserActionsPerSecond, 2),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
-                    //Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
-                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
-                    metrics.Errors
+                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2)
                 };
         }
         private static object[] CalculatableMetricsToRow(StresstestMetrics metrics) {
@@ -332,13 +330,12 @@ namespace vApus.Results {
                         metrics.Concurrency,
                         metrics.LogEntriesProcessed,
                         metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
+                        metrics.Errors,
                         Math.Round(metrics.ResponsesPerSecond, 2),
                         Math.Round(metrics.UserActionsPerSecond, 2),
                         Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                         Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
-                        //Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
-                        Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
-                        metrics.Errors
+                        Math.Round(metrics.AverageDelay.TotalMilliseconds, 2)
                     };
             return new object[]
                 {
@@ -349,13 +346,12 @@ namespace vApus.Results {
                     metrics.Run,
                     metrics.LogEntriesProcessed,
                     metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
+                    metrics.Errors,
                     Math.Round(metrics.ResponsesPerSecond, 2),
                     Math.Round(metrics.UserActionsPerSecond, 2),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2),
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2),
-                    //Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
-                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2),
-                    metrics.Errors
+                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2)
                 };
         }
 
