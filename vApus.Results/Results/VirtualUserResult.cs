@@ -8,7 +8,7 @@
 
 using System;
 namespace vApus.Results {
-    public struct VirtualUserResult {
+    public class VirtualUserResult {
 
         #region Fields
         private string _virtualUser;
@@ -59,21 +59,35 @@ namespace vApus.Results {
             LogEntryResults[_runOffset + index] = result;
         }
 
+        ///// <summary>
+        /////     For break on last run sync. should only be used in the RunResult class.
+        ///// </summary>
+        //internal VirtualUserResult CloneAndPrepareForRerun() {
+        //    var clone = new VirtualUserResult();
+        //    clone._virtualUser = _virtualUser;
+        //    clone._baseLogEntryCount = _baseLogEntryCount;
+        //    clone._runOffset = _runOffset + _baseLogEntryCount;
+
+        //    var increasedLogEntryResults = new LogEntryResult[LogEntryResults.LongLength + _baseLogEntryCount];
+        //    _logEntryResults.CopyTo(increasedLogEntryResults, 0);
+
+        //    clone._logEntryResults = increasedLogEntryResults;
+
+        //    return clone;
+        //}
         /// <summary>
         ///     For break on last run sync. should only be used in the RunResult class.
         /// </summary>
-        internal VirtualUserResult CloneAndPrepareForRerun() {
-            var clone = new VirtualUserResult();
-            clone._virtualUser = _virtualUser;
-            clone._baseLogEntryCount = _baseLogEntryCount;
-            clone._runOffset = _runOffset + _baseLogEntryCount;
-           
+        internal void PrepareForRerun() {
+            _runOffset += _baseLogEntryCount;
+
             var increasedLogEntryResults = new LogEntryResult[LogEntryResults.LongLength + _baseLogEntryCount];
             _logEntryResults.CopyTo(increasedLogEntryResults, 0);
 
-            clone._logEntryResults = increasedLogEntryResults;
-
-            return clone;
+            long previousLength = LogEntryResults.LongLength;
+            _logEntryResults = increasedLogEntryResults;
+            for (long l = previousLength; l != _logEntryResults.LongLength; l++)
+                _logEntryResults[l] = new LogEntryResult();
         }
         #endregion
     }

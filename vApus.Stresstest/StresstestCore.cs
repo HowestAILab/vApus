@@ -995,7 +995,8 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Log entry with metadata.
         /// </summary>
-        private struct TestableLogEntry {
+        private class TestableLogEntry {
+
             #region Fields
             /// <summary>
             ///     Should be log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry); this must be unique.

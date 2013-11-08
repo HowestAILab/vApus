@@ -50,8 +50,10 @@ namespace vApus.Results {
         /// </summary>
         public void PrepareForRerun() {
             ++RerunCount;
+            //for (long l = 0; l != VirtualUserResults.LongLength; l++)
+            //    VirtualUserResults[l] = VirtualUserResults[l].CloneAndPrepareForRerun();
             for (long l = 0; l != VirtualUserResults.LongLength; l++)
-                VirtualUserResults[l] = VirtualUserResults[l].CloneAndPrepareForRerun();
+                VirtualUserResults[l].PrepareForRerun();
         }
         #endregion
     }

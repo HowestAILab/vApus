@@ -90,7 +90,7 @@ namespace vApus.Results {
                     if (calculate95thPercentileResponseTimes)
                         foreach (var vur in runResult.VirtualUserResults)
                             foreach (var ler in vur.LogEntryResults)
-                                if (ler.VirtualUser != null) {
+                                if (ler != null) {
                                     long lerTimeToLastByteInTicks = ler.TimeToLastByteInTicks;
                                     for (int i = 0; i != timesToLastByteInTicks.Count; i++)
                                         if (timesToLastByteInTicks[i] < lerTimeToLastByteInTicks) {
@@ -143,7 +143,7 @@ namespace vApus.Results {
                 StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult);
                 metrics.LogEntries += virtualUserMetrics.LogEntries;
 
-                if (virtualUserResult.VirtualUser != null) {
+                if (virtualUserResult != null) {
                     ++enteredUserResultsCount;   
 
                     if (calculate95thPercentileResponseTimes && percent5 == -1)
@@ -159,7 +159,7 @@ namespace vApus.Results {
 
                     if (calculate95thPercentileResponseTimes)
                         foreach (var ler in virtualUserResult.LogEntryResults)
-                            if (ler.VirtualUser != null) {
+                            if (ler != null) {
                                 for (int i = 0; i != timesToLastByteInTicks.Count; i++)
                                     if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
                                         timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
@@ -187,7 +187,7 @@ namespace vApus.Results {
             var uniqueUserActions = new List<string>();
             TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
             foreach (LogEntryResult logEntryResult in result.LogEntryResults)
-                if (logEntryResult.VirtualUser != null) {
+                if (logEntryResult != null) {
                     ++metrics.LogEntriesProcessed;
                     if (!uniqueUserActions.Contains(logEntryResult.UserAction)) uniqueUserActions.Add(logEntryResult.UserAction);
 
@@ -243,7 +243,7 @@ namespace vApus.Results {
                                     if (logEntryResults != null) {
                                         for (int ler = 0; ler != logEntryResults.Length; ler++) {
                                             ++logEntries;
-                                            if (logEntryResults[ler].VirtualUser != null) ++logEntriesProcessed;
+                                            if (logEntryResults[ler] != null) ++logEntriesProcessed;
                                         }
                                     }
                                 }
