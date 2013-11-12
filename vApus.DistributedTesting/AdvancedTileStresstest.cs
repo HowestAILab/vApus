@@ -20,7 +20,6 @@ namespace vApus.DistributedTesting {
 
         #region Fields
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
-        private Stresstest.Stresstest _defaultSettingsTo;
         private bool _actionDistribution;
         private int _maximumNumberOfUserActions;
 
@@ -358,24 +357,22 @@ namespace vApus.DistributedTesting {
         }
 
         internal void DefaultTo(Stresstest.Stresstest stresstest) {
-            _defaultSettingsTo = stresstest;
-
-            var logs = new KeyValuePair<Log, uint>[_defaultSettingsTo.Logs.Length];
-            _defaultSettingsTo.Logs.CopyTo(logs, 0);
+            var logs = new KeyValuePair<Log, uint>[stresstest.Logs.Length];
+            stresstest.Logs.CopyTo(logs, 0);
             logs.SetParent(_allLogs, false);
             Logs = logs;
 
-            _concurrencies = new int[_defaultSettingsTo.Concurrencies.Length];
-            _defaultSettingsTo.Concurrencies.CopyTo(_concurrencies, 0);
+            _concurrencies = new int[stresstest.Concurrencies.Length];
+            stresstest.Concurrencies.CopyTo(_concurrencies, 0);
 
-            _runs = _defaultSettingsTo.Runs;
-            _minimumDelay = _defaultSettingsTo.MinimumDelay;
-            _maximumDelay = _defaultSettingsTo.MaximumDelay;
-            _shuffle = _defaultSettingsTo.Shuffle;
-            _actionDistribution = _defaultSettingsTo.ActionDistribution;
-            _maximumNumberOfUserActions = _defaultSettingsTo.MaximumNumberOfUserActions;
-            _monitorBefore = _defaultSettingsTo.MonitorBefore;
-            _monitorAfter = _defaultSettingsTo.MonitorAfter;
+            _runs = stresstest.Runs;
+            _minimumDelay = stresstest.MinimumDelay;
+            _maximumDelay = stresstest.MaximumDelay;
+            _shuffle = stresstest.Shuffle;
+            _actionDistribution = stresstest.ActionDistribution;
+            _maximumNumberOfUserActions = stresstest.MaximumNumberOfUserActions;
+            _monitorBefore = stresstest.MonitorBefore;
+            _monitorAfter = stresstest.MonitorAfter;
 
             if (Solution.ActiveSolution != null)
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
@@ -388,7 +385,9 @@ namespace vApus.DistributedTesting {
         public AdvancedTileStresstest Clone() {
             var clone = new AdvancedTileStresstest();
 
-            clone._logs = new KeyValuePair<Log, uint>[_defaultSettingsTo.Logs.Length];
+            var defaultSettingsTo = (Parent as TileStresstest).DefaultAdvancedSettingsTo;
+
+            clone._logs = new KeyValuePair<Log, uint>[defaultSettingsTo.Logs.Length];
             _logs.CopyTo(clone._logs, 0);
             clone._logs.SetParent(_allLogs, false);
 

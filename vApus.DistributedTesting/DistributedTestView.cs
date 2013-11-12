@@ -219,9 +219,10 @@ namespace vApus.DistributedTesting {
                     fastResultsControl.ClearEvents();
 
                     if (_distributedTestCore != null) {
+                        fastResultsControl.ClearFastResults();
+
                         var testProgressMessage = _distributedTestCore.GetTestProgressMessage(tstvi.TileStresstest);
                         if (testProgressMessage.TileStresstestIndex == null) {
-                            fastResultsControl.ClearFastResults();
                             detailedResultsControl.ClearResults();
                             detailedResultsControl.Enabled = false;
                         } else {
