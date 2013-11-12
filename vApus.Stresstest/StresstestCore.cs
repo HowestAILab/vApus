@@ -259,7 +259,9 @@ namespace vApus.Stresstest {
             try {
                 InvokeMessage("Initializing the Test.");
                 InitializeLogs();
+                if (_cancel) return;
                 InitializeConnectionProxyPool();
+                if (_cancel) return;
             } catch (Exception e) {
                 _isFailed = true;
                 ex = e;
@@ -272,8 +274,7 @@ namespace vApus.Stresstest {
         ///     Parallel connections will be determined here also.
         /// </summary>
         private void InitializeLogs() {
-            if (_cancel)
-                return;
+            if (_cancel) return;
 
             InvokeMessage("Initializing Log(s)...");
             _sw.Start();
@@ -283,6 +284,8 @@ namespace vApus.Stresstest {
                 throw ex;
             }
             foreach (var kvp in _stresstest.Logs) {
+                if (_cancel) return;
+
                 if (kvp.Value != 0 && kvp.Key.Count == 0) {
                     var ex = new Exception("There are no user actions in a selected log.");
                     LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
@@ -293,15 +296,20 @@ namespace vApus.Stresstest {
             float totalLogWeight = 0; //To calcullate the percentage distribution
             var logsSortedByWeight = new List<KeyValuePair<Log, uint>>(); //for easy determining incremental percentages
             foreach (var kvp in _stresstest.Logs) {
+                if (_cancel) return;
+
                 totalLogWeight += Convert.ToSingle(kvp.Value);
 
                 bool added = false;
-                for (int i = 0; i != logsSortedByWeight.Count; i++)
+                for (int i = 0; i != logsSortedByWeight.Count; i++) {
+                    if (_cancel) return;
+
                     if (logsSortedByWeight[i].Value > kvp.Value) {
                         logsSortedByWeight.Insert(i, kvp);
                         added = true;
                         break;
                     }
+                }
                 if (!added)
                     logsSortedByWeight.Add(kvp);
             }
@@ -309,21 +317,21 @@ namespace vApus.Stresstest {
             uint incrementedWeight = 0;
             var logEntries = new List<KeyValuePair<Log, KeyValuePair<LogEntry[], float>>>();
             _testPatternsAndDelaysGenerators = new Dictionary<Log, TestPatternsAndDelaysGenerator>();
-            foreach (var kvp in logsSortedByWeight)
+            foreach (var kvp in logsSortedByWeight) {
+                if (_cancel) return;
+
                 if (kvp.Value != 0) {
-                    Log log = null;
-                    if (_stresstest.ActionDistribution)
-                        log = LogTimesOccurancies(kvp.Key);
-                    else {
-                        log = kvp.Key;
-                        log.ApplyLogRuleSet();
-                    }
+                    Log log = LogTimesOccurancies(kvp.Key);
+
+                    if (_cancel) return;
 
                     //Parallel connections, check per user action
                     _parallelConnectionsModifier = 0;
                     var l = new List<LogEntry>();
                     foreach (UserAction ua in log)
                         foreach (LogEntry logEntry in ua) {
+                            if (_cancel) return;
+
                             l.Add(logEntry);
 
                             if (logEntry.ExecuteInParallelWithPrevious)
@@ -341,6 +349,7 @@ namespace vApus.Stresstest {
                     var testPatternsAndDelaysGenerators = new TestPatternsAndDelaysGenerator(logEntryArr, actionCount, _stresstest.Shuffle, _stresstest.MinimumDelay, _stresstest.MaximumDelay);
                     _testPatternsAndDelaysGenerators.Add(log, testPatternsAndDelaysGenerators);
                 }
+            }
 
             _logEntries = logEntries.ToArray();
 
@@ -359,11 +368,29 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <returns></returns>
         private Log LogTimesOccurancies(Log log) {
-            Log newLog = log.Clone(false, false, false);
+            //Check if following logic is needed, if not return immediatly.
+            bool doLogTimesOccurancies = false;
+            if (_stresstest.ActionDistribution) 
+                foreach (UserAction action in log)
+                    if (action.Occurance != 1) {
+                        doLogTimesOccurancies = true;
+                        break;
+                    }
+
+            if (!doLogTimesOccurancies) {
+                log.ApplyLogRuleSet();
+                return log;
+            }
+
+            var newLog = log.Clone(false, false, false);
             var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
             foreach (UserAction action in log) {
-                var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using distribute.
+                if (_cancel) return null;
+
+                var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using action distribution.
                 for (int i = 0; i != action.Occurance; i++) {
+                    if (_cancel) return null;
+
                     var actionClone = new UserAction(action.Label);
                     actionClone.Occurance = 1; //Must be one now, this value doesn't matter anymore.
                     actionClone.Pinned = action.Pinned;
@@ -371,6 +398,8 @@ namespace vApus.Stresstest {
                     bool canAddClones = firstEntryClones.Count == 0;
                     int logEntryIndex = 0;
                     foreach (LogEntry child in action) {
+                        if (_cancel) return null;
+
                         LogEntry childClone = child.Clone(log.LogRuleSet, true);
 
                         if (canAddClones)
@@ -386,10 +415,10 @@ namespace vApus.Stresstest {
 
                     if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
                         linkCloned.Add(action, actionClone);
-                    } else {
+                    } else if (linkCloned.Count != 0) { //We can avoid the looping logic until a linkUserAction is found.
                         UserAction linkUserAction;
-                        if (action.IsLinked(out linkUserAction) && linkCloned.ContainsKey(linkUserAction))
-                            linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newLog.IndexOf(actionClone) + 1);
+                        if (action.IsLinked(log, out linkUserAction) && linkCloned.ContainsKey(linkUserAction))
+                            linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newLog.Count);
                     }
                 }
             }
@@ -397,8 +426,7 @@ namespace vApus.Stresstest {
         }
 
         private void InitializeConnectionProxyPool() {
-            if (_cancel)
-                return;
+            if (_cancel) return;
 
             InvokeMessage("Initialize Connection Proxy Pool...");
             _sw.Start();

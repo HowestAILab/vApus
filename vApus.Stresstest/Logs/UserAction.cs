@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading.Tasks;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -245,16 +246,31 @@ namespace vApus.Stresstest {
             merged.LinkedToUserActionIndices.Clear();
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
+        /// <summary>
+        /// This user action will find its own parent log, more convinient but not so fast.
+        /// </summary>
+        /// <param name="linkUserAction"></param>
+        /// <returns></returns>
         public bool IsLinked(out UserAction linkUserAction) {
+            return IsLinked(Parent as Log, out linkUserAction);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="log">The log where this user action resides in.</param>
+        /// <param name="linkUserAction"></param>
+        /// <returns></returns>
+        public bool IsLinked(Log log, out UserAction linkUserAction) {
             linkUserAction = null;
             if (LinkedToUserActionIndices.Count == 0) {
-                var log = this.Parent as Log;
                 int index = Index;
-                foreach (UserAction ua in log)
+                for (int i = index - 2; i != -1; i--) {
+                    var ua = log[i] as UserAction;
                     if (ua.LinkedToUserActionIndices.Contains(index)) {
                         linkUserAction = ua;
                         return true;
                     }
+                }
             } else {
                 linkUserAction = this;
                 return true;
