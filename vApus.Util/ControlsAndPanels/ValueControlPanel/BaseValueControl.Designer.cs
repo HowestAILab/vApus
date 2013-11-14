@@ -110,7 +110,7 @@
         #endregion
 
         private System.Windows.Forms.Label lblLabel;
-        private System.Windows.Forms.SplitContainer split;
+        protected System.Windows.Forms.SplitContainer split;
         private System.Windows.Forms.RichTextBox rtxtDescription;
         private System.Windows.Forms.ToolTip toolTip;
 
