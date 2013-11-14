@@ -346,16 +346,13 @@ namespace vApus.DetailedResultsViewer {
 
         async private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
             if (_resultsHelper != null &&
-                MessageBox.Show("Are you sure you want to delete the listed results databases?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                MessageBox.Show("Are you sure you want to delete the LISTED results databases?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
                 Cursor = Cursors.WaitCursor;
 
                 var toDelete = new ConcurrentBag<string>();
                 foreach (DataRow row in _dataSource.Rows) {
                     await Task.Run(() => {
-                        try {
-                            _resultsHelper.DeleteResults(row[3] as string);
-                        } catch {
-                        }
+                        try { _resultsHelper.DeleteResults(row[3] as string); } catch { }
                     });
                 }
 

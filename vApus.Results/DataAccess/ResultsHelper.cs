@@ -699,7 +699,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     runResult.VirtualUserResults = virtualUserResults.Values.ToArray();
                                 }
 
-                                var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, true);
+                                bool simplified = false;
+                                var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, ref simplified, true);
 
                                 averageConcurrentUsers.Rows.Add(stresstest, metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
                                     metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),

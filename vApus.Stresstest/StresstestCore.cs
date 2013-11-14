@@ -156,7 +156,7 @@ namespace vApus.Stresstest {
         /// </summary>
         private void SetRunStarted() {
             _resultsHelper.SetRunStarted(_runResult);
-            if (_cancel && RunStarted != null)
+            if (!_cancel && RunStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate { RunStarted(this, new RunResultEventArgs(_runResult)); }, null);
         }
@@ -165,8 +165,8 @@ namespace vApus.Stresstest {
         ///     For monitoring --> to know the time offset of the counters so a range can be linked to a run.
         /// </summary>
         private void SetRunStopped() {
-            StresstestMetrics metrics = StresstestMetricsHelper.GetMetrics(_runResult);
-            InvokeMessage("|----> |Run Finished in " + metrics.MeasuredTime + "!", Color.MediumPurple);
+            _runResult.StoppedAt = DateTime.Now;
+            InvokeMessage("|----> |Run Finished in " + (_runResult.StoppedAt - _runResult.StartedAt) + "!", Color.MediumPurple);
             if (_resultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
             _resultsHelper.SetRunStopped(_runResult);
 
@@ -243,7 +243,13 @@ namespace vApus.Stresstest {
                 LogWrapper.LogByLevel(message, logLevel);
                 if (Message != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(
-                        delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
+                        delegate {
+                            try {
+                                Message(this, new MessageEventArgs(message, color, logLevel));
+                            } catch (Exception ex) {
+                                Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
+                            }
+                        }, null);
             } catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }

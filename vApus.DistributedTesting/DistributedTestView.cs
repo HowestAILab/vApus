@@ -884,8 +884,8 @@ namespace vApus.DistributedTesting {
                 //Build and add fast results. Do not show the updates in label if monitoring before.
                 fastResultsControl.ClearFastResults(testProgressMessage.StartedAt == DateTime.MinValue);
                 if (testProgressMessage.StresstestMetricsCache != null) {
-                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics());
-                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics());
+                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics(), true, testProgressMessage.StresstestMetricsCache.CalculatedSimplifiedMetrics);
+                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics(), false, testProgressMessage.StresstestMetricsCache.CalculatedSimplifiedMetrics);
                 }
                 var monitorResultCaches = GetMonitorResultCaches(tileStresstest);
                 foreach (var monitorResultCache in monitorResultCaches) {

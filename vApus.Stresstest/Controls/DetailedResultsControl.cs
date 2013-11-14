@@ -282,7 +282,7 @@ namespace vApus.Stresstest {
         }
 
         private void btnDeleteResults_Click(object sender, EventArgs e) {
-            if (MessageBox.Show("Are you sure you want to delete the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+            if (MessageBox.Show("Are you sure you want to delete the results database?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
                 _resultsHelper.DeleteResults();
                 this.Enabled = false;
 

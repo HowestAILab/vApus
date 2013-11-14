@@ -11,6 +11,16 @@ using System.Collections.Generic;
 using System.Reflection;
 
 namespace vApus.Util {
+    public static class FunctionOutputCacheWrapper {
+        private static FunctionOutputCache _functionOutputCache;
+        public static FunctionOutputCache FunctionOutputCache {
+            get {
+                if (_functionOutputCache == null) _functionOutputCache = new FunctionOutputCache();
+                return _functionOutputCache;
+            }
+        }
+
+    }
     public class FunctionOutputCache : IDisposable {
         private bool _isDisposed;
         private List<CacheEntry> _cache = new List<CacheEntry>();
