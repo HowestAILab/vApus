@@ -35,7 +35,6 @@ namespace vApus.Stresstest {
         internal string _description = string.Empty;
 
         protected object _lock = new object();
-        internal Random _r = new Random();
         private int _tokenNumericIdentifier = -1;
         #endregion
 
@@ -82,8 +81,6 @@ namespace vApus.Stresstest {
         #region Functions
         /// <summary>
         ///     Calculates a new value.
-        ///     When not random a unique value will always be calculated.
-        ///     Step is not applicable for Random.
         /// </summary>
         public abstract void Next();
 

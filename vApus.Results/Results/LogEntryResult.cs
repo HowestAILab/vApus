@@ -8,7 +8,7 @@
 using System;
 
 namespace vApus.Results {
-    public class LogEntryResult {
+    public struct LogEntryResult {
         /// <summary>
         /// Use this to determine that this is a filled in log entry result.
         /// </summary>
@@ -31,7 +31,5 @@ namespace vApus.Results {
         /// 0 for all but break on last runs.
         /// </summary>
         public int Rerun { get; set; }
-
-        public LogEntryResult() { }
     }
 }

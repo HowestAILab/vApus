@@ -61,6 +61,7 @@ namespace vApus.Stresstest {
                         return;
                     }
                 btnRemoveDuplicates.Enabled = false;
+                solutionComponentPropertyPanel.AddControlType(typeof(CustomListParameter), typeof(LinkToCustomListParameterControl));
             } else {
                 pnlCustomList.Visible = false;
             }

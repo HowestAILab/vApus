@@ -16,7 +16,6 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using vApus.Results;
-using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
@@ -376,7 +375,7 @@ namespace vApus.Stresstest {
         private Log LogTimesOccurancies(Log log) {
             //Check if following logic is needed, if not return immediatly.
             bool doLogTimesOccurancies = false;
-            if (_stresstest.ActionDistribution) 
+            if (_stresstest.ActionDistribution)
                 foreach (UserAction action in log)
                     if (action.Occurance != 1) {
                         doLogTimesOccurancies = true;
@@ -616,8 +615,8 @@ namespace vApus.Stresstest {
                 logEntryIndices = null;
                 logEntryParents = null;
 
-                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                GC.Collect();
+                //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                //GC.Collect();
 
                 _sw.Stop();
                 InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToLongFormattedString()));
@@ -1029,7 +1028,7 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Log entry with metadata.
         /// </summary>
-        private class TestableLogEntry {
+        private struct TestableLogEntry {
 
             #region Fields
             /// <summary>

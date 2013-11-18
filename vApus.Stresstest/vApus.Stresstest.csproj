@@ -281,6 +281,12 @@
     <Compile Include="Logs\LogView.Designer.cs">
       <DependentUpon>LogView.cs</DependentUpon>
     </Compile>
+    <Compile Include="Parameters\CustomList\LinkToCustomListParameterControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Parameters\CustomList\LinkToCustomListParameterControl.Designer.cs">
+      <DependentUpon>LinkToCustomListParameterControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
     <Compile Include="Logs\ParameterTokenTextStyle.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">

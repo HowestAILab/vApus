@@ -326,10 +326,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     foreach (VirtualUserResult virtualUserResult in runResult.VirtualUserResults) {
                         totalLogEntryCount += (ulong)virtualUserResult.LogEntryResults.LongLength;
 
-                        if (virtualUserResult != null) {
+                        if (virtualUserResult.VirtualUser != null) {
                             var rowsToInsert = new List<string>(); //Insert multiple values at once.
                             foreach (var logEntryResult in virtualUserResult.LogEntryResults)
-                                if (logEntryResult != null) {
+                                if (logEntryResult.VirtualUser != null) {
                                     var sb = new StringBuilder("('");
                                     sb.Append(_runResultId);
                                     sb.Append("', '");

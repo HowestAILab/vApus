@@ -74,7 +74,7 @@ namespace vApus.Util {
         /// </summary>
         public Value __Value {
             get { return _value; }
-            internal set {
+            set {
                 _value = value;
 
                 lblLabel.Text = _value.Label == null ? string.Empty : _value.Label;
@@ -97,7 +97,7 @@ namespace vApus.Util {
 
         public Control ValueControl {
             get { return split.Panel1.Controls.Count == 0 ? null : split.Panel1.Controls[0]; }
-            internal set {
+            set {
                 split.Panel1.Controls.Clear();
                 split.Panel1.Controls.Add(value);
 
@@ -128,11 +128,11 @@ namespace vApus.Util {
 
         #region Functions
 
-        internal void HandleValueChanged(object value) {
+        public void HandleValueChanged(object value) {
             SetValue(value);
         }
 
-        internal void HandleKeyUp(Keys key, object value) {
+        public void HandleKeyUp(Keys key, object value) {
             if (key == Keys.Enter)
                 SetValue(value);
         }
