@@ -396,6 +396,13 @@ namespace vApus.DistributedTesting {
 
                         switch (_distributedTest.RunSynchronization) {
                             case RunSynchronization.None:
+                                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime && _runInitialized != null) {//To definitely start them all at the same time.
+                                    _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
+                                    if (_runInitialized.Length == Running) {
+                                        _runInitialized = null;
+                                        MasterSideCommunicationHandler.SendContinue();
+                                    }
+                                }
                                 break;
 
                             //Send Break, wait for all stopped, send continue, wait for all started, send continue

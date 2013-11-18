@@ -179,10 +179,9 @@ namespace vApus.Stresstest {
                 var arr = new LogEntry[count];
 
                 int index = 0;
-                foreach (BaseItem item in this)
-                    if (item is UserAction)
-                        foreach (LogEntry childItem in item)
-                            arr[index++] = childItem;
+                foreach (UserAction item in this)
+                    foreach (LogEntry childItem in item)
+                        arr[index++] = childItem;
 
                 return arr;
             }
@@ -316,7 +315,7 @@ namespace vApus.Stresstest {
         ///     Get a list of string trees, these are used in the connection proxy code.
         /// </summary>
         /// <returns></returns>
-        public StringTree[] GetParameterizedStructure() {
+        public StringTree[] GetParameterizedStructure(out bool hasParameters) {
             var parameterizedStructure = new List<StringTree>(Count);
 
             string b, e;
@@ -327,8 +326,10 @@ namespace vApus.Stresstest {
 
             Dictionary<string, BaseParameter> parameterTokens = logEntryContainsTokens ? GetParameterTokens(b, e) : null;
 
-            foreach (UserAction userAction in this)
+            foreach(UserAction userAction in this)
                 parameterizedStructure.AddRange(userAction.GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope));
+
+            hasParameters = parameterTokens != null;
 
             return parameterizedStructure.ToArray();
         }

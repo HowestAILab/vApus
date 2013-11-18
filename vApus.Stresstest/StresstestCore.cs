@@ -75,6 +75,7 @@ namespace vApus.Stresstest {
         private Stopwatch _sw = new Stopwatch();
 
         private volatile bool _break, _cancel, _completed, _isFailed, _isDisposed;
+        private volatile bool _waitWhenInitializedTheFirstRun = false;
 
         //Parallel execution / communication to the server app. Not used feature atm.
         /// <summary> The number of all parallel connections, they will be disposed along the road. </summary>
@@ -96,6 +97,11 @@ namespace vApus.Stresstest {
         public int BusyThreadCount { get { return _threadPool == null ? 0 : _threadPool.BusyThreadCount; } }
 
         public bool IsDisposed { get { return _isDisposed; } }
+
+        /// <summary>
+        /// Set to true when distributed testing.
+        /// </summary>
+        public bool WaitWhenInitializedTheFirstRun {   set { _waitWhenInitializedTheFirstRun = value; }  }
         #endregion
 
         #region Con-/Destructor
@@ -479,11 +485,13 @@ namespace vApus.Stresstest {
                 var testableLogEntries = new ConcurrentDictionary<int, TestableLogEntry[]>(); //Keep the user to preserve the order.
                 var delays = new List<int[]>();
 
-
                 //Get parameterized structures and patterns first sync first.
                 var parameterizedStructures = new ConcurrentDictionary<int, StringTree[]>();
                 var testPatterns = new ConcurrentDictionary<int, int[]>();
+                var parameterLessStructures = new Dictionary<Log, StringTree[]>();
                 for (int user = 0; user != concurrentUsers; user++) {
+                    if (_cancel) return;
+
                     //Find the right log based on the weight given in the stresstest view config.
                     float percentage = ((float)(user + 1)) / concurrentUsers;
 
@@ -496,7 +504,17 @@ namespace vApus.Stresstest {
                         previousValue = kvp.Value.Value;
                     }
 
-                    parameterizedStructures.TryAdd(user, log.GetParameterizedStructure());
+                    StringTree[] structure = null;
+                    if (parameterLessStructures.ContainsKey(log)) {
+                        structure = parameterLessStructures[log];
+                    }
+                    else
+                    {
+                        bool hasParameters;
+                        structure = log.GetParameterizedStructure(out hasParameters);
+                        if (!hasParameters) parameterLessStructures.Add(log, structure);
+                    }
+                    parameterizedStructures.TryAdd(user, structure);
 
                     int[] testPattern, delayPattern;
                     _testPatternsAndDelaysGenerators[log].GetPatterns(out testPattern, out delayPattern);
@@ -518,7 +536,9 @@ namespace vApus.Stresstest {
                     if (log.Label != string.Empty)
                         logString = string.Join(colon, logString, log.Label);
 
-                    Parallel.For(0, log.Count, (userActionIndex) => {
+                    Parallel.For(0, log.Count, (userActionIndex, loopState) => {
+                        if (_cancel) loopState.Break();
+
                         var userAction = log[userActionIndex] as UserAction;
                         if (!userAction.IsEmpty) {
                             int oneBasedUserActionIndex = userActionIndex + 1;
@@ -526,7 +546,9 @@ namespace vApus.Stresstest {
                             if (userAction.Label != string.Empty)
                                 userActionString = string.Join(colon, userActionString, userAction.Label);
 
-                            Parallel.For(0, userAction.Count, (logEntryIndex) => {
+                            Parallel.For(0, userAction.Count, (logEntryIndex, loopState2) => {
+                                if (_cancel) loopState2.Break();
+
                                 var logEntry = userAction[logEntryIndex] as LogEntry;
 
                                 logEntryIndices.TryAdd(logEntry, string.Join(dot, logIndex, oneBasedUserActionIndex, logEntryIndex + 1));
@@ -535,6 +557,7 @@ namespace vApus.Stresstest {
                         }
                     });
                 }
+                if (_cancel) return;
 
                 //Get testable log entries  async.
                 Parallel.For(0, concurrentUsers, (user, loopState) => {
@@ -597,6 +620,7 @@ namespace vApus.Stresstest {
                         loopState.Break();
                     }
                 });
+                if (_cancel) return;
 
                 //Box to list.
                 var tleList = new List<TestableLogEntry[]>(testableLogEntries.Count);
@@ -615,8 +639,8 @@ namespace vApus.Stresstest {
                 logEntryIndices = null;
                 logEntryParents = null;
 
-                //GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                //GC.Collect();
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
 
                 _sw.Stop();
                 InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToLongFormattedString()));
@@ -701,7 +725,8 @@ namespace vApus.Stresstest {
                             InvokeMessage("Continuing...");
                         }
                         //Wait here untill the master sends continue when using run sync.
-                        if (RunSynchronization != RunSynchronization.None && !_cancel) {
+                        if ((RunSynchronization != RunSynchronization.None || _waitWhenInitializedTheFirstRun) && !_cancel) { //For distributed testing.
+                            _waitWhenInitializedTheFirstRun = false;
                             InvokeMessage("[Run Sync Waithandle before run] Waiting for Continue Message from Master...");
                             _runSynchronizationContinueWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");

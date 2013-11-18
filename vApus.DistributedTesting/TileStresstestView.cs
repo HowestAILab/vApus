@@ -145,6 +145,7 @@ namespace vApus.DistributedTesting {
                 _progressCountDown = PROGRESSUPDATEDELAY - 1;
                 try {
                     _stresstestCore = new StresstestCore(_stresstest);
+                    _stresstestCore.WaitWhenInitializedTheFirstRun = true;
                     _stresstestCore.ResultsHelper = _resultsHelper;
                     _stresstestCore.RunSynchronization = RunSynchronization;
                     _stresstestCore.MaxRerunsBreakOnLast = MaxRerunsBreakOnLast;
@@ -267,6 +268,7 @@ namespace vApus.DistributedTesting {
                     _simplifiedMetricsReturned = true;
                     fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", LogLevel.Warning);
                 }
+
             }
             _progressCountDown = PROGRESSUPDATEDELAY;
 
@@ -312,8 +314,6 @@ namespace vApus.DistributedTesting {
             _canUpdateMetrics = false;
             SendPushMessage(RunStateChange.None, true, false);
         }
-
-
 
         /// <summary>
         /// </summary>

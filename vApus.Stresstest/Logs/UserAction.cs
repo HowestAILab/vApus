@@ -137,8 +137,13 @@ namespace vApus.Stresstest {
 
             HashSet<BaseParameter> chosenNextValueParametersForUAScope = parameterTokens == null ? null : new HashSet<BaseParameter>();
 
-            for (int i = 0; i != parameterizedStructure.Length; i++)
-                parameterizedStructure[i] = (this[i] as LogEntry).GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
+            if (parameterTokens == null && Count > 1)
+                Parallel.For(0, parameterizedStructure.Length, (i) => {
+                    parameterizedStructure[i] = (this[i] as LogEntry).GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
+                });
+            else
+                for (int i = 0; i != parameterizedStructure.Length; i++)
+                    parameterizedStructure[i] = (this[i] as LogEntry).GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
             return parameterizedStructure;
         }
 
