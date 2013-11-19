@@ -77,7 +77,7 @@ namespace vApus.DetailedResultsViewer {
             dgvDatabases.DataSource = null;
             cboStresstest.Items.Clear();
             cboStresstest.Enabled = false;
-            btnDeleteListedDbs.Enabled = false;
+            btnDeleteSelectedDbs.Enabled = false;
             if (databaseActions == null || setAvailableTags) filterResults.ClearAvailableTags();
             if (databaseActions == null) {
                 if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
@@ -85,7 +85,7 @@ namespace vApus.DetailedResultsViewer {
                 if (setAvailableTags) filterResults.SetAvailableTags(databaseActions);
                 FillDatabasesDataGridView(databaseActions);
                 cboStresstest.Enabled = true;
-                btnDeleteListedDbs.Enabled = _dataSource.Rows.Count != 0;
+                btnDeleteSelectedDbs.Enabled = _dataSource.Rows.Count != 0;
             }
         }
         private DatabaseActions SetServerConnectStateInGui() {
@@ -344,15 +344,16 @@ namespace vApus.DetailedResultsViewer {
             }
         }
 
-        async private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
+        async private void btnDeleteSelectedDbs_Click(object sender, EventArgs e) {
             if (_resultsHelper != null &&
-                MessageBox.Show("Are you sure you want to delete the LISTED results databases?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
+                MessageBox.Show("Are you sure you want to delete the selected results databases?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
                 Cursor = Cursors.WaitCursor;
 
                 var toDelete = new ConcurrentBag<string>();
-                foreach (DataRow row in _dataSource.Rows) {
+                foreach (DataGridViewRow row in dgvDatabases.SelectedRows) {
+                    string db = row.Cells[3].Value as string;
                     await Task.Run(() => {
-                        try { _resultsHelper.DeleteResults(row[3] as string); } catch { }
+                        try { _resultsHelper.DeleteResults(db); } catch { }
                     });
                 }
 

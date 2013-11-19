@@ -38,7 +38,7 @@
             this.cboStresstest = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
-            this.btnDeleteListedDbs = new System.Windows.Forms.Button();
+            this.btnDeleteSelectedDbs = new System.Windows.Forms.Button();
             this.filterResults = new vApus.DetailedResultsViewer.FilterResultsControl();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDatabases)).BeginInit();
@@ -92,7 +92,7 @@
             // 
             // dgvDatabases
             // 
-            this.dgvDatabases.MultiSelect = false;
+            this.dgvDatabases.MultiSelect = true;
             this.dgvDatabases.AllowUserToAddRows = false;
             this.dgvDatabases.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
@@ -180,25 +180,24 @@
             this.pictureBox2.TabIndex = 15;
             this.pictureBox2.TabStop = false;
             // 
-            // btnDeleteListedDbs
+            // btnDeleteSelectedDbs
             // 
-            this.btnDeleteListedDbs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnDeleteListedDbs.AutoSize = true;
-            this.btnDeleteListedDbs.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnDeleteListedDbs.BackColor = System.Drawing.SystemColors.Control;
-            this.btnDeleteListedDbs.Enabled = false;
-            this.btnDeleteListedDbs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnDeleteListedDbs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDeleteListedDbs.Location = new System.Drawing.Point(441, 407);
-            this.btnDeleteListedDbs.MaximumSize = new System.Drawing.Size(9999, 24);
-            this.btnDeleteListedDbs.MinimumSize = new System.Drawing.Size(0, 24);
-            this.btnDeleteListedDbs.Name = "btnDeleteListedDbs";
-            this.btnDeleteListedDbs.Size = new System.Drawing.Size(94, 24);
-            this.btnDeleteListedDbs.TabIndex = 16;
-            this.btnDeleteListedDbs.Text = "Delete Listed";
-            this.toolTip.SetToolTip(this.btnDeleteListedDbs, "Delete all the listed (filtered) results databases.");
-            this.btnDeleteListedDbs.UseVisualStyleBackColor = false;
-            this.btnDeleteListedDbs.Click += new System.EventHandler(this.btnDeleteListedDbs_Click);
+            this.btnDeleteSelectedDbs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnDeleteSelectedDbs.AutoSize = true;
+            this.btnDeleteSelectedDbs.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnDeleteSelectedDbs.BackColor = System.Drawing.SystemColors.Control;
+            this.btnDeleteSelectedDbs.Enabled = false;
+            this.btnDeleteSelectedDbs.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDeleteSelectedDbs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDeleteSelectedDbs.Location = new System.Drawing.Point(441, 407);
+            this.btnDeleteSelectedDbs.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnDeleteSelectedDbs.MinimumSize = new System.Drawing.Size(0, 24);
+            this.btnDeleteSelectedDbs.Name = "btnDeleteSelectedDbs";
+            this.btnDeleteSelectedDbs.Size = new System.Drawing.Size(94, 24);
+            this.btnDeleteSelectedDbs.TabIndex = 16;
+            this.btnDeleteSelectedDbs.Text = "Delete Selected";
+            this.btnDeleteSelectedDbs.UseVisualStyleBackColor = false;
+            this.btnDeleteSelectedDbs.Click += new System.EventHandler(this.btnDeleteSelectedDbs_Click);
             // 
             // filterResults
             // 
@@ -218,7 +217,7 @@
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(546, 497);
-            this.Controls.Add(this.btnDeleteListedDbs);
+            this.Controls.Add(this.btnDeleteSelectedDbs);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnlBorderStresstest);
@@ -257,6 +256,6 @@
         private System.Windows.Forms.ComboBox cboStresstest;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox2;
-        private System.Windows.Forms.Button btnDeleteListedDbs;
+        private System.Windows.Forms.Button btnDeleteSelectedDbs;
     }
 }
