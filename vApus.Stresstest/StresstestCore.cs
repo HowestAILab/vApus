@@ -1053,7 +1053,7 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Log entry with metadata.
         /// </summary>
-        private struct TestableLogEntry {
+        private class TestableLogEntry {
 
             #region Fields
             /// <summary>

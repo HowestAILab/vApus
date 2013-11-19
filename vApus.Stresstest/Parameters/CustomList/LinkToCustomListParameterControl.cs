@@ -53,21 +53,34 @@ namespace vApus.Stresstest {
 
             cbo.Items.Clear();
 
+            var value = base.__Value.__Value as CustomListParameter;
+
             if (base.ValueParent != null) {
-                var empty = BaseItem.GetEmpty(typeof(CustomListParameter), base.ValueParent as CustomListParameters);
-                empty.SetParent(base.ValueParent, false);
+                var parent = value.Parent as CustomListParameters;
+                var tag = value.GetTag();
+
+                BaseItem empty = null;
+                if (value.IsEmpty) {
+                    empty = value;
+                } else {
+                    empty = BaseItem.GetEmpty(typeof(CustomListParameter), parent);
+                    empty.SetParent(base.ValueParent, false);
+                    empty.SetTag(tag);
+                }
+
                 cbo.Items.Add(empty);
-                foreach (CustomListParameter childItem in (base.ValueParent as IEnumerable))
-                    cbo.Items.Add(childItem);
+                foreach (CustomListParameter childItem in parent)
+                    if (childItem != tag)
+                        cbo.Items.Add(childItem);
             }
 
-            cbo.SelectedItem = base.__Value.__Value;
+            cbo.SelectedItem = value;
+
+            cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
 
             //Revert to the first one available if the item is not found (handy when using an Item.Empty static property for instance, it must still have the correct parent!).
             if (cbo.Items.Count != 0 && cbo.SelectedIndex == -1)
                 cbo.SelectedIndex = 0;
-
-            cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
         }
 
         private void cbo_DropDown(object sender, EventArgs e) {

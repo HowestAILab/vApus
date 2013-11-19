@@ -41,12 +41,13 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(int.MaxValue), SavableCloneable]
-        [Description("Foo"), DisplayName("Link to")]
+        [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stresstest, a value at the same index is asked for the other. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
         public CustomListParameter LinkTo {
             get {
                 if ((!this.IsEmpty && _linkTo == null) || _linkTo.Parent == null || _linkTo._linkTo != this) { //Links should work in both directions. if the other becomes empty or not this than this should be cleared.
                     _linkTo = GetEmpty(typeof(CustomListParameter), Parent as CustomListParameters) as CustomListParameter;
                     _linkTo.SetParent(Parent, false);
+                    _linkTo.SetTag(this); //To not include 'this' in the selectabel values on the gui.
                 }
 
                 return _linkTo;
@@ -58,8 +59,11 @@ namespace vApus.Stresstest {
                     throw new Exception("Cannot link to self.");
                 value.ParentIsNull -= _linkTo_ParentIsNull;
                 _linkTo = value;
-                if (!_linkTo.IsEmpty)
+                _linkTo.SetTag(this);
+                if (!_linkTo.IsEmpty) {
                     _linkTo._linkTo = this; //Make a link from the other side.
+                    _linkTo._linkTo.SetTag(_linkTo);
+                }
                 _linkTo.ParentIsNull += _linkTo_ParentIsNull;
             }
         }
@@ -116,6 +120,7 @@ namespace vApus.Stresstest {
             if (_linkTo == sender) {
                 LinkTo = GetEmpty(typeof(CustomListParameter), Parent as CustomListParameters) as CustomListParameter;
                 _linkTo.SetParent(Parent, false);
+                _linkTo.SetTag(this);
             }
         }
         public void Add(int count, BaseParameter baseParameterType) {

@@ -173,26 +173,8 @@ namespace vApus.Stresstest {
                         parameterizedValue += split[split.Length - 1];
 
                         if (customListParameter != null)
-                            foreach (string linkToToken in parameterTokens.Keys)
-                                if (parameterizedValue.Contains(token) && parameterTokens[token] == customListParameter) {
-                                    if (!linkToToken.Contains(LOG_PARAMETER_SCOPE) && !linkToToken.Contains(USER_ACTION_PARAMETER_SCOPE) &&
-                                        !linkToToken.Contains(LOG_ENTRY_PARAMETER_SCOPE) && !linkToToken.Contains(LEAF_NODE_PARAMETER_SCOPE)) {
-
-                                        split = parameterizedValue.Split(new[] { linkToToken }, StringSplitOptions.None);
-                                        parameterizedValue = string.Empty;
-                                        for (int i = 0; i != split.Length - 1; i++) {
-                                            if (i < valueIndices.Count) {
-                                                customListParameter.LinkTo.SetValueAt(valueIndices[i]);
-                                                parameterizedValue += split[i] + customListParameter.LinkTo.Value;
-                                            } else {
-                                                parameterizedValue += split[i] + linkToToken;
-                                            }
-                                        }
-                                        parameterizedValue += split[split.Length - 1];
-
-                                        break;
-                                    }
-                                }
+                            parameterizedValue = GetParameterizeValueUsingLinkedToParameter(parameterTokens, null, null, null, null,
+                                                            parameterizedValue, parameter as CustomListParameter, currentScope, valueIndices);
 
                         continue;
                     }
@@ -201,34 +183,67 @@ namespace vApus.Stresstest {
                         parameter.Next();
                     parameterizedValue = parameterizedValue.Replace(token, parameter.Value);
 
-                    if (parameter is CustomListParameter) {
-                        var customListParameter = parameter as CustomListParameter;
-                        if (!customListParameter.LinkTo.IsEmpty) {
-                            foreach (string linkToToken in parameterTokens.Keys)
-                                if (parameterizedValue.Contains(linkToToken) && parameterTokens[linkToToken] == customListParameter && linkToToken.Contains(currentScope)) {
-                                    if (currentScope == LOG_PARAMETER_SCOPE) {
-                                        chosenNextValueParametersForLScope.Add(parameter);
-                                        chosenNextValueParametersForUAScope.Add(parameter);
-                                        chosenNextValueParametersForLEScope.Add(parameter);
-                                        chosenNextValueParametersForLNScope.Add(parameter);
-                                    } else if (currentScope == USER_ACTION_PARAMETER_SCOPE) {
-                                        chosenNextValueParametersForUAScope.Add(parameter);
-                                        chosenNextValueParametersForLEScope.Add(parameter);
-                                        chosenNextValueParametersForLNScope.Add(parameter);
-                                    } else if (currentScope == LOG_ENTRY_PARAMETER_SCOPE) {
-                                        chosenNextValueParametersForLEScope.Add(parameter);
-                                        chosenNextValueParametersForLNScope.Add(parameter);
-                                    } else if (currentScope == LEAF_NODE_PARAMETER_SCOPE) {
-                                        chosenNextValueParametersForLNScope.Add(parameter);
-                                    }
-
-                                    customListParameter.LinkTo.SetValueAt(customListParameter.CurrentValueIndex);
-                                    parameterizedValue = parameterizedValue.Replace(linkToToken, customListParameter.LinkTo.Value);
-                                }
-                        }
-                    }
+                    if (parameter is CustomListParameter)
+                        parameterizedValue = GetParameterizeValueUsingLinkedToParameter(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope, chosenNextValueParametersForLNScope,
+                            parameterizedValue, parameter as CustomListParameter, currentScope, null);
                 }
 
+            return parameterizedValue;
+        }
+        /// <summary>
+        /// Specialized functionality to link one custom list parameter output to another.
+        /// </summary>
+        /// <param name="parameterTokens"></param>
+        /// <param name="chosenNextValueParametersForLScope"></param>
+        /// <param name="chosenNextValueParametersForUAScope"></param>
+        /// <param name="chosenNextValueParametersForLEScope"></param>
+        /// <param name="chosenNextValueParametersForLNScope"></param>
+        /// <param name="parameterizedValue"></param>
+        /// <param name="parameter"></param>
+        /// <param name="currentScope"></param>
+        /// <param name="valueIndicesForEmptyScope"></param>
+        /// <returns></returns>
+        private string GetParameterizeValueUsingLinkedToParameter(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope, HashSet<BaseParameter> chosenNextValueParametersForUAScope, HashSet<BaseParameter> chosenNextValueParametersForLEScope, HashSet<BaseParameter> chosenNextValueParametersForLNScope,
+            string parameterizedValue, CustomListParameter parameter, string currentScope, List<int> valueIndicesForEmptyScope) {
+            if (!parameter.LinkTo.IsEmpty) {
+                foreach (string token in parameterTokens.Keys)
+                    if (parameterizedValue.Contains(token) && parameterTokens[token] == parameter && token.Contains(currentScope)) {
+                        if (currentScope == LOG_PARAMETER_SCOPE) {
+                            chosenNextValueParametersForLScope.Add(parameter);
+                            chosenNextValueParametersForUAScope.Add(parameter);
+                            chosenNextValueParametersForLEScope.Add(parameter);
+                            chosenNextValueParametersForLNScope.Add(parameter);
+                        } else if (currentScope == USER_ACTION_PARAMETER_SCOPE) {
+                            chosenNextValueParametersForUAScope.Add(parameter);
+                            chosenNextValueParametersForLEScope.Add(parameter);
+                            chosenNextValueParametersForLNScope.Add(parameter);
+                        } else if (currentScope == LOG_ENTRY_PARAMETER_SCOPE) {
+                            chosenNextValueParametersForLEScope.Add(parameter);
+                            chosenNextValueParametersForLNScope.Add(parameter);
+                        } else if (currentScope == LEAF_NODE_PARAMETER_SCOPE) {
+                            chosenNextValueParametersForLNScope.Add(parameter);
+                        } else {
+                            string[] split = parameterizedValue.Split(new[] { token }, StringSplitOptions.None);
+                            parameterizedValue = string.Empty;
+                            for (int i = 0; i != split.Length - 1; i++) {
+                                if (i < valueIndicesForEmptyScope.Count) {
+                                    parameter.LinkTo.SetValueAt(valueIndicesForEmptyScope[i]);
+                                    parameterizedValue += split[i] + parameter.LinkTo.Value;
+                                } else {
+                                    parameterizedValue += split[i] + token;
+                                }
+                            }
+                            parameterizedValue += split[split.Length - 1];
+
+                            return parameterizedValue;
+                        }
+
+                        parameter.LinkTo.SetValueAt(parameter.CurrentValueIndex);
+                        parameterizedValue = parameterizedValue.Replace(token, parameter.LinkTo.Value);
+
+                        return parameterizedValue; //Return immediatly, only one hit.
+                    }
+            }
             return parameterizedValue;
         }
 
