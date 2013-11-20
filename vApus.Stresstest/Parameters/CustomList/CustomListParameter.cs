@@ -40,7 +40,11 @@ namespace vApus.Stresstest {
             set { _random = value; }
         }
 
+#if EnableBetaFeature
         [PropertyControl(int.MaxValue), SavableCloneable]
+#else
+        [SavableCloneable]
+#endif
         [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stresstest, a value at the same index is asked for the other. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
         public CustomListParameter LinkTo {
             get {
