@@ -31,12 +31,12 @@
             this.grp = new System.Windows.Forms.GroupBox();
             this.label6 = new System.Windows.Forms.Label();
             this.label5 = new System.Windows.Forms.Label();
-            this.txtEmailaddress = new vApus.Util.LabeledTextBox();
+            this.txtEmailaddress = new CueTextBox();
             this.chkSecure = new System.Windows.Forms.CheckBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.txtUsername = new vApus.Util.LabeledTextBox();
-            this.txtSmtp = new vApus.Util.LabeledTextBox();
-            this.txtPassword = new vApus.Util.LabeledTextBox();
+            this.txtUsername = new CueTextBox();
+            this.txtSmtp = new CueTextBox();
+            this.txtPassword = new CueTextBox();
             this.nudPort = new System.Windows.Forms.NumericUpDown();
             this.chkWhenTestFinished = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
@@ -61,7 +61,6 @@
             this.grp.Controls.Add(this.label5);
             this.grp.Controls.Add(this.txtEmailaddress);
             this.grp.Controls.Add(this.chkSecure);
-            this.grp.Controls.Add(this.label1);
             this.grp.Controls.Add(this.txtUsername);
             this.grp.Controls.Add(this.txtSmtp);
             this.grp.Controls.Add(this.txtPassword);
@@ -71,6 +70,7 @@
             this.grp.Controls.Add(this.chkAfterConcurrency);
             this.grp.Controls.Add(this.chkAfterRun);
             this.grp.Controls.Add(this.label2);
+            this.grp.Controls.Add(this.label1);
             this.grp.Enabled = false;
             this.grp.Location = new System.Drawing.Point(12, 38);
             this.grp.Name = "grp";
@@ -100,20 +100,19 @@
             // 
             this.txtEmailaddress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEmailaddress.EmptyTextBoxLabel = "E-Mail Address";
+            this.txtEmailaddress.Cue = "E-Mail Address";
             this.txtEmailaddress.ForeColor = System.Drawing.Color.Black;
             this.txtEmailaddress.Location = new System.Drawing.Point(14, 36);
             this.txtEmailaddress.Name = "txtEmailaddress";
             this.txtEmailaddress.Size = new System.Drawing.Size(267, 20);
             this.txtEmailaddress.TabIndex = 0;
-            this.txtEmailaddress.Text = "E-Mail Address";
             this.txtEmailaddress.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // chkSecure
             // 
             this.chkSecure.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.chkSecure.AutoSize = true;
-            this.chkSecure.Location = new System.Drawing.Point(380, 97);
+            this.chkSecure.Location = new System.Drawing.Point(374, 97);
             this.chkSecure.Name = "chkSecure";
             this.chkSecure.Size = new System.Drawing.Size(71, 17);
             this.chkSecure.TabIndex = 3;
@@ -126,7 +125,7 @@
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.AutoSize = true;
             this.label1.ForeColor = System.Drawing.Color.DimGray;
-            this.label1.Location = new System.Drawing.Point(343, 98);
+            this.label1.Location = new System.Drawing.Point(337, 98);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(31, 13);
             this.label1.TabIndex = 20;
@@ -136,42 +135,37 @@
             // 
             this.txtUsername.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtUsername.EmptyTextBoxLabel = "Username (optional)";
+            this.txtUsername.Cue = "Username (optional)";
             this.txtUsername.ForeColor = System.Drawing.Color.Black;
             this.txtUsername.Location = new System.Drawing.Point(14, 121);
             this.txtUsername.Name = "txtUsername";
             this.txtUsername.Size = new System.Drawing.Size(267, 20);
             this.txtUsername.TabIndex = 4;
-            this.txtUsername.Text = "Username (optional)";
             this.txtUsername.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtSmtp
             // 
             this.txtSmtp.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtSmtp.EmptyTextBoxLabel = "smtp.foo.bar";
+            this.txtSmtp.Cue = "smtp.foo.bar";
             this.txtSmtp.ForeColor = System.Drawing.Color.Black;
             this.txtSmtp.Location = new System.Drawing.Point(14, 95);
             this.txtSmtp.Name = "txtSmtp";
             this.txtSmtp.Size = new System.Drawing.Size(267, 20);
             this.txtSmtp.TabIndex = 1;
-            this.txtSmtp.Text = "smtp.foo.bar";
             this.txtSmtp.TextChanged += new System.EventHandler(this.txt_TextChanged);
             // 
             // txtPassword
             // 
             this.txtPassword.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtPassword.EmptyTextBoxLabel = "Password (optional)";
+            this.txtPassword.Cue = "Password (optional)";
             this.txtPassword.ForeColor = System.Drawing.Color.Black;
             this.txtPassword.Location = new System.Drawing.Point(287, 121);
             this.txtPassword.Name = "txtPassword";
-            this.txtPassword.Size = new System.Drawing.Size(120, 20);
+            this.txtPassword.Size = new System.Drawing.Size(158, 20);
             this.txtPassword.TabIndex = 5;
-            this.txtPassword.Text = "Password (optional)";
             this.txtPassword.UseSystemPasswordChar = true;
             this.txtPassword.TextChanged += new System.EventHandler(this.txt_TextChanged);
-            this.txtPassword.Enter += new System.EventHandler(this.txtPassword_Enter);
-            this.txtPassword.Leave += new System.EventHandler(this.txtPassword_Leave);
             // 
             // nudPort
             // 
@@ -345,9 +339,9 @@
         private System.Windows.Forms.CheckBox chkAfterRun;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label1;
-        private LabeledTextBox txtUsername;
-        private LabeledTextBox txtSmtp;
-        private LabeledTextBox txtPassword;
+        private CueTextBox txtUsername;
+        private CueTextBox txtSmtp;
+        private CueTextBox txtPassword;
         private System.Windows.Forms.NumericUpDown nudPort;
         private System.Windows.Forms.Button btnClear;
         private System.Windows.Forms.Button btnSave;
@@ -357,7 +351,7 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.Label label5;
-        private LabeledTextBox txtEmailaddress;
+        private CueTextBox txtEmailaddress;
 
     }
 }

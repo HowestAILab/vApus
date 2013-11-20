@@ -280,7 +280,7 @@ namespace vApus.DistributedTesting {
                                         break;
                                     }
                 }
-                if (_tileStresstest.AdvancedTileStresstest.Log.IsEmpty) sb.AppendLine("The log is not filled in. [Advanced Settings]");
+                if (_tileStresstest.AdvancedTileStresstest.Logs.Length == 0) sb.AppendLine("No log has been selected. [Advanced Settings]");
             }
 
             string exclamation = sb.ToString();

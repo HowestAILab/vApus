@@ -169,7 +169,7 @@ namespace vApus.DistributedTesting {
                 try {
                     _tmrOnInvokeTestProgressMessageReceivedDelayed.Stop();
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnTestProgressMessageReceivedDelayed(this, null); }, null);
-                } catch { 
+                } catch {
                 }
         }
 
@@ -252,10 +252,15 @@ namespace vApus.DistributedTesting {
             foreach (TileStresstest ts in _usedTileStresstests.Keys) {
                 var slave = ts.BasicTileStresstest.Slaves[0];
                 _resultsHelper.SetvApusInstance(slave.HostName, slave.IP, slave.Port, string.Empty, string.Empty, false);
+
+                var logKeys = new List<Log>(ts.AdvancedTileStresstest.Logs.Length);
+                foreach (var kvp in ts.AdvancedTileStresstest.Logs)
+                    logKeys.Add(kvp.Key);
+
                 int id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
-                          ts.BasicTileStresstest.Connection.ConnectionString, ts.AdvancedTileStresstest.Log.ToString(), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
-                          ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.Distribute.ToString(),
-                          ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
+                          ts.BasicTileStresstest.Connection.ConnectionString, logKeys.Combine(", "), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
+                          ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.ActionDistribution,
+                          ts.AdvancedTileStresstest.MaximumNumberOfUserActions, ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
                 _tileStresstestsWithDbIds.Add(ts, id);
             }
 
@@ -325,11 +330,17 @@ namespace vApus.DistributedTesting {
             lock (_communicationLock) {
                 try {
                     if (!_isDisposed && Finished < _totalTestCount) {
-#warning Allow multiple slaves for work distribution
-                        foreach (TileStresstest tileStresstest in _usedTileStresstests.Keys)
-                            if (tileStresstest.BasicTileStresstest.Slaves[0].IP == e.SlaveIP &&
-                                tileStresstest.BasicTileStresstest.Slaves[0].Port == e.SlavePort)
-                                _failed = AddUniqueToStringArray(_failed, tileStresstest.TileStresstestIndex);
+
+                        bool added = false;
+                        foreach (TileStresstest tileStresstest in _usedTileStresstests.Keys) {
+                            foreach (var slave in tileStresstest.BasicTileStresstest.Slaves)
+                                if (slave.IP == e.SlaveIP && slave.Port == e.SlavePort) {
+                                    _failed = AddUniqueToStringArray(_failed, tileStresstest.TileStresstestIndex);
+                                    added = true;
+                                    break;
+                                }
+                            if (added) break;
+                        }
 
                         InvokeOnListeningError(e);
 
@@ -385,6 +396,13 @@ namespace vApus.DistributedTesting {
 
                         switch (_distributedTest.RunSynchronization) {
                             case RunSynchronization.None:
+                                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime && _runInitialized != null) {//To definitely start them all at the same time.
+                                    _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
+                                    if (_runInitialized.Length == Running) {
+                                        _runInitialized = null;
+                                        MasterSideCommunicationHandler.SendContinue();
+                                    }
+                                }
                                 break;
 
                             //Send Break, wait for all stopped, send continue, wait for all started, send continue
@@ -558,7 +576,11 @@ namespace vApus.DistributedTesting {
 
                 foreach (Tile tile in _distributedTest.Tiles)
                     foreach (TileStresstest tileStresstest in tile)
-                        if (tileStresstest.Use)
+                        if (tileStresstest.Use) {
+                            var newSlaves = new string[tileStresstest.BasicTileStresstest.Slaves.Length];
+                            for (int i = 0; i != tileStresstest.BasicTileStresstest.Slaves.Length; i++)
+                                newSlaves[i] = tileStresstest.BasicTileStresstest.Slaves[i].ToString();
+
                             Converter.SetTestConfig(distributedTestCache,
                                                     _distributedTest.RunSynchronization.ToString(),
                                                     "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
@@ -567,19 +589,19 @@ namespace vApus.DistributedTesting {
                                                     tileStresstest.BasicTileStresstest.Connection,
                                                     tileStresstest.BasicTileStresstest.ConnectionProxy,
                                                     tileStresstest.BasicTileStresstest.Monitors,
-                                                    tileStresstest.BasicTileStresstest.Slaves.Length == 0
-                                                        ? string.Empty
-                                                        : tileStresstest.BasicTileStresstest.Slaves[0].ToString(),
-                                                    tileStresstest.AdvancedTileStresstest.Log,
+                                                    newSlaves,
+                                                    tileStresstest.AdvancedTileStresstest.Logs,
                                                     tileStresstest.AdvancedTileStresstest.LogRuleSet,
                                                     tileStresstest.AdvancedTileStresstest.Concurrencies,
                                                     tileStresstest.AdvancedTileStresstest.Runs,
                                                     tileStresstest.AdvancedTileStresstest.MinimumDelay,
                                                     tileStresstest.AdvancedTileStresstest.MaximumDelay,
                                                     tileStresstest.AdvancedTileStresstest.Shuffle,
-                                                    tileStresstest.AdvancedTileStresstest.Distribute,
+                                                    tileStresstest.AdvancedTileStresstest.ActionDistribution,
+                                                    tileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions,
                                                     tileStresstest.AdvancedTileStresstest.MonitorBefore,
                                                     tileStresstest.AdvancedTileStresstest.MonitorAfter);
+                        }
 
                 Converter.WriteToFile(testConfigCache, "TestConfig");
             } catch {

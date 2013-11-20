@@ -172,7 +172,8 @@ namespace vApus.Stresstest {
                 _chosenValues.Clear();
 
             if (_random) {
-                _doubleValue = ((_maxValue - _minValue) * _r.NextDouble()) + _minValue;
+                Random random = new Random(Guid.NewGuid().GetHashCode());
+                _doubleValue = ((_maxValue - _minValue) * random.NextDouble()) + _minValue;
             } else {
                 _doubleValue += _step;
                 if (_doubleValue >= _maxValue) {

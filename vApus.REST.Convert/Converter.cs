@@ -21,8 +21,8 @@ namespace vApus.REST.Convert {
         public static string WriteDir { get { return _writeDir; } }
 
         public static void SetTestConfig(ConverterCollection testConfigCache, string runSynchronization, string tileStresstest, Connection connection, string connectionProxy,
-                                         Monitor.Monitor[] monitors, string slave, Log log, string logRuleSet, int[] concurrency, int run, int minimumDelay,
-                                         int maximumDelay, bool shuffle, UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
+                                         Monitor.Monitor[] monitors, string[] slaves, KeyValuePair<Log, uint>[] logs, string logRuleSet, int[] concurrency, int run, int minimumDelay,
+                                         int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserAction, int monitorBefore, int monitorAfter) {
             if (testConfigCache.Count == 0)
                 testConfigCache.Add("RunSynchronization", runSynchronization);
 
@@ -30,19 +30,24 @@ namespace vApus.REST.Convert {
             for (int i = 0; i != monitors.Length; i++)
                 newMonitors[i] = monitors[i].ToString();
 
+            var newLogs = new string[logs.Length];
+            for (int i = 0; i != logs.Length; i++)
+                newLogs[i] = logs[i].Key.ToString();
+
             var testConfig = new TestConfig {
                 Connection = connection.ToString(),
                 ConnectionProxy = connectionProxy,
                 Monitors = newMonitors,
-                Slave = slave,
-                Log = log.ToString(),
+                Slaves = slaves,
+                Logs = newLogs,
                 LogRuleSet = logRuleSet,
                 Concurrency = concurrency,
                 Run = run,
                 MinimumDelayInMS = minimumDelay,
                 MaximumDelayInMS = maximumDelay,
                 Shuffle = shuffle,
-                Distribute = distribute.ToString(),
+                ActionDistribution = actionDistribution,
+                MaximumNumberOfUserActions = maximumNumberOfUserAction,
                 MonitorBeforeInMinutes = monitorBefore,
                 MonitorAfterInMinutes = monitorAfter
             };
@@ -133,16 +138,17 @@ namespace vApus.REST.Convert {
         public struct TestConfig {
             public int[] Concurrency;
             public string Connection, ConnectionProxy;
-            public string Distribute;
-            public string Log, LogRuleSet;
+            public string[] Logs;
+            public string LogRuleSet;
             public int MaximumDelayInMS;
             public int MinimumDelayInMS;
             public int MonitorAfterInMinutes;
             public int MonitorBeforeInMinutes;
+            public int MaximumNumberOfUserActions;
             public string[] Monitors;
             public int Run;
-            public bool Shuffle;
-            public string Slave;
+            public bool Shuffle, ActionDistribution;
+            public string[] Slaves;
         }
 
         public struct TestProgress {

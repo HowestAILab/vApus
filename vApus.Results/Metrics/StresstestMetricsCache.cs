@@ -18,6 +18,18 @@ namespace vApus.Results {
 
         #region Fields
         private readonly List<MetricsCacheObject> _cache = new List<MetricsCacheObject>();
+        private bool _calculateSimplifiedMetrics = false;
+        #endregion
+
+        #region Properties
+        /// <summary>
+        /// This value is set to false when AddOrUpdate is called. It will be changed to true if calculating the metrics takes longer than 5 seconds AND the 95th percentile of response times is not calculated.
+        /// This means than only basic stuff is returned, test with a big log and see (100k entries for instance).
+        /// </summary>
+        public bool CalculatedSimplifiedMetrics {
+            get { return _calculateSimplifiedMetrics; }
+            internal set { _calculateSimplifiedMetrics = value; }
+        }
         #endregion
 
         #region Functions
@@ -32,7 +44,8 @@ namespace vApus.Results {
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
         public List<StresstestMetrics> AddOrUpdate(ConcurrencyResult result) {
-            __AddOrUpdate(StresstestMetricsHelper.GetMetrics(result, false), result);
+            _calculateSimplifiedMetrics = false;
+            __AddOrUpdate(StresstestMetricsHelper.GetMetrics(result, ref _calculateSimplifiedMetrics, false), result);
             return GetConcurrencyMetrics();
         }
         /// <summary>
@@ -41,7 +54,7 @@ namespace vApus.Results {
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
         public List<StresstestMetrics> AddOrUpdate(RunResult result) {
-            __AddOrUpdate(StresstestMetricsHelper.GetMetrics(result), result);
+            __AddOrUpdate(StresstestMetricsHelper.GetMetrics(result, ref _calculateSimplifiedMetrics, false), result);
             return GetRunMetrics();
         }
         private void __AddOrUpdate(StresstestMetrics metrics, object result = null) {
@@ -62,7 +75,7 @@ namespace vApus.Results {
 
         /// <summary>
         ///     This will update the metrics if possible, otherwise it will just return them.
-        ///     The concurrency results are removed from cache when not needed anymre.
+        ///     The concurrency results are removed from cache when not needed anymore.
         /// </summary>
         /// <returns></returns>
         public List<StresstestMetrics> GetConcurrencyMetrics() {
@@ -72,7 +85,7 @@ namespace vApus.Results {
                 if (o.Metrics.Run == 0) {
                     if (o.Result != null) {
                         var cr = o.Result as ConcurrencyResult;
-                        o.Metrics = StresstestMetricsHelper.GetMetrics(cr, false);
+                        o.Metrics = StresstestMetricsHelper.GetMetrics(cr, ref _calculateSimplifiedMetrics, false);
                         if (cr.StoppedAt != DateTime.MinValue)
                             removeResults.Add(o);
                     }
@@ -98,7 +111,8 @@ namespace vApus.Results {
             var metrics = new List<StresstestMetrics>();
             foreach (MetricsCacheObject o in _cache)
                 if (o.Metrics.Run != 0) {
-                    if (o.Result != null && (o.Metrics.LogEntries == 0 || o.Metrics.LogEntriesProcessed != o.Metrics.LogEntries)) o.Metrics = StresstestMetricsHelper.GetMetrics(o.Result as RunResult, false);
+                    if (o.Result != null && (o.Metrics.LogEntries == 0 || o.Metrics.LogEntriesProcessed != o.Metrics.LogEntries))
+                        o.Metrics = StresstestMetricsHelper.GetMetrics(o.Result as RunResult, ref _calculateSimplifiedMetrics, false);
                     metrics.Add(o.Metrics);
                 }
             return metrics;
@@ -107,8 +121,11 @@ namespace vApus.Results {
         internal List<StresstestMetrics> GetAllMetrics() {
             var metrics = new List<StresstestMetrics>();
             foreach (MetricsCacheObject o in _cache) {
-                if (o.Result != null)
-                    o.Metrics = (o.Metrics.Run == 0) ? StresstestMetricsHelper.GetMetrics(o.Result as ConcurrencyResult) : StresstestMetricsHelper.GetMetrics(o.Result as RunResult);
+                if (o.Result != null) {
+                    o.Metrics = (o.Metrics.Run == 0) ?
+                        StresstestMetricsHelper.GetMetrics(o.Result as ConcurrencyResult, ref _calculateSimplifiedMetrics, false) :
+                        StresstestMetricsHelper.GetMetrics(o.Result as RunResult, ref _calculateSimplifiedMetrics, false);
+                }
                 metrics.Add(o.Metrics);
             }
             return metrics;

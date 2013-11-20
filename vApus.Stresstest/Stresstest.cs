@@ -30,9 +30,18 @@ namespace vApus.Stresstest {
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
-        private UserActionDistribution _distribute;
+        private bool _actionDistribution;
+        private int _maximumNumberOfUserActions;
         private Connection _connection;
-        private Log _log;
+
+        [NonSerialized]
+        private Logs _allLogs;
+        [NonSerialized]
+        private int[] _logIndices = { };
+        [NonSerialized]
+        private uint[] _logWeights = { };
+
+        private KeyValuePair<Log, uint>[] _logs = { };
 
         //This will be saved, I don't want to extend the save logic so I hack around it.
         [NonSerialized]
@@ -102,37 +111,130 @@ namespace vApus.Stresstest {
             }
         }
 
-        [Description("The log used to test the application.")]
-        [SavableCloneable, PropertyControl(1)]
-        public Log Log {
-            get {
-                if (_log.IsEmpty)
-                    Log =
-                        GetNextOrEmptyChild(typeof(Log),
-                                            SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as
-                        Log;
-
-                if (_log != null)
-                    _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
-
-                return _log;
-            }
+        [SavableCloneable]
+        public uint[] LogWeights {
+            get { return _logWeights; }
             set {
                 if (value == null)
-                    return;
-                value.ParentIsNull -= _log_ParentIsNull;
-                _log = value;
-                _log.ParentIsNull += _log_ParentIsNull;
+                    throw new ArgumentNullException("Can be empty but not null.");
+                _logWeights = value;
             }
         }
+        [SavableCloneable]
+        public int[] LogIndices {
+            get { return _logIndices; }
+            set {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                _logIndices = value;
+
+                if (_allLogs != null) {
+                    if (_logIndices.Length == 0 && _allLogs.Count > 1) {
+                        _logWeights = new uint[] { 1 };
+                        _logIndices = new int[] { 1 };
+                    }
+                    var l = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
+                    int weightIndex = 0;
+                    foreach (int index in _logIndices) {
+                        if (index < _allLogs.Count) {
+                            var log = _allLogs[index] as Log;
+
+                            bool added = false;
+                            foreach (var addedKvp in l)
+                                if (addedKvp.Key == log) {
+                                    added = true;
+                                    break;
+                                }
+                            if (!added) {
+                                uint weight = weightIndex < _logWeights.Length ? _logWeights[weightIndex] : 0;
+                                l.Add(new KeyValuePair<Log, uint>(log, weight));
+                            }
+                        }
+                        ++weightIndex;
+                    }
+                    _logs = l.ToArray();
+                    _logs.SetParent(_allLogs, false);
+                }
+            }
+        }
+        [Description("The logs used to test the application. Maximum 5 allowed and they must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
+        [PropertyControl(1)]
+        public KeyValuePair<Log, uint>[] Logs {
+            get { return _logs; }
+            set {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                if (value.Length > 5)
+                    throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
+
+                if (_allLogs != null && _allLogs.Count > 1 && value.Length == 0) {
+                    _logWeights = new uint[] { 1 };
+                    LogIndices = new int[] { 1 };
+                    return;
+                }
+
+                if (value.Length != 0) {
+                    var logRuleSet = value[0].Key.LogRuleSet;
+                    for (int i = 1; i < value.Length; i++)
+                        if (value[i].Key.LogRuleSet != logRuleSet)
+                            throw new Exception("Only logs having the same log rule set are allowed.");
+
+                    //New entries should have a weight of 1.
+                    for (int i = _logs.Length; i < value.Length; i++)
+                        value[i] = new KeyValuePair<vApus.Stresstest.Log, uint>(value[i].Key, 1);
+
+                    //1 should not be 0 :).
+                    bool allZeros = true;
+                    for (int i = 0; i != value.Length; i++)
+                        if (value[i].Value != 0) {
+                            allZeros = false;
+                            break;
+                        }
+                    if (allZeros) value[0] = new KeyValuePair<vApus.Stresstest.Log, uint>(value[0].Key, 1);
+                }
+
+                _logs = value;
+
+                if (_allLogs != null) {
+                    _logs.SetParent(_allLogs, false);
+
+                    var logIndices = new List<int>(_logs.Length);
+                    var logWeights = new List<uint>(_logs.Length);
+                    for (int allLogsIndex = 1; allLogsIndex < _allLogs.Count; allLogsIndex++) {
+                        KeyValuePair<Log, uint> kvp = new KeyValuePair<Log, uint>();
+                        for (int logIndex = 0; logIndex != _logs.Length; logIndex++)
+                            if (_logs[logIndex].Key == _allLogs[allLogsIndex]) {
+                                kvp = _logs[logIndex];
+                                break;
+                            }
+
+                        if (kvp.Key != null) {
+                            logIndices.Add(allLogsIndex);
+                            logWeights.Add(kvp.Value);
+                        }
+                    }
+
+                    _logIndices = logIndices.ToArray();
+                    _logWeights = logWeights.ToArray();
+                }
+            }
+        }
+
+        /// <summary>
+        /// Does not validate and does not set the parent.
+        /// </summary>
+        public KeyValuePair<Log, uint>[] LogsOverride { set { _logs = value; } }
 
         [ReadOnly(true)]
         [DisplayName("Log Rule Set")]
         public string LogRuleSet {
             get {
-                if (_log == null || _log.IsEmpty || _log.LogRuleSet.IsEmpty)
+                if (_logs.Length == 0)
                     return "Log Rule Set: <none>";
-                return _log.LogRuleSet.ToString();
+                var log = _logs[0].Key;
+                if (log == null || log.IsEmpty || log.LogRuleSet.IsEmpty)
+                    return "Log Rule Set: <none>";
+                return log.LogRuleSet.ToString();
             }
         }
 
@@ -251,23 +353,36 @@ namespace vApus.Stresstest {
             set { _maximumDelay = value; }
         }
 
-        [Description("The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
+        [Description("The user actions will be shuffled for each concurrent user when testing.")]
         [SavableCloneable, PropertyControl(7)]
         public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
         }
 
-        [Description("Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance.")]
+        [Description("When this is used, user actions are executed X times its occurance. You can use 'Shuffle' and 'Maximum Number of User Actions' in combination with this to define unique test patterns for each user."),
+        DisplayName("Action Distribution")]
         [SavableCloneable, PropertyControl(8, true)]
-        public UserActionDistribution Distribute {
-            get { return _distribute; }
-            set { _distribute = value; }
+        public bool ActionDistribution {
+            get { return _actionDistribution; }
+            set { _actionDistribution = value; }
+        }
+
+        [Description("The maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
+        DisplayName("Maximum Number of User Actions")]
+        [SavableCloneable, PropertyControl(9, true)]
+        public int MaximumNumberOfUserActions {
+            get { return _maximumNumberOfUserActions; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
+                _maximumNumberOfUserActions = value;
+            }
         }
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."),
          DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(9, true)]
+        [SavableCloneable, PropertyControl(10, true)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -281,7 +396,7 @@ namespace vApus.Stresstest {
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."),
          DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(10, true)]
+        [SavableCloneable, PropertyControl(11, true)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
@@ -335,7 +450,12 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-        public Stresstest() { if (SolutionTree.Solution.ActiveSolution != null)  Init(); else  SolutionTree.Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged; }
+        public Stresstest() {
+            if (SolutionTree.Solution.ActiveSolution != null)
+                Init();
+            else
+                SolutionTree.Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+        }
         #endregion
 
         #region Functions
@@ -344,22 +464,37 @@ namespace vApus.Stresstest {
             Init();
         }
         private void Init() {
-            Log =
-                GetNextOrEmptyChild(typeof(Log),
-                                    SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-            Connection =
-                GetNextOrEmptyChild(typeof(Connection),
-                                    SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as
-                Connection;
-            _monitorProject =
-                SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(MonitorProject)) as MonitorProject;
+            _allLogs = SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs)) as Logs;
 
-            var l = new List<Monitor.Monitor>(_monitorIndices.Length);
+            var logs = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
+            int weightIndex = 0;
+            foreach (int index in _logIndices) {
+                if (index < _allLogs.Count) {
+                    var log = _allLogs[index] as Log;
+                    uint weight = weightIndex < _logWeights.Length ? _logWeights[weightIndex] : 0;
+
+                    logs.Add(new KeyValuePair<Log, uint>(log, weight));
+                }
+                ++weightIndex;
+            }
+
+            _logs = logs.ToArray();
+            _logs.SetParent(_allLogs, false);
+
+            if (_allLogs != null && _allLogs.Count > 1 && _logIndices.Length == 0) {
+                _logWeights = new uint[] { 1 };
+                LogIndices = new int[] { 1 };
+            }
+
+            Connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
+            _monitorProject = SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(MonitorProject)) as MonitorProject;
+
+            var monitors = new List<Monitor.Monitor>(_monitorIndices.Length);
             foreach (int index in _monitorIndices)
                 if (index < _monitorProject.Count)
-                    l.Add(_monitorProject[index] as Monitor.Monitor);
+                    monitors.Add(_monitorProject[index] as Monitor.Monitor);
 
-            _monitors = l.ToArray();
+            _monitors = monitors.ToArray();
             _monitors.SetParent(_monitorProject);
 
             SolutionComponentChanged += SolutionComponentChanged_SolutionComponentChanged;
@@ -367,19 +502,10 @@ namespace vApus.Stresstest {
 
         private void _connection_ParentIsNull(object sender, EventArgs e) {
             if (_connection == sender)
-                Connection =
-                    GetNextOrEmptyChild(typeof(Connection),
-                                        SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections)))
-                    as Connection;
-        }
-        private void _log_ParentIsNull(object sender, EventArgs e) {
-            if (_log == sender)
-                Log =
-                    GetNextOrEmptyChild(typeof(Log),
-                                        SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+                Connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
         }
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
-            //Cleanup _monitors if _monitorProject Changed
+            //Cleanup _monitors/_logs if _monitorProject Changed
             if (sender == _monitorProject || sender is Monitor.Monitor) {
                 var l = new List<Monitor.Monitor>(_monitorProject.Count);
                 foreach (Monitor.Monitor monitor in _monitors)
@@ -387,6 +513,25 @@ namespace vApus.Stresstest {
                         l.Add(monitor);
 
                 Monitors = l.ToArray();
+            }
+
+            if (sender == _allLogs || sender is Log) {
+                var l = new List<KeyValuePair<Log, uint>>(_allLogs.Count);
+                foreach (var kvp in _logs) {
+                    bool added = false;
+                    foreach (var addedKvp in l)
+                        if (addedKvp.Key == kvp.Key) {
+                            added = true;
+                            break;
+                        }
+
+                    if (!added && _allLogs.Contains(kvp.Key)) {
+                        var newKvp = new KeyValuePair<Log, uint>(kvp.Key, kvp.Value);
+                        l.Add(newKvp);
+                    }
+                }
+
+                Logs = l.ToArray();
             }
         }
 

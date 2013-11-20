@@ -157,7 +157,17 @@ namespace vApus.Stresstest {
                             } catch { }
                     } else {
                         if (dt.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                        dgvDetailedResults.DataSource = dt;
+                        try {
+                            dgvDetailedResults.DataSource = dt;
+                        } catch {
+                            dgvDetailedResults.DataSource = null;
+                            var errorDt = new DataTable("Error");
+                            errorDt.Columns.Add("Error");
+                            errorDt.Rows.Add("This control cannot handle the amount (" + dt.Columns.Count + ") of columns in the result set. Exporting to Excel should not be a problem.");
+
+                            dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                            dgvDetailedResults.DataSource = errorDt;
+                        }
                     }
                 }
 
@@ -272,7 +282,7 @@ namespace vApus.Stresstest {
         }
 
         private void btnDeleteResults_Click(object sender, EventArgs e) {
-            if (MessageBox.Show("Are you sure you want to delete the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+            if (MessageBox.Show("Are you sure you want to delete the results database?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
                 _resultsHelper.DeleteResults();
                 this.Enabled = false;
 
@@ -316,6 +326,7 @@ namespace vApus.Stresstest {
             _config = new KeyValuePairControl[0];
 
             dgvDetailedResults.DataSource = null;
+            if (_resultsHelper != null) _resultsHelper.ClearCache(); //Keeping the cache as clean as possible.
         }
         /// <summary>
         /// Refresh after testing.
@@ -326,6 +337,7 @@ namespace vApus.Stresstest {
             this.Enabled = true;
 
             _resultsHelper = resultsHelper;
+            if (_resultsHelper != null) _resultsHelper.ClearCache(); //Keeping the cache as clean as possible.
             _stresstestIds = stresstestIds;
             foreach (var ctrl in flpConfiguration.Controls)
                 if (ctrl is LinkButton) {

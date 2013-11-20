@@ -31,13 +31,16 @@ namespace vApus.DistributedTesting {
         private string _tileStresstestIndex;
 
         /// <summary>
-        ///     Countdown for the update.
-        /// </summary>
-        private int _countDown;
-        /// <summary>
         ///     In seconds how fast the stresstest progress will be updated.
         /// </summary>
         private const int PROGRESSUPDATEDELAY = 5;
+        /// <summary>
+        ///     Countdown for the update.
+        /// </summary>
+        private int _progressCountDown;
+
+        private bool _canUpdateMetrics = false; //Can only be updated when a run is busy.
+        private bool _simplifiedMetricsReturned = false; //Only send a warning to the user once.
 
         private StresstestCore _stresstestCore;
         private StresstestResult _stresstestResult;
@@ -132,15 +135,17 @@ namespace vApus.DistributedTesting {
                 btnStop.Enabled = true;
                 try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
                 tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
+                tmrProgress.Start();
 
                 fastResultsControl.SetStresstestInitialized();
                 _stresstestResult = null;
                 _stresstestMetricsCache = new StresstestMetricsCache();
                 fastResultsControl.SetConfigurationControls(_stresstest);
 
-                _countDown = PROGRESSUPDATEDELAY - 1;
+                _progressCountDown = PROGRESSUPDATEDELAY - 1;
                 try {
                     _stresstestCore = new StresstestCore(_stresstest);
+                    _stresstestCore.WaitWhenInitializedTheFirstRun = true;
                     _stresstestCore.ResultsHelper = _resultsHelper;
                     _stresstestCore.RunSynchronization = RunSynchronization;
                     _stresstestCore.MaxRerunsBreakOnLast = MaxRerunsBreakOnLast;
@@ -148,6 +153,7 @@ namespace vApus.DistributedTesting {
                     _stresstestCore.ConcurrencyStarted += _stresstestCore_ConcurrentUsersStarted;
                     _stresstestCore.ConcurrencyStopped += _stresstestCore_ConcurrencyStopped;
                     _stresstestCore.RunInitializedFirstTime += _stresstestCore_RunInitializedFirstTime;
+                    _stresstestCore.RunStarted += _stresstestCore_RunStarted;
                     _stresstestCore.RunDoneOnce += _stresstestCore_RunDoneOnce;
                     _stresstestCore.RerunDone += _stresstestCore_RerunDone;
                     _stresstestCore.RunStopped += _stresstestCore_RunStopped;
@@ -190,8 +196,6 @@ namespace vApus.DistributedTesting {
 
                 _stresstestStatus = StresstestStatus.Busy;
 
-                tmrProgress.Start();
-
                 //The stresstest threadpool is blocking so we run this on another thread.
                 var stresstestThread = new Thread(() => {
                     Exception ex = null;
@@ -218,10 +222,9 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public void Break() {
             lock (_lock)
-                if (_stresstestStatus == StresstestStatus.Busy) {
-                    tmrProgress.Stop();
+                if (_stresstestStatus == StresstestStatus.Busy)
                     _stresstestCore.Break();
-                }
+
         }
 
         /// <summary>
@@ -230,10 +233,8 @@ namespace vApus.DistributedTesting {
         /// <param name="continueCounter">Every time the execution is paused the continue counter is incremented by one.</param>
         public void Continue(int continueCounter) {
             lock (_lock)
-                if (_stresstestStatus == StresstestStatus.Busy) {
-                    tmrProgress.Start();
+                if (_stresstestStatus == StresstestStatus.Busy)
                     _stresstestCore.Continue(continueCounter);
-                }
         }
 
         /// <summary>
@@ -246,7 +247,7 @@ namespace vApus.DistributedTesting {
         }
 
         #region Progress
-        private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_countDown--); }
+        private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_progressCountDown--); }
         private void tmrProgress_Tick(object sender, ElapsedEventArgs e) {
             try {
                 fastResultsControl.SetClientMonitoring(
@@ -255,65 +256,64 @@ namespace vApus.DistributedTesting {
                     (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
             } catch { } //Exception on false WMI. 
 
-            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics());
-            List<StresstestMetrics> runMetrics = _stresstestMetricsCache.GetRunMetrics();
-            fastResultsControl.UpdateFastRunResults(runMetrics);
+            if (_canUpdateMetrics) {
+                fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
+                List<StresstestMetrics> runMetrics = _stresstestMetricsCache.GetRunMetrics();
+                fastResultsControl.UpdateFastRunResults(runMetrics, false, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
 
-            //Set rerunning
-            fastResultsControl.SetRerunning(runMetrics.Count == 0 ? false : runMetrics[runMetrics.Count - 1].RerunCount != 0);
+                //Set rerunning
+                fastResultsControl.SetRerunning(runMetrics.Count == 0 ? false : runMetrics[runMetrics.Count - 1].RerunCount != 0);
 
-            _countDown = PROGRESSUPDATEDELAY;
+                if (_stresstestMetricsCache.CalculatedSimplifiedMetrics && !_simplifiedMetricsReturned) {
+                    _simplifiedMetricsReturned = true;
+                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", LogLevel.Warning);
+                }
+
+            }
+            _progressCountDown = PROGRESSUPDATEDELAY;
 
             SendPushMessage(RunStateChange.None, false, false);
         }
 
         private void _stresstestCore_StresstestStarted(object sender, StresstestResultEventArgs e) {
+            _simplifiedMetricsReturned = false;
             _stresstestResult = e.StresstestResult;
             fastResultsControl.SetStresstestStarted(e.StresstestResult.StartedAt);
         }
 
         private void _stresstestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e) {
-            _countDown = PROGRESSUPDATEDELAY;
+            _progressCountDown = PROGRESSUPDATEDELAY;
             StopProgressDelayCountDown();
-            tmrProgress.Stop();
-
-            //Purge the previous concurrent user results from memory, we don't need it anymore.
-            // Edit: For estimated runtime left we do need this.
-            //foreach (var concurrencyResult in _stresstestResult.ConcurrencyResults)
-            //    if (concurrencyResult.StoppedAt != DateTime.MinValue) {
-            //        _stresstestResult.ConcurrencyResults.Remove(concurrencyResult);
-            //        break;
-            //    }
-
             //Update the metrics.
-            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.AddOrUpdate(e.Result));
+            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.AddOrUpdate(e.Result), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
             fastResultsControl.SetRerunning(false);
         }
+        private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) { SendPushMessage(RunStateChange.None, false, true); }
 
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
-            _countDown = PROGRESSUPDATEDELAY;
             StopProgressDelayCountDown();
-            tmrProgress.Stop();
 
-            fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.AddOrUpdate(e.Result));
-            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), false);
+            fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.AddOrUpdate(e.Result), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
+            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), false, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
 
             SendPushMessage(RunStateChange.ToRunInitializedFirstTime, false, false);
 
             fastResultsControl.SetRerunning(false);
 
-            fastResultsControl.SetCountDownProgressDelay(_countDown--);
+            _progressCountDown = PROGRESSUPDATEDELAY;
+            tmrProgress.Stop();
+            fastResultsControl.SetCountDownProgressDelay(_progressCountDown--);
             tmrProgressDelayCountDown.Start();
-
             tmrProgress.Start();
         }
 
+        private void _stresstestCore_RunStarted(object sender, RunResultEventArgs e) { _canUpdateMetrics = true; }
         private void _stresstestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce, false, false); }
         private void _stresstestCore_RerunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRerunDone, false, false); }
-        private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) { SendPushMessage(RunStateChange.None, true, false); }
-
-        private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) { SendPushMessage(RunStateChange.None, false, true); }
-
+        private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) {
+            _canUpdateMetrics = false;
+            SendPushMessage(RunStateChange.None, true, false);
+        }
 
         /// <summary>
         /// </summary>
@@ -434,10 +434,15 @@ namespace vApus.DistributedTesting {
                                                           LocalMonitor.NicsReceived);
                 } catch { } //Exception on false WMI. 
 
-                fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics());
-                fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics());
+                fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
+                fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics(), false, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
 
                 fastResultsControl.SetRerunning(false);
+
+                if (_stresstestMetricsCache.CalculatedSimplifiedMetrics && !_simplifiedMetricsReturned) {
+                    _simplifiedMetricsReturned = true;
+                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", LogLevel.Warning);
+                }
 
                 // Can only be cancelled once, calling multiple times is not a problem.
                 if (_stresstestCore != null && !_stresstestCore.IsDisposed) try { _stresstestCore.Cancel(); } catch { }
@@ -445,7 +450,6 @@ namespace vApus.DistributedTesting {
 
             fastResultsControl.SetStresstestStopped();
             _stresstestResult = null;
-
         }
 
         private void StopProgressDelayCountDown() {

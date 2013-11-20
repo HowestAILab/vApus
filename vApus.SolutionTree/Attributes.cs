@@ -49,13 +49,13 @@ namespace vApus.SolutionTree {
         /// <summary>
         ///     To define that a common property control can be created for the property.
         ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
-        ///     Use an other constructor if you want a custom property control.
+        ///     Use ValueControlPanel.AddControlType(...) if you want a custom property control.
         /// </summary>
         public PropertyControlAttribute() { }
         /// <summary>
         ///     To define that a common property control can be created for the property.
         ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
-        ///     Use an other constructor if you want a custom property control.
+        ///     Use ValueControlPanel.AddControlType(...) if you want a custom property control.
         /// </summary>
         /// <param name="displayIndex">
         ///     A number greater than -1, it doesn't matter if it isn't directly following the display indices of other property control attributes.
@@ -65,7 +65,7 @@ namespace vApus.SolutionTree {
         /// <summary>
         ///     To define that a common property control can be created for the property.
         ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
-        ///     Use an other constructor if you want a custom property control.
+        ///     Use ValueControlPanel.AddControlType(...) if you want a custom property control.
         /// </summary>
         /// <param name="displayIndex">
         ///     A number greater than -1, it doesn't matter if it isn't directly following the display indices of other property control attributes.

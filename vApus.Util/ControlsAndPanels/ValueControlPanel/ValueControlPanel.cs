@@ -181,9 +181,8 @@ namespace vApus.Util {
         }
 
         private void ValueControlPanel_ValueChanged(object sender, BaseValueControl.ValueChangedEventArgs e) {
-            if (ValueChanged != null)
-                ValueChanged(this,
-                             new ValueChangedEventArgs(Controls.IndexOf(sender as Control), e.OldValue, e.NewValue));
+            if (ValueChanged != null && Controls.Count != 0)
+                ValueChanged(this, new ValueChangedEventArgs(Controls.IndexOf(sender as Control), e.OldValue, e.NewValue));
         }
 
         private void ValueControl_VisibleChanged(object sender, EventArgs e) {

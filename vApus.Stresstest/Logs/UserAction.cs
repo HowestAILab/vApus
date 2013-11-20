@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Threading.Tasks;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -134,10 +135,15 @@ namespace vApus.Stresstest {
         internal StringTree[] GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForLScope) {
             var parameterizedStructure = new StringTree[Count];
 
-            HashSet<BaseParameter> chosenNextValueParametersForUAScope = parameterTokens == null ? null :  new HashSet<BaseParameter>();
+            HashSet<BaseParameter> chosenNextValueParametersForUAScope = parameterTokens == null ? null : new HashSet<BaseParameter>();
 
-            for (int i = 0; i != parameterizedStructure.Length; i++)
-                parameterizedStructure[i] = (this[i] as LogEntry).GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
+            if (parameterTokens == null && Count > 1)
+                Parallel.For(0, parameterizedStructure.Length, (i) => {
+                    parameterizedStructure[i] = (this[i] as LogEntry).GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
+                });
+            else
+                for (int i = 0; i != parameterizedStructure.Length; i++)
+                    parameterizedStructure[i] = (this[i] as LogEntry).GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope);
             return parameterizedStructure;
         }
 
@@ -245,16 +251,31 @@ namespace vApus.Stresstest {
             merged.LinkedToUserActionIndices.Clear();
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
+        /// <summary>
+        /// This user action will find its own parent log, more convinient but not so fast.
+        /// </summary>
+        /// <param name="linkUserAction"></param>
+        /// <returns></returns>
         public bool IsLinked(out UserAction linkUserAction) {
+            return IsLinked(Parent as Log, out linkUserAction);
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="log">The log where this user action resides in.</param>
+        /// <param name="linkUserAction"></param>
+        /// <returns></returns>
+        public bool IsLinked(Log log, out UserAction linkUserAction) {
             linkUserAction = null;
             if (LinkedToUserActionIndices.Count == 0) {
-                var log = this.Parent as Log;
                 int index = Index;
-                foreach (UserAction ua in log)
+                for (int i = index - 2; i != -1; i--) {
+                    var ua = log[i] as UserAction;
                     if (ua.LinkedToUserActionIndices.Contains(index)) {
                         linkUserAction = ua;
                         return true;
                     }
+                }
             } else {
                 linkUserAction = this;
                 return true;
@@ -291,13 +312,30 @@ namespace vApus.Stresstest {
 
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
-        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet) {
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="logRuleSet"></param>
+        /// <param name="applyRuleSet">Not needed in a distributed test</param>
+        /// <param name="copyLogEntryAsImported">Not needed in a distributed test</param>
+        /// <param name="copyLinkedUserActionIndices">Needed in a distributed test</param>
+        /// <returns></returns>
+        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool copyLogEntryAsImported, bool copyLinkedUserActionIndices) {
             UserAction userAction = new UserAction(Label);
             userAction.SetParent(Parent, false);
             userAction.Occurance = _occurance;
             userAction.Pinned = Pinned;
             userAction.UseDelay = _useDelay;
-            userAction.LogEntryStringsAsImported = _logEntryStringsAsImported;
+
+            if (copyLogEntryAsImported) {
+                var arr = new string[_logEntryStringsAsImported.Count];
+                _logEntryStringsAsImported.CopyTo(arr);
+                userAction.LogEntryStringsAsImported = new List<string>(arr);
+            }
+
+            foreach (int i in _linkedToUserActionIndices) userAction._linkedToUserActionIndices.Add(i);
+            userAction._linkColorRGB = _linkColorRGB;
 
             foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(logRuleSet, applyRuleSet), false);
 

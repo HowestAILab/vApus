@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using vApus.SolutionTree;
 using vApus.Stresstest;
@@ -19,32 +20,126 @@ namespace vApus.DistributedTesting {
 
         #region Fields
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
-        private Stresstest.Stresstest _defaultSettingsTo;
-        private UserActionDistribution _distribute;
-        protected internal Log _log;
+        private bool _actionDistribution;
+        private int _maximumNumberOfUserActions;
+
+        private Logs _allLogs;
+        private int[] _logIndices = { };
+        private uint[] _logWeights = { };
+
+        private KeyValuePair<Log, uint>[] _logs = { };
+
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorAfter, _monitorBefore;
         private bool _shuffle = true;
         #endregion
 
         #region Properties
-        [Description("The log used to test the application.")]
-        [SavableCloneable, PropertyControl(0)]
-        public Log Log {
-            get {
-                if (_log != null) {
-                    if (_log.IsEmpty)
-                        Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
-
-                    _log.SetDescription("The log used to test the application. [" + LogRuleSet + "]");
-                }
-                return _log;
-            }
+        [SavableCloneable]
+        public uint[] LogWeights {
+            get { return _logWeights; }
             set {
                 if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                _logWeights = value;
+            }
+        }
+        [SavableCloneable]
+        public int[] LogIndices {
+            get { return _logIndices; }
+            set {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                _logIndices = value;
+
+                if (_allLogs != null) {
+                    if (_logIndices.Length == 0 && _allLogs.Count > 1) {
+                        _logWeights = new uint[] { 1 };
+                        _logIndices = new int[] { 1 };
+                    }
+                    var l = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
+                    int weightIndex = 0;
+                    foreach (int index in _logIndices) {
+                        if (index < _allLogs.Count) {
+                            var log = _allLogs[index] as Log;
+
+                            bool added = false;
+                            foreach (var addedKvp in l)
+                                if (addedKvp.Key == log) {
+                                    added = true;
+                                    break;
+                                }
+                            if (!added) {
+                                uint weight = weightIndex < _logWeights.Length ? _logWeights[weightIndex] : 0;
+                                l.Add(new KeyValuePair<Log, uint>(log, weight));
+                            }
+                        }
+                        ++weightIndex;
+                    }
+                    _logs = l.ToArray();
+                    _logs.SetParent(_allLogs, false);
+                }
+            }
+        }
+        [Description("The logs used to test the application. Maximum 5 allowed and they must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
+        [PropertyControl(0)]
+        public KeyValuePair<Log, uint>[] Logs {
+            get { return _logs; }
+            set {
+                if (value == null)
+                    throw new ArgumentNullException("Can be empty but not null.");
+                if (value.Length > 5)
+                    throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
+
+                if (_allLogs != null && _allLogs.Count > 1 && value.Length == 0) {
+                    _logWeights = new uint[] { 1 };
+                    LogIndices = new int[] { 1 };
                     return;
-                value.ParentIsNull -= _log_ParentIsNull;
-                _log = value;
-                _log.ParentIsNull += _log_ParentIsNull;
+                }
+
+                if (value.Length != 0) {
+                    var logRuleSet = value[0].Key.LogRuleSet;
+                    for (int i = 1; i < value.Length; i++)
+                        if (value[i].Key.LogRuleSet != logRuleSet)
+                            throw new Exception("Only logs having the same log rule set are allowed.");
+
+                    //New entries should have a weight of 1.
+                    for (int i = _logs.Length; i < value.Length; i++)
+                        value[i] = new KeyValuePair<vApus.Stresstest.Log, uint>(value[i].Key, 1);
+
+                    //1 should not be 0 :).
+                    bool allZeros = true;
+                    for (int i = 0; i != value.Length; i++)
+                        if (value[i].Value != 0) {
+                            allZeros = false;
+                            break;
+                        }
+                    if (allZeros) value[0] = new KeyValuePair<vApus.Stresstest.Log, uint>(value[0].Key, 1);
+                }
+
+                _logs = value;
+
+                if (_allLogs != null) {
+                    _logs.SetParent(_allLogs, false);
+
+                    var logIndices = new List<int>(_logs.Length);
+                    var logWeights = new List<uint>(_logs.Length);
+                    for (int allLogsIndex = 1; allLogsIndex < _allLogs.Count; allLogsIndex++) {
+                        KeyValuePair<Log, uint> kvp = new KeyValuePair<Log, uint>();
+                        for (int logIndex = 0; logIndex != _logs.Length; logIndex++)
+                            if (_logs[logIndex].Key == _allLogs[allLogsIndex]) {
+                                kvp = _logs[logIndex];
+                                break;
+                            }
+
+                        if (kvp.Key != null) {
+                            logIndices.Add(allLogsIndex);
+                            logWeights.Add(kvp.Value);
+                        }
+                    }
+
+                    _logIndices = logIndices.ToArray();
+                    _logWeights = logWeights.ToArray();
+                }
             }
         }
 
@@ -52,11 +147,15 @@ namespace vApus.DistributedTesting {
         [DisplayName("Log Rule Set")]
         public string LogRuleSet {
             get {
-                if (_log == null || _log.IsEmpty || _log.LogRuleSet.IsEmpty)
+                if (_logs.Length == 0)
                     return "Log Rule Set: <none>";
-                return _log.LogRuleSet.ToString();
+                var log = _logs[0].Key;
+                if (log == null || log.IsEmpty || log.LogRuleSet.IsEmpty)
+                    return "Log Rule Set: <none>";
+                return log.LogRuleSet.ToString();
             }
         }
+
 
         [Description("The count(s) of the concurrent users generated, the minimum given value equals one.")]
         [SavableCloneable, PropertyControl(1)]
@@ -127,22 +226,35 @@ namespace vApus.DistributedTesting {
             set { _maximumDelay = value; }
         }
 
-        [Description("The user actions will be shuffled for each concurrent user when testing, creating unique usage patterns.")]
+        [Description("The user actions will be shuffled for each concurrent user when testing.")]
         [SavableCloneable, PropertyControl(5)]
         public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
         }
 
-        [Description("Fast: The length of the log stays the same, user actions are picked by chance based on its occurance, Full: user actions are executed X times its occurance.")]
+        [Description("When this is used, user actions are executed X times its occurance. You can use 'Shuffle' and 'Maximum Number of User Actions' in combination with this to define unique test patterns for each user."),
+        DisplayName("Action Distribution")]
         [SavableCloneable, PropertyControl(6)]
-        public UserActionDistribution Distribute {
-            get { return _distribute; }
-            set { _distribute = value; }
+        public bool ActionDistribution {
+            get { return _actionDistribution; }
+            set { _actionDistribution = value; }
+        }
+
+        [Description("This sets the maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
+        DisplayName("Maximum Number of User Actions")]
+        [SavableCloneable, PropertyControl(7)]
+        public int MaximumNumberOfUserActions {
+            get { return _maximumNumberOfUserActions; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
+                _maximumNumberOfUserActions = value;
+            }
         }
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(7)]
+        [SavableCloneable, PropertyControl(8)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -155,7 +267,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(8)]
+        [SavableCloneable, PropertyControl(9)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
@@ -188,14 +300,28 @@ namespace vApus.DistributedTesting {
             Init();
         }
         private void Init() {
-            Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
+            _allLogs = SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs)) as Logs;
 
+            var logs = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
+            int weightIndex = 0;
+            foreach (int index in _logIndices) {
+                if (index < _allLogs.Count) {
+                    var log = _allLogs[index] as Log;
+                    uint weight = weightIndex < _logWeights.Length ? _logWeights[weightIndex] : 0;
+
+                    logs.Add(new KeyValuePair<Log, uint>(log, weight));
+                }
+                ++weightIndex;
+            }
+
+            _logs = logs.ToArray();
+            _logs.SetParent(_allLogs, false);
+
+            if (_allLogs != null && _allLogs.Count > 1 && _logIndices.Length == 0) {
+                _logWeights = new uint[] { 1 };
+                LogIndices = new int[] { 1 };
+            }
             SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-        }
-
-        private void _log_ParentIsNull(object sender, EventArgs e) {
-            if (_log == sender)
-                Log = GetNextOrEmptyChild(typeof(Log), Solution.ActiveSolution.GetSolutionComponent(typeof(Logs))) as Log;
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
@@ -209,20 +335,44 @@ namespace vApus.DistributedTesting {
                 }
             } catch {
             }
+
+            if (sender == _allLogs || sender is Log) {
+                var l = new List<KeyValuePair<Log, uint>>(_allLogs.Count);
+                foreach (var kvp in _logs) {
+                    bool added = false;
+                    foreach (var addedKvp in l)
+                        if (addedKvp.Key == kvp.Key) {
+                            added = true;
+                            break;
+                        }
+
+                    if (!added && _allLogs.Contains(kvp.Key)) {
+                        var newKvp = new KeyValuePair<Log, uint>(kvp.Key, kvp.Value);
+                        l.Add(newKvp);
+                    }
+                }
+
+                Logs = l.ToArray();
+            }
         }
 
         internal void DefaultTo(Stresstest.Stresstest stresstest) {
-            _defaultSettingsTo = stresstest;
-            Log = _defaultSettingsTo.Log;
-            _concurrencies = new int[_defaultSettingsTo.Concurrencies.Length];
-            _defaultSettingsTo.Concurrencies.CopyTo(_concurrencies, 0);
-            _runs = _defaultSettingsTo.Runs;
-            _minimumDelay = _defaultSettingsTo.MinimumDelay;
-            _maximumDelay = _defaultSettingsTo.MaximumDelay;
-            _shuffle = _defaultSettingsTo.Shuffle;
-            _distribute = _defaultSettingsTo.Distribute;
-            _monitorBefore = _defaultSettingsTo.MonitorBefore;
-            _monitorAfter = _defaultSettingsTo.MonitorAfter;
+            var logs = new KeyValuePair<Log, uint>[stresstest.Logs.Length];
+            stresstest.Logs.CopyTo(logs, 0);
+            logs.SetParent(_allLogs, false);
+            Logs = logs;
+
+            _concurrencies = new int[stresstest.Concurrencies.Length];
+            stresstest.Concurrencies.CopyTo(_concurrencies, 0);
+
+            _runs = stresstest.Runs;
+            _minimumDelay = stresstest.MinimumDelay;
+            _maximumDelay = stresstest.MaximumDelay;
+            _shuffle = stresstest.Shuffle;
+            _actionDistribution = stresstest.ActionDistribution;
+            _maximumNumberOfUserActions = stresstest.MaximumNumberOfUserActions;
+            _monitorBefore = stresstest.MonitorBefore;
+            _monitorAfter = stresstest.MonitorAfter;
 
             if (Solution.ActiveSolution != null)
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
@@ -234,14 +384,22 @@ namespace vApus.DistributedTesting {
         /// <returns></returns>
         public AdvancedTileStresstest Clone() {
             var clone = new AdvancedTileStresstest();
-            clone.Log = _log;
+
+            var defaultSettingsTo = (Parent as TileStresstest).DefaultAdvancedSettingsTo;
+
+            clone._logs = new KeyValuePair<Log, uint>[defaultSettingsTo.Logs.Length];
+            _logs.CopyTo(clone._logs, 0);
+            clone._logs.SetParent(_allLogs, false);
+
+
             clone._concurrencies = new int[_concurrencies.Length];
             _concurrencies.CopyTo(clone._concurrencies, 0);
             clone.Runs = _runs;
             clone.MinimumDelayOverride = _minimumDelay;
             clone.MaximumDelayOverride = _maximumDelay;
             clone.Shuffle = _shuffle;
-            clone.Distribute = _distribute;
+            clone.ActionDistribution = _actionDistribution;
+            clone.MaximumNumberOfUserActions = _maximumNumberOfUserActions;
             clone.MonitorBefore = _monitorBefore;
             clone.MonitorAfter = _monitorAfter;
             return clone;

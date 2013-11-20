@@ -48,7 +48,7 @@
             this.kvpRuns = new vApus.Util.KeyValuePairControl();
             this.kvpDelay = new vApus.Util.KeyValuePairControl();
             this.kvpShuffle = new vApus.Util.KeyValuePairControl();
-            this.kvpDistribute = new vApus.Util.KeyValuePairControl();
+            this.kvpActionDistribution = new vApus.Util.KeyValuePairControl();
             this.kvpMonitorBefore = new vApus.Util.KeyValuePairControl();
             this.kvpMonitorAfter = new vApus.Util.KeyValuePairControl();
             this.pnlFastResults = new System.Windows.Forms.Panel();
@@ -78,6 +78,7 @@
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnExport = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.kvpMaximumNumberOfUserActions = new vApus.Util.KeyValuePairControl();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -188,7 +189,8 @@
             this.flpConfiguration.Controls.Add(this.kvpRuns);
             this.flpConfiguration.Controls.Add(this.kvpDelay);
             this.flpConfiguration.Controls.Add(this.kvpShuffle);
-            this.flpConfiguration.Controls.Add(this.kvpDistribute);
+            this.flpConfiguration.Controls.Add(this.kvpActionDistribution);
+            this.flpConfiguration.Controls.Add(this.kvpMaximumNumberOfUserActions);
             this.flpConfiguration.Controls.Add(this.kvpMonitorBefore);
             this.flpConfiguration.Controls.Add(this.kvpMonitorAfter);
             this.flpConfiguration.Location = new System.Drawing.Point(0, 0);
@@ -352,30 +354,29 @@
             this.kvpShuffle.Size = new System.Drawing.Size(53, 24);
             this.kvpShuffle.TabIndex = 10;
             this.kvpShuffle.TabStop = false;
-            this.kvpShuffle.Tooltip = "The actions and loose log entries will be shuffled for each concurrent user when " +
-    "testing, creating unique usage patterns.";
+            this.kvpShuffle.Tooltip = "The user actions will be shuffled for each concurrent user when testing.";
             this.kvpShuffle.Value = "";
             // 
-            // kvpDistribute
+            // kvpActionDistribution
             // 
-            this.kvpDistribute.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvpDistribute.Key = "Distribute";
-            this.kvpDistribute.Location = new System.Drawing.Point(3, 39);
-            this.kvpDistribute.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.kvpDistribute.Name = "kvpDistribute";
-            this.kvpDistribute.Size = new System.Drawing.Size(67, 24);
-            this.kvpDistribute.TabIndex = 10;
-            this.kvpDistribute.TabStop = false;
-            this.kvpDistribute.Tooltip = "Action and Loose Log Entry Distribution\nFast: The length of the log stays the sam" +
-    "e, entries are picked by chance based on the occurance.\nFull: entries are execut" +
-    "ed X times the occurance.";
-            this.kvpDistribute.Value = "";
+            this.kvpActionDistribution.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpActionDistribution.Key = "Action Distribution";
+            this.kvpActionDistribution.Location = new System.Drawing.Point(3, 39);
+            this.kvpActionDistribution.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpActionDistribution.Name = "kvpActionDistribution";
+            this.kvpActionDistribution.Size = new System.Drawing.Size(117, 24);
+            this.kvpActionDistribution.TabIndex = 10;
+            this.kvpActionDistribution.TabStop = false;
+            this.kvpActionDistribution.Tooltip = "\"When this is used, user actions are executed X times its occurance. You can use " +
+    "\'Shuffle\' and \'Maximum Number of User Actions\' in combination with this to defin" +
+    "e unique test patterns for each user.";
+            this.kvpActionDistribution.Value = "";
             // 
             // kvpMonitorBefore
             // 
             this.kvpMonitorBefore.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorBefore.Key = "Monitor Before";
-            this.kvpMonitorBefore.Location = new System.Drawing.Point(73, 39);
+            this.kvpMonitorBefore.Location = new System.Drawing.Point(328, 39);
             this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorBefore.Name = "kvpMonitorBefore";
             this.kvpMonitorBefore.Size = new System.Drawing.Size(96, 24);
@@ -388,7 +389,7 @@
             // 
             this.kvpMonitorAfter.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorAfter.Key = "Monitor After";
-            this.kvpMonitorAfter.Location = new System.Drawing.Point(172, 39);
+            this.kvpMonitorAfter.Location = new System.Drawing.Point(427, 39);
             this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorAfter.Name = "kvpMonitorAfter";
             this.kvpMonitorAfter.Size = new System.Drawing.Size(86, 24);
@@ -792,6 +793,20 @@
             this.btnExport.UseVisualStyleBackColor = false;
             this.btnExport.Click += new System.EventHandler(this.btnExport_Click);
             // 
+            // kvpMaximumNumberOfUserActions
+            // 
+            this.kvpMaximumNumberOfUserActions.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpMaximumNumberOfUserActions.Key = "Maximum Number of User Actions";
+            this.kvpMaximumNumberOfUserActions.Location = new System.Drawing.Point(123, 39);
+            this.kvpMaximumNumberOfUserActions.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpMaximumNumberOfUserActions.Name = "kvpMaximumNumberOfUserActions";
+            this.kvpMaximumNumberOfUserActions.Size = new System.Drawing.Size(202, 24);
+            this.kvpMaximumNumberOfUserActions.TabIndex = 21;
+            this.kvpMaximumNumberOfUserActions.TabStop = false;
+            this.kvpMaximumNumberOfUserActions.Tooltip = "The maximum number of user actions that a test pattern for a user can contain. Pi" +
+    "nned actions however are always picked.";
+            this.kvpMaximumNumberOfUserActions.Value = "";
+            // 
             // FastResultsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -839,7 +854,7 @@
         private vApus.Util.KeyValuePairControl kvpRuns;
         private vApus.Util.KeyValuePairControl kvpDelay;
         private vApus.Util.KeyValuePairControl kvpShuffle;
-        private vApus.Util.KeyValuePairControl kvpDistribute;
+        private vApus.Util.KeyValuePairControl kvpActionDistribution;
         private System.Windows.Forms.Panel pnlFastResults;
         private System.Windows.Forms.FlowLayoutPanel flpFastMetrics;
         private System.Windows.Forms.Label label1;
@@ -874,5 +889,6 @@
         private System.Windows.Forms.Panel pnlBorderCollapse;
         private System.Windows.Forms.Button btnCollapseExpand;
         private System.Windows.Forms.Panel pnlScrollConfigTo;
+        private Util.KeyValuePairControl kvpMaximumNumberOfUserActions;
     }
 }

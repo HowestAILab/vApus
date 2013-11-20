@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 
@@ -18,6 +19,8 @@ namespace vApus.Util {
 
         #region Fields
         private IEnumerable _newValue, _value;
+        private bool _isKVP;
+        private Type _elementType;
         #endregion
 
         #region Properties
@@ -37,16 +40,32 @@ namespace vApus.Util {
         public void SetValue(IEnumerable value) {
             _value = value;
             var parent = value.GetParent() as IEnumerable;
-            foreach (object item in parent) {
-                var lvwi = new ListViewItem(item.ToString());
-                lvwi.Tag = item;
-                lvw.Items.Add(lvwi);
+            _elementType = _value.AsQueryable().ElementType;
+
+            Type elementBaseType = null, keyType = _elementType;
+            try {
+                elementBaseType = _elementType.GetGenericTypeDefinition();
+                keyType = _elementType.GetGenericArguments()[0];
+            } catch {
+                //Will fail if no generic type def.
             }
+            _isKVP = elementBaseType == typeof(KeyValuePair<,>);
+
+            foreach (object item in parent)
+                if (item.GetType() == keyType) {
+                    var lvwi = new ListViewItem(item.ToString());
+                    lvwi.Tag = item;
+                    lvw.Items.Add(lvwi);
+                }
 
             IEnumerator enumerator = _value.GetEnumerator();
             enumerator.Reset();
             while (enumerator.MoveNext()) {
-                ListViewItem lvwi = ListViewItemHasTag(enumerator.Current);
+                var tag = enumerator.Current;
+                if (_isKVP)
+                    tag = _elementType.GetProperty("Key").GetValue(tag, null);
+
+                ListViewItem lvwi = ListViewItemHasTag(tag);
                 if (lvwi != null)
                     lvwi.Checked = true;
             }
@@ -78,6 +97,33 @@ namespace vApus.Util {
                     break;
                 }
             }
+
+            if (_isKVP) {
+                var kvpArrayList = new ArrayList(arrayList.Count);
+                var valueType = _elementType.GetGenericArguments()[1];
+                for (int i = 0; i < arrayList.Count; i++) {
+                    var key = arrayList[i];
+
+                    //Get the editable value if any from the previous set.
+                    var value = Activator.CreateInstance(valueType);
+                    IEnumerator enumerator = _value.GetEnumerator();
+                    enumerator.Reset();
+                    while (enumerator.MoveNext()) {
+                        var oldKey = elementType.GetProperty("Key").GetValue(enumerator.Current, null);
+                        if (oldKey == key) {
+                            value = elementType.GetProperty("Value").GetValue(enumerator.Current, null);
+                            break;
+                        }
+                    }
+                    enumerator.Reset();
+
+                    var kvp = Activator.CreateInstance(_elementType, new object[] { key, value });
+                    kvpArrayList.Add(kvp);
+                }
+
+                arrayList = kvpArrayList;
+            }
+
             if (_value is Array) {
                 _newValue = arrayList.ToArray(elementType);
             } else if (_value is IList) {

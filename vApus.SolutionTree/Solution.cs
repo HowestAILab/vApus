@@ -17,6 +17,7 @@ using System.Xml;
 using WeifenLuo.WinFormsUI.Docking;
 using vApus.SolutionTree.Properties;
 using vApus.Util;
+using System.Runtime;
 
 namespace vApus.SolutionTree {
     /// <summary>
@@ -586,6 +587,8 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             }
             package.Flush();
             package.Close();
+            
+            GC.Collect();
         }
 
         protected void Load(out string errorMessage) {
@@ -609,6 +612,9 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 sb.Append(ex);
             }
             errorMessage = sb.ToString();
+
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
         }
 
         protected void ResolveBranchedIndices() {

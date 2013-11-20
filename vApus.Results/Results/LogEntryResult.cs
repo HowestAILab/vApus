@@ -8,7 +8,7 @@
 using System;
 
 namespace vApus.Results {
-    public struct LogEntryResult {
+    public class LogEntryResult {
         /// <summary>
         /// Use this to determine that this is a filled in log entry result.
         /// </summary>
@@ -19,9 +19,6 @@ namespace vApus.Results {
         ///     Index in Log
         /// </summary>
         public string LogEntryIndex { get; set; }
-        /// <summary>
-        ///     To be able to calcullate averages when using distribute.
-        /// </summary>
         public string SameAsLogEntryIndex { get; set; }
 
         public string LogEntry { get; set; }
@@ -34,5 +31,7 @@ namespace vApus.Results {
         /// 0 for all but break on last runs.
         /// </summary>
         public int Rerun { get; set; }
+
+        public LogEntryResult() { }
     }
 }

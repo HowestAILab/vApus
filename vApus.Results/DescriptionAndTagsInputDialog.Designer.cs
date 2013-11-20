@@ -26,9 +26,9 @@
             this.label1 = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
-            this.txtTags = new vApus.Util.LabeledTextBox();
-            this.txtDescription = new vApus.Util.LabeledTextBox();
             this.lblCouldNotConnect = new System.Windows.Forms.Label();
+            this.txtTags = new vApus.Util.CueTextBox();
+            this.txtDescription = new vApus.Util.CueTextBox();
             this.SuspendLayout();
             // 
             // label1
@@ -75,31 +75,6 @@
             this.btnCancel.UseVisualStyleBackColor = false;
             this.btnCancel.Click += new System.EventHandler(this.btnCancel_Click);
             // 
-            // txtTags
-            // 
-            this.txtTags.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTags.EmptyTextBoxLabel = "Comma-separated tags";
-            this.txtTags.ForeColor = System.Drawing.Color.Black;
-            this.txtTags.Location = new System.Drawing.Point(16, 177);
-            this.txtTags.Name = "txtTags";
-            this.txtTags.Size = new System.Drawing.Size(546, 22);
-            this.txtTags.TabIndex = 2;
-            this.txtTags.Text = "Comma-separated tags";
-            // 
-            // txtDescription
-            // 
-            this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtDescription.EmptyTextBoxLabel = "Description";
-            this.txtDescription.ForeColor = System.Drawing.Color.Black;
-            this.txtDescription.Location = new System.Drawing.Point(16, 55);
-            this.txtDescription.Multiline = true;
-            this.txtDescription.Name = "txtDescription";
-            this.txtDescription.Size = new System.Drawing.Size(546, 114);
-            this.txtDescription.TabIndex = 1;
-            this.txtDescription.Text = "Description";
-            // 
             // lblCouldNotConnect
             // 
             this.lblCouldNotConnect.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -113,6 +88,29 @@
             this.lblCouldNotConnect.Text = "Could not connect to the results database server! Click \'OK\' to proceed anyway. D" +
     "etailed results will be unavailable!";
             this.lblCouldNotConnect.Visible = false;
+            // 
+            // txtTags
+            // 
+            this.txtTags.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtTags.Cue = "Comma-separated tags";
+            this.txtTags.ForeColor = System.Drawing.Color.Black;
+            this.txtTags.Location = new System.Drawing.Point(16, 177);
+            this.txtTags.Name = "txtTags";
+            this.txtTags.Size = new System.Drawing.Size(546, 22);
+            this.txtTags.TabIndex = 2;
+            // 
+            // txtDescription
+            // 
+            this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtDescription.Cue = "Description";
+            this.txtDescription.ForeColor = System.Drawing.Color.Black;
+            this.txtDescription.Location = new System.Drawing.Point(16, 55);
+            this.txtDescription.Multiline = true;
+            this.txtDescription.Name = "txtDescription";
+            this.txtDescription.Size = new System.Drawing.Size(546, 114);
+            this.txtDescription.TabIndex = 1;
             // 
             // DescriptionAndTagsInputDialog
             // 
@@ -142,8 +140,8 @@
 
         #endregion
 
-        private Util.LabeledTextBox txtDescription;
-        private Util.LabeledTextBox txtTags;
+        private vApus.Util.CueTextBox txtDescription;
+        private vApus.Util.CueTextBox txtTags;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;

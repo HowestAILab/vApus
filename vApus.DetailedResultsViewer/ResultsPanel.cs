@@ -26,7 +26,7 @@ namespace vApus.DetailedResultsViewer {
         public ResultsPanel() {
             InitializeComponent();
         }
-        public void ClearReport() {
+        public void ClearResults() {
             this.Enabled = false;
             detailedResultsControl.ClearResults();
             this.Enabled = true;

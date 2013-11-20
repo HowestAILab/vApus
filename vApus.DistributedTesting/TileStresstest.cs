@@ -191,7 +191,8 @@ namespace vApus.DistributedTesting {
                 stresstest.ForDistributedTest = true;
                 stresstest.IsDividedStresstest = DividedStresstestIndex != null;
                 stresstest.ShowInGui = false;
-                stresstest.Distribute = AdvancedTileStresstest.Distribute;
+                stresstest.ActionDistribution = AdvancedTileStresstest.ActionDistribution;
+                stresstest.MaximumNumberOfUserActions = AdvancedTileStresstest.MaximumNumberOfUserActions;
                 stresstest.Concurrencies = AdvancedTileStresstest.Concurrencies;
 
                 var connections = new Connections();
@@ -205,20 +206,21 @@ namespace vApus.DistributedTesting {
 
                 stresstest.Label = ToString();
 
-                var logs = new Logs();
-                var log = AdvancedTileStresstest._log.Clone(true, false);
+                var allLogs = new Logs();
 
-                log.RemoveDescription();
-                logs.AddWithoutInvokingEvent(log);
-                log.ForceSettingChildsParent();
+                var logs = new KeyValuePair<Log, uint>[AdvancedTileStresstest.Logs.Length];
+                for (int i = 0; i != logs.Length; i++) {
+                    var kvp = AdvancedTileStresstest.Logs[i];
+                    var log = kvp.Key.Clone(true, false, false);
 
-                stresstest.Log = log;
+                    log.RemoveDescription();
+                    allLogs.AddWithoutInvokingEvent(log);
+                    log.ForceSettingChildsParent();
 
-                //Nothing happens with this on the other side
-                //var monitors = Monitors;
-                //stresstest.Monitors = new Monitor.Monitor[monitors.Length];
-                //for (int i = 0; i != monitors.Length; i++)
-                //    stresstest.Monitors[i] = monitors[i];
+                    logs[i] = new KeyValuePair<Log, uint>(log, kvp.Value);
+                }
+
+                stresstest.LogsOverride = logs;
 
                 stresstest.MinimumDelayOverride = AdvancedTileStresstest.MinimumDelay;
                 stresstest.MaximumDelayOverride = AdvancedTileStresstest.MaximumDelay;

@@ -30,10 +30,15 @@ namespace vApus.Util {
         /// <returns>The type if found, otherwise null.</returns>
         public static Type GetTypeByName(this Assembly assembly, string typeName) {
             lock (_lock) {
-                foreach (Type t in assembly.GetTypes())
-                    if (t.Name == typeName)
-                        return t;
-                return null;
+                var cacheEntry = FunctionOutputCacheWrapper.FunctionOutputCache.GetOrAdd(MethodBase.GetCurrentMethod(), assembly, typeName);
+                if (cacheEntry.ReturnValue == null) {
+                    foreach (Type t in assembly.GetTypes())
+                        if (t.Name == typeName) {
+                            cacheEntry.ReturnValue = t;
+                            break;
+                        }
+                }
+                return cacheEntry.ReturnValue as Type;
             }
         }
     }

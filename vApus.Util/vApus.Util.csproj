@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>vApus.Util</RootNamespace>
     <AssemblyName>vApus.Util</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -100,7 +100,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\DevelopmentBuild\</OutputPath>
-    <DefineConstants>TRACE;DEBUG;EnableBetaFeature</DefineConstants>
+    <DefineConstants>TRACE;EnableBetaFeature</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisLogFile>bin\Debug\vApus.Util.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
@@ -114,6 +114,7 @@
     <CodeAnalysisIgnoreBuiltInRules>false</CodeAnalysisIgnoreBuiltInRules>
     <CodeAnalysisFailOnMissingRules>false</CodeAnalysisFailOnMissingRules>
     <Prefer32Bit>false</Prefer32Bit>
+    <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -136,7 +137,7 @@
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|AnyCPU'">
     <DebugSymbols>true</DebugSymbols>
     <OutputPath>bin\TestingBuild\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DefineConstants>TRACE</DefineConstants>
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <CodeAnalysisLogFile>bin\Debug\vApus.Util.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
@@ -147,6 +148,7 @@
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <Prefer32Bit>false</Prefer32Bit>
+    <Optimize>true</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -204,6 +206,9 @@
     <Compile Include="ControlsAndPanels\CleanTempDataPanel.Designer.cs">
       <DependentUpon>CleanTempDataPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="ControlsAndPanels\CueTextBox.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ControlsAndPanels\DataGridViewImageCellBlank.cs" />
     <Compile Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.cs">
       <SubType>Component</SubType>
@@ -219,9 +224,6 @@
     </Compile>
     <Compile Include="ControlsAndPanels\KeyValuePairControl.Designer.cs">
       <DependentUpon>KeyValuePairControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ControlsAndPanels\LabeledTextBox.cs">
-      <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\LinkButton.cs">
       <SubType>Component</SubType>
@@ -431,6 +433,7 @@
     </Compile>
     <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
     <Compile Include="FindAndReplace.cs" />
+    <Compile Include="FunctionOutputCache.cs" />
     <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -627,6 +630,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\delete16x16.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Eye-black-16.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

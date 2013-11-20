@@ -93,7 +93,7 @@ namespace vApus.Results {
             int port;
             GetCurrentConnectionString(out user, out host, out port, out password);
 
-            return user == null ? null : string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;", host, port, user, password);
+            return user == null ? null : string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;table cache = true;", host, port, user, password);
         }
 
         /// <summary>
@@ -106,7 +106,7 @@ namespace vApus.Results {
             int port;
             GetCurrentConnectionString(out user, out host, out port, out password);
 
-            return user == null ? null : string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;", host, port, databaseName, user, password);
+            return user == null ? null : string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;table cache = true", host, port, databaseName, user, password);
         }
 
         /// <summary>

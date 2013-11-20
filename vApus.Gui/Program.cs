@@ -26,8 +26,8 @@ namespace vApus.Gui {
         /// </summary>
         [STAThread]
         private static void Main(string[] args) {
-            //ProfileOptimization.SetProfileRoot(Application.StartupPath);
-            //ProfileOptimization.StartProfile("Startup.Profile");
+            ProfileOptimization.SetProfileRoot(Application.StartupPath);
+            ProfileOptimization.StartProfile("Startup.Profile");
 
             LogWrapper.Log("vApus Started!");
             try {

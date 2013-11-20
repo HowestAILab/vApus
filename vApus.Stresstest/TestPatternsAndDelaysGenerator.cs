@@ -7,25 +7,25 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Threading;
 using vApus.Util;
 
 namespace vApus.Stresstest {
     /// <summary>
     /// Generates test patterns with delays for the different simulated users in StresstestCore. Delays and the way a test pattern is build is determined in Stresstest (Min- max delay, shuffle, UserActionDistribution).
     /// </summary>
-    internal class TestPatternsAndDelaysGenerator : IDisposable {
+    internal class TestPatternsAndDelaysGenerator { //: IDisposable {
 
         #region Fields
         private readonly LogEntry[] _logEntries;
         private readonly int _maxActionCount, _maximumDelay, _minimumDelay;
         private readonly bool _shuffleUserActions;
-        private UserActionDistribution _userActionDistribution;
 
         //Representation of the user actions (List<int>) containing log entry indices.
         private List<List<int>> _actions;
 
-        //For shuffle
-        private HashSet<int> _chosenSeeds = new HashSet<int>();
+        //For shuffle, multiple generators are used in a test, therefore this is static.
+        private static HashSet<int> _chosenSeeds = new HashSet<int>();
         private bool _isDisposed;
         #endregion
 
@@ -43,11 +43,10 @@ namespace vApus.Stresstest {
         /// <param name="userActionDistribution"></param>
         /// <param name="minimumDelay"></param>
         /// <param name="maximumDelay"></param>
-        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount, bool shuffleUserActions, UserActionDistribution userActionDistribution, int minimumDelay, int maximumDelay) {
+        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount, bool shuffleUserActions, int minimumDelay, int maximumDelay) {
             _logEntries = logEntries;
             _maxActionCount = maxActionCount;
             _shuffleUserActions = shuffleUserActions;
-            _userActionDistribution = userActionDistribution;
             _minimumDelay = minimumDelay;
             _maximumDelay = maximumDelay;
 
@@ -126,12 +125,22 @@ namespace vApus.Stresstest {
         }
 
         public void GetPatterns(out int[] testPattern, out int[] delayPattern) {
-            int seed = DateTime.Now.Millisecond;
-            var random = new Random(seed);
-            while (!_chosenSeeds.Add(seed)) {
-                seed = random.Next();
-                random = new Random(seed);
+            int seed = Guid.NewGuid().GetHashCode(); //Not using DateTime.Now or Environement.Ticks because this is updated every few milliseconds and we need a Thread.Sleep.
+            if (seed < 0) seed *= -1;
+
+        Retry:
+            if (_chosenSeeds == null) _chosenSeeds = new HashSet<int>();
+            try {
+                while (!_chosenSeeds.Add(seed)) {
+                    seed += (seed + 11) / 2; //Simple method for getting a new unique seed (I hope).
+                    if (seed < 0) seed *= -1;
+                }
+            } catch { //To many items.
+                _chosenSeeds = new HashSet<int>();
+                goto Retry;
             }
+
+            var random = new Random(seed);
 
             var tp = new List<int>();
             var dp = new List<int>();

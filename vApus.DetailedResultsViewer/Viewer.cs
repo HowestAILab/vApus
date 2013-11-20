@@ -42,7 +42,7 @@ namespace vApus.DetailedResultsViewer {
 
         private void _settingsPanel_ResultsSelected(object sender, SettingsPanel.ResultsSelectedEventArgs e) {
             if (e.Database == null) {
-                _resultsPanel.ClearReport();
+                _resultsPanel.ClearResults();
                 _resultsPanel.Enabled = false;
             } else {
                 _resultsPanel.RefreshResults(e.StresstestId);
@@ -50,7 +50,7 @@ namespace vApus.DetailedResultsViewer {
             }
         }
         private void _settingsPanel_CancelGettingResults(object sender, EventArgs e) {
-            _resultsPanel.ClearReport();
+            _resultsPanel.ClearResults();
             _resultsPanel.Enabled = false;
         }
 

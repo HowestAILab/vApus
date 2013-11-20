@@ -32,18 +32,18 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(UserActionTreeViewItem));
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.nudOccurance = new System.Windows.Forms.NumericUpDown();
-            this.lblUserAction = new System.Windows.Forms.Label();
             this.picLinkColor = new System.Windows.Forms.PictureBox();
             this.picPin = new System.Windows.Forms.PictureBox();
-            this.picValid = new System.Windows.Forms.PictureBox();
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
+            this.lblUserAction = new System.Windows.Forms.Label();
+            this.picValid = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picLinkColor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPin)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picValid)).BeginInit();
             this.SuspendLayout();
             // 
             // toolTip
@@ -67,8 +67,8 @@
             this.nudOccurance.Size = new System.Drawing.Size(50, 20);
             this.nudOccurance.TabIndex = 23;
             this.nudOccurance.TabStop = false;
-            this.toolTip.SetToolTip(this.nudOccurance, "Set how many times this user action occures in the log.\r\nAction and Log Entry Dis" +
-        "tribution in the stresstest determines how this value will be used.");
+            this.toolTip.SetToolTip(this.nudOccurance, "Set how many times this user action occures in the log.\r\nAction Distribution in t" +
+        "he stresstest determines how this value will be used.");
             this.nudOccurance.Value = new decimal(new int[] {
             1,
             0,
@@ -76,17 +76,6 @@
             0});
             this.nudOccurance.Visible = false;
             this.nudOccurance.ValueChanged += new System.EventHandler(this.nudOccurance_ValueChanged);
-            // 
-            // lblUserAction
-            // 
-            this.lblUserAction.AutoEllipsis = true;
-            this.lblUserAction.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUserAction.Location = new System.Drawing.Point(3, 6);
-            this.lblUserAction.MinimumSize = new System.Drawing.Size(0, 13);
-            this.lblUserAction.Name = "lblUserAction";
-            this.lblUserAction.Size = new System.Drawing.Size(486, 16);
-            this.lblUserAction.TabIndex = 19;
-            this.lblUserAction.Click += new System.EventHandler(this._Enter);
             // 
             // picLinkColor
             // 
@@ -112,21 +101,9 @@
             this.picPin.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picPin.TabIndex = 22;
             this.picPin.TabStop = false;
-            this.toolTip.SetToolTip(this.picPin, "Pin this user action in place. This does nothing if the occurance equals zero! Fo" +
-        "r fast distribution the pinned user action can occur only once.");
+            this.toolTip.SetToolTip(this.picPin, "Pin this user action in place. This does nothing if the occurance equals zero!");
             this.picPin.Visible = false;
             this.picPin.Click += new System.EventHandler(this.picPin_Click);
-            // 
-            // picValid
-            // 
-            this.picValid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picValid.Location = new System.Drawing.Point(579, 6);
-            this.picValid.Name = "picValid";
-            this.picValid.Size = new System.Drawing.Size(16, 16);
-            this.picValid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.picValid.TabIndex = 20;
-            this.picValid.TabStop = false;
-            this.picValid.Click += new System.EventHandler(this._Enter);
             // 
             // picDuplicate
             // 
@@ -158,6 +135,28 @@
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
+            // lblUserAction
+            // 
+            this.lblUserAction.AutoEllipsis = true;
+            this.lblUserAction.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblUserAction.Location = new System.Drawing.Point(3, 6);
+            this.lblUserAction.MinimumSize = new System.Drawing.Size(0, 13);
+            this.lblUserAction.Name = "lblUserAction";
+            this.lblUserAction.Size = new System.Drawing.Size(486, 16);
+            this.lblUserAction.TabIndex = 19;
+            this.lblUserAction.Click += new System.EventHandler(this._Enter);
+            // 
+            // picValid
+            // 
+            this.picValid.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picValid.Location = new System.Drawing.Point(579, 6);
+            this.picValid.Name = "picValid";
+            this.picValid.Size = new System.Drawing.Size(16, 16);
+            this.picValid.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
+            this.picValid.TabIndex = 20;
+            this.picValid.TabStop = false;
+            this.picValid.Click += new System.EventHandler(this._Enter);
+            // 
             // UserActionTreeViewItem
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -176,9 +175,9 @@
             ((System.ComponentModel.ISupportInitialize)(this.nudOccurance)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picLinkColor)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picPin)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picValid)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

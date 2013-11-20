@@ -210,17 +210,19 @@ namespace vApus.DistributedTesting {
 
                 string tileStresstestToString = tstvi.TileStresstest.ToString();
                 if (!wasSelectedBefore) {
+
                     fastResultsControl.SetConfigurationControlsAndMonitorLinkButtons(tileStresstestToString, tstvi.TileStresstest.BasicTileStresstest.Connection,
-                       tstvi.TileStresstest.BasicTileStresstest.ConnectionProxy, tstvi.TileStresstest.AdvancedTileStresstest.Log, tstvi.TileStresstest.AdvancedTileStresstest.LogRuleSet,
+                       tstvi.TileStresstest.BasicTileStresstest.ConnectionProxy, tstvi.TileStresstest.AdvancedTileStresstest.Logs, tstvi.TileStresstest.AdvancedTileStresstest.LogRuleSet,
                        tstvi.TileStresstest.BasicTileStresstest.Monitors, tstvi.TileStresstest.AdvancedTileStresstest.Concurrencies, tstvi.TileStresstest.AdvancedTileStresstest.Runs,
                        tstvi.TileStresstest.AdvancedTileStresstest.MinimumDelay, tstvi.TileStresstest.AdvancedTileStresstest.MaximumDelay, tstvi.TileStresstest.AdvancedTileStresstest.Shuffle,
-                       tstvi.TileStresstest.AdvancedTileStresstest.Distribute, tstvi.TileStresstest.AdvancedTileStresstest.MonitorBefore, tstvi.TileStresstest.AdvancedTileStresstest.MonitorAfter);
+                       tstvi.TileStresstest.AdvancedTileStresstest.ActionDistribution, tstvi.TileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions, tstvi.TileStresstest.AdvancedTileStresstest.MonitorBefore, tstvi.TileStresstest.AdvancedTileStresstest.MonitorAfter);
                     fastResultsControl.ClearEvents();
 
                     if (_distributedTestCore != null) {
+                        fastResultsControl.ClearFastResults();
+
                         var testProgressMessage = _distributedTestCore.GetTestProgressMessage(tstvi.TileStresstest);
                         if (testProgressMessage.TileStresstestIndex == null) {
-                            fastResultsControl.ClearFastResults();
                             detailedResultsControl.ClearResults();
                             detailedResultsControl.Enabled = false;
                         } else {
@@ -745,8 +747,6 @@ namespace vApus.DistributedTesting {
                         if (testProgressMessages.ContainsKey(tileStresstest)) {
                             TestProgressMessage testProgressMessage = testProgressMessages[tileStresstest];
                             testProgressMessage.StresstestStatus = StresstestStatus.Error;
-#warning Setting a test progressmessage from outside the distributed test core won't work.
-                            //_distributedTestCore.GetAllTestProgressMessages()[tileStresstest] = testProgressMessage;
 
                             Handle_distributedTestCore_TestProgressMessageReceivedDelayed(tileStresstest, testProgressMessage);
                         }
@@ -884,8 +884,8 @@ namespace vApus.DistributedTesting {
                 //Build and add fast results. Do not show the updates in label if monitoring before.
                 fastResultsControl.ClearFastResults(testProgressMessage.StartedAt == DateTime.MinValue);
                 if (testProgressMessage.StresstestMetricsCache != null) {
-                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics());
-                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics());
+                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics(), true, testProgressMessage.StresstestMetricsCache.CalculatedSimplifiedMetrics);
+                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics(), false, testProgressMessage.StresstestMetricsCache.CalculatedSimplifiedMetrics);
                 }
                 var monitorResultCaches = GetMonitorResultCaches(tileStresstest);
                 foreach (var monitorResultCache in monitorResultCaches) {

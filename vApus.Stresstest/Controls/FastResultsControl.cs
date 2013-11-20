@@ -64,6 +64,8 @@ namespace vApus.Stresstest {
         //For distributed test
         private DateTime _stresstestStartedAt = DateTime.Now;
         private TimeSpan _measuredRuntime = new TimeSpan();
+
+        private bool _simplifiedMetricsReturned = false; //Only send a warning to the user once.
         #endregion
 
         #region Properties
@@ -126,19 +128,23 @@ namespace vApus.Stresstest {
 
         public void SetConfigurationControls(Stresstest stresstest) {
             SetConfigurationControlsAndMonitorLinkButtons(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy,
-                                     stresstest.Log, stresstest.LogRuleSet,
+                                     stresstest.Logs, stresstest.LogRuleSet,
                                      stresstest.Monitors, stresstest.Concurrencies, stresstest.Runs,
-                                     stresstest.MinimumDelay,
-                                     stresstest.MaximumDelay, stresstest.Shuffle, stresstest.Distribute,
+                                     stresstest.MinimumDelay, stresstest.MaximumDelay, stresstest.Shuffle,
+                                     stresstest.ActionDistribution, stresstest.MaximumNumberOfUserActions,
                                      stresstest.MonitorBefore, stresstest.MonitorAfter);
         }
-        public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, Log log, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
-                                             int runs, int minimumDelay, int maximumDelay, bool shuffle, UserActionDistribution distribute, int monitorBefore, int monitorAfter) {
+        public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, KeyValuePair<Log, uint>[] logs, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
+                                             int runs, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter) {
             kvpStresstest.Key = stresstest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
 
-            kvpLog.Key = log.ToString();
+            var logKeys = new List<Log>(logs.Length);
+            foreach (var kvp in logs)
+                logKeys.Add(kvp.Key);
+
+            kvpLog.Key = logKeys.Combine(", ");
             kvpLogRuleSet.Key = logRuleSet;
 
             lbtnStresstest.Visible = false;
@@ -175,7 +181,8 @@ namespace vApus.Stresstest {
                                   ? minimumDelay.ToString()
                                   : minimumDelay + " - " + maximumDelay) + " ms";
             kvpShuffle.Value = shuffle ? "Yes" : "No";
-            kvpDistribute.Value = distribute.ToString();
+            kvpActionDistribution.Value = actionDistribution ? "Yes" : "No";
+            kvpMaximumNumberOfUserActions.Value = maximumNumberOfUserActions == 0 ? "N/A" : maximumNumberOfUserActions.ToString();
             kvpMonitorBefore.Value = monitorBefore + (monitorBefore == 1 ? " minute" : " minutes");
             kvpMonitorAfter.Value = monitorAfter + (monitorAfter == 1 ? " minute" : " minutes");
 
@@ -302,9 +309,10 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateFastConcurrencyResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true) {
+        public void UpdateFastConcurrencyResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
             _concurrencyStresstestMetrics = metrics;
-            _concurrencyStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
+            _simplifiedMetricsReturned = simplified;
+            _concurrencyStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
             if (cboDrillDown.SelectedIndex == 0 && lbtnStresstest.Active) {
                 int count = _concurrencyStresstestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
@@ -344,9 +352,10 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateFastRunResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true) {
+        public void UpdateFastRunResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
             _runStresstestMetrics = metrics;
-            _runStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
+            _simplifiedMetricsReturned = simplified;
+            _runStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
             if (cboDrillDown.SelectedIndex == 1) {
                 int count = _runStresstestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
@@ -422,12 +431,15 @@ namespace vApus.Stresstest {
         private void SetMeasuredRuntime() {
             epnlMessages.SetEndOfTimeFrameToNow();
             _measuredRuntime = epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame;
-            lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString();
+            if (_measuredRuntime.TotalSeconds > 1)
+                lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString();
         }
         public void SetMeasuredRuntime(TimeSpan measuredRuntime) {
             epnlMessages.SetEndOfTimeFrameTo(epnlMessages.BeginOfTimeFrame + measuredRuntime);
-            string s = "; ran " + measuredRuntime.ToShortFormattedString();
-            if (lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
+            if (measuredRuntime.TotalSeconds > 1) {
+                string s = "; ran " + measuredRuntime.ToShortFormattedString();
+                if (lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
+            }
         }
 
         private void btnRerunning_Click(object sender, EventArgs e) {
@@ -634,9 +646,15 @@ namespace vApus.Stresstest {
 
             //Set the rows.
             if (lbtnStresstest.Active)
-                if (cboDrillDown.SelectedIndex == 0) UpdateFastConcurrencyResults(_concurrencyStresstestMetrics, false); else UpdateFastRunResults(_runStresstestMetrics, false);
+                if (cboDrillDown.SelectedIndex == 0)
+                    UpdateFastConcurrencyResults(_concurrencyStresstestMetrics, false, _simplifiedMetricsReturned);
+                else
+                    UpdateFastRunResults(_runStresstestMetrics, false, _simplifiedMetricsReturned);
             else if (monitorToString != null)
-                if (cboDrillDown.SelectedIndex == 0) UpdateFastConcurrencyResults(monitorToString, _concurrencyMonitorMetrics[monitorToString]); else UpdateFastRunResults(monitorToString, _runMonitorMetrics[monitorToString]);
+                if (cboDrillDown.SelectedIndex == 0)
+                    UpdateFastConcurrencyResults(monitorToString, _concurrencyMonitorMetrics[monitorToString]);
+                else
+                    UpdateFastRunResults(monitorToString, _runMonitorMetrics[monitorToString]);
         }
 
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {

@@ -77,7 +77,7 @@ namespace vApus.DetailedResultsViewer {
             dgvDatabases.DataSource = null;
             cboStresstest.Items.Clear();
             cboStresstest.Enabled = false;
-            btnDeleteListedDbs.Enabled = false;
+            btnDeleteSelectedDbs.Enabled = false;
             if (databaseActions == null || setAvailableTags) filterResults.ClearAvailableTags();
             if (databaseActions == null) {
                 if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
@@ -85,7 +85,7 @@ namespace vApus.DetailedResultsViewer {
                 if (setAvailableTags) filterResults.SetAvailableTags(databaseActions);
                 FillDatabasesDataGridView(databaseActions);
                 cboStresstest.Enabled = true;
-                btnDeleteListedDbs.Enabled = _dataSource.Rows.Count != 0;
+                btnDeleteSelectedDbs.Enabled = _dataSource.Rows.Count != 0;
             }
         }
         private DatabaseActions SetServerConnectStateInGui() {
@@ -113,7 +113,7 @@ namespace vApus.DetailedResultsViewer {
                 dgvDatabases.DataSource = null;
                 string[] filter = filterResults.Filter;
                 _dataSource = new DataTable("dataSource");
-                _dataSource.Columns.Add("CreatedAt");
+                _dataSource.Columns.Add("CreatedAt", typeof(DateTime));
                 _dataSource.Columns.Add("Tags");
                 _dataSource.Columns.Add("Description");
                 _dataSource.Columns.Add("Database");
@@ -227,20 +227,27 @@ namespace vApus.DetailedResultsViewer {
 
                     } else if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
                 } else {
-                    cboStresstest.Items.Add("<All>");
-                    foreach (DataRow stresstestRow in stresstests.Rows)
-                        cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
+                    if (stresstests.Rows.Count == 1) {
+                        cboStresstest.Items.Add((string)stresstests.Rows[0].ItemArray[1] + " " + stresstests.Rows[0].ItemArray[2]);
 
-                    cboStresstest.SelectedIndex = 1;
+                        cboStresstest.SelectedIndex = 0;
+                    } else {
+                        cboStresstest.Items.Add("<All>");
+                        foreach (DataRow stresstestRow in stresstests.Rows)
+                            cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
 
-                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, cboStresstest.SelectedIndex));
+                        cboStresstest.SelectedIndex = 1;
+                    }
+                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, 1));
                 }
 
                 cboStresstest.SelectedIndexChanged += cboStresstest_SelectedIndexChanged;
             }, null);
         }
         private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
-            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, cboStresstest.SelectedIndex));
+            int stresstestId = cboStresstest.SelectedIndex;
+            if (cboStresstest.Items.Count == 1) ++stresstestId;
+            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, stresstestId));
         }
 
         private class FilterDatabasesWorkItem {
@@ -337,18 +344,16 @@ namespace vApus.DetailedResultsViewer {
             }
         }
 
-        async private void btnDeleteListedDbs_Click(object sender, EventArgs e) {
+        async private void btnDeleteSelectedDbs_Click(object sender, EventArgs e) {
             if (_resultsHelper != null &&
-                MessageBox.Show("Are you sure you want to delete the listed results databases?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
+                MessageBox.Show("Are you sure you want to delete the selected results databases?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
                 Cursor = Cursors.WaitCursor;
 
                 var toDelete = new ConcurrentBag<string>();
-                foreach (DataRow row in _dataSource.Rows) {
+                foreach (DataGridViewRow row in dgvDatabases.SelectedRows) {
+                    string db = row.Cells[3].Value as string;
                     await Task.Run(() => {
-                        try {
-                            _resultsHelper.DeleteResults(row[3] as string);
-                        } catch {
-                        }
+                        try { _resultsHelper.DeleteResults(db); } catch { }
                     });
                 }
 

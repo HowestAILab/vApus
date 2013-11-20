@@ -168,12 +168,14 @@ namespace vApus.SolutionTree {
         private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueChangedEventArgs e) { if (Solution.ActiveSolution != null)  SetValue(e.Index, e.NewValue, e.OldValue, true); }
 
         private void SetValue(int index, object newValue, object oldValue, bool invokeEvent) {
+            if (Parent == null || Parent.IsDisposed || Parent.Disposing) return;
+
             //Nothing can be null, this is solved this way.
             if (oldValue is BaseItem && newValue == null) {
                 if ((oldValue as BaseItem).IsEmpty)
                     return;
                 BaseItem empty = BaseItem.GetEmpty(oldValue.GetType(), oldValue.GetParent() as SolutionComponent);
-                empty.SetParent(oldValue.GetParent());
+                empty.SetParent(oldValue.GetParent(), false);
                 _properties[index].SetValue(_solutionComponent, empty, null);
             } else {
                 _properties[index].SetValue(_solutionComponent, newValue, null);

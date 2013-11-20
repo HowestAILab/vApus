@@ -110,6 +110,7 @@ namespace vApus.DistributedTesting {
         public int ThreadsInUse;
         public string TileStresstestIndex;
         public StresstestMetricsCache StresstestMetricsCache;
+        public bool SimplifiedMetrics;
 
         /// <summary>
         ///     in MB
