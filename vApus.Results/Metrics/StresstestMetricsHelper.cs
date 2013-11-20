@@ -304,7 +304,7 @@ namespace vApus.Results {
             var uniqueUserActions = new List<string>();
             TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
             foreach (LogEntryResult logEntryResult in result.LogEntryResults)
-                if (logEntryResult != null) {
+                if (logEntryResult != null && logEntryResult.VirtualUser != null) {
                     ++metrics.LogEntriesProcessed;
                     if (!uniqueUserActions.Contains(logEntryResult.UserAction)) uniqueUserActions.Add(logEntryResult.UserAction);
 
@@ -336,7 +336,7 @@ namespace vApus.Results {
             metrics.LogEntries = result.LogEntryResults.LongLength;
 
             foreach (LogEntryResult logEntryResult in result.LogEntryResults)
-                if (logEntryResult != null) {
+                if (logEntryResult != null && logEntryResult.VirtualUser != null) {
                     ++metrics.LogEntriesProcessed;
                     if (!string.IsNullOrEmpty(logEntryResult.Error)) ++metrics.Errors;
                 }

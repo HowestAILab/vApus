@@ -329,7 +329,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         if (virtualUserResult != null) {
                             var rowsToInsert = new List<string>(); //Insert multiple values at once.
                             foreach (var logEntryResult in virtualUserResult.LogEntryResults)
-                                if (logEntryResult != null) {
+                                if (logEntryResult != null && logEntryResult.VirtualUser != null) {
                                     var sb = new StringBuilder("('");
                                     sb.Append(_runResultId);
                                     sb.Append("', '");
@@ -1218,7 +1218,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 //We don't want duplicates
-                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1' AND CHAR_LENGTH(SameAsLogEntryIndex)=0", (int)rrRow.ItemArray[0], 
+                                var logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1' AND CHAR_LENGTH(SameAsLogEntryIndex)=0", (int)rrRow.ItemArray[0],
                                     "UserAction", "LogEntry");
                                 if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
