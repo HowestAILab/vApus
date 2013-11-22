@@ -984,15 +984,16 @@ namespace vApus.Stresstest {
                 _sleepWaitHandle.Set();
                 _runSynchronizationContinueWaitHandle.Set();
                 _manyToOneWaitHandle.Set();
-                DisposeThreadPool();
                 if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
+                DisposeThreadPool();
+                if (_connectionProxyPool != null) _connectionProxyPool.Dispose();
             }
         }
         private StresstestStatus Completed() {
             _completed = true;
-            _connectionProxyPool.ShutDown();
+            if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
             DisposeThreadPool();
-            _connectionProxyPool.Dispose();
+            if (_connectionProxyPool != null) _connectionProxyPool.Dispose();
 
             if (_cancel) {
                 _resultsHelper.SetStresstestStopped(_stresstestResult, "Cancelled");
@@ -1006,7 +1007,7 @@ namespace vApus.Stresstest {
             return StresstestStatus.Ok;
         }
         private void DisposeThreadPool() {
-            if (_threadPool != null) try { _threadPool.Dispose(100); } catch { }
+            if (_threadPool != null) try { _threadPool.Dispose(); } catch { }
             _threadPool = null;
         }
         #endregion

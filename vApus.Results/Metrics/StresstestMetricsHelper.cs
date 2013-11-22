@@ -110,7 +110,7 @@ namespace vApus.Results {
                     if (calculate95thPercentileResponseTimes) {
                         foreach (var vur in runResult.VirtualUserResults)
                             foreach (var ler in vur.LogEntryResults)
-                                if (ler != null) {
+                                if (ler != null && ler.VirtualUser != null) {
                                     long lerTimeToLastByteInTicks = ler.TimeToLastByteInTicks;
                                     for (int i = 0; i != timesToLastByteInTicks.Count; i++)
                                         if (timesToLastByteInTicks[i] < lerTimeToLastByteInTicks) {
@@ -236,7 +236,7 @@ namespace vApus.Results {
 
                     if (calculate95thPercentileResponseTimes) {
                         foreach (var ler in virtualUserResult.LogEntryResults)
-                            if (ler != null) {
+                            if (ler != null && ler.VirtualUser != null) {
                                 for (int i = 0; i != timesToLastByteInTicks.Count; i++)
                                     if (timesToLastByteInTicks[i] < ler.TimeToLastByteInTicks) {
                                         timesToLastByteInTicks.Insert(i, ler.TimeToLastByteInTicks);
@@ -376,7 +376,8 @@ namespace vApus.Results {
                                     if (logEntryResults != null) {
                                         for (int ler = 0; ler != logEntryResults.Length; ler++) {
                                             ++logEntries;
-                                            if (logEntryResults[ler] != null) ++logEntriesProcessed;
+                                            var logEntryResult = logEntryResults[ler];
+                                            if (logEntryResult != null && logEntryResult.VirtualUser != null) ++logEntriesProcessed;
                                         }
                                     }
                                 }

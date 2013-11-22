@@ -57,11 +57,14 @@ namespace vApus.Util {
                 //Use text changed rather then value changed, value changed is not invoked when the text is changed.
                 nud.Leave += nud_Leave;
                 nud.KeyUp += nud_KeyUp;
+                nud.ValueChanged += nud_ValueChanged;
             } else {
                 nud = base.ValueControl as FixedNumericUpDown;
             }
 
+            nud.ValueChanged -= nud_ValueChanged;
             nud.Value = Convert.ToDecimal(value.__Value);
+            nud.ValueChanged += nud_ValueChanged;
 
             base.ValueControl = nud;
         }
@@ -72,6 +75,13 @@ namespace vApus.Util {
         }
 
         private void nud_Leave(object sender, EventArgs e) {
+            try {
+                var nud = sender as FixedNumericUpDown;
+                base.HandleValueChanged(ConvertToNumericType(nud.Value));
+            } catch {
+            }
+        }
+        private void nud_ValueChanged(object sender, EventArgs e) {
             try {
                 var nud = sender as FixedNumericUpDown;
                 base.HandleValueChanged(ConvertToNumericType(nud.Value));

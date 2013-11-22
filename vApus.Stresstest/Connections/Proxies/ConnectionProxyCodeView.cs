@@ -16,8 +16,6 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class ConnectionProxyCodeView : BaseSolutionComponentView {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
 
         #region Fields
 
@@ -73,7 +71,7 @@ namespace vApus.Stresstest {
             references.CodeTextBox = codeTextBox;
             find.CodeTextBox = codeTextBox;
             compile.ConnectionProxyCode = _connectionProxyCode;
-
+            codeTextBox.DelayedTextChangedInterval = 200;
             codeTextBox.TextChangedDelayed += codeTextBox_TextChangedDelayed;
         }
 
@@ -81,8 +79,9 @@ namespace vApus.Stresstest {
             if (_codeInitialized) {
                 if (_connectionProxyCode.Code != codeTextBox.Text) {
                     _connectionProxyCode.Code = codeTextBox.Text;
-                    _connectionProxyCode.InvokeSolutionComponentChangedEvent(
-                        SolutionComponentChangedEventArgs.DoneAction.Edited);
+                    _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                    if (!this.IsActivated) this.Activate();
+                    codeTextBox.Focus();
                 }
             } else {
                 _codeInitialized = true;

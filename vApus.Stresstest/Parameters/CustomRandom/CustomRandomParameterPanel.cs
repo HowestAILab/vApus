@@ -45,6 +45,7 @@ namespace vApus.Stresstest {
             ctxtGenerate.ShowLineNumbers = true;
             _csharpTextStyle = new CSharpTextStyle(ctxtGenerate);
             ctxtGenerate.Text = Parameter.Code;
+            ctxtGenerate.DelayedTextChangedInterval = 200;
             ctxtGenerate.TextChangedDelayed += ctxtGenerate_TextChangedDelayed;
 
             chkUnique.CheckedChanged -= chkUnique_CheckedChanged;

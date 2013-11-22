@@ -10,15 +10,16 @@ using FastColoredTextBoxNS;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
 namespace vApus.Stresstest {
     public partial class ReferencesPanel : UserControl {
-        private AddReferencesDialog _addReferences;
 
         #region Fields
 
+        private AddReferencesDialog _addReferences;
         private CodeTextBox _codeTextBox;
 
         #endregion
@@ -30,6 +31,7 @@ namespace vApus.Stresstest {
             set {
                 _codeTextBox = value;
                 SetGui();
+                _codeTextBox.DelayedTextChangedInterval = 200;
                 _codeTextBox.TextChangedDelayed += _codeTextBox_TextChangedDelayed;
             }
         }
@@ -46,6 +48,7 @@ namespace vApus.Stresstest {
                         filenames.AddRange(references.Split(new[] { ';' }, StringSplitOptions.RemoveEmptyEntries));
                 }
 
+                filenames.Sort();
                 return filenames;
             }
             set {
@@ -82,20 +85,40 @@ namespace vApus.Stresstest {
 
         #region Functions
 
-        private void _codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e) {
-            SetGui();
-        }
+        private void _codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e) { SetGui(); }
 
         private void SetGui() {
-            lvwReferences.Items.Clear();
             List<string> filenames = Filenames;
-            foreach (string reference in filenames) {
-                ListViewItem item = lvwReferences.Items.Add(reference);
-                item.Name = reference;
+            List<string> oldFilenames = new List<string>(lvwReferences.Items.Count);
+
+            bool hasChanged = false;
+            foreach (ListViewItem item in lvwReferences.Items) {
+                string oldFilename = item.Name;
+                oldFilenames.Add(oldFilename);
+                if (!filenames.Contains(oldFilename)) {
+                    hasChanged = true;
+                    break;
+                }
             }
 
-            if (lvwReferences.SelectedIndices.Count == 0 && lvwReferences.Items.Count != 0)
-                lvwReferences.Items[0].Selected = true;
+            if (!hasChanged)
+                foreach (string newfilename in filenames) {
+                    if (!oldFilenames.Contains(newfilename)) {
+                        hasChanged = true;
+                        break;
+                    }
+                }
+
+            if (hasChanged) {
+                lvwReferences.Items.Clear();
+                foreach (string filename in filenames) {
+                    ListViewItem item = lvwReferences.Items.Add(filename);
+                    item.Name = filename;
+                }
+
+                if (lvwReferences.SelectedIndices.Count == 0 && lvwReferences.Items.Count != 0)
+                    lvwReferences.Items[0].Selected = true;
+            }
         }
 
         private void btnAdd_Click(object sender, EventArgs e) {

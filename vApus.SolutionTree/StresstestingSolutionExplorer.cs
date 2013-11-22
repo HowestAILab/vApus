@@ -49,9 +49,11 @@ namespace vApus.SolutionTree {
             //Node == null can occur when closing a solution (the leave from commmon property controls will result in calling this method).
             if (node != null) {
                 bool succes = true;
-                node.Text = node.Tag.ToString();
-                SetTreeNodeImage(node);
-                node.Expand();
+                string text = node.Tag.ToString();
+                if (node.Text != text) node.Text = text;
+                if(node.ImageIndex == -1) SetTreeNodeImage(node);
+
+                if (!node.IsExpanded && node.Nodes.Count != 0) node.Expand();
                 foreach (TreeNode childNode in node.Nodes)
                     if (!RefreshChildNode(childNode))
                         succes = false;
@@ -62,8 +64,10 @@ namespace vApus.SolutionTree {
 
         private bool RefreshChildNode(TreeNode childNode) {
             if (childNode != null) {
-                childNode.Text = childNode.Tag.ToString();
-                SetTreeNodeImage(childNode);
+                string text = childNode.Tag.ToString();
+                if (childNode.Text != text) childNode.Text = text;
+                if (childNode.ImageIndex == -1) SetTreeNodeImage(childNode);
+
                 foreach (TreeNode node in childNode.Nodes)
                     RefreshChildNode(node);
                 return true;

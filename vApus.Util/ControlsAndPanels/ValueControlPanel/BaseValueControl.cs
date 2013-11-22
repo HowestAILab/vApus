@@ -24,9 +24,6 @@ namespace vApus.Util {
     /// </summary>
     [ToolboxItem(false)]
     public partial class BaseValueControl : UserControl {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         public event EventHandler<ValueChangedEventArgs> ValueChanged;
 
         #region Enums
@@ -157,15 +154,11 @@ namespace vApus.Util {
         }
 
         private void _collapsedTextBox_GotFocus(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
-
             if (Parent != null)
                 foreach (Control control in Parent.Controls)
                     if (control != this && control is BaseValueControl)
                         (control as BaseValueControl).Toggle(ToggleState.Collapse);
             Toggle(ToggleState.Expand);
-
-            LockWindowUpdate(0);
         }
 
         #region Toggle
@@ -181,7 +174,7 @@ namespace vApus.Util {
                 BackColor = Color.LightBlue;
                 if (_locked) {
                     split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
-                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : rtxtDescription.Height;
+                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : 52;
                     ValueControl.Visible = false;
                     SetCollapsedTextBoxText();
                     if (!split.Panel1.Controls.Contains(_collapsedTextBox))
@@ -191,7 +184,7 @@ namespace vApus.Util {
                 } else {
                     split.Panel1.Controls.Remove(_collapsedTextBox);
                     split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
-                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : rtxtDescription.Height;
+                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : 52;
                     ValueControl.Visible = true;
                     splitterDistance = ValueControl.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom +
                                        ValueControl.Margin.Bottom + ValueControl.Margin.Top;
@@ -223,7 +216,7 @@ namespace vApus.Util {
             }
             split.Height = split.Panel2Collapsed
                                ? splitterDistance
-                               : splitterDistance + split.SplitterWidth + rtxtDescription.Height +
+                               : splitterDistance + split.SplitterWidth + 52 +
                                  rtxtDescription.Margin.Top + rtxtDescription.Margin.Bottom;
             split.SplitterDistance = splitterDistance;
             Height = split.Top + split.Height;
