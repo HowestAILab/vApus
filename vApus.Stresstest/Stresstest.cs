@@ -299,7 +299,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("A static multiplier of the runtime for each concurrency. Must be greater than zero.")]
-        [SavableCloneable, PropertyControl(4)]
+        [SavableCloneable, PropertyControl(4, 1, int.MaxValue)]
         public int Runs {
             get { return _runs; }
             set {
@@ -310,7 +310,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(5, true)]
+        [PropertyControl(5, true, 0)]
         public int MinimumDelay {
             get { return _minimumDelay; }
             set {
@@ -332,7 +332,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(6, true)]
+        [PropertyControl(6, true, 0)]
         public int MaximumDelay {
             get { return _maximumDelay; }
             set {
@@ -370,7 +370,7 @@ namespace vApus.Stresstest {
 
         [Description("The maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum Number of User Actions")]
-        [SavableCloneable, PropertyControl(9, true)]
+        [SavableCloneable, PropertyControl(9, true, 0)]
         public int MaximumNumberOfUserActions {
             get { return _maximumNumberOfUserActions; }
             set {
@@ -382,7 +382,7 @@ namespace vApus.Stresstest {
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."),
          DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(10, true)]
+        [SavableCloneable, PropertyControl(10, true, 0)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -396,7 +396,7 @@ namespace vApus.Stresstest {
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."),
          DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(11, true)]
+        [SavableCloneable, PropertyControl(11, true, 0)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {

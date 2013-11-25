@@ -174,7 +174,6 @@ namespace vApus.Util {
                 BackColor = Color.LightBlue;
                 if (_locked) {
                     split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
-                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : 52;
                     ValueControl.Visible = false;
                     SetCollapsedTextBoxText();
                     if (!split.Panel1.Controls.Contains(_collapsedTextBox))
@@ -184,7 +183,6 @@ namespace vApus.Util {
                 } else {
                     split.Panel1.Controls.Remove(_collapsedTextBox);
                     split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
-                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : 52;
                     ValueControl.Visible = true;
                     splitterDistance = ValueControl.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom +
                                        ValueControl.Margin.Bottom + ValueControl.Margin.Top;
@@ -243,20 +241,21 @@ namespace vApus.Util {
 
 
             object value = _value.__Value;
-            if (value == null)
-                value = string.Empty;
+            if (value == null) value = string.Empty;
+
+            string text = string.Empty;
             if (value is Enum) {
                 var attr =
                     value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false)
                     as DescriptionAttribute[];
-                _collapsedTextBox.Text = attr.Length != 0 ? attr[0].Description : value.ToString();
+                text = attr.Length != 0 ? attr[0].Description : value.ToString();
             } else if (ValueControl is ComboBox) {
                 try {
-                    _collapsedTextBox.Text = value.ToString();
+                    text = value.ToString();
                 } catch {
                 }
             } else if (value is string) {
-                _collapsedTextBox.Text = value as string;
+                text = value as string;
             } else if (value is IEnumerable) {
                 var collection = value as IEnumerable;
                 IEnumerator enumerator = collection.GetEnumerator();
@@ -267,12 +266,13 @@ namespace vApus.Util {
                         sb.Append(enumerator.Current);
                         sb.Append(", ");
                     }
-                _collapsedTextBox.Text = sb.ToString();
-                if (_collapsedTextBox.Text.Length != 0)
-                    _collapsedTextBox.Text = _collapsedTextBox.Text.Substring(0, _collapsedTextBox.Text.Length - 2);
+                text = sb.ToString();
+                if (text.Length != 0)
+                    text = text.Substring(0, text.Length - 2);
             } else {
-                _collapsedTextBox.Text = value.ToString();
+                text = value.ToString();
             }
+            _collapsedTextBox.Text = text;
         }
 
         #endregion
@@ -310,6 +310,11 @@ namespace vApus.Util {
             public bool IsReadOnly;
             public string Label;
             public object __Value;
+
+            /// <summary>
+            /// Only for integer values.
+            /// </summary>
+            public int AllowedMinimum, AllowedMaximum;
 
             public override string ToString() {
                 return __Value.ToString();

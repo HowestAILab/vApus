@@ -104,10 +104,11 @@ namespace vApus.SolutionTree {
 
                 //Get and sort all valid properties.
                 _properties = new List<PropertyInfo>();
+                var minAndMaxs = new Dictionary<PropertyInfo, KeyValuePair<int, int>>();
                 foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties()) {
                     object[] attributes = propertyInfo.GetCustomAttributes(typeof(PropertyControlAttribute), true);
                     PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
-                    if (propertyControlAttribute != null)
+                    if (propertyControlAttribute != null) {
                         if (propertyControlAttribute.AdvancedProperty) {
                             showHideAdvancedSettingsControl = true;
                             if (_showAdvancedSettings) //Show advanced settings only if chosen to.
@@ -115,6 +116,9 @@ namespace vApus.SolutionTree {
                         } else {
                             _properties.Add(propertyInfo);
                         }
+
+                        minAndMaxs.Add(propertyInfo, new KeyValuePair<int, int>(propertyControlAttribute.AllowedMinimum, propertyControlAttribute.AllowedMaximum));
+                    }
                 }
                 _properties.Sort(PropertyInfoComparer.GetInstance());
                 _properties.Sort(PropertyControlAttributeDisplayIndexComparer.GetInstance());
@@ -144,12 +148,16 @@ namespace vApus.SolutionTree {
                     attributes = propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
                     bool isEncrypted = (attributes.Length != 0 && (attributes[0] as SavableCloneableAttribute).Encrypt);
 
+                    var minAndMax = minAndMaxs[propertyInfo];
+
                     values[i] = new BaseValueControl.Value {
                         __Value = value,
                         Description = description,
                         IsEncrypted = isEncrypted,
                         IsReadOnly = isReadOnly,
-                        Label = label
+                        Label = label,
+                        AllowedMinimum = minAndMax.Key,
+                        AllowedMaximum = minAndMax.Value
                     };
                 }
 

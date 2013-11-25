@@ -31,8 +31,8 @@ namespace vApus.Util {
                     nud.Minimum = short.MinValue;
                     nud.Maximum = short.MaxValue;
                 } else if (value.__Value is int) {
-                    nud.Minimum = int.MinValue;
-                    nud.Maximum = int.MaxValue;
+                    nud.Minimum = value.AllowedMinimum;
+                    nud.Maximum = value.AllowedMaximum;
                 } else if (value.__Value is long) {
                     nud.Minimum = long.MinValue;
                     nud.Maximum = long.MaxValue;

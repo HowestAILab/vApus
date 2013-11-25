@@ -518,7 +518,8 @@ namespace vApus.SolutionTree {
             try {
                 if (SolutionComponentChanged != null && Solution.ActiveSolution != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                        try { SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch { }
+                        try { SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch {
+                        }
                     }, null);
             } catch { }
         }

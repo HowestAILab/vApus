@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Util;
@@ -18,6 +19,8 @@ namespace vApus.SolutionTree {
     /// Contains a treeview and displays all solution components where ShowInGui == true. Adds images, context menu's and hotkeys.
     /// </summary>
     public partial class StresstestingSolutionExplorer : DockablePanel {
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(int hWnd);
 
         #region Fields
         private Keys _hotkey = Keys.None;
@@ -215,6 +218,8 @@ namespace vApus.SolutionTree {
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            LockWindowUpdate(this.Handle.ToInt32());
+
             var solutionComponent = sender as SolutionComponent;
             TreeNode node;
             switch (e.__DoneAction) {
@@ -261,6 +266,8 @@ namespace vApus.SolutionTree {
                     }
                     break;
             }
+
+            LockWindowUpdate(0);
         }
 
         public TreeNode FindNodeByTag(SolutionComponent tag) {

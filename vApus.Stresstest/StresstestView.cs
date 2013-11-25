@@ -633,6 +633,7 @@ namespace vApus.Stresstest {
         }
 
         private void btnStop_Click(object sender, EventArgs e) {
+            btnStop.Enabled = false;
             if (_stresstestCore == null || (_monitorAfterCountDown != null && _monitorAfterCountDown.CountdownTime != 0)) {
                 Stop(StresstestStatus.Cancelled);
             } else if (_monitorBeforeCountDown != null && _monitorBeforeCountDown.CountdownTime != 0) {

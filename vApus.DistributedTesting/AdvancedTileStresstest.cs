@@ -172,7 +172,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("A static multiplier of the runtime for each concurrency level. Must be greater than zero.")]
-        [SavableCloneable, PropertyControl(2)]
+        [SavableCloneable, PropertyControl(2, 1, int.MaxValue)]
         public int Runs {
             get { return _runs; }
             set {
@@ -183,7 +183,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(3)]
+        [PropertyControl(3, 0, int.MaxValue)]
         public int MinimumDelay {
             get { return _minimumDelay; }
             set {
@@ -205,7 +205,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(4)]
+        [PropertyControl(4, 0, int.MaxValue)]
         public int MaximumDelay {
             get { return _maximumDelay; }
             set {
@@ -243,7 +243,7 @@ namespace vApus.DistributedTesting {
 
         [Description("This sets the maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum Number of User Actions")]
-        [SavableCloneable, PropertyControl(7)]
+        [SavableCloneable, PropertyControl(7, 0, int.MaxValue)]
         public int MaximumNumberOfUserActions {
             get { return _maximumNumberOfUserActions; }
             set {
@@ -254,7 +254,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(8)]
+        [SavableCloneable, PropertyControl(8, 0, int.MaxValue)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -267,7 +267,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(9)]
+        [SavableCloneable, PropertyControl(9, 0, int.MaxValue)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
