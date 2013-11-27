@@ -20,6 +20,7 @@ namespace vApus.Stresstest {
     [Hotkeys(new[] { "Activate_Click" }, new[] { Keys.Enter })]
     [DisplayName("Connection Proxy Code"), Serializable]
     public class ConnectionProxyCode : BaseItem, ISerializable {
+
         #region Fields
 
         private const string DEFAULTCODE =
@@ -225,11 +226,10 @@ namespace vApus.Stresstest {
         public ConnectionProxyCode(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
                 _code = sr.ReadString();
             }
             sr = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
 
         #endregion
@@ -248,8 +248,6 @@ namespace vApus.Stresstest {
                 sw.AddToInfo(info);
             }
             sw = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
 
         public string BuildConnectionProxyClass(ConnectionProxyRuleSet connectionProxyRuleSet, string connectionString) {

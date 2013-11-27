@@ -8,6 +8,9 @@
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
+using System.IO.Packaging;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -528,6 +531,7 @@ namespace vApus.DistributedTesting {
         public static Exception InitializeTests(Dictionary<TileStresstest, TileStresstest> dividedAndOriginalTileStresstests, List<int> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             Exception exception = null;
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStresstests.Count];
+            var functionOutputCache = new FunctionOutputCache();
 
             int tileStresstestIndex = 0;
             foreach (var tileStresstest in dividedAndOriginalTileStresstests.Keys) {
@@ -546,13 +550,15 @@ namespace vApus.DistributedTesting {
                         pushIPs.Add(ipAddress.ToString());
                 }
                 var initializeTestMessage = new InitializeTestMessage() {
-                    StresstestWrapper = tileStresstest.GetStresstestWrapper(stresstestIdsInDb[tileStresstestIndex], databaseName, runSynchronization, maxRerunsBreakOnLast),
+                    StresstestWrapper = tileStresstest.GetStresstestWrapper(functionOutputCache, stresstestIdsInDb[tileStresstestIndex], databaseName, runSynchronization, maxRerunsBreakOnLast),
                     PushIPs = pushIPs.ToArray(), PushPort = masterSocketWrapper.Port
                 };
 
                 initializeTestData[tileStresstestIndex] = new InitializeTestWorkItem.InitializeTestData() { SocketWrapper = socketWrapper, InitializeTestMessage = initializeTestMessage };
                 ++tileStresstestIndex;
             }
+            functionOutputCache.Dispose();
+            functionOutputCache = null;
 
             if (initializeTestData.Length != 0 && exception == null) {
                 AutoResetEvent waitHandle = new AutoResetEvent(false);
@@ -587,7 +593,6 @@ namespace vApus.DistributedTesting {
                 waitHandle.Dispose();
                 waitHandle = null;
             }
-            GC.Collect();
 
             return exception;
         }
@@ -712,13 +717,15 @@ namespace vApus.DistributedTesting {
                 try {
                     var socketWrapper = initializeTestData.SocketWrapper;
                     var initializeTestMessage = initializeTestData.InitializeTestMessage;
+
                     var message = new Message<Key>(Key.InitializeTest, initializeTestMessage);
 
                     //Increases the buffer size, never decreases it.
-                    SynchronizeBuffers(socketWrapper, message);
+                    byte[] buffer = SynchronizeBuffers(socketWrapper, message);
 
-                    socketWrapper.Send(message, SendType.Binary);
+                    socketWrapper.SendBytes(buffer);
                     message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
+                    buffer = null;
 
                     initializeTestMessage = (InitializeTestMessage)message.Content;
 
@@ -742,7 +749,7 @@ namespace vApus.DistributedTesting {
             /// </summary>
             /// <param name="socketWrapper"></param>
             /// <param name="toSend"></param>
-            private void SynchronizeBuffers(SocketWrapper socketWrapper, object toSend) {
+            private byte[] SynchronizeBuffers(SocketWrapper socketWrapper, object toSend) {
                 byte[] buffer = socketWrapper.ObjectToByteArray(toSend);
                 int bufferSize = buffer.Length;
                 if (bufferSize > socketWrapper.SendBufferSize) {
@@ -759,6 +766,7 @@ namespace vApus.DistributedTesting {
                     socketWrapper.Receive(SendType.Binary);
                     socketWrapper.ReceiveTimeout = receiveTimeout;
                 }
+                return buffer;
             }
             /// <summary>
             /// Set the buffer size to the default buffer size (SocketWrapper.DEFAULTBUFFERSIZE).

@@ -71,7 +71,7 @@ namespace vApus.Monitor {
 
                     string description = parameter.Description;
                     if (parameter.DefaultValue.ToString().Length != 0)
-                        description += "[Default Value: '" + parameter.DefaultValue + "']";
+                        description += " [Default Value: '" + parameter.DefaultValue + "']";
                     if (!parameter.Optional)
                         description += " [Obligatory]";
 
@@ -80,7 +80,9 @@ namespace vApus.Monitor {
                         Description = description,
                         IsEncrypted = parameter.Encrypted,
                         IsReadOnly = false,
-                        Label = parameter.Name
+                        Label = parameter.Name,
+                        AllowedMaximum = int.MaxValue,
+                        AllowedMinimum = int.MinValue
                     });
                 }
                 base.SetValues(values.ToArray());

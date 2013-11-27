@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -18,7 +19,7 @@ namespace vApus.Stresstest {
     /// Contains log entries.
     /// </summary>
     [DisplayName("User Action"), Serializable]
-    public class UserAction : LabeledBaseItem {
+    public class UserAction : LabeledBaseItem, ISerializable {
 
         #region Fields
         private int _occurance = 1;
@@ -121,7 +122,20 @@ namespace vApus.Stresstest {
             : this() {
             Label = label;
         }
+        public UserAction(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _occurance = sr.ReadInt32();
+                Pinned = sr.ReadBoolean();
+                _useDelay = sr.ReadBoolean();
+                _linkedToUserActionIndices = sr.ReadCollection<int>(_linkedToUserActionIndices) as List<int>;
 
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+            }
+            sr = null;
+        }
         #endregion
 
         #region Functions
@@ -342,5 +356,20 @@ namespace vApus.Stresstest {
             return userAction;
         }
         #endregion
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_occurance);
+                sw.Write(Pinned);
+                sw.Write(_useDelay);
+                sw.Write(_linkedToUserActionIndices);
+
+                sw.Write(this);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+        }
     }
 }

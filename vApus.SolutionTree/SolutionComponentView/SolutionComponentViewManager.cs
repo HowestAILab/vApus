@@ -39,6 +39,9 @@ namespace vApus.SolutionTree {
 
         private static void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (_activeSolution != Solution.ActiveSolution) {
+                _activeSolution = null;
+                GC.Collect();
+
                 _activeSolution = Solution.ActiveSolution;
                 DisposeViews();
             }
@@ -56,8 +59,7 @@ namespace vApus.SolutionTree {
             _solutionComponentViews.Clear();
         }
 
-        private static void SolutionComponent_SolutionComponentChanged(object sender,
-                                                                       SolutionComponentChangedEventArgs e) {
+        private static void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             SolutionComponent solutionComponent;
             switch (e.__DoneAction) {
                 case SolutionComponentChangedEventArgs.DoneAction.Added:

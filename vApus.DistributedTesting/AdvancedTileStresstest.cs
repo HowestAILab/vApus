@@ -326,7 +326,7 @@ namespace vApus.DistributedTesting {
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             try {
-                if (sender != null && Parent != null &&
+                if (sender != null && sender != this && Parent != null &&
                     (sender == Parent.GetParent().GetParent().GetParent() ||
                      sender == Parent || sender == (Parent as TileStresstest).DefaultAdvancedSettingsTo)) {
                     var parent = Parent as TileStresstest;

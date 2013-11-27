@@ -8,19 +8,19 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     [DisplayName("Syntax Item"), Serializable]
     public class SyntaxItem : LabeledBaseItem {
 
         #region Fields
-
         protected string _childDelimiter = string.Empty, _description = string.Empty, _defaultValue = string.Empty;
         protected uint _occurance = 1;
         protected bool _optional;
-
         #endregion
 
         #region Properties
@@ -68,7 +68,9 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-
+        public SyntaxItem() { }
+        public SyntaxItem(SerializationInfo info, StreamingContext ctxt) {
+        }
         #endregion
 
         #region Functions

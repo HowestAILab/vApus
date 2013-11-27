@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.SolutionTree;
@@ -23,10 +25,9 @@ namespace vApus.Stresstest {
         new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
-    public class Stresstest : LabeledBaseItem {
+    public class Stresstest : LabeledBaseItem, ISerializable {
 
         #region Fields
-        private string _solution; //For the results.
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
@@ -63,20 +64,11 @@ namespace vApus.Stresstest {
         private bool _forDistributedTest;
 
         private bool _useParallelExecutionOfLogEntries;
+
+        private Parameters _parameters; //Kept here for a distributed test
         #endregion
 
         #region Properties
-        /// <summary>
-        ///     For the stresstest results.
-        /// </summary>
-        public string Solution {
-            get {
-                if (_solution == null && SolutionTree.Solution.ActiveSolution != null)
-                    _solution = SolutionTree.Solution.ActiveSolution.FileName;
-                return _solution;
-            }
-        }
-
         [Description("The connection to the application to test.")]
         [SavableCloneable, PropertyControl(0)]
         public Connection Connection {
@@ -456,6 +448,41 @@ namespace vApus.Stresstest {
             else
                 SolutionTree.Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
+        /// <summary>
+        /// Only used for deserializing
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
+        public Stresstest(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _runs = sr.ReadInt32();
+                _minimumDelay = sr.ReadInt32();
+                _maximumDelay = sr.ReadInt32();
+                _monitorBefore = sr.ReadInt32();
+                _monitorAfter = sr.ReadInt32();
+                _concurrencies = sr.ReadArray(typeof(int)) as int[];
+                _shuffle = sr.ReadBoolean();
+                _actionDistribution = sr.ReadBoolean();
+                _maximumNumberOfUserActions = sr.ReadInt32();
+                _connection = sr.ReadObject() as Connection;
+                _logs = sr.ReadObject() as KeyValuePair<Log, uint>[];
+                _forDistributedTest = sr.ReadBoolean();
+                _useParallelExecutionOfLogEntries = sr.ReadBoolean();
+
+                _parameters = sr.ReadObject() as Parameters;
+                _parameters.ForceSettingChildsParent();
+                _connection.Parameters = _parameters;
+                foreach (var kvp in _logs)
+                    kvp.Key.Parameters = _parameters;
+            }
+            sr = null;
+
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+        }
         #endregion
 
         #region Functions
@@ -535,20 +562,38 @@ namespace vApus.Stresstest {
             }
         }
 
-        /// <summary>
-        ///     For the stresstest results.
-        ///     Sets the solution field to the active one.
-        /// </summary>
-        public void SetSolution() {
-            if (SolutionTree.Solution.ActiveSolution != null)
-                _solution = SolutionTree.Solution.ActiveSolution.FileName;
-        }
-
         public override void Activate() { SolutionComponentViewManager.Show(this); }
         public override string ToString() {
             if (_forDistributedTest)
                 return Label;
             return base.ToString();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_runs);
+                sw.Write(_minimumDelay);
+                sw.Write(_maximumDelay);
+                sw.Write(_monitorBefore);
+                sw.Write(_monitorAfter);
+                sw.Write(_concurrencies);
+                sw.Write(_shuffle);
+                sw.Write(_actionDistribution);
+                sw.Write(_maximumNumberOfUserActions);
+                sw.WriteObject(_connection);
+                sw.WriteObject(_logs);
+                sw.Write(_forDistributedTest);
+                sw.Write(_useParallelExecutionOfLogEntries);
+
+                //Parameters will be piushed in the child objects when deserializing, this is faster and way less memory consuming then serializing this for each object (each log entry has a reference to this object)
+                sw.WriteObject(Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters); 
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
         }
         #endregion
     }

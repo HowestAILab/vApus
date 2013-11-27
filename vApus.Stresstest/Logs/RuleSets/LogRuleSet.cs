@@ -106,6 +106,7 @@ namespace vApus.Stresstest {
         public LogRuleSet(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
                 Label = sr.ReadString();
                 ChildDelimiter = sr.ReadString();
                 _beginTimestampIndex = sr.ReadUInt32();
@@ -114,8 +115,6 @@ namespace vApus.Stresstest {
                 AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
             }
             sr = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
         #endregion
 
@@ -137,8 +136,6 @@ namespace vApus.Stresstest {
                 sw.AddToInfo(info);
             }
             sw = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
 
         private void BaseItem_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {

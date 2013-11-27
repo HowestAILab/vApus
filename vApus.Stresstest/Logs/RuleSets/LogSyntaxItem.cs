@@ -6,9 +6,12 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     [ContextMenu(new[] { "Activate_Click", "AddSyntaxItem_Click", "AddRule_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
@@ -16,7 +19,23 @@ namespace vApus.Stresstest {
     [Hotkeys(new[] { "Activate_Click", "AddSyntaxItem_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
              new[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
     [DisplayName("Syntax Item"), Serializable]
-    public class LogSyntaxItem : SyntaxItem {
+    public class LogSyntaxItem : SyntaxItem, ISerializable {
+
+        public LogSyntaxItem() { }
+        public LogSyntaxItem(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                _childDelimiter = sr.ReadString();
+                _defaultValue = sr.ReadString();
+                _occurance = sr.ReadUInt32();
+                _optional = sr.ReadBoolean();
+
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+            }
+            sr = null;
+        }
+
         protected new void AddSyntaxItem_Click(object sender, EventArgs e) {
             bool invalid = false;
             foreach (BaseItem item in this)
@@ -66,6 +85,20 @@ namespace vApus.Stresstest {
             } else {
                 Add(new Rule());
             }
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(_childDelimiter);
+                sw.Write(_defaultValue);
+                sw.Write(_occurance);
+                sw.Write(_optional);
+
+                sw.Write(this);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
     }
 }

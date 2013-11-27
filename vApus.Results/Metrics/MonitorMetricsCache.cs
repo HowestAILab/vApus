@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Runtime;
 
 namespace vApus.Results {
     /// <summary>
@@ -86,7 +87,10 @@ namespace vApus.Results {
 
                 resultsRemoved = true;
             }
-            if (resultsRemoved) GC.Collect();
+            if (resultsRemoved) {
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
+            }
 
             return metrics;
         }

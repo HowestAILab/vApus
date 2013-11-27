@@ -232,7 +232,7 @@ namespace vApus.Stresstest {
         private void btnApply_Click(object sender, EventArgs e) {
             btnApply.Enabled = false;
 
-            _log.ClearWithoutInvokingEvent(false);
+            _log.ClearWithoutInvokingEvent();
 
             if (!IsDisposed && cboRuleSet.Items.Count != 0 && _logRuleSets != null)
                 try {

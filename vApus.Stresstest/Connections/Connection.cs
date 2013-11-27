@@ -70,6 +70,13 @@ namespace vApus.Stresstest {
                     throw new Exception(output.Error);
             }
         }
+
+        /// <summary>
+        /// For a distributed test.
+        /// </summary>
+        internal Parameters Parameters {
+            set { _parameters = value; }
+        }
         #endregion
 
         #region Constructors
@@ -95,14 +102,12 @@ namespace vApus.Stresstest {
         public Connection(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
                 Label = sr.ReadString();
                 _connectionProxy = sr.ReadObject() as ConnectionProxy;
                 _connectionString = sr.ReadString();
-                _parameters = sr.ReadObject() as Parameters;
             }
             sr = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
         #endregion
 
@@ -125,12 +130,9 @@ namespace vApus.Stresstest {
                 sw.Write(Label);
                 sw.WriteObject(_connectionProxy);
                 sw.Write(_connectionString);
-                sw.WriteObject(_parameters);
                 sw.AddToInfo(info);
             }
             sw = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
 
         private void _connectionProxy_ParentIsNull(object sender, EventArgs e) {

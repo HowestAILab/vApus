@@ -238,14 +238,21 @@ namespace vApus.Stresstest {
             //Dispose multi threaded.
             if (_connectionProxies != null)
                 Parallel.ForEach(_connectionProxies, (cp) => {
-                    try { if (!cp.IsDisposed) cp.Dispose(); } catch { }
+                    try {
+                        if (cp != null && !cp.IsDisposed)
+                            cp.Dispose();
+                    } catch { }
                 });
 
             //Dispose multi threaded.
             if (_parallelConnectionProxies != null)
                 Parallel.ForEach(_parallelConnectionProxies, (pcps) => {
-                    foreach (var pcp in pcps)
-                        try { if (!pcp.ConnectionProxy.IsDisposed) pcp.ConnectionProxy.Dispose(); } catch { }
+                    if (pcps != null)
+                        foreach (var pcp in pcps)
+                            try {
+                                if (pcp.ConnectionProxy != null && !pcp.ConnectionProxy.IsDisposed)
+                                    pcp.ConnectionProxy.Dispose();
+                            } catch { }
                 });
 
             _connectionProxies = null;

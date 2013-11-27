@@ -7,6 +7,7 @@
  */
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -303,20 +304,22 @@ namespace vApus.Util {
         #region Binary
 
         /// <summary>
-        ///     Convert an object to a byte[].
+        ///     Convert an object to a byte[] using deflate compression.
         /// </summary>
         /// <param name="obj"></param>
         /// <returns></returns>
         public byte[] ObjectToByteArray(object obj) {
             byte[] buffer = null;
+
             //Set the initial buffer size to 1 byte (default == 256 bytes), this way we do not have '\0' bytes in buffer.
             using (var ms = new MemoryStream(1)) {
                 var bf = new BinaryFormatter();
-                bf.Serialize(ms, obj);
-                bf = null;
+                using (var dfStream = new DeflateStream(ms, CompressionLevel.Optimal))
+                    bf.Serialize(dfStream, obj);
 
                 //.ToArray() was also possible (no '\0' bytes) but this makes a copy of the buffer and results in having twice the buffer in memory.
                 buffer = ms.GetBuffer();
+                bf = null;
             }
             return buffer;
         }
@@ -444,7 +447,7 @@ namespace vApus.Util {
         ///     Receives bytes.
         /// </summary>
         /// <returns></returns>
-        public byte[] ReceiveBytes() {
+        private byte[] ReceiveBytes() {
             _buffer = new byte[_socket.ReceiveBufferSize];
             // Read data from the remote device.
             _socket.ReceiveFrom(_buffer, _receiveSocketFlags, ref _remoteEP);
@@ -458,18 +461,21 @@ namespace vApus.Util {
         #region Binary
 
         /// <summary>
-        ///     Converts a byte[] to an object.
+        ///     Converts a byte[] to an object using deflate compression.
         /// </summary>
         /// <param name="buffer"></param>
         /// <returns></returns>
         public object ByteArrayToObject(byte[] buffer) {
-            object o = null;
+            object obj = null;
+
             using (var ms = new MemoryStream(buffer)) {
                 var bf = new BinaryFormatter();
-                o = bf.Deserialize(ms);
+                using (var dfStream = new DeflateStream(ms, CompressionMode.Decompress))
+                    obj = bf.Deserialize(dfStream);
+
                 bf = null;
             }
-            return o;
+            return obj;
         }
 
         /// <summary>

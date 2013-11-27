@@ -437,7 +437,7 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="o">Child</param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveParent(this object o, bool invokeParentChanged = true) {
+        public static bool RemoveParent(this object o) {
             lock (_parents.SyncRoot) {
                 bool removed = false;
                 if (_parents.Contains(o)) {
@@ -445,14 +445,6 @@ namespace vApus.Util {
 
                     _parents.Remove(o);
                     removed = true;
-
-                    if (invokeParentChanged && ParentChanged != null) {
-                        var invocationList = ParentChanged.GetInvocationList();
-                        Parallel.For(0, invocationList.Length, (i) => {
-                            (invocationList[i] as ParentChangedEventHandler).Invoke(new ParentChangedEventArgs(o, parent, null));
-                        });
-
-                    }
                 }
                 return removed;
             }

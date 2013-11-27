@@ -42,6 +42,7 @@ namespace vApus.Stresstest {
         private LogRuleSet _logRuleSet;
 
         private Parameters _parameters;
+
         private int _preferredTokenDelimiterIndex;
 
         //Capture web traffic settings
@@ -99,6 +100,19 @@ namespace vApus.Stresstest {
         public bool UseDeny { get; set; }
         [SavableCloneable]
         public string[] Deny { get { return _deny; } set { _deny = value; } }
+
+        /// <summary>
+        /// For a distributed test.
+        /// </summary>
+        internal Parameters Parameters {
+            set {
+                _parameters = value;
+                Parallel.ForEach(this, (item) => {
+                    foreach (LogEntry childItem in item)
+                        childItem.Parameters = _parameters;
+                });
+            }
+        }
         #endregion
 
         #region Constructors
@@ -122,6 +136,7 @@ namespace vApus.Stresstest {
         public Log(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
                 Label = sr.ReadString();
                 _logRuleSet = sr.ReadObject() as LogRuleSet;
                 _preferredTokenDelimiterIndex = sr.ReadInt32();
@@ -326,7 +341,7 @@ namespace vApus.Stresstest {
 
             Dictionary<string, BaseParameter> parameterTokens = logEntryContainsTokens ? GetParameterTokens(b, e) : null;
 
-            foreach(UserAction userAction in this)
+            foreach (UserAction userAction in this)
                 parameterizedStructure.AddRange(userAction.GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope));
 
             hasParameters = parameterTokens != null;

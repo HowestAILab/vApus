@@ -35,7 +35,7 @@ namespace vApus.Stresstest {
         internal string _description = string.Empty;
 
         protected object _lock = new object();
-        private int _tokenNumericIdentifier = -1;
+        protected int _tokenNumericIdentifier = -1;
         #endregion
 
         #region Properties

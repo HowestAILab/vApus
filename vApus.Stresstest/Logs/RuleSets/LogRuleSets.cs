@@ -21,7 +21,7 @@ namespace vApus.Stresstest {
     [ContextMenu(new[] { "Import_Click", "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
         new[] { "Import Log Rule Set(s)", "Add Log Rule Set", "Sort", "Clear", "Paste" })]
     [Hotkeys(new[] { "Paste_Click" }, new[] { (Keys.Control | Keys.V) })]
-    [DisplayName("Log Rule Sets"), Serializable]
+    [DisplayName("Log Rule Sets")]
     public class LogRuleSets : BaseRuleSets {
         private void Import_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();

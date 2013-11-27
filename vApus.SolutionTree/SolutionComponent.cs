@@ -159,7 +159,7 @@ namespace vApus.SolutionTree {
             if (item == this)
                 throw new Exception("Use Parent.Remove(this) instead of Remove(this).");
             if (_items.Remove(item)) {
-                item.Parent = null;
+                item.RemoveParent();
                 item.RemoveTag();
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Removed, item);
 
@@ -179,17 +179,17 @@ namespace vApus.SolutionTree {
             foreach (var item in collection) if (Remove(item)) removed = true;
             return removed;
         }
-        public bool RemoveRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection, bool invokeParentChanged = true) {
+        public bool RemoveRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection) {
             bool removed = false;
-            foreach (var item in collection) if (RemoveWithoutInvokingEvent(item, invokeParentChanged)) removed = true;
+            foreach (var item in collection) if (RemoveWithoutInvokingEvent(item)) removed = true;
             return removed;
         }
-        public bool RemoveWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true) {
+        public bool RemoveWithoutInvokingEvent(BaseItem item) {
             if (item == this)
                 throw new Exception("Use Parent.Remove(this) instead of Remove(this).");
             if (_items.Remove(item)) {
 
-                item.RemoveParent(invokeParentChanged);
+                item.RemoveParent();
                 item.RemoveTag();
                 item = null;
 
@@ -249,7 +249,7 @@ namespace vApus.SolutionTree {
             else {
                 BaseItem oldItem = _items[index];
                 _items.Insert(index, item);
-                oldItem.RemoveParent(false);
+                oldItem.RemoveParent();
                 _items.Remove(oldItem);
             }
             item.SetParent(this, false);
@@ -332,9 +332,9 @@ namespace vApus.SolutionTree {
             }
         }
 
-        public virtual void ClearWithoutInvokingEvent(bool invokeParentChanged = true) {
+        public virtual void ClearWithoutInvokingEvent() {
             foreach (BaseItem item in _items) {
-                item.RemoveParent(invokeParentChanged);
+                item.RemoveParent();
                 item.RemoveTag();
             }
             _items.Clear();

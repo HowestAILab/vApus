@@ -500,7 +500,7 @@ namespace vApus.DistributedTesting {
             RefreshDGV();
 
             //Clear the clients in de distributed test, new ones will be added.
-            _distributedTest.Clients.ClearWithoutInvokingEvent(false);
+            _distributedTest.Clients.ClearWithoutInvokingEvent();
 
             var toAssingTestsTo = new List<Slave>();
             foreach (DataGridViewRow row in dgvClients.Rows) {
@@ -592,7 +592,7 @@ namespace vApus.DistributedTesting {
             //Distribute connections.
             int connectionIndex = 0;
             if (rdbStartFromScratch.Checked)
-                _distributedTest.Tiles.ClearWithoutInvokingEvent(false);
+                _distributedTest.Tiles.ClearWithoutInvokingEvent();
             else
                 foreach (Tile tile in _distributedTest.Tiles)
                     foreach (TileStresstest tileStresstest in tile)

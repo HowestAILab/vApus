@@ -171,7 +171,9 @@ namespace vApus.Stresstest {
                 Description = syntaxItem.Description,
                 IsEncrypted = isEncrypted,
                 IsReadOnly = false,
-                Label = syntaxItem.Label
+                Label = syntaxItem.Label,
+                AllowedMaximum = int.MaxValue,
+                AllowedMinimum = int.MinValue
             };
         }
     }

@@ -7,6 +7,7 @@
  */
 using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -15,7 +16,7 @@ namespace vApus.Stresstest {
     /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
     /// </summary>
     [DisplayName("Text Parameter"), Serializable]
-    public class TextParameter : BaseParameter {
+    public class TextParameter : BaseParameter, ISerializable {
 
         #region Fields
         private Fixed _fixed;
@@ -83,17 +84,32 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructor
-      /// <summary>
+        /// <summary>
         /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
         /// </summary>
-        public TextParameter() {       Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;    }
-     /// <summary>
+        public TextParameter() { Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged; }
+        /// <summary>
         /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
         /// </summary>
-     /// <param name="pattern"></param>
+        /// <param name="pattern"></param>
         public TextParameter(string pattern)
             : this() {
             _pattern = pattern;
+        }
+        public TextParameter(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _fixed = (Fixed)sr.ReadInt32();
+                _maxLength = sr.ReadInt32();
+                _minLength = sr.ReadInt32();
+                _pattern = sr.ReadString();
+                _prefix = sr.ReadString();
+                _suffix = sr.ReadString();
+                _tokenNumericIdentifier = sr.ReadInt32();
+            }
+            sr = null;
         }
         #endregion
 
@@ -139,6 +155,22 @@ namespace vApus.Stresstest {
                 suf = (length > 0) ? suf.Substring(suf.Length - length) : string.Empty;
             }
             return pre + value + suf;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write((int)_fixed);
+                sw.Write(_maxLength);
+                sw.Write(_minLength);
+                sw.Write(_pattern);
+                sw.Write(_prefix);
+                sw.Write(_suffix);
+                sw.Write(_tokenNumericIdentifier);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
         #endregion
     }

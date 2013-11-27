@@ -20,7 +20,7 @@ namespace vApus.Stresstest {
     [Hotkeys(new[] { "Activate_Click", "Add_Click", "Paste_Click" },
         new[] { Keys.Enter, Keys.Insert, (Keys.Control | Keys.V) })]
     [DisplayName("Connection Proxy Rule Set"), Serializable]
-    public class ConnectionProxyRuleSet : BaseRuleSet {
+    public class ConnectionProxyRuleSet : BaseRuleSet, ISerializable {
    
         #region Fields
         private bool _connected = true;
@@ -56,6 +56,7 @@ namespace vApus.Stresstest {
         public ConnectionProxyRuleSet(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
                 Label = sr.ReadString();
                 ChildDelimiter = sr.ReadString();
                 _connected = sr.ReadBoolean();
@@ -63,8 +64,6 @@ namespace vApus.Stresstest {
                 AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
             }
             sr = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
         #endregion
 
@@ -85,8 +84,6 @@ namespace vApus.Stresstest {
                 sw.AddToInfo(info);
             }
             sw = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
         protected new void Add_Click(object sender, EventArgs e) {
             Add(new ConnectionProxySyntaxItem());

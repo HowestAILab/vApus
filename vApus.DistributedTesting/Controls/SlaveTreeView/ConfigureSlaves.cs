@@ -349,7 +349,7 @@ namespace vApus.DistributedTesting {
                 LockWindowUpdate(Handle.ToInt32());
                 flp.Controls.Clear();
 
-                _clientTreeViewItem.Client.ClearWithoutInvokingEvent(false);
+                _clientTreeViewItem.Client.ClearWithoutInvokingEvent();
                 _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Cleared);
 
                 LockWindowUpdate(0);

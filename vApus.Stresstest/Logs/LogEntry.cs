@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -16,7 +17,7 @@ namespace vApus.Stresstest {
     /// Contains a captured request to a server app.
     /// </summary>
     [DisplayName("Log Entry"), Serializable]
-    public class LogEntry : LabeledBaseItem {
+    public class LogEntry : LabeledBaseItem, ISerializable {
 
         #region Fields
         private static readonly char[] _beginParameterTokenDelimiterCanditates = new[] { '{', '<', '[', '(', '\\', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
@@ -24,20 +25,22 @@ namespace vApus.Stresstest {
 
         private readonly object _lock = new object();
 
-        private bool _executeInParallelWithPrevious; //For a special not yet used feature.
-
-        private bool _useDelay = false;
         private string _logEntryString = string.Empty;
-        private int _parallelOffsetInMs;
+        
+        private bool _useDelay = false;
 
-        private Parameters _parameters;
-        [NonSerialized]
-        private static Parameters _staticParameters;
+        private bool _executeInParallelWithPrevious; //For a special not yet used feature.
+        private int _parallelOffsetInMs;
 
         private LogEntry _sameAs;
 
         private ASTNode _lexedLogEntry;
         private LexicalResult _lexicalResult = LexicalResult.Error;
+
+        private Parameters _parameters;
+
+        [NonSerialized]
+        private static Parameters _staticParameters;
         #endregion
 
         #region Properties
@@ -98,9 +101,20 @@ namespace vApus.Stresstest {
             get { return (_beginParameterTokenDelimiterCanditates.Length * 3) - 1; }
         }
 
+        /// <summary>
+        /// Only happens in stresstest core when determining test patterns.
+        /// </summary>
         public LogEntry SameAs {
             get { return _sameAs; }
             set { _sameAs = value; }
+        }
+
+
+        /// <summary>
+        /// For a distributed test.
+        /// </summary>
+        internal Parameters Parameters {
+            set { _parameters = value; }
         }
         #endregion
 
@@ -129,6 +143,19 @@ namespace vApus.Stresstest {
         public LogEntry(string logEntryString)
             : this() {
             LogEntryString = logEntryString;
+        }
+
+        public LogEntry(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _logEntryString = sr.ReadString();
+                _useDelay = sr.ReadBoolean();
+                _executeInParallelWithPrevious = sr.ReadBoolean();
+                _parallelOffsetInMs = sr.ReadInt32();
+            }
+            sr = null;
         }
         #endregion
 
@@ -244,6 +271,19 @@ namespace vApus.Stresstest {
         /// <returns></returns>
         public override string ToString() {
             return (base.ToString() == null ? string.Empty : base.ToString() + ": ") + _logEntryString;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_logEntryString);
+                sw.Write(_useDelay);
+                sw.Write(_executeInParallelWithPrevious);
+                sw.Write(_parallelOffsetInMs);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
         #endregion
     }

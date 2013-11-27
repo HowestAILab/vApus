@@ -7,6 +7,8 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Reflection;
+using System.Xml;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -183,11 +185,10 @@ namespace vApus.DistributedTesting {
         /// <param name="stresstestIdInDb">-1 for none</param>
         /// <param name="runSynchronization"></param>
         /// <returns></returns>
-        public StresstestWrapper GetStresstestWrapper(int stresstestIdInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public StresstestWrapper GetStresstestWrapper(FunctionOutputCache functionOutputCache, int stresstestIdInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             lock (_lock) {
                 string tileStresstestIndex = TileStresstestIndex;
                 var stresstest = new Stresstest.Stresstest();
-                stresstest.SetSolution();
                 stresstest.ForDistributedTest = true;
                 stresstest.IsDividedStresstest = DividedStresstestIndex != null;
                 stresstest.ShowInGui = false;
@@ -211,9 +212,13 @@ namespace vApus.DistributedTesting {
                 var logs = new KeyValuePair<Log, uint>[AdvancedTileStresstest.Logs.Length];
                 for (int i = 0; i != logs.Length; i++) {
                     var kvp = AdvancedTileStresstest.Logs[i];
-                    var log = kvp.Key.Clone(true, false, false);
 
-                    log.RemoveDescription();
+                    XmlDocument xmlDocument = kvp.Key.GetXmlStructure();
+
+                    System.Windows.Forms.MessageBox.Show("");
+
+                    var log = CloneLog(functionOutputCache, kvp.Key);
+
                     allLogs.AddWithoutInvokingEvent(log);
                     log.ForceSettingChildsParent();
 
@@ -242,6 +247,17 @@ namespace vApus.DistributedTesting {
                     MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
                 };
             }
+        }
+
+        private Log CloneLog(FunctionOutputCache functionOutputCache, Log log) {
+            var cacheEntry = functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), log);
+            var clone = cacheEntry.ReturnValue as Log;
+            if (clone == null) {
+                clone = log.Clone(true, false, false);
+                clone.RemoveDescription();
+                cacheEntry.ReturnValue = clone;
+            }
+            return cacheEntry.ReturnValue as Log;
         }
 
         public override string ToString() { return "[TS " + TileStresstestIndex + "] "; }

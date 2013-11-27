@@ -706,7 +706,7 @@ namespace vApus.Stresstest {
                     int index = dgvLogEntries.Rows.IndexOf(row);
                     if (index != userAction.Count) toRemove.Add(userAction[index]);
                 }
-                userAction.RemoveRangeWithoutInvokingEvent(toRemove, false);
+                userAction.RemoveRangeWithoutInvokingEvent(toRemove);
 
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
 
@@ -747,7 +747,7 @@ namespace vApus.Stresstest {
         private void btnRevertToImported_Click(object sender, EventArgs e) {
             if (MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 var userAction = UserActionTreeViewItem.UserAction;
-                userAction.ClearWithoutInvokingEvent(false);
+                userAction.ClearWithoutInvokingEvent();
 
                 foreach (string s in userAction.LogEntryStringsAsImported)
                     userAction.AddWithoutInvokingEvent(new LogEntry(s), false);

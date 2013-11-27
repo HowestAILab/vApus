@@ -85,7 +85,7 @@ namespace vApus.Stresstest {
             }
 
             if (newlogNeeded) {
-                _log.ClearWithoutInvokingEvent(false);
+                _log.ClearWithoutInvokingEvent();
                 _log.AddRangeWithoutInvokingEvent(newLog, false);
             }
 

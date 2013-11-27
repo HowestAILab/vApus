@@ -54,7 +54,7 @@ namespace vApus.SolutionTree {
                 bool succes = true;
                 string text = node.Tag.ToString();
                 if (node.Text != text) node.Text = text;
-                if(node.ImageIndex == -1) SetTreeNodeImage(node);
+                if (node.ImageIndex == -1) SetTreeNodeImage(node);
 
                 if (!node.IsExpanded && node.Nodes.Count != 0) node.Expand();
                 foreach (TreeNode childNode in node.Nodes)
@@ -131,12 +131,9 @@ namespace vApus.SolutionTree {
                         try {
                             item.Label = node.Text;
                             if (RefreshTreeNode(tvw.SelectedNode)) {
-                                SolutionComponent.SolutionComponentChanged -=
-                                    SolutionComponent_SolutionComponentChanged;
-                                item.InvokeSolutionComponentChangedEvent(
-                                    SolutionComponentChangedEventArgs.DoneAction.Edited);
-                                SolutionComponent.SolutionComponentChanged +=
-                                    SolutionComponent_SolutionComponentChanged;
+                                SolutionComponent.SolutionComponentChanged -= SolutionComponent_SolutionComponentChanged;
+                                item.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                                SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
                             }
                         } catch {
                         }

@@ -220,7 +220,12 @@ namespace vApus.Results {
                 if (virtualUserResult != null) {
                     ++enteredUserResultsCount;
 
-                    StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult);
+                    StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, ref simplified, !calculate95thPercentileResponseTimes);
+                    if (simplified) {
+                        sw.Stop();
+                        return GetSimplifiedMetrics(result);
+                    }
+
                     metrics.LogEntries += virtualUserMetrics.LogEntries;
 
                     if (calculate95thPercentileResponseTimes && percent5 == -1)
@@ -296,14 +301,17 @@ namespace vApus.Results {
         }
 
 
-        private static StresstestMetrics GetMetrics(VirtualUserResult result) {
+        private static StresstestMetrics GetMetrics(VirtualUserResult result, ref bool simplified, bool allowSimplifiedResults) {
             var metrics = new StresstestMetrics();
+
+            var sw = Stopwatch.StartNew();
+
             metrics.MaxResponseTime = new TimeSpan();
             metrics.LogEntries = result.LogEntryResults.LongLength;
 
             var uniqueUserActions = new List<string>();
             TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
-            foreach (LogEntryResult logEntryResult in result.LogEntryResults)
+            foreach (LogEntryResult logEntryResult in result.LogEntryResults) {
                 if (logEntryResult != null && logEntryResult.VirtualUser != null) {
                     ++metrics.LogEntriesProcessed;
                     if (!uniqueUserActions.Contains(logEntryResult.UserAction)) uniqueUserActions.Add(logEntryResult.UserAction);
@@ -315,6 +323,13 @@ namespace vApus.Results {
                     totalDelay = totalDelay.Add(new TimeSpan(logEntryResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
                     if (!string.IsNullOrEmpty(logEntryResult.Error)) ++metrics.Errors;
                 }
+
+                if (allowSimplifiedResults && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
+                    sw.Stop();
+                    simplified = true;
+                    return GetSimplifiedMetrics(result);
+                }
+            }
 
             if (metrics.LogEntriesProcessed != 0) {
                 metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.LogEntriesProcessed);

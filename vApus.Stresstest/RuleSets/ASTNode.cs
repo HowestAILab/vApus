@@ -12,11 +12,9 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
-    [Serializable]
     internal class ASTNode {
 
         #region Fields
-
         //Parameters
         public const string LOG_PARAMETER_SCOPE = "L.";
         public const string USER_ACTION_PARAMETER_SCOPE = "UA.";
@@ -41,17 +39,14 @@ namespace vApus.Stresstest {
 
         #region Properties
 
-        [SavableCloneable, PropertyControl]
         public string Value {
             get { return _value; }
             set { _value = value; }
         }
-        [SavableCloneable]
         public string DefaultValue {
             get { return _defaultValue; }
             set { _defaultValue = value; }
         }
-        [SavableCloneable]
         public string ChildDelimiter {
             get { return _childDelimiter; }
             set { _childDelimiter = value; }

@@ -91,6 +91,11 @@ namespace vApus.DistributedTesting {
 
                 var initializeTestMessage = (InitializeTestMessage)message.Content;
                 var stresstestWrapper = initializeTestMessage.StresstestWrapper;
+                stresstestWrapper.Stresstest.Connection.ConnectionProxy.ForceSettingChildsParent();
+                foreach (var kvp in stresstestWrapper.Stresstest.Logs) {
+                    kvp.Key.LogRuleSet.ForceSettingChildsParent();
+                    kvp.Key.ForceSettingChildsParent();
+                }
 
                 try {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -276,15 +281,14 @@ namespace vApus.DistributedTesting {
 
                     if (_masterSocketWrapper.Connected) {
                         var message = new Message<Key>(Key.Push, tpm);
-                        SynchronizeBuffers(message);
-                        GC.Collect();
-                        _masterSocketWrapper.Send(message, SendType.Binary);
+                        byte[] buffer = SynchronizeBuffers(message);
+                        _masterSocketWrapper.SendBytes(buffer);
                     }
                 } catch { }
         }
         #endregion
 
-        private static void SynchronizeBuffers(object toSend) {
+        private static byte[] SynchronizeBuffers(object toSend) {
             byte[] buffer = _masterSocketWrapper.ObjectToByteArray(toSend);
             int bufferSize = buffer.Length;
             if (bufferSize > _masterSocketWrapper.SendBufferSize) {
@@ -298,6 +302,7 @@ namespace vApus.DistributedTesting {
                 message.Content = synchronizeBuffersMessage;
                 _masterSocketWrapper.Send(message, SendType.Binary);
             }
+            return buffer;
         }
         #endregion
 

@@ -71,7 +71,8 @@ namespace vApus.Util {
         private void txt_Leave(object sender, EventArgs e) {
             try {
                 var txt = sender as TextBox;
-                base.HandleValueChanged(txt.Text);
+                if (txt.Text.Length != 0 || (!ParentForm.IsDisposed && !ParentForm.Disposing)) 
+                    base.HandleValueChanged(txt.Text);
             } catch {
             }
         }

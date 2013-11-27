@@ -59,13 +59,13 @@ namespace vApus.Stresstest {
             ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connection.ConnectionProxy.ConnectionProxyRuleSet, _connection.ConnectionString);
             ruleSetSyntaxItemPanel.InputChanged += ruleSetSyntaxItemPanel_InputChanged;
         }
-        
+
         private void ruleSetSyntaxItemPanel_InputChanged(object sender, EventArgs e) {
             _connection.ConnectionString = ruleSetSyntaxItemPanel.Input;
             _canUpdateGui = false;
             _connection.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
-    
+
         async private void btnTestConnection_Click(object sender, EventArgs e) {
             _testing = true;
             split.Enabled = false;
@@ -165,8 +165,7 @@ namespace vApus.Stresstest {
             if (_canUpdateGui) {
                 base.Refresh();
                 solutionComponentPropertyPanel.Refresh();
-                ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connection.ConnectionProxy.ConnectionProxyRuleSet,
-                                                          _connection.ConnectionString);
+                ruleSetSyntaxItemPanel.SetRuleSetAndInput(_connection.ConnectionProxy.ConnectionProxyRuleSet, _connection.ConnectionString);
             }
             _canUpdateGui = true;
         }

@@ -77,7 +77,7 @@ namespace vApus.Stresstest {
         private void captureControl_StartClicked(object sender, EventArgs e) {
             if (chkClearLogBeforeCapture.Checked && _log.Count != 0)
                 if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                    _log.ClearWithoutInvokingEvent(false);
+                    _log.ClearWithoutInvokingEvent();
                 } else {
                     captureControl.CancelStart();
                     return;
@@ -212,7 +212,7 @@ namespace vApus.Stresstest {
 
             if (clearLog && _log.Count != 0)
                 if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                    _log.ClearWithoutInvokingEvent(false);
+                    _log.ClearWithoutInvokingEvent();
                 else
                     return;
 
@@ -388,7 +388,7 @@ namespace vApus.Stresstest {
         private void btnRevertToImported_Click(object sender, EventArgs e) {
             if (_log != null && MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 foreach (UserAction userAction in _log) {
-                    userAction.ClearWithoutInvokingEvent(false);
+                    userAction.ClearWithoutInvokingEvent();
 
                     foreach (string s in userAction.LogEntryStringsAsImported)
                         userAction.AddWithoutInvokingEvent(new LogEntry(s), false);

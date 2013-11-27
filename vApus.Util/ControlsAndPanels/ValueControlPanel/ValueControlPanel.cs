@@ -115,56 +115,60 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="values"></param>
         public void SetValues(params BaseValueControl.Value[] values) {
-            LockWindowUpdate(this.Handle.ToInt32());
-            _values = values;
+            try {
+                LockWindowUpdate(this.Handle.ToInt32());
+                _values = values;
 
-            //Recycle controls, + 1 because solution component property panel adds a control afterwards. () not the right place for tis + 1, but yeah...)
-            bool partialRefresh = _values.Length == Controls.Count || _values.Length + 1 == Controls.Count;
-            AutoScroll = false;
+                //Recycle controls, + 1 because solution component property panel adds a control afterwards. () not the right place for tis + 1, but yeah...)
+                bool partialRefresh = _values.Length == Controls.Count || _values.Length + 1 == Controls.Count;
+                AutoScroll = false;
 
-            if (partialRefresh) {
-                for (int i = 0; i != _values.Length; i++) 
-                    (Controls[i] as IValueControl).Init(_values[i]);                
-            } else {
-                //Keep the values here before adding them.
-                var range = new List<BaseValueControl>(_values.Length);
+                if (partialRefresh) {
+                    for (int i = 0; i != _values.Length; i++)
+                        (Controls[i] as IValueControl).Init(_values[i]);
+                } else {
+                    //Keep the values here before adding them.
+                    var range = new List<BaseValueControl>(_values.Length);
 
-                foreach (BaseValueControl.Value value in _values) {
-                    BaseValueControl control = null;
-                    Type valueType = value.__Value.GetType();
-                    Type controlType = null;
-                    while (controlType == null) {
-                        if (_controlTypes.TryGetValue(valueType, out controlType))
-                            break;
+                    foreach (BaseValueControl.Value value in _values) {
+                        BaseValueControl control = null;
+                        Type valueType = value.__Value.GetType();
+                        Type controlType = null;
+                        while (controlType == null) {
+                            if (_controlTypes.TryGetValue(valueType, out controlType))
+                                break;
 
-                        valueType = valueType.BaseType;
+                            valueType = valueType.BaseType;
+                        }
+
+                        control = Activator.CreateInstance(controlType) as BaseValueControl;
+                        control.ValueChanged += ValueControlPanel_ValueChanged;
+
+                        (control as IValueControl).Init(value);
+
+                        range.Add(control);
                     }
 
-                    control = Activator.CreateInstance(controlType) as BaseValueControl;
-                    control.ValueChanged += ValueControlPanel_ValueChanged;
+                    Controls.Clear();
+                    Controls.AddRange(range.ToArray());
 
-                    (control as IValueControl).Init(value);
-
-                    range.Add(control);
-                }
-
-                Controls.Clear();
-                Controls.AddRange(range.ToArray());
-
-                //Ensure it is selected when it becomes visible.
-                if (_autoSelectControl && Controls.Count != 0) {
-                    Control control = Controls[0];
-                    if (control.IsHandleCreated && control.Visible) {
-                        control.Focus();
-                        control.Select();
-                    } else {
-                        control.VisibleChanged += ValueControl_VisibleChanged;
+                    //Ensure it is selected when it becomes visible.
+                    if (_autoSelectControl && Controls.Count != 0) {
+                        Control control = Controls[0];
+                        if (control.IsHandleCreated && control.Visible) {
+                            control.Focus();
+                            control.Select();
+                        } else {
+                            control.VisibleChanged += ValueControl_VisibleChanged;
+                        }
                     }
                 }
+
+                AutoScroll = true;
+                LockWindowUpdate(0);
+            } catch (Exception ex) {
+                LogWrapper.LogByLevel("Generating GUI failed.\n" + ex, LogLevel.Error);
             }
-
-            AutoScroll = true;
-            LockWindowUpdate(0);
         }
 
         /// <summary>

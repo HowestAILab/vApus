@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -25,6 +24,7 @@ namespace vApus.SolutionTree {
     ///     Saving, Loading, making a solution is done here, this also keeps it's own explorer.
     /// </summary>
     public class Solution {
+
         #region Manage
 
         /// <summary>
@@ -231,6 +231,9 @@ namespace vApus.SolutionTree {
                     ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(false, false));
 
                 RegisterActiveSolutionAsRecent();
+
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
                 return true;
             }
         }
@@ -292,20 +295,34 @@ namespace vApus.SolutionTree {
             string errorMessage = string.Empty;
             try {
                 if (fileName != null) {
+                    _activeSolution = null;
+                    ObjectExtension.ClearCache();
+                    GC.Collect();
+
                     var sln = new Solution();
                     sln.FileName = fileName;
                     sln.Load(out errorMessage);
                     ActiveSolution = sln;
                     ActiveSolution.ResolveBranchedIndices();
                     _activeSolution.IsSaved = true;
+
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
                     return true;
                 } else if (_ofd.ShowDialog() == DialogResult.OK) {
+                    _activeSolution = null;
+                    ObjectExtension.ClearCache();
+                    GC.Collect();
+
                     var sln = new Solution();
                     sln.FileName = _ofd.FileName;
                     sln.Load(out errorMessage);
                     ActiveSolution = sln;
                     ActiveSolution.ResolveBranchedIndices();
                     _activeSolution.IsSaved = true;
+
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
                     return true;
                 }
             } catch {
@@ -349,21 +366,35 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             string errorMessage = string.Empty;
             try {
                 if (fileName != null) {
+                    _activeSolution = null;
+                    ObjectExtension.ClearCache();
+                    GC.Collect();
+
                     var sln = new Solution();
                     sln.FileName = fileName;
                     sln.Load(out errorMessage);
                     sln.FileName = null;
                     ActiveSolution = sln;
                     ActiveSolution.ResolveBranchedIndices();
+
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
                     return true;
                 } else {
                     if (_ofd.ShowDialog() == DialogResult.OK) {
+                        _activeSolution = null;
+                        ObjectExtension.ClearCache();
+                        GC.Collect();
+
                         var sln = new Solution();
                         sln.FileName = _ofd.FileName;
                         sln.Load(out errorMessage);
                         sln.FileName = null;
                         ActiveSolution = sln;
                         ActiveSolution.ResolveBranchedIndices();
+
+                        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                        GC.Collect();
                         return true;
                     }
                 }
@@ -445,6 +476,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         private Solution() {
             _activeSolution = null;
             ObjectExtension.ClearCache();
+            FunctionOutputCacheWrapper.FunctionOutputCache.Dispose();
             _projects = new List<BaseProject>();
             foreach (Type projectType in _projectTypes) {
                 var project = Activator.CreateInstance(projectType) as BaseProject;
@@ -580,15 +612,17 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             foreach (BaseProject project in _projects) {
                 var uri = new Uri("/" + project.GetType().Name, UriKind.Relative);
                 PackagePart part = package.CreatePart(uri, string.Empty, CompressionOption.Maximum);
-                var sw = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
-                project.GetXmlToSave().Save(sw);
-                sw.Close();
-                sw.Dispose();
+
+                StreamWriter sw;
+                using (sw = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))
+                    project.GetXmlToSave().Save(sw);
+
+                sw = null;
+                GC.Collect();
             }
             package.Flush();
             package.Close();
-            
-            GC.Collect();
+            package = null;
         }
 
         protected void Load(out string errorMessage) {
@@ -604,17 +638,18 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                             string projectErrorMessage;
                             project.LoadFromXml(xmlDocument, out projectErrorMessage);
                             sb.Append(projectErrorMessage);
+                            
+                            xmlDocument = null;
+                            GC.Collect();
                         }
                 }
                 package.Close();
+                package = null;
 
             } catch (Exception ex) {
                 sb.Append(ex);
             }
             errorMessage = sb.ToString();
-
-            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect();
         }
 
         protected void ResolveBranchedIndices() {
