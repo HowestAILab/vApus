@@ -21,7 +21,7 @@ namespace vApus.SolutionTree {
 
         #region Fields
         private readonly object _lock = new object();
-        private string _label = string.Empty;
+        protected string _label = string.Empty;
         #endregion
 
         #region Properties

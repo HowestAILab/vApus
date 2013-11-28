@@ -251,7 +251,7 @@ namespace vApus.DistributedTesting {
             var cacheEntry = functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), log);
             var clone = cacheEntry.ReturnValue as Log;
             if (clone == null) {
-                clone = log.Clone(true, false, false);
+                clone = log.Clone(true, false, true, false);
                 clone.RemoveDescription();
                 cacheEntry.ReturnValue = clone;
             }

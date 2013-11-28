@@ -21,6 +21,7 @@ namespace vApus.SolutionTree {
     /// </summary>
     [Serializable]
     public abstract class SolutionComponent : Object, ICollection<BaseItem> {
+        [field: NonSerialized]
         public static event EventHandler<SolutionComponentChangedEventArgs> SolutionComponentChanged;
         /// <summary>
         ///     When creating a empty base item, it checks if the parent becomes null. (Happens when removed from a collection, don't set the parent null yourself)

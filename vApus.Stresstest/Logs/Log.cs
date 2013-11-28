@@ -385,10 +385,11 @@ namespace vApus.Stresstest {
         /// 
         /// </summary>
         /// <param name="cloneChildren"></param>
-        /// <param name="applyRuleSet"></param>
+        /// <param name="applyRuleSet">Not needed in a distributed test</param>
+        /// <param name="cloneLabelAndLogEntryStringByRef">Set to true to leverage memory usage, should only be used in a distributed test otherwise strange things will happen.</param>
         /// <param name="copyLogEntriesAsImported">Not needed in a distributed test</param>
         /// <returns></returns>
-        public Log Clone(bool cloneChildren = true, bool applyRuleSet = true, bool copyLogEntriesAsImported = true) {
+        public Log Clone(bool cloneChildren = true, bool applyRuleSet = true, bool cloneLabelAndLogEntryStringByRef = false, bool copyLogEntriesAsImported = true) {
             var log = new Log();
             log.Parent = Parent;
             log.Label = Label;
@@ -398,8 +399,8 @@ namespace vApus.Stresstest {
             log._parameters = _parameters;
 
             if (cloneChildren)
-                foreach (UserAction item in this)
-                    log.AddWithoutInvokingEvent(item.Clone(_logRuleSet, applyRuleSet, copyLogEntriesAsImported, true), false);
+                foreach (UserAction userAction in this)
+                    log.AddWithoutInvokingEvent(userAction.Clone(_logRuleSet, applyRuleSet, cloneLabelAndLogEntryStringByRef, copyLogEntriesAsImported, true), false);
 
             return log;
         }

@@ -26,7 +26,7 @@ namespace vApus.Stresstest {
         private readonly object _lock = new object();
 
         private string _logEntryString = string.Empty;
-        
+
         private bool _useDelay = false;
 
         private bool _executeInParallelWithPrevious; //For a special not yet used feature.
@@ -252,17 +252,28 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Clones and applies the log rule set.
         /// </summary>
+        /// <param name="logRuleSet"></param>
+        /// <param name="applyRuleSet">Not needed in a distributed test.</param>
+        /// <param name="cloneLabelAndLogEntryStringByRef">Set to true to leverage memory usage, should only be used in a distributed test otherwise strange things will happen.</param>
         /// <returns></returns>
-        public LogEntry Clone(LogRuleSet logRuleSet, bool applyRuleSet) {
+        public LogEntry Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool cloneLogEntryStringByRef) {
             LogEntry logEntry = new LogEntry();
             logEntry.SetParent(Parent, false);
-            logEntry.LogEntryString = _logEntryString;
+
+            if (cloneLogEntryStringByRef)
+                SetLogEntryStringByRef(logEntry, ref _logEntryString);
+            else
+                logEntry._logEntryString = _logEntryString;
+
             logEntry._parameters = _parameters;
 
             if (applyRuleSet)
                 logEntry.ApplyLogRuleSet(logRuleSet);
 
             return logEntry;
+        }
+        private void SetLogEntryStringByRef(LogEntry logEntry, ref string logEntryString) {
+            logEntry._logEntryString = logEntryString;
         }
 
         /// <summary>

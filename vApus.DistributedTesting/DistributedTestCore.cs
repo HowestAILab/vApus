@@ -245,7 +245,6 @@ namespace vApus.DistributedTesting {
             _sw.Stop();
             InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
-            // Thread.Sleep(10000);
         }
         private void SetvApusInstancesAndStresstestsInDb() {
             _tileStresstestsWithDbIds = new Dictionary<TileStresstest, int>(_usedTileStresstests.Count);

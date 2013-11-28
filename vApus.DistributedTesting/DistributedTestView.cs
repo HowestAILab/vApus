@@ -502,6 +502,7 @@ namespace vApus.DistributedTesting {
                 Stop();
             }
         }
+
         private void Update(string host, int port, string username, string password, int channel) {
             Cursor = Cursors.WaitCursor;
             string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");

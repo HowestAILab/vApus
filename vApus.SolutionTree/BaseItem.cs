@@ -27,6 +27,7 @@ namespace vApus.SolutionTree {
         /// To handle stuff that needs to happen after the solution is loaded and Solution.ActiveSolutionChanged is not sufficient.
         /// This will also be invoked on errors.
         /// </summary>
+        [field: NonSerialized]
         public event EventHandler Loaded;
 
         #region Fields

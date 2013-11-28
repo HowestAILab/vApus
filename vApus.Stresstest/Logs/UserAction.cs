@@ -332,11 +332,17 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="logRuleSet"></param>
         /// <param name="applyRuleSet">Not needed in a distributed test</param>
+        /// <param name="cloneLabelAndLogEntryStringByRef">Set to true to leverage memory usage, should only be used in a distributed test otherwise strange things will happen.</param>
         /// <param name="copyLogEntryAsImported">Not needed in a distributed test</param>
         /// <param name="copyLinkedUserActionIndices">Needed in a distributed test</param>
         /// <returns></returns>
-        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool copyLogEntryAsImported, bool copyLinkedUserActionIndices) {
-            UserAction userAction = new UserAction(Label);
+        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool cloneLabelAndLogEntryStringByRef, bool copyLogEntryAsImported, bool copyLinkedUserActionIndices) {
+            UserAction userAction = new UserAction();
+            if (cloneLabelAndLogEntryStringByRef)
+                SetLogEntryStringByRef(userAction, ref _label);
+            else
+                userAction.Label = _label;
+
             userAction.SetParent(Parent, false);
             userAction.Occurance = _occurance;
             userAction.Pinned = Pinned;
@@ -348,15 +354,19 @@ namespace vApus.Stresstest {
                 userAction.LogEntryStringsAsImported = new List<string>(arr);
             }
 
-            foreach (int i in _linkedToUserActionIndices) userAction._linkedToUserActionIndices.Add(i);
-            userAction._linkColorRGB = _linkColorRGB;
+            if (copyLinkedUserActionIndices) {
+                foreach (int i in _linkedToUserActionIndices) userAction._linkedToUserActionIndices.Add(i);
+                userAction._linkColorRGB = _linkColorRGB;
+            }
 
-            foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(logRuleSet, applyRuleSet), false);
+            foreach (LogEntry logEntry in this)
+                userAction.AddWithoutInvokingEvent(logEntry.Clone(logRuleSet, applyRuleSet, cloneLabelAndLogEntryStringByRef), false);
 
             return userAction;
         }
-        #endregion
-
+        private void SetLogEntryStringByRef(UserAction userAction, ref string label) {
+            userAction._label = label;
+        }
         public void GetObjectData(SerializationInfo info, StreamingContext context) {
             SerializationWriter sw;
             using (sw = SerializationWriter.GetWriter()) {
@@ -371,5 +381,6 @@ namespace vApus.Stresstest {
             }
             sw = null;
         }
+        #endregion
     }
 }

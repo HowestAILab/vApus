@@ -393,7 +393,7 @@ namespace vApus.Stresstest {
                 return log;
             }
 
-            var newLog = log.Clone(false, false, false);
+            var newLog = log.Clone(false, false, false, false);
             var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
             foreach (UserAction action in log) {
                 if (_cancel) return null;
@@ -411,7 +411,7 @@ namespace vApus.Stresstest {
                     foreach (LogEntry child in action) {
                         if (_cancel) return null;
 
-                        LogEntry childClone = child.Clone(log.LogRuleSet, true);
+                        LogEntry childClone = child.Clone(log.LogRuleSet, true, false);
 
                         if (canAddClones)
                             firstEntryClones.Add(childClone);
