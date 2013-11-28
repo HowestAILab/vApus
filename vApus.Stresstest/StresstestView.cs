@@ -633,7 +633,7 @@ namespace vApus.Stresstest {
         }
 
         private void btnStop_Click(object sender, EventArgs e) {
-            btnStop.Enabled = false;
+            toolStrip.Enabled = false;
             if (_stresstestCore == null || (_monitorAfterCountDown != null && _monitorAfterCountDown.CountdownTime != 0)) {
                 Stop(StresstestStatus.Cancelled);
             } else if (_monitorBeforeCountDown != null && _monitorBeforeCountDown.CountdownTime != 0) {
@@ -650,7 +650,7 @@ namespace vApus.Stresstest {
         /// <param name="ex">The exception if failed.</param>
         private void Stop(StresstestStatus stresstestStatus = StresstestStatus.Ok, Exception ex = null, bool monitorAfter = false) {
             _stresstestStatus = stresstestStatus;
-            if (btnStop.Enabled) {
+            if (btnStop.Enabled || !toolStrip.Enabled) {
                 Cursor = Cursors.WaitCursor;
 
                 StopStresstest();
@@ -671,6 +671,8 @@ namespace vApus.Stresstest {
 
 
                 fastResultsControl.SetStresstestStopped(stresstestStatus, ex);
+
+                toolStrip.Enabled = true;
 
                 Cursor = Cursors.Default;
 
