@@ -46,6 +46,8 @@ namespace vApus.Stresstest {
             else
                 HandleCreated += ConnectionView_HandleCreated;
             TextChanged += ConnectionProxyCodeView_TextChanged;
+
+            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
         }
 
         private void ConnectionProxyCodeView_TextChanged(object sender, EventArgs e) {
@@ -71,7 +73,7 @@ namespace vApus.Stresstest {
             references.CodeTextBox = codeTextBox;
             find.CodeTextBox = codeTextBox;
             compile.ConnectionProxyCode = _connectionProxyCode;
-            codeTextBox.DelayedTextChangedInterval = 200;
+            codeTextBox.DelayedTextChangedInterval = 1000;
             codeTextBox.TextChangedDelayed += codeTextBox_TextChangedDelayed;
         }
 
@@ -85,6 +87,12 @@ namespace vApus.Stresstest {
                 }
             } else {
                 _codeInitialized = true;
+            }
+        }
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
+            if (sender == _connectionProxyCode && e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Edited) {
+                if (!this.IsActivated) this.Activate();
+                codeTextBox.Focus();
             }
         }
 
