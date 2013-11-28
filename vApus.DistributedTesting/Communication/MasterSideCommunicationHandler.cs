@@ -86,8 +86,8 @@ namespace vApus.DistributedTesting {
                     }
                 }
             } catch (Exception ex) {
-                if (++retry != 3) {
-                    Thread.Sleep(1000 * retry);
+                if (++retry != 101) {
+                    Thread.Sleep(100);
                     goto Retry;
                 } else {
                     exception = ex;
@@ -606,7 +606,7 @@ namespace vApus.DistributedTesting {
         public static void StartTest(out Exception exception) {
             Exception e = null;
             Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper) {
-                for (int i = 1; i != 4; i++)
+                for (int i = 1; i != 101; i++)
                     try {
                         Message<Key> message = SendAndReceive(socketWrapper, Key.StartTest, 30000);
 
@@ -617,7 +617,7 @@ namespace vApus.DistributedTesting {
                         break;
                     } catch (Exception ex) {
                         e = new Exception("Failed to start the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
-                        Thread.Sleep(i * 500);
+                        Thread.Sleep(100);
                     }
             });
 

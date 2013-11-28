@@ -142,8 +142,8 @@ namespace vApus.DistributedTesting {
                                 _tileStresstestView.StresstestIdInDb = stresstestWrapper.StresstestIdInDb;
                             }
                         } catch {
-                            if (done != 4) {
-                                Thread.Sleep(1000 * (done++));
+                            if (++done != 101) {
+                                Thread.Sleep(100);
                                 goto Retry;
                             }
                             _tileStresstestView = null;
