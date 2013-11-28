@@ -17,7 +17,7 @@ using vApus.Util;
 namespace vApus.DistributedTesting {
     public partial class ConfigureSlaves : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         public event EventHandler GoToAssignedTest;
 
@@ -92,7 +92,7 @@ namespace vApus.DistributedTesting {
             txtPassword.Text = _clientTreeViewItem.Client.Password;
             txtDomain.Text = _clientTreeViewItem.Client.Domain;
 
-            if (IsHandleCreated) LockWindowUpdate(Handle.ToInt32());
+            if (IsHandleCreated) LockWindowUpdate(Handle);
 
             if (flp.Controls.Count < _clientTreeViewItem.Client.Count) {
                 var slaveTiles = new Control[_clientTreeViewItem.Client.Count - flp.Controls.Count];
@@ -118,7 +118,7 @@ namespace vApus.DistributedTesting {
                 }
             }
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private SlaveTile CreateSlaveTile() {
@@ -171,14 +171,14 @@ namespace vApus.DistributedTesting {
         /// <param name="distributedTestMode"></param>
         public void SetMode(DistributedTestMode distributedTestMode) {
             if (_distributedTestMode != distributedTestMode) {
-                LockWindowUpdate(Handle.ToInt32());
+                LockWindowUpdate(Handle);
                 _distributedTestMode = distributedTestMode;
 
                 txtIP.ReadOnly = txtHostName.ReadOnly = txtUserName.ReadOnly = txtPassword.ReadOnly = txtDomain.ReadOnly = _distributedTestMode == DistributedTestMode.Test;
                 picAddSlave.Enabled = picClearSlaves.Enabled = picSort.Enabled = _distributedTestMode == DistributedTestMode.Edit;
 
                 foreach (SlaveTile st in flp.Controls) st.SetMode(_distributedTestMode);
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 
@@ -320,7 +320,7 @@ namespace vApus.DistributedTesting {
 
 
         private void picAddSlave_Click(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             var slave = new Slave();
             //Choose another port so every new slave has a unique port.
@@ -340,19 +340,19 @@ namespace vApus.DistributedTesting {
             _clientTreeViewItem.Client.AddWithoutInvokingEvent(slave, false);
             _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void picClearSlaves_Click(object sender, EventArgs e) {
             if (
                 MessageBox.Show("Are you sure you want to clear the slaves?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question) == DialogResult.Yes) {
-                LockWindowUpdate(Handle.ToInt32());
+                LockWindowUpdate(Handle);
                 flp.Controls.Clear();
 
                 _clientTreeViewItem.Client.ClearWithoutInvokingEvent();
                 _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Cleared);
 
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 

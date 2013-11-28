@@ -47,7 +47,7 @@ namespace vApus.Util {
     /// </summary>
     public partial class LargeList : UserControl, IEnumerable<List<Control>> {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         #region Events
 
@@ -383,10 +383,10 @@ namespace vApus.Util {
             }
 
             if (_controls.Count == _currentView + 1) {
-                LockWindowUpdate(Handle.ToInt32());
+                LockWindowUpdate(Handle);
                 SizeControl(control);
                 flpnl.Controls.Add(control);
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
 
             lblTotalViews.Text = _controls.Count.ToString();
@@ -481,7 +481,7 @@ namespace vApus.Util {
         ///     Clears the controls.
         /// </summary>
         public void Clear() {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             ClearSelection();
             _controls.Clear();
@@ -501,7 +501,7 @@ namespace vApus.Util {
             if (ControlCollectionChanged != null)
                 ControlCollectionChanged.Invoke(this, null);
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         /// <summary>

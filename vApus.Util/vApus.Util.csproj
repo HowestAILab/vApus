@@ -453,6 +453,7 @@
       <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
     </Compile>
     <Compile Include="ObjectService\NamedObjectRegistrar.cs" />
+    <Compile Include="SendMessage.cs" />
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />

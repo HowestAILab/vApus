@@ -20,9 +20,6 @@ namespace vApus.Util {
     ///     The value may not be null or an exception will be thrown.
     /// </summary>
     public class ValueControlPanel : FlowLayoutPanel {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         public event EventHandler<ValueChangedEventArgs> ValueChanged;
 
         #region Fields
@@ -71,6 +68,8 @@ namespace vApus.Util {
         }
 
         #region Functions
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         private void ValueControlPanel_HandleCreated(object sender, EventArgs e) {
             if (_locked)
@@ -116,7 +115,6 @@ namespace vApus.Util {
         /// <param name="values"></param>
         public void SetValues(params BaseValueControl.Value[] values) {
             try {
-                LockWindowUpdate(this.Handle.ToInt32());
                 _values = values;
 
                 //Recycle controls, + 1 because solution component property panel adds a control afterwards. () not the right place for tis + 1, but yeah...)
@@ -124,9 +122,16 @@ namespace vApus.Util {
                 AutoScroll = false;
 
                 if (partialRefresh) {
+                    SendMessageWrapper.SetWindowRedraw(Handle, false);
+
                     for (int i = 0; i != _values.Length; i++)
                         (Controls[i] as IValueControl).Init(_values[i]);
+
+                    SendMessageWrapper.SetWindowRedraw(Handle, true);
+                    Invalidate();
                 } else {
+                    LockWindowUpdate(Handle);
+
                     //Keep the values here before adding them.
                     var range = new List<BaseValueControl>(_values.Length);
 
@@ -162,10 +167,11 @@ namespace vApus.Util {
                             control.VisibleChanged += ValueControl_VisibleChanged;
                         }
                     }
+
+                    LockWindowUpdate(IntPtr.Zero);
                 }
 
                 AutoScroll = true;
-                LockWindowUpdate(0);
             } catch (Exception ex) {
                 LogWrapper.LogByLevel("Generating GUI failed.\n" + ex, LogLevel.Error);
             }

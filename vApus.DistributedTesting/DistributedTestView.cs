@@ -123,7 +123,7 @@ namespace vApus.DistributedTesting {
 
         #region General Functions
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         private void SetDistributedTest(DistributedTest distributedTest) {
             _distributedTest = distributedTest;

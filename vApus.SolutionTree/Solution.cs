@@ -42,8 +42,7 @@ namespace vApus.SolutionTree {
         private static readonly StringCollection _recentSolutions;
         private static Solution _activeSolution;
 
-        private static readonly StresstestingSolutionExplorer _stresstestingSolutionExplorer =
-            new StresstestingSolutionExplorer();
+        private static readonly StresstestingSolutionExplorer _stresstestingSolutionExplorer = new StresstestingSolutionExplorer();
 
         private static readonly OpenFileDialog _ofd = new OpenFileDialog();
         private static readonly SaveFileDialog _sfd = new SaveFileDialog();
@@ -90,6 +89,9 @@ namespace vApus.SolutionTree {
         /// </summary>
         public static bool ExplicitCancelFormClosing { get; set; }
 
+        public static StresstestingSolutionExplorer StresstestingSolutionExplorer {
+            get { return Solution._stresstestingSolutionExplorer; }
+        } 
         #endregion
 
         #region Functions

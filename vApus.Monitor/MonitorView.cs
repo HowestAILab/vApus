@@ -215,7 +215,7 @@ namespace vApus.Monitor {
         #endregion
 
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         private void _monitorProxy_OnHandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -462,7 +462,7 @@ namespace vApus.Monitor {
         }
 
         private void ExtractWIWForListViewAction() {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
             try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
                 var selected = lvwEntities.Tag as ListViewItem;
@@ -498,7 +498,7 @@ namespace vApus.Monitor {
             } catch {
                 throw;
             } finally {
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 
@@ -534,7 +534,7 @@ namespace vApus.Monitor {
         }
 
         private void llblCheckAllVisible_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
             try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
 
@@ -556,11 +556,11 @@ namespace vApus.Monitor {
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
-            } catch { throw; } finally { LockWindowUpdate(0); }
+            } catch { throw; } finally { LockWindowUpdate(IntPtr.Zero); }
         }
 
         private void llblUncheckAllVisible_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
             try {
                 tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
 
@@ -588,7 +588,7 @@ namespace vApus.Monitor {
             } catch {
                 throw;
             } finally {
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 
@@ -598,14 +598,14 @@ namespace vApus.Monitor {
 
         private void AddNodesFromTag(TreeNode node) {
             if (node.Tag != null) {
-                LockWindowUpdate(Handle.ToInt32());
+                LockWindowUpdate(Handle);
                 try {
                     node.Nodes.AddRange(node.Tag as TreeNode[]);
                     node.Tag = null;
                 } catch {
                     throw;
                 } finally {
-                    LockWindowUpdate(0);
+                    LockWindowUpdate(IntPtr.Zero);
                 }
             }
         }
@@ -617,7 +617,7 @@ namespace vApus.Monitor {
         }
 
         private void ExtractWIWForTreeViewAction(TreeNode counterNode) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             tvwCounters.AfterCheck -= tvwCounter_AfterCheck;
             if (counterNode.Level == 0) {
@@ -645,7 +645,7 @@ namespace vApus.Monitor {
 
             btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
 
             InvokeChanged();
         }

@@ -77,7 +77,7 @@ namespace vApus.Stresstest {
 
         #region Functions
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender is CustomListParameters || sender is CustomListParameter || sender is CustomRandomParameters || sender is CustomRandomParameter
@@ -89,7 +89,7 @@ namespace vApus.Stresstest {
 
         internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(this.Handle);
             _log = log;
             UserActionTreeViewItem = userActionTreeViewItem;
 
@@ -107,7 +107,7 @@ namespace vApus.Stresstest {
             SetBtnSplit();
             SetLinked();
             SetLogEntries();
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {

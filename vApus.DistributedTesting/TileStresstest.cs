@@ -7,6 +7,8 @@
  */
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.IO.Compression;
 using System.Reflection;
 using System.Xml;
 using vApus.SolutionTree;
@@ -212,10 +214,6 @@ namespace vApus.DistributedTesting {
                 var logs = new KeyValuePair<Log, uint>[AdvancedTileStresstest.Logs.Length];
                 for (int i = 0; i != logs.Length; i++) {
                     var kvp = AdvancedTileStresstest.Logs[i];
-
-                    XmlDocument xmlDocument = kvp.Key.GetXmlStructure();
-
-                    System.Windows.Forms.MessageBox.Show("");
 
                     var log = CloneLog(functionOutputCache, kvp.Key);
 

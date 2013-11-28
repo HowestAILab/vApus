@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Runtime.InteropServices;
 using vApus.Util;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -36,7 +37,6 @@ namespace vApus.SolutionTree {
         #endregion
 
         #region Functions
-
         private static void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (_activeSolution != Solution.ActiveSolution) {
                 _activeSolution = null;
@@ -57,6 +57,7 @@ namespace vApus.SolutionTree {
                     view.Dispose();
                 }
             _solutionComponentViews.Clear();
+
         }
 
         private static void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
@@ -175,6 +176,7 @@ namespace vApus.SolutionTree {
                 _solutionComponentViews.AddKVP(owner, view);
             }
             view.Show(Solution.DockPanel, dockState);
+
             return view;
         }
 

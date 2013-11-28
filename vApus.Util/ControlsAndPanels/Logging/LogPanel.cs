@@ -35,7 +35,7 @@ namespace vApus.Util {
 
         #region Properties
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
         #endregion
 
         #region Constructors
@@ -136,7 +136,7 @@ namespace vApus.Util {
 
                 dgv.DataSource = dt;
 
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 

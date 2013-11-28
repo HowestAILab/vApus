@@ -304,11 +304,15 @@ namespace vApus.Util {
         #region Binary
 
         /// <summary>
-        ///     Convert an object to a byte[] using deflate compression.
+        ///     Convert an object to a byte[] using deflate or gzip compression. Use gzip only for text, deflate for everything else.
         /// </summary>
         /// <param name="obj"></param>
+        /// <param name="deflate">false for gzip compression.</param>
         /// <returns></returns>
-        public byte[] ObjectToByteArray(object obj) {
+        public byte[] ObjectToByteArray(object obj, bool deflate = true) {
+            return deflate ? ObjectToByteArrayDeflate(obj) : ObjectToByteArrayGZip(obj);
+        }
+        public byte[] ObjectToByteArrayDeflate(object obj) {
             byte[] buffer = null;
 
             //Set the initial buffer size to 1 byte (default == 256 bytes), this way we do not have '\0' bytes in buffer.
@@ -323,6 +327,22 @@ namespace vApus.Util {
             }
             return buffer;
         }
+        public byte[] ObjectToByteArrayGZip(object obj) {
+            byte[] buffer = null;
+
+            //Set the initial buffer size to 1 byte (default == 256 bytes), this way we do not have '\0' bytes in buffer.
+            using (var ms = new MemoryStream(1)) {
+                var bf = new BinaryFormatter();
+                using (var dfStream = new GZipStream(ms, CompressionLevel.Optimal))
+                    bf.Serialize(dfStream, obj);
+
+                //.ToArray() was also possible (no '\0' bytes) but this makes a copy of the buffer and results in having twice the buffer in memory.
+                buffer = ms.GetBuffer();
+                bf = null;
+            }
+            return buffer;
+        }
+
 
         /// <summary>
         ///     Sends an object binary.
@@ -398,7 +418,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Sends an encoded string.
+        ///     Sends an encoded string. TODO: use GZIP compression.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="encoding"></param>
@@ -461,16 +481,32 @@ namespace vApus.Util {
         #region Binary
 
         /// <summary>
-        ///     Converts a byte[] to an object using deflate compression.
+        ///     Converts a byte[] to an object using deflate of gzip compression. Use gzip only for text, deflate for everything else.
         /// </summary>
         /// <param name="buffer"></param>
+        /// <param name="deflate">false for gzip compression.</param>
         /// <returns></returns>
-        public object ByteArrayToObject(byte[] buffer) {
+        public object ByteArrayToObject(byte[] buffer, bool deflate = true) {
+            return deflate ? ByteArrayToObjectDeflate(buffer) : ByteArrayToObjectGzip(buffer);
+        }
+        private object ByteArrayToObjectDeflate(byte[] buffer) {
             object obj = null;
 
             using (var ms = new MemoryStream(buffer)) {
                 var bf = new BinaryFormatter();
                 using (var dfStream = new DeflateStream(ms, CompressionMode.Decompress))
+                    obj = bf.Deserialize(dfStream);
+
+                bf = null;
+            }
+            return obj;
+        }
+        private object ByteArrayToObjectGzip(byte[] buffer) {
+            object obj = null;
+
+            using (var ms = new MemoryStream(buffer)) {
+                var bf = new BinaryFormatter();
+                using (var dfStream = new GZipStream(ms, CompressionMode.Decompress))
                     obj = bf.Deserialize(dfStream);
 
                 bf = null;
@@ -519,7 +555,7 @@ namespace vApus.Util {
         #region Text receive
 
         /// <summary>
-        ///     Decodes a byte[] to a string using the given encoding.
+        ///     Decodes a byte[] to a string using the given encoding.  TODO: use GZIP compression.
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="encoding"></param>

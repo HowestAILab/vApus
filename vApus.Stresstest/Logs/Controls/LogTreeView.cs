@@ -52,11 +52,11 @@ namespace vApus.Stresstest {
 
         #region Functions
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         public void SetLog(Log log, UserAction focus = null) {
             if (IsDisposed) return;
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
             //Try to select the same control as before, this wil be overriden if focus != null.
             var selection = largeList.BeginOfSelection;
             if (selection.Key == -1 || selection.Value == -1)
@@ -116,7 +116,7 @@ namespace vApus.Stresstest {
             _focussedUserActionTreeViewItem = (selection.Key == 0 && selection.Value == 0) ? null : largeList.Selection[0] as UserActionTreeViewItem;
             if (_focussedUserActionTreeViewItem == null) _logTreeViewItem.Focus(); else _focussedUserActionTreeViewItem.Focus();
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void _logTreeViewItem_AddPasteUserActionClicked(object sender, LogTreeView.AddUserActionEventArgs e) { CreateAndAddUserActionTreeViewItem(e.UserAction); }
