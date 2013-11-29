@@ -57,7 +57,7 @@ namespace vApus.DistributedTesting {
         /// <summary>
         /// Will begin listening after initializing the test.
         /// 
-        /// The retry count for connecting is 3 and the connect timeout is 30 seconds.
+        /// The retry count for connecting is 9 and the connect timeout is 30 seconds.
         /// </summary>
         /// <param name="slaveSocketWrapper"></param>
         /// <param name="processID">-1 for already connected.</param>
@@ -70,7 +70,7 @@ namespace vApus.DistributedTesting {
             try {
                 exception = null;
                 if (!slaveSocketWrapper.Connected) {
-                    slaveSocketWrapper.Connect(30000, 2);
+                    slaveSocketWrapper.Connect(30000, 3);
                     if (slaveSocketWrapper.Connected) {
                         var masterSocketWrapper = GetMasterSocketWrapper(slaveSocketWrapper);
 
@@ -86,8 +86,7 @@ namespace vApus.DistributedTesting {
                     }
                 }
             } catch (Exception ex) {
-                if (++retry != 101) {
-                    Thread.Sleep(100);
+                if (++retry != 4) {
                     goto Retry;
                 } else {
                     exception = ex;
@@ -606,7 +605,7 @@ namespace vApus.DistributedTesting {
         public static void StartTest(out Exception exception) {
             Exception e = null;
             Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper) {
-                for (int i = 1; i != 101; i++)
+                for (int i = 1; i != 4; i++)
                     try {
                         Message<Key> message = SendAndReceive(socketWrapper, Key.StartTest, 30000);
 
@@ -617,7 +616,6 @@ namespace vApus.DistributedTesting {
                         break;
                     } catch (Exception ex) {
                         e = new Exception("Failed to start the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
-                        Thread.Sleep(100);
                     }
             });
 
