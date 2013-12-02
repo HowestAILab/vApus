@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -47,7 +48,14 @@ namespace vApus.SolutionTree {
 
                     _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
+
+                    LockWindowUpdate(Handle);
+
+                    base.ClearValues();
                     SetGui();
+
+                    LockWindowUpdate(IntPtr.Zero);
+
                     _solutionComponentTypeChanged = false;
 
                     ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
@@ -82,6 +90,9 @@ namespace vApus.SolutionTree {
         #endregion
 
         #region Functions
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(IntPtr hWnd);
+
         private void _showHideAdvancedSettings_Click(object sender, EventArgs e) {
             _showAdvancedSettings = !_showAdvancedSettings;
             Refresh();

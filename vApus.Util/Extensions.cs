@@ -488,6 +488,14 @@ namespace vApus.Util {
                 _tags.Clear();
                 _parents.Clear();
                 _descriptions.Clear();
+
+                if (ParentChanged != null) {
+                    var arr = ParentChanged.GetInvocationList();
+                    Parallel.For(0, arr.LongLength, (i) => {
+                        ParentChanged -= arr[i] as ParentChangedEventHandler;
+                    });
+                }
+
                 return cleared;
             }
         }

@@ -20,7 +20,7 @@ namespace vApus.SolutionTree {
     ///     The base class for BaseItem and BaseProject. The base of everything in a solution. Contains all the plumbing for ICollection amongst others.
     /// </summary>
     [Serializable]
-    public abstract class SolutionComponent : Object, ICollection<BaseItem> {
+    public abstract class SolutionComponent : Object, ICollection<BaseItem>, IDisposable {
         [field: NonSerialized]
         public static event EventHandler<SolutionComponentChangedEventArgs> SolutionComponentChanged;
         /// <summary>
@@ -113,20 +113,49 @@ namespace vApus.SolutionTree {
         #endregion
 
         #region Constructor
-        /// <summary>
-        ///     The base class for BaseItem and BaseProject. The base of everything in a solution. Contains all the plumbing for ICollection amongst others.
-        /// </summary>
-        public SolutionComponent() {
+
+        static SolutionComponent() {
             /// <summary>
             /// To Check if the parent has become null.
             /// 
             /// That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
             ObjectExtension.ParentChanged += ObjectExtension_ParentChanged;
+        }
+
+        /// <summary>
+        ///     The base class for BaseItem and BaseProject. The base of everything in a solution. Contains all the plumbing for ICollection amongst others.
+        /// </summary>
+        public SolutionComponent() {
             _invokeSolutionComponentChangedEventDelegate = InvokeSolutionComponentChangedEventCallback;
         }
+
+        // ~SolutionComponent() {
+
+        //Parallel.ForEach(SolutionComponentChanged.GetInvocationList(), (handler) => {
+        //    SolutionComponentChanged -= handler as EventHandler<SolutionComponentChangedEventArgs>;
+        //});
+        //}
         #endregion
 
         #region Functions
+        public static void UnsuscribeSolutionComponentChanged() {
+            if (SolutionComponentChanged != null) {
+                var arr = SolutionComponentChanged.GetInvocationList();
+                Parallel.For(0, arr.LongLength, (i) => {
+                    SolutionComponentChanged -= arr[i] as EventHandler<SolutionComponentChangedEventArgs>;
+                });
+            }
+        }
+        public void Dispose() {
+            if (ParentIsNull != null) {
+                var arr = ParentIsNull.GetInvocationList();
+                Parallel.For(0, arr.LongLength, (i) => {
+                    ParentIsNull -= arr[i] as EventHandler;
+                });
+            }
+            foreach (var item in this)
+                item.Dispose();
+        }
         /// <summary>
         ///     Will only invoke SolutionComponentChanged if the ShowOnGui property of the item equals true.
         /// </summary>
@@ -207,15 +236,21 @@ namespace vApus.SolutionTree {
         ///     Checks if the parent has become null.
         ///     That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
         /// </summary>
-        protected void ObjectExtension_ParentChanged(ObjectExtension.ParentChangedEventArgs parentOrTagChangedEventArgs) {
-            if (Solution.ActiveSolution != null)
-                if (object.ReferenceEquals(parentOrTagChangedEventArgs.Child, this))
-                    if (parentOrTagChangedEventArgs.New == null && ParentIsNull != null) {
-                        var invocationList = ParentIsNull.GetInvocationList();
-                        Parallel.For(0, invocationList.Length, (i) => {
-                            (invocationList[i] as EventHandler).Invoke(this, null);
-                        });
-                    }
+        protected static void ObjectExtension_ParentChanged(ObjectExtension.ParentChangedEventArgs parentOrTagChangedEventArgs) {
+            if (Solution.ActiveSolution != null) {
+                SolutionComponent solutionComponent = parentOrTagChangedEventArgs.Child as SolutionComponent;
+                if (solutionComponent != null && parentOrTagChangedEventArgs.New == null)
+                    solutionComponent.InvokeParentIsNull();
+            }
+        }
+
+        internal void InvokeParentIsNull() {
+            if (ParentIsNull != null) {
+                var invocationList = ParentIsNull.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => {
+                    (invocationList[i] as EventHandler).Invoke(this, null);
+                });
+            }
         }
 
         public void AddWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true) {
@@ -525,6 +560,7 @@ namespace vApus.SolutionTree {
             } catch { }
         }
         #endregion
+
     }
 
     public class SolutionComponentChangedEventArgs : EventArgs {

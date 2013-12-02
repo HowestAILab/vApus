@@ -38,9 +38,6 @@ namespace vApus.Stresstest {
         private LexicalResult _lexicalResult = LexicalResult.Error;
 
         private Parameters _parameters;
-
-        [NonSerialized]
-        private static Parameters _staticParameters;
         #endregion
 
         #region Properties
@@ -119,23 +116,10 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-        static LogEntry() {
-            if (_staticParameters == null && Solution.ActiveSolution != null)
-                try {
-                    _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-                } catch {
-                }
-            Solution.ActiveSolutionChanged += StaticSolution_ActiveSolutionChanged;
-
-        }
         /// <summary>
         /// Contains a captured request to a server app.
         /// </summary>
-        public LogEntry() {
-            ShowInGui = false;
-            _parameters = _staticParameters;
-            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
-        }
+        public LogEntry() { ShowInGui = false; }
         /// <summary>
         /// Contains a captured request to a server app.
         /// </summary>
@@ -160,13 +144,6 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Functions
-        private static void StaticSolution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
-            _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-        }
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
-            _parameters = _staticParameters;
-        }
-
         /// <summary>
         ///     This will apply the ruleset (lexing).
         ///     The lexed log entry will be filled in.

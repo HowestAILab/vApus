@@ -17,13 +17,14 @@ using WeifenLuo.WinFormsUI.Docking;
 using vApus.SolutionTree.Properties;
 using vApus.Util;
 using System.Runtime;
+using System.Threading.Tasks;
 
 namespace vApus.SolutionTree {
     /// <summary>
     ///     The solution where everything is stored, this class also keeps its explorer and which solution that is active.
     ///     Saving, Loading, making a solution is done here, this also keeps it's own explorer.
     /// </summary>
-    public class Solution {
+    public class Solution : IDisposable {
 
         #region Manage
 
@@ -91,7 +92,7 @@ namespace vApus.SolutionTree {
 
         public static StresstestingSolutionExplorer StresstestingSolutionExplorer {
             get { return Solution._stresstestingSolutionExplorer; }
-        } 
+        }
         #endregion
 
         #region Functions
@@ -297,34 +298,20 @@ namespace vApus.SolutionTree {
             string errorMessage = string.Empty;
             try {
                 if (fileName != null) {
-                    _activeSolution = null;
-                    ObjectExtension.ClearCache();
-                    GC.Collect();
-
                     var sln = new Solution();
                     sln.FileName = fileName;
                     sln.Load(out errorMessage);
                     ActiveSolution = sln;
                     ActiveSolution.ResolveBranchedIndices();
                     _activeSolution.IsSaved = true;
-
-                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    GC.Collect();
                     return true;
                 } else if (_ofd.ShowDialog() == DialogResult.OK) {
-                    _activeSolution = null;
-                    ObjectExtension.ClearCache();
-                    GC.Collect();
-
                     var sln = new Solution();
                     sln.FileName = _ofd.FileName;
                     sln.Load(out errorMessage);
                     ActiveSolution = sln;
                     ActiveSolution.ResolveBranchedIndices();
                     _activeSolution.IsSaved = true;
-
-                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    GC.Collect();
                     return true;
                 }
             } catch {
@@ -368,26 +355,15 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             string errorMessage = string.Empty;
             try {
                 if (fileName != null) {
-                    _activeSolution = null;
-                    ObjectExtension.ClearCache();
-                    GC.Collect();
-
                     var sln = new Solution();
                     sln.FileName = fileName;
                     sln.Load(out errorMessage);
                     sln.FileName = null;
                     ActiveSolution = sln;
                     ActiveSolution.ResolveBranchedIndices();
-
-                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                    GC.Collect();
                     return true;
                 } else {
                     if (_ofd.ShowDialog() == DialogResult.OK) {
-                        _activeSolution = null;
-                        ObjectExtension.ClearCache();
-                        GC.Collect();
-
                         var sln = new Solution();
                         sln.FileName = _ofd.FileName;
                         sln.Load(out errorMessage);
@@ -395,8 +371,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         ActiveSolution = sln;
                         ActiveSolution.ResolveBranchedIndices();
 
-                        GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                        GC.Collect();
                         return true;
                     }
                 }
@@ -476,10 +450,13 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         }
 
         private Solution() {
-            _activeSolution = null;
-            ObjectExtension.ClearCache();
-            FunctionOutputCacheWrapper.FunctionOutputCache.Dispose();
+            if (_activeSolution != null) {
+                _activeSolution.Dispose();
+                _activeSolution = null;
+            }
+
             _projects = new List<BaseProject>();
+
             foreach (Type projectType in _projectTypes) {
                 var project = Activator.CreateInstance(projectType) as BaseProject;
                 project.Parent = this;
@@ -640,7 +617,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                             string projectErrorMessage;
                             project.LoadFromXml(xmlDocument, out projectErrorMessage);
                             sb.Append(projectErrorMessage);
-                            
+
                             xmlDocument = null;
                             GC.Collect();
                         }
@@ -659,9 +636,32 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 project.ResolveBranchedIndices();
         }
 
+        public void Dispose() {
+            ObjectExtension.ClearCache();
+            FunctionOutputCacheWrapper.FunctionOutputCache.Dispose();
+
+            //if (ActiveSolutionChanged != null) {
+            //    var arr = ActiveSolutionChanged.GetInvocationList();
+            //    Parallel.For(0, arr.LongLength, (i) => {
+            //        ActiveSolutionChanged -= arr[i] as EventHandler<ActiveSolutionChangedEventArgs>;
+            //    });
+            //}
+
+            //SolutionComponent.UnsuscribeSolutionComponentChanged();
+
+            if (_projects != null)
+                foreach (var project in _projects)
+                    project.Dispose();
+
+
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+        }
+
         #endregion
 
         #endregion
+
     }
 
     public class ActiveSolutionChangedEventArgs : EventArgs {

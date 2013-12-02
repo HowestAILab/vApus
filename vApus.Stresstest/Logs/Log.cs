@@ -102,7 +102,6 @@ namespace vApus.Stresstest {
         public string[] Deny { get { return _deny; } set { _deny = value; } }
 
         /// <summary>
-        /// For a distributed test.
         /// </summary>
         internal Parameters Parameters {
             set {
@@ -175,7 +174,7 @@ namespace vApus.Stresstest {
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
-            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
+            Parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
         }
 
         private void _logRuleSet_ParentIsNull(object sender, EventArgs e) {

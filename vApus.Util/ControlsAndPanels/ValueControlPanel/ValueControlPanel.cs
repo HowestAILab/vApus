@@ -177,6 +177,10 @@ namespace vApus.Util {
             }
         }
 
+        public void ClearValues() {
+            SetValues(new BaseValueControl.Value[0]);
+        }
+
         /// <summary>
         ///     For dynamic descriptions, will only set it if not null and if not the same as the old one.
         /// </summary>
@@ -277,7 +281,6 @@ namespace vApus.Util {
         }
 
         #endregion
-
 
         public class ValueChangedEventArgs : EventArgs {
             public readonly int Index;
