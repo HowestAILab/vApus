@@ -35,7 +35,7 @@ namespace vApus.Stresstest {
         [Description("To be able to connect to the application-to-test."), DisplayName("Connection Proxy")]
         public ConnectionProxy ConnectionProxy {
             get {
-                if (Solution.ActiveSolution!= null && _connectionProxy.IsEmpty || _connectionProxy.Parent == null)
+                if (Solution.ActiveSolution != null && _connectionProxy.IsEmpty || _connectionProxy.Parent == null)
                     _connectionProxy = GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
 
                 return _connectionProxy;
@@ -56,19 +56,21 @@ namespace vApus.Stresstest {
                 value = value.Trim();
                 var lexicalResult = LexicalResult.OK;
                 ASTNode output = null;
-                try {
-                    var connectionProxy = ConnectionProxy;
-                    if (value.Length != 0 && connectionProxy != null && !connectionProxy.IsEmpty && !connectionProxy.ConnectionProxyRuleSet.IsEmpty) {
-                        lexicalResult = connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters, out output);
 
-                        if (output != null) {
-                            output.Dispose();
-                            output = null;
+                if (Solution.ActiveSolution != null)
+                    try {
+                        var connectionProxy = ConnectionProxy;
+                        if (value.Length != 0 && connectionProxy != null && !connectionProxy.IsEmpty && !connectionProxy.ConnectionProxyRuleSet.IsEmpty) {
+                            lexicalResult = connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters, out output);
+
+                            if (output != null) {
+                                output.Dispose();
+                                output = null;
+                            }
                         }
+                    } catch {
+                        //While loading.
                     }
-                } catch { 
-                    //While loading.
-                }
 
                 if (lexicalResult == LexicalResult.OK)
                     _connectionString = value;
