@@ -39,17 +39,15 @@ namespace vApus.DistributedTesting {
         public Connection Connection {
             get {
                 if (_connection != null) {
-                    if (_connection.IsEmpty)
-                        Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
+                    if (Solution.ActiveSolution != null && _connection.IsEmpty || _connection.Parent == null)
+                        _connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
 
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
                 }
                 return _connection;
             }
             set {
-                value.ParentIsNull -= _connection_ParentIsNull;
                 _connection = value;
-                _connection.ParentIsNull += _connection_ParentIsNull;
             }
         }
         [ReadOnly(true)]
@@ -214,10 +212,6 @@ namespace vApus.DistributedTesting {
 
             SolutionComponentChanged += new EventHandler<SolutionComponentChangedEventArgs>(SolutionComponentChanged_SolutionComponentChanged);
         }
-        private void _connection_ParentIsNull(object sender, EventArgs e) {
-            if (_connection == sender)
-                Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
-        }
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             //Cleanup _monitors if _monitorProject Changed
             if (sender == _monitorProject || sender is Monitor.Monitor) {
@@ -247,7 +241,7 @@ namespace vApus.DistributedTesting {
         /// <returns></returns>
         public BasicTileStresstest Clone() {
             var clone = new BasicTileStresstest();
-            clone.Connection = _connection;
+            clone.Connection = Connection;
             clone.MonitorIndices = new int[_monitorIndices.Length];
             _monitorIndices.CopyTo(clone.MonitorIndices, 0);
             clone.SlaveIndices = new int[_slaveIndices.Length];

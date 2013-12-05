@@ -97,7 +97,9 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Describes how a log should look like to be usable in a stresstest.
         /// </summary>
-        public LogRuleSet() { SolutionComponentChanged += BaseItem_SolutionComponentChanged; }
+        public LogRuleSet() { 
+            SolutionComponentChanged += BaseItem_SolutionComponentChanged; 
+        }
         /// <summary>
         ///     Only for sending from master to slave.
         /// </summary>
@@ -112,7 +114,7 @@ namespace vApus.Stresstest {
                 _beginTimestampIndex = sr.ReadUInt32();
                 _endTimestampIndex = sr.ReadUInt32();
 
-                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
             sr = null;
         }

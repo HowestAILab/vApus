@@ -132,7 +132,7 @@ namespace vApus.Stresstest {
                 _useDelay = sr.ReadBoolean();
                 _linkedToUserActionIndices = sr.ReadCollection<int>(_linkedToUserActionIndices) as List<int>;
 
-                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
             sr = null;
         }
@@ -198,9 +198,9 @@ namespace vApus.Stresstest {
 
             foreach (var ua in toLink) {
                 if (index < log.Count)
-                    log.InsertWithoutInvokingEvent(index, ua, false);
+                    log.InsertWithoutInvokingEvent(index, ua);
                 else
-                    log.AddWithoutInvokingEvent(ua, false);
+                    log.AddWithoutInvokingEvent(ua);
                 ua.Pinned = Pinned;
                 _linkedToUserActionIndices.Add(ua.Index);
 
@@ -228,9 +228,9 @@ namespace vApus.Stresstest {
 
                     int lastIndex = _linkedToUserActionIndices[_linkedToUserActionIndices.Count - 1];
                     if (lastIndex < log.Count)
-                        log.InsertWithoutInvokingEvent(lastIndex, userAction, false);
+                        log.InsertWithoutInvokingEvent(lastIndex, userAction);
                     else
-                        log.AddWithoutInvokingEvent(userAction, false);
+                        log.AddWithoutInvokingEvent(userAction);
                 }
 
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
@@ -249,7 +249,7 @@ namespace vApus.Stresstest {
             var merged = toMerge[0];
             for (int i = 1; i != toMerge.Count; i++) {
                 var ua = toMerge[i] as UserAction;
-                merged.AddRangeWithoutInvokingEvent(ua, false);
+                merged.AddRangeWithoutInvokingEvent(ua);
                 merged.LogEntryStringsAsImported.AddRange(ua.LogEntryStringsAsImported);
                 log.RemoveWithoutInvokingEvent(ua);
             }
@@ -303,7 +303,7 @@ namespace vApus.Stresstest {
             int i = 0;
             foreach (LogEntry logEntry in this) {
                 var ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
-                ua.AddWithoutInvokingEvent(logEntry, false);
+                ua.AddWithoutInvokingEvent(logEntry);
 
                 if (i < this.LogEntryStringsAsImported.Count)
                     ua.LogEntryStringsAsImported.Add(this.LogEntryStringsAsImported[i]);
@@ -321,7 +321,7 @@ namespace vApus.Stresstest {
                     ua.LinkedToUserActionIndices[k] = linkedIndices[k] + add;
             }
 
-            log.InserRangeWithoutInvokingEvent(index, l, false);
+            log.InserRangeWithoutInvokingEvent(index, l);
             log.RemoveWithoutInvokingEvent(this);
 
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
@@ -343,7 +343,7 @@ namespace vApus.Stresstest {
             else
                 userAction.Label = _label;
 
-            userAction.SetParent(Parent, false);
+            userAction.SetParent(Parent);
             userAction.Occurance = _occurance;
             userAction.Pinned = Pinned;
             userAction.UseDelay = _useDelay;
@@ -360,7 +360,7 @@ namespace vApus.Stresstest {
             }
 
             foreach (LogEntry logEntry in this)
-                userAction.AddWithoutInvokingEvent(logEntry.Clone(logRuleSet, applyRuleSet, cloneLabelAndLogEntryStringByRef), false);
+                userAction.AddWithoutInvokingEvent(logEntry.Clone(logRuleSet, applyRuleSet, cloneLabelAndLogEntryStringByRef));
 
             return userAction;
         }

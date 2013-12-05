@@ -422,6 +422,7 @@
     </Compile>
     <Compile Include="DictionaryUtil.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="FastObjectCreator.cs" />
     <Compile Include="FastSerializer.cs" />
     <Compile Include="ControlsAndPanels\Logging\ExceptionHelper.cs" />
     <Compile Include="ControlsAndPanels\Logging\Logger.cs" />

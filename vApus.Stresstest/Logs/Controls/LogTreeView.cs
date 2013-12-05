@@ -79,14 +79,14 @@ namespace vApus.Stresstest {
                     newlogNeeded = true;
                     var logEntry = item as LogEntry;
                     ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
-                    ua.AddWithoutInvokingEvent(logEntry, false);
+                    ua.AddWithoutInvokingEvent(logEntry);
                 }
                 newLog.Add(ua);
             }
 
             if (newlogNeeded) {
                 _log.ClearWithoutInvokingEvent();
-                _log.AddRangeWithoutInvokingEvent(newLog, false);
+                _log.AddRangeWithoutInvokingEvent(newLog);
             }
 
             //Add al to a list, and add the list to the largelist afterwards, this is faster.

@@ -66,15 +66,15 @@ namespace vApus.DistributedTesting {
         [SavableCloneable]
         public Stresstest.Stresstest DefaultAdvancedSettingsTo {
             get {
-                if (_defaultAdvancedSettingsTo.IsEmpty)
-                    DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
+                if (Solution.ActiveSolution != null && _defaultAdvancedSettingsTo.IsEmpty || _defaultAdvancedSettingsTo.Parent == null) {
+                    _defaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
 
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); }, null);
+                }
                 return _defaultAdvancedSettingsTo;
             }
             set {
-                value.ParentIsNull -= _defaultAdvancedSettingsTo_ParentIsNull;
                 _defaultAdvancedSettingsTo = value;
-                _defaultAdvancedSettingsTo.ParentIsNull += _defaultAdvancedSettingsTo_ParentIsNull;
             }
         }
 
@@ -117,23 +117,11 @@ namespace vApus.DistributedTesting {
             _canDefaultAdvancedSettingsTo = true;
         }
 
-        private void _defaultAdvancedSettingsTo_ParentIsNull(object sender, EventArgs e) {
-            if (_defaultAdvancedSettingsTo == sender) {
-                DefaultAdvancedSettingsTo =
-                    GetNextOrEmptyChild(typeof(Stresstest.Stresstest),
-                                        Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as
-                    Stresstest.Stresstest;
-                SynchronizationContextWrapper.SynchronizationContext.Send(
-                    delegate { InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); },
-                    null);
-            }
-        }
-
         /// <summary>
         /// Use this after adding a slave.
         /// </summary>
         internal void ForceDefaultTo() {
-            if (_defaultAdvancedSettingsTo != null)
+            if (DefaultAdvancedSettingsTo != null)
                 AdvancedTileStresstest.DefaultTo(_defaultAdvancedSettingsTo);
         }
 
@@ -172,7 +160,7 @@ namespace vApus.DistributedTesting {
         public TileStresstest Clone() {
             var clone = new TileStresstest();
             clone.Use = _use;
-            clone.DefaultAdvancedSettingsTo = _defaultAdvancedSettingsTo;
+            clone._defaultAdvancedSettingsTo = DefaultAdvancedSettingsTo;
             clone.AutomaticDefaultAdvancedSettings = _automaticDefaultAdvancedSettings;
 
             clone.ClearWithoutInvokingEvent();
@@ -202,7 +190,7 @@ namespace vApus.DistributedTesting {
                 var connection = BasicTileStresstest._connection.Clone();
 
                 connection.RemoveDescription();
-                connections.AddWithoutInvokingEvent(connection, false);
+                connections.AddWithoutInvokingEvent(connection);
                 connection.ForceSettingChildsParent();
 
                 stresstest.Connection = connection;

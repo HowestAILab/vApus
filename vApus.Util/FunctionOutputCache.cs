@@ -80,6 +80,8 @@ namespace vApus.Util {
             if (!_isDisposed) {
                 _isDisposed = true;
                 _cache = null;
+
+                GC.WaitForPendingFinalizers();
                 GC.Collect();
             }
         }

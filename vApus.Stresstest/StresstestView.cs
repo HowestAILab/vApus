@@ -21,7 +21,7 @@ namespace vApus.Stresstest {
     public partial class StresstestView : BaseSolutionComponentView {
 
         #region Fields
-        private readonly Stresstest _stresstest;
+        private Stresstest _stresstest;
 
         private ScheduleDialog _scheduleDialog;
 

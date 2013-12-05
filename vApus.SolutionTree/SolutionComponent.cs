@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Reflection;
 using System.Resources;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -23,13 +24,6 @@ namespace vApus.SolutionTree {
     public abstract class SolutionComponent : Object, ICollection<BaseItem>, IDisposable {
         [field: NonSerialized]
         public static event EventHandler<SolutionComponentChangedEventArgs> SolutionComponentChanged;
-        /// <summary>
-        ///     When creating a empty base item, it checks if the parent becomes null. (Happens when removed from a collection, don't set the parent null yourself)
-        ///     Call SolutionComponent.GetNextChild when this happens, don't forget to suscribe to this event again for the new item.
-        ///     Note: this event is fired on another thread.
-        /// </summary>
-        [field: NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
-        public event EventHandler ParentIsNull;
 
         private delegate void InvokeSolutionComponentChangedEventDelegate(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg);
 
@@ -114,14 +108,6 @@ namespace vApus.SolutionTree {
 
         #region Constructor
 
-        static SolutionComponent() {
-            /// <summary>
-            /// To Check if the parent has become null.
-            /// 
-            /// That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
-            ObjectExtension.ParentChanged += ObjectExtension_ParentChanged;
-        }
-
         /// <summary>
         ///     The base class for BaseItem and BaseProject. The base of everything in a solution. Contains all the plumbing for ICollection amongst others.
         /// </summary>
@@ -147,14 +133,13 @@ namespace vApus.SolutionTree {
             }
         }
         public void Dispose() {
-            if (ParentIsNull != null) {
-                var arr = ParentIsNull.GetInvocationList();
-                Parallel.For(0, arr.LongLength, (i) => {
-                    ParentIsNull -= arr[i] as EventHandler;
-                });
-            }
             foreach (var item in this)
                 item.Dispose();
+
+            //Do manual de-referencing, otherwise we have a mem leak. This is expensive but effective.
+            foreach (FieldInfo info in GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                if (!info.FieldType.IsValueType)
+                    info.SetValue(this, null);
         }
         /// <summary>
         ///     Will only invoke SolutionComponentChanged if the ShowOnGui property of the item equals true.
@@ -232,30 +217,9 @@ namespace vApus.SolutionTree {
 
         IEnumerator IEnumerable.GetEnumerator() { return _items.GetEnumerator(); }
 
-        /// <summary>
-        ///     Checks if the parent has become null.
-        ///     That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
-        /// </summary>
-        protected static void ObjectExtension_ParentChanged(ObjectExtension.ParentChangedEventArgs parentOrTagChangedEventArgs) {
-            if (Solution.ActiveSolution != null) {
-                SolutionComponent solutionComponent = parentOrTagChangedEventArgs.Child as SolutionComponent;
-                if (solutionComponent != null && parentOrTagChangedEventArgs.New == null)
-                    solutionComponent.InvokeParentIsNull();
-            }
-        }
-
-        internal void InvokeParentIsNull() {
-            if (ParentIsNull != null) {
-                var invocationList = ParentIsNull.GetInvocationList();
-                Parallel.For(0, invocationList.Length, (i) => {
-                    (invocationList[i] as EventHandler).Invoke(this, null);
-                });
-            }
-        }
-
-        public void AddWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true) {
+        public void AddWithoutInvokingEvent(BaseItem item) {
             _items.Add(item);
-            item.SetParent(this, invokeParentChanged);
+            item.SetParent(this);
             item.ForceSettingChildsParent();
         }
 
@@ -288,7 +252,7 @@ namespace vApus.SolutionTree {
                 oldItem.RemoveParent();
                 _items.Remove(oldItem);
             }
-            item.SetParent(this, false);
+            item.SetParent(this);
             item.ForceSettingChildsParent();
         }
 
@@ -308,7 +272,7 @@ namespace vApus.SolutionTree {
             _items.Add(item);
 
             item.IsDefaultItem = true;
-            item.SetParent(this, false);
+            item.SetParent(this);
             item.ForceSettingChildsParent();
             return index;
         }
@@ -327,10 +291,10 @@ namespace vApus.SolutionTree {
         ///     Pastes, if any, a item from the given child type in the items collection.
         /// </summary>
         /// <param name="childType"></param>
-        public void AddRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection, bool invokeParentChanged = true) {
+        public void AddRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection) {
             _items.AddRange(collection);
             foreach (BaseItem item in collection) {
-                item.SetParent(this, invokeParentChanged);
+                item.SetParent(this);
                 item.ForceSettingChildsParent();
             }
         }
@@ -348,9 +312,9 @@ namespace vApus.SolutionTree {
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
-        public void InsertWithoutInvokingEvent(int index, BaseItem item, bool invokeParentChanged = true) {
+        public void InsertWithoutInvokingEvent(int index, BaseItem item) {
             _items.Insert(index, item);
-            item.SetParent(this, invokeParentChanged);
+            item.SetParent(this);
             item.ForceSettingChildsParent();
         }
 
@@ -359,11 +323,11 @@ namespace vApus.SolutionTree {
         /// </summary>
         /// <param name="index"></param>
         /// <param name="collection"></param>
-        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection, bool invokeParentChanged = true) {
+        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection) {
             _items.InsertRange(index, collection);
 
             foreach (BaseItem item in collection) {
-                item.SetParent(this, invokeParentChanged);
+                item.SetParent(this);
                 item.ForceSettingChildsParent();
             }
         }
@@ -510,7 +474,7 @@ namespace vApus.SolutionTree {
         /// </summary>
         public void ForceSettingChildsParent() {
             foreach (BaseItem item in this) {
-                item.SetParent(this, false);
+                item.SetParent(this);
                 item.ForceSettingChildsParent();
             }
         }

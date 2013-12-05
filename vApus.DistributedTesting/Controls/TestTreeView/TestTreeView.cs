@@ -178,7 +178,7 @@ namespace vApus.DistributedTesting {
             var dttvi = sender as DistributedTestTreeViewItem;
 
             var tile = new Tile();
-            tile.AddWithoutInvokingEvent(new TileStresstest(), false);
+            tile.AddWithoutInvokingEvent(new TileStresstest());
 
             dttvi.DistributedTest.Tiles.Add(tile);
 
@@ -194,7 +194,7 @@ namespace vApus.DistributedTesting {
         private void CreateAndAddTileTreeViewItem(Tile tile) {
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
-            tvi.SetParent(largeList, false);
+            tvi.SetParent(largeList);
             tvi.AfterSelect += _AfterSelect;
             tvi.AddTileStresstestClicked += tvi_AddTileStresstestClicked;
             tvi.DuplicateClicked += tvi_DuplicateClicked;
@@ -212,7 +212,7 @@ namespace vApus.DistributedTesting {
         private void CreateAndInsertTileTreeViewItem(Tile tile, KeyValuePair<int, int> index) {
             var tvi = new TileTreeViewItem(tile);
             //Used for handling collapsing and expanding.
-            tvi.SetParent(largeList, false);
+            tvi.SetParent(largeList);
             tvi.AfterSelect += _AfterSelect;
             tvi.AddTileStresstestClicked += tvi_AddTileStresstestClicked;
             tvi.DuplicateClicked += tvi_DuplicateClicked;
@@ -243,7 +243,7 @@ namespace vApus.DistributedTesting {
             var tvi = sender as TileTreeViewItem;
 
             var ts = new TileStresstest();
-            tvi.Tile.AddWithoutInvokingEvent(ts, false);
+            tvi.Tile.AddWithoutInvokingEvent(ts);
 
             ts.ForceDefaultTo();
 
@@ -308,9 +308,9 @@ namespace vApus.DistributedTesting {
                 int cloneIndex = parent.IndexOf(tvi.Tile) + 1;
 
                 if (parent.Count == cloneIndex)
-                    parent.AddWithoutInvokingEvent(clone, false);
+                    parent.AddWithoutInvokingEvent(clone);
                 else
-                    parent.InsertWithoutInvokingEvent(cloneIndex, clone, false);
+                    parent.InsertWithoutInvokingEvent(cloneIndex, clone);
 
                 TileTreeViewItem closestNextTileTreeViewItem = GetClosestNextTileTreeViewItem(tvi);
                 KeyValuePair<int, int> cloneIndexForLargeList = closestNextTileTreeViewItem == null
@@ -329,7 +329,7 @@ namespace vApus.DistributedTesting {
         private TileStresstestTreeViewItem CreateTileStresstestTreeViewItem(TileTreeViewItem parent, TileStresstest tileStresstest) {
             var tsvi = new TileStresstestTreeViewItem(tileStresstest);
             //To be able to delete the control.
-            tsvi.SetParent(parent, false);
+            tsvi.SetParent(parent);
             tsvi.AfterSelect += _AfterSelect;
             tsvi.DoubleClicked += tsvi_DoubleClicked;
             tsvi.DuplicateClicked += tsvi_DuplicateClicked;
@@ -371,9 +371,9 @@ namespace vApus.DistributedTesting {
                 int cloneIndex = parent.IndexOf(tsvi.TileStresstest) + 1;
 
                 if (parent.Count == cloneIndex)
-                    parent.AddWithoutInvokingEvent(clone, false);
+                    parent.AddWithoutInvokingEvent(clone);
                 else
-                    parent.InsertWithoutInvokingEvent(cloneIndex, clone, false);
+                    parent.InsertWithoutInvokingEvent(cloneIndex, clone);
 
                 //In Largelist
                 TileStresstestTreeViewItem cloneTsvi =

@@ -76,7 +76,7 @@ namespace vApus.DistributedTesting {
                         ++weightIndex;
                     }
                     _logs = l.ToArray();
-                    _logs.SetParent(_allLogs, false);
+                    _logs.SetParent(_allLogs);
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace vApus.DistributedTesting {
                 _logs = value;
 
                 if (_allLogs != null) {
-                    _logs.SetParent(_allLogs, false);
+                    _logs.SetParent(_allLogs);
 
                     var logIndices = new List<int>(_logs.Length);
                     var logWeights = new List<uint>(_logs.Length);
@@ -315,7 +315,7 @@ namespace vApus.DistributedTesting {
             }
 
             _logs = logs.ToArray();
-            _logs.SetParent(_allLogs, false);
+            _logs.SetParent(_allLogs);
 
             if (_allLogs != null && _allLogs.Count > 1 && _logIndices.Length == 0) {
                 _logWeights = new uint[] { 1 };
@@ -359,7 +359,7 @@ namespace vApus.DistributedTesting {
         internal void DefaultTo(Stresstest.Stresstest stresstest) {
             var logs = new KeyValuePair<Log, uint>[stresstest.Logs.Length];
             stresstest.Logs.CopyTo(logs, 0);
-            logs.SetParent(_allLogs, false);
+            logs.SetParent(_allLogs);
             Logs = logs;
 
             _concurrencies = new int[stresstest.Concurrencies.Length];
@@ -389,7 +389,7 @@ namespace vApus.DistributedTesting {
 
             clone._logs = new KeyValuePair<Log, uint>[defaultSettingsTo.Logs.Length];
             _logs.CopyTo(clone._logs, 0);
-            clone._logs.SetParent(_allLogs, false);
+            clone._logs.SetParent(_allLogs);
 
 
             clone._concurrencies = new int[_concurrencies.Length];

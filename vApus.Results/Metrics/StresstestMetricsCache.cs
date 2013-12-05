@@ -101,6 +101,7 @@ namespace vApus.Results {
                 resultsRemoved = true;
             }
             if (resultsRemoved) {
+                GC.WaitForPendingFinalizers();
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
             }

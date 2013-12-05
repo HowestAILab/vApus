@@ -63,7 +63,7 @@ namespace vApus.Stresstest {
             if (sender == Parameter && e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Edited) {
                 this.ParentForm.Activate();
                 ctxtGenerate.Focus();
-                SolutionComponent.SolutionComponentChanged -= SolutionComponent_SolutionComponentChanged;
+               // SolutionComponent.SolutionComponentChanged -= SolutionComponent_SolutionComponentChanged;
             }
         }
 

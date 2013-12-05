@@ -148,8 +148,8 @@ namespace vApus.SolutionTree {
                                : xmlDocument.ChildNodes[1];
             foreach (XmlNode childNode in root.ChildNodes) {
                 try {
-                    var item = Activator.CreateInstance(GetType().Assembly.GetTypeByName(childNode.Name)) as BaseItem;
-                    item.SetParent(this, false);
+                    var item = FastObjectCreator.CreateInstance(GetType().Assembly.GetTypeByName(childNode.Name)) as BaseItem;
+                    item.SetParent(this);
                     string childErrorMessage;
                     item.LoadFromXml(childNode, out childErrorMessage);
                     sb.Append(childErrorMessage);

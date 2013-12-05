@@ -513,7 +513,7 @@ namespace vApus.DistributedTesting {
 
                 //Add a new client.
                 var client = new Client();
-                _distributedTest.Clients.AddWithoutInvokingEvent(client, false);
+                _distributedTest.Clients.AddWithoutInvokingEvent(client);
 
                 //Set the ip and host name.
                 var ipOrHostname = row.Cells[0].Value as string;
@@ -553,7 +553,7 @@ namespace vApus.DistributedTesting {
                                                                    int.Parse(row.Cells[6].Value.ToString()),
                                                                    alreadyUsedPas);
                     alreadyUsedPas.AddRange(slave.ProcessorAffinity);
-                    client.AddWithoutInvokingEvent(slave, false);
+                    client.AddWithoutInvokingEvent(slave);
                     toAssingTestsTo.Add(slave);
                 }
             }
@@ -603,7 +603,7 @@ namespace vApus.DistributedTesting {
                 //Add the tests to the distributed test.
                 for (int i = 0; i != (int)nudTiles.Value; i++) {
                     var tile = new Tile();
-                    _distributedTest.Tiles.AddWithoutInvokingEvent(tile, false);
+                    _distributedTest.Tiles.AddWithoutInvokingEvent(tile);
 
                     Stresstest.Stresstest defaultToStresstest = null;
                     for (int j = 0; j != (int)nudTests.Value; j++) {
@@ -612,7 +612,7 @@ namespace vApus.DistributedTesting {
                         //Default to a stresstest in the solution.
                         tileStresstest.DefaultAdvancedSettingsTo = defaultToStresstest;
 
-                        tile.AddWithoutInvokingEvent(tileStresstest, false);
+                        tile.AddWithoutInvokingEvent(tileStresstest);
 
                         tileStresstest.BasicTileStresstest.Connection = toAssignConnections[connectionIndex++];
                     }

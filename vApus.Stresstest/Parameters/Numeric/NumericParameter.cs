@@ -179,6 +179,7 @@ namespace vApus.Stresstest {
 
         #region Functions
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             if (Parent != null && Parent is CustomListParameter)
                 ShowInGui = false;
         }

@@ -49,14 +49,14 @@ namespace vApus.Stresstest {
                 var parent = Parent as CustomListParameters;
                 if (_linkTo == null && _linkToIndex != -1 && _linkToIndex < parent.Count && _linkToIndex != parent.IndexOf(this)) {
                     _linkTo = parent[_linkToIndex] as CustomListParameter;
-                    _linkTo.SetParent(parent, false);
+                    _linkTo.SetParent(parent);
                     _linkTo.SetTag(this); //To not include 'this' in the selectable values on the gui.
                     return _linkTo;
                 }
                 if ((!this.IsEmpty && _linkTo == null) || _linkTo.Parent == null || _linkTo._linkTo != this) { //Links should work in both directions. if the other becomes empty or not this than this should be cleared.
                     _linkToIndex = -1;
                     _linkTo = GetEmpty(typeof(CustomListParameter), parent) as CustomListParameter;
-                    _linkTo.SetParent(parent, false);
+                    _linkTo.SetParent(parent);
                     _linkTo.SetTag(this); //To not include 'this' in the selectable values on the gui.
                     return _linkTo;
                 }
@@ -68,7 +68,7 @@ namespace vApus.Stresstest {
                     return;
                 if (value == this)
                     throw new Exception("Cannot link to self.");
-                value.ParentIsNull -= _linkTo_ParentIsNull;
+
                 _linkTo = value;
                 _linkTo.SetTag(this);
                 if (_linkTo.IsEmpty) {
@@ -78,7 +78,6 @@ namespace vApus.Stresstest {
                     _linkTo._linkTo.SetTag(_linkTo);
                     _linkToIndex = Parent.IndexOf(LinkTo);
                 }
-                _linkTo.ParentIsNull += _linkTo_ParentIsNull;
             }
         }
         [SavableCloneable]
@@ -147,24 +146,6 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Functions
-        private void _linkTo_ParentIsNull(object sender, EventArgs e) {
-            if (_linkTo == sender) {
-                LinkTo = GetEmpty(typeof(CustomListParameter), Parent as CustomListParameters) as CustomListParameter;
-                _linkTo.SetParent(Parent, false);
-                _linkTo.SetTag(this);
-            }
-        }
-        public void Add(int count, BaseParameter baseParameterType) {
-            var l = new List<string>(count + _customList.Length);
-            l.AddRange(_customList);
-            for (int i = 0; i < count; i++) {
-                l.Add(baseParameterType.Value);
-                baseParameterType.Next();
-            }
-            _customList = l.ToArray();
-            InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-
         public override void Next() {
             if (_chosenValues.Count == _customList.Length)
                 _chosenValues.Clear();

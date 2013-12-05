@@ -18,6 +18,7 @@ using vApus.SolutionTree.Properties;
 using vApus.Util;
 using System.Runtime;
 using System.Threading.Tasks;
+using System.Diagnostics;
 
 namespace vApus.SolutionTree {
     /// <summary>
@@ -75,13 +76,12 @@ namespace vApus.SolutionTree {
             get { return _dockPanel; }
         }
 
-        public static Form[] RegisteredForCancelFormClosing {
+        public static IEnumerable<Form> RegisteredForCancelFormClosing {
             get {
                 //Cleanup first
                 CleanupRegisteredForCancelFormClosing();
-                var mdiChilds = new Form[_registeredForCancelFormClosing.Count];
-                _registeredForCancelFormClosing.CopyTo(mdiChilds);
-                return mdiChilds;
+                foreach (Form form in _registeredForCancelFormClosing)
+                    yield return form;
             }
         }
 
@@ -184,20 +184,22 @@ namespace vApus.SolutionTree {
         }
 
         /// <summary>
-        ///     The will be closed before the main window is closed, they can cancel this setting ExplicitCancelFormClosing to true.
+        ///     These will be closed before the main window is closed, they can cancel this setting ExplicitCancelFormClosing to true.
         ///     Unregistering is not needed.
         /// </summary>
         /// <param name="mdiChild"></param>
         public static void RegisterForCancelFormClosing(Form mdiChild) {
             CleanupRegisteredForCancelFormClosing();
-            _registeredForCancelFormClosing.Add(mdiChild);
+            if (mdiChild != null && !mdiChild.IsDisposed && !mdiChild.Disposing)
+                _registeredForCancelFormClosing.Add(mdiChild);
         }
 
         private static void CleanupRegisteredForCancelFormClosing() {
             var newRegisteredForCancelFormClosing = new HashSet<Form>();
             foreach (Form mdiChild in _registeredForCancelFormClosing)
-                if (mdiChild != null && !mdiChild.IsDisposed)
+                if (mdiChild != null && !mdiChild.IsDisposed && !mdiChild.Disposing)
                     newRegisteredForCancelFormClosing.Add(mdiChild);
+            _registeredForCancelFormClosing.Clear();
             _registeredForCancelFormClosing = newRegisteredForCancelFormClosing;
         }
 
@@ -235,6 +237,7 @@ namespace vApus.SolutionTree {
 
                 RegisterActiveSolutionAsRecent();
 
+                GC.WaitForPendingFinalizers();
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
                 return true;
@@ -445,7 +448,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
-
             _stresstestingSolutionExplorer.DockStateChanged += _stresstestingSolutionExplorer_DockStateChanged;
         }
 
@@ -458,7 +460,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             _projects = new List<BaseProject>();
 
             foreach (Type projectType in _projectTypes) {
-                var project = Activator.CreateInstance(projectType) as BaseProject;
+                var project = FastObjectCreator.CreateInstance(projectType) as BaseProject;
                 project.Parent = this;
                 _projects.Add(project);
             }
@@ -597,7 +599,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                     project.GetXmlToSave().Save(sw);
 
                 sw = null;
-                GC.Collect();
             }
             package.Flush();
             package.Close();
@@ -605,6 +606,8 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         }
 
         protected void Load(out string errorMessage) {
+            //var sw = Stopwatch.StartNew();
+
             //Error reporting.
             var sb = new StringBuilder();
             try {
@@ -614,12 +617,12 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         if (part.Uri.ToString().EndsWith(project.GetType().Name)) {
                             var xmlDocument = new XmlDocument();
                             xmlDocument.Load(part.GetStream());
+
                             string projectErrorMessage;
                             project.LoadFromXml(xmlDocument, out projectErrorMessage);
                             sb.Append(projectErrorMessage);
 
                             xmlDocument = null;
-                            GC.Collect();
                         }
                 }
                 package.Close();
@@ -629,6 +632,13 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 sb.Append(ex);
             }
             errorMessage = sb.ToString();
+
+            GC.WaitForPendingFinalizers();
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+
+            //sw.Stop();
+            //MessageBox.Show(sw.Elapsed.ToShortFormattedString());
         }
 
         protected void ResolveBranchedIndices() {
@@ -637,23 +647,25 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         }
 
         public void Dispose() {
-            ObjectExtension.ClearCache();
-            FunctionOutputCacheWrapper.FunctionOutputCache.Dispose();
+            //Not needed, only general stuff in here.
+            //FunctionOutputCacheWrapper.FunctionOutputCache.Dispose();
+            
+            foreach (Form mdiChild in _registeredForCancelFormClosing)
+                if (mdiChild != null && !mdiChild.IsDisposed && !mdiChild.Disposing)
+                    try { mdiChild.Dispose(); } catch { }
+            _registeredForCancelFormClosing.Clear();
 
-            //if (ActiveSolutionChanged != null) {
-            //    var arr = ActiveSolutionChanged.GetInvocationList();
-            //    Parallel.For(0, arr.LongLength, (i) => {
-            //        ActiveSolutionChanged -= arr[i] as EventHandler<ActiveSolutionChangedEventArgs>;
-            //    });
-            //}
+            SolutionComponentViewManager.DisposeViews();
 
-            //SolutionComponent.UnsuscribeSolutionComponentChanged();
-
-            if (_projects != null)
+            if (_projects != null) {
                 foreach (var project in _projects)
                     project.Dispose();
+                _projects.Clear();
+            }
 
+            ObjectExtension.ClearCache();
 
+            GC.WaitForPendingFinalizers();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
         }
@@ -661,7 +673,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         #endregion
 
         #endregion
-
     }
 
     public class ActiveSolutionChangedEventArgs : EventArgs {

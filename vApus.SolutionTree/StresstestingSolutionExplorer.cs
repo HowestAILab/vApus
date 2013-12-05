@@ -35,7 +35,10 @@ namespace vApus.SolutionTree {
         #endregion
 
         #region Functions
-        private void StresstestingSolutionExplorer_HandleCreated(object sender, EventArgs e) { Init(); }
+        private void StresstestingSolutionExplorer_HandleCreated(object sender, EventArgs e) {
+            HandleCreated -= StresstestingSolutionExplorer_HandleCreated;
+            Init();
+        }
         private void Init() {
             Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
@@ -88,7 +91,7 @@ namespace vApus.SolutionTree {
                 tvw.BeforeLabelEdit -= tvw_BeforeLabelEdit;
                 tvw.AfterLabelEdit -= tvw_AfterLabelEdit;
                 e.Node.Text = (e.Node.Tag as LabeledBaseItem).Label;
-               
+
                 ThreadPool.QueueUserWorkItem((state) => {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         try {
@@ -101,7 +104,7 @@ namespace vApus.SolutionTree {
                             }
                             tvw.AfterLabelEdit += tvw_AfterLabelEdit;
                             tvw.BeforeLabelEdit += tvw_BeforeLabelEdit;
-                        } catch { 
+                        } catch {
                         }
                     }, null);
                 }, e.Node);
@@ -186,7 +189,10 @@ namespace vApus.SolutionTree {
 
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (e.ToBeLoaded) {
+                foreach (TreeNode node in tvw.Nodes) ClearNode(node); //Found you nasty memory leak, clearing the tags of the nodes fixed it.
+
                 tvw.Nodes.Clear();
+
                 tvw.Nodes.AddRange(Solution.ActiveSolution.GetTreeNodes().ToArray());
 
                 //Applying images/expanding.
@@ -195,6 +201,12 @@ namespace vApus.SolutionTree {
                 tvw.Select();
                 tvw.SelectedNode = tvw.Nodes[0];
             }
+        }
+        private void ClearNode(TreeNode node) {
+            node.Tag = null;
+            node.ContextMenuStrip = null;
+            foreach (TreeNode childNode in node.Nodes)
+                ClearNode(childNode);
         }
 
         private void SetTreeNodeImage(TreeNode node) {
@@ -229,7 +241,7 @@ namespace vApus.SolutionTree {
                                     try {
                                         childNode.BeginEdit();
                                     } catch {
-                                        
+
                                     }
                             } else {
                                 node.Nodes.Clear();

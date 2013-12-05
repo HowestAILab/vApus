@@ -306,8 +306,7 @@ namespace vApus.Gui {
             if (Solution.ActiveSolution != null &&
                 (!Solution.ActiveSolution.IsSaved || Solution.ActiveSolution.FileName == null)) {
                 DialogResult result =
-                    MessageBox.Show(
-                        string.Format("Do you want to save '{0}' before exiting the application?",
+                    MessageBox.Show(string.Format("Do you want to save '{0}' before exiting the application?",
                         Solution.ActiveSolution.Name), string.Empty, _saveAndCloseOnUpdate ? MessageBoxButtons.YesNo : MessageBoxButtons.YesNoCancel,
                         MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes || result == DialogResult.No) {

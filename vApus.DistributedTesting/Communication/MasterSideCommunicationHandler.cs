@@ -456,7 +456,9 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public static void Init() {
             _lock = null;
+            GC.WaitForPendingFinalizers();
             GC.Collect();
+            
             _lock = new object();
 
             DisconnectSlaves();
@@ -729,6 +731,7 @@ namespace vApus.DistributedTesting {
 
                     //Reset the buffers to keep the messages as small as possible.
                     ResetBuffers(socketWrapper);
+                    GC.WaitForPendingFinalizers();
                     GC.Collect();
 
                     if (initializeTestMessage.Exception != null) throw new Exception(initializeTestMessage.Exception);

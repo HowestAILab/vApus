@@ -66,7 +66,7 @@ return start.AddTicks(randomTicks);
         #endregion
 
         #region Constructors
-        public CustomRandomParameter() { }
+        public CustomRandomParameter() { Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged; }
         public CustomRandomParameter(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
@@ -81,6 +81,12 @@ return start.AddTicks(randomTicks);
         #endregion
 
         #region Functions
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            if (Parent != null && Parent is CustomListParameter)
+                ShowInGui = false;
+        }
+
         public override void Next() {
             lock (_lock)
             //For thread safety, only here, because only for this type of parameter this function can be used while testing.

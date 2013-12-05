@@ -227,17 +227,17 @@ namespace vApus.Stresstest {
                 if (DetermineComment(line, out output)) {
                     if (toAdd.LogRuleSet.ActionizeOnComment) {
                         userAction = new UserAction(output);
-                        toAdd.AddWithoutInvokingEvent(userAction, false);
+                        toAdd.AddWithoutInvokingEvent(userAction);
                     }
                 } else if (userAction == null) {
                     var logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
                     var ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
                     ua.LogEntryStringsAsImported.Add(logEntry.LogEntryString);
-                    ua.AddWithoutInvokingEvent(logEntry, false);
-                    toAdd.AddWithoutInvokingEvent(ua, false);
+                    ua.AddWithoutInvokingEvent(logEntry);
+                    toAdd.AddWithoutInvokingEvent(ua);
                 } else {
                     var logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
-                    userAction.AddWithoutInvokingEvent(logEntry, false);
+                    userAction.AddWithoutInvokingEvent(logEntry);
                     userAction.LogEntryStringsAsImported.Add(logEntry.LogEntryString);
                 }
             }
@@ -251,7 +251,7 @@ namespace vApus.Stresstest {
                 if (dialog.ShowDialog() == DialogResult.Cancel) return;
             }
 
-            _log.AddRangeWithoutInvokingEvent(toAdd, false);
+            _log.AddRangeWithoutInvokingEvent(toAdd);
             toAdd = null;
 
             RemoveEmptyUserActions();
@@ -391,7 +391,7 @@ namespace vApus.Stresstest {
                     userAction.ClearWithoutInvokingEvent();
 
                     foreach (string s in userAction.LogEntryStringsAsImported)
-                        userAction.AddWithoutInvokingEvent(new LogEntry(s), false);
+                        userAction.AddWithoutInvokingEvent(new LogEntry(s));
                 }
                 _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 

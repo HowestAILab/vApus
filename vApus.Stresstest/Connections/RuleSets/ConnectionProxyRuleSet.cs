@@ -61,7 +61,7 @@ namespace vApus.Stresstest {
                 ChildDelimiter = sr.ReadString();
                 _connected = sr.ReadBoolean();
 
-                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
             sr = null;
         }

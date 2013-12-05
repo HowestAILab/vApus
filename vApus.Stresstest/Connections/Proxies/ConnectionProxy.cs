@@ -51,8 +51,8 @@ namespace vApus.Stresstest {
                 ShowInGui = false;
                 Label = sr.ReadString();
                 ClearWithoutInvokingEvent();
-                AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyRuleSet, false);
-                AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyCode, false);
+                AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyRuleSet);
+                AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyCode);
             }
             sr = null;
         }

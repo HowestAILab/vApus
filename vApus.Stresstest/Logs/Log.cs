@@ -41,7 +41,7 @@ namespace vApus.Stresstest {
         private LexicalResult _lexicalResult;
         private LogRuleSet _logRuleSet;
 
-        private Parameters _parameters;
+        private static Parameters _parameters;
 
         private int _preferredTokenDelimiterIndex;
 
@@ -54,17 +54,15 @@ namespace vApus.Stresstest {
         [DisplayName("Log Rule Set"), Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
         public LogRuleSet LogRuleSet {
             get {
-                if (_logRuleSet.IsEmpty)
-                    LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+                if (Solution.ActiveSolution != null && _logRuleSet.IsEmpty || _logRuleSet.Parent == null)
+                    _logRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
 
                 return _logRuleSet;
             }
             set {
                 if (value == null)
                     return;
-                value.ParentIsNull -= _logRuleSet_ParentIsNull;
                 _logRuleSet = value;
-                _logRuleSet.ParentIsNull += _logRuleSet_ParentIsNull;
             }
         }
 
@@ -103,13 +101,10 @@ namespace vApus.Stresstest {
 
         /// <summary>
         /// </summary>
-        internal Parameters Parameters {
+        internal static Parameters Parameters {
             set {
                 _parameters = value;
-                Parallel.ForEach(this, (item) => {
-                    foreach (LogEntry childItem in item)
-                        childItem.Parameters = _parameters;
-                });
+                LogEntry.Parameters = _parameters;
             }
         }
         #endregion
@@ -141,10 +136,11 @@ namespace vApus.Stresstest {
                 _preferredTokenDelimiterIndex = sr.ReadInt32();
                 _parameters = sr.ReadObject() as Parameters;
 
-                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
             sr = null;
             //Not pretty, but helps against mem saturation.
+            GC.WaitForPendingFinalizers();
             GC.Collect();
         }
         #endregion
@@ -159,7 +155,7 @@ namespace vApus.Stresstest {
             SerializationWriter sw;
             using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(Label);
-                sw.WriteObject(_logRuleSet);
+                sw.WriteObject(LogRuleSet);
                 sw.Write(_preferredTokenDelimiterIndex);
                 sw.WriteObject(_parameters);
 
@@ -168,6 +164,7 @@ namespace vApus.Stresstest {
             }
             sw = null;
             //Not pretty, but helps against mem saturation.
+            GC.WaitForPendingFinalizers();
             GC.Collect();
         }
 
@@ -175,11 +172,6 @@ namespace vApus.Stresstest {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
             Parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-        }
-
-        private void _logRuleSet_ParentIsNull(object sender, EventArgs e) {
-            if (_logRuleSet == sender)
-                LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
         }
 
         /// <summary>
@@ -269,7 +261,7 @@ namespace vApus.Stresstest {
             var logEntriesWithErrors = new List<LogEntry>();
             foreach (var logEntry in GetAllLogEntries()) {
                 try {
-                    logEntry.ApplyLogRuleSet(_logRuleSet);
+                    logEntry.ApplyLogRuleSet(LogRuleSet);
                     if (logEntry.LexicalResult == LexicalResult.Error)
                         logEntriesWithErrors.Add(logEntry);
                 } catch (Exception ex) {
@@ -392,14 +384,13 @@ namespace vApus.Stresstest {
             var log = new Log();
             log.Parent = Parent;
             log.Label = Label;
-            log.LogRuleSet = _logRuleSet;
+            log._logRuleSet = LogRuleSet;
             log._lexicalResult = _lexicalResult;
             log.PreferredTokenDelimiterIndex = _preferredTokenDelimiterIndex;
-            log._parameters = _parameters;
 
             if (cloneChildren)
                 foreach (UserAction userAction in this)
-                    log.AddWithoutInvokingEvent(userAction.Clone(_logRuleSet, applyRuleSet, cloneLabelAndLogEntryStringByRef, copyLogEntriesAsImported, true), false);
+                    log.AddWithoutInvokingEvent(userAction.Clone(log._logRuleSet, applyRuleSet, cloneLabelAndLogEntryStringByRef, copyLogEntriesAsImported, true));
 
             return log;
         }
@@ -413,6 +404,10 @@ namespace vApus.Stresstest {
             }
         }
 
+        public new void Dispose() {
+            _parameters = null;
+            base.Dispose();
+        }
         #endregion
 
         public class LexicalResultsChangedEventArgs : EventArgs {

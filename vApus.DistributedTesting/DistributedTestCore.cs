@@ -137,7 +137,6 @@ namespace vApus.DistributedTesting {
         }
         ~DistributedTestCore() {
             Dispose();
-            GC.Collect();
         }
         #endregion
 

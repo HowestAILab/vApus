@@ -73,11 +73,8 @@ namespace vApus.Stresstest {
         [SavableCloneable, PropertyControl(0)]
         public Connection Connection {
             get {
-                if (_connection.IsEmpty)
-                    Connection =
-                        GetNextOrEmptyChild(typeof(Connection),
-                                            SolutionTree.Solution.ActiveSolution.GetSolutionComponent(
-                                                typeof(Connections))) as Connection;
+                if (Solution.ActiveSolution != null && _connection.IsEmpty || _connection.Parent == null)
+                    _connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
 
                 if (_connection != null)
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
@@ -87,9 +84,7 @@ namespace vApus.Stresstest {
             set {
                 if (value == null)
                     return;
-                value.ParentIsNull -= _connection_ParentIsNull;
                 _connection = value;
-                _connection.ParentIsNull += _connection_ParentIsNull;
             }
         }
 
@@ -145,7 +140,7 @@ namespace vApus.Stresstest {
                         ++weightIndex;
                     }
                     _logs = l.ToArray();
-                    _logs.SetParent(_allLogs, false);
+                    _logs.SetParent(_allLogs);
                 }
             }
         }
@@ -188,7 +183,7 @@ namespace vApus.Stresstest {
                 _logs = value;
 
                 if (_allLogs != null) {
-                    _logs.SetParent(_allLogs, false);
+                    _logs.SetParent(_allLogs);
 
                     var logIndices = new List<int>(_logs.Length);
                     var logWeights = new List<uint>(_logs.Length);
@@ -474,12 +469,13 @@ namespace vApus.Stresstest {
 
                 _parameters = sr.ReadObject() as Parameters;
                 _parameters.ForceSettingChildsParent();
-                _connection.Parameters = _parameters;
-                foreach (var kvp in _logs)
-                    kvp.Key.Parameters = _parameters;
+                
+                Connection.Parameters = _parameters;
+                Log.Parameters = _parameters;
             }
             sr = null;
 
+            GC.WaitForPendingFinalizers();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
         }
@@ -506,7 +502,7 @@ namespace vApus.Stresstest {
             }
 
             _logs = logs.ToArray();
-            _logs.SetParent(_allLogs, false);
+            _logs.SetParent(_allLogs);
 
             if (_allLogs != null && _allLogs.Count > 1 && _logIndices.Length == 0) {
                 _logWeights = new uint[] { 1 };
@@ -527,10 +523,6 @@ namespace vApus.Stresstest {
             SolutionComponentChanged += SolutionComponentChanged_SolutionComponentChanged;
         }
 
-        private void _connection_ParentIsNull(object sender, EventArgs e) {
-            if (_connection == sender)
-                Connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
-        }
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             //Cleanup _monitors/_logs if _monitorProject Changed
             if (sender == _monitorProject || sender is Monitor.Monitor) {
@@ -582,13 +574,15 @@ namespace vApus.Stresstest {
                 sw.Write(_shuffle);
                 sw.Write(_actionDistribution);
                 sw.Write(_maximumNumberOfUserActions);
-                sw.WriteObject(_connection);
+                sw.WriteObject(Connection);
                 sw.WriteObject(_logs);
                 sw.Write(_forDistributedTest);
                 sw.Write(_useParallelExecutionOfLogEntries);
 
-                //Parameters will be piushed in the child objects when deserializing, this is faster and way less memory consuming then serializing this for each object (each log entry has a reference to this object)
-                sw.WriteObject(Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters); 
+                //Parameters will be pushed in the child objects when deserializing, this is faster and way less memory consuming then serializing this for each object (each log entry has a reference to this object)
+
+                GC.WaitForPendingFinalizers();
+                sw.WriteObject(Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters);
                 sw.AddToInfo(info);
             }
             sw = null;

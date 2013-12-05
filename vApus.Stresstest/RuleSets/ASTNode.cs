@@ -8,11 +8,12 @@
 using System;
 using System.Collections.Generic;
 using System.Text;
+using System.Threading.Tasks;
 using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Stresstest {
-    internal class ASTNode {
+    internal class ASTNode : IDisposable {
 
         #region Fields
         //Parameters
@@ -26,7 +27,7 @@ namespace vApus.Stresstest {
 
         private static Parameters _parameters;
 
-        private readonly BaseItem _ruleSetOrRuleSetItem;
+        private BaseItem _ruleSetOrRuleSetItem;
 
         private string _childDelimiter = string.Empty;
 
@@ -57,6 +58,10 @@ namespace vApus.Stresstest {
             set { _error = value; }
         }
 
+        internal static Parameters Parameters {
+            set { _parameters = value; }
+        }
+
         public int Count { get { return _children == null ? 0 : _children.Count; } }
 
         public ASTNode this[int index] { get { return _children == null ? null : _children[index]; } }
@@ -64,18 +69,19 @@ namespace vApus.Stresstest {
 
         #region Constructor
 
-        public ASTNode(Parameters parameters = null) {
-            if (parameters != null && parameters != _parameters)
-                _parameters = parameters;
-        }
+        /// <summary>
+        /// Do not forget to set the static property Parameters!
+        /// </summary>
+        /// <param name="parameters"></param>
+        public ASTNode() { }
 
         /// <summary>
+        /// Do not forget to set the static property Parameters!
         /// </summary>
         /// <param name="ruleSetOrRuleSetItem">The rule set item that defined the ast node.</param>
         /// <param name="childDelimiter"></param>
         /// <param name="childDelimiter"></param>
-        public ASTNode(BaseItem ruleSetOrRuleSetItem, string childDelimiter, Parameters parameters = null)
-            : this(parameters) {
+        public ASTNode(BaseItem ruleSetOrRuleSetItem, string childDelimiter) {
             _childDelimiter = childDelimiter;
             _ruleSetOrRuleSetItem = ruleSetOrRuleSetItem;
         }
@@ -269,6 +275,18 @@ namespace vApus.Stresstest {
             return "ASTNode: " + _value;
         }
 
+        public void Dispose() {
+            _parameters = null;
+            _ruleSetOrRuleSetItem = null;
+            _childDelimiter = null;
+            _value = null;
+            _defaultValue = null;
+
+            if (_children != null && _children.Count != 0)
+                Parallel.ForEach(_children, (childNode) => {
+                    childNode.Dispose();
+                });
+        }
         #endregion
     }
 }

@@ -72,7 +72,7 @@ namespace vApus.DistributedTesting {
             var castvi = sender as ClientsAndSlavesTreeViewItem;
 
             var client = new Client();
-            client.AddWithoutInvokingEvent(new Slave(), false);
+            client.AddWithoutInvokingEvent(new Slave());
             CreateAndAddClientTreeViewItem(client);
 
             castvi.Clients.Add(client);
@@ -126,9 +126,9 @@ namespace vApus.DistributedTesting {
                 int cloneIndex = parent.IndexOf(cvi.Client) + 1;
 
                 if (parent.Count == cloneIndex)
-                    parent.AddWithoutInvokingEvent(clone, false);
+                    parent.AddWithoutInvokingEvent(clone);
                 else
-                    parent.InsertWithoutInvokingEvent(cloneIndex, clone, false);
+                    parent.InsertWithoutInvokingEvent(cloneIndex, clone);
 
 
                 KeyValuePair<int, int> cloneIndexForLargeList =

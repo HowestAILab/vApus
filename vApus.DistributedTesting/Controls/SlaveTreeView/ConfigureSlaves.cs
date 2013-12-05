@@ -337,7 +337,7 @@ namespace vApus.DistributedTesting {
                     break;
                 }
             }
-            _clientTreeViewItem.Client.AddWithoutInvokingEvent(slave, false);
+            _clientTreeViewItem.Client.AddWithoutInvokingEvent(slave);
             _clientTreeViewItem.Client.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
 
             LockWindowUpdate(IntPtr.Zero);

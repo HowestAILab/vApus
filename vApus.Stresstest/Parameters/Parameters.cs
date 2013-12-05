@@ -39,7 +39,7 @@ namespace vApus.Stresstest {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
                 ShowInGui = false;
-                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
             sr = null;
         }

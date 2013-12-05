@@ -37,7 +37,7 @@ namespace vApus.Stresstest {
         private ASTNode _lexedLogEntry;
         private LexicalResult _lexicalResult = LexicalResult.Error;
 
-        private Parameters _parameters;
+        private static Parameters _parameters;
         #endregion
 
         #region Properties
@@ -110,7 +110,7 @@ namespace vApus.Stresstest {
         /// <summary>
         /// For a distributed test.
         /// </summary>
-        internal Parameters Parameters {
+        internal static Parameters Parameters {
             set { _parameters = value; }
         }
         #endregion
@@ -151,6 +151,11 @@ namespace vApus.Stresstest {
         public void ApplyLogRuleSet(LogRuleSet logRuleSet) {
             //For cleaning old solutions
             //ClearWithoutInvokingEvent();
+
+            if (_lexedLogEntry != null) {
+                _lexedLogEntry.Dispose();
+                _lexedLogEntry = null;
+            }
 
             _lexicalResult = (logRuleSet == null) ? LexicalResult.Error : logRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
         }
@@ -235,14 +240,12 @@ namespace vApus.Stresstest {
         /// <returns></returns>
         public LogEntry Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool cloneLogEntryStringByRef) {
             LogEntry logEntry = new LogEntry();
-            logEntry.SetParent(Parent, false);
+            logEntry.SetParent(Parent);
 
             if (cloneLogEntryStringByRef)
                 SetLogEntryStringByRef(logEntry, ref _logEntryString);
             else
                 logEntry._logEntryString = _logEntryString;
-
-            logEntry._parameters = _parameters;
 
             if (applyRuleSet)
                 logEntry.ApplyLogRuleSet(logRuleSet);
@@ -272,6 +275,16 @@ namespace vApus.Stresstest {
                 sw.AddToInfo(info);
             }
             sw = null;
+        }
+
+
+        public new void Dispose() {
+            _parameters = null;
+            if (_lexedLogEntry != null) {
+                _lexedLogEntry.Dispose();
+                _lexedLogEntry = null;
+            }
+            base.Dispose();
         }
         #endregion
     }

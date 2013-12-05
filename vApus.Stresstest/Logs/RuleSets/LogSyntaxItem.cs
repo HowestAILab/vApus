@@ -31,7 +31,7 @@ namespace vApus.Stresstest {
                 _occurance = sr.ReadUInt32();
                 _optional = sr.ReadBoolean();
 
-                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
             sr = null;
         }

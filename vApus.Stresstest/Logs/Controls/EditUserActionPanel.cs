@@ -750,7 +750,7 @@ namespace vApus.Stresstest {
                 userAction.ClearWithoutInvokingEvent();
 
                 foreach (string s in userAction.LogEntryStringsAsImported)
-                    userAction.AddWithoutInvokingEvent(new LogEntry(s), false);
+                    userAction.AddWithoutInvokingEvent(new LogEntry(s));
 
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 

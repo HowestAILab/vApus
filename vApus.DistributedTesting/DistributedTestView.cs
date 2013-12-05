@@ -1070,6 +1070,8 @@ namespace vApus.DistributedTesting {
 
             Cursor = Cursors.Default;
 
+            if (_monitorViews == null) return;
+
             int runningMonitors = 0;
             int monitorAfterTime = 0;
             foreach (TileStresstest ts in _monitorViews.Keys) {

@@ -21,7 +21,6 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     public static class AssemblyExtension {
-        private static readonly object _lock = new object();
         /// <summary>
         /// Gets a type by its type name.
         /// </summary>
@@ -29,37 +28,16 @@ namespace vApus.Util {
         /// <param name="typeName"></param>
         /// <returns>The type if found, otherwise null.</returns>
         public static Type GetTypeByName(this Assembly assembly, string typeName) {
-            lock (_lock) {
-                var cacheEntry = FunctionOutputCacheWrapper.FunctionOutputCache.GetOrAdd(MethodBase.GetCurrentMethod(), assembly, typeName);
-                if (cacheEntry.ReturnValue == null) {
-                    foreach (Type t in assembly.GetTypes())
-                        if (t.Name == typeName) {
-                            cacheEntry.ReturnValue = t;
-                            break;
-                        }
-                }
-                return cacheEntry.ReturnValue as Type;
+            var cacheEntry = FunctionOutputCacheWrapper.FunctionOutputCache.GetOrAdd(MethodBase.GetCurrentMethod(), assembly, typeName);
+            if (cacheEntry.ReturnValue == null) {
+                Parallel.ForEach(assembly.GetTypes(), (t, loopState) => {
+                    if (t.Name == typeName) {
+                        cacheEntry.ReturnValue = t;
+                        loopState.Break();
+                    }
+                });
             }
-        }
-    }
-    public static class TypeExtension {
-        private static readonly object _lock = new object();
-        /// <summary>
-        /// To check if a type has an indirect base type (given)
-        /// </summary>
-        /// <param name="t"></param>
-        /// <param name="BaseType"></param>
-        /// <returns></returns>
-        public static bool HasBaseType(this Type t, Type BaseType) {
-            lock (_lock) {
-                Type type = t;
-                while (type.BaseType != null) {
-                    if (type.BaseType == BaseType)
-                        return true;
-                    type = type.BaseType;
-                }
-                return false;
-            }
+            return cacheEntry.ReturnValue as Type;
         }
     }
     public static class TimeSpanExtension {
@@ -138,23 +116,6 @@ namespace vApus.Util {
         private static readonly object _lock = new object();
 
         public static bool ContainsChars(this string s, params char[] values) {
-            lock (_lock) {
-                foreach (var value in values)
-                    if (!s.Contains(value))
-                        return false;
-                return true;
-            }
-        }
-        public static string RemoveChars(this string s, params char[] values) {
-            lock (_lock) {
-                StringBuilder sb = new StringBuilder();
-                foreach (char c in s)
-                    if (!values.Contains(c))
-                        sb.Append(c);
-                return sb.ToString();
-            }
-        }
-        public static bool ContainsStrings(this string s, params string[] values) {
             lock (_lock) {
                 foreach (var value in values)
                     if (!s.Contains(value))
@@ -261,17 +222,6 @@ namespace vApus.Util {
             return ms.ToArray();
         }
 
-        public static ListViewItem Parse(this string s, char delimiter) {
-            lock (_lock) {
-                ListViewItem item = new ListViewItem();
-                string[] split = s.Split(delimiter);
-                item.Text = split[0];
-                for (int i = 1; i < split.Length; i++)
-                    item.SubItems.Add(split[i]);
-                return item;
-            }
-        }
-
         public static string Reverse(this string s) {
             lock (_lock) {
                 StringBuilder sb = new StringBuilder(s.Length); ;
@@ -331,29 +281,8 @@ namespace vApus.Util {
                 return true;
             }
         }
-        /// <summary></summary>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        public static bool IsLetter(this char c) {
-            lock (_lock) {
-                int i = (int)c;
-                return ((i > 64 && i < 91) || (i > 96 && i < 123));
-            }
-        }
-        /// <summary></summary>
-        /// <param name="c"></param>
-        /// <returns></returns>
-        public static bool IsDigit(this char c) {
-            lock (_lock) {
-                int i = (int)c;
-                return (i > 47 && i < 58);
-            }
-        }
     }
     public static class ObjectExtension {
-        public delegate void ParentChangedEventHandler(ParentChangedEventArgs parentOrTagChangedEventArgs);
-        public static event ParentChangedEventHandler ParentChanged;
-
         //Nifty hack to make this work everywhere (also in derived types when shallow copying).
         //Having just a static field for tag and parent doesn't work, they will be the same for every object you assign them.
         //Do not use this for primary datatypes (strings included) except if you do something like this:
@@ -392,7 +321,7 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="o"></param>
         /// <param name="parent"></param>
-        public static void SetParent(this object o, object parent, bool invokeParentChanged = true) {
+        public static void SetParent(this object o, object parent) {
             lock (_parents.SyncRoot)
                 if (o != null) {
                     object previous = null;
@@ -404,13 +333,6 @@ namespace vApus.Util {
                     } else {
                         if (parent == null) return;
                         _parents.Add(o, parent);
-                    }
-
-                    if (invokeParentChanged && ParentChanged != null) {
-                        var invocationList = ParentChanged.GetInvocationList();
-                        Parallel.For(0, invocationList.Length, (i) => {
-                            (invocationList[i] as ParentChangedEventHandler).Invoke(new ParentChangedEventArgs(o, previous, parent));
-                        });
                     }
                 }
         }
@@ -488,13 +410,6 @@ namespace vApus.Util {
                 _tags.Clear();
                 _parents.Clear();
                 _descriptions.Clear();
-
-                if (ParentChanged != null) {
-                    var arr = ParentChanged.GetInvocationList();
-                    Parallel.For(0, arr.LongLength, (i) => {
-                        ParentChanged -= arr[i] as ParentChangedEventHandler;
-                    });
-                }
 
                 return cleared;
             }

@@ -367,8 +367,10 @@ namespace vApus.Stresstest {
             logEntries = null;
             logsSortedByWeight = null;
 
+            GC.WaitForPendingFinalizers();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
+
             _sw.Stop();
             InvokeMessage(string.Format(" ...Log(s) Initialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
@@ -418,11 +420,11 @@ namespace vApus.Stresstest {
                         else
                             childClone.SameAs = firstEntryClones[logEntryIndex];
 
-                        actionClone.AddWithoutInvokingEvent(childClone, false);
+                        actionClone.AddWithoutInvokingEvent(childClone);
                         ++logEntryIndex;
                     }
 
-                    newLog.AddWithoutInvokingEvent(actionClone, false);
+                    newLog.AddWithoutInvokingEvent(actionClone);
 
                     if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
                         linkCloned.Add(action, actionClone);
@@ -1047,6 +1049,8 @@ namespace vApus.Stresstest {
                 }
             }
             ObjectRegistrar.Unregister(this);
+
+            GC.WaitForPendingFinalizers();
             GC.Collect();
         }
         #endregion

@@ -122,8 +122,8 @@ namespace vApus.Stresstest {
 
         #region Functions
 
-        internal LexicalResult TryLexicalAnaysis(string input, Parameters parameters, out ASTNode output) {
-            output = new ASTNode(parameters);
+        internal LexicalResult TryLexicalAnaysis(string input, out ASTNode output) {
+            output = new ASTNode();
             output.Value = input;
             try {
                 CastOrParseInputToType(input, _valueType);

@@ -246,7 +246,7 @@ namespace vApus.Stresstest {
                     currentUserAction = new UserAction(s.Substring(userActionBegin.Length, s.Length - 7));
                     _log.AddWithoutInvokingEvent(currentUserAction);
                 } else if (currentUserAction != null) {
-                    currentUserAction.AddWithoutInvokingEvent(new LogEntry(s), false);
+                    currentUserAction.AddWithoutInvokingEvent(new LogEntry(s));
                 }
 
             _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
