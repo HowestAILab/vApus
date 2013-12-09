@@ -9,6 +9,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.SolutionTree;
@@ -46,7 +47,8 @@ namespace vApus.Stresstest {
                         if (xmlDocument.FirstChild.Name == GetType().Name &&
                             xmlDocument.FirstChild.FirstChild.Name == "Items") {
                             string errorMessage;
-                            LoadFromXml(xmlDocument.FirstChild, out errorMessage);
+                            CancellationToken cancellationToken = new CancellationToken(false);
+                            LoadFromXml(xmlDocument.FirstChild, cancellationToken, out errorMessage);
                             sb.Append(errorMessage);
                             if (errorMessage.Length == 0) {
                                 ResolveBranchedIndices();

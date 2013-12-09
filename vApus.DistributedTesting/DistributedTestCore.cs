@@ -267,7 +267,7 @@ namespace vApus.DistributedTesting {
                     true);
         }
         private void SendAndReceiveInitializeTest() {
-            InvokeMessage("Initializing tests on slaves [Please, be patient]...");
+            InvokeMessage("Initializing tests on slaves, please, be patient...");
             _sw.Start();
             List<int> stresstestIdsInDb = new List<int>(_usedTileStresstests.Count);
             foreach (var ts in _usedTileStresstests.Keys)

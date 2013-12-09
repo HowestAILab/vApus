@@ -299,7 +299,9 @@ namespace vApus.Gui {
             }
         }
         private static string LoadNewActiveSolution(string fileName) {
-            if (Solution.LoadNewActiveSolution(fileName))
+            var task = Solution.LoadNewActiveSolutionAsync(fileName);
+            task.Wait();
+            if (task.Result)
                 return fileName;
             return "ERROR\n'" + fileName + "' could not be loaded!";
         }

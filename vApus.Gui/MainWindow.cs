@@ -341,27 +341,36 @@ namespace vApus.Gui {
             Cursor = Cursors.Default;
         }
 
-        private void newFromTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
+        async private void newFromTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            Solution.CreateNewFromTemplate();
+            string text = this.Text;
+            this.Text = "Loading solution, please be patient... - vApus";
+            if (!(await Solution.CreateNewFromTemplateAsync()))
+                this.Text = text;
             Cursor = Cursors.Default;
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e) {
+        async private void openToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            Solution.LoadNewActiveSolution();
+            string text = this.Text;
+            this.Text = "Loading solution, please be patient... - vApus";
+            if (!(await Solution.LoadNewActiveSolutionAsync()))
+                this.Text = text;
             Cursor = Cursors.Default;
         }
 
-        private void reOpenToolStripMenuItem_Click(object sender, EventArgs e) {
+        async private void reOpenToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            Solution.ReloadSolution();
+            string text = this.Text;
+            this.Text = "Loading solution, please be patient... - vApus";
+            if (!(await Solution.ReloadSolutionAsync()))
+                this.Text = text;
             Cursor = Cursors.Default;
         }
 
         private void openRecentToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
+            List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems(this);
             var defaultItems = new ToolStripItem[2];
             for (int i = 0; i < 2; i++)
                 defaultItems[i] = openRecentToolStripMenuItem.DropDownItems[i];
@@ -385,7 +394,7 @@ namespace vApus.Gui {
                 MessageBox.Show("Are you sure you want to clear this?", string.Empty, MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes) {
                 clearToolStripMenuItem.Enabled = false;
-                List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
+                List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems(this);
                 if (recentSolutions.Count > 0) {
                     Solution.ClearRecentSolutions();
                     while (openRecentToolStripMenuItem.DropDownItems.Count > 2)

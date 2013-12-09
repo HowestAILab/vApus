@@ -140,7 +140,7 @@ namespace vApus.Stresstest {
             _stresstestResult.ConcurrencyResults.Add(_concurrencyResult);
             _resultsHelper.SetConcurrencyStarted(_concurrencyResult);
             InvokeMessage(
-                string.Format("|-> {0} Concurrent Users... (Initializing the first run, be patient)", concurrentUsers),
+                string.Format("|-> {0} Concurrent Users... (Initializing the first run, please be patient)", concurrentUsers),
                 Color.MediumPurple);
 
             if (!_cancel && ConcurrencyStarted != null)

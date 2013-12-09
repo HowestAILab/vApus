@@ -194,7 +194,7 @@ namespace vApus.DistributedTesting {
         }
 
         async private void RefreshDGV() {
-            Text = "Wizard - Connecting clients, be patient...";
+            Text = "Wizard - Connecting clients, please be patient...";
             pnl.Enabled = false;
 
             if (rdbSlavesPerCores.Checked)
