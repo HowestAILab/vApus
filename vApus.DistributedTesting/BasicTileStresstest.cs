@@ -39,7 +39,7 @@ namespace vApus.DistributedTesting {
         public Connection Connection {
             get {
                 if (_connection != null) {
-                    if (Solution.ActiveSolution != null && _connection.IsEmpty || _connection.Parent == null)
+                    if (Solution.ActiveSolution != null && (_connection.IsEmpty || _connection.Parent == null))
                         _connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
 
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");

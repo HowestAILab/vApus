@@ -73,7 +73,7 @@ namespace vApus.Stresstest {
         [SavableCloneable, PropertyControl(0)]
         public Connection Connection {
             get {
-                if (Solution.ActiveSolution != null && _connection.IsEmpty || _connection.Parent == null)
+                if (Solution.ActiveSolution != null && (_connection.IsEmpty || _connection.Parent == null))
                     _connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
 
                 if (_connection != null)

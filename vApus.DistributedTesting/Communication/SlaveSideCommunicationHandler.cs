@@ -84,8 +84,7 @@ namespace vApus.DistributedTesting {
 
         private static Message<Key> HandleInitializeTest(Message<Key> message) {
             try {
-                SynchronizationContextWrapper.SynchronizationContext.Send(
-                    delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
                 //init the send queue for push messages.
                 _sendQueue = new ActiveObject();
 

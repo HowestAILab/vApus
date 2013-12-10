@@ -35,7 +35,7 @@ namespace vApus.Stresstest {
         [Description("To be able to connect to the application-to-test."), DisplayName("Connection Proxy")]
         public ConnectionProxy ConnectionProxy {
             get {
-                if (Solution.ActiveSolution != null && _connectionProxy.IsEmpty || _connectionProxy.Parent == null)
+                if (Solution.ActiveSolution != null && (_connectionProxy.IsEmpty || _connectionProxy.Parent == null))
                     _connectionProxy = GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
 
                 return _connectionProxy;

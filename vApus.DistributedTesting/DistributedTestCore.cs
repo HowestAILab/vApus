@@ -13,6 +13,7 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Threading;
+using System.Threading.Tasks;
 using vApus.REST.Convert;
 using vApus.Results;
 using vApus.Stresstest;
@@ -245,7 +246,7 @@ namespace vApus.DistributedTesting {
             InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
         }
-        private void SetvApusInstancesAndStresstestsInDb() {
+        async private void SetvApusInstancesAndStresstestsInDb() {
             _tileStresstestsWithDbIds = new Dictionary<TileStresstest, int>(_usedTileStresstests.Count);
             foreach (TileStresstest ts in _usedTileStresstests.Keys) {
                 var slave = ts.BasicTileStresstest.Slaves[0];
@@ -255,10 +256,12 @@ namespace vApus.DistributedTesting {
                 foreach (var kvp in ts.AdvancedTileStresstest.Logs)
                     logKeys.Add(kvp.Key);
 
-                int id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
-                          ts.BasicTileStresstest.Connection.ConnectionString, logKeys.Combine(", "), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
-                          ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.ActionDistribution,
-                          ts.AdvancedTileStresstest.MaximumNumberOfUserActions, ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
+                int id = await Task<int>.Run(() => {
+                    return _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
+                        ts.BasicTileStresstest.Connection.ConnectionString, logKeys.Combine(", "), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
+                        ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.ActionDistribution,
+                        ts.AdvancedTileStresstest.MaximumNumberOfUserActions, ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
+                });
                 _tileStresstestsWithDbIds.Add(ts, id);
             }
 

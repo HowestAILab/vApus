@@ -306,6 +306,8 @@ namespace vApus.DistributedTesting {
         /// <param name="distributedTestMode"></param>
         /// <param name="scheduled">only for distributedTestMode.TestAndReport</param>
         private void SetMode(DistributedTestMode distributedTestMode, bool canEnableStop = false, bool scheduled = false) {
+            LockWindowUpdate(Handle);
+
             if (IsDisposed) return;
 
             _distributedTestMode = distributedTestMode;
@@ -332,6 +334,8 @@ namespace vApus.DistributedTesting {
             slaveTreeView.SetMode(_distributedTestMode);
             configureTileStresstest.SetMode(_distributedTestMode);
             configureSlaves.SetMode(_distributedTestMode);
+
+            LockWindowUpdate(IntPtr.Zero);
         }
         #endregion
 

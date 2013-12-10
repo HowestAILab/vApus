@@ -66,7 +66,7 @@ namespace vApus.DistributedTesting {
         [SavableCloneable]
         public Stresstest.Stresstest DefaultAdvancedSettingsTo {
             get {
-                if (Solution.ActiveSolution != null && _defaultAdvancedSettingsTo.IsEmpty || _defaultAdvancedSettingsTo.Parent == null) {
+                if (Solution.ActiveSolution != null && (_defaultAdvancedSettingsTo.IsEmpty || _defaultAdvancedSettingsTo.Parent == null)) {
                     _defaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
 
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); }, null);

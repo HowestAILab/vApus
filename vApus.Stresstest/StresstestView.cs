@@ -10,7 +10,9 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Net;
+using System.Runtime.InteropServices;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.Results;
@@ -79,6 +81,9 @@ namespace vApus.Stresstest {
         #region Functions
 
         #region Set the Gui
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(IntPtr hWnd);
+
         private void StresstestProjectView_HandleCreated(object sender, EventArgs e) {
             SetGui();
         }
@@ -152,10 +157,9 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void btnStart_Click(object sender, EventArgs e) {
+        async private void btnStart_Click(object sender, EventArgs e) {
             if (fastResultsControl.HasResults &&
-                MessageBox.Show("Starting the test will clear the previous results.\nDo you want to continue?",
-                                string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                MessageBox.Show("Starting the test will clear the previous results.\nDo you want to continue?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 return;
 
             if (InitDatabase()) {
@@ -169,9 +173,11 @@ namespace vApus.Stresstest {
                 foreach (var kvp in _stresstest.Logs)
                     logKeys.Add(kvp.Key);
 
-                _resultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(), _stresstest.ConnectionProxy, _stresstest.Connection.ConnectionString,
-                                            logKeys.Combine(", "), _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay,
-                                            _stresstest.MaximumDelay, _stresstest.Shuffle, _stresstest.ActionDistribution, _stresstest.MaximumNumberOfUserActions, _stresstest.MonitorBefore, _stresstest.MonitorAfter);
+                await Task.Run(() => {
+                    _resultsHelper.SetStresstest(_stresstest.ToString(), "None", _stresstest.Connection.ToString(), _stresstest.ConnectionProxy, _stresstest.Connection.ConnectionString,
+                         logKeys.Combine(", "), _stresstest.LogRuleSet, _stresstest.Concurrencies, _stresstest.Runs, _stresstest.MinimumDelay,
+                         _stresstest.MaximumDelay, _stresstest.Shuffle, _stresstest.ActionDistribution, _stresstest.MaximumNumberOfUserActions, _stresstest.MonitorBefore, _stresstest.MonitorAfter);
+                });
 
 
                 if (_stresstest.Monitors.Length == 0) {
@@ -210,6 +216,8 @@ namespace vApus.Stresstest {
         }
 
         private void SetGuiForStart(bool enableStop) {
+            LockWindowUpdate(Handle);
+
             if (enableStop) btnStop.Enabled = true;
             btnStart.Enabled = btnSchedule.Enabled = false;
             btnSchedule.Text = string.Empty;
@@ -232,6 +240,8 @@ namespace vApus.Stresstest {
             tc.SelectedIndex = 1;
 
             _progressCountDown = PROGRESSUPDATEDELAY - 1;
+
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         /// <summary>
