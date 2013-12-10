@@ -545,14 +545,14 @@ namespace vApus.DistributedTesting {
                 if (clientIsMaster && startPort <= SocketListener.GetInstance().Port)
                     startPort = SocketListener.GetInstance().Port + 1;
 
-                var alreadyUsedPas = new List<int>();
+                //var alreadyUsedPas = new List<int>();
                 for (int i = 0; i != numberOfSlaves; i++) {
                     var slave = new Slave();
                     slave.Port = startPort++;
-                    slave.ProcessorAffinity = GetProcessorAffinity(int.Parse(numberOfSlaves.ToString()),
-                                                                   int.Parse(row.Cells[6].Value.ToString()),
-                                                                   alreadyUsedPas);
-                    alreadyUsedPas.AddRange(slave.ProcessorAffinity);
+                    //slave.ProcessorAffinity = GetProcessorAffinity(int.Parse(numberOfSlaves.ToString()),
+                    //                                               int.Parse(row.Cells[6].Value.ToString()),
+                    //                                               alreadyUsedPas);
+                    //alreadyUsedPas.AddRange(slave.ProcessorAffinity);
                     client.AddWithoutInvokingEvent(slave);
                     toAssingTestsTo.Add(slave);
                 }

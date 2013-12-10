@@ -38,7 +38,7 @@ namespace vApus.Gui {
         private UpdateNotifierPanel _updateNotifierPanel;
         private LogPanel _logPanel;
         private LocalizationPanel _localizationPanel;
-        private ProcessorAffinityPanel _processorAffinityPanel;
+        //private ProcessorAffinityPanel _processorAffinityPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
         private SavingResultsPanel _savingResultsPanel;
         private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
@@ -89,7 +89,7 @@ namespace vApus.Gui {
                 _logErrorToolTip.Click += lblLogLevel_Click;
 
                 _localizationPanel = new LocalizationPanel();
-                _processorAffinityPanel = new ProcessorAffinityPanel();
+                //_processorAffinityPanel = new ProcessorAffinityPanel();
                 _cleanTempDataPanel = new CleanTempDataPanel();
                 _disableFirewallAutoUpdatePanel = new WindowsFirewallAutoUpdatePanel();
 
@@ -204,7 +204,7 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
-                _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
+                //_optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
                 _optionsDialog.AddOptionsPanel(_savingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
@@ -535,7 +535,7 @@ namespace vApus.Gui {
 
             lblLogLevel.Text = LogWrapper.LogLevel.ToString();
             lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
-            SetProcessorAffinityLabel();
+            //SetProcessorAffinityLabel();
             lblSocketListener.Text = Dns.GetHostName() + ":" + SocketListenerLinker.SocketListenerPort;
             if (!SocketListenerLinker.SocketListenerIsRunning)
                 lblSocketListener.Text += " [Stopped]";
@@ -597,11 +597,11 @@ namespace vApus.Gui {
 
         private void lblSocketListener_Click(object sender, EventArgs e) { ShowOptionsDialog(3); }
 
-        private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
+        //private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
 
-        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
+        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
 
-        private void lblWarning_Click(object sender, EventArgs e) { if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(7); else ShowOptionsDialog(6); }
+        private void lblWarning_Click(object sender, EventArgs e) { if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(6); else ShowOptionsDialog(5); }
         #endregion
     }
 }

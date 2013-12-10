@@ -83,7 +83,7 @@ namespace vApus.DistributedTesting {
         [SavableCloneable]
         public int[] ProcessorAffinity {
             get { return _processorAffinity; }
-            set { _processorAffinity = value; }
+            set { _processorAffinity = new int[] { }; }// value; }
         }
 
         #endregion
