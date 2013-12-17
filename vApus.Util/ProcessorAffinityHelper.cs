@@ -29,6 +29,36 @@ namespace vApus.Util {
         public static extern uint GetActiveProcessorCount(ushort groupNumber);
 
         /// <summary>
+        ///     Converts from a hex bitmask to an array of cpu's this process its affinity is set to.
+        /// </summary>
+        /// <param name="bitmask">e.g. Process.GetCurrentProcess().ProcessorAffinity</param>
+        /// <returns>Zero-based core indices.</returns>
+        public static int[] FromBitmaskToArray(IntPtr bitmask) {
+            //To check if the bitmask contains the cpu's a binairy and is used.
+            var cpus = new List<int>();
+            long lBitmask = bitmask.ToInt64();
+            for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) //(0xFFFF) to include all processor groups
+                if ((lBitmask & (int)Math.Pow(2, i)) > 0)
+                    cpus.Add(i);
+            return cpus.ToArray();
+        }
+
+        /// <summary>
+        ///     Converts from an array of cpu's to a hex bitmask this process its affinaty is set to.
+        ///     Does not work for more than 63 cores.
+        /// </summary>
+        /// <param name="array">Zero-based core indices.</param>
+        /// <returns></returns>
+        public static IntPtr FromArrayToBitmask(int[] array) {
+            //Hex = 2^(n)
+            long l = 0;
+            for (int j = 0; j < array.Length; j++)
+                l += (long)Math.Pow(2, array[j]);
+            return new IntPtr(l);
+        }
+
+        /*TRY OUT
+        /// <summary>
         /// </summary>
         /// <param name="threadHandle">handle of the specific thread</param>
         /// <param name="groupAffinity">GROUP_AFFINITY struct who will be applied</param>
@@ -70,34 +100,6 @@ namespace vApus.Util {
 
         [DllImport("kernel32.dll", CallingConvention = CallingConvention.Winapi)]
         public static extern ulong GetLastError();
-        /// <summary>
-        ///     Converts from a hex bitmask to an array of cpu's this process its affinity is set to.
-        /// </summary>
-        /// <param name="bitmask">e.g. Process.GetCurrentProcess().ProcessorAffinity</param>
-        /// <returns>Zero-based core indices.</returns>
-        public static int[] FromBitmaskToArray(IntPtr bitmask) {
-            //To check if the bitmask contains the cpu's a binairy and is used.
-            var cpus = new List<int>();
-            long lBitmask = bitmask.ToInt64();
-            for (int i = 0; i < GetActiveProcessorCount(0xFFFF); i++) //(0xFFFF) to include all processor groups
-                if ((lBitmask & (int)Math.Pow(2, i)) > 0)
-                    cpus.Add(i);
-            return cpus.ToArray();
-        }
-
-        /// <summary>
-        ///     Converts from an array of cpu's to a hex bitmask this process its affinaty is set to.
-        ///     Does not work for more than 63 cores.
-        /// </summary>
-        /// <param name="array">Zero-based core indices.</param>
-        /// <returns></returns>
-        public static IntPtr FromArrayToBitmask(int[] array) {
-            //Hex = 2^(n)
-            long l = 0;
-            for (int j = 0; j < array.Length; j++)
-                l += (long)Math.Pow(2, array[j]);
-            return new IntPtr(l);
-        }
 
         public static void SetCoreAffinity(int[] array) {
 
@@ -167,6 +169,6 @@ namespace vApus.Util {
             public IntPtr Mask; // KAFFINITY is a INTPTR which contains the normal thread affinity mask http://msdn.microsoft.com/en-us/library/windows/hardware/ff551830(v=vs.85).aspx
             public ushort Group;
             public ushort[] Reserved; //initialize with 3 zeros
-        }
+        }*/
     }
 }

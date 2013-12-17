@@ -170,8 +170,6 @@ namespace vApus.DistributedTesting {
                     foreach (Client client in clientsAndSlaves)
                         foreach (Slave slave in client)
                             _cachedSlavesParent.Add(slave);
-
-
                 }
             } catch {
                 _cachedSlavesParent.Clear();

@@ -30,8 +30,6 @@ namespace vApus.JumpStart {
                         return HandleJumpStart(message);
                     case Key.Kill:
                         return HandleKill(message);
-                    case Key.CpuCoreCount:
-                        return HandleCpuCoreCount(message);
                     case Key.SmartUpdate:
                         return HandleSmartUpdate(message);
                 }
@@ -86,11 +84,6 @@ namespace vApus.JumpStart {
             }
         }
 
-        private static Message<Key> HandleCpuCoreCount(Message<Key> message) {
-            var cpuCoreCountMessage = new CpuCoreCountMessage(Environment.ProcessorCount);
-            message.Content = cpuCoreCountMessage;
-            return message;
-        }
         /// <summary>
         /// If the content of the returned message is empty it is failed.
         /// </summary>

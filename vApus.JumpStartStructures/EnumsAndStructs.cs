@@ -15,7 +15,6 @@ namespace vApus.JumpStartStructures {
     public enum Key {
         JumpStart,
         Kill,
-        CpuCoreCount,
         SmartUpdate
     }
 
@@ -51,14 +50,6 @@ namespace vApus.JumpStartStructures {
         /// <param name="processID"></param>
         public KillMessage(int excludeProcessID) {
             ExcludeProcessID = excludeProcessID;
-        }
-    }
-
-    [Serializable]
-    public struct CpuCoreCountMessage {
-        public int CpuCoreCount;
-        public CpuCoreCountMessage(int cpuCoreCount) {
-            CpuCoreCount = cpuCoreCount;
         }
     }
 

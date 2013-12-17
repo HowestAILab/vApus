@@ -29,7 +29,7 @@ namespace vApus.DistributedTesting {
 
         //All connections in the solution.
         [ThreadStatic]
-        private static CoreCount _coreCountWorkItem;
+        private static TryConnect _tryConnectWorkItem;
         //This is done in parallel, therefore a threadstatic work item.
 
         private readonly List<Connection> _connections = new List<Connection>();
@@ -175,21 +175,7 @@ namespace vApus.DistributedTesting {
             RefreshDGV();
         }
 
-        private void rdbSlavesPerCores_CheckedChanged(object sender, EventArgs e) {
-            RefreshDGV();
-        }
-        private void nudSlavesPerCores_ValueChanged(object sender, EventArgs e) {
-            rdbSlavesPerCores.CheckedChanged -= rdbSlavesPerCores_CheckedChanged;
-            rdbSlavesPerCores.Checked = true;
-            rdbSlavesPerCores.CheckedChanged += rdbSlavesPerCores_CheckedChanged;
-
-            RefreshDGV();
-        }
         private void nudSlavesPerClient_ValueChanged(object sender, EventArgs e) {
-            rdbSlavesPerCores.CheckedChanged -= rdbSlavesPerCores_CheckedChanged;
-            rdbSlavesPerClient.Checked = true;
-            rdbSlavesPerCores.CheckedChanged += rdbSlavesPerCores_CheckedChanged;
-
             RefreshDGV();
         }
 
@@ -197,38 +183,22 @@ namespace vApus.DistributedTesting {
             Text = "Wizard - Connecting clients, please be patient...";
             pnl.Enabled = false;
 
-            if (rdbSlavesPerCores.Checked)
-                await Task.Run(() => SetSlaveCountsPerCores());
-            else
-                await Task.Run(() => SetSlaveCountsPerClients());
+            await Task.Run(() => SetSlaveCountsPerClients());
 
             pnl.Enabled = true;
             Text = "Wizard - Let vApus build your distributed test";
         }
 
-        private void SetSlaveCountsPerCores() {
-            List<int> coreCounts = GetCoreCounts();
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                if (coreCounts.Count != 0) {
-                    var slaveCounts = new List<int>(dgvClients.RowCount - 1);
-                    for (int i = 0; i != dgvClients.RowCount - 1; i++) {
-                        var slaveCount = (int)(coreCounts[i] / nudSlavesPerCores.Value);
-                        slaveCounts.Add(slaveCount);
-                    }
-                    SetSlaveCountInDataGridView(slaveCounts);
-                }
-                SetCoreCountInDataGridView(coreCounts);
-                SetCountsInGui();
-            }, null);
-        }
         private void SetSlaveCountsPerClients() {
-            List<int> coreCounts = GetCoreCounts();
+            var connected = TryConnectClients();
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                SetConnectedInDataGridView(connected);
+
                 var slaveCounts = new List<int>(dgvClients.RowCount - 1);
                 for (int i = 0; i != dgvClients.RowCount - 1; i++)
-                    slaveCounts.Add((int)nudSlavesPerClient.Value);
+                    slaveCounts.Add(dgvClients.Rows[i].DefaultCellStyle.BackColor == Color.LightGreen ? (int)nudSlavesPerClient.Value : 0);
+
                 SetSlaveCountInDataGridView(slaveCounts);
-                SetCoreCountInDataGridView(coreCounts);
                 SetCountsInGui();
             }, null);
         }
@@ -236,7 +206,7 @@ namespace vApus.DistributedTesting {
         ///     Get the count of the cores for each client (-1 if unknown)
         /// </summary>
         /// <returns></returns>
-        private List<int> GetCoreCounts() {
+        private List<bool> TryConnectClients() {
             //Put all in an array for thread safety.
             var r = new List<DataGridViewRow>();
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
@@ -246,17 +216,19 @@ namespace vApus.DistributedTesting {
                         r.Add(row);
             }, null);
 
+            var connected = new List<bool>(new bool[r.Count]);
             DataGridViewRow[] rows = r.ToArray();
 
             //Process each row in parallel, this way of doing stuff will maybe be changed to the new async stuff in .net.
             var waitHandle = new AutoResetEvent(false);
-            var coreCounts = new int[rows.Length];
             int processed = 0;
             for (int j = 0; j != rows.Length; j++) {
                 ThreadPool.QueueUserWorkItem((object state) => {
-                    _coreCountWorkItem = new CoreCount();
+                    _tryConnectWorkItem = new TryConnect();
                     //A thread static field used to be able to process in parallel
-                    coreCounts[(int)state] = _coreCountWorkItem.Get(rows[(int)state].Cells[0].Value.ToString(), this);
+                    bool b = _tryConnectWorkItem.Try(rows[(int)state].Cells[0].Value.ToString(), this);
+
+                    lock (_lock) connected[(int)state] = b;
 
                     if (Interlocked.Increment(ref processed) == rows.Length)
                         waitHandle.Set();
@@ -265,7 +237,7 @@ namespace vApus.DistributedTesting {
             if (rows.Length != 0)
                 waitHandle.WaitOne();
 
-            return new List<int>(coreCounts);
+            return connected;
         }
         private void SetSlaveCountInDataGridView(List<int> slaveCounts) {
             int i = 0;
@@ -276,23 +248,22 @@ namespace vApus.DistributedTesting {
                 row.Cells[4].Value = slaveCounts[i++];
             }
         }
-        private void SetCoreCountInDataGridView(List<int> coreCounts) {
+        private void SetConnectedInDataGridView(List<bool> connected) {
             int i = 0;
             foreach (DataGridViewRow row in dgvClients.Rows) {
                 if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
                     break;
 
-                int corecount = coreCounts[i++];
-                row.Cells[6].Value = corecount;
-                if (corecount == 0) {
+                bool b = connected[i++];
+                if (b) {
+                    row.DefaultCellStyle.BackColor = Color.LightGreen;
+                    foreach (DataGridViewCell cell in row.Cells)
+                        cell.ToolTipText = string.Empty;
+                } else {
                     row.DefaultCellStyle.BackColor = Color.Orange;
                     foreach (DataGridViewCell cell in row.Cells)
                         cell.ToolTipText =
                             "Unreacheable client or vApus.Jumpstart not running on the client. This client will not be added to the distributed test.";
-                } else {
-                    row.DefaultCellStyle.BackColor = Color.LightGreen;
-                    foreach (DataGridViewCell cell in row.Cells)
-                        cell.ToolTipText = string.Empty;
                 }
             }
         }
@@ -342,13 +313,11 @@ namespace vApus.DistributedTesting {
             }
 
             int notAssigned = totalTestCount - totalAssignedTestCount;
-            lblNotAssignedTests.Text = notAssigned + " Test" + (notAssigned == 1 ? " is" : "s are") +
-                                       " not Assigned to a Slave.";
+            lblNotAssignedTests.Text = notAssigned + " Test" + (notAssigned == 1 ? " is" : "s are") + " not Assigned to a Slave.";
 
             int notUsedTestCount = totalTestCount - totalUsedTestCount;
             if (notUsedTestCount > 0)
-                lblNotAssignedTests.Text += " whereof " + notUsedTestCount + " that " +
-                                            (notUsedTestCount == 1 ? "is" : "are") + " not Used. (Checked)";
+                lblNotAssignedTests.Text += " whereof " + notUsedTestCount + " that " + (notUsedTestCount == 1 ? "is" : "are") + " not Used. (Checked)";
 
             CleanDictionary();
         }
@@ -483,8 +452,7 @@ namespace vApus.DistributedTesting {
             GenerateAndAddTilesToDistributedTest(toAssignConnections, toAssingTestsTo);
 
             //Notify the gui.
-            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,
-                                                                 nudTiles.Value > 1);
+            _distributedTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, nudTiles.Value > 1);
 
             return true;
         }
@@ -504,8 +472,8 @@ namespace vApus.DistributedTesting {
 
             var toAssingTestsTo = new List<Slave>();
             foreach (DataGridViewRow row in dgvClients.Rows) {
-                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue)
-                    break;
+                if (row.Cells[0].Value == row.Cells[0].DefaultNewRowValue || row.DefaultCellStyle.BackColor == Color.Orange)
+                    continue;
 
                 var numberOfSlaves = (int)row.Cells[4].Value;
                 if (numberOfSlaves == 0)
@@ -560,32 +528,6 @@ namespace vApus.DistributedTesting {
             return toAssingTestsTo;
         }
 
-        /// <summary>
-        ///     Determines and returns processor affinity.
-        /// </summary>
-        /// <param name="numberOfSlaves"></param>
-        /// <param name="numberOfCores"></param>
-        /// <param name="alreadyUsedPAs"></param>
-        /// <returns></returns>
-        private int[] GetProcessorAffinity(int numberOfSlaves, int numberOfCores, List<int> alreadyUsedPAs) {
-            var pa = new List<int>();
-            if (numberOfSlaves > 0 && numberOfSlaves <= numberOfCores) //No PA if these requirements are not met.
-            {
-                int numberUsed = 0;
-                int numberToUse = numberOfCores / numberOfSlaves;
-                int mod = numberOfCores % numberOfSlaves;
-                //If it is not a clean division the last slave gets a core extra.
-
-                for (int i = 1; i <= numberOfCores; i++) //One-based pa.
-                    if (!alreadyUsedPAs.Contains(i) && numberUsed++ < numberToUse)
-                        pa.Add(i);
-
-                if (pa.Count != 0 && pa[pa.Count - 1] == numberOfCores - 1 && mod != 0)
-                    pa.Add(numberOfCores);
-            }
-            return pa.ToArray();
-        }
-
         /// <summary></summary>
         /// <param name="slaves">To assign the tests to</param>
         private void GenerateAndAddTilesToDistributedTest(Connection[] toAssignConnections, List<Slave> slaves) {
@@ -623,6 +565,7 @@ namespace vApus.DistributedTesting {
             foreach (Tile tile in _distributedTest.Tiles)
                 foreach (TileStresstest tileStresstest in tile) {
                     tileStresstest.Use = true;
+                    tileStresstest.BasicTileStresstest.FillAndGetSlavesParent();
                     tileStresstest.BasicTileStresstest.Slaves = slaveIndex == slaves.Count ? new Slave[] { } : new Slave[] { slaves[slaveIndex++] };
                 }
         }
@@ -651,7 +594,7 @@ namespace vApus.DistributedTesting {
         }
         #endregion
 
-        private class CoreCount {
+        private class TryConnect {
             private static readonly object _lock = new object();
             /// <summary>
             ///     stores the ip and hostname in the given list.
@@ -659,7 +602,7 @@ namespace vApus.DistributedTesting {
             /// <param name="ipOrHostName"></param>
             /// <param name="wizard"></param>
             /// <returns></returns>
-            public int Get(string ipOrHostName, Wizard wizard) {
+            public bool Try(string ipOrHostName, Wizard wizard) {
                 IPAddress address = null;
                 string ip = null, hostName = null;
                 try {
@@ -684,29 +627,13 @@ namespace vApus.DistributedTesting {
                             wizard._ipsAndHostNames[ip] = hostName.Split('.')[0];
                         else
                             wizard._ipsAndHostNames.Add(ip, hostName.Split('.')[0]);
+
+                    return true;
                 } catch {
                     address = null;
                 }
 
-                if (address != null) {
-                    var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                    var sw = new SocketWrapper(address, 1314, socket);
-                    try {
-                        sw.Connect(3000);
-                        sw.Send(new Message<JumpStartStructures.Key>(JumpStartStructures.Key.CpuCoreCount, null), SendType.Binary);
-                        var message = (Message<JumpStartStructures.Key>)sw.Receive(SendType.Binary);
-                        return ((CpuCoreCountMessage)message.Content).CpuCoreCount;
-                    } catch {
-                        try {
-                            sw.Close();
-                        } catch {
-                        }
-                        sw = null;
-                        socket = null;
-                    }
-                }
-
-                return 0;
+                return false;
             }
         }
     }
