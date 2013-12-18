@@ -17,7 +17,6 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
-    <StartArguments>
-    </StartArguments>
+    <StartArguments>c:\bla.vass</StartArguments>
   </PropertyGroup>
 </Project>

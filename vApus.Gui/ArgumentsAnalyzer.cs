@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Link;
 using vApus.SolutionTree;
@@ -89,9 +90,6 @@ namespace vApus.Gui {
 
             _argumentsWithDelegate.Add("-ll", new ArgumentsAnalyzerParametersDelegate(LogLevel));
             _argumentsWithDescription.Add("-ll", "Sets the log level, if no parameters are given it just returns the current log level. Parameters: 0 (= info), 1 (= warning), 2 (= error) or 3 (= fatal) (example: -ll 0)");
-
-            _argumentsWithDelegate.Add("-pa", new ArgumentsAnalyzerParametersDelegate(ProcessorAffinity));
-            _argumentsWithDescription.Add("-pa", "Sets the processor affinity, if no parameters are given it just returns the current processor affinity. Processor indices can be given space seperated. (example: -pa 0 1)");
 
             _argumentsWithDelegate.Add("-p", new ArgumentsAnalyzerParametersDelegate(SocketListenerPort));
             _argumentsWithDescription.Add("-p", "Sets the socket listener port, if no parameters are given it just returns the current socket port. (example: -p 1337)");
@@ -261,25 +259,6 @@ namespace vApus.Gui {
             return ((int)LogWrapper.LogLevel) + " (= " + LogWrapper.LogLevel + ")";
         }
 
-        private static string ProcessorAffinity(List<string> parameters) {
-            return string.Empty;
-            //try {
-            //    if (parameters.Count != 0) {
-            //        var cpus = new int[parameters.Count];
-            //        for (int i = 0; i < parameters.Count; i++)
-            //            cpus[i] = int.Parse(parameters[i]);
-            //        Process.GetCurrentProcess().ProcessorAffinity = ProcessorAffinityCalculator.FromArrayToBitmask(cpus);
-            //    }
-            //} catch (Exception ex) {
-            //    return "ERROR\nCould not set the processor affinity!\n" + ex;
-            //}
-            //string s = string.Empty;
-            //foreach (int i in ProcessorAffinityCalculator.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity))
-            //    s += i + " ";
-            //s = s.Trim();
-            //return s;
-        }
-
         private static string SocketListenerPort(List<string> parameters) {
             for (int i = 1; i != 4; i++)
                 try {
@@ -299,9 +278,7 @@ namespace vApus.Gui {
             }
         }
         private static string LoadNewActiveSolution(string fileName) {
-            var task = Solution.LoadNewActiveSolutionAsync(fileName);
-            task.Wait();
-            if (task.Result)
+            if (Solution.LoadNewActiveSolution(fileName))
                 return fileName;
             return "ERROR\n'" + fileName + "' could not be loaded!";
         }

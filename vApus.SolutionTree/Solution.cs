@@ -312,6 +312,24 @@ namespace vApus.SolutionTree {
             return false;
         }
 
+        public static bool LoadNewActiveSolution(string fileName) {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
+                DialogResult result =
+                    MessageBox.Show(
+                        string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name),
+                        string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes && SaveActiveSolution())
+                    return LoadSolution(fileName);
+                else if (result == DialogResult.No)
+                    return LoadSolution(fileName);
+                //Do nothing on cancel.
+            } else {
+                return LoadSolution(fileName);
+            }
+            return false;
+        }
+
         async private static Task<bool> LoadSolutionAsync(string fileName) {
             string errorMessage = string.Empty;
             try {
@@ -337,6 +355,58 @@ namespace vApus.SolutionTree {
                     errorMessage = await sln.LoadAsync(new CancellationToken());
 
                     if (_saveLoadTask.Status == TaskStatus.RanToCompletion && errorMessage == string.Empty) {
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                        _activeSolution.IsSaved = true;
+                    } else {
+                        sln.Dispose();
+                        sln = null;
+                    }
+                    return true;
+                }
+            } catch {
+                throw;
+            } finally {
+                GC.WaitForPendingFinalizers();
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
+
+                if (errorMessage.Length > 0)
+                    MessageBox.Show(@"Failed loading one or more items/properties.
+
+This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
+Take a copy of the file to be sure and test if stresstesting works.
+
+See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            return false;
+        }
+
+        private static bool LoadSolution(string fileName) {
+            string errorMessage = string.Empty;
+            try {
+                if (fileName != null) {
+                    var sln = new Solution();
+                    sln.FileName = fileName;
+
+                    errorMessage = sln.Load(new CancellationToken());
+
+                    if (errorMessage == string.Empty) {
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                        _activeSolution.IsSaved = true;
+                    } else {
+                        sln.Dispose();
+                        sln = null;
+                    }
+                    return true;
+                } else if (_ofd.ShowDialog() == DialogResult.OK) {
+                    var sln = new Solution();
+                    sln.FileName = _ofd.FileName;
+
+                    errorMessage = sln.Load(new CancellationToken());
+
+                    if (errorMessage == string.Empty) {
                         ActiveSolution = sln;
                         ActiveSolution.ResolveBranchedIndices();
                         _activeSolution.IsSaved = true;
@@ -648,7 +718,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             package = null;
         }
 
-        async protected Task<string> LoadAsync(CancellationToken cancellationToken) {
+        async private Task<string> LoadAsync(CancellationToken cancellationToken) {
             var previousCts = _saveLoadCancellationTokenSource;
             var newCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
             _saveLoadCancellationTokenSource = newCts;
