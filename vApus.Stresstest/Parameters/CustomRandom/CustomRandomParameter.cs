@@ -135,7 +135,7 @@ return start.AddTicks(randomTicks);
             _chosenValues.Clear();
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context) {
             SerializationWriter sw;

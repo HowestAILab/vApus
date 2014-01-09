@@ -63,6 +63,11 @@ namespace vApus.SolutionTree {
 
         }
 
+        public static IEnumerable<BaseSolutionComponentView> GetAllViews() {
+            foreach (var view in _solutionComponentViews.GetValues())
+                yield return view;
+        }
+
         private static void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             SolutionComponent solutionComponent;
             switch (e.__DoneAction) {

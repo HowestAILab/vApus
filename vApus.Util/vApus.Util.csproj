@@ -197,6 +197,9 @@
   <ItemGroup>
     <Compile Include="ActiveObject\ActiveObject.cs" />
     <Compile Include="ClipboardWrapper.cs" />
+    <Compile Include="CodeEditing\CodeTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="CompilerUnit.cs" />
     <Compile Include="CodeEditing\XMLTextStyle.cs" />
     <Compile Include="CodeEditing\CSharpTextStyle.cs" />
@@ -435,6 +438,7 @@
     <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
+    <Compile Include="JSONObjectTree.cs" />
     <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

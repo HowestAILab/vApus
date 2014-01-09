@@ -11,7 +11,7 @@ using vApus.Results;
 using vApus.Stresstest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.Server.Shared {
     [Serializable]
     public enum Key {
         /// <summary>
@@ -36,7 +36,12 @@ namespace vApus.DistributedTesting {
         ///     To push progress to the master (also finished and failed and such).
         ///     Pushing progress will be at minimum, just the metrics will be send, getting the results will happen afterwards.
         /// </summary>
-        Push
+        Push,
+
+        /// <summary>
+        ///     Other RPC stuff
+        /// </summary>
+        Other
     }
 
     [Serializable]

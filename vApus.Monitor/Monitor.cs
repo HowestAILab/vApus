@@ -148,7 +148,7 @@ namespace vApus.Monitor {
             }
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
 
         #endregion
     }

@@ -13,8 +13,9 @@ using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Monitor;
-using vApus.REST.Convert;
+using vApus.JSON;
 using vApus.Results;
+using vApus.Server.Shared;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -64,6 +65,9 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Properties
+        public DistributedTestMode DistributedTestMode {
+            get { return _distributedTestMode; }
+        }
         private int TileStresstestCount {
             get {
                 int count = 0;
@@ -340,19 +344,22 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Start & Schedule
-        private void btnStart_Click(object sender, EventArgs e) {
-            if (_distributedTestCore != null && _distributedTestCore.HasResults &&
-                MessageBox.Show("Do you want to clear the previous results, before starting the test (at the scheduled date / time)?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                return;
+        private void btnStart_Click(object sender, EventArgs e) { StartDistributedTest(true); }
+        public void StartDistributedTest(bool allowMessageBox) {
+            if (allowMessageBox)
+                if (_distributedTestCore != null && _distributedTestCore.HasResults &&
+                               MessageBox.Show("Do you want to clear the previous results, before starting the test (at the scheduled date / time)?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
+                    return;
 
             if (_distributedTest.RunSynchronization != RunSynchronization.None && !CheckNumberOfRuns()) {
-                MessageBox.Show("Could not start the distributed test because the number of runs for the different single stresstests are not equal to each other.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                if (allowMessageBox)
+                    MessageBox.Show("Could not start the distributed test because the number of runs for the different single stresstests are not equal to each other.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 return;
             }
 
             TestConnections();
 
-            if (InitDatabaseBeforeStart()) {
+            if (InitDatabaseBeforeStart(!allowMessageBox)) {
                 if (btnSchedule.Tag != null && btnSchedule.Tag is DateTime && (DateTime)btnSchedule.Tag > DateTime.Now)
                     ScheduleTest();
                 else
@@ -405,8 +412,8 @@ namespace vApus.DistributedTesting {
         ///     True on success or if user said there can be proceed without database.
         /// </summary>
         /// <returns></returns>
-        private bool InitDatabaseBeforeStart() {
-            var dialog = new DescriptionAndTagsInputDialog { Description = _distributedTest.Description, Tags = _distributedTest.Tags, ResultsHelper = _resultsHelper };
+        private bool InitDatabaseBeforeStart(bool autoConfirmDialog) {
+            var dialog = new DescriptionAndTagsInputDialog { Description = _distributedTest.Description, Tags = _distributedTest.Tags, ResultsHelper = _resultsHelper, AutoConfirm = autoConfirmDialog };
             if (dialog.ShowDialog() == DialogResult.Cancel) {
                 RemoveDatabase(false);
                 return false;
@@ -741,7 +748,7 @@ namespace vApus.DistributedTesting {
         }
         private void _distributedTestCore_OnListeningError(object sender, ListeningErrorEventArgs e) {
             //Stop the distributed test (it is not valid anymore if a slave fails)
-            btnStop_Click(btnStop, null);
+            StopDistributedTest();
 
             //Update the stresstest result for the failed test and set the gui.
             var testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
@@ -818,9 +825,7 @@ namespace vApus.DistributedTesting {
                     }
                 }
 
-#if EnableBetaFeature
             WriteRestProgress();
-#endif
         }
 
         private void UpdateMonitorMetricsCaches(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -964,9 +969,7 @@ namespace vApus.DistributedTesting {
                 setCountDown = (_selectedTestTreeViewItem as TileStresstestTreeViewItem).StresstestResult == StresstestStatus.Busy;
             if (--_progressCountDown > 0 && setCountDown) fastResultsControl.SetCountDownProgressDelay(_progressCountDown);
 
-#if EnableBetaFeature
             WriteMonitorRestProgress();
-#endif
         }
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
@@ -979,6 +982,10 @@ namespace vApus.DistributedTesting {
 
         #region Stop
         private void btnStop_Click(object sender, EventArgs e) {
+            StopDistributedTest();
+        }
+        public void StopDistributedTest() {
+            if (!btnStop.Enabled) return;
             Cursor = Cursors.WaitCursor;
             distributedStresstestControl.AppendMessages("Stopping the test...");
             bool monitorBeforeRunning = _monitorBeforeCountDown != null;
@@ -1172,9 +1179,7 @@ namespace vApus.DistributedTesting {
             if (!_monitorMetricsCaches.ContainsKey(tileStresstest))
                 _monitorMetricsCaches.Add(tileStresstest, new MonitorMetricsCache());
 
-#if EnableBetaFeature
             WriteMonitorRestConfig();
-#endif
         }
 
         /// <summary>
@@ -1252,10 +1257,8 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
-#if EnableBetaFeature
                 WriteMonitorRestConfig();
                 WriteMonitorRestProgress();
-#endif
             }, null);
         }
 
@@ -1274,10 +1277,8 @@ namespace vApus.DistributedTesting {
                 _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
             }
 
-#if EnableBetaFeature
             WriteMonitorRestConfig();
             WriteMonitorRestProgress();
-#endif
 
             MonitorBeforeDone();
         }
@@ -1325,10 +1326,8 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
-#if EnableBetaFeature
                 WriteMonitorRestConfig();
                 WriteMonitorRestProgress();
-#endif
             }, null);
         }
         private void monitorAfterCountDown_Stopped(object sender, EventArgs e) {
@@ -1342,10 +1341,8 @@ namespace vApus.DistributedTesting {
             }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
 
-#if EnableBetaFeature
             WriteMonitorRestConfig();
             WriteMonitorRestProgress();
-#endif
         }
 
         /// <summary>
@@ -1389,21 +1386,26 @@ namespace vApus.DistributedTesting {
         #region REST
         private void WriteMonitorRestConfig() {
             try {
-                var monitorConfigCache = new ConverterCollection();
-                var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), monitorConfigCache);
+                var monitorConfigCache = new JSONObjectTree();
+                var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), monitorConfigCache);
 
                 foreach (TileStresstest key in _monitorViews.Keys)
-                    foreach (MonitorView view in _monitorViews[key])
-                        Converter.SetMonitorConfig(distributedTestCache, view.Monitor);
+                    foreach (MonitorView view in _monitorViews[key]) {
+                        var monitorSource = view.Monitor.MonitorSource == null ? "N/A" : view.Monitor.MonitorSource.ToString();
+                        var parameters = view.Monitor.Parameters;
 
-                Converter.WriteToFile(monitorConfigCache, "MonitorConfig");
+                        JSONObjectTreeHelper.ApplyToRunningMonitorConfig(distributedTestCache, view.Monitor.ToString(), monitorSource, parameters);
+                    }
+
+                JSONObjectTreeHelper.RunningMonitorConfig = monitorConfigCache;
+                //Converter.WriteToFile(monitorConfigCache, "MonitorConfig");
             } catch {
             }
         }
         private void WriteMonitorRestProgress() {
             try {
-                var monitorProgressCache = new ConverterCollection();
-                var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), monitorProgressCache);
+                var monitorProgressCache = new JSONObjectTree();
+                var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), monitorProgressCache);
 
                 int monitorCount = 0;
 
@@ -1411,32 +1413,33 @@ namespace vApus.DistributedTesting {
                     foreach (TileStresstest key in _monitorViews.Keys)
                         foreach (MonitorView view in _monitorViews[key]) {
                             ++monitorCount;
-                            Converter.SetMonitorProgress(distributedTestCache, view.Monitor,
-                                                         view.GetMonitorResultCache().Headers, view.GetMonitorValues());
+                            JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(distributedTestCache, view.Monitor.ToString(), view.GetMonitorResultCache().Headers, view.GetMonitorValues());
                         }
-                if (monitorCount != 0) Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
+                if (monitorCount != 0) JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgressCache;
+                //if (monitorCount != 0) Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
             } catch {
             }
         }
         private void WriteRestProgress() {
             try {
-                var testProgressCache = new ConverterCollection();
-                var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), testProgressCache);
+                var testProgressCache = new JSONObjectTree();
+                var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), testProgressCache);
 
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                     var testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
                     foreach (TileStresstest tileStresstest in testProgressMessages.Keys) {
-                        var tileStresstestCache = Converter.AddSubCache("Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
+                        var tileStresstestCache = JSONObjectTreeHelper.AddSubCache("Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
                                                       tileStresstest.Index + " " + tileStresstest.BasicTileStresstest.Connection.Label, distributedTestCache);
 
                         var tpm = testProgressMessages[tileStresstest];
                         foreach (var metrics in tpm.StresstestMetricsCache.GetConcurrencyMetrics()) {
-                            Converter.SetTestProgress(tileStresstestCache, metrics, tpm.RunStateChange, tpm.StresstestStatus);
+                            JSONObjectTreeHelper.ApplyToRunningTestFastConcurrencyResults(tileStresstestCache, metrics, tpm.RunStateChange.ToString(), tpm.StresstestStatus.ToString());
                         }
                     }
 
                 }
-                Converter.WriteToFile(testProgressCache, "TestProgress");
+                JSONObjectTreeHelper.RunningTestFastConcurrencyResults = testProgressCache;
+                //Converter.WriteToFile(testProgressCache, "TestProgress");
             } catch {
             }
         }

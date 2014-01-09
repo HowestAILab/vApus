@@ -395,13 +395,12 @@ namespace vApus.Stresstest {
             return log;
         }
 
-        public override void Activate() {
+        public override BaseSolutionComponentView Activate() {
             if ((Count > 499 || GetTotalLogEntryCount() > 4999) &&
                 MessageBox.Show("This is a large log! Do you want to use the plain text editor?\nYou will loose most functionality, but vApus will stay responsive and memory usage within boundaries.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView));
-            } else {
-                SolutionComponentViewManager.Show(this);
+                return SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView));
             }
+            return SolutionComponentViewManager.Show(this);
         }
 
         public new void Dispose() {

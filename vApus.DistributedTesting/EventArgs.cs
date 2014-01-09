@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using vApus.Server.Shared;
 
 namespace vApus.DistributedTesting {
     public class ListeningErrorEventArgs : EventArgs {

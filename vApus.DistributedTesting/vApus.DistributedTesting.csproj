@@ -174,9 +174,7 @@
     <Compile Include="AdvancedTileStresstest.cs" />
     <Compile Include="BasicTileStresstest.cs" />
     <Compile Include="Client.cs" />
-    <Compile Include="Communication\EnumsAndStructs.cs" />
     <Compile Include="Communication\SlaveSideCommunicationHandler.cs" />
-    <Compile Include="Communication\SocketListener.cs" />
     <Compile Include="Controls\TestTreeView\DefaultAdvancedSettingsToControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -279,12 +277,6 @@
     <Compile Include="Communication\JumpStart.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Communication\MasterSideCommunicationHandler.cs" />
-    <Compile Include="Communication\SocketListenerManagerPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="Communication\SocketListenerManagerPanel.designer.cs">
-      <DependentUpon>SocketListenerManagerPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="DistributedTestCore.cs" />
     <Compile Include="Slave.cs" />
     <Compile Include="TileStresstest.cs" />
@@ -326,13 +318,17 @@
       <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
       <Name>vApus.Monitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.REST.Convert\vApus.REST.Convert.csproj">
+    <ProjectReference Include="..\vApus.JSON\vApus.JSON.csproj">
       <Project>{9e3d2623-0e60-4883-81a9-73ee8e974439}</Project>
-      <Name>vApus.REST.Convert</Name>
+      <Name>vApus.JSON</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
       <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
       <Name>vApus.Results</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Server.Shared\vApus.Server.Shared.csproj">
+      <Project>{37420528-6c41-452c-9776-0fb147f67915}</Project>
+      <Name>vApus.Server.Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>
@@ -352,9 +348,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="Communication\SocketListenerManagerPanel.resx">
-      <DependentUpon>SocketListenerManagerPanel.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Controls\TestTreeView\DefaultAdvancedSettingsToControl.resx">
       <DependentUpon>DefaultAdvancedSettingsToControl.cs</DependentUpon>
     </EmbeddedResource>

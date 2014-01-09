@@ -210,9 +210,6 @@
       <DependentUpon>ConnectionsView.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\ParallelConnectionProxy.cs" />
-    <Compile Include="Connections\Proxies\CodeTextBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Connections\Proxies\Panels\FindAndReplacePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -438,6 +435,10 @@
     <ProjectReference Include="..\vApus.Monitor\vApus.Monitor.csproj">
       <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
       <Name>vApus.Monitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.JSON\vApus.JSON.csproj">
+      <Project>{9e3d2623-0e60-4883-81a9-73ee8e974439}</Project>
+      <Name>vApus.JSON</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
       <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>

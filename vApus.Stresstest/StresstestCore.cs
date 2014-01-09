@@ -15,6 +15,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using vApus.JSON;
 using vApus.Results;
 using vApus.Util;
 
@@ -115,6 +116,8 @@ namespace vApus.Stresstest {
             ObjectRegistrar.Register(this);
 
             _stresstest = stresstest;
+
+            WriteRestConfig();
         }
         ~StresstestCore() {
             Dispose();
@@ -1013,6 +1016,42 @@ namespace vApus.Stresstest {
             _threadPool = null;
         }
         #endregion
+
+        private void WriteRestConfig() {
+            try {
+                var testConfigCache = new JSONObjectTree();
+
+                var monitors = _stresstest.Monitors;
+                var newMonitors = new string[monitors.Length];
+                for (int i = 0; i != monitors.Length; i++)
+                    newMonitors[i] = monitors[i].ToString();
+
+                var logs = _stresstest.Logs;
+                var newLogs = new string[logs.Length];
+                for (int i = 0; i != logs.Length; i++)
+                    newLogs[i] = logs[i].Key.ToString();
+
+                JSONObjectTreeHelper.ApplyToRunningStresstestConfig(testConfigCache,
+                                        _stresstest.ToString(),
+                                        _stresstest.Connection.ToString(),
+                                        _stresstest.ConnectionProxy.ToString(),
+                                        newMonitors,
+                                        newLogs,
+                                        _stresstest.LogRuleSet,
+                                        _stresstest.Concurrencies,
+                                        _stresstest.Runs,
+                                        _stresstest.MinimumDelay,
+                                        _stresstest.MaximumDelay,
+                                        _stresstest.Shuffle,
+                                        _stresstest.ActionDistribution,
+                                        _stresstest.MaximumNumberOfUserActions,
+                                        _stresstest.MonitorBefore,
+                                        _stresstest.MonitorAfter);
+
+                JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
+            } catch {
+            }
+        }
 
         public void Dispose() {
             if (!_isDisposed) {

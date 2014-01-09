@@ -554,7 +554,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
         public override string ToString() {
             if (_forDistributedTest)
                 return Label;

@@ -11,7 +11,7 @@ using System.Net;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.Server {
     /// <summary>
     /// Sets the socket listener options. Used in OptionDialog.
     /// </summary>

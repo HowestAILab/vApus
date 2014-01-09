@@ -47,6 +47,8 @@ namespace vApus.Results {
             }
         }
         public ResultsHelper ResultsHelper { set { _resultsHelper = value; } }
+
+        public bool AutoConfirm { get; set; }
         #endregion
 
         #region Constructor
@@ -78,6 +80,8 @@ namespace vApus.Results {
                 LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
                 lblCouldNotConnect.Visible = true;
             }
+
+            if (AutoConfirm) btnOK_Click(btnOK, null);
         }
 
         private void FocusDescription() {

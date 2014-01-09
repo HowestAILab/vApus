@@ -86,7 +86,7 @@ namespace vApus.Stresstest {
 
         public abstract void ResetValue();
 
-        public override void Activate() {  SolutionComponentViewManager.Show(this, typeof(ParameterView));   }
+        public override BaseSolutionComponentView Activate() {  return SolutionComponentViewManager.Show(this, typeof(ParameterView));   }
         #endregion
     }
 }

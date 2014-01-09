@@ -11,7 +11,7 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing) {
             StopMonitorsAndUnlockGui(null, true);
-            StopStresstest();
+            Stop_Stresstest();
 
             tmrProgress.Stop();
             tmrProgressDelayCountDown.Stop();

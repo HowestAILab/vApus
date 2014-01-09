@@ -510,8 +510,8 @@ namespace vApus.DistributedTesting {
                     }
 
                 int startPort = 1347;
-                if (clientIsMaster && startPort <= SocketListener.GetInstance().Port)
-                    startPort = SocketListener.GetInstance().Port + 1;
+                //if (clientIsMaster && startPort <= SocketListener.GetInstance().Port)
+                //    startPort = SocketListener.GetInstance().Port + 1;
 
                 //var alreadyUsedPas = new List<int>();
                 for (int i = 0; i != numberOfSlaves; i++) {

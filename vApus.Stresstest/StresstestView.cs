@@ -15,6 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Monitor;
+using vApus.JSON;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -55,6 +56,12 @@ namespace vApus.Stresstest {
         private int _monitorsInitialized;
         private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
         private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
+        #endregion
+
+        #region Properties
+        public StresstestStatus StresstestStatus {
+            get { return _stresstestStatus; }
+        }
         #endregion
 
         #region Constructor
@@ -157,12 +164,15 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        async private void btnStart_Click(object sender, EventArgs e) {
-            if (fastResultsControl.HasResults &&
+        private void btnStart_Click(object sender, EventArgs e) {
+            StartStresstest(true);
+        }
+        async public void StartStresstest(bool allowMessageBox) {
+            if (fastResultsControl.HasResults && (!allowMessageBox ||
                 MessageBox.Show("Starting the test will clear the previous results.\nDo you want to continue?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
-                return;
+                ) return;
 
-            if (InitDatabase()) {
+            if (InitDatabase(!allowMessageBox)) {
                 StopProgressDelayCountDown();
 
                 _resultsHelper.SetvApusInstance(Dns.GetHostName(), NamedObjectRegistrar.Get<string>("IP"), NamedObjectRegistrar.Get<int>("Port"),
@@ -194,8 +204,8 @@ namespace vApus.Stresstest {
         ///     True on success or if user said there can be proceed without database.
         /// </summary>
         /// <returns></returns>
-        private bool InitDatabase() {
-            var dialog = new DescriptionAndTagsInputDialog { Description = _stresstest.Description, Tags = _stresstest.Tags, ResultsHelper = _resultsHelper };
+        private bool InitDatabase(bool autoConfirmDialog) {
+            var dialog = new DescriptionAndTagsInputDialog { Description = _stresstest.Description, Tags = _stresstest.Tags, ResultsHelper = _resultsHelper, AutoConfirm = autoConfirmDialog };
             if (dialog.ShowDialog() == DialogResult.Cancel) {
                 RemoveDatabase(false);
                 return false;
@@ -564,6 +574,8 @@ namespace vApus.Stresstest {
         private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) {
             string message = string.Concat(_stresstest.ToString(), " - Concurrency ", e.Result.Concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
+
+            WriteRestProgress(RunStateChange.None);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             StopProgressDelayCountDown();
@@ -574,6 +586,8 @@ namespace vApus.Stresstest {
                 fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
             }
+
+            WriteRestProgress(RunStateChange.ToRunInitializedFirstTime);
 
             tmrProgress.Stop();
             _progressCountDown = PROGRESSUPDATEDELAY;
@@ -587,6 +601,8 @@ namespace vApus.Stresstest {
             int concurrency = _stresstestResult.ConcurrencyResults[_stresstestResult.ConcurrencyResults.Count - 1].Concurrency;
             string message = string.Concat(_stresstest.ToString(), " - Run ", e.Result.Run, " of concurrency ", concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
+
+            WriteRestProgress(RunStateChange.None);
         }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_progressCountDown--); }
@@ -612,6 +628,8 @@ namespace vApus.Stresstest {
                     }
                 }
                 _progressCountDown = PROGRESSUPDATEDELAY;
+
+                WriteRestProgress(RunStateChange.None);
             }
         }
 
@@ -626,7 +644,7 @@ namespace vApus.Stresstest {
                 MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo,
                 MessageBoxIcon.Warning) == DialogResult.Yes) {
                 StopMonitorsAndUnlockGui(null, true);
-                StopStresstest();
+                Stop_Stresstest();
 
                 tmrProgress.Stop();
                 tmrProgressDelayCountDown.Stop();
@@ -643,6 +661,10 @@ namespace vApus.Stresstest {
         }
 
         private void btnStop_Click(object sender, EventArgs e) {
+            StopStresstest();
+        }
+        public void StopStresstest() {
+            if (!btnStop.Enabled) return;
             toolStrip.Enabled = false;
             if (_stresstestCore == null || (_monitorAfterCountDown != null && _monitorAfterCountDown.CountdownTime != 0)) {
                 Stop(StresstestStatus.Cancelled);
@@ -663,7 +685,7 @@ namespace vApus.Stresstest {
             if (btnStop.Enabled || !toolStrip.Enabled) {
                 Cursor = Cursors.WaitCursor;
 
-                StopStresstest();
+                Stop_Stresstest();
 
                 tmrProgress.Stop();
 
@@ -685,6 +707,8 @@ namespace vApus.Stresstest {
                 toolStrip.Enabled = true;
 
                 Cursor = Cursors.Default;
+
+                WriteRestProgress(RunStateChange.None);
 
                 int runningMonitors = 0;
                 if (_monitorViews != null && _stresstest.Monitors.Length != 0)
@@ -773,7 +797,7 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Only used in stop
         /// </summary>
-        private void StopStresstest() {
+        private void Stop_Stresstest() {
             btnSchedule.Tag = null;
             btnSchedule.Text = string.Empty;
             tmrSchedule.Stop();
@@ -867,6 +891,37 @@ namespace vApus.Stresstest {
             } catch { }
         }
         #endregion
+
+        private void WriteRestProgress(RunStateChange runStateChange) {
+            try {
+                var testProgressCache = new JSONObjectTree();
+                var clientMonitorCache = new JSONObjectTree();
+                var messagesCache = new JSONObjectTree();
+
+                if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
+                    var stresstestCache = JSONObjectTreeHelper.AddSubCache(_stresstest.ToString(), testProgressCache);
+
+                    foreach (var metrics in _stresstestMetricsCache.GetConcurrencyMetrics())
+                        JSONObjectTreeHelper.ApplyToRunningTestFastConcurrencyResults(stresstestCache, metrics, runStateChange.ToString(), _stresstestStatus.ToString());
+
+                    JSONObjectTreeHelper.ApplyToRunningClientMonitorMetrics(clientMonitorCache, _stresstest.ToString(), _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
+                                                          LocalMonitor.MemoryUsage, LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+
+                    var events = fastResultsControl.GetEvents();
+                    var messages = new string[events.Count];
+                    for (int i = 0; i != messages.Length; i++) {
+                        var e = events[i];
+                        messages[i] = e.EventType + ": " + e.Message + " [" + e.At + "]";
+                    }
+                    JSONObjectTreeHelper.ApplyToRunningTestMessages(messagesCache, _stresstest.ToString(), messages);
+
+                    JSONObjectTreeHelper.RunningTestFastConcurrencyResults = testProgressCache;
+                    JSONObjectTreeHelper.RunningClientMonitorMetrics = clientMonitorCache;
+                    JSONObjectTreeHelper.RunningTestMessages = messagesCache;
+                }
+            } catch {
+            }
+        }
 
         #endregion
     }

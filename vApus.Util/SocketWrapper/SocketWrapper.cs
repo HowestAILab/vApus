@@ -397,7 +397,7 @@ namespace vApus.Util {
         /// <param name="data"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        private byte[] Encode(string data, Encoding encoding) {
+        public byte[] Encode(string data, Encoding encoding) {
             switch (encoding) {
                 case Encoding.ASCII:
                     return System.Text.Encoding.ASCII.GetBytes(data);
@@ -560,22 +560,22 @@ namespace vApus.Util {
         /// <param name="buffer"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        private string Decode(byte[] buffer, Encoding encoding) {
+        public string Decode(byte[] buffer, Encoding encoding) {
             switch (encoding) {
                 case Encoding.ASCII:
-                    return System.Text.Encoding.ASCII.GetString(buffer);
+                    return System.Text.Encoding.ASCII.GetString(buffer).Trim('\0');
                 case Encoding.BigEndianUnicode:
-                    return System.Text.Encoding.BigEndianUnicode.GetString(buffer);
+                    return System.Text.Encoding.BigEndianUnicode.GetString(buffer).Trim('\0');
                 case Encoding.Default:
-                    return System.Text.Encoding.Default.GetString(buffer);
+                    return System.Text.Encoding.Default.GetString(buffer).Trim('\0');
                 case Encoding.Unicode:
-                    return System.Text.Encoding.Unicode.GetString(buffer);
+                    return System.Text.Encoding.Unicode.GetString(buffer).Trim('\0');
                 case Encoding.UTF32:
-                    return System.Text.Encoding.UTF32.GetString(buffer);
+                    return System.Text.Encoding.UTF32.GetString(buffer).Trim('\0');
                 case Encoding.UTF7:
-                    return System.Text.Encoding.UTF7.GetString(buffer);
+                    return System.Text.Encoding.UTF7.GetString(buffer).Trim('\0');
                 case Encoding.UTF8:
-                    return System.Text.Encoding.UTF8.GetString(buffer);
+                    return System.Text.Encoding.UTF8.GetString(buffer).Trim('\0');
             }
             return null;
         }

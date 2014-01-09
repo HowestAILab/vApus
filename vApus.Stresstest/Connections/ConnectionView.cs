@@ -72,9 +72,15 @@ namespace vApus.Stresstest {
             btnTestConnection.Enabled = false;
             btnTestConnection.Text = "Testing...";
 
-            await Task.Run(() => TestConnection());
+            await Task.Run(() => TestConnection(true));
         }
-        private void TestConnection() {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="allowMessageBox"></param>
+        /// <returns>An error if any.</returns>
+        public string TestConnection(bool allowMessageBox) {
+            string error = string.Empty;
             _testing = false;
             if (_connection.ConnectionProxy.IsEmpty) {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -83,19 +89,20 @@ namespace vApus.Stresstest {
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
-                    string error = "This connection has no connection proxy assigned to!";
-                    MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    error = "This connection has no connection proxy assigned to!";
+                    if (allowMessageBox)
+                        MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 
                     LogWrapper.LogByLevel("[" + _connection + "] " + error, LogLevel.Warning);
                 }, null);
-                return;
+                return error;
             }
 
             var connectionProxyPool = new ConnectionProxyPool(_connection);
             CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(false);
 
             if (compilerResults.Errors.HasErrors) {
-                string error = "Failed at compiling the connection proxy class";
+                error = "Failed at compiling the connection proxy class.";
                 var sb = new StringBuilder(error + ": ");
                 sb.AppendLine();
                 foreach (CompilerError ce in compilerResults.Errors) {
@@ -110,7 +117,8 @@ namespace vApus.Stresstest {
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
-                    MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                    if (allowMessageBox)
+                        MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 
                     LogWrapper.LogByLevel("[" + _connection + "] " + sb, LogLevel.Warning);
                 }, null);
@@ -125,11 +133,12 @@ namespace vApus.Stresstest {
                     btnTestConnection.Enabled = true;
 
                     if (errorMessage == null) {
-                        MessageBox.Show(this, "The connection has been established! and closed again successfully.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
+                        if (allowMessageBox)
+                            MessageBox.Show(this, "The connection has been established! and closed again successfully.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
                     } else {
-                        string error =
-                            "The connection could not be made, please make sure everything is filled in correctly.";
-                        MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
+                        error = "The connection could not be made, please make sure everything is filled in correctly.";
+                        if (allowMessageBox)
+                            MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
 
                         LogWrapper.LogByLevel("[" + _connection + "] " + error + "\n" + errorMessage, LogLevel.Warning);
                     }
@@ -137,6 +146,8 @@ namespace vApus.Stresstest {
             }
             connectionProxyPool.Dispose();
             connectionProxyPool = null;
+
+            return error;
         }
 
         private void tracertControl_BeforeTrace(object sender, EventArgs e) {

@@ -1,4 +1,4 @@
-namespace vApus.DistributedTesting
+namespace vApus.Server
 {
 	partial class SocketListenerManagerPanel
 	{

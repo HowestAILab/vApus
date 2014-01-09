@@ -157,7 +157,7 @@ namespace vApus.Stresstest {
             clone._connectionString = ConnectionString;
             return clone;
         }
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
 
         public new void Dispose() {
             _parameters = null;

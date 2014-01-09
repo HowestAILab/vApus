@@ -189,14 +189,17 @@ namespace vApus.Util {
 
                     //Ugly but works.
                     if (ParentForm != null)
-                        if (ParentForm.MdiParent == null) {
-                            ParentForm.TopMost = true;
-                            ParentForm.TopMost = false;
-                            ParentForm.Activate();
-                        } else {
-                            ParentForm.MdiParent.TopMost = true;
-                            ParentForm.MdiParent.TopMost = false;
-                            ParentForm.MdiParent.Activate();
+                        try {
+                            if (ParentForm.MdiParent == null) {
+                                ParentForm.TopMost = true;
+                                ParentForm.TopMost = false;
+                                ParentForm.Activate();
+                            } else {
+                                ParentForm.MdiParent.TopMost = true;
+                                ParentForm.MdiParent.TopMost = false;
+                                ParentForm.MdiParent.Activate();
+                            }
+                        } catch {
                         }
 
                     lblLabel.Select();

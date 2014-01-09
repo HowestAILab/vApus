@@ -504,7 +504,7 @@ namespace vApus.SolutionTree {
         ///     Override this if you want to provide your own GUI (must inherit BaseSolutionComponentView).
         /// </summary>
         /// <returns></returns>
-        public virtual void Activate() { SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)); }
+        public virtual BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)); }
 
         /// <summary>
         /// </summary>
