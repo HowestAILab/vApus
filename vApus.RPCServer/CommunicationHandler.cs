@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApusRPCServer {
+namespace vApus.RPCServer {
     internal class CommunicationHandler {
         private delegate string HandleMessageDelegate(string message);
 

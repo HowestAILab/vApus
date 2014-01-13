@@ -9,6 +9,7 @@ using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 using System.Threading;
 using vApus.DistributedTesting;
 using vApus.JSON;
@@ -43,7 +44,10 @@ namespace vApus.Server {
             // -----
 
             // Get data back as plain text JSON
-            _delegates.Add("/applicationlog", ApplicationLog);
+            _delegates.Add("/applicationlog/info", ApplicationLog);
+            _delegates.Add("/applicationlog/warning", ApplicationLog);
+            _delegates.Add("/applicationlog/error", ApplicationLog);
+            _delegates.Add("/applicationlog/fatal", ApplicationLog);
             //_delegates.Add("/resultsdb", ResultsDB);
 
             _delegates.Add("/runningtest/config", RunningTestConfig);
@@ -242,6 +246,44 @@ namespace vApus.Server {
                         LogWrapper.Default.Logger.OpenOrReOpenWriter();
                     } catch {
                     }
+                }
+
+                if (!message.EndsWith("info")) {
+                    string[] lines = logEntries.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
+                    logEntries = string.Empty;
+
+                    int chosenLogLevel = 0;
+                    if (message.EndsWith("warning")) chosenLogLevel = 1;
+                    else if (message.EndsWith("error")) chosenLogLevel = 2;
+                    else if (message.EndsWith("fatal")) chosenLogLevel = 3;
+
+                    var tempOutput = new StringBuilder();
+                    foreach (string line in lines) {
+                        string[] entry = line.Split(';');
+                        if (entry.Length >= 3) {
+                            DateTime timeStamp;
+                            LogLevel logLevel;
+
+                            string[] timeStampSplit = entry[0].Split(',');
+                            string dateTimePart = timeStampSplit[0];
+                            if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse(entry[1], out logLevel))
+                                if ((int)logLevel >= chosenLogLevel) {
+
+
+
+                                    tempOutput.AppendLine(line);
+                                    //Continue if valid line
+                                    continue;
+                                }
+                        }
+
+
+                        string s = tempOutput.ToString();
+                        if (s.Length != 0)
+                            logEntries += s + "\n";
+                        tempOutput.Clear();
+                    }
+                    logEntries.TrimEnd();
                 }
             }
 

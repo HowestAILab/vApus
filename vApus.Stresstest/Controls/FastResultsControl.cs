@@ -742,12 +742,12 @@ namespace vApus.Stresstest {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void StresstestControl_SizeChanged(object sender, EventArgs e) {
-            SendMessageWrapper.SetWindowRedraw(Handle, false);
+            //SendMessageWrapper.SetWindowRedraw(Handle, false);
 
             epnlMessages.Collapsed = !epnlMessages.Collapsed;
             epnlMessages.Collapsed = !epnlMessages.Collapsed;
 
-            SendMessageWrapper.SetWindowRedraw(Handle, true);
+            //SendMessageWrapper.SetWindowRedraw(Handle, true);
         }
         #endregion
     }

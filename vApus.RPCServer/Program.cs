@@ -7,7 +7,7 @@
  */
 using System;
 
-namespace vApusRPCServer {
+namespace vApus.RPCServer {
     class Program {
         private static SocketListener _socketListener;
         static void Main(string[] args) {

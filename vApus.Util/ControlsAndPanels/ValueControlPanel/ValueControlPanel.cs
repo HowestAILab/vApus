@@ -122,12 +122,14 @@ namespace vApus.Util {
                 AutoScroll = false;
 
                 if (partialRefresh) {
-                    SendMessageWrapper.SetWindowRedraw(Handle, false);
+                    LockWindowUpdate(this.Handle);
+                    //SendMessageWrapper.SetWindowRedraw(Handle, false);
 
                     for (int i = 0; i != _values.Length; i++)
                         (Controls[i] as IValueControl).Init(_values[i]);
 
-                    SendMessageWrapper.SetWindowRedraw(Handle, true);
+                    //SendMessageWrapper.SetWindowRedraw(Handle, true);
+                    LockWindowUpdate(IntPtr.Zero);
                     Invalidate();
                 } else {
                     LockWindowUpdate(Handle);

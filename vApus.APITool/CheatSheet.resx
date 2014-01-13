@@ -118,8 +118,8 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="fctxtScript.Text" xml:space="preserve">
-    <value># Connect to vApusRPC over TCP
-Connect 127.0.0.1
+    <value># Connect to vApusRPC over TCP, the api key is needed to decrypt messages from the server.
+Connect 127.0.0.1 &lt;apikey&gt;
 
 # A 'ping'
 /status

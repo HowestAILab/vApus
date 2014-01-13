@@ -11,7 +11,7 @@ using System.Net;
 using System.Net.Sockets;
 using vApus.Util;
 
-namespace vApusRPCServer {
+namespace vApus.RPCServer {
     /// <summary>
     ///     Handles communication comming from vApus master or a vApus API Test Client.
     ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
@@ -34,6 +34,12 @@ namespace vApusRPCServer {
         private readonly HashSet<SocketWrapper> _connectedClients = new HashSet<SocketWrapper>();
 
         public AsyncCallback _onReceiveCallBack;
+
+        private static readonly byte[] Salt =
+            {
+                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03,
+                0x62
+            };
         #endregion
 
         #region Properties
@@ -278,6 +284,7 @@ namespace vApusRPCServer {
                         message = CommunicationHandler.HandleMessage(socketWrapper, message);
                         Console.WriteLine(" Out: " + message);
 
+                        message = message.Encrypt(vApus.RPCServer.Properties.Settings.Default.apikey.ToString(), Salt);
                         socketWrapper.Send(message, SendType.Text, Encoding.UTF8);
                     }
                 }

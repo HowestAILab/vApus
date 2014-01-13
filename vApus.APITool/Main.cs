@@ -20,6 +20,13 @@ namespace vApus.APITool {
         private SocketWrapper _socketWrapper;
         private CancellationTokenSource _cts;
 
+        private string _apiKey;
+        private readonly byte[] Salt =
+            {
+                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03,
+                0x62
+            };
+
         private string _scriptFullFileName, _scriptFileName;
         private bool _scriptChanged;
 
@@ -73,6 +80,7 @@ namespace vApus.APITool {
                         } else {
                             _socketWrapper.Send(msg, SendType.Text, Encoding.UTF8);
                             msg = _socketWrapper.Receive(SendType.Text, Encoding.UTF8) as string;
+                            msg = msg.Decrypt(_apiKey, Salt);
                         }
 
                         WriteToIn(msg);
@@ -82,10 +90,11 @@ namespace vApus.APITool {
                         //Connect or disconnect
                         if (msg.StartsWith("Connect ")) {
                             var split = msg.Split(' ');
-                            if (split.Length == 2)
+                            if (split.Length == 3)
                                 try {
                                     string ip = split[1];
-                                    Connect(split[1]);
+                                    string apiKey = split[2];
+                                    Connect(ip, apiKey);
                                     msg = "Connected to " + ip + ":1537.";
                                 } catch (Exception ex) {
                                     msg = "Failed connecting to the server:\n" + ex.Message;
@@ -116,7 +125,8 @@ namespace vApus.APITool {
                 WriteToOut("Script stopped.");
             }
         }
-        private void Connect(string ip) {
+        private void Connect(string ip, string apikey) {
+            _apiKey = apikey;
             if (_socketWrapper != null) Disconnect();
 
             try {
