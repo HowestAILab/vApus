@@ -11,15 +11,18 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using vApus.DistributedTesting.Properties;
+using vApus.DistributedTesting;
+using vApus.Server.Properties;
+using vApus.Server.Shared;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.Server {
     /// <summary>
-    ///     Handles communication comming from vApus master.
+    ///     Handles communication comming from vApus master or a vApus API Test Client.
     ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
     /// </summary>
     public class SocketListener {
+
         #region Events
         /// <summary>
         ///     Use this for instance to show the test name in the title bar of the main window.
@@ -287,7 +290,7 @@ namespace vApus.DistributedTesting {
                     BeginReceive(socketWrapper);
                 } else {
                     DisconnectMaster(socketWrapper);
-                    SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
+                    CommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
                     //The test cannot be valid without a master, stop the test if any.
                     LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Warning);
                     if (ListeningError != null)
@@ -297,7 +300,7 @@ namespace vApus.DistributedTesting {
         }
 
         /// <summary>
-        /// Handles synchronization of the send and receive buffers, the rest is handled by SlaveSideCommunicationHandler.
+        /// Handles synchronization of the send and receive buffers, the rest is handled by CommunicationHandler.
         /// </summary>
         /// <param name="result"></param>
         private void OnReceive(IAsyncResult result) {
@@ -313,12 +316,12 @@ namespace vApus.DistributedTesting {
                     socketWrapper.Socket.SendBufferSize = socketWrapper.ReceiveBufferSize;
                 } else {
                     BeginReceive(socketWrapper);
-                    message = SlaveSideCommunicationHandler.HandleMessage(socketWrapper, message);
+                    message = CommunicationHandler.HandleMessage(socketWrapper, message);
                 }
                 socketWrapper.Send(message, SendType.Binary);
             } catch (Exception exception) {
                 DisconnectMaster(socketWrapper);
-                SlaveSideCommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
+                CommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
                 //The test cannot be valid without a master, stop the test if any.
                 LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Warning);
                 if (ListeningError != null)

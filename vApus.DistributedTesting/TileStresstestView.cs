@@ -376,10 +376,9 @@ namespace vApus.DistributedTesting {
 
                 //Nasty, but last resort.
                 ThreadPool.QueueUserWorkItem((state) => {
-                    for (int i = 0; i != 30; i++) {
-                        if (_stresstestCore == null)
-                            break;
-                        Thread.Sleep(1000);
+                    for (int i = 0; i != 10001; i++) {
+                        if (_stresstestCore == null) break;
+                        Thread.Sleep(1);
                     }
                     if (_stresstestCore != null || busyThreadCount == 0)
                         SynchronizationContextWrapper.SynchronizationContext.Send((x) => {

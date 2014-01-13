@@ -197,6 +197,9 @@
   <ItemGroup>
     <Compile Include="ActiveObject\ActiveObject.cs" />
     <Compile Include="ClipboardWrapper.cs" />
+    <Compile Include="CodeEditing\CodeTextBox.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
     <Compile Include="CompilerUnit.cs" />
     <Compile Include="CodeEditing\XMLTextStyle.cs" />
     <Compile Include="CodeEditing\CSharpTextStyle.cs" />
@@ -422,6 +425,7 @@
     </Compile>
     <Compile Include="DictionaryUtil.cs" />
     <Compile Include="Extensions.cs" />
+    <Compile Include="FastObjectCreator.cs" />
     <Compile Include="FastSerializer.cs" />
     <Compile Include="ControlsAndPanels\Logging\ExceptionHelper.cs" />
     <Compile Include="ControlsAndPanels\Logging\Logger.cs" />
@@ -434,6 +438,7 @@
     <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
+    <Compile Include="JSONObjectTree.cs" />
     <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -453,6 +458,7 @@
       <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
     </Compile>
     <Compile Include="ObjectService\NamedObjectRegistrar.cs" />
+    <Compile Include="SendMessage.cs" />
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />

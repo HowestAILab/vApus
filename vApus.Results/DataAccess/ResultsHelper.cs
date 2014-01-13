@@ -323,6 +323,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (_databaseActions != null) {
                     ulong totalLogEntryCount = 0;
 
+                    var sb = new StringBuilder();
                     foreach (VirtualUserResult virtualUserResult in runResult.VirtualUserResults) {
                         totalLogEntryCount += (ulong)virtualUserResult.LogEntryResults.LongLength;
 
@@ -330,7 +331,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             var rowsToInsert = new List<string>(); //Insert multiple values at once.
                             foreach (var logEntryResult in virtualUserResult.LogEntryResults)
                                 if (logEntryResult != null && logEntryResult.VirtualUser != null) {
-                                    var sb = new StringBuilder("('");
+                                    sb.Append("('");
                                     sb.Append(_runResultId);
                                     sb.Append("', '");
                                     sb.Append(virtualUserResult.VirtualUser);
@@ -354,9 +355,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     sb.Append(logEntryResult.Rerun);
                                     sb.Append("')");
                                     rowsToInsert.Add(sb.ToString());
+                                    sb.Clear();
+
+                                    if (rowsToInsert.Count == 100) {
+                                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO logentryresults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                                            rowsToInsert.Combine(", ")));
+                                        rowsToInsert.Clear();
+                                    }
                                 }
 
-                            _databaseActions.ExecuteSQL(string.Format("INSERT INTO logentryresults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                            if (rowsToInsert.Count != 0)
+                                _databaseActions.ExecuteSQL(string.Format("INSERT INTO logentryresults(RunResultId, VirtualUser, UserAction, LogEntryIndex, SameAsLogEntryIndex, LogEntry, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
                                 rowsToInsert.Combine(", ")));
                         }
                     }

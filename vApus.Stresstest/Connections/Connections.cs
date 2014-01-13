@@ -40,7 +40,7 @@ namespace vApus.Stresstest {
             AddRange(itemsCopy);
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
         #endregion
     }
 }

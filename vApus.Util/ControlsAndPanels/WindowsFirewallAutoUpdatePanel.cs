@@ -32,7 +32,7 @@ namespace vApus.Util {
 
         #region Properties
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
         public Status __Status { get { return _status; } }
         #endregion
 
@@ -91,7 +91,7 @@ namespace vApus.Util {
         }
 
         private void SetGui() {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(this.Handle);
 
             rdbFirewallOn.CheckedChanged -= rdb_CheckedChanged;
             rdbUpdateOn.CheckedChanged -= rdb_CheckedChanged;
@@ -118,7 +118,7 @@ namespace vApus.Util {
             rdbFirewallOn.CheckedChanged += rdb_CheckedChanged;
             rdbUpdateOn.CheckedChanged += rdb_CheckedChanged;
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void btnDisableAll_Click(object sender, EventArgs e) {

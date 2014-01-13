@@ -147,7 +147,7 @@ namespace vApus.Stresstest {
         private void _MouseLeave(object sender, EventArgs e) { SetVisibleControls(); }
 
         private void picDuplicate_Click(object sender, EventArgs e) {
-            var ua = UserAction.Clone(_log.LogRuleSet, true, true, false);
+            var ua = UserAction.Clone(_log.LogRuleSet, true, false, true, false);
             int index = UserAction.Index;
 
             if (index < _log.Count) _log.InsertWithoutInvokingEvent(index, ua); else _log.AddWithoutInvokingEvent(ua);

@@ -15,6 +15,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using vApus.JSON;
 using vApus.Results;
 using vApus.Util;
 
@@ -115,6 +116,8 @@ namespace vApus.Stresstest {
             ObjectRegistrar.Register(this);
 
             _stresstest = stresstest;
+
+            WriteRestConfig();
         }
         ~StresstestCore() {
             Dispose();
@@ -140,7 +143,7 @@ namespace vApus.Stresstest {
             _stresstestResult.ConcurrencyResults.Add(_concurrencyResult);
             _resultsHelper.SetConcurrencyStarted(_concurrencyResult);
             InvokeMessage(
-                string.Format("|-> {0} Concurrent Users... (Initializing the first run, be patient)", concurrentUsers),
+                string.Format("|-> {0} Concurrent Users... (Initializing the first run, please be patient)", concurrentUsers),
                 Color.MediumPurple);
 
             if (!_cancel && ConcurrencyStarted != null)
@@ -367,8 +370,10 @@ namespace vApus.Stresstest {
             logEntries = null;
             logsSortedByWeight = null;
 
+            GC.WaitForPendingFinalizers();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
+
             _sw.Stop();
             InvokeMessage(string.Format(" ...Log(s) Initialized in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
@@ -393,7 +398,7 @@ namespace vApus.Stresstest {
                 return log;
             }
 
-            var newLog = log.Clone(false, false, false);
+            var newLog = log.Clone(false, false, false, false);
             var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
             foreach (UserAction action in log) {
                 if (_cancel) return null;
@@ -411,18 +416,18 @@ namespace vApus.Stresstest {
                     foreach (LogEntry child in action) {
                         if (_cancel) return null;
 
-                        LogEntry childClone = child.Clone(log.LogRuleSet, true);
+                        LogEntry childClone = child.Clone(log.LogRuleSet, true, false);
 
                         if (canAddClones)
                             firstEntryClones.Add(childClone);
                         else
                             childClone.SameAs = firstEntryClones[logEntryIndex];
 
-                        actionClone.AddWithoutInvokingEvent(childClone, false);
+                        actionClone.AddWithoutInvokingEvent(childClone);
                         ++logEntryIndex;
                     }
 
-                    newLog.AddWithoutInvokingEvent(actionClone, false);
+                    newLog.AddWithoutInvokingEvent(actionClone);
 
                     if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
                         linkCloned.Add(action, actionClone);
@@ -984,15 +989,16 @@ namespace vApus.Stresstest {
                 _sleepWaitHandle.Set();
                 _runSynchronizationContinueWaitHandle.Set();
                 _manyToOneWaitHandle.Set();
-                DisposeThreadPool();
                 if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
+                DisposeThreadPool();
+                if (_connectionProxyPool != null) _connectionProxyPool.Dispose();
             }
         }
         private StresstestStatus Completed() {
             _completed = true;
-            _connectionProxyPool.ShutDown();
+            if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
             DisposeThreadPool();
-            _connectionProxyPool.Dispose();
+            if (_connectionProxyPool != null) _connectionProxyPool.Dispose();
 
             if (_cancel) {
                 _resultsHelper.SetStresstestStopped(_stresstestResult, "Cancelled");
@@ -1006,10 +1012,46 @@ namespace vApus.Stresstest {
             return StresstestStatus.Ok;
         }
         private void DisposeThreadPool() {
-            if (_threadPool != null) try { _threadPool.Dispose(100); } catch { }
+            if (_threadPool != null) try { _threadPool.Dispose(); } catch { }
             _threadPool = null;
         }
         #endregion
+
+        private void WriteRestConfig() {
+            try {
+                var testConfigCache = new JSONObjectTree();
+
+                var monitors = _stresstest.Monitors;
+                var newMonitors = new string[monitors.Length];
+                for (int i = 0; i != monitors.Length; i++)
+                    newMonitors[i] = monitors[i].ToString();
+
+                var logs = _stresstest.Logs;
+                var newLogs = new string[logs.Length];
+                for (int i = 0; i != logs.Length; i++)
+                    newLogs[i] = logs[i].Key.ToString();
+
+                JSONObjectTreeHelper.ApplyToRunningStresstestConfig(testConfigCache,
+                                        _stresstest.ToString(),
+                                        _stresstest.Connection.ToString(),
+                                        _stresstest.ConnectionProxy.ToString(),
+                                        newMonitors,
+                                        newLogs,
+                                        _stresstest.LogRuleSet,
+                                        _stresstest.Concurrencies,
+                                        _stresstest.Runs,
+                                        _stresstest.MinimumDelay,
+                                        _stresstest.MaximumDelay,
+                                        _stresstest.Shuffle,
+                                        _stresstest.ActionDistribution,
+                                        _stresstest.MaximumNumberOfUserActions,
+                                        _stresstest.MonitorBefore,
+                                        _stresstest.MonitorAfter);
+
+                JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
+            } catch {
+            }
+        }
 
         public void Dispose() {
             if (!_isDisposed) {
@@ -1046,6 +1088,8 @@ namespace vApus.Stresstest {
                 }
             }
             ObjectRegistrar.Unregister(this);
+
+            GC.WaitForPendingFinalizers();
             GC.Collect();
         }
         #endregion

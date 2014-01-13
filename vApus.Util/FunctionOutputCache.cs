@@ -15,7 +15,7 @@ namespace vApus.Util {
         private static FunctionOutputCache _functionOutputCache;
         public static FunctionOutputCache FunctionOutputCache {
             get {
-                if (_functionOutputCache == null) _functionOutputCache = new FunctionOutputCache();
+                if (_functionOutputCache == null || _functionOutputCache.IsDisposed) _functionOutputCache = new FunctionOutputCache();
                 return _functionOutputCache;
             }
         }
@@ -80,6 +80,8 @@ namespace vApus.Util {
             if (!_isDisposed) {
                 _isDisposed = true;
                 _cache = null;
+
+                GC.WaitForPendingFinalizers();
                 GC.Collect();
             }
         }

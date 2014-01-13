@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
@@ -18,13 +17,17 @@ using WeifenLuo.WinFormsUI.Docking;
 using vApus.SolutionTree.Properties;
 using vApus.Util;
 using System.Runtime;
+using System.Threading.Tasks;
+using System.Diagnostics;
+using System.Threading;
 
 namespace vApus.SolutionTree {
     /// <summary>
     ///     The solution where everything is stored, this class also keeps its explorer and which solution that is active.
     ///     Saving, Loading, making a solution is done here, this also keeps it's own explorer.
     /// </summary>
-    public class Solution {
+    public class Solution : IDisposable {
+
         #region Manage
 
         /// <summary>
@@ -42,8 +45,7 @@ namespace vApus.SolutionTree {
         private static readonly StringCollection _recentSolutions;
         private static Solution _activeSolution;
 
-        private static readonly StresstestingSolutionExplorer _stresstestingSolutionExplorer =
-            new StresstestingSolutionExplorer();
+        private static readonly StresstestingSolutionExplorer _stresstestingSolutionExplorer = new StresstestingSolutionExplorer();
 
         private static readonly OpenFileDialog _ofd = new OpenFileDialog();
         private static readonly SaveFileDialog _sfd = new SaveFileDialog();
@@ -52,6 +54,8 @@ namespace vApus.SolutionTree {
 
         private static HashSet<Form> _registeredForCancelFormClosing = new HashSet<Form>();
 
+        private static CancellationTokenSource _saveLoadCancellationTokenSource;
+        private static Task<string> _saveLoadTask;
         #endregion
 
         #region Properties
@@ -75,13 +79,12 @@ namespace vApus.SolutionTree {
             get { return _dockPanel; }
         }
 
-        public static Form[] RegisteredForCancelFormClosing {
+        public static IEnumerable<Form> RegisteredForCancelFormClosing {
             get {
                 //Cleanup first
                 CleanupRegisteredForCancelFormClosing();
-                var mdiChilds = new Form[_registeredForCancelFormClosing.Count];
-                _registeredForCancelFormClosing.CopyTo(mdiChilds);
-                return mdiChilds;
+                foreach (Form form in _registeredForCancelFormClosing)
+                    yield return form;
             }
         }
 
@@ -90,6 +93,9 @@ namespace vApus.SolutionTree {
         /// </summary>
         public static bool ExplicitCancelFormClosing { get; set; }
 
+        public static StresstestingSolutionExplorer StresstestingSolutionExplorer {
+            get { return Solution._stresstestingSolutionExplorer; }
+        }
         #endregion
 
         #region Functions
@@ -139,21 +145,33 @@ namespace vApus.SolutionTree {
         /// <summary>
         ///     Tooltips will be provide for the items.
         /// </summary>
+        /// <param name="caller">Added as tag to change the tile when clicked (loading vass)</param>
         /// <returns></returns>
-        public static List<ToolStripMenuItem> GetRecentSolutionsMenuItems() {
+        public static List<ToolStripMenuItem> GetRecentSolutionsMenuItems(Form caller) {
             var recentSolutionsMenuItems = new List<ToolStripMenuItem>();
             foreach (string filename in _recentSolutions) {
                 var item = new ToolStripMenuItem(filename);
+                item.Tag = caller;
                 item.Click += item_Click;
                 recentSolutionsMenuItems.Add(item);
             }
             return recentSolutionsMenuItems;
         }
 
-        private static void item_Click(object sender, EventArgs e) {
+        async private static void item_Click(object sender, EventArgs e) {
             var item = sender as ToolStripMenuItem;
             if (File.Exists(item.Text)) {
-                LoadNewActiveSolution(item.Text);
+                var form = item.Tag as Form;
+                if (form != null && !form.IsDisposed && !form.Disposing) {
+                    form.Cursor = Cursors.WaitCursor;
+                    string text = form.Text;
+                    form.Text = "Loading solution, please be patient... - vApus";
+
+                    if (!(await LoadNewActiveSolutionAsync(item.Text)))
+                        form.Text = text;
+
+                    form.Cursor = Cursors.Default;
+                }
             } else {
                 _recentSolutions.Remove(item.Text);
                 Settings.Default.RecentSolutions = _recentSolutions;
@@ -181,20 +199,22 @@ namespace vApus.SolutionTree {
         }
 
         /// <summary>
-        ///     The will be closed before the main window is closed, they can cancel this setting ExplicitCancelFormClosing to true.
+        ///     These will be closed before the main window is closed, they can cancel this setting ExplicitCancelFormClosing to true.
         ///     Unregistering is not needed.
         /// </summary>
         /// <param name="mdiChild"></param>
         public static void RegisterForCancelFormClosing(Form mdiChild) {
             CleanupRegisteredForCancelFormClosing();
-            _registeredForCancelFormClosing.Add(mdiChild);
+            if (mdiChild != null && !mdiChild.IsDisposed && !mdiChild.Disposing)
+                _registeredForCancelFormClosing.Add(mdiChild);
         }
 
         private static void CleanupRegisteredForCancelFormClosing() {
             var newRegisteredForCancelFormClosing = new HashSet<Form>();
             foreach (Form mdiChild in _registeredForCancelFormClosing)
-                if (mdiChild != null && !mdiChild.IsDisposed)
+                if (mdiChild != null && !mdiChild.IsDisposed && !mdiChild.Disposing)
                     newRegisteredForCancelFormClosing.Add(mdiChild);
+            _registeredForCancelFormClosing.Clear();
             _registeredForCancelFormClosing = newRegisteredForCancelFormClosing;
         }
 
@@ -231,6 +251,10 @@ namespace vApus.SolutionTree {
                     ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(false, false));
 
                 RegisterActiveSolutionAsRecent();
+
+                GC.WaitForPendingFinalizers();
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
                 return true;
             }
         }
@@ -250,23 +274,41 @@ namespace vApus.SolutionTree {
         /// <summary>
         ///     Loads a new solution as the active one. Returns true if it has been loaded.
         /// </summary>
-        public static bool LoadNewActiveSolution() {
-            return LoadNewActiveSolution(null);
+        async public static Task<bool> LoadNewActiveSolutionAsync() {
+            return await LoadNewActiveSolutionAsync(null);
         }
 
         /// <summary>
         /// Reloads the solution if possible.
         /// </summary>
         /// <returns></returns>
-        public static bool ReloadSolution() {
+        async public static Task<bool> ReloadSolutionAsync() {
             if (_activeSolution != null && !_activeSolution.IsSaved &&
                 MessageBox.Show("Reopening the solution will discard the changes you've made.\nAre you sure you want to do this?",
                                     string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                 try {
-                    return LoadSolution(_activeSolution.FileName);
+                    return await LoadSolutionAsync(_activeSolution.FileName);
                 } catch (Exception ex) {
                     LogWrapper.LogByLevel("Could not reopen the solution.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
                 }
+            return false;
+        }
+
+        async public static Task<bool> LoadNewActiveSolutionAsync(string fileName) {
+            if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
+                DialogResult result =
+                    MessageBox.Show(
+                        string.Format("Do you want to save '{0}' before opening another solution?", _activeSolution.Name),
+                        string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question,
+                        MessageBoxDefaultButton.Button1);
+                if (result == DialogResult.Yes && SaveActiveSolution())
+                    return await LoadSolutionAsync(fileName);
+                else if (result == DialogResult.No)
+                    return await LoadSolutionAsync(fileName);
+                //Do nothing on cancel.
+            } else {
+                return await LoadSolutionAsync(fileName);
+            }
             return false;
         }
 
@@ -288,46 +330,115 @@ namespace vApus.SolutionTree {
             return false;
         }
 
-        private static bool LoadSolution(string fileName) {
+        async private static Task<bool> LoadSolutionAsync(string fileName) {
             string errorMessage = string.Empty;
             try {
                 if (fileName != null) {
                     var sln = new Solution();
                     sln.FileName = fileName;
-                    sln.Load(out errorMessage);
-                    ActiveSolution = sln;
-                    ActiveSolution.ResolveBranchedIndices();
-                    _activeSolution.IsSaved = true;
+
+                    errorMessage = await sln.LoadAsync(new CancellationToken());
+
+                    if (_saveLoadTask.Status == TaskStatus.RanToCompletion && errorMessage == string.Empty) {
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                        _activeSolution.IsSaved = true;
+                    } else {
+                        sln.Dispose();
+                        sln = null;
+                    }
                     return true;
                 } else if (_ofd.ShowDialog() == DialogResult.OK) {
                     var sln = new Solution();
                     sln.FileName = _ofd.FileName;
-                    sln.Load(out errorMessage);
-                    ActiveSolution = sln;
-                    ActiveSolution.ResolveBranchedIndices();
-                    _activeSolution.IsSaved = true;
+
+                    errorMessage = await sln.LoadAsync(new CancellationToken());
+
+                    if (_saveLoadTask.Status == TaskStatus.RanToCompletion && errorMessage == string.Empty) {
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                        _activeSolution.IsSaved = true;
+                    } else {
+                        sln.Dispose();
+                        sln = null;
+                    }
                     return true;
                 }
             } catch {
                 throw;
             } finally {
+                GC.WaitForPendingFinalizers();
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
+
                 if (errorMessage.Length > 0)
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
 This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
 Take a copy of the file to be sure and test if stresstesting works.
 
-See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty,
-                                    MessageBoxButtons.OK, MessageBoxIcon.Warning);
+See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             return false;
         }
 
-        public static bool CreateNewFromTemplate() {
-            return CreateNewFromTemplate(null);
+        private static bool LoadSolution(string fileName) {
+            string errorMessage = string.Empty;
+            try {
+                if (fileName != null) {
+                    var sln = new Solution();
+                    sln.FileName = fileName;
+
+                    errorMessage = sln.Load(new CancellationToken());
+
+                    if (errorMessage == string.Empty) {
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                        _activeSolution.IsSaved = true;
+                    } else {
+                        sln.Dispose();
+                        sln = null;
+                    }
+                    return true;
+                } else if (_ofd.ShowDialog() == DialogResult.OK) {
+                    var sln = new Solution();
+                    sln.FileName = _ofd.FileName;
+
+                    errorMessage = sln.Load(new CancellationToken());
+
+                    if (errorMessage == string.Empty) {
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                        _activeSolution.IsSaved = true;
+                    } else {
+                        sln.Dispose();
+                        sln = null;
+                    }
+                    return true;
+                }
+            } catch {
+                throw;
+            } finally {
+                GC.WaitForPendingFinalizers();
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
+
+                if (errorMessage.Length > 0)
+                    MessageBox.Show(@"Failed loading one or more items/properties.
+
+This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
+Take a copy of the file to be sure and test if stresstesting works.
+
+See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            return false;
         }
 
-        private static bool CreateNewFromTemplate(string fileName) {
+        async public static Task<bool> CreateNewFromTemplateAsync() {
+            return await CreateNewFromTemplateAsync(null);
+        }
+
+        async private static Task<bool> CreateNewFromTemplateAsync(string fileName) {
             if (_activeSolution != null && (!_activeSolution.IsSaved || _activeSolution.FileName == null)) {
                 DialogResult result =
                     MessageBox.Show(
@@ -335,41 +446,53 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question,
                         MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes && SaveActiveSolution())
-                    return LoadSolutionFromTemplate(fileName);
+                    return await LoadSolutionFromTemplateAsync(fileName);
                 else if (result == DialogResult.No)
-                    return LoadSolutionFromTemplate(fileName);
+                    return await LoadSolutionFromTemplateAsync(fileName);
                 //Do nothing on cancel.
             } else {
-                return LoadSolutionFromTemplate(fileName);
+                return await LoadSolutionFromTemplateAsync(fileName);
             }
             return false;
         }
 
-        private static bool LoadSolutionFromTemplate(string fileName) {
+        async private static Task<bool> LoadSolutionFromTemplateAsync(string fileName) {
             string errorMessage = string.Empty;
             try {
                 if (fileName != null) {
                     var sln = new Solution();
                     sln.FileName = fileName;
-                    sln.Load(out errorMessage);
-                    sln.FileName = null;
-                    ActiveSolution = sln;
-                    ActiveSolution.ResolveBranchedIndices();
+
+                    errorMessage = await sln.LoadAsync(new CancellationToken());
+
+                    if (_saveLoadTask.Status == TaskStatus.RanToCompletion && errorMessage == string.Empty) {
+                        sln.FileName = null;
+                        ActiveSolution = sln;
+                        ActiveSolution.ResolveBranchedIndices();
+                    }
                     return true;
                 } else {
                     if (_ofd.ShowDialog() == DialogResult.OK) {
                         var sln = new Solution();
                         sln.FileName = _ofd.FileName;
-                        sln.Load(out errorMessage);
-                        sln.FileName = null;
-                        ActiveSolution = sln;
-                        ActiveSolution.ResolveBranchedIndices();
+
+                        errorMessage = await sln.LoadAsync(new CancellationToken());
+
+                        if (_saveLoadTask.Status == TaskStatus.RanToCompletion && errorMessage == string.Empty) {
+                            sln.FileName = null;
+                            ActiveSolution = sln;
+                            ActiveSolution.ResolveBranchedIndices();
+                        }
                         return true;
                     }
                 }
             } catch {
                 throw;
             } finally {
+                GC.WaitForPendingFinalizers();
+                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                GC.Collect();
+
                 if (errorMessage.Length > 0)
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
@@ -438,16 +561,19 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
-
             _stresstestingSolutionExplorer.DockStateChanged += _stresstestingSolutionExplorer_DockStateChanged;
         }
 
         private Solution() {
-            _activeSolution = null;
-            ObjectExtension.ClearCache();
+            if (_activeSolution != null) {
+                _activeSolution.Dispose();
+                _activeSolution = null;
+            }
+
             _projects = new List<BaseProject>();
+
             foreach (Type projectType in _projectTypes) {
-                var project = Activator.CreateInstance(projectType) as BaseProject;
+                var project = FastObjectCreator.CreateInstance(projectType) as BaseProject;
                 project.Parent = this;
                 _projects.Add(project);
             }
@@ -580,46 +706,118 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             foreach (BaseProject project in _projects) {
                 var uri = new Uri("/" + project.GetType().Name, UriKind.Relative);
                 PackagePart part = package.CreatePart(uri, string.Empty, CompressionOption.Maximum);
-                var sw = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write));
-                project.GetXmlToSave().Save(sw);
-                sw.Close();
-                sw.Dispose();
+
+                StreamWriter sw;
+                using (sw = new StreamWriter(part.GetStream(FileMode.Create, FileAccess.Write)))
+                    project.GetXmlToSave().Save(sw);
+
+                sw = null;
             }
             package.Flush();
             package.Close();
-            
-            GC.Collect();
+            package = null;
         }
 
-        protected void Load(out string errorMessage) {
+        async private Task<string> LoadAsync(CancellationToken cancellationToken) {
+            var previousCts = _saveLoadCancellationTokenSource;
+            var newCts = CancellationTokenSource.CreateLinkedTokenSource(cancellationToken);
+            _saveLoadCancellationTokenSource = newCts;
+
+            if (previousCts != null) {
+                previousCts.Cancel();
+
+                try { await _saveLoadTask; } catch {
+                    //Wait for cancel.
+                }
+                _saveLoadTask.Dispose();
+            }
+
+            _stresstestingSolutionExplorer.Enabled = false;
+
+            string errorMessage = string.Empty;
+
+            try {
+                _saveLoadTask = Task.Run<string>(() => { return Load(_saveLoadCancellationTokenSource.Token); });
+                try { errorMessage = await _saveLoadTask; } catch { }
+
+            } catch { }
+
+            _stresstestingSolutionExplorer.Enabled = true;
+
+            return errorMessage;
+        }
+        private string Load(CancellationToken cancellationToken) {
             //Error reporting.
             var sb = new StringBuilder();
+            Package package = null; ;
             try {
-                Package package = Package.Open(FileName, FileMode.Open, FileAccess.Read);
-                foreach (PackagePart part in package.GetParts()) {
-                    foreach (BaseProject project in _projects)
-                        if (part.Uri.ToString().EndsWith(project.GetType().Name)) {
-                            var xmlDocument = new XmlDocument();
-                            xmlDocument.Load(part.GetStream());
-                            string projectErrorMessage;
-                            project.LoadFromXml(xmlDocument, out projectErrorMessage);
-                            sb.Append(projectErrorMessage);
-                        }
-                }
-                package.Close();
+                try {
+                    package = Package.Open(FileName, FileMode.Open, FileAccess.Read);
+                    foreach (PackagePart part in package.GetParts()) {
+                        if (cancellationToken.IsCancellationRequested)
+                            throw new TaskCanceledException();
+                        foreach (BaseProject project in _projects) {
+                            if (cancellationToken.IsCancellationRequested)
+                                throw new TaskCanceledException();
+                            if (part.Uri.ToString().EndsWith(project.GetType().Name)) {
+                                XmlDocument xmlDocument = new XmlDocument();
+                                xmlDocument.Load(part.GetStream());
 
+                                string projectErrorMessage;
+                                project.LoadFromXml(xmlDocument, cancellationToken, out projectErrorMessage);
+                                sb.Append(projectErrorMessage);
+
+                                xmlDocument = null;
+
+                                if (cancellationToken.IsCancellationRequested)
+                                    throw new TaskCanceledException();
+                            }
+                        }
+                    }
+                } catch {
+                    throw;
+                } finally {
+                    if (package != null) {
+                        try { package.Close(); } catch {
+                        }
+                        package = null;
+                    }
+                }
+            } catch (TaskCanceledException tce) {
+                throw tce;
             } catch (Exception ex) {
                 sb.Append(ex);
             }
-            errorMessage = sb.ToString();
 
-            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-            GC.Collect();
+            return sb.ToString();
         }
-
         protected void ResolveBranchedIndices() {
             foreach (BaseProject project in _projects)
                 project.ResolveBranchedIndices();
+        }
+
+        public void Dispose() {
+            //Not needed, only general stuff in here.
+            //FunctionOutputCacheWrapper.FunctionOutputCache.Dispose();
+
+            foreach (Form mdiChild in _registeredForCancelFormClosing)
+                if (mdiChild != null && !mdiChild.IsDisposed && !mdiChild.Disposing)
+                    try { mdiChild.Dispose(); } catch { }
+            _registeredForCancelFormClosing.Clear();
+
+            SolutionComponentViewManager.DisposeViews();
+
+            if (_projects != null) {
+                foreach (var project in _projects)
+                    project.Dispose();
+                _projects.Clear();
+            }
+
+            ObjectExtension.ClearCache();
+
+            GC.WaitForPendingFinalizers();
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
         }
 
         #endregion

@@ -10,7 +10,6 @@ using System;
 using vApus.SolutionTree;
 
 namespace vApus.Stresstest {
-    [Serializable]
     public abstract class BaseRuleSets : BaseItem {
     }
 }

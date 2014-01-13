@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -16,7 +17,7 @@ namespace vApus.Stresstest {
     /// Contains a captured request to a server app.
     /// </summary>
     [DisplayName("Log Entry"), Serializable]
-    public class LogEntry : LabeledBaseItem {
+    public class LogEntry : LabeledBaseItem, ISerializable {
 
         #region Fields
         private static readonly char[] _beginParameterTokenDelimiterCanditates = new[] { '{', '<', '[', '(', '\\', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
@@ -24,20 +25,19 @@ namespace vApus.Stresstest {
 
         private readonly object _lock = new object();
 
-        private bool _executeInParallelWithPrevious; //For a special not yet used feature.
+        private string _logEntryString = string.Empty;
 
         private bool _useDelay = false;
-        private string _logEntryString = string.Empty;
-        private int _parallelOffsetInMs;
 
-        private Parameters _parameters;
-        [NonSerialized]
-        private static Parameters _staticParameters;
+        private bool _executeInParallelWithPrevious; //For a special not yet used feature.
+        private int _parallelOffsetInMs;
 
         private LogEntry _sameAs;
 
         private ASTNode _lexedLogEntry;
         private LexicalResult _lexicalResult = LexicalResult.Error;
+
+        private static Parameters _parameters;
         #endregion
 
         #region Properties
@@ -98,30 +98,28 @@ namespace vApus.Stresstest {
             get { return (_beginParameterTokenDelimiterCanditates.Length * 3) - 1; }
         }
 
+        /// <summary>
+        /// Only happens in stresstest core when determining test patterns.
+        /// </summary>
         public LogEntry SameAs {
             get { return _sameAs; }
             set { _sameAs = value; }
         }
+
+
+        /// <summary>
+        /// For a distributed test.
+        /// </summary>
+        internal static Parameters Parameters {
+            set { _parameters = value; }
+        }
         #endregion
 
         #region Constructors
-        static LogEntry() {
-            if (_staticParameters == null && Solution.ActiveSolution != null)
-                try {
-                    _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-                } catch {
-                }
-            Solution.ActiveSolutionChanged += StaticSolution_ActiveSolutionChanged;
-
-        }
         /// <summary>
         /// Contains a captured request to a server app.
         /// </summary>
-        public LogEntry() {
-            ShowInGui = false;
-            _parameters = _staticParameters;
-            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
-        }
+        public LogEntry() { ShowInGui = false; }
         /// <summary>
         /// Contains a captured request to a server app.
         /// </summary>
@@ -130,16 +128,22 @@ namespace vApus.Stresstest {
             : this() {
             LogEntryString = logEntryString;
         }
+
+        public LogEntry(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _logEntryString = sr.ReadString();
+                _useDelay = sr.ReadBoolean();
+                _executeInParallelWithPrevious = sr.ReadBoolean();
+                _parallelOffsetInMs = sr.ReadInt32();
+            }
+            sr = null;
+        }
         #endregion
 
         #region Functions
-        private static void StaticSolution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
-            _staticParameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-        }
-        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
-            _parameters = _staticParameters;
-        }
-
         /// <summary>
         ///     This will apply the ruleset (lexing).
         ///     The lexed log entry will be filled in.
@@ -147,6 +151,11 @@ namespace vApus.Stresstest {
         public void ApplyLogRuleSet(LogRuleSet logRuleSet) {
             //For cleaning old solutions
             //ClearWithoutInvokingEvent();
+
+            if (_lexedLogEntry != null) {
+                _lexedLogEntry.Dispose();
+                _lexedLogEntry = null;
+            }
 
             _lexicalResult = (logRuleSet == null) ? LexicalResult.Error : logRuleSet.TryLexicalAnalysis(_logEntryString, _parameters, out _lexedLogEntry);
         }
@@ -225,17 +234,26 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Clones and applies the log rule set.
         /// </summary>
+        /// <param name="logRuleSet"></param>
+        /// <param name="applyRuleSet">Not needed in a distributed test.</param>
+        /// <param name="cloneLabelAndLogEntryStringByRef">Set to true to leverage memory usage, should only be used in a distributed test otherwise strange things will happen.</param>
         /// <returns></returns>
-        public LogEntry Clone(LogRuleSet logRuleSet, bool applyRuleSet) {
+        public LogEntry Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool cloneLogEntryStringByRef) {
             LogEntry logEntry = new LogEntry();
-            logEntry.SetParent(Parent, false);
-            logEntry.LogEntryString = _logEntryString;
-            logEntry._parameters = _parameters;
+            logEntry.SetParent(Parent);
+
+            if (cloneLogEntryStringByRef)
+                SetLogEntryStringByRef(logEntry, ref _logEntryString);
+            else
+                logEntry._logEntryString = _logEntryString;
 
             if (applyRuleSet)
                 logEntry.ApplyLogRuleSet(logRuleSet);
 
             return logEntry;
+        }
+        private void SetLogEntryStringByRef(LogEntry logEntry, ref string logEntryString) {
+            logEntry._logEntryString = logEntryString;
         }
 
         /// <summary>
@@ -244,6 +262,29 @@ namespace vApus.Stresstest {
         /// <returns></returns>
         public override string ToString() {
             return (base.ToString() == null ? string.Empty : base.ToString() + ": ") + _logEntryString;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_logEntryString);
+                sw.Write(_useDelay);
+                sw.Write(_executeInParallelWithPrevious);
+                sw.Write(_parallelOffsetInMs);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+        }
+
+
+        public new void Dispose() {
+            _parameters = null;
+            if (_lexedLogEntry != null) {
+                _lexedLogEntry.Dispose();
+                _lexedLogEntry = null;
+            }
+            base.Dispose();
         }
         #endregion
     }

@@ -19,13 +19,6 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class FastResultsControl : UserControl {
-        /// <summary>
-        /// For smooth updating the gui.
-        /// </summary>
-        /// <param name="hWnd"></param>
-        /// <returns></returns>
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
 
         /// <summary>
         ///     To show the monitor view if any.
@@ -749,10 +742,12 @@ namespace vApus.Stresstest {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void StresstestControl_SizeChanged(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            //SendMessageWrapper.SetWindowRedraw(Handle, false);
+
             epnlMessages.Collapsed = !epnlMessages.Collapsed;
             epnlMessages.Collapsed = !epnlMessages.Collapsed;
-            LockWindowUpdate(0);
+
+            //SendMessageWrapper.SetWindowRedraw(Handle, true);
         }
         #endregion
     }

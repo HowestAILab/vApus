@@ -49,13 +49,9 @@ namespace vApus.DistributedTesting {
         #region Functions
 
         public void SetTileStresstest(TileStresstest tileStresstest) {
-            lblRunSync.Visible =
-                lblUseRDP.Visible =
-                lblUsage.Visible = false;
+            lblRunSync.Visible = lblUseRDP.Visible = lblUsage.Visible = false;
 
-            defaultAdvancedSettingsToControl.Visible =
-                solutionComponentPropertyPanelBasic.Visible =
-                llblShowHideAdvancedSettings.Visible = true;
+            defaultAdvancedSettingsToControl.Visible = solutionComponentPropertyPanelBasic.Visible = llblShowHideAdvancedSettings.Visible = true;
 
             if (_tileStresstest != tileStresstest) {
                 _tileStresstest = tileStresstest;

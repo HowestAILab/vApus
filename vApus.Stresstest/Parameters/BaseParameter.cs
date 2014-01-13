@@ -35,7 +35,7 @@ namespace vApus.Stresstest {
         internal string _description = string.Empty;
 
         protected object _lock = new object();
-        private int _tokenNumericIdentifier = -1;
+        protected int _tokenNumericIdentifier = -1;
         #endregion
 
         #region Properties
@@ -86,7 +86,7 @@ namespace vApus.Stresstest {
 
         public abstract void ResetValue();
 
-        public override void Activate() {  SolutionComponentViewManager.Show(this, typeof(ParameterView));   }
+        public override BaseSolutionComponentView Activate() {  return SolutionComponentViewManager.Show(this, typeof(ParameterView));   }
         #endregion
     }
 }

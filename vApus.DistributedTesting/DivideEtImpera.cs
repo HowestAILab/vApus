@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using vApus.Results;
+using vApus.Server.Shared;
 using vApus.Stresstest;
 using vApus.Util;
 

@@ -7,15 +7,17 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Runtime.Serialization;
 using System.Threading;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     /// <summary>
     /// Holds collections of parameters.
     /// </summary>
     [Serializable]
-    public class Parameters : BaseItem {
+    public class Parameters : BaseItem, ISerializable {
 
         #region Fields
         private readonly object _lock = new object();
@@ -32,6 +34,14 @@ namespace vApus.Stresstest {
             AddAsDefaultItem(new CustomRandomParameters());
 
             Loaded += Parameters_Loaded;
+        }
+        public Parameters(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
+            }
+            sr = null;
         }
         #endregion
 
@@ -101,6 +111,15 @@ namespace vApus.Stresstest {
 
             if (oldAndNewIndices.Count != 0)
                 (SolutionComponentViewManager.Show(this, typeof(ParameterTokenSynchronizationView)) as ParameterTokenSynchronizationView).VisualizeSynchronization(oldAndNewIndices);
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(this);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
         #endregion
     }

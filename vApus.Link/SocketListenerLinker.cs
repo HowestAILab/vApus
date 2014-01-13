@@ -9,6 +9,7 @@
 using System;
 using System.Threading.Tasks;
 using vApus.DistributedTesting;
+using vApus.Server;
 using vApus.Util;
 
 namespace vApus.Link {

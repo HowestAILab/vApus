@@ -61,10 +61,7 @@ namespace vApus.Stresstest {
 
         #region Functions
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
-        [DllImport("user32.dll", CharSet = CharSet.Unicode)]
-        private static extern IntPtr SendMessage(IntPtr hWnd, int msg, IntPtr wp, string lp);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         private void DetailedResultsControl_VisibleChanged(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
@@ -72,8 +69,7 @@ namespace vApus.Stresstest {
             SizeColumns();
         }
         private void cboShow_HandleCreated(object sender, EventArgs e) {
-            //cb_setcuemessage
-            SendMessage(cboShow.Handle, 0x1703, (IntPtr)1, "Please, select a result set...");
+            SendMessageWrapper.SetComboboxCueBar(cboShow.Handle, "Please, select a result set...");
         }
 
         private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { if (lbtnDescription.Active) SetConfig(_resultsHelper.GetDescription().Replace('\r', ' ').Replace('\n', ' ')); }
@@ -104,13 +100,13 @@ namespace vApus.Stresstest {
             flpConfiguration.Controls.AddRange(_config);
         }
         private void SetConfig(List<KeyValuePair<string, string>> keyValues) {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(Handle);
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[keyValues.Count];
             int i = 0;
             foreach (var kvp in keyValues) _config[i++] = new KeyValuePairControl(kvp.Key, kvp.Value) { BackColor = SystemColors.Control };
             flpConfiguration.Controls.AddRange(_config);
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void btnCollapseExpand_Click(object sender, EventArgs e) {

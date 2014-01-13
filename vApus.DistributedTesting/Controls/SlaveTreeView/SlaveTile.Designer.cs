@@ -88,12 +88,13 @@
             this.llblPA.TabIndex = 8;
             this.llblPA.TabStop = true;
             this.llblPA.Text = "...";
+            this.llblPA.Visible = false;
             this.llblPA.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblPA_LinkClicked);
             // 
             // llblTest
             // 
             this.llblTest.AutoEllipsis = true;
-            this.llblTest.Location = new System.Drawing.Point(95, 62);
+            this.llblTest.Location = new System.Drawing.Point(95, 36);
             this.llblTest.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.llblTest.Name = "llblTest";
             this.llblTest.Size = new System.Drawing.Size(252, 13);
@@ -111,11 +112,12 @@
             this.label2.Size = new System.Drawing.Size(91, 13);
             this.label2.TabIndex = 10;
             this.label2.Text = "Processor Affinity:";
+            this.label2.Visible = false;
             // 
             // label3
             // 
             this.label3.AutoSize = true;
-            this.label3.Location = new System.Drawing.Point(3, 62);
+            this.label3.Location = new System.Drawing.Point(3, 36);
             this.label3.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(77, 13);
@@ -171,7 +173,7 @@
             this.Controls.Add(this.nudPort);
             this.Controls.Add(this.label1);
             this.Name = "SlaveTile";
-            this.Size = new System.Drawing.Size(350, 84);
+            this.Size = new System.Drawing.Size(350, 57);
             ((System.ComponentModel.ISupportInitialize)(this.nudPort)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();

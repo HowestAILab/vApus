@@ -8,9 +8,11 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
@@ -18,7 +20,7 @@ namespace vApus.Stresstest {
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [Serializable]
-    public class Rule : LabeledBaseItem {
+    public class Rule : LabeledBaseItem, ISerializable {
 
         #region Enum
 
@@ -105,13 +107,23 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-
+        public Rule() { }
+        public Rule(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                _ignoreCase = sr.ReadBoolean();
+                _regExp = sr.ReadString();
+                _valueType = (ValueTypes)sr.ReadInt32();
+            }
+            sr = null;
+        }
         #endregion
 
         #region Functions
 
-        internal LexicalResult TryLexicalAnaysis(string input, Parameters parameters, out ASTNode output) {
-            output = new ASTNode(parameters);
+        internal LexicalResult TryLexicalAnaysis(string input, out ASTNode output) {
+            output = new ASTNode();
             output.Value = input;
             try {
                 CastOrParseInputToType(input, _valueType);
@@ -194,6 +206,16 @@ namespace vApus.Stresstest {
             }
         }
 
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(_ignoreCase);
+                sw.Write(_regExp);
+                sw.Write((int)_valueType);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+        }
         #endregion
     }
 }

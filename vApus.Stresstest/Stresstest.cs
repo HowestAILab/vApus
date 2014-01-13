@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.SolutionTree;
@@ -23,10 +25,9 @@ namespace vApus.Stresstest {
         new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
-    public class Stresstest : LabeledBaseItem {
+    public class Stresstest : LabeledBaseItem, ISerializable {
 
         #region Fields
-        private string _solution; //For the results.
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
@@ -63,29 +64,17 @@ namespace vApus.Stresstest {
         private bool _forDistributedTest;
 
         private bool _useParallelExecutionOfLogEntries;
+
+        private Parameters _parameters; //Kept here for a distributed test
         #endregion
 
         #region Properties
-        /// <summary>
-        ///     For the stresstest results.
-        /// </summary>
-        public string Solution {
-            get {
-                if (_solution == null && SolutionTree.Solution.ActiveSolution != null)
-                    _solution = SolutionTree.Solution.ActiveSolution.FileName;
-                return _solution;
-            }
-        }
-
         [Description("The connection to the application to test.")]
         [SavableCloneable, PropertyControl(0)]
         public Connection Connection {
             get {
-                if (_connection.IsEmpty)
-                    Connection =
-                        GetNextOrEmptyChild(typeof(Connection),
-                                            SolutionTree.Solution.ActiveSolution.GetSolutionComponent(
-                                                typeof(Connections))) as Connection;
+                if (Solution.ActiveSolution != null && (_connection.IsEmpty || _connection.Parent == null))
+                    _connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
 
                 if (_connection != null)
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
@@ -95,9 +84,7 @@ namespace vApus.Stresstest {
             set {
                 if (value == null)
                     return;
-                value.ParentIsNull -= _connection_ParentIsNull;
                 _connection = value;
-                _connection.ParentIsNull += _connection_ParentIsNull;
             }
         }
 
@@ -153,7 +140,7 @@ namespace vApus.Stresstest {
                         ++weightIndex;
                     }
                     _logs = l.ToArray();
-                    _logs.SetParent(_allLogs, false);
+                    _logs.SetParent(_allLogs);
                 }
             }
         }
@@ -196,7 +183,7 @@ namespace vApus.Stresstest {
                 _logs = value;
 
                 if (_allLogs != null) {
-                    _logs.SetParent(_allLogs, false);
+                    _logs.SetParent(_allLogs);
 
                     var logIndices = new List<int>(_logs.Length);
                     var logWeights = new List<uint>(_logs.Length);
@@ -299,7 +286,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("A static multiplier of the runtime for each concurrency. Must be greater than zero.")]
-        [SavableCloneable, PropertyControl(4)]
+        [SavableCloneable, PropertyControl(4, 1, int.MaxValue)]
         public int Runs {
             get { return _runs; }
             set {
@@ -310,7 +297,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(5, true)]
+        [PropertyControl(5, true, 0)]
         public int MinimumDelay {
             get { return _minimumDelay; }
             set {
@@ -332,7 +319,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(6, true)]
+        [PropertyControl(6, true, 0)]
         public int MaximumDelay {
             get { return _maximumDelay; }
             set {
@@ -370,7 +357,7 @@ namespace vApus.Stresstest {
 
         [Description("The maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum Number of User Actions")]
-        [SavableCloneable, PropertyControl(9, true)]
+        [SavableCloneable, PropertyControl(9, true, 0)]
         public int MaximumNumberOfUserActions {
             get { return _maximumNumberOfUserActions; }
             set {
@@ -382,7 +369,7 @@ namespace vApus.Stresstest {
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."),
          DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(10, true)]
+        [SavableCloneable, PropertyControl(10, true, 0)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -396,7 +383,7 @@ namespace vApus.Stresstest {
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."),
          DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(11, true)]
+        [SavableCloneable, PropertyControl(11, true, 0)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
@@ -456,6 +443,42 @@ namespace vApus.Stresstest {
             else
                 SolutionTree.Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
+        /// <summary>
+        /// Only used for deserializing
+        /// </summary>
+        /// <param name="info"></param>
+        /// <param name="ctxt"></param>
+        public Stresstest(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _runs = sr.ReadInt32();
+                _minimumDelay = sr.ReadInt32();
+                _maximumDelay = sr.ReadInt32();
+                _monitorBefore = sr.ReadInt32();
+                _monitorAfter = sr.ReadInt32();
+                _concurrencies = sr.ReadArray(typeof(int)) as int[];
+                _shuffle = sr.ReadBoolean();
+                _actionDistribution = sr.ReadBoolean();
+                _maximumNumberOfUserActions = sr.ReadInt32();
+                _connection = sr.ReadObject() as Connection;
+                _logs = sr.ReadObject() as KeyValuePair<Log, uint>[];
+                _forDistributedTest = sr.ReadBoolean();
+                _useParallelExecutionOfLogEntries = sr.ReadBoolean();
+
+                _parameters = sr.ReadObject() as Parameters;
+                _parameters.ForceSettingChildsParent();
+                
+                Connection.Parameters = _parameters;
+                Log.Parameters = _parameters;
+            }
+            sr = null;
+
+            GC.WaitForPendingFinalizers();
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
+        }
         #endregion
 
         #region Functions
@@ -479,7 +502,7 @@ namespace vApus.Stresstest {
             }
 
             _logs = logs.ToArray();
-            _logs.SetParent(_allLogs, false);
+            _logs.SetParent(_allLogs);
 
             if (_allLogs != null && _allLogs.Count > 1 && _logIndices.Length == 0) {
                 _logWeights = new uint[] { 1 };
@@ -500,10 +523,6 @@ namespace vApus.Stresstest {
             SolutionComponentChanged += SolutionComponentChanged_SolutionComponentChanged;
         }
 
-        private void _connection_ParentIsNull(object sender, EventArgs e) {
-            if (_connection == sender)
-                Connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
-        }
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             //Cleanup _monitors/_logs if _monitorProject Changed
             if (sender == _monitorProject || sender is Monitor.Monitor) {
@@ -535,20 +554,40 @@ namespace vApus.Stresstest {
             }
         }
 
-        /// <summary>
-        ///     For the stresstest results.
-        ///     Sets the solution field to the active one.
-        /// </summary>
-        public void SetSolution() {
-            if (SolutionTree.Solution.ActiveSolution != null)
-                _solution = SolutionTree.Solution.ActiveSolution.FileName;
-        }
-
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
         public override string ToString() {
             if (_forDistributedTest)
                 return Label;
             return base.ToString();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_runs);
+                sw.Write(_minimumDelay);
+                sw.Write(_maximumDelay);
+                sw.Write(_monitorBefore);
+                sw.Write(_monitorAfter);
+                sw.Write(_concurrencies);
+                sw.Write(_shuffle);
+                sw.Write(_actionDistribution);
+                sw.Write(_maximumNumberOfUserActions);
+                sw.WriteObject(Connection);
+                sw.WriteObject(_logs);
+                sw.Write(_forDistributedTest);
+                sw.Write(_useParallelExecutionOfLogEntries);
+
+                //Parameters will be pushed in the child objects when deserializing, this is faster and way less memory consuming then serializing this for each object (each log entry has a reference to this object)
+
+                GC.WaitForPendingFinalizers();
+                sw.WriteObject(Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+            GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+            GC.Collect();
         }
         #endregion
     }

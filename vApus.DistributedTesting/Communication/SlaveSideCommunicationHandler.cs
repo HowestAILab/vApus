@@ -14,6 +14,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using vApus.Monitor;
 using vApus.Results;
+using vApus.Server.Shared;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -84,13 +85,17 @@ namespace vApus.DistributedTesting {
 
         private static Message<Key> HandleInitializeTest(Message<Key> message) {
             try {
-                SynchronizationContextWrapper.SynchronizationContext.Send(
-                    delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
                 //init the send queue for push messages.
                 _sendQueue = new ActiveObject();
 
                 var initializeTestMessage = (InitializeTestMessage)message.Content;
                 var stresstestWrapper = initializeTestMessage.StresstestWrapper;
+                stresstestWrapper.Stresstest.Connection.ConnectionProxy.ForceSettingChildsParent();
+                foreach (var kvp in stresstestWrapper.Stresstest.Logs) {
+                    kvp.Key.LogRuleSet.ForceSettingChildsParent();
+                    kvp.Key.ForceSettingChildsParent();
+                }
 
                 try {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -137,8 +142,11 @@ namespace vApus.DistributedTesting {
                                 _tileStresstestView.StresstestIdInDb = stresstestWrapper.StresstestIdInDb;
                             }
                         } catch {
-                            if (done != 4) {
-                                Thread.Sleep(1000 * (done++));
+                            if (++done != 4) {
+                                Thread.Sleep(1000);
+
+                                try { SolutionComponentViewManager.DisposeViews(); } catch { }
+
                                 goto Retry;
                             }
                             _tileStresstestView = null;
@@ -276,15 +284,14 @@ namespace vApus.DistributedTesting {
 
                     if (_masterSocketWrapper.Connected) {
                         var message = new Message<Key>(Key.Push, tpm);
-                        SynchronizeBuffers(message);
-                        GC.Collect();
-                        _masterSocketWrapper.Send(message, SendType.Binary);
+                        byte[] buffer = SynchronizeBuffers(message);
+                        _masterSocketWrapper.SendBytes(buffer);
                     }
                 } catch { }
         }
         #endregion
 
-        private static void SynchronizeBuffers(object toSend) {
+        private static byte[] SynchronizeBuffers(object toSend) {
             byte[] buffer = _masterSocketWrapper.ObjectToByteArray(toSend);
             int bufferSize = buffer.Length;
             if (bufferSize > _masterSocketWrapper.SendBufferSize) {
@@ -298,6 +305,7 @@ namespace vApus.DistributedTesting {
                 message.Content = synchronizeBuffersMessage;
                 _masterSocketWrapper.Send(message, SendType.Binary);
             }
+            return buffer;
         }
         #endregion
 

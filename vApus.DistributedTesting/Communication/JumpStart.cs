@@ -220,9 +220,6 @@ namespace vApus.DistributedTesting {
                     waithandle.WaitOne();
                     waithandle.Dispose();
                     waithandle = null;
-
-                    //Be sure they are jump started before trying to connect to them.
-                    Thread.Sleep(10000);
                 }
                 ht.Clear();
 

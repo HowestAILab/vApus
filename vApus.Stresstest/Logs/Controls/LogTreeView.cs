@@ -52,11 +52,11 @@ namespace vApus.Stresstest {
 
         #region Functions
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         public void SetLog(Log log, UserAction focus = null) {
             if (IsDisposed) return;
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
             //Try to select the same control as before, this wil be overriden if focus != null.
             var selection = largeList.BeginOfSelection;
             if (selection.Key == -1 || selection.Value == -1)
@@ -79,14 +79,14 @@ namespace vApus.Stresstest {
                     newlogNeeded = true;
                     var logEntry = item as LogEntry;
                     ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
-                    ua.AddWithoutInvokingEvent(logEntry, false);
+                    ua.AddWithoutInvokingEvent(logEntry);
                 }
                 newLog.Add(ua);
             }
 
             if (newlogNeeded) {
-                _log.ClearWithoutInvokingEvent(false);
-                _log.AddRangeWithoutInvokingEvent(newLog, false);
+                _log.ClearWithoutInvokingEvent();
+                _log.AddRangeWithoutInvokingEvent(newLog);
             }
 
             //Add al to a list, and add the list to the largelist afterwards, this is faster.
@@ -116,7 +116,7 @@ namespace vApus.Stresstest {
             _focussedUserActionTreeViewItem = (selection.Key == 0 && selection.Value == 0) ? null : largeList.Selection[0] as UserActionTreeViewItem;
             if (_focussedUserActionTreeViewItem == null) _logTreeViewItem.Focus(); else _focussedUserActionTreeViewItem.Focus();
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void _logTreeViewItem_AddPasteUserActionClicked(object sender, LogTreeView.AddUserActionEventArgs e) { CreateAndAddUserActionTreeViewItem(e.UserAction); }

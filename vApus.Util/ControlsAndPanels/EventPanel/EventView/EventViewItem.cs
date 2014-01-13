@@ -18,7 +18,7 @@ namespace vApus.Util {
 
         #region Fields
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         private readonly LargeList _parent;
         private readonly ToolTip _toolTip = new ToolTip();
@@ -101,12 +101,12 @@ namespace vApus.Util {
         }
 
         protected override void OnMouseHover(EventArgs e) {
-            LockWindowUpdate(Parent.Handle.ToInt32());
+            LockWindowUpdate(Parent.Handle);
 
             base.OnMouseHover(e);
             PerformMouseEnter();
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         public void PerformMouseEnter() {

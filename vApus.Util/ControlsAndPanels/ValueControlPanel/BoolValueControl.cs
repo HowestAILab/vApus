@@ -59,9 +59,11 @@ namespace vApus.Util {
 
         private void chk_Leave(object sender, EventArgs e) {
             try {
-                var chk = ValueControl as CheckBox;
-                SetChkText(chk);
-                base.HandleValueChanged(chk.Checked);
+                if (!ParentForm.IsDisposed && !ParentForm.IsDisposed) {
+                    var chk = ValueControl as CheckBox;
+                    SetChkText(chk);
+                    base.HandleValueChanged(chk.Checked);
+                }
             } catch {
             }
         }

@@ -15,6 +15,7 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     public class CueTextBox : TextBox {
+
         #region Fields
         private Bitmap _bitmap;
         private bool _paintedFirstTime = false;

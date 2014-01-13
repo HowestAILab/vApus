@@ -77,7 +77,7 @@ namespace vApus.Stresstest {
         private void captureControl_StartClicked(object sender, EventArgs e) {
             if (chkClearLogBeforeCapture.Checked && _log.Count != 0)
                 if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                    _log.ClearWithoutInvokingEvent(false);
+                    _log.ClearWithoutInvokingEvent();
                 } else {
                     captureControl.CancelStart();
                     return;
@@ -208,11 +208,11 @@ namespace vApus.Stresstest {
         private void btnImport_Click(object sender, EventArgs e) { Import(fctxtxImport.Text, chkClearLogBeforeImport.Checked); }
         private void Import(string text, bool clearLog) {
             //Clone and add to the clone to redetermine the tokens if needed.
-            Log toAdd = _log.Clone(false, false);
+            Log toAdd = _log.Clone(false, false, false, false);
 
             if (clearLog && _log.Count != 0)
                 if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                    _log.ClearWithoutInvokingEvent(false);
+                    _log.ClearWithoutInvokingEvent();
                 else
                     return;
 
@@ -227,17 +227,17 @@ namespace vApus.Stresstest {
                 if (DetermineComment(line, out output)) {
                     if (toAdd.LogRuleSet.ActionizeOnComment) {
                         userAction = new UserAction(output);
-                        toAdd.AddWithoutInvokingEvent(userAction, false);
+                        toAdd.AddWithoutInvokingEvent(userAction);
                     }
                 } else if (userAction == null) {
                     var logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
                     var ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
                     ua.LogEntryStringsAsImported.Add(logEntry.LogEntryString);
-                    ua.AddWithoutInvokingEvent(logEntry, false);
-                    toAdd.AddWithoutInvokingEvent(ua, false);
+                    ua.AddWithoutInvokingEvent(logEntry);
+                    toAdd.AddWithoutInvokingEvent(ua);
                 } else {
                     var logEntry = new LogEntry(output.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
-                    userAction.AddWithoutInvokingEvent(logEntry, false);
+                    userAction.AddWithoutInvokingEvent(logEntry);
                     userAction.LogEntryStringsAsImported.Add(logEntry.LogEntryString);
                 }
             }
@@ -251,7 +251,7 @@ namespace vApus.Stresstest {
                 if (dialog.ShowDialog() == DialogResult.Cancel) return;
             }
 
-            _log.AddRangeWithoutInvokingEvent(toAdd, false);
+            _log.AddRangeWithoutInvokingEvent(toAdd);
             toAdd = null;
 
             RemoveEmptyUserActions();
@@ -388,10 +388,10 @@ namespace vApus.Stresstest {
         private void btnRevertToImported_Click(object sender, EventArgs e) {
             if (_log != null && MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 foreach (UserAction userAction in _log) {
-                    userAction.ClearWithoutInvokingEvent(false);
+                    userAction.ClearWithoutInvokingEvent();
 
                     foreach (string s in userAction.LogEntryStringsAsImported)
-                        userAction.AddWithoutInvokingEvent(new LogEntry(s), false);
+                        userAction.AddWithoutInvokingEvent(new LogEntry(s));
                 }
                 _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 

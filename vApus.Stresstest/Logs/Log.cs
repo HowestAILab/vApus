@@ -41,7 +41,8 @@ namespace vApus.Stresstest {
         private LexicalResult _lexicalResult;
         private LogRuleSet _logRuleSet;
 
-        private Parameters _parameters;
+        private static Parameters _parameters;
+
         private int _preferredTokenDelimiterIndex;
 
         //Capture web traffic settings
@@ -53,17 +54,15 @@ namespace vApus.Stresstest {
         [DisplayName("Log Rule Set"), Description("You must define a rule set to validate if the log file(s) are correctly formated to be able to stresstest.")]
         public LogRuleSet LogRuleSet {
             get {
-                if (_logRuleSet.IsEmpty)
-                    LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+                if (Solution.ActiveSolution != null && (_logRuleSet.IsEmpty || _logRuleSet.Parent == null))
+                    _logRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
 
                 return _logRuleSet;
             }
             set {
                 if (value == null)
                     return;
-                value.ParentIsNull -= _logRuleSet_ParentIsNull;
                 _logRuleSet = value;
-                _logRuleSet.ParentIsNull += _logRuleSet_ParentIsNull;
             }
         }
 
@@ -99,6 +98,15 @@ namespace vApus.Stresstest {
         public bool UseDeny { get; set; }
         [SavableCloneable]
         public string[] Deny { get { return _deny; } set { _deny = value; } }
+
+        /// <summary>
+        /// </summary>
+        internal static Parameters Parameters {
+            set {
+                _parameters = value;
+                LogEntry.Parameters = _parameters;
+            }
+        }
         #endregion
 
         #region Constructors
@@ -122,15 +130,17 @@ namespace vApus.Stresstest {
         public Log(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
                 Label = sr.ReadString();
                 _logRuleSet = sr.ReadObject() as LogRuleSet;
                 _preferredTokenDelimiterIndex = sr.ReadInt32();
                 _parameters = sr.ReadObject() as Parameters;
 
-                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()), false);
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
             sr = null;
             //Not pretty, but helps against mem saturation.
+            GC.WaitForPendingFinalizers();
             GC.Collect();
         }
         #endregion
@@ -145,7 +155,7 @@ namespace vApus.Stresstest {
             SerializationWriter sw;
             using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(Label);
-                sw.WriteObject(_logRuleSet);
+                sw.WriteObject(LogRuleSet);
                 sw.Write(_preferredTokenDelimiterIndex);
                 sw.WriteObject(_parameters);
 
@@ -154,18 +164,14 @@ namespace vApus.Stresstest {
             }
             sw = null;
             //Not pretty, but helps against mem saturation.
+            GC.WaitForPendingFinalizers();
             GC.Collect();
         }
 
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
-            _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
-        }
-
-        private void _logRuleSet_ParentIsNull(object sender, EventArgs e) {
-            if (_logRuleSet == sender)
-                LogRuleSet = GetNextOrEmptyChild(typeof(LogRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(LogRuleSets))) as LogRuleSet;
+            Parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
         }
 
         /// <summary>
@@ -255,7 +261,7 @@ namespace vApus.Stresstest {
             var logEntriesWithErrors = new List<LogEntry>();
             foreach (var logEntry in GetAllLogEntries()) {
                 try {
-                    logEntry.ApplyLogRuleSet(_logRuleSet);
+                    logEntry.ApplyLogRuleSet(LogRuleSet);
                     if (logEntry.LexicalResult == LexicalResult.Error)
                         logEntriesWithErrors.Add(logEntry);
                 } catch (Exception ex) {
@@ -326,7 +332,7 @@ namespace vApus.Stresstest {
 
             Dictionary<string, BaseParameter> parameterTokens = logEntryContainsTokens ? GetParameterTokens(b, e) : null;
 
-            foreach(UserAction userAction in this)
+            foreach (UserAction userAction in this)
                 parameterizedStructure.AddRange(userAction.GetParameterizedStructure(parameterTokens, chosenNextValueParametersForLScope));
 
             hasParameters = parameterTokens != null;
@@ -370,34 +376,37 @@ namespace vApus.Stresstest {
         /// 
         /// </summary>
         /// <param name="cloneChildren"></param>
-        /// <param name="applyRuleSet"></param>
+        /// <param name="applyRuleSet">Not needed in a distributed test</param>
+        /// <param name="cloneLabelAndLogEntryStringByRef">Set to true to leverage memory usage, should only be used in a distributed test otherwise strange things will happen.</param>
         /// <param name="copyLogEntriesAsImported">Not needed in a distributed test</param>
         /// <returns></returns>
-        public Log Clone(bool cloneChildren = true, bool applyRuleSet = true, bool copyLogEntriesAsImported = true) {
+        public Log Clone(bool cloneChildren = true, bool applyRuleSet = true, bool cloneLabelAndLogEntryStringByRef = false, bool copyLogEntriesAsImported = true) {
             var log = new Log();
             log.Parent = Parent;
             log.Label = Label;
-            log.LogRuleSet = _logRuleSet;
+            log._logRuleSet = LogRuleSet;
             log._lexicalResult = _lexicalResult;
             log.PreferredTokenDelimiterIndex = _preferredTokenDelimiterIndex;
-            log._parameters = _parameters;
 
             if (cloneChildren)
-                foreach (UserAction item in this)
-                    log.AddWithoutInvokingEvent(item.Clone(_logRuleSet, applyRuleSet, copyLogEntriesAsImported, true), false);
+                foreach (UserAction userAction in this)
+                    log.AddWithoutInvokingEvent(userAction.Clone(log._logRuleSet, applyRuleSet, cloneLabelAndLogEntryStringByRef, copyLogEntriesAsImported, true));
 
             return log;
         }
 
-        public override void Activate() {
+        public override BaseSolutionComponentView Activate() {
             if ((Count > 499 || GetTotalLogEntryCount() > 4999) &&
                 MessageBox.Show("This is a large log! Do you want to use the plain text editor?\nYou will loose most functionality, but vApus will stay responsive and memory usage within boundaries.", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView));
-            } else {
-                SolutionComponentViewManager.Show(this);
+                return SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView));
             }
+            return SolutionComponentViewManager.Show(this);
         }
 
+        public new void Dispose() {
+            _parameters = null;
+            base.Dispose();
+        }
         #endregion
 
         public class LexicalResultsChangedEventArgs : EventArgs {

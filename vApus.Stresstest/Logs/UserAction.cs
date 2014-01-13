@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -18,7 +19,7 @@ namespace vApus.Stresstest {
     /// Contains log entries.
     /// </summary>
     [DisplayName("User Action"), Serializable]
-    public class UserAction : LabeledBaseItem {
+    public class UserAction : LabeledBaseItem, ISerializable {
 
         #region Fields
         private int _occurance = 1;
@@ -121,7 +122,20 @@ namespace vApus.Stresstest {
             : this() {
             Label = label;
         }
+        public UserAction(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _occurance = sr.ReadInt32();
+                Pinned = sr.ReadBoolean();
+                _useDelay = sr.ReadBoolean();
+                _linkedToUserActionIndices = sr.ReadCollection<int>(_linkedToUserActionIndices) as List<int>;
 
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
+            }
+            sr = null;
+        }
         #endregion
 
         #region Functions
@@ -184,9 +198,9 @@ namespace vApus.Stresstest {
 
             foreach (var ua in toLink) {
                 if (index < log.Count)
-                    log.InsertWithoutInvokingEvent(index, ua, false);
+                    log.InsertWithoutInvokingEvent(index, ua);
                 else
-                    log.AddWithoutInvokingEvent(ua, false);
+                    log.AddWithoutInvokingEvent(ua);
                 ua.Pinned = Pinned;
                 _linkedToUserActionIndices.Add(ua.Index);
 
@@ -214,9 +228,9 @@ namespace vApus.Stresstest {
 
                     int lastIndex = _linkedToUserActionIndices[_linkedToUserActionIndices.Count - 1];
                     if (lastIndex < log.Count)
-                        log.InsertWithoutInvokingEvent(lastIndex, userAction, false);
+                        log.InsertWithoutInvokingEvent(lastIndex, userAction);
                     else
-                        log.AddWithoutInvokingEvent(userAction, false);
+                        log.AddWithoutInvokingEvent(userAction);
                 }
 
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
@@ -235,7 +249,7 @@ namespace vApus.Stresstest {
             var merged = toMerge[0];
             for (int i = 1; i != toMerge.Count; i++) {
                 var ua = toMerge[i] as UserAction;
-                merged.AddRangeWithoutInvokingEvent(ua, false);
+                merged.AddRangeWithoutInvokingEvent(ua);
                 merged.LogEntryStringsAsImported.AddRange(ua.LogEntryStringsAsImported);
                 log.RemoveWithoutInvokingEvent(ua);
             }
@@ -289,7 +303,7 @@ namespace vApus.Stresstest {
             int i = 0;
             foreach (LogEntry logEntry in this) {
                 var ua = new UserAction(logEntry.LogEntryString.Length < 101 ? logEntry.LogEntryString : logEntry.LogEntryString.Substring(0, 100) + "...");
-                ua.AddWithoutInvokingEvent(logEntry, false);
+                ua.AddWithoutInvokingEvent(logEntry);
 
                 if (i < this.LogEntryStringsAsImported.Count)
                     ua.LogEntryStringsAsImported.Add(this.LogEntryStringsAsImported[i]);
@@ -307,7 +321,7 @@ namespace vApus.Stresstest {
                     ua.LinkedToUserActionIndices[k] = linkedIndices[k] + add;
             }
 
-            log.InserRangeWithoutInvokingEvent(index, l, false);
+            log.InserRangeWithoutInvokingEvent(index, l);
             log.RemoveWithoutInvokingEvent(this);
 
             log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
@@ -318,12 +332,18 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="logRuleSet"></param>
         /// <param name="applyRuleSet">Not needed in a distributed test</param>
+        /// <param name="cloneLabelAndLogEntryStringByRef">Set to true to leverage memory usage, should only be used in a distributed test otherwise strange things will happen.</param>
         /// <param name="copyLogEntryAsImported">Not needed in a distributed test</param>
         /// <param name="copyLinkedUserActionIndices">Needed in a distributed test</param>
         /// <returns></returns>
-        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool copyLogEntryAsImported, bool copyLinkedUserActionIndices) {
-            UserAction userAction = new UserAction(Label);
-            userAction.SetParent(Parent, false);
+        public UserAction Clone(LogRuleSet logRuleSet, bool applyRuleSet, bool cloneLabelAndLogEntryStringByRef, bool copyLogEntryAsImported, bool copyLinkedUserActionIndices) {
+            UserAction userAction = new UserAction();
+            if (cloneLabelAndLogEntryStringByRef)
+                SetLogEntryStringByRef(userAction, ref _label);
+            else
+                userAction.Label = _label;
+
+            userAction.SetParent(Parent);
             userAction.Occurance = _occurance;
             userAction.Pinned = Pinned;
             userAction.UseDelay = _useDelay;
@@ -334,12 +354,32 @@ namespace vApus.Stresstest {
                 userAction.LogEntryStringsAsImported = new List<string>(arr);
             }
 
-            foreach (int i in _linkedToUserActionIndices) userAction._linkedToUserActionIndices.Add(i);
-            userAction._linkColorRGB = _linkColorRGB;
+            if (copyLinkedUserActionIndices) {
+                foreach (int i in _linkedToUserActionIndices) userAction._linkedToUserActionIndices.Add(i);
+                userAction._linkColorRGB = _linkColorRGB;
+            }
 
-            foreach (LogEntry entry in this) userAction.AddWithoutInvokingEvent(entry.Clone(logRuleSet, applyRuleSet), false);
+            foreach (LogEntry logEntry in this)
+                userAction.AddWithoutInvokingEvent(logEntry.Clone(logRuleSet, applyRuleSet, cloneLabelAndLogEntryStringByRef));
 
             return userAction;
+        }
+        private void SetLogEntryStringByRef(UserAction userAction, ref string label) {
+            userAction._label = label;
+        }
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_occurance);
+                sw.Write(Pinned);
+                sw.Write(_useDelay);
+                sw.Write(_linkedToUserActionIndices);
+
+                sw.Write(this);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
         #endregion
     }

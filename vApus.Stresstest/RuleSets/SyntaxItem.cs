@@ -8,19 +8,19 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     [DisplayName("Syntax Item"), Serializable]
     public class SyntaxItem : LabeledBaseItem {
 
         #region Fields
-
         protected string _childDelimiter = string.Empty, _description = string.Empty, _defaultValue = string.Empty;
         protected uint _occurance = 1;
         protected bool _optional;
-
         #endregion
 
         #region Properties
@@ -68,7 +68,9 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Constructors
-
+        public SyntaxItem() { }
+        public SyntaxItem(SerializationInfo info, StreamingContext ctxt) {
+        }
         #endregion
 
         #region Functions
@@ -125,8 +127,8 @@ namespace vApus.Stresstest {
             }
         }
 
-        internal LexicalResult TryLexicalAnaysis(string input, Parameters parameters, out ASTNode output) {
-            output = new ASTNode(this, _childDelimiter, parameters);
+        internal LexicalResult TryLexicalAnaysis(string input, out ASTNode output) {
+            output = new ASTNode(this, _childDelimiter);
             if (_childDelimiter.Length == 0) {
                 if (Count == 0) {
                     if (input.Length == 0)
@@ -145,7 +147,7 @@ namespace vApus.Stresstest {
                         for (int i = 0; i < Count; i++) {
                             var syntaxItem = this[i] as SyntaxItem;
                             ASTNode syntaxItemOutput = null;
-                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters, out syntaxItemOutput);
+                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, out syntaxItemOutput);
                             output.Add(syntaxItemOutput);
                             if (lexicalResult != LexicalResult.OK) {
                                 output.Value = input;
@@ -160,7 +162,7 @@ namespace vApus.Stresstest {
                         var ruleOutputs = new ASTNode[Count];
                         for (int i = 0; i < Count; i++) {
                             var rule = this[i] as Rule;
-                            LexicalResult lexicalResult = rule.TryLexicalAnaysis(input, parameters, out ruleOutputs[i]);
+                            LexicalResult lexicalResult = rule.TryLexicalAnaysis(input, out ruleOutputs[i]);
                             if (lexicalResult == LexicalResult.OK)
                                 return lexicalResult;
                         }
@@ -182,7 +184,7 @@ namespace vApus.Stresstest {
                     syntaxItem.DefaultValue = _defaultValue;
                     for (int i = 0; i < splitInput.Length; i++) {
                         ASTNode syntaxItemOutput = null;
-                        syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
+                        syntaxItem.TryLexicalAnaysis(splitInput[i], out syntaxItemOutput);
                         output.Add(syntaxItemOutput);
                     }
                 } else {
@@ -191,7 +193,7 @@ namespace vApus.Stresstest {
                             for (int j = 0; j < Count; j++) {
                                 var rule = this[j] as Rule;
                                 ASTNode ruleOutput = null;
-                                LexicalResult lexicalResult = rule.TryLexicalAnaysis(splitInput[i], parameters, out ruleOutput);
+                                LexicalResult lexicalResult = rule.TryLexicalAnaysis(splitInput[i], out ruleOutput);
                                 if (lexicalResult == LexicalResult.OK) {
                                     output.Add(ruleOutput);
                                     break;
@@ -222,7 +224,7 @@ namespace vApus.Stresstest {
 
                             var syntaxItem = this[syntaxItemIndex] as SyntaxItem;
                             ASTNode syntaxItemOutput = null;
-                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
+                            LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(splitInput[i], out syntaxItemOutput);
 
                             //Skip invalid optional syntax items.
                             if (lexicalResult == LexicalResult.Error)

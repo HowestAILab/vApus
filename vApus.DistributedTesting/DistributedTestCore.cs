@@ -13,8 +13,10 @@ using System.Drawing;
 using System.IO;
 using System.Net;
 using System.Threading;
-using vApus.REST.Convert;
+using System.Threading.Tasks;
+using vApus.JSON;
 using vApus.Results;
+using vApus.Server.Shared;
 using vApus.Stresstest;
 using vApus.Util;
 
@@ -131,13 +133,10 @@ namespace vApus.DistributedTesting {
 
             _tmrOnInvokeTestProgressMessageReceivedDelayed.Elapsed += _tmrOnInvokeTestProgressMessageReceivedDelayed_Elapsed;
 
-#if EnableBetaFeature
             WriteRestConfig();
-#endif
         }
         ~DistributedTestCore() {
             Dispose();
-            GC.Collect();
         }
         #endregion
 
@@ -245,9 +244,8 @@ namespace vApus.DistributedTesting {
             _sw.Stop();
             InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
-            // Thread.Sleep(10000);
         }
-        private void SetvApusInstancesAndStresstestsInDb() {
+        async private void SetvApusInstancesAndStresstestsInDb() {
             _tileStresstestsWithDbIds = new Dictionary<TileStresstest, int>(_usedTileStresstests.Count);
             foreach (TileStresstest ts in _usedTileStresstests.Keys) {
                 var slave = ts.BasicTileStresstest.Slaves[0];
@@ -257,10 +255,12 @@ namespace vApus.DistributedTesting {
                 foreach (var kvp in ts.AdvancedTileStresstest.Logs)
                     logKeys.Add(kvp.Key);
 
-                int id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
-                          ts.BasicTileStresstest.Connection.ConnectionString, logKeys.Combine(", "), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
-                          ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.ActionDistribution,
-                          ts.AdvancedTileStresstest.MaximumNumberOfUserActions, ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
+                int id = await Task<int>.Run(() => {
+                    return _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
+                        ts.BasicTileStresstest.Connection.ConnectionString, logKeys.Combine(", "), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
+                        ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.ActionDistribution,
+                        ts.AdvancedTileStresstest.MaximumNumberOfUserActions, ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
+                });
                 _tileStresstestsWithDbIds.Add(ts, id);
             }
 
@@ -269,7 +269,7 @@ namespace vApus.DistributedTesting {
                     true);
         }
         private void SendAndReceiveInitializeTest() {
-            InvokeMessage("Initializing tests on slaves [Please, be patient]...");
+            InvokeMessage("Initializing tests on slaves, please, be patient...");
             _sw.Start();
             List<int> stresstestIdsInDb = new List<int>(_usedTileStresstests.Count);
             foreach (var ts in _usedTileStresstests.Keys)
@@ -569,28 +569,39 @@ namespace vApus.DistributedTesting {
         }
         private void WriteRestConfig() {
             try {
-                Converter.ClearWrittenFiles();
+                //Converter.ClearWrittenFiles();
 
-                var testConfigCache = new ConverterCollection();
-                var distributedTestCache = Converter.AddSubCache(_distributedTest.ToString(), testConfigCache);
+                var testConfigCache = new JSONObjectTree();
+                var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), testConfigCache);
 
                 foreach (Tile tile in _distributedTest.Tiles)
                     foreach (TileStresstest tileStresstest in tile)
                         if (tileStresstest.Use) {
-                            var newSlaves = new string[tileStresstest.BasicTileStresstest.Slaves.Length];
-                            for (int i = 0; i != tileStresstest.BasicTileStresstest.Slaves.Length; i++)
-                                newSlaves[i] = tileStresstest.BasicTileStresstest.Slaves[i].ToString();
+                            var slaves = tileStresstest.BasicTileStresstest.Slaves;
+                            var newSlaves = new string[slaves.Length];
+                            for (int i = 0; i != slaves.Length; i++)
+                                newSlaves[i] = slaves[i].ToString();
 
-                            Converter.SetTestConfig(distributedTestCache,
+                            var monitors = tileStresstest.BasicTileStresstest.Monitors;
+                            var newMonitors = new string[monitors.Length];
+                            for (int i = 0; i != monitors.Length; i++)
+                                newMonitors[i] = monitors[i].ToString();
+
+                            var logs = tileStresstest.AdvancedTileStresstest.Logs;
+                            var newLogs = new string[logs.Length];
+                            for (int i = 0; i != logs.Length; i++)
+                                newLogs[i] = logs[i].Key.ToString();
+
+                            JSONObjectTreeHelper.ApplyToRunningDistributedTestConfig(distributedTestCache,
                                                     _distributedTest.RunSynchronization.ToString(),
                                                     "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
                                                     tileStresstest.Index + " " +
                                                     tileStresstest.BasicTileStresstest.Connection.Label,
-                                                    tileStresstest.BasicTileStresstest.Connection,
+                                                    tileStresstest.BasicTileStresstest.Connection.ToString(),
                                                     tileStresstest.BasicTileStresstest.ConnectionProxy,
-                                                    tileStresstest.BasicTileStresstest.Monitors,
+                                                    newMonitors,
                                                     newSlaves,
-                                                    tileStresstest.AdvancedTileStresstest.Logs,
+                                                    newLogs,
                                                     tileStresstest.AdvancedTileStresstest.LogRuleSet,
                                                     tileStresstest.AdvancedTileStresstest.Concurrencies,
                                                     tileStresstest.AdvancedTileStresstest.Runs,
@@ -603,7 +614,7 @@ namespace vApus.DistributedTesting {
                                                     tileStresstest.AdvancedTileStresstest.MonitorAfter);
                         }
 
-                Converter.WriteToFile(testConfigCache, "TestConfig");
+                //Converter.WriteToFile(testConfigCache, "TestConfig");
             } catch {
             }
         }

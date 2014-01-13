@@ -51,7 +51,8 @@ namespace vApus.Stresstest {
         /// <param name="output"></param>
         /// <returns></returns>
         internal LexicalResult TryLexicalAnalysis(string input, Parameters parameters, out ASTNode output) {
-            output = new ASTNode(this, _childDelimiter, parameters);
+            ASTNode.Parameters = parameters;
+            output = new ASTNode(this, _childDelimiter);
             if (input.Length == 0) {
                 output.Error = "No input has been provided!";
                 return LexicalResult.Error;
@@ -65,7 +66,7 @@ namespace vApus.Stresstest {
                     //When there is not split the input will be analysed with the child syntax items AND-wise.
                     for (int i = 0; i < Count; i++) {
                         var syntaxItem = this[i] as SyntaxItem;
-                        LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, parameters, out syntaxItemOutput);
+                        LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(input, out syntaxItemOutput);
                         if (lexicalResult != LexicalResult.OK) {
                             output.Value = input;
                             output.Error = syntaxItemOutput.Error;
@@ -82,7 +83,7 @@ namespace vApus.Stresstest {
                     syntaxItem.Parent = this;
                     for (int i = 0; i < splitInput.Length; i++) {
                         ASTNode syntaxItemOutput = null;
-                        syntaxItem.TryLexicalAnaysis(splitInput[i], parameters, out syntaxItemOutput);
+                        syntaxItem.TryLexicalAnaysis(splitInput[i], out syntaxItemOutput);
                         output.Add(syntaxItemOutput);
                     }
                 } else {
@@ -106,7 +107,7 @@ namespace vApus.Stresstest {
                         ASTNode syntaxItemOutput = null;
 
                         string syntaxItemInput = i < splitInput.Length ? splitInput[i] : string.Empty;
-                        LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(syntaxItemInput, parameters, out syntaxItemOutput);
+                        LexicalResult lexicalResult = syntaxItem.TryLexicalAnaysis(syntaxItemInput, out syntaxItemOutput);
 
                         //Skip invalid optional syntax items.
                         if (lexicalResult == LexicalResult.Error)

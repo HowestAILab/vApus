@@ -83,7 +83,7 @@ namespace vApus.DistributedTesting {
         [SavableCloneable]
         public int[] ProcessorAffinity {
             get { return _processorAffinity; }
-            set { _processorAffinity = value; }
+            set { _processorAffinity = new int[] { }; }// value; }
         }
 
         #endregion
@@ -100,12 +100,8 @@ namespace vApus.DistributedTesting {
         public void AssignTileStresstest(TileStresstest tileStresstest) {
             ClearTileStresstest();
 
-            if (tileStresstest != null) {
-                var slaves = new List<Slave>(tileStresstest.BasicTileStresstest.Slaves);
-
-                slaves.Add(this);
-                tileStresstest.BasicTileStresstest.Slaves = slaves.ToArray();
-            }
+            if (tileStresstest != null)
+                tileStresstest.BasicTileStresstest.Slaves = new Slave[] { this };
         }
 
         private void ClearTileStresstest() {

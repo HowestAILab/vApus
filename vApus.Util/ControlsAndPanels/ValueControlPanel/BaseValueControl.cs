@@ -24,9 +24,6 @@ namespace vApus.Util {
     /// </summary>
     [ToolboxItem(false)]
     public partial class BaseValueControl : UserControl {
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
-
         public event EventHandler<ValueChangedEventArgs> ValueChanged;
 
         #region Enums
@@ -157,15 +154,11 @@ namespace vApus.Util {
         }
 
         private void _collapsedTextBox_GotFocus(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
-
             if (Parent != null)
                 foreach (Control control in Parent.Controls)
                     if (control != this && control is BaseValueControl)
                         (control as BaseValueControl).Toggle(ToggleState.Collapse);
             Toggle(ToggleState.Expand);
-
-            LockWindowUpdate(0);
         }
 
         #region Toggle
@@ -181,7 +174,6 @@ namespace vApus.Util {
                 BackColor = Color.LightBlue;
                 if (_locked) {
                     split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
-                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : rtxtDescription.Height;
                     ValueControl.Visible = false;
                     SetCollapsedTextBoxText();
                     if (!split.Panel1.Controls.Contains(_collapsedTextBox))
@@ -191,21 +183,23 @@ namespace vApus.Util {
                 } else {
                     split.Panel1.Controls.Remove(_collapsedTextBox);
                     split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
-                    rtxtDescription.Height = (rtxtDescription.Text.Length == 0) ? 0 : rtxtDescription.Height;
                     ValueControl.Visible = true;
                     splitterDistance = ValueControl.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom +
                                        ValueControl.Margin.Bottom + ValueControl.Margin.Top;
 
                     //Ugly but works.
                     if (ParentForm != null)
-                        if (ParentForm.MdiParent == null) {
-                            ParentForm.TopMost = true;
-                            ParentForm.TopMost = false;
-                            ParentForm.Activate();
-                        } else {
-                            ParentForm.MdiParent.TopMost = true;
-                            ParentForm.MdiParent.TopMost = false;
-                            ParentForm.MdiParent.Activate();
+                        try {
+                            if (ParentForm.MdiParent == null) {
+                                ParentForm.TopMost = true;
+                                ParentForm.TopMost = false;
+                                ParentForm.Activate();
+                            } else {
+                                ParentForm.MdiParent.TopMost = true;
+                                ParentForm.MdiParent.TopMost = false;
+                                ParentForm.MdiParent.Activate();
+                            }
+                        } catch {
                         }
 
                     lblLabel.Select();
@@ -223,7 +217,7 @@ namespace vApus.Util {
             }
             split.Height = split.Panel2Collapsed
                                ? splitterDistance
-                               : splitterDistance + split.SplitterWidth + rtxtDescription.Height +
+                               : splitterDistance + split.SplitterWidth + 52 +
                                  rtxtDescription.Margin.Top + rtxtDescription.Margin.Bottom;
             split.SplitterDistance = splitterDistance;
             Height = split.Top + split.Height;
@@ -250,20 +244,21 @@ namespace vApus.Util {
 
 
             object value = _value.__Value;
-            if (value == null)
-                value = string.Empty;
+            if (value == null) value = string.Empty;
+
+            string text = string.Empty;
             if (value is Enum) {
                 var attr =
                     value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false)
                     as DescriptionAttribute[];
-                _collapsedTextBox.Text = attr.Length != 0 ? attr[0].Description : value.ToString();
+                text = attr.Length != 0 ? attr[0].Description : value.ToString();
             } else if (ValueControl is ComboBox) {
                 try {
-                    _collapsedTextBox.Text = value.ToString();
+                    text = value.ToString();
                 } catch {
                 }
             } else if (value is string) {
-                _collapsedTextBox.Text = value as string;
+                text = value as string;
             } else if (value is IEnumerable) {
                 var collection = value as IEnumerable;
                 IEnumerator enumerator = collection.GetEnumerator();
@@ -274,12 +269,13 @@ namespace vApus.Util {
                         sb.Append(enumerator.Current);
                         sb.Append(", ");
                     }
-                _collapsedTextBox.Text = sb.ToString();
-                if (_collapsedTextBox.Text.Length != 0)
-                    _collapsedTextBox.Text = _collapsedTextBox.Text.Substring(0, _collapsedTextBox.Text.Length - 2);
+                text = sb.ToString();
+                if (text.Length != 0)
+                    text = text.Substring(0, text.Length - 2);
             } else {
-                _collapsedTextBox.Text = value.ToString();
+                text = value.ToString();
             }
+            _collapsedTextBox.Text = text;
         }
 
         #endregion
@@ -317,6 +313,11 @@ namespace vApus.Util {
             public bool IsReadOnly;
             public string Label;
             public object __Value;
+
+            /// <summary>
+            /// Only for integer values.
+            /// </summary>
+            public int AllowedMinimum, AllowedMaximum;
 
             public override string ToString() {
                 return __Value.ToString();

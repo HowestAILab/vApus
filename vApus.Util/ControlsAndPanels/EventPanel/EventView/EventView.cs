@@ -21,7 +21,7 @@ namespace vApus.Util {
 
         #region Events
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         [Description("Occurs when the cursor enters a progress event.")]
         public event EventHandler<EventViewItemEventArgs> EventViewItemMouseEnter;
@@ -80,7 +80,7 @@ namespace vApus.Util {
         }
 
         private void SetSize(EventViewItem item) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left -
                         item.Margin.Right - 18;
@@ -91,7 +91,7 @@ namespace vApus.Util {
             item.MinimumSize = new Size(width, height);
             item.MaximumSize = new Size(width, height);
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void item_MouseHover(object sender, EventArgs e) {
@@ -120,7 +120,7 @@ namespace vApus.Util {
         }
 
         protected override void OnResize(EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             bool autoScroll = _userEntered == null &&
                               (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
@@ -135,7 +135,7 @@ namespace vApus.Util {
             if (autoScroll && largeList.ControlCount != 0)
                 largeList.ScrollIntoView(largeList[largeList.ViewCount - 1][largeList[largeList.ViewCount - 1].Count - 1]);
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         public void PerformLargeListResize() {
@@ -155,12 +155,12 @@ namespace vApus.Util {
         }
 
         private void PerformMouseEnter(EventViewItem item) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             item.PerformMouseEnter();
             largeList.ScrollIntoView(item);
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         public void Export() {

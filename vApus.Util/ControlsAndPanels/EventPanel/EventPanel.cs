@@ -69,7 +69,7 @@ namespace vApus.Util {
 
         #region Properties
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         [Description("The begin of the time frame when the events occured ('at').")]
         /// </summary>
@@ -184,9 +184,9 @@ namespace vApus.Util {
 
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at) {
             lock (_lock) {
-                LockWindowUpdate(Handle.ToInt32());
+                LockWindowUpdate(Handle);
                 AddEvent(eventType, eventPrograssBarEventColor, message, at, true);
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
         private void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at, bool refreshGui) {
@@ -202,7 +202,7 @@ namespace vApus.Util {
         }
         public void AddEvents(List<EventPanelEvent> events) {
             lock (_lock) {
-                LockWindowUpdate(Handle.ToInt32());
+                LockWindowUpdate(Handle);
                 int count = events.Count;
                 if (count != 0) {
                     EventPanelEvent epe;
@@ -213,12 +213,12 @@ namespace vApus.Util {
                     epe = events[count - 1];
                     AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
                 }
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
         public void SetEvents(List<EventPanelEvent> events) {
             lock (_lock) {
-                LockWindowUpdate(Handle.ToInt32());
+                LockWindowUpdate(Handle);
                 ClearEvents();
 
                 int count = events.Count;
@@ -231,7 +231,7 @@ namespace vApus.Util {
                     epe = events[count - 1];
                     AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
                 }
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 
@@ -282,14 +282,14 @@ namespace vApus.Util {
         private void cboFilter_SelectedIndexChanged(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
 
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             foreach (EventViewItem evi in eventView.GetEvents())
                 evi.Visible = evi.EventType >= Filter;
 
             eventView.PerformLargeListResize();
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
 
             Cursor = Cursors.Default;
         }

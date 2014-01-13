@@ -95,8 +95,7 @@
             this.label2.Padding = new System.Windows.Forms.Padding(3);
             this.label2.Size = new System.Drawing.Size(432, 32);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Please double-check the log entries that contain parameter tokens.\r\nIn some cases" +
-    " they cannot be synchronized! (e.g. {1} cannot become {0})";
+            this.label2.Text = "Please double-check the log entries that contain parameter tokens.";
             // 
             // ParameterTokenSynchronization
             // 

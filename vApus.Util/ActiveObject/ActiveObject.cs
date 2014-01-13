@@ -131,20 +131,18 @@ namespace vApus.Util {
         #region EventArgs
 
         public class OnResultEventArgs : EventArgs {
+            public readonly Delegate Delegate;
             /// <summary>
             ///     Out parameters are stored here too.
             /// </summary>
             public readonly object[] Arguments;
-
-            public readonly Delegate Delegate;
-
+            public readonly object ReturnValue;
             public readonly Exception Exception;
-            public readonly object Returned;
 
-            public OnResultEventArgs(Delegate del, object[] args, object returned, Exception exception) {
+            public OnResultEventArgs(Delegate del, object[] args, object returnValue, Exception exception) {
                 Delegate = del;
                 Arguments = args;
-                Returned = returned;
+                ReturnValue = returnValue;
                 Exception = exception;
             }
         }

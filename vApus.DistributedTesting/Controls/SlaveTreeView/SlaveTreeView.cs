@@ -16,7 +16,7 @@ using vApus.Util;
 namespace vApus.DistributedTesting {
     public partial class SlaveTreeView : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         /// <summary>
         ///     The selected item is the sender
@@ -47,7 +47,7 @@ namespace vApus.DistributedTesting {
             if (IsDisposed)
                 return;
 
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
             largeList.Clear();
             _distributedTest = distributedTest;
             var castvi = new ClientsAndSlavesTreeViewItem(distributedTest);
@@ -63,21 +63,21 @@ namespace vApus.DistributedTesting {
             castvi.SetHostNameAndIP();
             castvi.Select();
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void castvi_AddClientClicked(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             var castvi = sender as ClientsAndSlavesTreeViewItem;
 
             var client = new Client();
-            client.AddWithoutInvokingEvent(new Slave(), false);
+            client.AddWithoutInvokingEvent(new Slave());
             CreateAndAddClientTreeViewItem(client);
 
             castvi.Clients.Add(client);
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void CreateAndAddClientTreeViewItem(Client client) {
@@ -117,7 +117,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void cvi_DuplicateClicked(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             var cvi = sender as ClientTreeViewItem;
             if (cvi.Client.Parent != null) {
@@ -126,9 +126,9 @@ namespace vApus.DistributedTesting {
                 int cloneIndex = parent.IndexOf(cvi.Client) + 1;
 
                 if (parent.Count == cloneIndex)
-                    parent.AddWithoutInvokingEvent(clone, false);
+                    parent.AddWithoutInvokingEvent(clone);
                 else
-                    parent.InsertWithoutInvokingEvent(cloneIndex, clone, false);
+                    parent.InsertWithoutInvokingEvent(cloneIndex, clone);
 
 
                 KeyValuePair<int, int> cloneIndexForLargeList =
@@ -141,11 +141,11 @@ namespace vApus.DistributedTesting {
                 parent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);
             }
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void cvi_DeleteClicked(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             var cvi = sender as ClientTreeViewItem;
             if (cvi.Client.Parent != null)
@@ -158,11 +158,11 @@ namespace vApus.DistributedTesting {
 
             largeList[previousIndex.Key][previousIndex.Value].Select();
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void _AfterSelect(object sender, EventArgs e) {
-            LockWindowUpdate(Handle.ToInt32());
+            LockWindowUpdate(Handle);
 
             foreach (ITreeViewItem item in largeList.AllControls)
                 if (item != sender)
@@ -171,7 +171,7 @@ namespace vApus.DistributedTesting {
             if (AfterSelect != null)
                 AfterSelect(sender, null);
 
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void cvi_HostNameAndIPSet(object sender, EventArgs e) {
@@ -189,11 +189,11 @@ namespace vApus.DistributedTesting {
 
         public void SetMode(DistributedTestMode distributedTestMode) {
             if (_distributedTestMode != distributedTestMode) {
-                LockWindowUpdate(Handle.ToInt32());
+                LockWindowUpdate(Handle);
                 _distributedTestMode = distributedTestMode;
                 foreach (ITreeViewItem item in largeList.AllControls)
                     item.SetDistributedTestMode(_distributedTestMode);
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 

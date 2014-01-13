@@ -64,7 +64,7 @@ namespace vApus.Stresstest {
                     empty = value;
                 } else {
                     empty = BaseItem.GetEmpty(typeof(CustomListParameter), parent);
-                    empty.SetParent(base.ValueParent, false);
+                    empty.SetParent(base.ValueParent);
                     empty.SetTag(tag);
                 }
 

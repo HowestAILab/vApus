@@ -9,6 +9,7 @@ using System;
 using System.ComponentModel;
 using System.IO;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.SolutionTree;
@@ -21,7 +22,7 @@ namespace vApus.Stresstest {
     [ContextMenu(new[] { "Import_Click", "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
         new[] { "Import Log Rule Set(s)", "Add Log Rule Set", "Sort", "Clear", "Paste" })]
     [Hotkeys(new[] { "Paste_Click" }, new[] { (Keys.Control | Keys.V) })]
-    [DisplayName("Log Rule Sets"), Serializable]
+    [DisplayName("Log Rule Sets")]
     public class LogRuleSets : BaseRuleSets {
         private void Import_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();
@@ -46,7 +47,8 @@ namespace vApus.Stresstest {
                         if (xmlDocument.FirstChild.Name == GetType().Name &&
                             xmlDocument.FirstChild.FirstChild.Name == "Items") {
                             string errorMessage;
-                            LoadFromXml(xmlDocument.FirstChild, out errorMessage);
+                            CancellationToken cancellationToken = new CancellationToken(false);
+                            LoadFromXml(xmlDocument.FirstChild, cancellationToken, out errorMessage);
                             sb.Append(errorMessage);
                             if (errorMessage.Length == 0) {
                                 ResolveBranchedIndices();

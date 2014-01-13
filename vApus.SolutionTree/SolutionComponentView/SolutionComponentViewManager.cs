@@ -8,6 +8,8 @@
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Reflection;
+using System.Runtime.InteropServices;
 using vApus.Util;
 using WeifenLuo.WinFormsUI.Docking;
 
@@ -28,17 +30,21 @@ namespace vApus.SolutionTree {
 
         #region Constructors
         static SolutionComponentViewManager() {
-            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
-            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+            Init();
             _activeSolution = Solution.ActiveSolution;
         }
         private SolutionComponentViewManager() { }
         #endregion
 
         #region Functions
-
+        private static void Init() {
+            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+            SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+        }
         private static void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (_activeSolution != Solution.ActiveSolution) {
+                _activeSolution = null;
+
                 _activeSolution = Solution.ActiveSolution;
                 DisposeViews();
             }
@@ -49,15 +55,20 @@ namespace vApus.SolutionTree {
         /// </summary>
         public static void DisposeViews() {
             foreach (BaseSolutionComponentView view in _solutionComponentViews.GetValues())
-                if (view != null && !view.IsDisposed) {
+                if (view != null && !view.IsDisposed && !view.Disposing) {
                     view.Close();
                     view.Dispose();
                 }
             _solutionComponentViews.Clear();
+
         }
 
-        private static void SolutionComponent_SolutionComponentChanged(object sender,
-                                                                       SolutionComponentChangedEventArgs e) {
+        public static IEnumerable<BaseSolutionComponentView> GetAllViews() {
+            foreach (var view in _solutionComponentViews.GetValues())
+                yield return view;
+        }
+
+        private static void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             SolutionComponent solutionComponent;
             switch (e.__DoneAction) {
                 case SolutionComponentChangedEventArgs.DoneAction.Added:
@@ -173,6 +184,7 @@ namespace vApus.SolutionTree {
                 _solutionComponentViews.AddKVP(owner, view);
             }
             view.Show(Solution.DockPanel, dockState);
+
             return view;
         }
 
@@ -195,6 +207,13 @@ namespace vApus.SolutionTree {
                         _solutionComponentViews.RemoveKVP(solutionComponent, view);
                     break;
                 }
+
+            //Do manual de-referencing, otherwise we have a mem leak. This is expensive but effective.
+            try {
+                foreach (FieldInfo info in view.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                    if (!info.FieldType.IsValueType)
+                        try { info.SetValue(view, null); } catch { }
+            } catch { }
         }
 
         #endregion

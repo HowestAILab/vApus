@@ -83,7 +83,7 @@ namespace vApus.Stresstest {
         /// <param name="workItemCallback">The delegate to the function each thread will execute. The index of the thread in the threadpool will be given with.</param>
         public StresstestThreadPool(WorkItemCallback workItemCallback) {
             if (workItemCallback == null)
-                throw new ArgumentNullException("workCallback");
+                throw new ArgumentNullException("workItemCallback");
             _workItemCallback = workItemCallback;
         }
         ~StresstestThreadPool() { Dispose(); }
@@ -183,8 +183,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        public void Dispose() { Dispose(0); }
-        public void Dispose(int timeout) {
+        public void Dispose() {
             if (!IsDisposed) {
                 Interlocked.Exchange(ref _isDisposed, 1);
 
@@ -197,7 +196,7 @@ namespace vApus.Stresstest {
                     Parallel.ForEach(_threads, delegate(Thread t) { try { if (t != null) t.Abort(); } catch { } });
 
                     //Join
-                    Parallel.ForEach(_threads, delegate(Thread t) { try { if (t != null) t.Join(timeout); } catch { } });
+                    Parallel.ForEach(_threads, delegate(Thread t) { try { if (t != null) t.Join(1000); } catch { } });
 
                     _poolIdleWaitHandle.Set();
                 }

@@ -19,7 +19,7 @@ namespace vApus.DistributedTesting {
     [ToolboxItem(false)]
     public partial class TileTreeViewItem : UserControl, ITreeViewItem {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         #region Events
 
@@ -60,13 +60,11 @@ namespace vApus.DistributedTesting {
             set {
                 if (_collapsed != value) {
                     _collapsed = value;
-                    picCollapseExpand.Image = _collapsed
-                                                  ? Resources.Expand_small
-                                                  : Resources.Collapse_small;
+                    picCollapseExpand.Image = _collapsed ? Resources.Expand_small : Resources.Collapse_small;
 
                     //Cannot be null!
                     var largeList = this.GetParent() as LargeList;
-                    LockWindowUpdate(largeList.Handle.ToInt32());
+                    LockWindowUpdate(largeList.Handle);
 
                     if (_collapsed) {
                         largeList.RemoveRange(new List<Control>(_childControls.ToArray()));
@@ -83,7 +81,7 @@ namespace vApus.DistributedTesting {
                         else
                             largeList.InsertRange(_childControls, index);
                     }
-                    LockWindowUpdate(0);
+                    LockWindowUpdate(IntPtr.Zero);
                 }
             }
         }

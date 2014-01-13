@@ -232,7 +232,7 @@ namespace vApus.Stresstest {
         private void btnApply_Click(object sender, EventArgs e) {
             btnApply.Enabled = false;
 
-            _log.ClearWithoutInvokingEvent(false);
+            _log.ClearWithoutInvokingEvent();
 
             if (!IsDisposed && cboRuleSet.Items.Count != 0 && _logRuleSets != null)
                 try {
@@ -246,7 +246,7 @@ namespace vApus.Stresstest {
                     currentUserAction = new UserAction(s.Substring(userActionBegin.Length, s.Length - 7));
                     _log.AddWithoutInvokingEvent(currentUserAction);
                 } else if (currentUserAction != null) {
-                    currentUserAction.AddWithoutInvokingEvent(new LogEntry(s), false);
+                    currentUserAction.AddWithoutInvokingEvent(new LogEntry(s));
                 }
 
             _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);

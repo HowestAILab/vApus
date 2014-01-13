@@ -30,12 +30,12 @@ namespace vApus.Util {
         private readonly Timer _tmrFireLogChangedEvent = new Timer(2000);
         private volatile int _logErrorCountCache;
 
-        private const string newLineReplacement = "◦";
+        private const string _newLineReplacement = "◦";
         #endregion
 
         #region Properties
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
         #endregion
 
         #region Constructors
@@ -136,7 +136,7 @@ namespace vApus.Util {
 
                 dgv.DataSource = dt;
 
-                LockWindowUpdate(0);
+                LockWindowUpdate(IntPtr.Zero);
             }
         }
 
@@ -175,7 +175,7 @@ namespace vApus.Util {
                     int index = dt.Rows.Count - 1;
                     object[] row = dt.Rows[index].ItemArray;
 
-                    dt.Rows[index].ItemArray = new object[] { row[0], row[1], string.Concat(row[2], newLineReplacement, line) };
+                    dt.Rows[index].ItemArray = new object[] { row[0], row[1], string.Concat(row[2], _newLineReplacement, line) };
                 }
             }
         }
@@ -257,7 +257,7 @@ namespace vApus.Util {
                 lmd.ReportThisBugVisible = false;
 
 
-            lmd.Text = row.ItemArray.Combine("; ").Replace(newLineReplacement, Environment.NewLine);
+            lmd.Text = row.ItemArray.Combine("; ").Replace(_newLineReplacement, Environment.NewLine);
             lmd.StartPosition = FormStartPosition.CenterParent;
             lmd.ShowDialog(this);
         }

@@ -247,6 +247,7 @@ namespace vApus.Stresstest {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = true;
                 chkMonitorDataToDifferentFiles.Enabled = chkMonitorData.Checked;
 
+                GC.WaitForPendingFinalizers();
                 GC.Collect();
             }
         }

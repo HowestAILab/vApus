@@ -8,6 +8,7 @@
 using System;
 using System.ComponentModel;
 using System.Globalization;
+using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -16,7 +17,7 @@ namespace vApus.Stresstest {
     /// Generates numeric values with a pre- or suffix if you like.
     /// </summary>
     [DisplayName("Numeric Parameter"), Serializable]
-    public class NumericParameter : BaseParameter {
+    public class NumericParameter : BaseParameter, ISerializable {
 
         #region Fields
         private int _decimalPlaces;
@@ -25,10 +26,9 @@ namespace vApus.Stresstest {
         private Fixed _fixed;
         private int _maxValue = int.MaxValue, _minValue = int.MinValue;
 
-        private string _prefix = string.Empty;
+        private string _prefix = string.Empty, _suffix = string.Empty;
         private bool _random;
         private double _step = 1;
-        private string _suffix = string.Empty;
         #endregion
 
         #region Properties
@@ -153,10 +153,33 @@ namespace vApus.Stresstest {
             Value = minValue.ToString();
             _doubleValue = _minValue;
         }
+        public NumericParameter(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _decimalPlaces = sr.ReadInt32();
+                _decimalSeparator = sr.ReadString();
+                _fixed = (Fixed)sr.ReadInt32();
+                _maxValue = sr.ReadInt32();
+                _minValue = sr.ReadInt32();
+                _prefix = sr.ReadString();
+                _suffix = sr.ReadString();
+                _random = sr.ReadBoolean();
+                _step = sr.ReadInt32();
+
+                _tokenNumericIdentifier = sr.ReadInt32();
+                
+                Value = _minValue.ToString();
+                _doubleValue = _minValue;
+            }
+            sr = null;
+        }
         #endregion
 
         #region Functions
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
             if (Parent != null && Parent is CustomListParameter)
                 ShowInGui = false;
         }
@@ -212,6 +235,25 @@ namespace vApus.Stresstest {
                 suf = (length > 0) ? suf.Substring(suf.Length - length) : string.Empty;
             }
             return pre + value + suf;
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_decimalPlaces);
+                sw.Write(_decimalSeparator);
+                sw.Write((int)_fixed);
+                sw.Write(_maxValue);
+                sw.Write(_minValue);
+                sw.Write(_prefix);
+                sw.Write(_suffix);
+                sw.Write(_random);
+                sw.Write(_step);
+                sw.Write(_tokenNumericIdentifier);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
         #endregion
     }

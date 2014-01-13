@@ -47,12 +47,12 @@ namespace vApus.Util {
         }
 
         private void NewIssue_Done(object sender, ActiveObject.OnResultEventArgs e) {
-            if (e != null && e.Returned != null) {
+            if (e != null && e.ReturnValue != null) {
                 if (e.Exception == null) {
                     btnReportThisBug.Width = 93;
                     btnReportThisBug.Text = "Reported!";
 
-                    llblBug.Text = e.Returned.ToString();
+                    llblBug.Text = e.ReturnValue.ToString();
                 } else {
                     btnReportThisBug.Width = 123;
                     btnReportThisBug.Text = "Report this bug";

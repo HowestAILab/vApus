@@ -8,6 +8,7 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -16,13 +17,14 @@ namespace vApus.Stresstest {
     /// Holds a list of strings, those can be generated from other parameter types.
     /// </summary>
     [DisplayName("Custom List Parameter"), Serializable]
-    public class CustomListParameter : BaseParameter {
+    public class CustomListParameter : BaseParameter, ISerializable {
 
         #region Fields
         private string[] _customList = new string[] { };
         private bool _random;
         private int _currentValueIndex;
         private CustomListParameter _linkTo;
+        private int _linkToIndex = -1;
         #endregion
 
         #region Properties
@@ -40,20 +42,25 @@ namespace vApus.Stresstest {
             set { _random = value; }
         }
 
-#if EnableBetaFeature
-        [PropertyControl(int.MaxValue), SavableCloneable]
-#else
-        [SavableCloneable]
-#endif
+        [PropertyControl(int.MaxValue)]
         [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stresstest, a value at the same index is asked for the other. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
         public CustomListParameter LinkTo {
             get {
-                if ((!this.IsEmpty && _linkTo == null) || _linkTo.Parent == null || _linkTo._linkTo != this) { //Links should work in both directions. if the other becomes empty or not this than this should be cleared.
-                    _linkTo = GetEmpty(typeof(CustomListParameter), Parent as CustomListParameters) as CustomListParameter;
-                    _linkTo.SetParent(Parent, false);
-                    _linkTo.SetTag(this); //To not include 'this' in the selectabel values on the gui.
+                var parent = Parent as CustomListParameters;
+                if (_linkTo == null && _linkToIndex != -1 && _linkToIndex < parent.Count && _linkToIndex != parent.IndexOf(this)) {
+                    _linkTo = parent[_linkToIndex] as CustomListParameter;
+                    _linkTo.SetParent(parent);
+                    _linkTo.SetTag(this); //To not include 'this' in the selectable values on the gui.
+                    return _linkTo;
                 }
-
+                if ((!this.IsEmpty && _linkTo == null) || _linkTo.Parent == null || _linkTo._linkTo != this) { //Links should work in both directions. if the other becomes empty or not this than this should be cleared.
+                    _linkToIndex = -1;
+                    _linkTo = GetEmpty(typeof(CustomListParameter), parent) as CustomListParameter;
+                    _linkTo.SetParent(parent);
+                    _linkTo.SetTag(this); //To not include 'this' in the selectable values on the gui.
+                    return _linkTo;
+                }
+                _linkToIndex = parent.IndexOf(_linkTo);
                 return _linkTo;
             }
             set {
@@ -61,15 +68,22 @@ namespace vApus.Stresstest {
                     return;
                 if (value == this)
                     throw new Exception("Cannot link to self.");
-                value.ParentIsNull -= _linkTo_ParentIsNull;
+
                 _linkTo = value;
                 _linkTo.SetTag(this);
-                if (!_linkTo.IsEmpty) {
+                if (_linkTo.IsEmpty) {
+                    _linkToIndex = -1;
+                } else {
                     _linkTo._linkTo = this; //Make a link from the other side.
                     _linkTo._linkTo.SetTag(_linkTo);
+                    _linkToIndex = Parent.IndexOf(LinkTo);
                 }
-                _linkTo.ParentIsNull += _linkTo_ParentIsNull;
             }
+        }
+        [SavableCloneable]
+        public int LinkToIndex {
+            get { return _linkToIndex; }
+            set { _linkToIndex = value; }
         }
         public BaseParameter GenerateFromParameter {
             get {
@@ -117,27 +131,21 @@ namespace vApus.Stresstest {
             p.ShowInGui = false;
             AddAsDefaultItem(p);
         }
+        public CustomListParameter(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _customList = sr.ReadArray(typeof(string)) as string[];
+                _random = sr.ReadBoolean();
+                _linkToIndex = sr.ReadInt32();
+                _tokenNumericIdentifier = sr.ReadInt32();
+            }
+            sr = null;
+        }
         #endregion
 
         #region Functions
-        private void _linkTo_ParentIsNull(object sender, EventArgs e) {
-            if (_linkTo == sender) {
-                LinkTo = GetEmpty(typeof(CustomListParameter), Parent as CustomListParameters) as CustomListParameter;
-                _linkTo.SetParent(Parent, false);
-                _linkTo.SetTag(this);
-            }
-        }
-        public void Add(int count, BaseParameter baseParameterType) {
-            var l = new List<string>(count + _customList.Length);
-            l.AddRange(_customList);
-            for (int i = 0; i < count; i++) {
-                l.Add(baseParameterType.Value);
-                baseParameterType.Next();
-            }
-            _customList = l.ToArray();
-            InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-        }
-
         public override void Next() {
             if (_chosenValues.Count == _customList.Length)
                 _chosenValues.Clear();
@@ -180,6 +188,20 @@ namespace vApus.Stresstest {
             if (_customList.Length > 0)
                 Value = _customList[0];
             _chosenValues.Clear();
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_customList);
+                sw.Write(_random);
+                sw.Write(_linkToIndex);
+
+                sw.Write(_tokenNumericIdentifier);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
         #endregion
     }

@@ -12,6 +12,7 @@ using System.IO;
 using System.Linq;
 using System.Reflection;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.Util;
@@ -27,6 +28,7 @@ namespace vApus.SolutionTree {
         /// To handle stuff that needs to happen after the solution is loaded and Solution.ActiveSolutionChanged is not sufficient.
         /// This will also be invoked on errors.
         /// </summary>
+        [field: NonSerialized]
         public event EventHandler Loaded;
 
         #region Fields
@@ -63,7 +65,7 @@ namespace vApus.SolutionTree {
         /// <param name="parent">Required! Use Solution.ActiveSolution.GetSolutionComponent or .GetLabeledBaseItem to retrieve the right one.</param>
         /// <returns></returns>
         public static BaseItem GetEmpty(Type baseItemType, SolutionComponent parent) {
-            var emptyItem = Activator.CreateInstance(baseItemType) as BaseItem;
+            var emptyItem = FastObjectCreator.CreateInstance(baseItemType) as BaseItem;
             emptyItem.Parent = parent;
             emptyItem.IsEmpty = true; //Default true;
 
@@ -74,8 +76,9 @@ namespace vApus.SolutionTree {
         /// </summary>
         /// <returns></returns>
         public IEnumerable<BaseItem> GetSiblings() {
+            Type type = GetType();
             foreach (BaseItem item in Parent)
-                if (item != this && item.GetType() == GetType())
+                if (item != this && item.GetType() == type)
                     yield return item;
         }
         /// <summary>
@@ -86,7 +89,8 @@ namespace vApus.SolutionTree {
         /// <param name="xmlDocument"></param>
         /// <param name="parent"></param>
         internal void GetXmlToSave(XmlDocument xmlDocument, XmlElement parent) {
-            XmlElement element = xmlDocument.CreateElement(GetType().Name);
+            Type type = GetType();
+            XmlElement element = xmlDocument.CreateElement(type.Name);
             parent.AppendChild(element);
 
             //Save the child items.
@@ -96,9 +100,7 @@ namespace vApus.SolutionTree {
             element.AppendChild(itemsElement);
 
             //Save the other properties. (Just primairy datatypes should be saved (and "BaseItems")
-            foreach (
-                PropertyInfo info in
-                    GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
+            foreach (PropertyInfo info in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
                 object[] customAttributesFilter = info.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
                 if (customAttributesFilter.Length > 0) {
                     var savableCloneableAttribute = customAttributesFilter[0] as SavableCloneableAttribute;
@@ -123,19 +125,14 @@ namespace vApus.SolutionTree {
                             }
 
                             string parentName = null;
-                            foreach (
-                                FieldInfo fieldInfo in
-                                    GetType()
-                                        .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)
-                                ) {
+                            foreach (FieldInfo fieldInfo in type.GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
                                 object fieldInfoValue = fieldInfo.GetValue(this);
                                 if (fieldInfoValue != null && fieldInfoValue.Equals(valueParent)) {
                                     parentName = fieldInfo.Name;
                                     break;
                                 }
                             }
-                            childElement.InnerText = string.Format("{0}.{1}.{2}", thisBranchedIndex, parentName,
-                                                                   valueIndex);
+                            childElement.InnerText = string.Format("{0}.{1}.{2}", thisBranchedIndex, parentName, valueIndex);
                         }
                     } else if (value is ICollection) {
                         var sb = new StringBuilder();
@@ -156,8 +153,7 @@ namespace vApus.SolutionTree {
 
                         childElement.InnerText = sb.ToString();
                         if (childElement.InnerText.Length > 0)
-                            childElement.InnerText = childElement.InnerText.Substring(0,
-                                                                                      childElement.InnerText.Length - 1);
+                            childElement.InnerText = childElement.InnerText.Substring(0, childElement.InnerText.Length - 1);
 
                         if (savableCloneableAttribute.Encrypt) {
                             childElement.InnerText = childElement.InnerText.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
@@ -169,12 +165,9 @@ namespace vApus.SolutionTree {
                             childElement.SetAttribute("args", "Encrypted");
                         }
                     } else if (value != null) {
-                        childElement.InnerText = (value is Enum)
-                                                     ? Enum.GetName(value.GetType(), value)
-                                                     : value.ToString();
+                        childElement.InnerText = (value is Enum) ? Enum.GetName(value.GetType(), value) : value.ToString();
                         if (savableCloneableAttribute.Encrypt) {
-                            childElement.InnerText =
-                                childElement.InnerText.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
+                            childElement.InnerText = childElement.InnerText.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
                                                                new byte[]
                                                                    {
                                                                        0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76
@@ -213,17 +206,23 @@ namespace vApus.SolutionTree {
         ///     Furthermore all primary datatypes and arrays/generic lists containing primary datatypes can be loaded and base items not contained in the items collection.
         /// </summary>
         /// <param name="node"></param>
-        public void LoadFromXml(XmlNode node, out string errorMessage) {
+        public void LoadFromXml(XmlNode node, CancellationToken cancellationToken, out string errorMessage) {
             //Error reporting.
+            errorMessage = string.Empty;
             var sb = new StringBuilder();
+            Type type = GetType();
             _branchedInfos = new Dictionary<PropertyInfo, string>();
-            foreach (XmlNode childNode in node.ChildNodes)
+            foreach (XmlNode childNode in node.ChildNodes) {
+                if (cancellationToken.IsCancellationRequested) break;
                 if (childNode.Name == "Items")
                     foreach (XmlNode elementNode in childNode.ChildNodes) {
+                        if (cancellationToken.IsCancellationRequested) break;
                         try {
-                            var item = Activator.CreateInstance(GetType().Assembly.GetTypeByName(elementNode.Name)) as BaseItem;
+                            var item = FastObjectCreator.CreateInstance(type.Assembly.GetTypeByName(elementNode.Name)) as BaseItem;
                             string childErrorMessage;
-                            item.LoadFromXml(elementNode, out childErrorMessage);
+                            item.LoadFromXml(elementNode, cancellationToken, out childErrorMessage);
+                            if (cancellationToken.IsCancellationRequested) break;
+
                             sb.Append(childErrorMessage);
                             AddWhileLoading(item);
                         } catch (Exception ex) {
@@ -237,14 +236,15 @@ namespace vApus.SolutionTree {
                             sb.Append(";");
                         }
                     } else
-                    foreach (
-                        PropertyInfo info in GetType().GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                    foreach (PropertyInfo info in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
+                        if (cancellationToken.IsCancellationRequested) break;
                         if (info.Name == childNode.Name) {
                             try {
                                 bool branchedIndexType = false;
                                 bool encrypted = false;
 
-                                foreach (XmlAttribute attribute in childNode.Attributes)
+                                foreach (XmlAttribute attribute in childNode.Attributes) {
+                                    if (cancellationToken.IsCancellationRequested) break;
                                     if (attribute.Name == "args")
                                         if (attribute.Value == "vApus.BranchedIndexType") {
                                             branchedIndexType = true;
@@ -253,6 +253,8 @@ namespace vApus.SolutionTree {
                                             encrypted = true;
                                             break;
                                         }
+                                }
+                                if (cancellationToken.IsCancellationRequested) break;
 
                                 if (branchedIndexType) {
                                     _branchedInfos.Add(info, childNode.InnerText);
@@ -280,6 +282,7 @@ namespace vApus.SolutionTree {
 
                                         if (elementType.BaseType == typeof(Enum))
                                             foreach (string s in array) {
+                                                if (cancellationToken.IsCancellationRequested) break;
                                                 string value = s;
                                                 if (encrypted)
                                                     value = value.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
@@ -289,6 +292,7 @@ namespace vApus.SolutionTree {
                                                 arrayList.Add(Enum.Parse(elementType, value));
                                             } else
                                             foreach (string s in array) {
+                                                if (cancellationToken.IsCancellationRequested) break;
                                                 string value = s;
                                                 if (encrypted)
                                                     value = value.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
@@ -327,6 +331,8 @@ namespace vApus.SolutionTree {
                             }
                             break;
                         }
+                    }
+            }
             errorMessage = sb.ToString();
 
             if (Loaded != null)
@@ -373,10 +379,7 @@ namespace vApus.SolutionTree {
                         } catch {
                         }
                     } else {
-                        foreach (
-                            FieldInfo info in
-                                item.GetType()
-                                    .GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                        foreach (FieldInfo info in item.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                             if (info.Name == o as string) {
                                 IEnumerator enumerator = (info.GetValue(item) as IEnumerable).GetEnumerator();
                                 int valueIndex = 0;
@@ -393,6 +396,7 @@ namespace vApus.SolutionTree {
             }
             return null;
         }
+
         //Standard ContextMenuItems
         internal void Import_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();
@@ -437,10 +441,12 @@ namespace vApus.SolutionTree {
 
             try {
                 bool validStructureFound = false;
+                string typeName = GetType().Name;
                 foreach (XmlNode node in xmlDocument.ChildNodes) {
-                    if (node.Name == GetType().Name && node.FirstChild.Name == "Items") {
+                    if (node.Name == typeName && node.FirstChild.Name == "Items") {
                         string errorMessage;
-                        LoadFromXml(node, out errorMessage);
+                        CancellationToken cancellationToken = new CancellationToken(false);
+                        LoadFromXml(node, cancellationToken, out errorMessage);
                         if (errors != null) errors.Append(errorMessage);
                         if (errorMessage.Length == 0) {
                             ResolveBranchedIndices();
@@ -519,10 +525,12 @@ namespace vApus.SolutionTree {
         internal void PasteXmlStructure(XmlDocument xmlDocument) {
             if (xmlDocument.ChildNodes.Count > 0 && xmlDocument.FirstChild.ChildNodes.Count > 0) {
                 string errorMessage;
-                if (xmlDocument.FirstChild.Name == GetType().Name && xmlDocument.FirstChild.FirstChild.Name == "Items")
-                    LoadFromXml(xmlDocument.FirstChild, out errorMessage);
-                else
+                if (xmlDocument.FirstChild.Name == GetType().Name && xmlDocument.FirstChild.FirstChild.Name == "Items") {
+                    CancellationToken cancellationToken = new CancellationToken(false);
+                    LoadFromXml(xmlDocument.FirstChild, cancellationToken, out errorMessage);
+                } else {
                     return;
+                }
                 if (errorMessage.Length == 0) {
                     ResolveBranchedIndices();
                     InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, true);

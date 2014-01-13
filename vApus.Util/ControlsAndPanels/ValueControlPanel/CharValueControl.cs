@@ -54,7 +54,7 @@ namespace vApus.Util {
         private void txt_Leave(object sender, EventArgs e) {
             try {
                 var txt = sender as TextBox;
-                if (txt.Text.Length == 0)
+                if (txt.Text.Length == 0 && !ParentForm.IsDisposed && !ParentForm.Disposing)
                     txt.Text = base.__Value.__Value.ToString();
                 else
                     base.HandleValueChanged(txt.Text[0]);

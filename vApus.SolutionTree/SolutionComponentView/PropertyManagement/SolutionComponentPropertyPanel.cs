@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Reflection;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -47,7 +48,14 @@ namespace vApus.SolutionTree {
 
                     _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
+
+                    LockWindowUpdate(Handle);
+
+                    base.ClearValues();
                     SetGui();
+
+                    LockWindowUpdate(IntPtr.Zero);
+
                     _solutionComponentTypeChanged = false;
 
                     ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
@@ -82,6 +90,9 @@ namespace vApus.SolutionTree {
         #endregion
 
         #region Functions
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(IntPtr hWnd);
+
         private void _showHideAdvancedSettings_Click(object sender, EventArgs e) {
             _showAdvancedSettings = !_showAdvancedSettings;
             Refresh();
@@ -104,10 +115,11 @@ namespace vApus.SolutionTree {
 
                 //Get and sort all valid properties.
                 _properties = new List<PropertyInfo>();
+                var minAndMaxs = new Dictionary<PropertyInfo, KeyValuePair<int, int>>();
                 foreach (PropertyInfo propertyInfo in _solutionComponent.GetType().GetProperties()) {
                     object[] attributes = propertyInfo.GetCustomAttributes(typeof(PropertyControlAttribute), true);
                     PropertyControlAttribute propertyControlAttribute = (attributes.Length == 0) ? null : (attributes[0] as PropertyControlAttribute);
-                    if (propertyControlAttribute != null)
+                    if (propertyControlAttribute != null) {
                         if (propertyControlAttribute.AdvancedProperty) {
                             showHideAdvancedSettingsControl = true;
                             if (_showAdvancedSettings) //Show advanced settings only if chosen to.
@@ -115,6 +127,9 @@ namespace vApus.SolutionTree {
                         } else {
                             _properties.Add(propertyInfo);
                         }
+
+                        minAndMaxs.Add(propertyInfo, new KeyValuePair<int, int>(propertyControlAttribute.AllowedMinimum, propertyControlAttribute.AllowedMaximum));
+                    }
                 }
                 _properties.Sort(PropertyInfoComparer.GetInstance());
                 _properties.Sort(PropertyControlAttributeDisplayIndexComparer.GetInstance());
@@ -144,12 +159,16 @@ namespace vApus.SolutionTree {
                     attributes = propertyInfo.GetCustomAttributes(typeof(SavableCloneableAttribute), true);
                     bool isEncrypted = (attributes.Length != 0 && (attributes[0] as SavableCloneableAttribute).Encrypt);
 
+                    var minAndMax = minAndMaxs[propertyInfo];
+
                     values[i] = new BaseValueControl.Value {
                         __Value = value,
                         Description = description,
                         IsEncrypted = isEncrypted,
                         IsReadOnly = isReadOnly,
-                        Label = label
+                        Label = label,
+                        AllowedMinimum = minAndMax.Key,
+                        AllowedMaximum = minAndMax.Value
                     };
                 }
 
@@ -175,7 +194,7 @@ namespace vApus.SolutionTree {
                 if ((oldValue as BaseItem).IsEmpty)
                     return;
                 BaseItem empty = BaseItem.GetEmpty(oldValue.GetType(), oldValue.GetParent() as SolutionComponent);
-                empty.SetParent(oldValue.GetParent(), false);
+                empty.SetParent(oldValue.GetParent());
                 _properties[index].SetValue(_solutionComponent, empty, null);
             } else {
                 _properties[index].SetValue(_solutionComponent, newValue, null);

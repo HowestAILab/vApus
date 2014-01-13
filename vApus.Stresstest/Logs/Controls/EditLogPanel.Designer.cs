@@ -205,6 +205,7 @@
             this.fctxtxImport.TabIndex = 0;
             this.fctxtxImport.WordWrap = true;
             this.fctxtxImport.Zoom = 100;
+            this.fctxtxImport.DelayedTextChangedInterval = 200;
             this.fctxtxImport.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxtxImport_TextChangedDelayed);
             // 
             // tpExtraTools

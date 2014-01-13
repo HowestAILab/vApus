@@ -37,11 +37,13 @@ namespace vApus.SolutionTree {
     public sealed class PropertyControlAttribute : Attribute {
 
         #region Fields
-        private readonly int _displayIndex = -1;
+        private readonly int _displayIndex = -1, _allowedMinimum, _allowedMaximum;
         #endregion
 
         #region Properties
         public int DisplayIndex { get { return _displayIndex; } }
+        public int AllowedMinimum { get { return _allowedMinimum; } }
+        public int AllowedMaximum { get { return _allowedMaximum; } }
         public bool AdvancedProperty { get; private set; }
         #endregion
 
@@ -51,7 +53,12 @@ namespace vApus.SolutionTree {
         ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
         ///     Use ValueControlPanel.AddControlType(...) if you want a custom property control.
         /// </summary>
-        public PropertyControlAttribute() { }
+        /// <param name="allowedMinimum">Only for integer values.</param>
+        /// <param name="allowedMaximum">Only for integer values.</param>
+        public PropertyControlAttribute(int allowedMinimum = int.MinValue, int allowedMaximum = int.MaxValue) {
+            _allowedMinimum = allowedMinimum;
+            _allowedMaximum = allowedMaximum;
+        }
         /// <summary>
         ///     To define that a common property control can be created for the property.
         ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
@@ -61,7 +68,25 @@ namespace vApus.SolutionTree {
         ///     A number greater than -1, it doesn't matter if it isn't directly following the display indices of other property control attributes.
         ///     If this is not spedified, alphabetical sorting will take place.
         /// </param>
-        public PropertyControlAttribute(int displayIndex) { _displayIndex = displayIndex; }
+        /// <param name="allowedMinimum">Only for integer values.</param>
+        /// <param name="allowedMaximum">Only for integer values.</param>
+        public PropertyControlAttribute(int displayIndex, int allowedMinimum, int allowedMaximum)
+            : this(allowedMinimum, allowedMaximum) {
+            _displayIndex = displayIndex;
+        }
+        /// <summary>
+        ///     To define that a common property control can be created for the property.
+        ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
+        ///     Use ValueControlPanel.AddControlType(...) if you want a custom property control.
+        /// </summary>
+        /// <param name="displayIndex">
+        ///     A number greater than -1, it doesn't matter if it isn't directly following the display indices of other property control attributes.
+        ///     If this is not spedified, alphabetical sorting will take place.
+        /// </param>
+        public PropertyControlAttribute(int displayIndex)
+            : this(displayIndex, int.MinValue, int.MaxValue) {
+            _displayIndex = displayIndex;
+        }
         /// <summary>
         ///     To define that a common property control can be created for the property.
         ///     This will work for all primary datatypes and arrays/generic lists containing primary datatypes.
@@ -74,8 +99,12 @@ namespace vApus.SolutionTree {
         /// <param name="advancedProperty">
         ///     An advanced property will be hidden. The user can choose to see it. This value is default false.
         /// </param>
-        public PropertyControlAttribute(int displayIndex, bool advancedProperty)
-            : this(displayIndex) { AdvancedProperty = advancedProperty; }
+        /// <param name="allowedMinimum">Only for integer values.</param>
+        /// <param name="allowedMaximum">Only for integer values.</param>
+        public PropertyControlAttribute(int displayIndex, bool advancedProperty, int allowedMinimum = int.MinValue, int allowedMaximum = int.MaxValue)
+            : this(displayIndex, allowedMinimum, allowedMaximum) {
+            AdvancedProperty = advancedProperty;
+        }
         #endregion
     }
 

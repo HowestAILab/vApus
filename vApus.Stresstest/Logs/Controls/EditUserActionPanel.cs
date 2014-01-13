@@ -77,7 +77,7 @@ namespace vApus.Stresstest {
 
         #region Functions
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(int hWnd);
+        private static extern int LockWindowUpdate(IntPtr hWnd);
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender is CustomListParameters || sender is CustomListParameter || sender is CustomRandomParameters || sender is CustomRandomParameter
@@ -89,7 +89,7 @@ namespace vApus.Stresstest {
 
         internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
-            LockWindowUpdate(this.Handle.ToInt32());
+            LockWindowUpdate(this.Handle);
             _log = log;
             UserActionTreeViewItem = userActionTreeViewItem;
 
@@ -107,7 +107,7 @@ namespace vApus.Stresstest {
             SetBtnSplit();
             SetLinked();
             SetLogEntries();
-            LockWindowUpdate(0);
+            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
@@ -289,7 +289,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone(_log.LogRuleSet, true, true, false)); }
+        private void picCopy_Click(object sender, EventArgs e) { ClipboardWrapper.SetDataObject(UserActionTreeViewItem.UserAction.Clone(_log.LogRuleSet, true, false, true, false)); }
 
         private void SetPicDelay() {
             if (UserActionTreeViewItem.UserAction.UseDelay) {
@@ -706,7 +706,7 @@ namespace vApus.Stresstest {
                     int index = dgvLogEntries.Rows.IndexOf(row);
                     if (index != userAction.Count) toRemove.Add(userAction[index]);
                 }
-                userAction.RemoveRangeWithoutInvokingEvent(toRemove, false);
+                userAction.RemoveRangeWithoutInvokingEvent(toRemove);
 
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
 
@@ -747,10 +747,10 @@ namespace vApus.Stresstest {
         private void btnRevertToImported_Click(object sender, EventArgs e) {
             if (MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 var userAction = UserActionTreeViewItem.UserAction;
-                userAction.ClearWithoutInvokingEvent(false);
+                userAction.ClearWithoutInvokingEvent();
 
                 foreach (string s in userAction.LogEntryStringsAsImported)
-                    userAction.AddWithoutInvokingEvent(new LogEntry(s), false);
+                    userAction.AddWithoutInvokingEvent(new LogEntry(s));
 
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 

@@ -10,6 +10,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
+using System.Reflection;
 using System.Resources;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -20,15 +21,9 @@ namespace vApus.SolutionTree {
     ///     The base class for BaseItem and BaseProject. The base of everything in a solution. Contains all the plumbing for ICollection amongst others.
     /// </summary>
     [Serializable]
-    public abstract class SolutionComponent : Object, ICollection<BaseItem> {
+    public abstract class SolutionComponent : Object, ICollection<BaseItem>, IDisposable {
+        [field: NonSerialized]
         public static event EventHandler<SolutionComponentChangedEventArgs> SolutionComponentChanged;
-        /// <summary>
-        ///     When creating a empty base item, it checks if the parent becomes null. (Happens when removed from a collection, don't set the parent null yourself)
-        ///     Call SolutionComponent.GetNextChild when this happens, don't forget to suscribe to this event again for the new item.
-        ///     Note: this event is fired on another thread.
-        /// </summary>
-        [field: NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
-        public event EventHandler ParentIsNull;
 
         private delegate void InvokeSolutionComponentChangedEventDelegate(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg);
 
@@ -112,20 +107,40 @@ namespace vApus.SolutionTree {
         #endregion
 
         #region Constructor
+
         /// <summary>
         ///     The base class for BaseItem and BaseProject. The base of everything in a solution. Contains all the plumbing for ICollection amongst others.
         /// </summary>
         public SolutionComponent() {
-            /// <summary>
-            /// To Check if the parent has become null.
-            /// 
-            /// That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
-            ObjectExtension.ParentChanged += ObjectExtension_ParentChanged;
             _invokeSolutionComponentChangedEventDelegate = InvokeSolutionComponentChangedEventCallback;
         }
+
+        // ~SolutionComponent() {
+
+        //Parallel.ForEach(SolutionComponentChanged.GetInvocationList(), (handler) => {
+        //    SolutionComponentChanged -= handler as EventHandler<SolutionComponentChangedEventArgs>;
+        //});
+        //}
         #endregion
 
         #region Functions
+        public static void UnsuscribeSolutionComponentChanged() {
+            if (SolutionComponentChanged != null) {
+                var arr = SolutionComponentChanged.GetInvocationList();
+                Parallel.For(0, arr.LongLength, (i) => {
+                    SolutionComponentChanged -= arr[i] as EventHandler<SolutionComponentChangedEventArgs>;
+                });
+            }
+        }
+        public void Dispose() {
+            foreach (var item in this)
+                item.Dispose();
+
+            //Do manual de-referencing, otherwise we have a mem leak. This is expensive but effective.
+            foreach (FieldInfo info in GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
+                if (!info.FieldType.IsValueType)
+                    info.SetValue(this, null);
+        }
         /// <summary>
         ///     Will only invoke SolutionComponentChanged if the ShowOnGui property of the item equals true.
         /// </summary>
@@ -159,7 +174,7 @@ namespace vApus.SolutionTree {
             if (item == this)
                 throw new Exception("Use Parent.Remove(this) instead of Remove(this).");
             if (_items.Remove(item)) {
-                item.Parent = null;
+                item.RemoveParent();
                 item.RemoveTag();
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Removed, item);
 
@@ -179,17 +194,17 @@ namespace vApus.SolutionTree {
             foreach (var item in collection) if (Remove(item)) removed = true;
             return removed;
         }
-        public bool RemoveRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection, bool invokeParentChanged = true) {
+        public bool RemoveRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection) {
             bool removed = false;
-            foreach (var item in collection) if (RemoveWithoutInvokingEvent(item, invokeParentChanged)) removed = true;
+            foreach (var item in collection) if (RemoveWithoutInvokingEvent(item)) removed = true;
             return removed;
         }
-        public bool RemoveWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true) {
+        public bool RemoveWithoutInvokingEvent(BaseItem item) {
             if (item == this)
                 throw new Exception("Use Parent.Remove(this) instead of Remove(this).");
             if (_items.Remove(item)) {
 
-                item.RemoveParent(invokeParentChanged);
+                item.RemoveParent();
                 item.RemoveTag();
                 item = null;
 
@@ -202,24 +217,9 @@ namespace vApus.SolutionTree {
 
         IEnumerator IEnumerable.GetEnumerator() { return _items.GetEnumerator(); }
 
-        /// <summary>
-        ///     Checks if the parent has become null.
-        ///     That way you can choose another base item to store in your object. Or make a new empty one with the right parent.
-        /// </summary>
-        protected void ObjectExtension_ParentChanged(ObjectExtension.ParentChangedEventArgs parentOrTagChangedEventArgs) {
-            if (Solution.ActiveSolution != null)
-                if (object.ReferenceEquals(parentOrTagChangedEventArgs.Child, this))
-                    if (parentOrTagChangedEventArgs.New == null && ParentIsNull != null) {
-                        var invocationList = ParentIsNull.GetInvocationList();
-                        Parallel.For(0, invocationList.Length, (i) => {
-                            (invocationList[i] as EventHandler).Invoke(this, null);
-                        });
-                    }
-        }
-
-        public void AddWithoutInvokingEvent(BaseItem item, bool invokeParentChanged = true) {
+        public void AddWithoutInvokingEvent(BaseItem item) {
             _items.Add(item);
-            item.SetParent(this, invokeParentChanged);
+            item.SetParent(this);
             item.ForceSettingChildsParent();
         }
 
@@ -249,10 +249,10 @@ namespace vApus.SolutionTree {
             else {
                 BaseItem oldItem = _items[index];
                 _items.Insert(index, item);
-                oldItem.RemoveParent(false);
+                oldItem.RemoveParent();
                 _items.Remove(oldItem);
             }
-            item.SetParent(this, false);
+            item.SetParent(this);
             item.ForceSettingChildsParent();
         }
 
@@ -272,7 +272,7 @@ namespace vApus.SolutionTree {
             _items.Add(item);
 
             item.IsDefaultItem = true;
-            item.SetParent(this, false);
+            item.SetParent(this);
             item.ForceSettingChildsParent();
             return index;
         }
@@ -291,10 +291,10 @@ namespace vApus.SolutionTree {
         ///     Pastes, if any, a item from the given child type in the items collection.
         /// </summary>
         /// <param name="childType"></param>
-        public void AddRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection, bool invokeParentChanged = true) {
+        public void AddRangeWithoutInvokingEvent(IEnumerable<BaseItem> collection) {
             _items.AddRange(collection);
             foreach (BaseItem item in collection) {
-                item.SetParent(this, invokeParentChanged);
+                item.SetParent(this);
                 item.ForceSettingChildsParent();
             }
         }
@@ -312,9 +312,9 @@ namespace vApus.SolutionTree {
         /// </summary>
         /// <param name="index"></param>
         /// <param name="item"></param>
-        public void InsertWithoutInvokingEvent(int index, BaseItem item, bool invokeParentChanged = true) {
+        public void InsertWithoutInvokingEvent(int index, BaseItem item) {
             _items.Insert(index, item);
-            item.SetParent(this, invokeParentChanged);
+            item.SetParent(this);
             item.ForceSettingChildsParent();
         }
 
@@ -323,18 +323,18 @@ namespace vApus.SolutionTree {
         /// </summary>
         /// <param name="index"></param>
         /// <param name="collection"></param>
-        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection, bool invokeParentChanged = true) {
+        public void InserRangeWithoutInvokingEvent(int index, IEnumerable<BaseItem> collection) {
             _items.InsertRange(index, collection);
 
             foreach (BaseItem item in collection) {
-                item.SetParent(this, invokeParentChanged);
+                item.SetParent(this);
                 item.ForceSettingChildsParent();
             }
         }
 
-        public virtual void ClearWithoutInvokingEvent(bool invokeParentChanged = true) {
+        public virtual void ClearWithoutInvokingEvent() {
             foreach (BaseItem item in _items) {
-                item.RemoveParent(invokeParentChanged);
+                item.RemoveParent();
                 item.RemoveTag();
             }
             _items.Clear();
@@ -474,7 +474,7 @@ namespace vApus.SolutionTree {
         /// </summary>
         public void ForceSettingChildsParent() {
             foreach (BaseItem item in this) {
-                item.SetParent(this, false);
+                item.SetParent(this);
                 item.ForceSettingChildsParent();
             }
         }
@@ -504,7 +504,7 @@ namespace vApus.SolutionTree {
         ///     Override this if you want to provide your own GUI (must inherit BaseSolutionComponentView).
         /// </summary>
         /// <returns></returns>
-        public virtual void Activate() { SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)); }
+        public virtual BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this, typeof(SolutionComponentPropertyView)); }
 
         /// <summary>
         /// </summary>
@@ -518,11 +518,13 @@ namespace vApus.SolutionTree {
             try {
                 if (SolutionComponentChanged != null && Solution.ActiveSolution != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                        try { SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch { }
+                        try { SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch {
+                        }
                     }, null);
             } catch { }
         }
         #endregion
+
     }
 
     public class SolutionComponentChangedEventArgs : EventArgs {

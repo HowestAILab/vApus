@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.Util;
@@ -139,19 +140,23 @@ namespace vApus.SolutionTree {
         ///     Load 'this' and childs based on activation and reflection.
         /// </summary>
         /// <param name="xmlDocument"></param>
-        internal void LoadFromXml(XmlDocument xmlDocument, out string errorMessage) {
+        internal void LoadFromXml(XmlDocument xmlDocument, CancellationToken cancellationToken, out string errorMessage) {
             //Error reporting.
+            errorMessage = string.Empty;
             var sb = new StringBuilder();
             //The first node is the content type, we don't need this
             XmlNode root = (xmlDocument.FirstChild.Name == GetType().Name)
                                ? xmlDocument.FirstChild
                                : xmlDocument.ChildNodes[1];
             foreach (XmlNode childNode in root.ChildNodes) {
+                if (cancellationToken.IsCancellationRequested) break;
                 try {
-                    var item = Activator.CreateInstance(GetType().Assembly.GetTypeByName(childNode.Name)) as BaseItem;
-                    item.SetParent(this, false);
+                    var item = FastObjectCreator.CreateInstance(GetType().Assembly.GetTypeByName(childNode.Name)) as BaseItem;
+                    item.SetParent(this);
                     string childErrorMessage;
-                    item.LoadFromXml(childNode, out childErrorMessage);
+                    item.LoadFromXml(childNode, cancellationToken, out childErrorMessage);
+                    if (cancellationToken.IsCancellationRequested) break;
+                    
                     sb.Append(childErrorMessage);
                     AddWhileLoading(item);
                 } catch (Exception ex) {
@@ -180,7 +185,8 @@ namespace vApus.SolutionTree {
                 try {
                     if (xmlDocument.FirstChild.Name == GetType().Name) {
                         string errorMessage;
-                        LoadFromXml(xmlDocument, out errorMessage);
+                        CancellationToken cancellationToken = new CancellationToken(false);
+                        LoadFromXml(xmlDocument, cancellationToken, out errorMessage);
                         sb.Append(errorMessage);
                         if (errorMessage.Length == 0) {
                             ResolveBranchedIndices();
@@ -218,10 +224,12 @@ namespace vApus.SolutionTree {
 
                         if (xmlDocument.ChildNodes.Count > 0) {
                             string errorMessage;
-                            if (xmlDocument.FirstChild.Name == GetType().Name)
-                                LoadFromXml(xmlDocument, out errorMessage);
-                            else
+                            if (xmlDocument.FirstChild.Name == GetType().Name) {
+                                CancellationToken cancellationToken = new CancellationToken(false);
+                                LoadFromXml(xmlDocument, cancellationToken, out errorMessage);
+                            } else {
                                 return;
+                            }
                             if (errorMessage.Length == 0) {
                                 ResolveBranchedIndices();
                                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,

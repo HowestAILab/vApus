@@ -76,7 +76,7 @@ namespace vApus.DistributedTesting {
                         ++weightIndex;
                     }
                     _logs = l.ToArray();
-                    _logs.SetParent(_allLogs, false);
+                    _logs.SetParent(_allLogs);
                 }
             }
         }
@@ -119,7 +119,7 @@ namespace vApus.DistributedTesting {
                 _logs = value;
 
                 if (_allLogs != null) {
-                    _logs.SetParent(_allLogs, false);
+                    _logs.SetParent(_allLogs);
 
                     var logIndices = new List<int>(_logs.Length);
                     var logWeights = new List<uint>(_logs.Length);
@@ -172,7 +172,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("A static multiplier of the runtime for each concurrency level. Must be greater than zero.")]
-        [SavableCloneable, PropertyControl(2)]
+        [SavableCloneable, PropertyControl(2, 1, int.MaxValue)]
         public int Runs {
             get { return _runs; }
             set {
@@ -183,7 +183,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
-        [PropertyControl(3)]
+        [PropertyControl(3, 0, int.MaxValue)]
         public int MinimumDelay {
             get { return _minimumDelay; }
             set {
@@ -205,7 +205,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
-        [PropertyControl(4)]
+        [PropertyControl(4, 0, int.MaxValue)]
         public int MaximumDelay {
             get { return _maximumDelay; }
             set {
@@ -243,7 +243,7 @@ namespace vApus.DistributedTesting {
 
         [Description("This sets the maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum Number of User Actions")]
-        [SavableCloneable, PropertyControl(7)]
+        [SavableCloneable, PropertyControl(7, 0, int.MaxValue)]
         public int MaximumNumberOfUserActions {
             get { return _maximumNumberOfUserActions; }
             set {
@@ -254,7 +254,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor Before")]
-        [SavableCloneable, PropertyControl(8)]
+        [SavableCloneable, PropertyControl(8, 0, int.MaxValue)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -267,7 +267,7 @@ namespace vApus.DistributedTesting {
         }
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stresstests is used."), DisplayName("Monitor After")]
-        [SavableCloneable, PropertyControl(9)]
+        [SavableCloneable, PropertyControl(9, 0, int.MaxValue)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
@@ -315,7 +315,7 @@ namespace vApus.DistributedTesting {
             }
 
             _logs = logs.ToArray();
-            _logs.SetParent(_allLogs, false);
+            _logs.SetParent(_allLogs);
 
             if (_allLogs != null && _allLogs.Count > 1 && _logIndices.Length == 0) {
                 _logWeights = new uint[] { 1 };
@@ -326,7 +326,7 @@ namespace vApus.DistributedTesting {
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             try {
-                if (sender != null && Parent != null &&
+                if (sender != null && sender != this && Parent != null &&
                     (sender == Parent.GetParent().GetParent().GetParent() ||
                      sender == Parent || sender == (Parent as TileStresstest).DefaultAdvancedSettingsTo)) {
                     var parent = Parent as TileStresstest;
@@ -359,7 +359,7 @@ namespace vApus.DistributedTesting {
         internal void DefaultTo(Stresstest.Stresstest stresstest) {
             var logs = new KeyValuePair<Log, uint>[stresstest.Logs.Length];
             stresstest.Logs.CopyTo(logs, 0);
-            logs.SetParent(_allLogs, false);
+            logs.SetParent(_allLogs);
             Logs = logs;
 
             _concurrencies = new int[stresstest.Concurrencies.Length];
@@ -389,7 +389,7 @@ namespace vApus.DistributedTesting {
 
             clone._logs = new KeyValuePair<Log, uint>[defaultSettingsTo.Logs.Length];
             _logs.CopyTo(clone._logs, 0);
-            clone._logs.SetParent(_allLogs, false);
+            clone._logs.SetParent(_allLogs);
 
 
             clone._concurrencies = new int[_concurrencies.Length];

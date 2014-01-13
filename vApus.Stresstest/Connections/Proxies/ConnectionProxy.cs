@@ -20,6 +20,7 @@ namespace vApus.Stresstest {
         new[] { Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     [DisplayName("Connection Proxy"), Serializable]
     public class ConnectionProxy : LabeledBaseItem, ISerializable {
+
         #region Properties
 
         public ConnectionProxyRuleSet ConnectionProxyRuleSet {
@@ -47,14 +48,13 @@ namespace vApus.Stresstest {
         public ConnectionProxy(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
                 Label = sr.ReadString();
-                ClearWithoutInvokingEvent(false);
-                AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyRuleSet, false);
-                AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyCode, false);
+                ClearWithoutInvokingEvent();
+                AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyRuleSet);
+                AddWithoutInvokingEvent(sr.ReadObject() as ConnectionProxyCode);
             }
             sr = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
 
         #endregion
@@ -75,8 +75,6 @@ namespace vApus.Stresstest {
                 sw.AddToInfo(info);
             }
             sw = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
 
         /// <summary>

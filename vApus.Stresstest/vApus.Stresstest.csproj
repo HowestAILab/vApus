@@ -193,11 +193,16 @@
     </Reference>
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.14.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\packages\Microsoft.Tpl.Dataflow.4.5.14\lib\portable-net45+win8\System.Threading.Tasks.Dataflow.dll</HintPath>
+    </Reference>
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="ActorPool.cs" />
     <Compile Include="Connections\ConnectionsView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -205,9 +210,6 @@
       <DependentUpon>ConnectionsView.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\ParallelConnectionProxy.cs" />
-    <Compile Include="Connections\Proxies\CodeTextBox.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
     <Compile Include="Connections\Proxies\Panels\FindAndReplacePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -434,6 +436,10 @@
       <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
       <Name>vApus.Monitor</Name>
     </ProjectReference>
+    <ProjectReference Include="..\vApus.JSON\vApus.JSON.csproj">
+      <Project>{9e3d2623-0e60-4883-81a9-73ee8e974439}</Project>
+      <Name>vApus.JSON</Name>
+    </ProjectReference>
     <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
       <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
       <Name>vApus.Results</Name>
@@ -542,6 +548,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="RuleSets\app.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>

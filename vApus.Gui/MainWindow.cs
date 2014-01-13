@@ -38,7 +38,7 @@ namespace vApus.Gui {
         private UpdateNotifierPanel _updateNotifierPanel;
         private LogPanel _logPanel;
         private LocalizationPanel _localizationPanel;
-        private ProcessorAffinityPanel _processorAffinityPanel;
+        //private ProcessorAffinityPanel _processorAffinityPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
         private SavingResultsPanel _savingResultsPanel;
         private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
@@ -89,7 +89,7 @@ namespace vApus.Gui {
                 _logErrorToolTip.Click += lblLogLevel_Click;
 
                 _localizationPanel = new LocalizationPanel();
-                _processorAffinityPanel = new ProcessorAffinityPanel();
+                //_processorAffinityPanel = new ProcessorAffinityPanel();
                 _cleanTempDataPanel = new CleanTempDataPanel();
                 _disableFirewallAutoUpdatePanel = new WindowsFirewallAutoUpdatePanel();
 
@@ -204,7 +204,7 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
-                _optionsDialog.AddOptionsPanel(_processorAffinityPanel);
+                //_optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
                 _optionsDialog.AddOptionsPanel(_savingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
@@ -306,8 +306,7 @@ namespace vApus.Gui {
             if (Solution.ActiveSolution != null &&
                 (!Solution.ActiveSolution.IsSaved || Solution.ActiveSolution.FileName == null)) {
                 DialogResult result =
-                    MessageBox.Show(
-                        string.Format("Do you want to save '{0}' before exiting the application?",
+                    MessageBox.Show(string.Format("Do you want to save '{0}' before exiting the application?",
                         Solution.ActiveSolution.Name), string.Empty, _saveAndCloseOnUpdate ? MessageBoxButtons.YesNo : MessageBoxButtons.YesNoCancel,
                         MessageBoxIcon.Question, MessageBoxDefaultButton.Button1);
                 if (result == DialogResult.Yes || result == DialogResult.No) {
@@ -342,27 +341,36 @@ namespace vApus.Gui {
             Cursor = Cursors.Default;
         }
 
-        private void newFromTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
+        async private void newFromTemplateToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            Solution.CreateNewFromTemplate();
+            string text = this.Text;
+            this.Text = "Loading solution, please be patient... - vApus";
+            if (!(await Solution.CreateNewFromTemplateAsync()))
+                this.Text = text;
             Cursor = Cursors.Default;
         }
 
-        private void openToolStripMenuItem_Click(object sender, EventArgs e) {
+        async private void openToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            Solution.LoadNewActiveSolution();
+            string text = this.Text;
+            this.Text = "Loading solution, please be patient... - vApus";
+            if (!(await Solution.LoadNewActiveSolutionAsync()))
+                this.Text = text;
             Cursor = Cursors.Default;
         }
 
-        private void reOpenToolStripMenuItem_Click(object sender, EventArgs e) {
+        async private void reOpenToolStripMenuItem_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            Solution.ReloadSolution();
+            string text = this.Text;
+            this.Text = "Loading solution, please be patient... - vApus";
+            if (!(await Solution.ReloadSolutionAsync()))
+                this.Text = text;
             Cursor = Cursors.Default;
         }
 
         private void openRecentToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
+            List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems(this);
             var defaultItems = new ToolStripItem[2];
             for (int i = 0; i < 2; i++)
                 defaultItems[i] = openRecentToolStripMenuItem.DropDownItems[i];
@@ -386,7 +394,7 @@ namespace vApus.Gui {
                 MessageBox.Show("Are you sure you want to clear this?", string.Empty, MessageBoxButtons.YesNo,
                                 MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes) {
                 clearToolStripMenuItem.Enabled = false;
-                List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems();
+                List<ToolStripMenuItem> recentSolutions = Solution.GetRecentSolutionsMenuItems(this);
                 if (recentSolutions.Count > 0) {
                     Solution.ClearRecentSolutions();
                     while (openRecentToolStripMenuItem.DropDownItems.Count > 2)
@@ -527,7 +535,7 @@ namespace vApus.Gui {
 
             lblLogLevel.Text = LogWrapper.LogLevel.ToString();
             lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
-            SetProcessorAffinityLabel();
+            //SetProcessorAffinityLabel();
             lblSocketListener.Text = Dns.GetHostName() + ":" + SocketListenerLinker.SocketListenerPort;
             if (!SocketListenerLinker.SocketListenerIsRunning)
                 lblSocketListener.Text += " [Stopped]";
@@ -589,11 +597,11 @@ namespace vApus.Gui {
 
         private void lblSocketListener_Click(object sender, EventArgs e) { ShowOptionsDialog(3); }
 
-        private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
+        //private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
 
-        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
+        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
 
-        private void lblWarning_Click(object sender, EventArgs e) { if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(7); else ShowOptionsDialog(6); }
+        private void lblWarning_Click(object sender, EventArgs e) { if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(6); else ShowOptionsDialog(5); }
         #endregion
     }
 }

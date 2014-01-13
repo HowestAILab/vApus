@@ -9,6 +9,7 @@ using System;
 using System.CodeDom.Compiler;
 using System.ComponentModel;
 using System.Reflection;
+using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
@@ -17,7 +18,7 @@ namespace vApus.Stresstest {
     /// You can use your own piece of code as a parameter, an example is included as the default value.
     /// </summary>
     [DisplayName("Custom Random Parameter"), Serializable]
-    public class CustomRandomParameter : BaseParameter {
+    public class CustomRandomParameter : BaseParameter, ISerializable {
 
         #region Fields
         private ICustomRandomParameter _customRandomParameter;
@@ -64,7 +65,28 @@ return start.AddTicks(randomTicks);
         public bool Unique { get; set; }
         #endregion
 
+        #region Constructors
+        public CustomRandomParameter() { Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged; }
+        public CustomRandomParameter(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                Label = sr.ReadString();
+                _code = sr.ReadString();
+                Unique = sr.ReadBoolean();
+                _tokenNumericIdentifier = sr.ReadInt32();
+            }
+            sr = null;
+        }
+        #endregion
+
         #region Functions
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            if (Parent != null && Parent is CustomListParameter)
+                ShowInGui = false;
+        }
+
         public override void Next() {
             lock (_lock)
             //For thread safety, only here, because only for this type of parameter this function can be used while testing.
@@ -113,7 +135,19 @@ return start.AddTicks(randomTicks);
             _chosenValues.Clear();
         }
 
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(Label);
+                sw.Write(_code);
+                sw.Write(Unique);
+                sw.Write(_tokenNumericIdentifier);
+                sw.AddToInfo(info);
+            }
+            sw = null;
+        }
         #endregion
     }
 

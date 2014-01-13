@@ -16,6 +16,7 @@ namespace vApus.Results {
     /// </summary>
     [Serializable]
     public class StresstestMetrics : ISerializable {
+
         #region Fields
         private long _logEntriesProcessed;
         #endregion
@@ -74,47 +75,53 @@ namespace vApus.Results {
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
         public StresstestMetrics(SerializationInfo info, StreamingContext ctxt) {
-            SerializationReader sr = SerializationReader.GetReader(info);
-            StartMeasuringTime = sr.ReadDateTime();
-            EstimatedTimeLeft = sr.ReadTimeSpan();
-            MeasuredTime = sr.ReadTimeSpan();
-            Concurrency = sr.ReadInt32();
-            Run = sr.ReadInt32();
-            RerunCount = sr.ReadInt32();
-            StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>();
-            StartsAndStopsRuns = sr.ReadCollection<KeyValuePair<DateTime, DateTime>>(StartsAndStopsRuns) as List<KeyValuePair<DateTime, DateTime>>;
-            LogEntries = sr.ReadInt64();
-            _logEntriesProcessed = sr.ReadInt64();
-            ResponsesPerSecond = sr.ReadDouble();
-            UserActionsPerSecond = sr.ReadDouble();
-            AverageResponseTime = sr.ReadTimeSpan();
-            MaxResponseTime = sr.ReadTimeSpan();
-            Percentile95thResponseTimes = sr.ReadTimeSpan();
-            AverageDelay = sr.ReadTimeSpan();
-            Errors = sr.ReadInt64();
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                StartMeasuringTime = sr.ReadDateTime();
+                EstimatedTimeLeft = sr.ReadTimeSpan();
+                MeasuredTime = sr.ReadTimeSpan();
+                Concurrency = sr.ReadInt32();
+                Run = sr.ReadInt32();
+                RerunCount = sr.ReadInt32();
+                StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>();
+                StartsAndStopsRuns = sr.ReadCollection<KeyValuePair<DateTime, DateTime>>(StartsAndStopsRuns) as List<KeyValuePair<DateTime, DateTime>>;
+                LogEntries = sr.ReadInt64();
+                _logEntriesProcessed = sr.ReadInt64();
+                ResponsesPerSecond = sr.ReadDouble();
+                UserActionsPerSecond = sr.ReadDouble();
+                AverageResponseTime = sr.ReadTimeSpan();
+                MaxResponseTime = sr.ReadTimeSpan();
+                Percentile95thResponseTimes = sr.ReadTimeSpan();
+                AverageDelay = sr.ReadTimeSpan();
+                Errors = sr.ReadInt64();
+            }
+            sr = null;
         }
         #endregion
 
         #region Functions
         public void GetObjectData(SerializationInfo info, StreamingContext context) {
-            SerializationWriter sw = SerializationWriter.GetWriter();
-            sw.Write(StartMeasuringTime);
-            sw.Write(EstimatedTimeLeft);
-            sw.Write(MeasuredTime);
-            sw.Write(Concurrency);
-            sw.Write(Run);
-            sw.Write(RerunCount);
-            sw.Write(StartsAndStopsRuns);
-            sw.Write(LogEntries);
-            sw.Write(_logEntriesProcessed);
-            sw.Write(ResponsesPerSecond);
-            sw.Write(UserActionsPerSecond);
-            sw.Write(AverageResponseTime);
-            sw.Write(MaxResponseTime);
-            sw.Write(Percentile95thResponseTimes);
-            sw.Write(AverageDelay);
-            sw.Write(Errors);
-            sw.AddToInfo(info);
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(StartMeasuringTime);
+                sw.Write(EstimatedTimeLeft);
+                sw.Write(MeasuredTime);
+                sw.Write(Concurrency);
+                sw.Write(Run);
+                sw.Write(RerunCount);
+                sw.Write(StartsAndStopsRuns);
+                sw.Write(LogEntries);
+                sw.Write(_logEntriesProcessed);
+                sw.Write(ResponsesPerSecond);
+                sw.Write(UserActionsPerSecond);
+                sw.Write(AverageResponseTime);
+                sw.Write(MaxResponseTime);
+                sw.Write(Percentile95thResponseTimes);
+                sw.Write(AverageDelay);
+                sw.Write(Errors);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
         #endregion
     }

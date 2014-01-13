@@ -27,7 +27,7 @@ namespace vApus.Stresstest {
         private ConnectionProxy _connectionProxy;
         private string _connectionString = string.Empty;
 
-        private Parameters _parameters;
+        private static Parameters _parameters;
         #endregion
 
         #region Properties
@@ -35,20 +35,15 @@ namespace vApus.Stresstest {
         [Description("To be able to connect to the application-to-test."), DisplayName("Connection Proxy")]
         public ConnectionProxy ConnectionProxy {
             get {
-                if (_connectionProxy.IsEmpty)
-                    ConnectionProxy =
-                        GetNextOrEmptyChild(typeof(ConnectionProxy),
-                                            Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as
-                        ConnectionProxy;
+                if (Solution.ActiveSolution != null && (_connectionProxy.IsEmpty || _connectionProxy.Parent == null))
+                    _connectionProxy = GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
 
                 return _connectionProxy;
             }
             set {
                 if (value == null)
                     return;
-                value.ParentIsNull -= _connectionProxy_ParentIsNull;
                 _connectionProxy = value;
-                _connectionProxy.ParentIsNull += _connectionProxy_ParentIsNull;
             }
         }
 
@@ -61,14 +56,34 @@ namespace vApus.Stresstest {
                 value = value.Trim();
                 var lexicalResult = LexicalResult.OK;
                 ASTNode output = null;
-                if (value.Length != 0 && _connectionProxy != null && !_connectionProxy.IsEmpty && !_connectionProxy.ConnectionProxyRuleSet.IsEmpty)
-                    lexicalResult = _connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters, out output);
+
+                if (Solution.ActiveSolution != null)
+                    try {
+                        var connectionProxy = ConnectionProxy;
+                        if (value.Length != 0 && connectionProxy != null && !connectionProxy.IsEmpty && !connectionProxy.ConnectionProxyRuleSet.IsEmpty) {
+                            lexicalResult = connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters, out output);
+
+                            if (output != null) {
+                                output.Dispose();
+                                output = null;
+                            }
+                        }
+                    } catch {
+                        //While loading.
+                    }
 
                 if (lexicalResult == LexicalResult.OK)
                     _connectionString = value;
                 else
                     throw new Exception(output.Error);
             }
+        }
+
+        /// <summary>
+        /// For a distributed test.
+        /// </summary>
+        internal static Parameters Parameters {
+            set { _parameters = value; }
         }
         #endregion
 
@@ -95,14 +110,12 @@ namespace vApus.Stresstest {
         public Connection(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
                 Label = sr.ReadString();
                 _connectionProxy = sr.ReadObject() as ConnectionProxy;
                 _connectionString = sr.ReadString();
-                _parameters = sr.ReadObject() as Parameters;
             }
             sr = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
         }
         #endregion
 
@@ -123,19 +136,11 @@ namespace vApus.Stresstest {
             SerializationWriter sw;
             using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(Label);
-                sw.WriteObject(_connectionProxy);
-                sw.Write(_connectionString);
-                sw.WriteObject(_parameters);
+                sw.WriteObject(ConnectionProxy);
+                sw.Write(ConnectionString);
                 sw.AddToInfo(info);
             }
             sw = null;
-            //Not pretty, but helps against mem saturation.
-            GC.Collect();
-        }
-
-        private void _connectionProxy_ParentIsNull(object sender, EventArgs e) {
-            if (_connectionProxy == sender)
-                ConnectionProxy = GetNextOrEmptyChild(typeof(ConnectionProxy), Solution.ActiveSolution.GetSolutionComponent(typeof(ConnectionProxies))) as ConnectionProxy;
         }
 
         /// <summary>
@@ -144,16 +149,20 @@ namespace vApus.Stresstest {
         ///     Each simulated user in StresstestCore has an instance of this class (in ConnectionProxyPool) to be able to connect to a server app and communicate with it.
         /// </summary>
         /// <returns></returns>
-        public string BuildConnectionProxyClass() { return _connectionProxy.BuildConnectionProxyClass(_connectionString); }
+        public string BuildConnectionProxyClass() { return ConnectionProxy.BuildConnectionProxyClass(ConnectionString); }
 
         public Connection Clone() {
             var clone = new Connection();
-            clone._connectionProxy = _connectionProxy;
-            clone._connectionString = _connectionString;
-            clone._parameters = _parameters;
+            clone._connectionProxy = ConnectionProxy;
+            clone._connectionString = ConnectionString;
             return clone;
         }
-        public override void Activate() { SolutionComponentViewManager.Show(this); }
+        public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
+
+        public new void Dispose() {
+            _parameters = null;
+            base.Dispose();
+        }
         #endregion
     }
 }

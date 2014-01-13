@@ -124,8 +124,7 @@ namespace vApus.Util {
         }
 
         private void ucc_Failed(object sender, EventArgs e) {
-            MessageBox.Show("The new value is not of the right data type.", string.Empty, MessageBoxButtons.OK,
-                            MessageBoxIcon.Error);
+            MessageBox.Show("The new value is not of the right data type.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             var cc = sender as UndefinedCollectionControl;
             var ienumerable = base.__Value.__Value as IEnumerable;
 

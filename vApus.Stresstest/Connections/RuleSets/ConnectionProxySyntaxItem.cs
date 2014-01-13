@@ -8,19 +8,30 @@
 
 using System;
 using System.ComponentModel;
+using System.Runtime.Serialization;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.Stresstest {
-    [ContextMenu( new[] { "Activate_Click", "AddRule_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
+    [ContextMenu(new[] { "Activate_Click", "AddRule_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
                   new[] { "Edit", "Add Rule", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
-    [Hotkeys( new[] { "Activate_Click", "AddRule_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
+    [Hotkeys(new[] { "Activate_Click", "AddRule_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
               new[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
     [DisplayName("Syntax Item"), Serializable]
-    public class ConnectionProxySyntaxItem : SyntaxItem {
+    public class ConnectionProxySyntaxItem : SyntaxItem, ISerializable {
         public ConnectionProxySyntaxItem() {
             base._optional = true;
         }
+        public ConnectionProxySyntaxItem(SerializationInfo info, StreamingContext ctxt) {
+            SerializationReader sr;
+            using (sr = SerializationReader.GetReader(info)) {
+                ShowInGui = false;
+                _defaultValue = sr.ReadString();
+            }
+            sr = null;
+        }
+
         public new string ChildDelimiter {
             get { return string.Empty; }
             set { }
@@ -43,7 +54,16 @@ namespace vApus.Stresstest {
             if (Count == 0)
                 base.AddRule_Click(sender, e);
             else
-                MessageBox.Show("Only one rule can be added.", string.Empty, MessageBoxButtons.OK,  MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+                MessageBox.Show("Only one rule can be added.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button1);
+        }
+
+        public void GetObjectData(SerializationInfo info, StreamingContext context) {
+            SerializationWriter sw;
+            using (sw = SerializationWriter.GetWriter()) {
+                sw.Write(_defaultValue);
+                sw.AddToInfo(info);
+            }
+            sw = null;
         }
     }
 }

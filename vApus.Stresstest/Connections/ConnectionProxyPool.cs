@@ -10,6 +10,7 @@ using System.CodeDom.Compiler;
 using System.IO;
 using System.Reflection;
 using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -21,9 +22,6 @@ namespace vApus.Stresstest {
     public class ConnectionProxyPool : IDisposable {
 
         #region Fields
-        [ThreadStatic]
-        private static DisposeConnectionProxyWorkItem _disposeConnectionProxyWorkItem;
-
         private CompilerUnit _compilerUnit = new CompilerUnit();
         private Assembly _connectionProxyAssembly;
 
@@ -237,106 +235,29 @@ namespace vApus.Stresstest {
         ///     Multi threaded solution
         /// </summary>
         private void DisposeConnectionProxies() {
-            try {
-                //Dispose multi threaded.
-                if (_connectionProxies != null) {
-                    var disposeWaitHandle = new AutoResetEvent(false);
-                    int count = _connectionProxies.Length;
-                    int i = 0;
-                    foreach (IConnectionProxy cp in _connectionProxies) {
-                        var args = new object[] { cp, i, false };
+            //Dispose multi threaded.
+            if (_connectionProxies != null)
+                Parallel.ForEach(_connectionProxies, (cp) => {
+                    try {
+                        if (cp != null && !cp.IsDisposed)
+                            cp.Dispose();
+                    } catch { }
+                });
 
-                        var t = new Thread(delegate(object state) {
+            //Dispose multi threaded.
+            if (_parallelConnectionProxies != null)
+                Parallel.ForEach(_parallelConnectionProxies, (pcps) => {
+                    if (pcps != null)
+                        foreach (var pcp in pcps)
                             try {
-                                _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
-                                _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
-                            } catch {
-                            }
+                                if (pcp.ConnectionProxy != null && !pcp.ConnectionProxy.IsDisposed)
+                                    pcp.ConnectionProxy.Dispose();
+                            } catch { }
+                });
 
-                            if (Interlocked.Increment(ref i) == count)
-                                disposeWaitHandle.Set();
-                        });
-                        t.IsBackground = true;
-                        t.Start(args);
-                    }
-                    if (count != 0)
-                        disposeWaitHandle.WaitOne();
-                    disposeWaitHandle.Dispose();
-                    disposeWaitHandle = null;
-                }
-                //Dispose multi threaded.
-                if (_parallelConnectionProxies != null) {
-                    var disposeWaitHandle = new AutoResetEvent(false);
-                    int count = 0;
-                    foreach (var pcp in _parallelConnectionProxies)
-                        if (pcp != null)
-                            count += pcp.Length;
-
-                    int i = 0;
-                    foreach (var pcp in _parallelConnectionProxies)
-                        if (pcp != null)
-                            foreach (ParallelConnectionProxy pConnectionProxy in pcp) {
-                                var args = new object[] { pConnectionProxy, i, true };
-                                var t = new Thread(delegate(object state) {
-                                    try {
-                                        _disposeConnectionProxyWorkItem = new DisposeConnectionProxyWorkItem();
-                                        _disposeConnectionProxyWorkItem.DisposeConnectionProxy(state as object[]);
-                                    } catch {
-                                    }
-
-                                    if (Interlocked.Increment(ref i) == count)
-                                        disposeWaitHandle.Set();
-                                });
-                                t.IsBackground = true;
-                                t.Start(args);
-                            }
-                    if (count != 0)
-                        disposeWaitHandle.WaitOne();
-                    disposeWaitHandle.Dispose();
-                    disposeWaitHandle = null;
-                }
-            } catch {
-            }
-
-            try { _connectionProxies = null; } catch {
-            }
-            try { _parallelConnectionProxies = null; } catch {
-            }
+            _connectionProxies = null;
+            _parallelConnectionProxies = null;
         }
         #endregion
-
-        /// <summary>
-        /// For Handling disposing connection proxy work items in parallel and faster. (This can be an issue with not responding server apps). 
-        /// </summary>
-        private class DisposeConnectionProxyWorkItem {
-            private static readonly object _lock = new object();
-            public void DisposeConnectionProxy(object[] args) {
-                IConnectionProxy connectionProxy = null;
-                if (args[0] is IConnectionProxy)
-                    connectionProxy = args[0] as IConnectionProxy;
-                else if (args[0] is ParallelConnectionProxy)
-                    connectionProxy = ((ParallelConnectionProxy)args[0]).ConnectionProxy;
-
-                var index = (int)args[1];
-                var parallel = (bool)args[2];
-
-                if (connectionProxy != null)
-                    try {
-                        try {
-                            if (connectionProxy.IsConnectionOpen) connectionProxy.CloseConnection();
-                        } catch {
-                            throw;
-                        } finally {
-                            if (!connectionProxy.IsDisposed) connectionProxy.Dispose();
-                        }
-                    } catch (Exception ex) {
-                        lock (_lock)
-                            if (parallel)
-                                LogWrapper.LogByLevel("Parallel connection #" + index + " could not be closed and/or disposed.\n" + ex, LogLevel.Error);
-                            else
-                                LogWrapper.LogByLevel("Connection #" + index + " could not be closed and/or disposed.\n" + ex, LogLevel.Error);
-                    }
-            }
-        }
     }
 }

@@ -216,7 +216,7 @@ namespace vApus.Stresstest {
                         connection.ConnectionProxy = cps[cpIndex] as ConnectionProxy;
                         connection.ConnectionString = s;
 
-                        _connections.AddWithoutInvokingEvent(connection, false);
+                        _connections.AddWithoutInvokingEvent(connection);
 
                     } catch {
                     }
@@ -228,7 +228,7 @@ namespace vApus.Stresstest {
             if (btnUndo.Tag != null) {
                 var connectionsUndo = btnUndo.Tag as List<Connection>;
                 _connections.Clear();
-                _connections.AddRangeWithoutInvokingEvent(connectionsUndo, false);
+                _connections.AddRangeWithoutInvokingEvent(connectionsUndo);
 
                 _connections.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 btnUndo.Tag = null;

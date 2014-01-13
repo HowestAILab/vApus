@@ -7,6 +7,7 @@
  */
 using System;
 using System.IO;
+using System.IO.Compression;
 using System.Net;
 using System.Net.Sockets;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -303,23 +304,45 @@ namespace vApus.Util {
         #region Binary
 
         /// <summary>
-        ///     Convert an object to a byte[].
+        ///     Convert an object to a byte[] using deflate or gzip compression. Use gzip only for text, deflate for everything else.
         /// </summary>
         /// <param name="obj"></param>
+        /// <param name="deflate">false for gzip compression.</param>
         /// <returns></returns>
-        public byte[] ObjectToByteArray(object obj) {
+        public byte[] ObjectToByteArray(object obj, bool deflate = true) {
+            return deflate ? ObjectToByteArrayDeflate(obj) : ObjectToByteArrayGZip(obj);
+        }
+        public byte[] ObjectToByteArrayDeflate(object obj) {
             byte[] buffer = null;
+
             //Set the initial buffer size to 1 byte (default == 256 bytes), this way we do not have '\0' bytes in buffer.
             using (var ms = new MemoryStream(1)) {
                 var bf = new BinaryFormatter();
-                bf.Serialize(ms, obj);
-                bf = null;
+                using (var dfStream = new DeflateStream(ms, CompressionLevel.Optimal))
+                    bf.Serialize(dfStream, obj);
 
                 //.ToArray() was also possible (no '\0' bytes) but this makes a copy of the buffer and results in having twice the buffer in memory.
                 buffer = ms.GetBuffer();
+                bf = null;
             }
             return buffer;
         }
+        public byte[] ObjectToByteArrayGZip(object obj) {
+            byte[] buffer = null;
+
+            //Set the initial buffer size to 1 byte (default == 256 bytes), this way we do not have '\0' bytes in buffer.
+            using (var ms = new MemoryStream(1)) {
+                var bf = new BinaryFormatter();
+                using (var dfStream = new GZipStream(ms, CompressionLevel.Optimal))
+                    bf.Serialize(dfStream, obj);
+
+                //.ToArray() was also possible (no '\0' bytes) but this makes a copy of the buffer and results in having twice the buffer in memory.
+                buffer = ms.GetBuffer();
+                bf = null;
+            }
+            return buffer;
+        }
+
 
         /// <summary>
         ///     Sends an object binary.
@@ -374,7 +397,7 @@ namespace vApus.Util {
         /// <param name="data"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        private byte[] Encode(string data, Encoding encoding) {
+        public byte[] Encode(string data, Encoding encoding) {
             switch (encoding) {
                 case Encoding.ASCII:
                     return System.Text.Encoding.ASCII.GetBytes(data);
@@ -395,7 +418,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Sends an encoded string.
+        ///     Sends an encoded string. TODO: use GZIP compression.
         /// </summary>
         /// <param name="data"></param>
         /// <param name="encoding"></param>
@@ -444,7 +467,7 @@ namespace vApus.Util {
         ///     Receives bytes.
         /// </summary>
         /// <returns></returns>
-        public byte[] ReceiveBytes() {
+        private byte[] ReceiveBytes() {
             _buffer = new byte[_socket.ReceiveBufferSize];
             // Read data from the remote device.
             _socket.ReceiveFrom(_buffer, _receiveSocketFlags, ref _remoteEP);
@@ -458,18 +481,37 @@ namespace vApus.Util {
         #region Binary
 
         /// <summary>
-        ///     Converts a byte[] to an object.
+        ///     Converts a byte[] to an object using deflate of gzip compression. Use gzip only for text, deflate for everything else.
         /// </summary>
         /// <param name="buffer"></param>
+        /// <param name="deflate">false for gzip compression.</param>
         /// <returns></returns>
-        public object ByteArrayToObject(byte[] buffer) {
-            object o = null;
+        public object ByteArrayToObject(byte[] buffer, bool deflate = true) {
+            return deflate ? ByteArrayToObjectDeflate(buffer) : ByteArrayToObjectGzip(buffer);
+        }
+        private object ByteArrayToObjectDeflate(byte[] buffer) {
+            object obj = null;
+
             using (var ms = new MemoryStream(buffer)) {
                 var bf = new BinaryFormatter();
-                o = bf.Deserialize(ms);
+                using (var dfStream = new DeflateStream(ms, CompressionMode.Decompress))
+                    obj = bf.Deserialize(dfStream);
+
                 bf = null;
             }
-            return o;
+            return obj;
+        }
+        private object ByteArrayToObjectGzip(byte[] buffer) {
+            object obj = null;
+
+            using (var ms = new MemoryStream(buffer)) {
+                var bf = new BinaryFormatter();
+                using (var dfStream = new GZipStream(ms, CompressionMode.Decompress))
+                    obj = bf.Deserialize(dfStream);
+
+                bf = null;
+            }
+            return obj;
         }
 
         /// <summary>
@@ -513,27 +555,27 @@ namespace vApus.Util {
         #region Text receive
 
         /// <summary>
-        ///     Decodes a byte[] to a string using the given encoding.
+        ///     Decodes a byte[] to a string using the given encoding.  TODO: use GZIP compression.
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="encoding"></param>
         /// <returns></returns>
-        private string Decode(byte[] buffer, Encoding encoding) {
+        public string Decode(byte[] buffer, Encoding encoding) {
             switch (encoding) {
                 case Encoding.ASCII:
-                    return System.Text.Encoding.ASCII.GetString(buffer);
+                    return System.Text.Encoding.ASCII.GetString(buffer).Trim('\0');
                 case Encoding.BigEndianUnicode:
-                    return System.Text.Encoding.BigEndianUnicode.GetString(buffer);
+                    return System.Text.Encoding.BigEndianUnicode.GetString(buffer).Trim('\0');
                 case Encoding.Default:
-                    return System.Text.Encoding.Default.GetString(buffer);
+                    return System.Text.Encoding.Default.GetString(buffer).Trim('\0');
                 case Encoding.Unicode:
-                    return System.Text.Encoding.Unicode.GetString(buffer);
+                    return System.Text.Encoding.Unicode.GetString(buffer).Trim('\0');
                 case Encoding.UTF32:
-                    return System.Text.Encoding.UTF32.GetString(buffer);
+                    return System.Text.Encoding.UTF32.GetString(buffer).Trim('\0');
                 case Encoding.UTF7:
-                    return System.Text.Encoding.UTF7.GetString(buffer);
+                    return System.Text.Encoding.UTF7.GetString(buffer).Trim('\0');
                 case Encoding.UTF8:
-                    return System.Text.Encoding.UTF8.GetString(buffer);
+                    return System.Text.Encoding.UTF8.GetString(buffer).Trim('\0');
             }
             return null;
         }
