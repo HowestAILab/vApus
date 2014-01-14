@@ -217,6 +217,10 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\vApus.JSON\vApus.JSON.csproj">
+      <Project>{9e3d2623-0e60-4883-81a9-73ee8e974439}</Project>
+      <Name>vApus.JSON</Name>
+    </ProjectReference>
     <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
       <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
       <Name>vApus.Results</Name>

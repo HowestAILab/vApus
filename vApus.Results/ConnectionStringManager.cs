@@ -40,6 +40,7 @@ namespace vApus.Results {
                 Settings.Default.Save();
             }
         }
+        public static string CurrentDatabaseName { get; private set; }
         #endregion
 
         #region Functions
@@ -102,10 +103,13 @@ namespace vApus.Results {
         /// <param name="databaseName">Connect to a specific database.</param>
         /// <returns>A connection string to be set in the ConnectionString property of DatabaseActions. DatabaseActions handles the communication to the db. If Enabled is set to false null will be returned.</returns>
         public static string GetCurrentConnectionString(string databaseName) {
+            if (string.IsNullOrEmpty(databaseName)) return GetCurrentConnectionString();
+
             string user, host, password;
             int port;
             GetCurrentConnectionString(out user, out host, out port, out password);
 
+            CurrentDatabaseName = databaseName;
             return user == null ? null : string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};Pooling=True;UseCompression=True;table cache = true", host, port, databaseName, user, password);
         }
 

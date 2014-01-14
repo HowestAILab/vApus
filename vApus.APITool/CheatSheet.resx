@@ -145,14 +145,14 @@ Wait 10
 # -----
 
 # Get data back as plain text JSON
-/applicationlog
+/applicationlog[/info][/warning][/error][/fatal]
 
 /resultsdb
 
 /runningtest/config
 /runningtest/fastresults
 /runningtest/clientmonitor
-/runningtest/messages
+/runningtest/messages[/info][/warning][/error]
 
 # For a single test
 /runningtest/fastmonitorresults/{index}

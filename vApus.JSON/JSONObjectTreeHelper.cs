@@ -24,7 +24,7 @@ namespace vApus.JSON {
         public static JSONObjectTree RunningMonitorMetrics { get; set; }
         public static JSONObjectTree RunningClientMonitorMetrics { get; set; }
         public static JSONObjectTree RunningTestMessages { get; set; }
-
+        public static JSONObjectTree RunningMonitorHardwareConfig { get; set; }
 
         public static void ApplyToRunningDistributedTestConfig(JSONObjectTree testConfigCache, string runSynchronization, string tileStresstest, string connection, string connectionProxy,
                                          string[] monitors, string[] slaves, string[] logs, string logRuleSet, int[] concurrency, int run, int minimumDelay,
@@ -101,23 +101,75 @@ namespace vApus.JSON {
         }
 
         public static void ApplyToRunningMonitorConfig(JSONObjectTree monitorConfigCache, string monitor, string monitorSource, object[] parameters) {
+            int index = -1;
+            for (int i = 0; i != monitorConfigCache.Count; i++) {
+                var kvp = monitorConfigCache.Cache[i];
+                var subTree = kvp.Value as JSONObjectTree;
+                if (subTree.Cache[0].Key as string == monitor) {
+                    index = i;
+                    break;
+                }
+            } 
             var monitorConfig = new MonitorConfig {
                 MonitorSource = monitorSource,
                 Parameters = parameters
             };
-            monitorConfigCache.Add(monitor, monitorConfig);
+            if (index == -1) {
+                index = monitorConfigCache.Count;
 
-            RunningMonitorConfig = monitorConfigCache;
+                var subTree = AddSubCache(index + 1, monitorConfigCache);
+                subTree.Add(monitor, monitorConfig);
+            } else {
+                var kvp = monitorConfigCache.Cache[index];
+                var subTree = kvp.Value as JSONObjectTree;
+                subTree.Cache[0] = new KeyValuePair<object, object>(monitor, monitorConfig);
+            }
         }
+        public static void ApplyToRunningMonitorHardwareConfig(JSONObjectTree runningMonitorHardwareConfig, string monitor, string config) {
+            int index = -1;
+            for (int i = 0; i != runningMonitorHardwareConfig.Count; i++) {
+                var kvp = runningMonitorHardwareConfig.Cache[i];
+                var subTree = kvp.Value as JSONObjectTree;
+                if (subTree.Cache[0].Key as string == monitor) {
+                    index = i;
+                    break;
+                }
+            }
+            if (index == -1) {
+                index = runningMonitorHardwareConfig.Count;
 
+                var subTree = AddSubCache(index + 1, runningMonitorHardwareConfig);
+                subTree.Add(monitor, config);
+            } else {
+                var kvp = runningMonitorHardwareConfig.Cache[index];
+                var subTree = kvp.Value as JSONObjectTree;
+                subTree.Cache[0] = new KeyValuePair<object, object>(monitor, config);
+            }
+        }
         public static void ApplyToRunningMonitorMetrics(JSONObjectTree monitorProgressCache, string monitor, string[] headers, Dictionary<DateTime, float[]> values) {
+            int index = -1;
+            for (int i = 0; i != monitorProgressCache.Count; i++) {
+                var kvp = monitorProgressCache.Cache[i];
+                var subTree = kvp.Value as JSONObjectTree;
+                if (subTree.Cache[0].Key as string == monitor) {
+                    index = i;
+                    break;
+                }
+            }
             var monitorProgress = new MonitorMetrics {
                 Headers = headers,
                 Values = values
             };
-            monitorProgressCache.Add(monitor, monitorProgress);
+            if (index == -1) {
+                index = monitorProgressCache.Count;
 
-            RunningMonitorMetrics = monitorProgressCache;
+                var subTree = AddSubCache(index + 1, monitorProgressCache);
+                subTree.Add(monitor, monitorProgress);
+            } else {
+                var kvp = monitorProgressCache.Cache[index];
+                var subTree = kvp.Value as JSONObjectTree;
+                subTree.Cache[0] = new KeyValuePair<object, object>(monitor, monitorProgress);
+            }
         }
 
         /// <summary>
@@ -150,7 +202,7 @@ namespace vApus.JSON {
             var m = new ClientMessages() { Messages = messages };
             messagesCache.Add(stresstest.ToString(), m);
         }
-        
+
         public static JSONObjectTree AddSubCache(object key, JSONObjectTree parent) {
             var child = new JSONObjectTree();
             parent.Add(key, child);
