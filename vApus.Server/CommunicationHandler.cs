@@ -51,22 +51,25 @@ namespace vApus.Server {
             _delegates.Add("/applicationlog/fatal", ApplicationLog);
             _delegates.Add("/resultsdb", ResultsDB);
 
+            // For a single test and distributed test (as a whole)
             _delegates.Add("/runningtest/config", RunningTestConfig);
             _delegates.Add("/runningtest/fastresults", RunningTestProgress);
-            _delegates.Add("/runningtest/clientmonitor", RunningTestClientMonitor); // nog voor distributed test
-            _delegates.Add("/runningtest/messages/info", RunningTestMessages); // nog voor distributed test
-            _delegates.Add("/runningtest/messages/warning", RunningTestMessages); // nog voor distributed test
-            _delegates.Add("/runningtest/messages/error", RunningTestMessages); // nog voor distributed test
-
-            // For a single test
+            _delegates.Add("/runningtest/clientmonitor", RunningTestClientMonitor);
+            _delegates.Add("/runningtest/messages/info", RunningTestMessages);
+            _delegates.Add("/runningtest/messages/warning", RunningTestMessages);
+            _delegates.Add("/runningtest/messages/error", RunningTestMessages);
             _delegates.Add("/runningtest/fastmonitorresults/#", RunningTestFastMonitorResults);
 
-            // For a tile stresstest
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastmonitorresults/#", TestConnection);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/config", TestConnection);
+
+            // For a tile stresstest            
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/config", TileStresstestConfig);
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastresults", TestConnection);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", TestConnection);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages", TestConnection);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", RunningTestClientMonitor);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/info", RunningTestMessages);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/warning", RunningTestMessages);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/error", RunningTestMessages);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastmonitorresults/#", TestConnection);
+
 
             _delegates.Add("/runningmonitor/#/config", RunningMonitorConfig);
             _delegates.Add("/runningmonitor/#/hardwareconfig", RunningMonitorHardwareConfig);
@@ -308,7 +311,7 @@ namespace vApus.Server {
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestFastConcurrencyResults));
         }
         private static Message<Key> RunningTestClientMonitor(string message) {
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningClientMonitorMetrics));
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestClientMonitorMetrics));
         }
         private static Message<Key> RunningTestMessages(string message) {
             var runningTestMessages = JSONObjectTreeHelper.RunningTestMessages;
@@ -336,56 +339,38 @@ namespace vApus.Server {
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestMessages));
         }
 
+        private static Message<Key> TileStresstestConfig(string message) {
+            throw new NotImplementedException();
+        }
+
         private static Message<Key> RunningMonitorConfig(string message) {
             string[] split = message.Split('/');
             int index = int.Parse(split[split.Length - 2]);
 
-            JSONObjectTree part = null;
-            var runningMonitorConfig = JSONObjectTreeHelper.RunningMonitorConfig;
-
-            for (int i = 0; i != runningMonitorConfig.Count; i++) {
-                var kvp = runningMonitorConfig.Cache[i];
-                if ((int)kvp.Key == index) {
-                    part = kvp.Value as JSONObjectTree;
-                    break;
-                }
-            }
-
+            JSONObjectTree part = GetPart(JSONObjectTreeHelper.RunningMonitorConfig, index);
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
         }
         private static Message<Key> RunningMonitorHardwareConfig(string message) {
             string[] split = message.Split('/');
             int index = int.Parse(split[split.Length - 2]);
 
-            JSONObjectTree part = null;
-            var runningMonitorHardwareConfig = JSONObjectTreeHelper.RunningMonitorHardwareConfig;
-
-            for (int i = 0; i != runningMonitorHardwareConfig.Count; i++) {
-                var kvp = runningMonitorHardwareConfig.Cache[i];
-                if ((int)kvp.Key == index) {
-                    part = kvp.Value as JSONObjectTree;
-                    break;
-                }
-            }
-
+            JSONObjectTree part = GetPart(JSONObjectTreeHelper.RunningMonitorHardwareConfig, index);
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
         }
         private static Message<Key> RunningMonitorMetrics(string message) {
             string[] split = message.Split('/');
             int index = int.Parse(split[split.Length - 2]);
 
-            JSONObjectTree part = null;
-            var runningMonitorMetrics = JSONObjectTreeHelper.RunningMonitorMetrics;
-
-            for (int i = 0; i != runningMonitorMetrics.Count; i++) {
-                var kvp = runningMonitorMetrics.Cache[i];
-                if ((int)kvp.Key == index) {
-                    part = kvp.Value as JSONObjectTree;
-                    break;
-                }
-            }
-
+            JSONObjectTree part = GetPart(JSONObjectTreeHelper.RunningMonitorMetrics, index);
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        }
+        private static JSONObjectTree GetPart(JSONObjectTree tree, int index) {
+            for (int i = 0; i != tree.Count; i++) {
+                var kvp = tree.Cache[i];
+                if ((int)kvp.Key == index)
+                    return kvp.Value as JSONObjectTree;
+            }
+            return null;
         }
 
         private static string SerializeSucces(string message) { return SerializeStatusMessage("succes", message); }

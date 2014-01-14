@@ -56,7 +56,7 @@ namespace vApus.Monitor {
             get { return _configuration; }
             private set {
                 _configuration = value;
-                JSONObjectTree monitorHwConfig = new JSONObjectTree();
+                JSONObjectTree monitorHwConfig = (JSONObjectTreeHelper.RunningMonitorHardwareConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorHardwareConfig;
                 JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
                 JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
             }
@@ -92,9 +92,6 @@ namespace vApus.Monitor {
             InitializeComponent();
 
             _monitor = solutionComponent as Monitor;
-            JSONObjectTree monitorConfig = new JSONObjectTree();
-            JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
-            JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
 
             _invokeChangedTmr.Elapsed += _invokeChangedTmr_Elapsed;
 
@@ -132,6 +129,10 @@ namespace vApus.Monitor {
 
             _previousMonitorSourceForParameters = _monitor.MonitorSource;
             _previousFilter = _monitor.Filter.Combine(", ");
+
+            JSONObjectTree monitorConfig = (JSONObjectTreeHelper.RunningMonitorConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorConfig;
+            JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
+            JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
 
             if (exception != null) {
                 string message = "Could not connect to the monitor client.";
@@ -274,15 +275,13 @@ namespace vApus.Monitor {
 
                     monitorControl.AddMonitorValues(e.MonitorValues);
 
-                    JSONObjectTree monitorProgress = new JSONObjectTree();
+                    JSONObjectTree monitorProgress = (JSONObjectTreeHelper.RunningMonitorMetrics == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorMetrics;
                     JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
                     JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;
-
 
                     btnSaveAllMonitorCounters.Enabled = monitorControl.ColumnCount != 0;
                     btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&
                                                                txtFilterMonitorControlColumns.Text.Length != 0;
-
 
                     var schedule = btnSchedule.Tag as ExtendedSchedule;
                     if (schedule != null && schedule.Duration.Ticks != 0) {

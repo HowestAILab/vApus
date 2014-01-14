@@ -1423,6 +1423,9 @@ namespace vApus.DistributedTesting {
         private void WriteRestProgress() {
             try {
                 var testProgressCache = new JSONObjectTree();
+                var clientMonitorCache = new JSONObjectTree();
+                var messagesCache = new JSONObjectTree();
+
                 var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), testProgressCache);
 
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
@@ -1437,8 +1440,21 @@ namespace vApus.DistributedTesting {
                         }
                     }
 
+                    JSONObjectTreeHelper.ApplyToRunningTestClientMonitorMetrics(clientMonitorCache, _distributedTest.ToString(), -1, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
+                                      LocalMonitor.MemoryUsage, LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                  
+                    var events = fastResultsControl.GetEvents();
+                    var messages = new string[events.Count];
+                    for (int i = 0; i != messages.Length; i++) {
+                        var e = events[i];
+                        messages[i] = e.EventType + ": " + e.Message + " [" + e.At + "]";
+                    }
+                    JSONObjectTreeHelper.ApplyToRunningTestMessages(messagesCache, _distributedTest.ToString(), messages);
+
                 }
                 JSONObjectTreeHelper.RunningTestFastConcurrencyResults = testProgressCache;
+                JSONObjectTreeHelper.RunningTestClientMonitorMetrics = clientMonitorCache;
+                JSONObjectTreeHelper.RunningTestMessages = messagesCache;
                 //Converter.WriteToFile(testProgressCache, "TestProgress");
             } catch {
             }

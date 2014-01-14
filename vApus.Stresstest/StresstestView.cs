@@ -904,7 +904,7 @@ namespace vApus.Stresstest {
                     foreach (var metrics in _stresstestMetricsCache.GetConcurrencyMetrics())
                         JSONObjectTreeHelper.ApplyToRunningTestFastConcurrencyResults(stresstestCache, metrics, runStateChange.ToString(), _stresstestStatus.ToString());
 
-                    JSONObjectTreeHelper.ApplyToRunningClientMonitorMetrics(clientMonitorCache, _stresstest.ToString(), _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
+                    JSONObjectTreeHelper.ApplyToRunningTestClientMonitorMetrics(clientMonitorCache, _stresstest.ToString(), _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
                                                           LocalMonitor.MemoryUsage, LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
 
                     var events = fastResultsControl.GetEvents();
@@ -916,7 +916,7 @@ namespace vApus.Stresstest {
                     JSONObjectTreeHelper.ApplyToRunningTestMessages(messagesCache, _stresstest.ToString(), messages);
 
                     JSONObjectTreeHelper.RunningTestFastConcurrencyResults = testProgressCache;
-                    JSONObjectTreeHelper.RunningClientMonitorMetrics = clientMonitorCache;
+                    JSONObjectTreeHelper.RunningTestClientMonitorMetrics = clientMonitorCache;
                     JSONObjectTreeHelper.RunningTestMessages = messagesCache;
                 }
             } catch {
