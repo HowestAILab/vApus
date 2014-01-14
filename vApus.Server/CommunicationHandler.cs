@@ -14,6 +14,7 @@ using System.Threading;
 using vApus.DistributedTesting;
 using vApus.JSON;
 using vApus.Monitor;
+using vApus.Results;
 using vApus.Server.Shared;
 using vApus.SolutionTree;
 using vApus.Stresstest;
@@ -48,12 +49,14 @@ namespace vApus.Server {
             _delegates.Add("/applicationlog/warning", ApplicationLog);
             _delegates.Add("/applicationlog/error", ApplicationLog);
             _delegates.Add("/applicationlog/fatal", ApplicationLog);
-            //_delegates.Add("/resultsdb", ResultsDB);
+            _delegates.Add("/resultsdb", ResultsDB);
 
             _delegates.Add("/runningtest/config", RunningTestConfig);
             _delegates.Add("/runningtest/fastresults", RunningTestProgress);
             _delegates.Add("/runningtest/clientmonitor", RunningTestClientMonitor); // nog voor distributed test
-            _delegates.Add("/runningtest/messages", RunningTestMessages); // nog voor distributed test
+            _delegates.Add("/runningtest/messages/info", RunningTestMessages); // nog voor distributed test
+            _delegates.Add("/runningtest/messages/warning", RunningTestMessages); // nog voor distributed test
+            _delegates.Add("/runningtest/messages/error", RunningTestMessages); // nog voor distributed test
 
             // For a single test
             _delegates.Add("/runningtest/fastmonitorresults/#", RunningTestFastMonitorResults);
@@ -65,9 +68,9 @@ namespace vApus.Server {
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", TestConnection);
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages", TestConnection);
 
-            _delegates.Add("/runningmonitor/#/config", TestConnection);
-            _delegates.Add("/runningmonitor/#/hardwareconfig", TestConnection);
-            _delegates.Add("/runningmonitor/#/metrics", TestConnection);
+            _delegates.Add("/runningmonitor/#/config", RunningMonitorConfig);
+            _delegates.Add("/runningmonitor/#/hardwareconfig", RunningMonitorHardwareConfig);
+            _delegates.Add("/runningmonitor/#/metrics", RunningMonitorMetrics);
         }
 
         public static Message<Key> HandleMessage(SocketWrapper receiver, Message<Key> message) {
@@ -177,13 +180,12 @@ namespace vApus.Server {
                 view.MonitorInitialized += (object sender, MonitorView.MonitorInitializedEventArgs e) => { _jobWaitHandle.Set(); };
             }, null);
 
+
             _jobWaitHandle.WaitOne();
-
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                view.Start();
-            }, null);
-
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Start(); }, null);
             _jobWaitHandle.WaitOne(timeInSeconds * 1000);
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Stop(); }, null);
+
 
             if (error.Length != 0)
                 return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
@@ -268,15 +270,11 @@ namespace vApus.Server {
                             string dateTimePart = timeStampSplit[0];
                             if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse(entry[1], out logLevel))
                                 if ((int)logLevel >= chosenLogLevel) {
-
-
-
                                     tempOutput.AppendLine(line);
                                     //Continue if valid line
                                     continue;
                                 }
                         }
-
 
                         string s = tempOutput.ToString();
                         if (s.Length != 0)
@@ -299,6 +297,9 @@ namespace vApus.Server {
             }
             return false;
         }
+        private static Message<Key> ResultsDB(string message) {
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(ConnectionStringManager.GetCurrentConnectionString(ConnectionStringManager.CurrentDatabaseName)));
+        }
 
         private static Message<Key> RunningTestConfig(string message) {
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestConfig));
@@ -310,10 +311,81 @@ namespace vApus.Server {
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningClientMonitorMetrics));
         }
         private static Message<Key> RunningTestMessages(string message) {
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestMessages));
+            var runningTestMessages = JSONObjectTreeHelper.RunningTestMessages;
+            if (!message.EndsWith("/info") && runningTestMessages != null) {
+                object key = runningTestMessages.Cache[0].Key;
+                ClientMessages value = (ClientMessages)runningTestMessages.Cache[0].Value;
+
+                var l = new List<string>();
+
+                string check = "Warning";
+                if (message.EndsWith("/error"))
+                    check = "Error";
+
+                foreach (string s in value.Messages)
+                    if (s.StartsWith(check))
+                        l.Add(s);
+
+                value.Messages = l.ToArray();
+                runningTestMessages.Cache[0] = new KeyValuePair<object, object>(key, value);
+            }
+
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(runningTestMessages));
         }
         private static Message<Key> RunningTestFastMonitorResults(string message) {
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestMessages));
+        }
+
+        private static Message<Key> RunningMonitorConfig(string message) {
+            string[] split = message.Split('/');
+            int index = int.Parse(split[split.Length - 2]);
+
+            JSONObjectTree part = null;
+            var runningMonitorConfig = JSONObjectTreeHelper.RunningMonitorConfig;
+
+            for (int i = 0; i != runningMonitorConfig.Count; i++) {
+                var kvp = runningMonitorConfig.Cache[i];
+                if ((int)kvp.Key == index) {
+                    part = kvp.Value as JSONObjectTree;
+                    break;
+                }
+            }
+
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        }
+        private static Message<Key> RunningMonitorHardwareConfig(string message) {
+            string[] split = message.Split('/');
+            int index = int.Parse(split[split.Length - 2]);
+
+            JSONObjectTree part = null;
+            var runningMonitorHardwareConfig = JSONObjectTreeHelper.RunningMonitorHardwareConfig;
+
+            for (int i = 0; i != runningMonitorHardwareConfig.Count; i++) {
+                var kvp = runningMonitorHardwareConfig.Cache[i];
+                if ((int)kvp.Key == index) {
+                    part = kvp.Value as JSONObjectTree;
+                    break;
+                }
+            }
+
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        }
+        private static Message<Key> RunningMonitorMetrics(string message) {
+            string[] split = message.Split('/');
+            int index = int.Parse(split[split.Length - 2]);
+
+            JSONObjectTree part = null;
+            var runningMonitorMetrics = JSONObjectTreeHelper.RunningMonitorMetrics;
+
+            for (int i = 0; i != runningMonitorMetrics.Count; i++) {
+                var kvp = runningMonitorMetrics.Cache[i];
+                if ((int)kvp.Key == index) {
+                    part = kvp.Value as JSONObjectTree;
+                    break;
+                }
+            }
+
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
         }
 
         private static string SerializeSucces(string message) { return SerializeStatusMessage("succes", message); }

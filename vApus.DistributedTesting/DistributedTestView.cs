@@ -969,7 +969,7 @@ namespace vApus.DistributedTesting {
                 setCountDown = (_selectedTestTreeViewItem as TileStresstestTreeViewItem).StresstestResult == StresstestStatus.Busy;
             if (--_progressCountDown > 0 && setCountDown) fastResultsControl.SetCountDownProgressDelay(_progressCountDown);
 
-            WriteMonitorRestProgress();
+            //WriteMonitorRestProgress();
         }
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
@@ -1179,7 +1179,7 @@ namespace vApus.DistributedTesting {
             if (!_monitorMetricsCaches.ContainsKey(tileStresstest))
                 _monitorMetricsCaches.Add(tileStresstest, new MonitorMetricsCache());
 
-            WriteMonitorRestConfig();
+            //WriteMonitorRestConfig();
         }
 
         /// <summary>
@@ -1257,8 +1257,8 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
-                WriteMonitorRestConfig();
-                WriteMonitorRestProgress();
+                //WriteMonitorRestConfig();
+                //WriteMonitorRestProgress();
             }, null);
         }
 
@@ -1277,8 +1277,8 @@ namespace vApus.DistributedTesting {
                 _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
             }
 
-            WriteMonitorRestConfig();
-            WriteMonitorRestProgress();
+            //WriteMonitorRestConfig();
+            //WriteMonitorRestProgress();
 
             MonitorBeforeDone();
         }
@@ -1326,8 +1326,8 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
-                WriteMonitorRestConfig();
-                WriteMonitorRestProgress();
+                //WriteMonitorRestConfig();
+                //WriteMonitorRestProgress();
             }, null);
         }
         private void monitorAfterCountDown_Stopped(object sender, EventArgs e) {
@@ -1341,8 +1341,8 @@ namespace vApus.DistributedTesting {
             }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
 
-            WriteMonitorRestConfig();
-            WriteMonitorRestProgress();
+            //WriteMonitorRestConfig();
+            //WriteMonitorRestProgress();
         }
 
         /// <summary>
@@ -1384,42 +1384,42 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region REST
-        private void WriteMonitorRestConfig() {
-            try {
-                var monitorConfigCache = new JSONObjectTree();
-                var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), monitorConfigCache);
+        //private void WriteMonitorRestConfig() {
+        //    try {
+        //        var monitorConfigCache = new JSONObjectTree();
+        //        var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), monitorConfigCache);
 
-                foreach (TileStresstest key in _monitorViews.Keys)
-                    foreach (MonitorView view in _monitorViews[key]) {
-                        var monitorSource = view.Monitor.MonitorSource == null ? "N/A" : view.Monitor.MonitorSource.ToString();
-                        var parameters = view.Monitor.Parameters;
+        //        foreach (TileStresstest key in _monitorViews.Keys)
+        //            foreach (MonitorView view in _monitorViews[key]) {
+        //                var monitorSource = view.Monitor.MonitorSource == null ? "N/A" : view.Monitor.MonitorSource.ToString();
+        //                var parameters = view.Monitor.Parameters;
 
-                        JSONObjectTreeHelper.ApplyToRunningMonitorConfig(distributedTestCache, view.Monitor.ToString(), monitorSource, parameters);
-                    }
+        //                JSONObjectTreeHelper.ApplyToRunningMonitorConfig(distributedTestCache, view.Monitor.ToString(), monitorSource, parameters);
+        //            }
 
-                JSONObjectTreeHelper.RunningMonitorConfig = monitorConfigCache;
-                //Converter.WriteToFile(monitorConfigCache, "MonitorConfig");
-            } catch {
-            }
-        }
-        private void WriteMonitorRestProgress() {
-            try {
-                var monitorProgressCache = new JSONObjectTree();
-                var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), monitorProgressCache);
+        //        JSONObjectTreeHelper.RunningMonitorConfig = monitorConfigCache;
+        //        //Converter.WriteToFile(monitorConfigCache, "MonitorConfig");
+        //    } catch {
+        //    }
+        //}
+        //private void WriteMonitorRestProgress() {
+        //    try {
+        //        var monitorProgressCache = new JSONObjectTree();
+        //        var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), monitorProgressCache);
 
-                int monitorCount = 0;
+        //        int monitorCount = 0;
 
-                if (_monitorViews != null)
-                    foreach (TileStresstest key in _monitorViews.Keys)
-                        foreach (MonitorView view in _monitorViews[key]) {
-                            ++monitorCount;
-                            JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(distributedTestCache, view.Monitor.ToString(), view.GetMonitorResultCache().Headers, view.GetMonitorValues());
-                        }
-                if (monitorCount != 0) JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgressCache;
-                //if (monitorCount != 0) Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
-            } catch {
-            }
-        }
+        //        if (_monitorViews != null)
+        //            foreach (TileStresstest key in _monitorViews.Keys)
+        //                foreach (MonitorView view in _monitorViews[key]) {
+        //                    ++monitorCount;
+        //                    JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(distributedTestCache, view.Monitor.ToString(), view.GetMonitorResultCache().Headers, view.GetMonitorValues());
+        //                }
+        //        if (monitorCount != 0) JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgressCache;
+        //        //if (monitorCount != 0) Converter.WriteToFile(monitorProgressCache, "MonitorProgress");
+        //    } catch {
+        //    }
+        //}
         private void WriteRestProgress() {
             try {
                 var testProgressCache = new JSONObjectTree();

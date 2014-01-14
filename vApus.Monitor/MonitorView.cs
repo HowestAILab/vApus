@@ -14,6 +14,7 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using vApus.JSON;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -32,6 +33,7 @@ namespace vApus.Monitor {
 
         #region Fields
         private readonly Monitor _monitor;
+        private string _configuration;
         private IMonitorProxy _monitorProxy;
 
         private readonly Dictionary<Parameter, object> _parametersWithValues = new Dictionary<Parameter, object>();
@@ -50,7 +52,15 @@ namespace vApus.Monitor {
             get { return _monitor; }
         }
 
-        public string Configuration { get; private set; }
+        public string Configuration {
+            get { return _configuration; }
+            private set {
+                _configuration = value;
+                JSONObjectTree monitorHwConfig = new JSONObjectTree();
+                JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
+                JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
+            }
+        }
         public bool IsRunning {
             get {
                 bool isRunning = false;
@@ -82,6 +92,9 @@ namespace vApus.Monitor {
             InitializeComponent();
 
             _monitor = solutionComponent as Monitor;
+            JSONObjectTree monitorConfig = new JSONObjectTree();
+            JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
+            JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
 
             _invokeChangedTmr.Elapsed += _invokeChangedTmr_Elapsed;
 
@@ -260,6 +273,11 @@ namespace vApus.Monitor {
                     }
 
                     monitorControl.AddMonitorValues(e.MonitorValues);
+
+                    JSONObjectTree monitorProgress = new JSONObjectTree();
+                    JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
+                    JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;
+
 
                     btnSaveAllMonitorCounters.Enabled = monitorControl.ColumnCount != 0;
                     btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&

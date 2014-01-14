@@ -68,5 +68,17 @@ namespace vApus.Results.Properties {
                 this["Enabled"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("")]
+        public string CurrentDatabase {
+            get {
+                return ((string)(this["CurrentDatabase"]));
+            }
+            set {
+                this["CurrentDatabase"] = value;
+            }
+        }
     }
 }

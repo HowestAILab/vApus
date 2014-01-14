@@ -15,6 +15,8 @@ namespace vApus.Util {
     public class JSONObjectTree : IDictionary<object, object> {
         private List<KeyValuePair<object, object>> _cache = new List<KeyValuePair<object, object>>();
 
+        public List<KeyValuePair<object, object>> Cache { get { return _cache; } }
+
         public void Add(object key, object value) { _cache.Add(new KeyValuePair<object, object>(key, value)); }
 
         public bool ContainsKey(object key) {

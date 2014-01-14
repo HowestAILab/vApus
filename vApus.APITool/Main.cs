@@ -28,7 +28,7 @@ namespace vApus.APITool {
             };
 
         private string _scriptFullFileName, _scriptFileName;
-        private bool _scriptChanged;
+        private bool _scriptChanged, _loading = true;
 
         public Main() {
             InitializeComponent();
@@ -164,6 +164,7 @@ namespace vApus.APITool {
             if (dialogResult == DialogResult.Yes) saveToolStripMenuItem_Click(saveToolStripMenuItem, null);
             if (dialogResult == DialogResult.Cancel) return;
 
+            _loading = true;
             _scriptFullFileName = _scriptFileName = null;
 
             fctxtScript.Text = string.Empty;
@@ -184,6 +185,7 @@ namespace vApus.APITool {
             if (dialogResult == DialogResult.Cancel) return;
 
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
+                _loading = true;
                 _scriptFullFileName = openFileDialog.FileName;
                 var split = _scriptFullFileName.Split('\\');
                 _scriptFileName = split[split.Length - 1];
@@ -191,8 +193,8 @@ namespace vApus.APITool {
                 StreamReader sr = null;
                 using (sr = new StreamReader(_scriptFullFileName))
                     fctxtScript.Text = sr.ReadToEnd();
-                fctxtScript.ClearUndo();
 
+                fctxtScript.ClearUndo();
 
                 _scriptChanged = false;
                 Text = _scriptFileName + " - vApus API Tool";
@@ -227,7 +229,10 @@ namespace vApus.APITool {
         private void exitToolStripMenuItem_Click(object sender, EventArgs e) { this.Close(); }
 
         private void fctxtScript_TextChangedDelayed(object sender, TextChangedEventArgs e) {
-            if (e.ChangedRange.Start.iChar == 0 && e.ChangedRange.Start.iLine == 0 && e.ChangedRange.End.iChar == 0 && e.ChangedRange.End.iLine == 0) return;
+            if (_loading) {
+                _loading = false;
+                return;
+            }
             _scriptChanged = true;
             if (_scriptFileName != null)
                 Text = "*" + _scriptFileName + " - vApus API Tool";
@@ -242,8 +247,8 @@ namespace vApus.APITool {
         private void copyToolStripMenuItem_Click(object sender, EventArgs e) {
             if (fctxtIn.Focused)
                 fctxtIn.Copy();
-            else if (fctxtOut.Focus())
-                fctxtOut.Focus();
+            else if (fctxtOut.Focused)
+                fctxtOut.Copy();
             else
                 fctxtScript.Copy();
         }
