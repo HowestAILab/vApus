@@ -53,7 +53,7 @@ namespace vApus.Server {
 
             // For a single test and distributed test (as a whole)
             _delegates.Add("/runningtest/config", RunningTestConfig);
-            _delegates.Add("/runningtest/fastresults", RunningTestProgress);
+            _delegates.Add("/runningtest/fastresults", RunningTestFastResults);
             _delegates.Add("/runningtest/clientmonitor", RunningTestClientMonitor);
             _delegates.Add("/runningtest/messages/info", RunningTestMessages);
             _delegates.Add("/runningtest/messages/warning", RunningTestMessages);
@@ -63,7 +63,7 @@ namespace vApus.Server {
 
             // For a tile stresstest            
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/config", TileStresstestConfig);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastresults", TestConnection);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastresults", TileStresstestFastResults);
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", RunningTestClientMonitor);
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/info", RunningTestMessages);
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/warning", RunningTestMessages);
@@ -140,6 +140,9 @@ namespace vApus.Server {
 
             while (view.DistributedTestMode == DistributedTestMode.Test)
                 Thread.Sleep(1);
+
+            //Wait for all progress messages to come in.
+            Thread.Sleep(30000);
 
 
             if (error.Length != 0)
@@ -307,7 +310,7 @@ namespace vApus.Server {
         private static Message<Key> RunningTestConfig(string message) {
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestConfig));
         }
-        private static Message<Key> RunningTestProgress(string message) {
+        private static Message<Key> RunningTestFastResults(string message) {
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestFastConcurrencyResults));
         }
         private static Message<Key> RunningTestClientMonitor(string message) {
@@ -342,17 +345,37 @@ namespace vApus.Server {
         private static Message<Key> TileStresstestConfig(string message) {
             throw new NotImplementedException();
         }
+        private static Message<Key> TileStresstestFastResults(string message) {
+            JSONObjectTree part = null;
+            var runningTestFastConcurrencyResults = JSONObjectTreeHelper.RunningTestFastConcurrencyResults;
+            if ((runningTestFastConcurrencyResults.Cache[0].Key as string).StartsWith("Distributed Test")) {
+                string[] split = message.Split('/');
+                int tileIndex = int.Parse(split[3]);
+                int testIndex = int.Parse(split[5]);
+
+                string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+                List<KeyValuePair<object, object>> tileStresstests = (runningTestFastConcurrencyResults.Cache[0].Value as JSONObjectTree).Cache;
+
+                foreach (var kvp in tileStresstests)
+                    if ((kvp.Key as string).StartsWith(tileStresstest)) {
+                        part = kvp.Value as JSONObjectTree;
+                        break;
+                    }
+            }
+
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        }
 
         private static Message<Key> RunningMonitorConfig(string message) {
             string[] split = message.Split('/');
-            int index = int.Parse(split[split.Length - 2]);
+            int index = int.Parse(split[2]);
 
             JSONObjectTree part = GetPart(JSONObjectTreeHelper.RunningMonitorConfig, index);
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
         }
         private static Message<Key> RunningMonitorHardwareConfig(string message) {
             string[] split = message.Split('/');
-            int index = int.Parse(split[split.Length - 2]);
+            int index = int.Parse(split[2]);
 
             JSONObjectTree part = GetPart(JSONObjectTreeHelper.RunningMonitorHardwareConfig, index);
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));

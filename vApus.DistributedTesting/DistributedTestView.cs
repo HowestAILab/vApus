@@ -824,8 +824,6 @@ namespace vApus.DistributedTesting {
                         TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(tileStresstest.ToString(), " finished. Status: ", testProgressMessage.StresstestStatus, "."));
                     }
                 }
-
-            WriteRestProgress();
         }
 
         private void UpdateMonitorMetricsCaches(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -855,11 +853,12 @@ namespace vApus.DistributedTesting {
         }
 
         private void SetOverallProgress() {
-            if (_selectedTestTreeViewItem != null)
+            if (_selectedTestTreeViewItem != null) {
+                Dictionary<TileStresstest, TestProgressMessage> testProgressMessages = null;
                 if (_selectedTestTreeViewItem is DistributedTestTreeViewItem) {
                     distributedStresstestControl.SetTitle("Distributed Test");
                     if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
-                        var testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
+                        testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
                         var progress = new Dictionary<TileStresstest, StresstestMetricsCache>(testProgressMessages.Count);
                         foreach (TileStresstest tileStresstest in testProgressMessages.Keys) {
                             var metricsCache = testProgressMessages[tileStresstest].StresstestMetricsCache;
@@ -872,7 +871,7 @@ namespace vApus.DistributedTesting {
                     var ttvi = _selectedTestTreeViewItem as TileTreeViewItem;
                     distributedStresstestControl.SetTitle(ttvi.Tile.Name + " " + ttvi.Tile.Index);
                     if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
-                        var testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
+                        testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
                         var progress = new Dictionary<TileStresstest, StresstestMetricsCache>();
                         foreach (TileStresstest tileStresstest in testProgressMessages.Keys)
                             if (ttvi.Tile.Contains(tileStresstest)) {
@@ -883,6 +882,8 @@ namespace vApus.DistributedTesting {
                         distributedStresstestControl.SetOverallFastResults(progress);
                     }
                 }
+                WriteRestProgress(testProgressMessages);
+            }
         }
         /// <summary>
         /// </summary>
@@ -1420,7 +1421,7 @@ namespace vApus.DistributedTesting {
         //    } catch {
         //    }
         //}
-        private void WriteRestProgress() {
+        private void WriteRestProgress(Dictionary<TileStresstest, TestProgressMessage> testProgressMessages) {
             try {
                 var testProgressCache = new JSONObjectTree();
                 var clientMonitorCache = new JSONObjectTree();
@@ -1429,20 +1430,19 @@ namespace vApus.DistributedTesting {
                 var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), testProgressCache);
 
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
-                    var testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
                     foreach (TileStresstest tileStresstest in testProgressMessages.Keys) {
                         var tileStresstestCache = JSONObjectTreeHelper.AddSubCache("Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
                                                       tileStresstest.Index + " " + tileStresstest.BasicTileStresstest.Connection.Label, distributedTestCache);
 
                         var tpm = testProgressMessages[tileStresstest];
-                        foreach (var metrics in tpm.StresstestMetricsCache.GetConcurrencyMetrics()) {
-                            JSONObjectTreeHelper.ApplyToRunningTestFastConcurrencyResults(tileStresstestCache, metrics, tpm.RunStateChange.ToString(), tpm.StresstestStatus.ToString());
-                        }
+                        if (tpm.StresstestMetricsCache != null)
+                            foreach (var metrics in tpm.StresstestMetricsCache.GetConcurrencyMetrics())
+                                JSONObjectTreeHelper.ApplyToRunningTestFastConcurrencyResults(tileStresstestCache, metrics, tpm.RunStateChange.ToString(), tpm.StresstestStatus.ToString());
                     }
 
                     JSONObjectTreeHelper.ApplyToRunningTestClientMonitorMetrics(clientMonitorCache, _distributedTest.ToString(), -1, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
                                       LocalMonitor.MemoryUsage, LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
-                  
+
                     var events = fastResultsControl.GetEvents();
                     var messages = new string[events.Count];
                     for (int i = 0; i != messages.Length; i++) {

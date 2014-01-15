@@ -50,8 +50,6 @@ namespace vApus.JSON {
                 MonitorAfterInMinutes = monitorAfter
             };
             testConfigCache.Add(tileStresstest, testConfig);
-
-            RunningTestConfig = testConfigCache;
         }
 
         public static void ApplyToRunningStresstestConfig(JSONObjectTree testConfigCache, string stresstest, string connection, string connectionProxy,

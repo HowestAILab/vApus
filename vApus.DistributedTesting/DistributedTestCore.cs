@@ -613,7 +613,7 @@ namespace vApus.DistributedTesting {
                                                     tileStresstest.AdvancedTileStresstest.MonitorBefore,
                                                     tileStresstest.AdvancedTileStresstest.MonitorAfter);
                         }
-
+                JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
                 //Converter.WriteToFile(testConfigCache, "TestConfig");
             } catch {
             }
