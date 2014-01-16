@@ -32,6 +32,7 @@ namespace vApus.DistributedTesting {
         public event EventHandler<MessageEventArgs> Message;
         /// <summary>
         /// Get the TileStresstestMessage from eg var tpms = _distributedTestCore.TileStresstestMessages; var tpm = tpms[e.TileStresstest].
+        /// There is a delay of 500 ms.
         /// </summary>
         public event EventHandler OnTestProgressMessageReceivedDelayed;
         public event EventHandler<ListeningErrorEventArgs> OnListeningError;

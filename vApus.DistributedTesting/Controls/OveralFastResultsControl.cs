@@ -334,6 +334,7 @@ namespace vApus.DistributedTesting {
             return sb.ToString();
         }
 
+        public List<EventViewItem> GetEvents() { return eventView.GetEvents(); }
         public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
             try { eventView.AddEvent((EventViewEventType)logLevel, message); } catch { }
         }

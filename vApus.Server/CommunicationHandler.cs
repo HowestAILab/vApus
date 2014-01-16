@@ -58,17 +58,17 @@ namespace vApus.Server {
             _delegates.Add("/runningtest/messages/info", RunningTestMessages);
             _delegates.Add("/runningtest/messages/warning", RunningTestMessages);
             _delegates.Add("/runningtest/messages/error", RunningTestMessages);
-            _delegates.Add("/runningtest/fastmonitorresults/#", RunningTestFastMonitorResults);
+            _delegates.Add("/runningtest/fastmonitorresults/#", RunningTestFastMonitorResults);//
 
 
             // For a tile stresstest            
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/config", TileStresstestConfig);
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastresults", TileStresstestFastResults);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", RunningTestClientMonitor);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/info", RunningTestMessages);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/warning", RunningTestMessages);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/error", RunningTestMessages);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastmonitorresults/#", TestConnection);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", TileStresstestClientMonitor);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/info", TilestresstestMessages);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/warning", TilestresstestMessages);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/error", TilestresstestMessages);
+            _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastmonitorresults/#", TileFastMonitorResults);//
 
 
             _delegates.Add("/runningmonitor/#/config", RunningMonitorConfig);
@@ -142,8 +142,7 @@ namespace vApus.Server {
                 Thread.Sleep(1);
 
             //Wait for all progress messages to come in.
-            Thread.Sleep(30000);
-
+            Thread.Sleep(5000);
 
             if (error.Length != 0)
                 return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
@@ -343,7 +342,21 @@ namespace vApus.Server {
         }
 
         private static Message<Key> TileStresstestConfig(string message) {
-            throw new NotImplementedException();
+            var runningTestConfig = JSONObjectTreeHelper.RunningTestConfig;
+            if ((runningTestConfig.Cache[0].Key as string).StartsWith("Distributed Test")) {
+                string[] split = message.Split('/');
+                int tileIndex = int.Parse(split[3]);
+                int testIndex = int.Parse(split[5]);
+
+                string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+                List<KeyValuePair<object, object>> tileStresstests = (runningTestConfig.Cache[0].Value as JSONObjectTree).Cache;
+
+                foreach (var kvp in tileStresstests)
+                    if ((kvp.Key as string).StartsWith(tileStresstest)) 
+                        return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
+            }
+
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(null));
         }
         private static Message<Key> TileStresstestFastResults(string message) {
             JSONObjectTree part = null;
@@ -364,6 +377,39 @@ namespace vApus.Server {
             }
 
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        }
+        private static Message<Key> TileStresstestClientMonitor(string message) {
+            var runningTestClientMonitor = JSONObjectTreeHelper.RunningTestClientMonitorMetrics;
+            if ((runningTestClientMonitor.Cache[0].Key as string).StartsWith("Distributed Test")) {
+                string[] split = message.Split('/');
+                int tileIndex = int.Parse(split[3]);
+                int testIndex = int.Parse(split[5]);
+
+                string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+                foreach (var kvp in runningTestClientMonitor.Cache)
+                    if ((kvp.Key as string).StartsWith(tileStresstest))
+                        return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
+            }
+
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(null));
+        }
+        private static Message<Key> TilestresstestMessages(string message) {
+            var runningTestMessages = JSONObjectTreeHelper.RunningTestMessages;
+            if ((runningTestMessages.Cache[0].Key as string).StartsWith("Distributed Test")) {
+                string[] split = message.Split('/');
+                int tileIndex = int.Parse(split[3]);
+                int testIndex = int.Parse(split[5]);
+
+                string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+                foreach (var kvp in runningTestMessages.Cache)
+                    if ((kvp.Key as string).StartsWith(tileStresstest))
+                        return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
+            }
+
+            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(null));
+        }
+        private static Message<Key> TileFastMonitorResults(string message) {
+            throw new NotImplementedException();
         }
 
         private static Message<Key> RunningMonitorConfig(string message) {
