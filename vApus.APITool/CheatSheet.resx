@@ -133,7 +133,7 @@ Connect 127.0.0.1 &lt;apikey&gt;
 
 /testconnection/{index}
 
-/startdistributedtest/{index}[/breakonfirst, /breakonlast]
+/startdistributedtest/{index}
 /startsingletest/{index}
 /startmonitor/{index}/{seconds}
 /stoptestandmonitors
@@ -149,13 +149,12 @@ Wait 10
 
 /resultsdb
 
+# For a single test and distributed test (as a whole)
 /runningtest/config
 /runningtest/fastresults
 /runningtest/clientmonitor
 /runningtest/messages[/info][/warning][/error]
 
-# For a single test
-/runningtest/fastmonitorresults/{index}
 
 # For a tile stresstest
 /runningtest/tile/{index}/tilestresstest/{index}/fastmonitorresults/{index}
@@ -163,7 +162,7 @@ Wait 10
 /runningtest/tile/{index}/tilestresstest/{index}/config
 /runningtest/tile/{index}/tilestresstest/{index}/fastresults
 /runningtest/tile/{index}/tilestresstest/{index}/clientmonitor
-/runningtest/tile/{index}/tilestresstest/{index}/messages
+/runningtest/tile/{index}/tilestresstest/{index}/messages[/info][/warning][/error]
 
 /runningmonitor/{index}/config
 /runningmonitor/{index}/hardwareconfig

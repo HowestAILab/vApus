@@ -19,6 +19,7 @@ namespace vApus.APITool {
         private CheatSheet _cheatsheet;
         private SocketWrapper _socketWrapper;
         private CancellationTokenSource _cts;
+        private ManualResetEvent _pauseWaitHandle = new ManualResetEvent(true);
 
         private string _apiKey;
         private readonly byte[] Salt =
@@ -43,22 +44,39 @@ namespace vApus.APITool {
         }
 
         async private void btnStart_Click(object sender, EventArgs e) {
-            btnStart.Enabled = false;
-            btnStop.Enabled = true;
-            fctxtScript.ReadOnly = true;
-            fctxtIn.Clear();
-            fctxtOut.Clear();
+            btnStart.Visible = false;
+            btnPause.Visible = true;
+            if (_pauseWaitHandle.WaitOne(0)) {
+                btnStop.Enabled = true;
+                fctxtScript.ReadOnly = true;
+                fctxtIn.Clear();
+                fctxtOut.Clear();
 
-            await Task.Run(() => RunScript());
+                await Task.Run(() => RunScript());
 
-            _cts = new CancellationTokenSource();
+                _cts = new CancellationTokenSource();
 
-            fctxtScript.ReadOnly = false;
-            btnStart.Enabled = true;
-            btnStop.Enabled = false;
+                fctxtScript.ReadOnly = false;
+                btnStart.Visible = true;
+                btnPause.Visible = false;
+                btnStop.Enabled = false;
+            } else {
+                //WriteToOut("Resume");
+                //WriteToIn("Resuming.");
+                _pauseWaitHandle.Set();
+            }
+        }
+        private void btnPause_Click(object sender, EventArgs e) {
+            btnStart.Visible = true;
+            btnPause.Visible = false;
+            _pauseWaitHandle.Reset();
+            //WriteToOut("Pause");
+            //WriteToIn("Paused.");
         }
         private void btnStop_Click(object sender, EventArgs e) {
             btnStop.Enabled = false;
+            _pauseWaitHandle.Set();
+
             _cts.Cancel();
             Disconnect();
         }
@@ -67,6 +85,7 @@ namespace vApus.APITool {
             try {
                 foreach (string line in fctxtScript.Lines) {
                     if (_cts.Token.IsCancellationRequested) throw new Exception();
+                    _pauseWaitHandle.WaitOne(); //Pause if needed.
 
                     string msg = line.Trim();
                     if (msg.StartsWith("#") || msg.Length == 0) {
@@ -272,9 +291,12 @@ namespace vApus.APITool {
                 string script = _scriptFileName == null ? "this script" : "'" + _scriptFileName + "'";
                 dialogResult = MessageBox.Show("Do you want to save " + script + " before closing?", string.Empty, MessageBoxButtons.YesNoCancel, MessageBoxIcon.Question);
             }
-
-            if (dialogResult == DialogResult.Yes) saveToolStripMenuItem_Click(saveToolStripMenuItem, null);
+            if (dialogResult == DialogResult.Cancel) {
+                e.Cancel = true;
+            } else {
+                if (btnStop.Enabled) btnStop.PerformClick();
+                if (dialogResult == DialogResult.Yes) saveToolStripMenuItem_Click(saveToolStripMenuItem, null);
+            }
         }
-
     }
 }

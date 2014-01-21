@@ -37,6 +37,7 @@ namespace vApus.Server {
             // Send stuff that needs to be done. You receive an ack as plain text JSON.
             // Indices are one-based. If no index is given, you get all available indices and the string representation of the objects.
             _delegates.Add("/testconnection/#", TestConnection);
+            
             _delegates.Add("/startdistributedtest/#", StartDistributedTest);
             _delegates.Add("/startsingletest/#", StartSingleTest);
             _delegates.Add("/startmonitor/#/#", StartMonitor);
@@ -49,6 +50,7 @@ namespace vApus.Server {
             _delegates.Add("/applicationlog/warning", ApplicationLog);
             _delegates.Add("/applicationlog/error", ApplicationLog);
             _delegates.Add("/applicationlog/fatal", ApplicationLog);
+            
             _delegates.Add("/resultsdb", ResultsDB);
 
             // For a single test and distributed test (as a whole)
@@ -69,7 +71,6 @@ namespace vApus.Server {
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/warning", TilestresstestMessages);
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/error", TilestresstestMessages);
             _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastmonitorresults/#", TileFastMonitorResults);//
-
 
             _delegates.Add("/runningmonitor/#/config", RunningMonitorConfig);
             _delegates.Add("/runningmonitor/#/hardwareconfig", RunningMonitorHardwareConfig);
