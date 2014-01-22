@@ -201,7 +201,10 @@ namespace vApus.SolutionTree {
             }
             //Very needed, for when leaving when disposed, or key up == enter while creating.
             if (invokeEvent)
-                try { _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); } catch { }
+                try {
+                    _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                } catch {
+                }
         }
 
         /// <summary>

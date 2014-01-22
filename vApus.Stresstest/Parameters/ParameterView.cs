@@ -35,6 +35,10 @@ namespace vApus.Stresstest {
             : base(solutionComponent) {
             InitializeComponent();
             _parameter = solutionComponent as BaseParameter;
+
+            if (_parameter is CustomListParameter) 
+                solutionComponentPropertyPanel.AddControlType(typeof(CustomListParameter), typeof(LinkToCustomListParameterControl));
+
             solutionComponentPropertyPanel.SolutionComponent = solutionComponent;
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
@@ -61,7 +65,6 @@ namespace vApus.Stresstest {
                         return;
                     }
                 btnRemoveDuplicates.Enabled = false;
-                solutionComponentPropertyPanel.AddControlType(typeof(CustomListParameter), typeof(LinkToCustomListParameterControl));
             } else {
                 pnlCustomList.Visible = false;
             }
