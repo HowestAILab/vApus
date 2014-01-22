@@ -59,8 +59,7 @@ namespace vApus.Stresstest {
                             sb.Append(errorMessage);
                             if (errorMessage.Length == 0) {
                                 ResolveBranchedIndices();
-                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,
-                                                                    true);
+                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, false);
                             }
                         } else {
                             sb.Append(fileName + " contains no valid structure to load;");
@@ -72,8 +71,7 @@ namespace vApus.Stresstest {
                 if (sb.ToString().Length > 0) {
                     string s = "Failed loading: " + sb;
                     LogWrapper.LogByLevel(s, LogLevel.Error);
-                    MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
-                                    MessageBoxDefaultButton.Button1);
+                    MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
             }
         }

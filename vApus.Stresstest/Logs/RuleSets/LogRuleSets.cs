@@ -52,8 +52,7 @@ namespace vApus.Stresstest {
                             sb.Append(errorMessage);
                             if (errorMessage.Length == 0) {
                                 ResolveBranchedIndices();
-                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added,
-                                                                    true);
+                                InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Added, false);
                             }
                         } else {
                             sb.Append(fileName + " contains no valid structure to load;");
