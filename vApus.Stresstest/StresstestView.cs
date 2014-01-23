@@ -575,7 +575,8 @@ namespace vApus.Stresstest {
             string message = string.Concat(_stresstest.ToString(), " - Concurrency ", e.Result.Concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
 
-            WriteRestProgress(RunStateChange.None);
+#warning Enable REST
+            //WriteRestProgress(RunStateChange.None);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             StopProgressDelayCountDown();
@@ -587,7 +588,8 @@ namespace vApus.Stresstest {
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
             }
 
-            WriteRestProgress(RunStateChange.ToRunInitializedFirstTime);
+#warning Enable REST
+            //WriteRestProgress(RunStateChange.ToRunInitializedFirstTime);
 
             tmrProgress.Stop();
             _progressCountDown = PROGRESSUPDATEDELAY;
@@ -602,7 +604,8 @@ namespace vApus.Stresstest {
             string message = string.Concat(_stresstest.ToString(), " - Run ", e.Result.Run, " of concurrency ", concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
 
-            WriteRestProgress(RunStateChange.None);
+#warning Enable REST
+            //WriteRestProgress(RunStateChange.None);
         }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_progressCountDown--); }
@@ -629,7 +632,8 @@ namespace vApus.Stresstest {
                 }
                 _progressCountDown = PROGRESSUPDATEDELAY;
 
-                WriteRestProgress(RunStateChange.None);
+#warning Enable REST
+                //WriteRestProgress(RunStateChange.None);
             }
         }
 
@@ -708,7 +712,8 @@ namespace vApus.Stresstest {
 
                 Cursor = Cursors.Default;
 
-                WriteRestProgress(RunStateChange.None);
+#warning Enable REST
+                // WriteRestProgress(RunStateChange.None);
 
                 int runningMonitors = 0;
                 if (_monitorViews != null && _stresstest.Monitors.Length != 0)

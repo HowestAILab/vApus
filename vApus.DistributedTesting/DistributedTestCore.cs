@@ -134,7 +134,8 @@ namespace vApus.DistributedTesting {
 
             _tmrOnInvokeTestProgressMessageReceivedDelayed.Elapsed += _tmrOnInvokeTestProgressMessageReceivedDelayed_Elapsed;
 
-            WriteRestConfig();
+#warning Enable REST
+           // WriteRestConfig();
         }
         ~DistributedTestCore() {
             Dispose();

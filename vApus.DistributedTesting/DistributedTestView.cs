@@ -882,7 +882,8 @@ namespace vApus.DistributedTesting {
                         distributedStresstestControl.SetOverallFastResults(progress);
                     }
                 }
-                WriteRestProgress(testProgressMessages);
+#warning Enable REST
+                //  WriteRestProgress(testProgressMessages);
             }
         }
         /// <summary>

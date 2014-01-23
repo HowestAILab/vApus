@@ -56,9 +56,10 @@ namespace vApus.Monitor {
             get { return _configuration; }
             private set {
                 _configuration = value;
-                JSONObjectTree monitorHwConfig = (JSONObjectTreeHelper.RunningMonitorHardwareConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorHardwareConfig;
-                JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
-                JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
+#warning Enable REST
+                //JSONObjectTree monitorHwConfig = (JSONObjectTreeHelper.RunningMonitorHardwareConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorHardwareConfig;
+                //JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
+                //JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
             }
         }
         public bool IsRunning {
@@ -130,9 +131,10 @@ namespace vApus.Monitor {
             _previousMonitorSourceForParameters = _monitor.MonitorSource;
             _previousFilter = _monitor.Filter.Combine(", ");
 
-            JSONObjectTree monitorConfig = (JSONObjectTreeHelper.RunningMonitorConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorConfig;
-            JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
-            JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
+#warning Enable REST
+            //JSONObjectTree monitorConfig = (JSONObjectTreeHelper.RunningMonitorConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorConfig;
+           // JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
+            //JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
 
             if (exception != null) {
                 string message = "Could not connect to the monitor client.";
@@ -275,9 +277,10 @@ namespace vApus.Monitor {
 
                     monitorControl.AddMonitorValues(e.MonitorValues);
 
-                    JSONObjectTree monitorProgress = (JSONObjectTreeHelper.RunningMonitorMetrics == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorMetrics;
-                    JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
-                    JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;
+#warning Enable REST
+                    //JSONObjectTree monitorProgress = (JSONObjectTreeHelper.RunningMonitorMetrics == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorMetrics;
+                    //JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
+                    //JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;
 
                     btnSaveAllMonitorCounters.Enabled = monitorControl.ColumnCount != 0;
                     btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&

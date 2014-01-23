@@ -117,7 +117,8 @@ namespace vApus.Stresstest {
 
             _stresstest = stresstest;
 
-            WriteRestConfig();
+#warning Enable REST
+            // WriteRestConfig();
         }
         ~StresstestCore() {
             Dispose();
