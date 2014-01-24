@@ -1325,16 +1325,30 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, null, stresstestIds, "Id", "StresstestId", "Monitor", "ResultHeaders");
                     if (monitors == null || monitors.Rows.Count == 0) return CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Result Headers");
 
+                    //Sort the monitors based on the resultheaders to be able to group different monitor values under the same monitor headers.
+                    monitors.DefaultView.Sort = "ResultHeaders ASC";
+                    monitors = monitors.DefaultView.ToTable();
+
                     var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time (ms)", "Concurrency" });
+                    var resultHeaderStrings = new List<string>();
                     var resultHeaders = new List<string>();
+                    int prevResultHeadersCount = 0;
                     var monitorColumnOffsets = new Dictionary<int, int>(); //key monitorID, value offset
 
                     foreach (DataRow monitorRow in monitors.Rows) {
                         int monitorId = (int)monitorRow.ItemArray[0];
-                        var rh = (monitorRow[3] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
                         monitorColumnOffsets.Add(monitorId, resultHeaders.Count);
-                        resultHeaders.AddRange(rh);
+
+                        string rhs = monitorRow[3] as string;
+                        if (resultHeaderStrings.Contains(rhs)) {
+                            monitorColumnOffsets[monitorId] = prevResultHeadersCount;
+                        } else {
+                            prevResultHeadersCount = resultHeaders.Count;
+                            resultHeaderStrings.Add(rhs);
+                            var rh = rhs.Split(new string[] { "; " }, StringSplitOptions.None);
+                            resultHeaders.AddRange(rh);
+                        }
                     }
 
                     //We cannot have duplicate columnnames.
