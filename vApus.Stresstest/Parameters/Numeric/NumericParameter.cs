@@ -43,7 +43,7 @@ namespace vApus.Stresstest {
                 _minValue = value;
                 if (_doubleValue < _minValue) {
                     _doubleValue = _minValue;
-                    Value = _minValue.ToString();
+                    Value = GetFixedValue();
                 }
             }
         }
@@ -59,7 +59,7 @@ namespace vApus.Stresstest {
                 _maxValue = value;
                 if (_doubleValue >= _maxValue) {
                     _doubleValue = _maxValue;
-                    Value = _maxValue.ToString();
+                    Value = GetFixedValue();
                 }
             }
         }
@@ -111,14 +111,20 @@ namespace vApus.Stresstest {
         [Description("Prefix the output value.")]
         public string Prefix {
             get { return _prefix; }
-            set { _prefix = value; }
+            set {
+                _prefix = value;
+                Value = GetFixedValue();
+            }
         }
 
         [PropertyControl(101), SavableCloneable]
         [Description("Suffix the output value.")]
         public string Suffix {
             get { return _suffix; }
-            set { _suffix = value; }
+            set {
+                _suffix = value;
+                Value = GetFixedValue();
+            }
         }
 
         [PropertyControl(102), SavableCloneable]
@@ -169,9 +175,9 @@ namespace vApus.Stresstest {
                 _step = sr.ReadInt32();
 
                 _tokenNumericIdentifier = sr.ReadInt32();
-                
-                Value = _minValue.ToString();
+
                 _doubleValue = _minValue;
+                Value = GetFixedValue();
             }
             sr = null;
         }

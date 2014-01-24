@@ -29,6 +29,7 @@ namespace vApus.SolutionTree {
         private bool _showAdvancedSettings;
         private SolutionComponent _solutionComponent;
         private bool _solutionComponentTypeChanged;
+        private bool _allowInvokingSolutionComponentChangedEvent = true;
         #endregion
 
         #region Properties
@@ -61,6 +62,15 @@ namespace vApus.SolutionTree {
                     ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
                 }
             }
+        }
+
+        /// <summary>
+        /// Sometimes you do not want this, for instance with temporary solution components.
+        /// </summary>
+        [DefaultValue(true)]
+        public bool AllowInvokingSolutionComponentChangedEvent {
+            get { return _allowInvokingSolutionComponentChangedEvent; }
+            set { _allowInvokingSolutionComponentChangedEvent = value; }
         }
         #endregion
 
@@ -184,7 +194,9 @@ namespace vApus.SolutionTree {
 
         private void SolutionComponentPropertyPanel_HandleCreated(object sender, EventArgs e) { SetGui(); }
 
-        private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueChangedEventArgs e) { if (Solution.ActiveSolution != null)  SetValue(e.Index, e.NewValue, e.OldValue, true); }
+        private void SolutionComponentPropertyPanel_ValueChanged(object sender, ValueChangedEventArgs e) {
+            if (Solution.ActiveSolution != null) SetValue(e.Index, e.NewValue, e.OldValue, _allowInvokingSolutionComponentChangedEvent);
+        }
 
         private void SetValue(int index, object newValue, object oldValue, bool invokeEvent) {
             if (Parent == null || Parent.IsDisposed || Parent.Disposing) return;

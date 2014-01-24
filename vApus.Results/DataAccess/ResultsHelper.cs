@@ -1337,7 +1337,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         resultHeaders.AddRange(rh);
                     }
 
-                    columnNames.AddRange(resultHeaders);
+                    //We cannot have duplicate columnnames.
+                    foreach (string header in resultHeaders) {
+                        string formattedHeader = header;
+                        while (columnNames.Contains(formattedHeader)) formattedHeader += "_";
+                        columnNames.Add(formattedHeader);
+                    }
                     var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", columnNames.ToArray());
 
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
