@@ -24,7 +24,7 @@ namespace vApus.Stresstest {
         private string _decimalSeparator = ",";
         private double _doubleValue;
         private Fixed _fixed;
-        private int _maxValue = int.MaxValue, _minValue = int.MinValue;
+        private int _maxValue = 100, _minValue = 1;
 
         private string _prefix = string.Empty, _suffix = string.Empty;
         private bool _random;
