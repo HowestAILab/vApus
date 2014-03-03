@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -80,7 +81,7 @@ namespace vApus.Gui {
 
                 string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
                 if (error.Length != 0)
-                    LogWrapper.LogByLevel("Argument Analyzer " + error, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Argument Analyzer " + error);
 
                 _updateNotifierPanel = new UpdateNotifierPanel();
                 _logPanel = new LogPanel();
@@ -112,7 +113,7 @@ namespace vApus.Gui {
                 _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
             } catch (Exception ex) {
-                LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
+                Loggers.Log(Level.Error, "Failed initializing GUI." , ex);
             }
         }
         #endregion
@@ -533,7 +534,7 @@ namespace vApus.Gui {
             else
                 lblUpdateNotifier.Image = Resources.OK;
 
-            lblLogLevel.Text = LogWrapper.LogLevel.ToString();
+            lblLogLevel.Text = Loggers.GetLogger<FileLogger>().CurrentLevel.ToString();
             lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
             //SetProcessorAffinityLabel();
             lblSocketListener.Text = Dns.GetHostName() + ":" + SocketListenerLinker.SocketListenerPort;

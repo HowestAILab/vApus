@@ -46,7 +46,7 @@ namespace vApus.Util {
             InitializeComponent();
             HandleCreated += LogPanel_HandleCreated;
             VisibleChanged += LogPanel_VisibleChanged;
-            LogWrapper.Default.AfterLogging += Default_AfterLogging;
+           // LogWrapper.Default.AfterLogging += Default_AfterLogging;
 
             _tmrFireLogChangedEvent.Elapsed += tmrFireLogChangedEvent_Elapsed;
         }
@@ -57,43 +57,43 @@ namespace vApus.Util {
         #region Get the current log in the gui
 
         private void SetGui() {
-            lock (_lock)
-                if (Visible && IsHandleCreated) {
-                    cboLogLevel.SelectedIndexChanged -= cboLogLevel_SelectedIndexChanged;
-                    llblPath.Text = Logger.DEFAULT_LOCATION;
-                    cboLogLevel.SelectedIndex = (int)LogWrapper.LogLevel;
-                    btnWarning.Visible = cboLogLevel.SelectedIndex > 1;
+            //lock (_lock)
+            //    if (Visible && IsHandleCreated) {
+            //        cboLogLevel.SelectedIndexChanged -= cboLogLevel_SelectedIndexChanged;
+            //        llblPath.Text = Logger.DEFAULT_LOCATION;
+            //        cboLogLevel.SelectedIndex = (int)LogWrapper.LogLevel;
+            //        btnWarning.Visible = cboLogLevel.SelectedIndex > 1;
 
-                    SeCurrentLog();
-                    SetEntries();
-                    cboLogLevel.SelectedIndexChanged += cboLogLevel_SelectedIndexChanged;
-                }
+            //        SeCurrentLog();
+            //        SetEntries();
+            //        cboLogLevel.SelectedIndexChanged += cboLogLevel_SelectedIndexChanged;
+            //    }
         }
 
         /// <summary>
         ///     The current log or the latest if not available.
         /// </summary>
         private void SeCurrentLog() {
-            FileInfo fi = null;
-            if (File.Exists(LogWrapper.Default.Logger.LogFile))
-                fi = new FileInfo(LogWrapper.Default.Logger.LogFile);
-            else if (Directory.Exists(LogWrapper.Default.Logger.Location))
-                foreach (string file in Directory.GetFiles(LogWrapper.Default.Logger.Location)) {
-                    var tempfi = new FileInfo(file);
-                    if (fi == null || tempfi.CreationTime > fi.CreationTime)
-                        if (IsLog(tempfi.Name)) {
-                            fi = tempfi;
-                            break;
-                        }
-                }
+            //FileInfo fi = null;
+            //if (File.Exists(LogWrapper.Default.Logger.LogFile))
+            //    fi = new FileInfo(LogWrapper.Default.Logger.LogFile);
+            //else if (Directory.Exists(LogWrapper.Default.Logger.Location))
+            //    foreach (string file in Directory.GetFiles(LogWrapper.Default.Logger.Location)) {
+            //        var tempfi = new FileInfo(file);
+            //        if (fi == null || tempfi.CreationTime > fi.CreationTime)
+            //            if (IsLog(tempfi.Name)) {
+            //                fi = tempfi;
+            //                break;
+            //            }
+            //    }
 
-            if (fi == null) {
-                llblLatestLog.Text = "<None>";
-                llblLatestLog.Tag = null;
-            } else {
-                llblLatestLog.Text = fi.Name;
-                llblLatestLog.Tag = fi.FullName;
-            }
+            //if (fi == null) {
+            //    llblLatestLog.Text = "<None>";
+            //    llblLatestLog.Tag = null;
+            //} else {
+            //    llblLatestLog.Text = fi.Name;
+            //    llblLatestLog.Tag = fi.FullName;
+            //}
         }
 
         private bool IsLog(string file) {
@@ -108,91 +108,91 @@ namespace vApus.Util {
         }
 
         private void SetEntries() {
-            var latestLog = llblLatestLog.Tag as string;
-            if (File.Exists(latestLog)) {
-                //Fast read this, if it fails once it is not a problem.
-                var lines = new List<string>();
-                try {
-                    LogWrapper.Default.Logger.CloseWriter();
-                    using (var sr = new StreamReader(latestLog))
-                        while (sr.Peek() != -1) {
-                            string line = sr.ReadLine();
-                            if (!string.IsNullOrWhiteSpace(line))
-                                lines.Add(line);
-                        }
-                } catch {
-                } finally {
-                    try {
-                        LogWrapper.Default.Logger.OpenOrReOpenWriter();
-                    } catch {
-                    }
-                }
+            //var latestLog = llblLatestLog.Tag as string;
+            //if (File.Exists(latestLog)) {
+            //    //Fast read this, if it fails once it is not a problem.
+            //    var lines = new List<string>();
+            //    try {
+            //        LogWrapper.Default.Logger.CloseWriter();
+            //        using (var sr = new StreamReader(latestLog))
+            //            while (sr.Peek() != -1) {
+            //                string line = sr.ReadLine();
+            //                if (!string.IsNullOrWhiteSpace(line))
+            //                    lines.Add(line);
+            //            }
+            //    } catch {
+            //    } finally {
+            //        try {
+            //            LogWrapper.Default.Logger.OpenOrReOpenWriter();
+            //        } catch {
+            //        }
+            //    }
 
-                dgv.DataSource = null;
+            //    dgv.DataSource = null;
 
-                var dt = new DataTable("log");
-                dt.Columns.AddRange("Timestamp", "Type", "Text");
-                AddLinesToDataTable(lines, dt);
+            //    var dt = new DataTable("log");
+            //    dt.Columns.AddRange("Timestamp", "Type", "Text");
+            //    AddLinesToDataTable(lines, dt);
 
-                dgv.DataSource = dt;
+            //    dgv.DataSource = dt;
 
-                LockWindowUpdate(IntPtr.Zero);
-            }
+            //    LockWindowUpdate(IntPtr.Zero);
+            //}
         }
 
         private void AddLinesToDataTable(List<string> lines, DataTable dt) {
-            foreach (string line in lines) {
-                string[] entry = line.Split(';');
+            //foreach (string line in lines) {
+            //    string[] entry = line.Split(';');
 
-                if (entry.Length >= 3) {
-                    DateTime timeStamp;
-                    LogLevel logLevel;
-                    string message = string.Empty;
+            //    if (entry.Length >= 3) {
+            //        DateTime timeStamp;
+            //        LogLevel logLevel;
+            //        string message = string.Empty;
 
-                    string[] timeStampSplit = entry[0].Split(',');
-                    string dateTimePart = timeStampSplit[0];
-                    if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse(entry[1], out logLevel))
-                        if ((int)logLevel >= cboLogLevel.SelectedIndex) {
-                            if (timeStampSplit.Length > 1) {
-                                double ms = 0.0d;
-                                if (double.TryParse(timeStampSplit[1], out ms))
-                                    timeStamp = timeStamp.AddMilliseconds(ms);
-                            }
+            //        string[] timeStampSplit = entry[0].Split(',');
+            //        string dateTimePart = timeStampSplit[0];
+            //        if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse(entry[1], out logLevel))
+            //            if ((int)logLevel >= cboLogLevel.SelectedIndex) {
+            //                if (timeStampSplit.Length > 1) {
+            //                    double ms = 0.0d;
+            //                    if (double.TryParse(timeStampSplit[1], out ms))
+            //                        timeStamp = timeStamp.AddMilliseconds(ms);
+            //                }
 
-                            for (int i = 2; i != entry.Length; i++)
-                                message += entry[i] + ';';
+            //                for (int i = 2; i != entry.Length; i++)
+            //                    message += entry[i] + ';';
 
-                            message = message.Substring(0, message.Length - 1);
+            //                message = message.Substring(0, message.Length - 1);
 
 
-                            dt.Rows.Add(timeStamp.ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff"), logLevel.ToString(), message);
-                            //Continue if valid line
-                            continue;
-                        }
-                }
+            //                dt.Rows.Add(timeStamp.ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff"), logLevel.ToString(), message);
+            //                //Continue if valid line
+            //                continue;
+            //            }
+            //    }
 
-                if (dt.Rows.Count != 0) {
-                    int index = dt.Rows.Count - 1;
-                    object[] row = dt.Rows[index].ItemArray;
+            //    if (dt.Rows.Count != 0) {
+            //        int index = dt.Rows.Count - 1;
+            //        object[] row = dt.Rows[index].ItemArray;
 
-                    dt.Rows[index].ItemArray = new object[] { row[0], row[1], string.Concat(row[2], _newLineReplacement, line) };
-                }
-            }
+            //        dt.Rows[index].ItemArray = new object[] { row[0], row[1], string.Concat(row[2], _newLineReplacement, line) };
+            //    }
+            //}
         }
         #endregion
 
-        private void Default_AfterLogging(object source, LogEventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetGui(); }, null);
+        //private void Default_AfterLogging(object source, LogEventArgs e) {
+        //    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetGui(); }, null);
 
-            if (e.LogLevel >= LogLevel.Error) {
-                ++_logErrorCountCache;
-                //Fire after 5 seconds.
-                if (_tmrFireLogChangedEvent != null) {
-                    _tmrFireLogChangedEvent.Stop();
-                    _tmrFireLogChangedEvent.Start();
-                }
-            }
-        }
+        //    if (e.LogLevel >= LogLevel.Error) {
+        //        ++_logErrorCountCache;
+        //        //Fire after 5 seconds.
+        //        if (_tmrFireLogChangedEvent != null) {
+        //            _tmrFireLogChangedEvent.Stop();
+        //            _tmrFireLogChangedEvent.Start();
+        //        }
+        //    }
+        //}
 
         private void tmrFireLogChangedEvent_Elapsed(object sender, ElapsedEventArgs e) {
             lock (_lock) {
@@ -218,7 +218,7 @@ namespace vApus.Util {
         }
 
         private void cboLogLevel_SelectedIndexChanged(object sender, EventArgs e) {
-            LogWrapper.LogLevel = (LogLevel)cboLogLevel.SelectedIndex;
+            //LogWrapper.LogLevel = (LogLevel)cboLogLevel.SelectedIndex;
             dgv.DataSource = null;
             SetGui();
         }

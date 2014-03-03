@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -178,7 +179,7 @@ namespace vApus.Stresstest {
             if (ThreadWorkException != null) {
                 var invocationList = ThreadWorkException.GetInvocationList();
                 Parallel.For(0, invocationList.Length, (i) => {
-                    (invocationList[i] as EventHandler<MessageEventArgs>).Invoke(this, new MessageEventArgs(message, Color.Empty, LogLevel.Error));
+                    (invocationList[i] as EventHandler<MessageEventArgs>).Invoke(this, new MessageEventArgs(message, Color.Empty, Level.Error));
                 });
             }
         }

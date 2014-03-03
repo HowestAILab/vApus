@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -133,7 +134,7 @@ namespace vApus.DistributedTesting {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 Cursor = Cursors.WaitCursor;
                 btnStop.Enabled = true;
-                try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
+                try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", Level.Error); }
                 tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
                 tmrProgress.Start();
 
@@ -266,7 +267,7 @@ namespace vApus.DistributedTesting {
 
                 if (_stresstestMetricsCache.CalculatedSimplifiedMetrics && !_simplifiedMetricsReturned) {
                     _simplifiedMetricsReturned = true;
-                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", LogLevel.Warning);
+                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
                 }
 
             }
@@ -415,7 +416,7 @@ namespace vApus.DistributedTesting {
                 SendPushMessage(RunStateChange.None, false, false);
             } catch (Exception eeee) {
                 MessageBox.Show(eeee.ToString());
-                LogWrapper.LogByLevel("Failed stopping the test.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
+                Loggers.Log(Level.Error, "Failed stopping the test.", eeee);
             }
             Cursor = Cursors.Default;
         }
@@ -440,7 +441,7 @@ namespace vApus.DistributedTesting {
 
                 if (_stresstestMetricsCache.CalculatedSimplifiedMetrics && !_simplifiedMetricsReturned) {
                     _simplifiedMetricsReturned = true;
-                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", LogLevel.Warning);
+                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
                 }
 
                 // Can only be cancelled once, calling multiple times is not a problem.

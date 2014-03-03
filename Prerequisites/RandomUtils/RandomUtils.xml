@@ -1,0 +1,123 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RandomUtils</name>
+    </assembly>
+    <members>
+        <member name="T:RandomUtils.BackgroundWorkQueue">
+            <summary>
+            To offload work to a background thread and keeping that work in a synchronized order.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._processWorkQueueWaitHandle">
+            <summary>
+            If this is set all items in the work queue will be processed, except if this processing is paused.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._continueWaitHandle">
+            <summary>
+            Used for pausing and continuing processing the work queue.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._idleWaitHandle">
+            <summary>
+            Used for pausing and continuing processing the work queue.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.#ctor">
+            <summary>
+            To offload work to a background thread and keeping that work in a synchronized order.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Finalize">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Dispose">
+            <summary>
+            Releases all resources used.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Dispose(System.Int32)">
+            <summary>
+            <para>Releases all resources used.</para>
+            <para>Waits the given timeout before disposing (0 is acceptable, , smaller than 0 is indefinetly), if the work is not done it will be aborted.</para>
+            </summary>
+            <param name="millisecondsTimeout"></param>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.PauseProcessingWorkQueue">
+            <summary>
+            <para>Pauses the processing of the work queue and blocks until the processing is effectively paused.</para>
+            <para>Continue this processing calling 'ContinueProcessingWorkQueue()'.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.ContinueProcessingWorkQueue">
+            <summary>
+            Resumes the processing of the work queue.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.EnqueueWorkItem(System.Delegate,System.Object[])">
+            <summary>
+            <para>Adds a delegate on the work queue, that work queue is processed by a background thread.</para>
+            <para>The delegates on that queue are invoked in a synchronized order.</para>
+            <para></para>
+            <para>Define your delegate like so:</para>
+            <para>  <code>delegate T del(T, out T);</code> (Action or Func is also possible.)</para>
+            <para>then pass your function using this signature:</para>
+            <para>  <code>BackgroundWorkQueue.Send(new del(function), value, value);</code></para>
+            <para>The return type may be void and args are not obligatory.</para>
+            <para>Make sure you provide the right amount of args, even if it are out parameters (yes that is possible too).</para>
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="E:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessed">
+            <summary>
+            Invoked if an enqueued work item (function) was invoked successfully or unsuccessfully.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.BackgroundWorkQueue.IsDisposed">
+            <summary> </summary>
+        </member>
+        <member name="T:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs">
+            <summary>
+            The result of a called function or the exception thrown.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Delegate">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Parameters">
+            <summary>
+                Out parameters are stored here too.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.ReturnValue">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Exception">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.#ctor(System.Delegate,System.Object[],System.Object,System.Exception)">
+            <summary>
+            The result of a called function or the exception thrown.
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+            <param name="returnValue"></param>
+            <param name="exception"></param>
+        </member>
+        <member name="T:RandomUtils.SynchronizationContextWrapper">
+            <summary>
+            <para>A wrapper for SynchronizationContext, so SynchronizationContext is available throughout the entire application.</para>
+            <para>A SynchronizationContext is for synchronizing data to another thread, for instance to the main thread.</para>
+            <para>Handy if you want to update a System.Windows.Forms.Label from another thread. It is the most reliable way to do something like that IMHO.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.SynchronizationContextWrapper.SynchronizationContext">
+            <summary>
+            <para>Set this to System.Threading.SynchronizationContext.Current in the constructor below 'InitializeComponent();' of a WPF main form or when the handle is created for a WinForms main form.</para>
+            <para>e.g. If you want to update a System.Windows.Forms.Label form another thread: SynchronizationContextWrapper.SynchronizationContext.Current.Send((state) => { lblFoo.Text = "bar"; }, null)</para>
+            </summary>
+        </member>
+    </members>
+</doc>

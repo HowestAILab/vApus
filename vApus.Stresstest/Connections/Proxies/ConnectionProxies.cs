@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 
+using RandomUtils.Log;
 using System;
 using System.ComponentModel;
 using System.IO;
@@ -70,7 +71,7 @@ namespace vApus.Stresstest {
                 }
                 if (sb.ToString().Length > 0) {
                     string s = "Failed loading: " + sb;
-                    LogWrapper.LogByLevel(s, LogLevel.Error);
+                    Loggers.Log(Level.Error, s, null, new object[] { sender, e });
                     MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
             }

@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -122,7 +123,7 @@ namespace vApus.Util {
                 AutoScroll = false;
                 SetValues(partialRefresh);
             } catch (Exception ex) {
-                LogWrapper.LogByLevel("Generating GUI failed.\n" + ex, LogLevel.Error);
+                Loggers.Log(Level.Error, "Generating GUI failed.", ex);
             }
             AutoScroll = true;
             LockWindowUpdate(IntPtr.Zero);

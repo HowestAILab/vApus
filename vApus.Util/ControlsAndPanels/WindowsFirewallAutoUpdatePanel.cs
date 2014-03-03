@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using Microsoft.Win32;
+using RandomUtils.Log;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -82,11 +83,8 @@ namespace vApus.Util {
             try {
                 if ((int)value != validValue)
                     _status |= append;
-            } catch {
-                LogWrapper.LogByLevel(
-                    "[" + this +
-                    "] Failed checking if the firewall and Windows auto update are enabled or not!\nCould not find a registry key.",
-                    LogLevel.Error);
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed checking if the firewall and Windows auto update are enabled or not!\nCould not find a registry key.", ex, new object[] { value, validValue, append });
             }
         }
 
@@ -163,9 +161,7 @@ namespace vApus.Util {
                 StartProcess("NET", "STOP MpsSvc");
                 StartProcess("NET", "START MpsSvc");
             } catch (Exception ex) {
-                LogWrapper.LogByLevel(
-                    "[" + this + "] Failed enabling or disabling the firewall!\nCould not find a registry key.\n" + ex,
-                    LogLevel.Error);
+                Loggers.Log(Level.Error, "Failed enabling or disabling the firewall!\nCould not find a registry key.", ex);
             }
 
             try {
@@ -179,9 +175,7 @@ namespace vApus.Util {
                 StartProcess("NET", "STOP wuauserv");
                 StartProcess("NET", "START wuauserv");
             } catch (Exception ex) {
-                LogWrapper.LogByLevel(
-                    "[" + this + "] Failed enabling or disabling Windows auto update!\nCould not find a registry key.\n" +
-                    ex, LogLevel.Error);
+                Loggers.Log(Level.Error, "Failed enabling or disabling Windows auto update!\nCould not find a registry key.", ex);
             }
             _canCheckStatus = true;
         }

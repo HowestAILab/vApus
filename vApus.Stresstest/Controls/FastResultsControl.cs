@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -258,7 +259,7 @@ namespace vApus.Stresstest {
                     kvmCPUUsage.BackColor = Color.GhostWhite;
                 } else {
                     kvmCPUUsage.BackColor = Color.Orange;
-                    AddEvent(cpuUsage + " % CPU Usage", LogLevel.Warning);
+                    AddEvent(cpuUsage + " % CPU Usage", Level.Warning);
                 }
             }
             kvmContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1) ? "N/A" : contextSwitchesPerSecond.ToString();
@@ -271,7 +272,7 @@ namespace vApus.Stresstest {
                     kvmMemoryUsage.BackColor = Color.GhostWhite;
                 } else if (memoryUsage != 0) {
                     kvmMemoryUsage.BackColor = Color.Orange;
-                    AddEvent(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
+                    AddEvent(memoryUsage + " of " + totalVisibleMemory + " MB used", Level.Warning);
                 }
             }
             if (nicsSent == -1) {
@@ -282,7 +283,7 @@ namespace vApus.Stresstest {
                     kvmNicsSent.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmNicsSent.BackColor = Color.Orange;
-                    AddEvent(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
+                    AddEvent(nicsSent + " % NIC Usage (Sent)", Level.Warning);
                 }
             }
             if (nicsReceived == -1) {
@@ -293,7 +294,7 @@ namespace vApus.Stresstest {
                     kvmNicsReceived.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmNicsReceived.BackColor = Color.Orange;
-                    AddEvent(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
+                    AddEvent(nicsReceived + " % NIC Usage (Received)", Level.Warning);
                 }
             }
         }
@@ -478,9 +479,9 @@ namespace vApus.Stresstest {
             try {
                 string message = null;
                 if (exception != null) {
-                    message = exception.Message + "\n" + exception.StackTrace + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                    LogWrapper.LogByLevel(message, LogLevel.Error);
+                    var logger = Loggers.GetLogger<FileLogger>();
+                    message = exception.Message + "\n" + exception.StackTrace + "\n\nSee " + logger.CurrentLogFile;
+                    Loggers.Log(Level.Error, message);
                     AddEvent(message, Color.Red);
                 }
                 string lblStoppedText = null;
@@ -492,7 +493,7 @@ namespace vApus.Stresstest {
                             lblStopped.Text = lblStoppedText;
 
                             message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString());
-                            LogWrapper.LogByLevel(message, LogLevel.Info);
+                            Loggers.Log(message);
                             AddEvent(message, Color.GreenYellow);
 
                             SetStresstestStopped();
@@ -514,7 +515,7 @@ namespace vApus.Stresstest {
                             lblStopped.Text = lblStoppedText;
 
                             message = "The stresstest was cancelled.";
-                            LogWrapper.LogByLevel(message, LogLevel.Info);
+                            Loggers.Log(message);
                             AddEvent(message, Color.Orange);
 
                             SetStresstestStopped();
@@ -532,7 +533,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="message"></param>
         /// <param name="logLevel"></param>
-        public void AddEvent(string message, LogLevel logLevel = LogLevel.Info) {
+        public void AddEvent(string message, Level logLevel = Level.Info) {
             var c = new[] { Color.DarkGray, Color.Orange, Color.Red };
             AddEvent(message, c[(int)logLevel], logLevel);
         }
@@ -542,7 +543,7 @@ namespace vApus.Stresstest {
         /// <param name="message"></param>
         /// <param name="eventColor">a custom color if you need one</param>
         /// <param name="logLevel"></param>
-        public void AddEvent(string message, Color eventColor, LogLevel logLevel = LogLevel.Info) {
+        public void AddEvent(string message, Color eventColor, Level logLevel = Level.Info) {
             try { epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message); } catch { }
         }
 

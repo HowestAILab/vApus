@@ -19,6 +19,7 @@ using vApus.JSON;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
+using RandomUtils.Log;
 
 namespace vApus.Stresstest {
     public partial class StresstestView : BaseSolutionComponentView {
@@ -271,7 +272,7 @@ namespace vApus.Stresstest {
         private void StartStresstest() {
             Cursor = Cursors.WaitCursor;
 
-            try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", LogLevel.Error); }
+            try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", Level.Error); }
             tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
             tmrProgress.Start();
             try {
@@ -292,7 +293,7 @@ namespace vApus.Stresstest {
             } catch (Exception ex) {
                 //Only one test can run at the same time.
                 if (ex is ArgumentOutOfRangeException) {
-                    fastResultsControl.AddEvent("Cannot start this test because another one is still running.", LogLevel.Error);
+                    fastResultsControl.AddEvent("Cannot start this test because another one is still running.", Level.Error);
                     Stop(StresstestStatus.Error, null);
                 } else {
                     Stop(StresstestStatus.Error, ex);
@@ -308,7 +309,7 @@ namespace vApus.Stresstest {
                 } else {
                     //Only one test can run at the same time.
                     if (e.Exception is ArgumentOutOfRangeException) {
-                        fastResultsControl.AddEvent("Cannot start this test because another one is still running.", LogLevel.Error);
+                        fastResultsControl.AddEvent("Cannot start this test because another one is still running.", Level.Error);
                         Stop(StresstestStatus.Error, null);
                     } else {
                         Stop(StresstestStatus.Error, e.Exception);
@@ -352,7 +353,7 @@ namespace vApus.Stresstest {
                     //Only one test can run at the same time.
                     if (ex is ArgumentOutOfRangeException) {
                         fastResultsControl.AddEvent(
-                            "Cannot start this test because another one is still running.", LogLevel.Error);
+                            "Cannot start this test because another one is still running.", Level.Error);
                         ex = null;
                     }
                     Stop(StresstestStatus.Error, ex);
@@ -432,14 +433,14 @@ namespace vApus.Stresstest {
             SynchronizationContextWrapper.SynchronizationContext.Send(
                 delegate {
                     fastResultsControl.AddEvent((sender as MonitorView).Text + ": A counter became unavailable while monitoring:\n" +
-                        e.GetException(), LogLevel.Warning);
+                        e.GetException(), Level.Warning);
                 }, null);
         }
         private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(
                 delegate {
                     fastResultsControl.AddEvent((sender as MonitorView).Text + ": An error has occured while monitoring, monitor stopped!\n" +
-                        e.GetException(), LogLevel.Error);
+                        e.GetException(), Level.Error);
                 }, null);
         }
 
@@ -462,7 +463,7 @@ namespace vApus.Stresstest {
                             ++runningMonitors;
                         } catch (Exception e) {
                             try {
-                                LogWrapper.LogByLevel(monitorView.Text + " is not started.\n" + e, LogLevel.Error);
+                                Loggers.Log(Level.Error, monitorView.Text + " is not started.", e);
                                 fastResultsControl.AddEvent(monitorView.Text + " is not started.");
 
                                 try { monitorView.Stop(); } catch { }
@@ -627,7 +628,7 @@ namespace vApus.Stresstest {
 
                     if (_stresstestMetricsCache.CalculatedSimplifiedMetrics && !_simplifiedMetricsReturned) {
                         _simplifiedMetricsReturned = true;
-                        fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", LogLevel.Warning);
+                        fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
                     }
                 }
                 _progressCountDown = PROGRESSUPDATEDELAY;
@@ -822,7 +823,7 @@ namespace vApus.Stresstest {
 
                 if (_stresstestMetricsCache.CalculatedSimplifiedMetrics && !_simplifiedMetricsReturned) {
                     _simplifiedMetricsReturned = true;
-                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", LogLevel.Warning);
+                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
                 }
 
                 // Can only be cancelled once, calling multiple times is not a problem.
@@ -856,7 +857,7 @@ namespace vApus.Stresstest {
                     }
             foreach (MonitorView view in validMonitorViews)
                 try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
-                    LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
+                    Loggers.Log(Level.Error, view.Text + ": Failed adding results to the database.", e);
                     _stresstestStatus = StresstestStatus.Error;
                 }
 
@@ -879,7 +880,7 @@ namespace vApus.Stresstest {
                 if (exception == null) {
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", _stresstestStatus, "."));
                 } else {
-                    LogWrapper.LogByLevel(_stresstest.ToString() + " Failed.\n" + exception, LogLevel.Error);
+                    Loggers.Log(Level.Error, _stresstest.ToString() + " Failed.", exception);
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", _stresstestStatus, "."), exception);
                 }
             }

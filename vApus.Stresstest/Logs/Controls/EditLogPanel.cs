@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -267,7 +268,7 @@ namespace vApus.Stresstest {
 
             if (!successfullyParallized) {
                 string message = Text + ": Could not determine the begin- and end timestamps for one or more log entries in the different user actions, are they correctly formatted?";
-                LogWrapper.LogByLevel(message, LogLevel.Error);
+                Loggers.Log(Level.Error, message, null, new object[] { text, clearLog });
             }
 
             _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);

@@ -21,12 +21,12 @@ namespace vApus.Util {
     /// </summary>
     public static class ProcessorAffinityHelper {
         /// <summary>
-        ///     to know how much cores a group contains
+        ///  To know how much cores a group contains
         /// </summary>
         /// <param name="groupNumber">the group number if any, or ALL_PROCESSOR_GROUPS (0xffff) for every group</param>
         /// <returns></returns>
         [DllImport("kernel32.dll")]
-        public static extern uint GetActiveProcessorCount(ushort groupNumber);
+        private static extern uint GetActiveProcessorCount(ushort groupNumber);
 
         /// <summary>
         ///     Converts from a hex bitmask to an array of cpu's this process its affinity is set to.

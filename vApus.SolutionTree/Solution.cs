@@ -20,6 +20,7 @@ using System.Runtime;
 using System.Threading.Tasks;
 using System.Diagnostics;
 using System.Threading;
+using RandomUtils.Log;
 
 namespace vApus.SolutionTree {
     /// <summary>
@@ -289,7 +290,7 @@ namespace vApus.SolutionTree {
                 try {
                     return await LoadSolutionAsync(_activeSolution.FileName);
                 } catch (Exception ex) {
-                    LogWrapper.LogByLevel("Could not reopen the solution.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Could not reopen the solution", ex);
                 }
             return false;
         }

@@ -1335,6 +1335,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     int prevResultHeadersCount = 0;
                     var monitorColumnOffsets = new Dictionary<int, int>(); //key monitorID, value offset
 
+                    //If there are monitors with the same headers we want to reuse those headers if possible for those monitors.
                     foreach (DataRow monitorRow in monitors.Rows) {
                         int monitorId = (int)monitorRow.ItemArray[0];
 

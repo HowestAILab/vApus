@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2013 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
  *  
@@ -66,10 +67,10 @@ namespace vApus.DistributedTesting {
 
                     notACleanDivision = mod != 0;
                     if (notACleanDivision)
-                        LogWrapper.LogByLevel(tileStresstest.ToString() +
+                        Loggers.Log(Level.Warning, tileStresstest.ToString() +
                             " The averages in the fast results will NOT be correct because one or more given concurrencies divided by the number of slaves is not an integer! Please use the detailed results." +
                             "\nIn the following example both outcomes should be the same, but that is not possible:\n\t3 concurrencies; 1 slave; a log of one entry.\n\tAvg.Response time: (10 + 7 + 9) / 3 = 26 / 3 = 8,67." +
-                            "\n\t---\n\t3 concurrencies; 2 slaves; a log of one entry.\n\tAvg.Response time: (10 + (7 + 9) / 2) / 2 = 18 / 2 = 9.", LogLevel.Warning);
+                            "\n\t---\n\t3 concurrencies; 2 slaves; a log of one entry.\n\tAvg.Response time: (10 + (7 + 9) / 2) / 2 = 18 / 2 = 9.");
                 }
 
                 for (int i = 0; i != tileStresstest.BasicTileStresstest.Slaves.Length; i++) {

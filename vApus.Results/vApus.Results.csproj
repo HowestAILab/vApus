@@ -90,6 +90,15 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\Providers\MySql.Data.dll</HintPath>
     </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Prerequisites\RandomUtils\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="RandomUtils">
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="RandomUtils.Log">
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />

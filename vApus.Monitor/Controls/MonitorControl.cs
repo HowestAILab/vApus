@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -178,7 +179,7 @@ namespace vApus.Monitor {
                     ++RowCount;
 
                     if (monitorValues.Length != MonitorResultCache.Headers.Length)
-                        LogWrapper.LogByLevel("[Monitoring] The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", LogLevel.Error);
+                        Loggers.Log(Level.Error, "[Monitoring] The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, monitorValues);
                 }
             if (_keepAtEnd) {
                 Scroll -= MonitorControl_Scroll;

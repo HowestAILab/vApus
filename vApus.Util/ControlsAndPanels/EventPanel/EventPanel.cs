@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -52,7 +53,7 @@ namespace vApus.Util {
                             ep.AddEvent(EventViewEventType.Info, Color.Black, message);
                         }, null);
                     } catch (Exception ex) {
-                        LogWrapper.LogByLevel("Failed to add events to an event panel from within connection proxy code.\n" + ex.Message + "\n" + ex.StackTrace, LogLevel.Error);
+                        Loggers.Log(Level.Error, "Failed to add events to an event panel from within connection proxy code.", ex, new object[] { message });
                     }
             }
         }

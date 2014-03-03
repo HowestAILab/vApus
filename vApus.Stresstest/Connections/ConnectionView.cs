@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -90,16 +91,16 @@ namespace vApus.Stresstest {
                     btnTestConnection.Enabled = true;
 
                     error = "This connection has no connection proxy assigned to!";
+                    Loggers.Log(Level.Error, "[" + _connection + "] " + error, null, new object[] { allowMessageBox });
+
                     if (allowMessageBox)
                         MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-
-                    LogWrapper.LogByLevel("[" + _connection + "] " + error, LogLevel.Warning);
                 }, null);
                 return error;
             }
 
             var connectionProxyPool = new ConnectionProxyPool(_connection);
-            CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(false);
+            CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(true);
 
             if (compilerResults.Errors.HasErrors) {
                 error = "Failed at compiling the connection proxy class.";
@@ -117,10 +118,10 @@ namespace vApus.Stresstest {
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;
 
+                    Loggers.Log(Level.Warning, "[" + _connection + "] " + sb, null, new object[] { allowMessageBox });
+
                     if (allowMessageBox)
                         MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-
-                    LogWrapper.LogByLevel("[" + _connection + "] " + sb, LogLevel.Warning);
                 }, null);
             } else {
                 string errorMessage;
@@ -137,10 +138,10 @@ namespace vApus.Stresstest {
                             MessageBox.Show(this, "The connection has been established! and closed again successfully.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
                     } else {
                         error = "The connection could not be made, please make sure everything is filled in correctly.";
+
+                        Loggers.Log(Level.Warning, "[" + _connection + "] " + error + "\n" + errorMessage, null, new object[] { allowMessageBox });
                         if (allowMessageBox)
                             MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
-
-                        LogWrapper.LogByLevel("[" + _connection + "] " + error + "\n" + errorMessage, LogLevel.Warning);
                     }
                 }, null);
             }

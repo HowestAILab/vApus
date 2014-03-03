@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -77,7 +78,7 @@ namespace vApus.Results {
             btnOK.Enabled = true;
             btnOK.Text = "OK";
             if (ex != null) {
-                LogWrapper.LogByLevel("Could not connect to MySQL.\n" + ex, LogLevel.Warning);
+                Loggers.Log(Level.Warning, "Could not connect to MySQL.", ex, new object[] { sender, e });
                 lblCouldNotConnect.Visible = true;
             }
 
@@ -108,7 +109,7 @@ namespace vApus.Results {
             try {
                 _resultsHelper.SetDescriptionAndTags(Description, Tags);
             } catch (Exception ex) {
-                LogWrapper.LogByLevel("Could not add the description and tags to the database.\n" + ex, LogLevel.Error);
+                Loggers.Log(Level.Error, "Could not add the description and tags to the database.", ex, new object[] { sender, e });
             }
             DialogResult = DialogResult.OK;
             try { Close(); } catch { }

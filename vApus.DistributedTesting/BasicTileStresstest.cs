@@ -90,8 +90,6 @@ namespace vApus.DistributedTesting {
             set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
-                if (value.Length > 5)
-                    throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
 
                 _monitors = value;
                 if (_monitorProject != null) {

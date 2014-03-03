@@ -19,6 +19,7 @@ using vApus.Server.Shared;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
+using RandomUtils.Log;
 
 namespace vApus.DistributedTesting {
     public partial class DistributedTestView : BaseSolutionComponentView {
@@ -404,7 +405,7 @@ namespace vApus.DistributedTesting {
         private void testConnections_Message(object sender, TestConnections.TestWorkItem.MessageEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 if (!e.Succes)
-                    distributedStresstestControl.AppendMessages("The master cannot connect to " + e.Connection + ". It is likely that the slave won't be able to connect also!\nThe test will continue regardlessly.\nDetails: " + e.Message, LogLevel.Warning);
+                    distributedStresstestControl.AppendMessages("The master cannot connect to " + e.Connection + ". It is likely that the slave won't be able to connect also!\nThe test will continue regardlessly.\nDetails: " + e.Message, Level.Warning);
             }, null);
         }
 
@@ -488,7 +489,7 @@ namespace vApus.DistributedTesting {
                             foreach (Exception ex in exceptions)
                                 message += ex.Message + "\n";
 
-                            distributedStresstestControl.AppendMessages(message.Trim(), LogLevel.Error);
+                            distributedStresstestControl.AppendMessages(message.Trim(), Level.Error);
 
                             throw new Exception();
                         }
@@ -504,7 +505,7 @@ namespace vApus.DistributedTesting {
                     //Only one test can run at the same time.
                     JumpStart.Done -= JumpStart_Done;
 
-                    distributedStresstestControl.AppendMessages("Failed to Jump Start one or more slaves.", LogLevel.Error);
+                    distributedStresstestControl.AppendMessages("Failed to Jump Start one or more slaves.", Level.Error);
                     throw;
                 }
 
@@ -557,8 +558,8 @@ namespace vApus.DistributedTesting {
         }
         private void RemoteDesktopClient_RdpException(object sender, Util.RemoteDesktopClient.RdpExceptionEventArgs e) {
             string message = "Cannot open a remote desktop connection to " + e.IP + ". (error code: " + e.ErrorCode + ") ";
-            distributedStresstestControl.AppendMessages(message, LogLevel.Error);
-            LogWrapper.LogByLevel(message, LogLevel.Error);
+            distributedStresstestControl.AppendMessages(message, Level.Error);
+            Loggers.Log(Level.Error, message);
         }
 
         private void JumpStart_Done(object sender, JumpStart.DoneEventArgs e) {
@@ -586,20 +587,19 @@ namespace vApus.DistributedTesting {
                     } else {
                         //Failed jump starting slaves
                         foreach (Exception ex in e.Exceptions) {
-                            string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                            distributedStresstestControl.AppendMessages(message, LogLevel.Error);
-                            LogWrapper.LogByLevel(message, LogLevel.Error);
+                            string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                            distributedStresstestControl.AppendMessages(message, Level.Error);
+                            Loggers.Log(Level.Error, message, ex);
                         }
 
                         RemoveDatabase();
                         Stop();
                     }
-                } catch {
+                } catch (Exception ex) {
                     //Only one test can run at the same time.
                     string message = "Cannot start this test because another one is still running.";
-                    distributedStresstestControl.AppendMessages(message, LogLevel.Error);
-                    LogWrapper.LogByLevel(message, LogLevel.Error);
+                    distributedStresstestControl.AppendMessages(message, Level.Error);
+                    Loggers.Log(Level.Error, message, ex);
                     RemoveDatabase();
                     Stop();
                 }
@@ -624,7 +624,7 @@ namespace vApus.DistributedTesting {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                     if (notACleanDivision)
                         distributedStresstestControl.AppendMessages("The averages in the fast results for one or more tile stresstests will NOT be correct because one or more given concurrencies divided by the number of slaves is not an integer!" +
-                            "Please use the detailed results.\nSee the log for more details.", LogLevel.Warning);
+                            "Please use the detailed results.\nSee the log for more details.", Level.Warning);
 
                     fastResultsControl.SetStresstestInitialized();
 
@@ -652,7 +652,7 @@ namespace vApus.DistributedTesting {
         private void StartTestAndMonitors() {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI service.", LogLevel.Error); }
+                    try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI service.", Level.Error); }
 
                     if (_monitorViews != null) {
                         int runningMonitors = 0;
@@ -674,7 +674,7 @@ namespace vApus.DistributedTesting {
                                         distributedStresstestControl.AppendMessages(monitorView.Text + " is started.");
                                         ++runningMonitors;
                                     } catch (Exception e) {
-                                        LogWrapper.LogByLevel(monitorView.Text + " is not started.\n" + e, LogLevel.Error);
+                                        Loggers.Log(Level.Error, monitorView.Text + " is not started.", e);
                                         distributedStresstestControl.AppendMessages(monitorView.Text + " is not started.");
 
                                         try { monitorView.Stop(); } catch { }
@@ -725,9 +725,8 @@ namespace vApus.DistributedTesting {
 
         private void HandleInitializeOrStartException(Exception exception) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                string message = exception.Message + exception.StackTrace + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt"); ;
-                distributedStresstestControl.AppendMessages(message, LogLevel.Error);
+                string message = exception.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                distributedStresstestControl.AppendMessages(message, Level.Error);
                 if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                     _distributedTestCore.Dispose();
                     _distributedTestCore = null;
@@ -1000,13 +999,12 @@ namespace vApus.DistributedTesting {
                 try {
                     _distributedTestCore.Stop();
                 } catch (Exception ex) {
-                    string message = ex.Message + ex.StackTrace + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                    distributedStresstestControl.AppendMessages(message, LogLevel.Error);
+                    string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                    distributedStresstestControl.AppendMessages(message, Level.Error);
                 }
 
             } else {
-                distributedStresstestControl.AppendMessages("Test Cancelled!", LogLevel.Warning);
+                distributedStresstestControl.AppendMessages("Test Cancelled!", Level.Warning);
 
                 btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
@@ -1031,9 +1029,9 @@ namespace vApus.DistributedTesting {
             Stop(e.Cancelled == 0 && e.Error == 0);
 
             if (e.Cancelled == 0 && e.Error == 0) {
-                distributedStresstestControl.AppendMessages("Test finished!", LogLevel.Info);
+                distributedStresstestControl.AppendMessages("Test finished!", Level.Info);
             } else {
-                distributedStresstestControl.AppendMessages("Test Cancelled!", LogLevel.Warning);
+                distributedStresstestControl.AppendMessages("Test Cancelled!", Level.Warning);
                 RemoveDatabase();
             }
         }
@@ -1075,9 +1073,8 @@ namespace vApus.DistributedTesting {
                                                                          LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
                     } catch { } //Exception on false WMI. 
                 } catch (Exception ex) {
-                    string message = ex.Message + ex.StackTrace + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                    distributedStresstestControl.AppendMessages(message, LogLevel.Error);
+                    string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                    distributedStresstestControl.AppendMessages(message, Level.Error);
                     monitorAfter = false;
                 }
 
@@ -1371,7 +1368,7 @@ namespace vApus.DistributedTesting {
                         }
             foreach (MonitorView view in validMonitorViews)
                 try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
-                    LogWrapper.LogByLevel(view.Text + ": Failed adding results to the database.\n" + e, LogLevel.Error);
+                    Loggers.Log(Level.Error, view.Text + ": Failed adding results to the database.", e);
                 }
 
             validMonitorViews = null;

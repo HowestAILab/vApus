@@ -166,7 +166,7 @@ namespace vApus.Stresstest {
         //    if (ActorWorkException != null) {
         //        var invocationList = ActorWorkException.GetInvocationList();
         //        Parallel.For(0, invocationList.Length, (i) => {
-        //            (invocationList[i] as EventHandler<MessageEventArgs>).Invoke(this, new MessageEventArgs(message, Color.Empty, LogLevel.Error));
+        //            (invocationList[i] as EventHandler<MessageEventArgs>).Invoke(this, new MessageEventArgs(message, Color.Empty, Level.Error));
         //        });
         //    }
         //}

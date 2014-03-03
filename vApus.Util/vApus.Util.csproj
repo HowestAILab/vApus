@@ -181,6 +181,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
     </Reference>
+    <Reference Include="RandomUtils">
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="RandomUtils.Log">
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -416,7 +422,6 @@
     <Compile Include="Dialogs\OptionsDialog.Designer.cs">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\Logging\PostNewIssue.cs" />
     <Compile Include="Dialogs\ScheduleDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -427,15 +432,12 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="FastObjectCreator.cs" />
     <Compile Include="FastSerializer.cs" />
-    <Compile Include="ControlsAndPanels\Logging\ExceptionHelper.cs" />
-    <Compile Include="ControlsAndPanels\Logging\Logger.cs" />
     <Compile Include="ControlsAndPanels\Logging\LogPanel.cs">
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\Logging\LogPanel.Designer.cs">
       <DependentUpon>LogPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
     <Compile Include="JSONObjectTree.cs" />

@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -161,10 +162,9 @@ namespace vApus.SolutionTree {
                     AddWhileLoading(item);
                 } catch (Exception ex) {
                     string s = "[" + this + "] " + childNode.Name;
-                    LogWrapper.LogByLevel(
-                        "Failed loading " + s +
-                        " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stresstesting works.\n" +
-                        ex, LogLevel.Warning);
+                    Loggers.Log(Level.Warning, "Failed loading " + s +
+                        " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stresstesting works.", 
+                        ex, new object[] { xmlDocument });
 
                     sb.Append(s);
                     sb.Append(";");
@@ -202,7 +202,7 @@ namespace vApus.SolutionTree {
                 }
                 if (sb.ToString().Length > 0) {
                     string s = "Failed loading: " + sb;
-                    LogWrapper.LogByLevel(s, LogLevel.Error);
+                    Loggers.Log(Level.Error, s, null, new object[] { sender, e });
                     MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
                                     MessageBoxDefaultButton.Button1);
                 }

@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -148,9 +149,7 @@ namespace vApus.Stresstest {
                         if (retry++ < 2)
                             goto Retry;
                         else if (exception != null)
-                            try {
-                                LogWrapper.LogByLevel("Failed loading detailed results.\n" + exception.Message + "\n" + exception.StackTrace, LogLevel.Error);
-                            } catch { }
+                            Loggers.Log(Level.Error, "Failed loading detailed results.", exception, new object[] { sender, e });
                     } else {
                         if (dt.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                         try {

@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -145,14 +146,13 @@ namespace vApus.DistributedTesting {
         #region Functions
 
         #region Event Handling
-        private void InvokeMessage(string message, LogLevel logLevel = LogLevel.Info) { InvokeMessage(message, Color.Empty, logLevel); }
-        private void InvokeMessage(string message, Color color, LogLevel logLevel = LogLevel.Info) {
-            LogWrapper.LogByLevel(message, logLevel);
+        private void InvokeMessage(string message, Level logLevel = Level.Info) { InvokeMessage(message, Color.Empty, logLevel); }
+        private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
+            Loggers.Log(logLevel, message);
             if (Message != null) {
-                if (logLevel == LogLevel.Error) {
+                if (logLevel == Level.Error) {
                     string[] split = message.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
-                    message = split[0] + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
+                    message = split[0] + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
                 }
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
             }
@@ -175,7 +175,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void InvokeOnListeningError(ListeningErrorEventArgs listeningErrorEventArgs) {
-            LogWrapper.LogByLevel(listeningErrorEventArgs, LogLevel.Error);
+            Loggers.Log(Level.Error, "A listening error occured", listeningErrorEventArgs.Exception);
             if (OnListeningError != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnListeningError(this, listeningErrorEventArgs); }, null);
         }
@@ -230,17 +230,15 @@ namespace vApus.DistributedTesting {
                 } else {
                     Dispose();
                     var ex = new Exception(string.Format("Could not connect to one of the slaves ({0} - {1})!{2}{3}", dividedTileStresstest.Parent, dividedTileStresstest, Environment.NewLine, exception));
-                    string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
-                                     Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                    InvokeMessage(message, LogLevel.Error);
+                    string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                    InvokeMessage(message, Level.Error);
                     throw ex;
                 }
             }
             if (_totalTestCount == 0) {
                 var ex = new Exception("Please use at least one test!");
-                string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
-                   Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                InvokeMessage(message, LogLevel.Warning);
+                string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                InvokeMessage(message, Level.Warning);
                 throw ex;
             }
             _sw.Stop();
@@ -280,7 +278,7 @@ namespace vApus.DistributedTesting {
             Exception exception = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests, stresstestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization, _distributedTest.MaxRerunsBreakOnLast);
             if (exception != null) {
                 var ex = new Exception("Could not initialize one or more tests!\n" + exception);
-                InvokeMessage(ex.ToString(), LogLevel.Error);
+                InvokeMessage(ex.ToString(), Level.Error);
                 throw ex;
             }
 
@@ -296,7 +294,7 @@ namespace vApus.DistributedTesting {
                     var ex =
                         new Exception(string.Format("Could not initialize {0} - {1}.{2}{3}", e.TileStresstest.Parent,
                                                     e.TileStresstest, Environment.NewLine, e.Exception));
-                    InvokeMessage(ex.ToString(), LogLevel.Error);
+                    InvokeMessage(ex.ToString(), Level.Error);
                 }
         }
 
@@ -309,7 +307,7 @@ namespace vApus.DistributedTesting {
                 InvokeMessage(" ...Started!", Color.LightGreen);
             } else {
                 Dispose();
-                InvokeMessage(exception.ToString(), LogLevel.Error);
+                InvokeMessage(exception.ToString(), Level.Error);
                 throw exception;
             }
 
@@ -318,7 +316,7 @@ namespace vApus.DistributedTesting {
                 var ex =
                     new Exception(string.Format("Could not start the Distributed Test.{0}{1}", Environment.NewLine,
                                                 exception.ToString()));
-                InvokeMessage(ex.ToString(), LogLevel.Error);
+                InvokeMessage(ex.ToString(), Level.Error);
                 throw ex;
             }
         }
@@ -459,7 +457,7 @@ namespace vApus.DistributedTesting {
                     if (Cancelled != 0 || Failed != 0) Stop(); //Test is invalid stop the test.
                     if (Finished == _totalTestCount) HandleFinished();
                 } catch (Exception ex) {
-                    LogWrapper.LogByLevel("Something went wrong when handling test progress in the distributed test core.\n" + ex, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Something went wrong when handling test progress in the distributed test core.", ex);
                 }
             }
         }

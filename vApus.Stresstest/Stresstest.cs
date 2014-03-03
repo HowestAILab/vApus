@@ -144,15 +144,13 @@ namespace vApus.Stresstest {
                 }
             }
         }
-        [Description("The logs used to test the application. Maximum 5 allowed and they must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
+        [Description("The logs used to test the application. They must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
         [PropertyControl(1)]
         public KeyValuePair<Log, uint>[] Logs {
             get { return _logs; }
             set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
-                if (value.Length > 5)
-                    throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
 
                 if (_allLogs != null && _allLogs.Count > 1 && value.Length == 0) {
                     _logWeights = new uint[] { 1 };
@@ -246,15 +244,13 @@ namespace vApus.Stresstest {
             }
         }
 
-        [Description("The monitors used to link stresstest results to performance counters. Maximum 5 allowed.")]
+        [Description("The monitors used to link stresstest results to performance counters.")]
         [PropertyControl(2)]
         public Monitor.Monitor[] Monitors {
             get { return _monitors; }
             set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
-                if (value.Length > 5)
-                    throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
 
                 _monitors = value;
                 if (_monitorProject != null) {

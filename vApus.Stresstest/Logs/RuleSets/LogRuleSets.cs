@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -63,7 +64,7 @@ namespace vApus.Stresstest {
                 }
                 if (sb.ToString().Length > 0) {
                     string s = "Failed loading: " + sb;
-                    LogWrapper.LogByLevel(s, LogLevel.Error);
+                    Loggers.Log(Level.Error, s, null, new object[] { sender, e });
                     MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error,
                                     MessageBoxDefaultButton.Button1);
                 }

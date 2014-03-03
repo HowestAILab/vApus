@@ -80,15 +80,13 @@ namespace vApus.DistributedTesting {
                 }
             }
         }
-        [Description("The logs used to test the application. Maximum 5 allowed and they must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
+        [Description("The logs used to test the application. They must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
         [PropertyControl(0)]
         public KeyValuePair<Log, uint>[] Logs {
             get { return _logs; }
             set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
-                if (value.Length > 5)
-                    throw new ArgumentOutOfRangeException("Maximum 5 allowed.");
 
                 if (_allLogs != null && _allLogs.Count > 1 && value.Length == 0) {
                     _logWeights = new uint[] { 1 };

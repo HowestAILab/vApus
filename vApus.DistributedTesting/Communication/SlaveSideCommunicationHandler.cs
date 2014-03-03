@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
  *  
@@ -73,7 +74,7 @@ namespace vApus.DistributedTesting {
                         return HandleStopTest(message);
                 }
             } catch (Exception ex) {
-                LogWrapper.LogByLevel("Communication error:\n" + ex, LogLevel.Error);
+                Loggers.Log(Level.Error, "Communication error.", ex);
             }
             return message;
         }
@@ -162,7 +163,7 @@ namespace vApus.DistributedTesting {
                     if (_testInitializedException != null) throw _testInitializedException;
                 } catch (Exception ex) {
                     initializeTestMessage.Exception = ex.ToString();
-                    LogWrapper.LogByLevel(ex, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Failed initializing test.", ex);
                 }
 
                 initializeTestMessage.StresstestWrapper = null;

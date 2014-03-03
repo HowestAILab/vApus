@@ -6,10 +6,10 @@
  *    Dieter Vandroemme
  */
 using Newtonsoft.Json;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using vApus.DistributedTesting;
 using vApus.JSON;
@@ -37,7 +37,7 @@ namespace vApus.Server {
             // Send stuff that needs to be done. You receive an ack as plain text JSON.
             // Indices are one-based. If no index is given, you get all available indices and the string representation of the objects.
             _delegates.Add("/testconnection/#", TestConnection);
-            
+
             _delegates.Add("/startdistributedtest/#", StartDistributedTest);
             _delegates.Add("/startsingletest/#", StartSingleTest);
             _delegates.Add("/startmonitor/#/#", StartMonitor);
@@ -50,7 +50,7 @@ namespace vApus.Server {
             _delegates.Add("/applicationlog/warning", ApplicationLog);
             _delegates.Add("/applicationlog/error", ApplicationLog);
             _delegates.Add("/applicationlog/fatal", ApplicationLog);
-            
+
             _delegates.Add("/resultsdb", ResultsDB);
 
             // For a single test and distributed test (as a whole)
@@ -224,84 +224,13 @@ namespace vApus.Server {
         }
 
         private static Message<Key> ApplicationLog(string message) {
-            FileInfo fi = null;
-            if (File.Exists(LogWrapper.Default.Logger.LogFile))
-                fi = new FileInfo(LogWrapper.Default.Logger.LogFile);
-            else if (Directory.Exists(LogWrapper.Default.Logger.Location))
-                foreach (string file in Directory.GetFiles(LogWrapper.Default.Logger.Location)) {
-                    var tempfi = new FileInfo(file);
-                    if (fi == null || tempfi.CreationTime > fi.CreationTime)
-                        if (IsLog(tempfi.Name)) {
-                            fi = tempfi;
-                            break;
-                        }
-                }
+            string log = string.Empty;
+            string currentLogFile = Loggers.GetLogger<FileLogger>().CurrentLogFile;
+            if (File.Exists(currentLogFile))
+                using (var sr = new StreamReader(currentLogFile))
+                    log = sr.ReadToEnd();
 
-            string latestLog = null;
-            if (fi != null)
-                latestLog = fi.FullName;
-
-            string logEntries = string.Empty;
-            if (File.Exists(latestLog)) {
-                //Fast read this, if it fails once it is not a problem.
-                try {
-                    LogWrapper.Default.Logger.CloseWriter();
-                    using (var sr = new StreamReader(latestLog))
-                        logEntries = sr.ReadToEnd().Trim();
-                } catch {
-                } finally {
-                    try {
-                        LogWrapper.Default.Logger.OpenOrReOpenWriter();
-                    } catch {
-                    }
-                }
-
-                if (!message.EndsWith("info")) {
-                    string[] lines = logEntries.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-                    logEntries = string.Empty;
-
-                    int chosenLogLevel = 0;
-                    if (message.EndsWith("warning")) chosenLogLevel = 1;
-                    else if (message.EndsWith("error")) chosenLogLevel = 2;
-                    else if (message.EndsWith("fatal")) chosenLogLevel = 3;
-
-                    var tempOutput = new StringBuilder();
-                    foreach (string line in lines) {
-                        string[] entry = line.Split(';');
-                        if (entry.Length >= 3) {
-                            DateTime timeStamp;
-                            LogLevel logLevel;
-
-                            string[] timeStampSplit = entry[0].Split(',');
-                            string dateTimePart = timeStampSplit[0];
-                            if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse(entry[1], out logLevel))
-                                if ((int)logLevel >= chosenLogLevel) {
-                                    tempOutput.AppendLine(line);
-                                    //Continue if valid line
-                                    continue;
-                                }
-                        }
-
-                        string s = tempOutput.ToString();
-                        if (s.Length != 0)
-                            logEntries += s + "\n";
-                        tempOutput.Clear();
-                    }
-                    logEntries.TrimEnd();
-                }
-            }
-
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(logEntries));
-        }
-        private static bool IsLog(string file) {
-            if (file.EndsWith(".txt")) {
-                string[] split = file.Split(' ');
-                if (split.Length == 2) {
-                    DateTime timestamp;
-                    return (DateTime.TryParse(split[0], out timestamp) && split[1].StartsWith("PID_"));
-                }
-            }
-            return false;
+            return new Message<Key>(Key.Other, log);
         }
         private static Message<Key> ResultsDB(string message) {
             return new Message<Key>(Key.Other, JsonConvert.SerializeObject(ConnectionStringManager.GetCurrentConnectionString(ConnectionStringManager.CurrentDatabaseName)));
@@ -353,7 +282,7 @@ namespace vApus.Server {
                 List<KeyValuePair<object, object>> tileStresstests = (runningTestConfig.Cache[0].Value as JSONObjectTree).Cache;
 
                 foreach (var kvp in tileStresstests)
-                    if ((kvp.Key as string).StartsWith(tileStresstest)) 
+                    if ((kvp.Key as string).StartsWith(tileStresstest))
                         return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
             }
 

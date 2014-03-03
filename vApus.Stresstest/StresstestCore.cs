@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -241,15 +242,15 @@ namespace vApus.Stresstest {
 
         private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) { InvokeMessage(e.Message, e.Color, e.LogLevel); }
 
-        private void InvokeMessage(string message, LogLevel logLevel = LogLevel.Info) { InvokeMessage(message, Color.Empty, logLevel); }
+        private void InvokeMessage(string message, Level logLevel = Level.Info) { InvokeMessage(message, Color.Empty, logLevel); }
         /// <summary>
         /// </summary>
         /// <param name="message"></param>
         /// <param name="color">can be Color.Empty</param>
         /// <param name="logLevel"></param>
-        private void InvokeMessage(string message, Color color, LogLevel logLevel = LogLevel.Info) {
+        private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
             try {
-                LogWrapper.LogByLevel(message, logLevel);
+                Loggers.Log(logLevel, message);
                 if (Message != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(
                         delegate {
@@ -295,7 +296,7 @@ namespace vApus.Stresstest {
             _sw.Start();
             if (_stresstest.Logs[0].Key.LogRuleSet.IsEmpty) {
                 var ex = new Exception("No rule set has been assigned to the selected log(s).");
-                LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
+                Loggers.Log(Level.Error, ex.ToString());
                 throw ex;
             }
             foreach (var kvp in _stresstest.Logs) {
@@ -303,7 +304,7 @@ namespace vApus.Stresstest {
 
                 if (kvp.Value != 0 && kvp.Key.Count == 0) {
                     var ex = new Exception("There are no user actions in a selected log.");
-                    LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
+                    Loggers.Log(Level.Error, ex.ToString());
                     throw ex;
                 }
             }
@@ -459,7 +460,7 @@ namespace vApus.Stresstest {
                 _connectionProxyPool.Dispose();
                 _connectionProxyPool = null;
                 var ex = new Exception(sb.ToString());
-                LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
+                Loggers.Log(Level.Error, ex.ToString());
                 // This handles notification to the user.
                 throw ex;
             }
@@ -615,14 +616,14 @@ namespace vApus.Stresstest {
 
                                 tle[i] = new TestableLogEntry(logEntryIndex, sameAsLogEntryIndex, parameterizedStructureArr[testPatternIndex], logEntryParent, logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, _rerun);
                             } catch (Exception ex2) {
-                                LogWrapper.LogByLevel("Failed at determining test patterns>\n" + ex2, LogLevel.Error);
+                                Loggers.Log(Level.Error, "Failed at determining test patterns.", ex2);
                                 loopState.Break();
                             }
                         });
 
                         testableLogEntries.TryUpdate(user, tle, null);
                     } catch (Exception ex) {
-                        LogWrapper.LogByLevel("Failed at determining test patterns>\n" + ex, LogLevel.Error);
+                        Loggers.Log(Level.Error, "Failed at determining test patterns.", ex);
                         loopState.Break();
                     }
                 });
@@ -749,7 +750,7 @@ namespace vApus.Stresstest {
                         _threadPool.DoWorkAndWaitForIdle();
                     } catch (Exception ex) {
                         if (!_isDisposed)
-                            InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, LogLevel.Error);
+                            InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, Level.Error);
                     }
 
                     //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
@@ -867,7 +868,7 @@ namespace vApus.Stresstest {
                     testableLogEntryIndex += incrementIndex;
                 }
             } catch (Exception e) {
-                if (!_cancel && !_break) InvokeMessage("Work failed for " + Thread.CurrentThread.Name + ".\n" + e, Color.Red, LogLevel.Error);
+                if (!_cancel && !_break) InvokeMessage("Work failed for " + Thread.CurrentThread.Name + ".\n" + e, Color.Red, Level.Error);
             }
         }
 
