@@ -83,7 +83,7 @@ namespace vApus.Results {
                 var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
                 int percent5 = -1;
                 foreach (RunResult runResult in result.RunResults) {
-                    StresstestMetrics runResultMetrics = GetMetrics(runResult, ref simplified, false);
+                    StresstestMetrics runResultMetrics = GetMetrics(runResult, ref simplified, false, false);
                     if (simplified) { //Should return simplified if calculating one of the runs takes too long.
                         sw.Stop();
                         return GetSimplifiedMetrics(result);
@@ -198,7 +198,7 @@ namespace vApus.Results {
         /// if calculate95thPercentileResponseTimes == false. If the time to calculate exceeds 3 seconds this is set to true, if calculate95thPercentileResponseTimes == false.</param>
         /// <param name="calculate95thPercentileResponseTimes"></param>
         /// <returns></returns>
-        public static StresstestMetrics GetMetrics(RunResult result, ref bool simplified, bool calculate95thPercentileResponseTimes = true) {
+        public static StresstestMetrics GetMetrics(RunResult result, ref bool simplified, bool calculate95thPercentileResponseTimes = true, bool allowSimplifiedVirtualUserMetrics = true) {
             if (calculate95thPercentileResponseTimes == true) simplified = false;
             else if (simplified) return GetSimplifiedMetrics(result);
 
@@ -220,7 +220,7 @@ namespace vApus.Results {
                 if (virtualUserResult != null) {
                     ++enteredUserResultsCount;
 
-                    StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, ref simplified, !calculate95thPercentileResponseTimes);
+                    StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, ref simplified, allowSimplifiedVirtualUserMetrics);
                     if (simplified) {
                         sw.Stop();
                         return GetSimplifiedMetrics(result);
@@ -249,7 +249,7 @@ namespace vApus.Results {
                                     }
                                 while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
                             }
-                    } else if (sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
+                    } else if (allowSimplifiedVirtualUserMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
                         sw.Stop();
                         simplified = true;
                         return GetSimplifiedMetrics(result);
@@ -301,7 +301,7 @@ namespace vApus.Results {
         }
 
 
-        private static StresstestMetrics GetMetrics(VirtualUserResult result, ref bool simplified, bool allowSimplifiedResults) {
+        private static StresstestMetrics GetMetrics(VirtualUserResult result, ref bool simplified, bool allowSimplifiedMetrics) {
             var metrics = new StresstestMetrics();
 
             var sw = Stopwatch.StartNew();
@@ -324,7 +324,7 @@ namespace vApus.Results {
                     if (!string.IsNullOrEmpty(logEntryResult.Error)) ++metrics.Errors;
                 }
 
-                if (allowSimplifiedResults && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
+                if (allowSimplifiedMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
                     sw.Stop();
                     simplified = true;
                     return GetSimplifiedMetrics(result);
