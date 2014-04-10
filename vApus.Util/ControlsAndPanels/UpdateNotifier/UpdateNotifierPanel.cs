@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -108,12 +109,12 @@ namespace vApus.Util {
             UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
                                           cboChannel.SelectedIndex, chkSmartUpdate.Checked);
 
-            StaticActiveObjectWrapper.ActiveObject.OnResult += ActiveObject_OnResult;
-            StaticActiveObjectWrapper.ActiveObject.Send(_refreshDel);
+            BackgroundWorkQueueWrapper.BackgroundWorkQueue.OnWorkItemProcessed += BackgroundWorkQueue_OnWorkItemProcessed;
+            BackgroundWorkQueueWrapper.BackgroundWorkQueue.EnqueueWorkItem(_refreshDel);
         }
 
-        private void ActiveObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
-            StaticActiveObjectWrapper.ActiveObject.OnResult -= ActiveObject_OnResult;
+        private void BackgroundWorkQueue_OnWorkItemProcessed(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
+            BackgroundWorkQueueWrapper.BackgroundWorkQueue.OnWorkItemProcessed -= BackgroundWorkQueue_OnWorkItemProcessed;
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 SetUpdatePanel(true);

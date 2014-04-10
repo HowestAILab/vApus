@@ -260,7 +260,7 @@ namespace vApus.Stresstest {
             //#if EnableBetaFeature
             //            bool successfullyParallized = SetParallelExecutions();
             //#else
-#warning Parallel executions temp not available
+//#warning Parallel executions temp not available
             bool successfullyParallized = true;
             //#endif
             //SetIgnoreDelays();

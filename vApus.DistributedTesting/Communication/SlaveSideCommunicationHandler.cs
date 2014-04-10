@@ -1,4 +1,5 @@
-﻿using RandomUtils.Log;
+﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2010 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
@@ -45,7 +46,7 @@ namespace vApus.DistributedTesting {
         private static Exception _testInitializedException;
 
         private static readonly SendPushMessageDelegate _sendPushMessageDelegate = SendQueuedPushMessage;
-        private static ActiveObject _sendQueue;
+        private static BackgroundWorkQueue _sendQueue;
 
         //For encrypting the mysql password of the results db server.
         private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
@@ -88,7 +89,7 @@ namespace vApus.DistributedTesting {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
                 //init the send queue for push messages.
-                _sendQueue = new ActiveObject();
+                _sendQueue = new BackgroundWorkQueue();
 
                 var initializeTestMessage = (InitializeTestMessage)message.Content;
                 var stresstestWrapper = initializeTestMessage.StresstestWrapper;
@@ -239,7 +240,7 @@ namespace vApus.DistributedTesting {
                                            TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
                 if (_sendQueue != null)
-                    _sendQueue.Send(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
+                    _sendQueue.EnqueueWorkItem(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
                         stresstestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stresstestCore, events, concurrentUsersStateChange, runFinished, concurrencyFinished);
             }
         }

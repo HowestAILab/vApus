@@ -1,4 +1,5 @@
-﻿using RandomUtils.Log;
+﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -15,7 +16,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using vApus.JSON;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -57,7 +57,7 @@ namespace vApus.Monitor {
             get { return _configuration; }
             private set {
                 _configuration = value;
-#warning Enable REST
+////#warning Enable REST
                 //JSONObjectTree monitorHwConfig = (JSONObjectTreeHelper.RunningMonitorHardwareConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorHardwareConfig;
                 //JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
                 //JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
@@ -132,7 +132,7 @@ namespace vApus.Monitor {
             _previousMonitorSourceForParameters = _monitor.MonitorSource;
             _previousFilter = _monitor.Filter.Combine(", ");
 
-#warning Enable REST
+//#warning Enable REST
             //JSONObjectTree monitorConfig = (JSONObjectTreeHelper.RunningMonitorConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorConfig;
             // JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
             //JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
@@ -275,7 +275,7 @@ namespace vApus.Monitor {
 
                     monitorControl.AddMonitorValues(e.MonitorValues);
 
-#warning Enable REST
+//#warning Enable REST
                     //JSONObjectTree monitorProgress = (JSONObjectTreeHelper.RunningMonitorMetrics == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorMetrics;
                     //JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
                     //JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;

@@ -15,11 +15,11 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Monitor;
-using vApus.JSON;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
 using RandomUtils.Log;
+using RandomUtils;
 
 namespace vApus.Stresstest {
     public partial class StresstestView : BaseSolutionComponentView {
@@ -576,7 +576,7 @@ namespace vApus.Stresstest {
             string message = string.Concat(_stresstest.ToString(), " - Concurrency ", e.Result.Concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
 
-#warning Enable REST
+//#warning Enable REST
             //WriteRestProgress(RunStateChange.None);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
@@ -589,7 +589,7 @@ namespace vApus.Stresstest {
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
             }
 
-#warning Enable REST
+//#warning Enable REST
             //WriteRestProgress(RunStateChange.ToRunInitializedFirstTime);
 
             tmrProgress.Stop();
@@ -605,7 +605,7 @@ namespace vApus.Stresstest {
             string message = string.Concat(_stresstest.ToString(), " - Run ", e.Result.Run, " of concurrency ", concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
 
-#warning Enable REST
+//#warning Enable REST
             //WriteRestProgress(RunStateChange.None);
         }
 
@@ -633,7 +633,7 @@ namespace vApus.Stresstest {
                 }
                 _progressCountDown = PROGRESSUPDATEDELAY;
 
-#warning Enable REST
+////#warning Enable REST
                 //WriteRestProgress(RunStateChange.None);
             }
         }
@@ -713,7 +713,7 @@ namespace vApus.Stresstest {
 
                 Cursor = Cursors.Default;
 
-#warning Enable REST
+//#warning Enable REST
                 // WriteRestProgress(RunStateChange.None);
 
                 int runningMonitors = 0;
@@ -898,36 +898,36 @@ namespace vApus.Stresstest {
         }
         #endregion
 
-        private void WriteRestProgress(RunStateChange runStateChange) {
-            try {
-                var testProgressCache = new JSONObjectTree();
-                var clientMonitorCache = new JSONObjectTree();
-                var messagesCache = new JSONObjectTree();
+        //private void WriteRestProgress(RunStateChange runStateChange) {
+        //    try {
+        //        var testProgressCache = new JSONObjectTree();
+        //        var clientMonitorCache = new JSONObjectTree();
+        //        var messagesCache = new JSONObjectTree();
 
-                if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
-                    var stresstestCache = JSONObjectTreeHelper.AddSubCache(_stresstest.ToString(), testProgressCache);
+        //        if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
+        //            var stresstestCache = JSONObjectTreeHelper.AddSubCache(_stresstest.ToString(), testProgressCache);
 
-                    foreach (var metrics in _stresstestMetricsCache.GetConcurrencyMetrics())
-                        JSONObjectTreeHelper.ApplyToRunningTestFastConcurrencyResults(stresstestCache, metrics, runStateChange.ToString(), _stresstestStatus.ToString());
+        //            foreach (var metrics in _stresstestMetricsCache.GetConcurrencyMetrics())
+        //                JSONObjectTreeHelper.ApplyToRunningTestFastConcurrencyResults(stresstestCache, metrics, runStateChange.ToString(), _stresstestStatus.ToString());
 
-                    JSONObjectTreeHelper.ApplyToRunningTestClientMonitorMetrics(clientMonitorCache, _stresstest.ToString(), _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
-                                                          LocalMonitor.MemoryUsage, LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+        //            JSONObjectTreeHelper.ApplyToRunningTestClientMonitorMetrics(clientMonitorCache, _stresstest.ToString(), _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
+        //                                                  LocalMonitor.MemoryUsage, LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
 
-                    var events = fastResultsControl.GetEvents();
-                    var messages = new string[events.Count];
-                    for (int i = 0; i != messages.Length; i++) {
-                        var e = events[i];
-                        messages[i] = e.EventType + ": " + e.Message + " [" + e.At + "]";
-                    }
-                    JSONObjectTreeHelper.ApplyToRunningTestMessages(messagesCache, _stresstest.ToString(), messages);
+        //            var events = fastResultsControl.GetEvents();
+        //            var messages = new string[events.Count];
+        //            for (int i = 0; i != messages.Length; i++) {
+        //                var e = events[i];
+        //                messages[i] = e.EventType + ": " + e.Message + " [" + e.At + "]";
+        //            }
+        //            JSONObjectTreeHelper.ApplyToRunningTestMessages(messagesCache, _stresstest.ToString(), messages);
 
-                    JSONObjectTreeHelper.RunningTestFastConcurrencyResults = testProgressCache;
-                    JSONObjectTreeHelper.RunningTestClientMonitorMetrics = clientMonitorCache;
-                    JSONObjectTreeHelper.RunningTestMessages = messagesCache;
-                }
-            } catch {
-            }
-        }
+        //            JSONObjectTreeHelper.RunningTestFastConcurrencyResults = testProgressCache;
+        //            JSONObjectTreeHelper.RunningTestClientMonitorMetrics = clientMonitorCache;
+        //            JSONObjectTreeHelper.RunningTestMessages = messagesCache;
+        //        }
+        //    } catch {
+        //    }
+        //}
 
         #endregion
     }

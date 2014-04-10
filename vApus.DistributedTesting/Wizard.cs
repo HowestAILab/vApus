@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -502,12 +503,12 @@ namespace vApus.DistributedTesting {
                     client.Password = row.Tag as string;
 
                 //Add slaves to the client.
-                bool clientIsMaster = false;
-                foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName()))
-                    if (ipAddress.ToString() == client.IP) {
-                        clientIsMaster = true;
-                        break;
-                    }
+                //bool clientIsMaster = false;
+                //foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName()))
+                //    if (ipAddress.ToString() == client.IP) {
+                //        clientIsMaster = true;
+                //        break;
+                //    }
 
                 int startPort = 1347;
                 //if (clientIsMaster && startPort <= SocketListener.GetInstance().Port)

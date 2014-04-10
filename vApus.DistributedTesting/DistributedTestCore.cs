@@ -1,4 +1,5 @@
-﻿using RandomUtils.Log;
+﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -15,7 +16,6 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using vApus.JSON;
 using vApus.Results;
 using vApus.Server.Shared;
 using vApus.Stresstest;
@@ -135,7 +135,7 @@ namespace vApus.DistributedTesting {
 
             _tmrOnInvokeTestProgressMessageReceivedDelayed.Elapsed += _tmrOnInvokeTestProgressMessageReceivedDelayed_Elapsed;
 
-#warning Enable REST
+//#warning Enable REST
            // WriteRestConfig();
         }
         ~DistributedTestCore() {
@@ -567,57 +567,57 @@ namespace vApus.DistributedTesting {
 
             return newArr;
         }
-        private void WriteRestConfig() {
-            try {
-                //Converter.ClearWrittenFiles();
+        //private void WriteRestConfig() {
+        //    try {
+        //        //Converter.ClearWrittenFiles();
 
-                var testConfigCache = new JSONObjectTree();
-                var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), testConfigCache);
+        //        var testConfigCache = new JSONObjectTree();
+        //        var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), testConfigCache);
 
-                foreach (Tile tile in _distributedTest.Tiles)
-                    foreach (TileStresstest tileStresstest in tile)
-                        if (tileStresstest.Use) {
-                            var slaves = tileStresstest.BasicTileStresstest.Slaves;
-                            var newSlaves = new string[slaves.Length];
-                            for (int i = 0; i != slaves.Length; i++)
-                                newSlaves[i] = slaves[i].ToString();
+        //        foreach (Tile tile in _distributedTest.Tiles)
+        //            foreach (TileStresstest tileStresstest in tile)
+        //                if (tileStresstest.Use) {
+        //                    var slaves = tileStresstest.BasicTileStresstest.Slaves;
+        //                    var newSlaves = new string[slaves.Length];
+        //                    for (int i = 0; i != slaves.Length; i++)
+        //                        newSlaves[i] = slaves[i].ToString();
 
-                            var monitors = tileStresstest.BasicTileStresstest.Monitors;
-                            var newMonitors = new string[monitors.Length];
-                            for (int i = 0; i != monitors.Length; i++)
-                                newMonitors[i] = monitors[i].ToString();
+        //                    var monitors = tileStresstest.BasicTileStresstest.Monitors;
+        //                    var newMonitors = new string[monitors.Length];
+        //                    for (int i = 0; i != monitors.Length; i++)
+        //                        newMonitors[i] = monitors[i].ToString();
 
-                            var logs = tileStresstest.AdvancedTileStresstest.Logs;
-                            var newLogs = new string[logs.Length];
-                            for (int i = 0; i != logs.Length; i++)
-                                newLogs[i] = logs[i].Key.ToString();
+        //                    var logs = tileStresstest.AdvancedTileStresstest.Logs;
+        //                    var newLogs = new string[logs.Length];
+        //                    for (int i = 0; i != logs.Length; i++)
+        //                        newLogs[i] = logs[i].Key.ToString();
 
-                            JSONObjectTreeHelper.ApplyToRunningDistributedTestConfig(distributedTestCache,
-                                                    _distributedTest.RunSynchronization.ToString(),
-                                                    "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
-                                                    tileStresstest.Index + " " +
-                                                    tileStresstest.BasicTileStresstest.Connection.Label,
-                                                    tileStresstest.BasicTileStresstest.Connection.ToString(),
-                                                    tileStresstest.BasicTileStresstest.ConnectionProxy,
-                                                    newMonitors,
-                                                    newSlaves,
-                                                    newLogs,
-                                                    tileStresstest.AdvancedTileStresstest.LogRuleSet,
-                                                    tileStresstest.AdvancedTileStresstest.Concurrencies,
-                                                    tileStresstest.AdvancedTileStresstest.Runs,
-                                                    tileStresstest.AdvancedTileStresstest.MinimumDelay,
-                                                    tileStresstest.AdvancedTileStresstest.MaximumDelay,
-                                                    tileStresstest.AdvancedTileStresstest.Shuffle,
-                                                    tileStresstest.AdvancedTileStresstest.ActionDistribution,
-                                                    tileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions,
-                                                    tileStresstest.AdvancedTileStresstest.MonitorBefore,
-                                                    tileStresstest.AdvancedTileStresstest.MonitorAfter);
-                        }
-                JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
-                //Converter.WriteToFile(testConfigCache, "TestConfig");
-            } catch {
-            }
-        }
+        //                    JSONObjectTreeHelper.ApplyToRunningDistributedTestConfig(distributedTestCache,
+        //                                            _distributedTest.RunSynchronization.ToString(),
+        //                                            "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
+        //                                            tileStresstest.Index + " " +
+        //                                            tileStresstest.BasicTileStresstest.Connection.Label,
+        //                                            tileStresstest.BasicTileStresstest.Connection.ToString(),
+        //                                            tileStresstest.BasicTileStresstest.ConnectionProxy,
+        //                                            newMonitors,
+        //                                            newSlaves,
+        //                                            newLogs,
+        //                                            tileStresstest.AdvancedTileStresstest.LogRuleSet,
+        //                                            tileStresstest.AdvancedTileStresstest.Concurrencies,
+        //                                            tileStresstest.AdvancedTileStresstest.Runs,
+        //                                            tileStresstest.AdvancedTileStresstest.MinimumDelay,
+        //                                            tileStresstest.AdvancedTileStresstest.MaximumDelay,
+        //                                            tileStresstest.AdvancedTileStresstest.Shuffle,
+        //                                            tileStresstest.AdvancedTileStresstest.ActionDistribution,
+        //                                            tileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions,
+        //                                            tileStresstest.AdvancedTileStresstest.MonitorBefore,
+        //                                            tileStresstest.AdvancedTileStresstest.MonitorAfter);
+        //                }
+        //        JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
+        //        //Converter.WriteToFile(testConfigCache, "TestConfig");
+        //    } catch {
+        //    }
+        //}
         #endregion
 
         #endregion

@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using Microsoft.Win32;
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Diagnostics;
@@ -25,7 +26,7 @@ namespace vApus.Util {
         private delegate void ApplyDel();
 
         #region Fields
-        private readonly ActiveObject _activeObject = new ActiveObject();
+        private readonly BackgroundWorkQueue _backgroundWorkQueue = new BackgroundWorkQueue();
         private readonly ApplyDel _applyCallback;
         private Status _status;
         private bool _canCheckStatus = true;
@@ -41,7 +42,7 @@ namespace vApus.Util {
         public WindowsFirewallAutoUpdatePanel() {
             InitializeComponent();
             _applyCallback = ApplyCallback;
-            _activeObject.OnResult += _activeObject_OnResult;
+            _backgroundWorkQueue.OnWorkItemProcessed += _activeObject_OnResult;
             HandleCreated += DisableFirewallAutoUpdatePanel_HandleCreated;
         }
         #endregion
@@ -140,7 +141,7 @@ namespace vApus.Util {
             groupBox.Enabled = false;
             btnDisableAll.Enabled = false;
             btnDisableAll.Text = "Wait...";
-            _activeObject.Send(_applyCallback);
+            _backgroundWorkQueue.EnqueueWorkItem(_applyCallback);
         }
 
         private void ApplyCallback() {
@@ -180,7 +181,7 @@ namespace vApus.Util {
             _canCheckStatus = true;
         }
 
-        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
+        private void _activeObject_OnResult(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 btnDisableAll.Text = "Disable All";
                 groupBox.Enabled = true;

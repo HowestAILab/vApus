@@ -1,4 +1,5 @@
-﻿using RandomUtils.Log;
+﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -47,7 +48,7 @@ namespace vApus.Util {
             //NewIssue.Post(rtxt.Text);
         }
 
-        private void NewIssue_Done(object sender, ActiveObject.OnResultEventArgs e) {
+        private void NewIssue_Done(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
             if (e != null && e.ReturnValue != null) {
                 if (e.Exception == null) {
                     btnReportThisBug.Width = 93;
