@@ -26,7 +26,8 @@ namespace vApus.UpdateToolLoader {
                         Path.Combine(Application.StartupPath, "Org.Mentalis.Security.dll"),
                         Path.Combine(Application.StartupPath, "Tamir.SharpSSH.dll"),
                         Path.Combine(Application.StartupPath, "vApus.exe"),
-                        Path.Combine(Application.StartupPath, "vApus.Util.dll")
+                        Path.Combine(Application.StartupPath, "vApus.Util.dll"),
+                        Path.Combine(Application.StartupPath, "Random.Utils.dll")
                     };
 
                 string cachePath = Path.Combine(Application.StartupPath, "UpdaterRuntimeCache");
@@ -38,7 +39,8 @@ namespace vApus.UpdateToolLoader {
                         Path.Combine(cachePath, "Org.Mentalis.Security.dll"),
                         Path.Combine(cachePath, "Tamir.SharpSSH.dll"),
                         Path.Combine(cachePath, "vApus.exe"),
-                        Path.Combine(cachePath, "vApus.Util.dll")
+                        Path.Combine(cachePath, "vApus.Util.dll"),
+                        Path.Combine(cachePath, "Random.Utils.dll")
                     };
 
                 try {
