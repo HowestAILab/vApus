@@ -25,9 +25,8 @@ namespace vApus.UpdateToolLoader {
                         Path.Combine(Application.StartupPath, "DiffieHellman.dll"),
                         Path.Combine(Application.StartupPath, "Org.Mentalis.Security.dll"),
                         Path.Combine(Application.StartupPath, "Tamir.SharpSSH.dll"),
-                        Path.Combine(Application.StartupPath, "vApus.exe"),
                         Path.Combine(Application.StartupPath, "vApus.Util.dll"),
-                        Path.Combine(Application.StartupPath, "Random.Utils.dll")
+                        Path.Combine(Application.StartupPath, "RandomUtils.dll")
                     };
 
                 string cachePath = Path.Combine(Application.StartupPath, "UpdaterRuntimeCache");
@@ -38,9 +37,8 @@ namespace vApus.UpdateToolLoader {
                         Path.Combine(cachePath, "DiffieHellman.dll"),
                         Path.Combine(cachePath, "Org.Mentalis.Security.dll"),
                         Path.Combine(cachePath, "Tamir.SharpSSH.dll"),
-                        Path.Combine(cachePath, "vApus.exe"),
                         Path.Combine(cachePath, "vApus.Util.dll"),
-                        Path.Combine(cachePath, "Random.Utils.dll")
+                        Path.Combine(cachePath, "RandomUtils.dll")
                     };
 
                 try {
@@ -65,6 +63,9 @@ namespace vApus.UpdateToolLoader {
 
                     Process p = Process.Start(to[0], arguments);
                     p.WaitForExit();
+                }catch (FileNotFoundException ex){
+                    MessageBox.Show("Failed at copying files.\n" + ex.Message + " " + ex.StackTrace, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                
                 } catch {
                     MessageBox.Show("The update tool could not be started because the previously cached files where locked!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
