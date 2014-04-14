@@ -1,12 +1,12 @@
-﻿using RandomUtils;
-using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -25,7 +25,7 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Gui {
-    public partial class MainWindow : Form {
+    public partial class Main : Form {
 
         #region Fields
         private readonly string[] _args;
@@ -38,7 +38,7 @@ namespace vApus.Gui {
 
         private OptionsDialog _optionsDialog;
         private UpdateNotifierPanel _updateNotifierPanel;
-        private LogPanel _logPanel;
+        private FileLoggerPanel _logPanel;
         private LocalizationPanel _localizationPanel;
         //private ProcessorAffinityPanel _processorAffinityPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
@@ -48,7 +48,7 @@ namespace vApus.Gui {
         #endregion
 
         #region Constructor
-        public MainWindow(string[] args = null) {
+        public Main(string[] args = null) {
             _args = args;
             Init();
         }
@@ -85,8 +85,8 @@ namespace vApus.Gui {
                     Loggers.Log(Level.Error, "Argument Analyzer " + error);
 
                 _updateNotifierPanel = new UpdateNotifierPanel();
-                _logPanel = new LogPanel();
-                _logPanel.LogErrorCountChanged += _logPanel_LogErrorCountChanged;
+                _logPanel = new FileLoggerPanel();
+                Loggers.GetLogger<FileLogger>().LogEntryWritten += Main_LogEntryWritten;
                 _logErrorToolTip = new LogErrorToolTip { AutoPopDelay = 10000 };
                 _logErrorToolTip.Click += lblLogLevel_Click;
 
@@ -114,7 +114,7 @@ namespace vApus.Gui {
                 _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
             } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed initializing GUI." , ex);
+                Loggers.Log(Level.Error, "Failed initializing GUI.", ex);
             }
         }
         #endregion
@@ -495,20 +495,25 @@ namespace vApus.Gui {
         #endregion
 
         #region Status Strip
-        private void _logPanel_LogErrorCountChanged(object sender, LogPanel.LogErrorCountChangedEventArgs e) {
-            try {
-                //Show the error messages in a tooltip.
-                _logErrorToolTip.Hide();
+        private int _logErrorCount = 0;
+        private void Main_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
+            ++_logErrorCount;
 
-                int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
-                int y = statusStrip.Location.Y - 30;
-
-                _logErrorToolTip.NumberOfErrorsOrFatals = e.LogErrorCount;
-
-                _logErrorToolTip.Show(this, x, y);
-            } catch {
-            }
         }
+        //private void Main_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
+        //    try {
+        //        //Show the error messages in a tooltip.
+        //        _logErrorToolTip.Hide();
+
+        //        int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+        //        int y = statusStrip.Location.Y - 30;
+
+        //        _logErrorToolTip.NumberOfErrorsOrFatals = 1; // e.LogErrorCount;
+
+        //        _logErrorToolTip.Show(this, x, y);
+        //    } catch {
+        //    }
+        //}
 
         private void tmrSetStatusStrip_Tick(object sender, EventArgs e) {
             if (IsHandleCreated && Visible) try {

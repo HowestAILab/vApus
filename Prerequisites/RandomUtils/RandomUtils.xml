@@ -106,6 +106,118 @@
             <param name="returnValue"></param>
             <param name="exception"></param>
         </member>
+        <member name="T:vApus.Monitor.Sources.Util.SerializationHelper">
+            <summary>
+            Helper class for 'serializing / deserializing' strings, objects (gzip and deflate compression included) and structures.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.Encode(System.String,vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding)">
+            <summary>
+            Encodes a string to a byte[] using the given encoding.
+            </summary>
+            <param name="text"></param>
+            <param name="encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.Decode(System.Byte[],vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding)">
+            <summary>
+            Decodes a byte[] to a string using the given encoding.
+            </summary>
+            <param name="arr"></param>
+            <param name="encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.Serialize(System.Object)">
+            <summary>
+            Converts an object to a byte[] uncompressed.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.SerializeDeflate(System.Object)">
+            <summary>
+            Converts an object to a byte[] using gzip compression. Use gzip only for text, since it is optimized for that stuff according to wikipedia. Use deflate for everything else.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.SerializeGZip(System.Object)">
+            <summary>
+            Converts an object to a byte[] using deflate compression.  Use gzip only for text, since it is optimized for that stuff according to wikipedia. Use deflate for everything else.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.Deserialize``1(System.Byte[])">
+            <summary>
+            Converts a byte[] to an object.
+            Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.DeserializeDeflate``1(System.Byte[])">
+            <summary>
+            Converts a byte[] to an object. Decompressed using deflate.
+            Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.DeserializeGzip(System.Byte[])">
+            <summary>
+            Converts a byte[] to an object. Decompressed using gzip.
+            Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.MarshalStructToBytes``1(``0)">
+            <summary>
+            Handy for stuff from the clr / interop.
+            Use this only for structs that contains only primitives!
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Util.SerializationHelper.MarshalBytesToStruct``1(System.Byte[])">
+            <summary>
+            Handy for stuff from the clr / interop.
+            Use this only for structs that contains only primitives!
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding">
+            <summary>
+            Used in the Encode and Decode fx. UTF8 is advised.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding.ASCII">
+            <summary></summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding.BigEndianUnicode">
+            <summary></summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding.Default">
+            <summary>
+            Default system encoding, depends on your settings. Use UTF8 instead.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding.Unicode">
+            <summary></summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding.UTF32">
+            <summary></summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding.UTF7">
+            <summary></summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Util.SerializationHelper.TextEncoding.UTF8">
+            <summary></summary>
+        </member>
         <member name="T:RandomUtils.SynchronizationContextWrapper">
             <summary>
             <para>A wrapper for SynchronizationContext, so SynchronizationContext is available throughout the entire application.</para>

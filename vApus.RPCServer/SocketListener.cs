@@ -291,7 +291,7 @@ namespace vApus.RPCServer {
                 }
                 if (!socketWrapper.Connected)
                     DisconnectClient(socketWrapper);
-            } catch (Exception exception) {
+            } catch { //(Exception exception) {
                 DisconnectClient(socketWrapper);
                 //The test cannot be valid without a master, stop the test if any.
                 //LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, Level.Warning);

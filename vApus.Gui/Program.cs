@@ -56,7 +56,7 @@ namespace vApus.Gui {
             //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
             Directory.SetCurrentDirectory(Application.StartupPath);
 
-            Application.Run(new MainWindow(args));
+            Application.Run(new Main(args));
 
             Loggers.Log("Bye");
         }

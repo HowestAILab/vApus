@@ -431,12 +431,6 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="FastObjectCreator.cs" />
     <Compile Include="FastSerializer.cs" />
-    <Compile Include="ControlsAndPanels\Logging\LogPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Logging\LogPanel.Designer.cs">
-      <DependentUpon>LogPanel.cs</DependentUpon>
-    </Compile>
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
     <Compile Include="JSONObjectTree.cs" />
@@ -556,9 +550,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\OptionsDialog.resx">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\Logging\LogPanel.resx">
-      <DependentUpon>LogPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ScheduleDialog.resx">
       <DependentUpon>ScheduleDialog.cs</DependentUpon>
