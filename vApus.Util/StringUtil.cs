@@ -74,7 +74,7 @@ namespace vApus.Util {
         /// <param name="max">exclusive</param>
         /// <returns></returns>
         public static string GenerateRandomName(int min, int max) {
-            return GenerateRandomName((new Random()).Next(min, max));
+            return GenerateRandomName((new Random(Guid.NewGuid().GetHashCode())).Next(min, max));
         }
 
         /// <summary>
