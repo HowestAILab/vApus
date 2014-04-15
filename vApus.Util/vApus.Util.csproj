@@ -434,6 +434,9 @@
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
     <Compile Include="JSONObjectTree.cs" />
+    <Compile Include="ControlsAndPanels\LogPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

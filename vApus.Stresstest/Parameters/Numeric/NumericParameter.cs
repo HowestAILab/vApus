@@ -49,7 +49,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(1), SavableCloneable]
-        [DisplayName("Maximum Value"), Description("An exclusive maximum value.")]
+        [DisplayName("Maximum Value"), Description("An inclusive maximum value.")]
         public int MaxValue {
             get { return _maxValue; }
             set {
@@ -57,7 +57,7 @@ namespace vApus.Stresstest {
                     value = _minValue;
 
                 _maxValue = value;
-                if (_doubleValue >= _maxValue) {
+                if (_doubleValue > _maxValue) {
                     _doubleValue = _maxValue;
                     Value = GetFixedValue();
                 }
@@ -205,7 +205,7 @@ namespace vApus.Stresstest {
                 _doubleValue = ((_maxValue - _minValue) * random.NextDouble()) + _minValue;
             } else {
                 _doubleValue += _step;
-                if (_doubleValue >= _maxValue) {
+                if (_doubleValue > _maxValue) {
                     _doubleValue = _minValue;
                     _chosenValues.Clear();
                 }

@@ -465,6 +465,12 @@
             A winforms panel for displaying file log entries. You can also set the desired log level.
             </summary>
         </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.OnResize(System.EventArgs)">
+            <summary>
+            Refresh the child controls, because they are not drawn well (flat-style) when resized.
+            </summary>
+            <param name="eventargs"></param>
+        </member>
         <member name="F:RandomUtils.Log.FileLoggerPanel.components">
             <summary>
             Required designer variable.
@@ -480,6 +486,11 @@
             <summary>
             Required method for Designer support - do not modify
             the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Log.FileLoggerPanel.LogFileComparer">
+            <summary>
+            Z-A comparer
             </summary>
         </member>
         <member name="T:RandomUtils.Log.Loggers">

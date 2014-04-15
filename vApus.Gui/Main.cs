@@ -38,7 +38,7 @@ namespace vApus.Gui {
 
         private OptionsDialog _optionsDialog;
         private UpdateNotifierPanel _updateNotifierPanel;
-        private FileLoggerPanel _logPanel;
+        private LogPanel _logPanel;
         private LocalizationPanel _localizationPanel;
         //private ProcessorAffinityPanel _processorAffinityPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
@@ -85,7 +85,7 @@ namespace vApus.Gui {
                     Loggers.Log(Level.Error, "Argument Analyzer " + error);
 
                 _updateNotifierPanel = new UpdateNotifierPanel();
-                _logPanel = new FileLoggerPanel();
+                _logPanel = new LogPanel();
                 Loggers.GetLogger<FileLogger>().LogEntryWritten += Main_LogEntryWritten;
                 _logErrorToolTip = new LogErrorToolTip { AutoPopDelay = 10000 };
                 _logErrorToolTip.Click += lblLogLevel_Click;
@@ -495,25 +495,23 @@ namespace vApus.Gui {
         #endregion
 
         #region Status Strip
-        private int _logErrorCount = 0;
         private void Main_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
-            ++_logErrorCount;
+            try {
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    //Show the error messages in a tooltip.
+                    _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
 
+                    if (!_logErrorToolTip.Visible) {
+                        int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                        int y = statusStrip.Location.Y - 30;
+
+                        _logErrorToolTip.Show(this, x, y);
+                    }
+                }, null);
+
+            } catch {
+            }
         }
-        //private void Main_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
-        //    try {
-        //        //Show the error messages in a tooltip.
-        //        _logErrorToolTip.Hide();
-
-        //        int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
-        //        int y = statusStrip.Location.Y - 30;
-
-        //        _logErrorToolTip.NumberOfErrorsOrFatals = 1; // e.LogErrorCount;
-
-        //        _logErrorToolTip.Show(this, x, y);
-        //    } catch {
-        //    }
-        //}
 
         private void tmrSetStatusStrip_Tick(object sender, EventArgs e) {
             if (IsHandleCreated && Visible) try {

@@ -15,13 +15,11 @@ namespace vApus.Util {
     /// </summary>
     public partial class LogErrorToolTip : Form {
 
-        #region Properties
-        public int NumberOfErrorsOrFatals {
-            set { lblTitle.Text = value + ((value == 1) ? " new error or fatal!" : " new errors or fatals!"); }
-        }
+        private volatile int _numberOfErrorsOrFatals = 0;
 
+        #region Properties
         /// <summary>
-        ///     In ms how long this is visible
+        /// In ms how long this is visible
         /// </summary>
         public int AutoPopDelay {
             get { return timer.Interval; }
@@ -39,6 +37,13 @@ namespace vApus.Util {
         #endregion
 
         #region Functions
+        /// <summary>
+        /// Gets decremented again when this is hidden.
+        /// </summary>
+        public void IncrementNumberOfErrorsOrFatals() {
+            ++_numberOfErrorsOrFatals;
+            lblTitle.Text = _numberOfErrorsOrFatals + ((_numberOfErrorsOrFatals == 1) ? " new error or fatal!" : " new errors or fatals!");
+        }
         protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);
             //Draw border
@@ -77,6 +82,8 @@ namespace vApus.Util {
                 if (Owner != null)
                     Owner.SizeChanged += Owner_SizeChanged;
                 timer.Start();
+            } else {
+                _numberOfErrorsOrFatals = 0;
             }
         }
 
