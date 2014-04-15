@@ -59,7 +59,7 @@ namespace vApus.Gui {
             InitializeComponent();
             mainMenu.ImageList = new ImageList { ColorDepth = ColorDepth.Depth24Bit };
             _msgHandler = new Win32WindowMessageHandler();
-
+            Loggers.GetLogger<FileLogger>().CurrentLevel = (Level)Settings.Default.LogLevel;
             if (IsHandleCreated)
                 SetGui();
             else
@@ -202,6 +202,7 @@ namespace vApus.Gui {
             Cursor = Cursors.WaitCursor;
             if (_optionsDialog == null) {
                 _optionsDialog = new OptionsDialog();
+                _optionsDialog.FormClosed += _optionsDialog_FormClosed;
                 _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
@@ -216,6 +217,11 @@ namespace vApus.Gui {
             _optionsDialog.ShowDialog(this);
             SetStatusStrip();
             Cursor = Cursors.Default;
+        }
+
+        private void _optionsDialog_FormClosed(object sender, FormClosedEventArgs e) {
+            Settings.Default.LogLevel = (int)Loggers.GetLogger<FileLogger>().CurrentLevel;
+            Settings.Default.Save();
         }
 
         private void detailedResultsViewerToolStripMenuItem_Click(object sender, EventArgs e) {

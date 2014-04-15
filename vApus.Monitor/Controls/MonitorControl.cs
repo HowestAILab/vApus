@@ -59,7 +59,18 @@ namespace vApus.Monitor {
         private void MonitorControl_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
                 object value = null;
-                lock (_lock) value = MonitorResultCache.Rows[e.RowIndex][e.ColumnIndex];
+                lock (_lock)
+                    if (e.RowIndex < MonitorResultCache.Rows.Count) {
+                        object[] row = MonitorResultCache.Rows[e.RowIndex];
+                        if (e.ColumnIndex < row.Length)
+                            value = row[e.ColumnIndex];
+                    }
+
+                if (value == null)
+                    if (e.ColumnIndex == 0)
+                        value = DateTime.Now;
+                    else
+                        value = -1f;
 
                 if (value is float) {
                     var f = (float)value;
@@ -69,15 +80,12 @@ namespace vApus.Monitor {
                         if (headerCell.Style.BackColor != Color.Yellow) headerCell.Style.BackColor = Color.Yellow;
 
                         s = f.ToString();
-                    }
-                    else s = StringUtil.FloatToLongString(f, false);
+                    } else s = StringUtil.FloatToLongString(f, false);
                     value = s;
-                }
-                else value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                } else value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
 
                 e.Value = value;
-            }
-            catch { } //index out of range exception, the user is notified about this on receiving the monitor values 
+            } catch { } //index out of range exception, the user is notified about this on receiving the monitor values 
         }
         /// <summary>
         ///     Must always happen before the first value was added.
@@ -112,8 +120,7 @@ namespace vApus.Monitor {
                         }
 
                         lHeaders.Add(sb.ToString());
-                    }
-                    else
+                    } else
                         foreach (string instance in counterInfo.Instances) {
                             var sb = new StringBuilder();
                             sb.Append(entity.Name);
@@ -222,8 +229,7 @@ namespace vApus.Monitor {
                     foreach (var row in newCache) sw.WriteLine(row.Combine("\t"));
                     sw.Flush();
                 }
-            }
-            catch { MessageBox.Show("Cannot access '" + fileName + "' because it is in use!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            } catch { MessageBox.Show("Cannot access '" + fileName + "' because it is in use!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
         public void SaveFiltered(string fileName) {
             try {
@@ -233,8 +239,7 @@ namespace vApus.Monitor {
                     foreach (var row in newCache) sw.WriteLine(FilterArray(row).Combine("\t"));
                     sw.Flush();
                 }
-            }
-            catch { MessageBox.Show("Cannot access '" + fileName + "' because it is in use!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            } catch { MessageBox.Show("Cannot access '" + fileName + "' because it is in use!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
         private List<string[]> GetSaveableCache() {
             lock (_lock) {
@@ -270,8 +275,7 @@ namespace vApus.Monitor {
                     foreach (DataGridViewColumn clm in Columns) {
                         clm.Visible = true;
                         _filteredColumnIndices.Add(i++);
-                    }
-                else {
+                    } else {
                     var visibleColumns = new List<DataGridViewColumn>();
                     visibleColumns.Add(Columns[0]);
 
@@ -283,8 +287,7 @@ namespace vApus.Monitor {
                         if (visibleColumns.Contains(clm)) {
                             clm.Visible = true;
                             _filteredColumnIndices.Add(i);
-                        }
-                        else clm.Visible = false;
+                        } else clm.Visible = false;
                         ++i;
                     }
                 }
