@@ -265,6 +265,8 @@ namespace vApus.Monitor {
         private void _monitorProxy_OnMonitor(object sender, OnMonitorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 try {
+                    monitorControl.AddMonitorValues(e.MonitorValues);
+
                     //Don't do this when stopped
                     if (tmrProgressDelayCountDown.Enabled) {
                         int refreshInS = _refreshTimeInMS / 1000;
@@ -272,8 +274,6 @@ namespace vApus.Monitor {
 
                         lblCountDown.Text = "Updates in " + refreshInS;
                     }
-
-                    monitorControl.AddMonitorValues(e.MonitorValues);
 
 //#warning Enable REST
                     //JSONObjectTree monitorProgress = (JSONObjectTreeHelper.RunningMonitorMetrics == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorMetrics;
@@ -290,7 +290,8 @@ namespace vApus.Monitor {
                         if (endsAt <= DateTime.Now)
                             Stop();
                     }
-                } catch {
+                } catch { // (Exception ex) {
+                    //Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex);
                 }
             }, null);
         }

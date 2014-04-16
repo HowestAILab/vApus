@@ -57,7 +57,23 @@
         </member>
         <member name="M:RandomUtils.BackgroundWorkQueue.EnqueueWorkItem(System.Delegate,System.Object[])">
             <summary>
+            <para>Adds a delegate on the work queue, that work queue is processed by a background thread, threadsafe.</para>
+            <para>The delegates on that queue are invoked in a synchronized order.</para>
+            <para></para>
+            <para>Define your delegate like so:</para>
+            <para>  <code>delegate T del(T, out T);</code> (Action or Func is also possible.)</para>
+            <para>then pass your function using this signature:</para>
+            <para>  <code>BackgroundWorkQueue.Send(new del(function), value, value);</code></para>
+            <para>The return type may be void and args are not obligatory.</para>
+            <para>Make sure you provide the right amount of args, even if it are out parameters (yes that is possible too).</para>
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.UnsafeEnqueueWorkItem(System.Delegate,System.Object[])">
+            <summary>
             <para>Adds a delegate on the work queue, that work queue is processed by a background thread.</para>
+            <para>This is not thread safe, but is snappier since there is no locking.</para>
             <para>The delegates on that queue are invoked in a synchronized order.</para>
             <para></para>
             <para>Define your delegate like so:</para>

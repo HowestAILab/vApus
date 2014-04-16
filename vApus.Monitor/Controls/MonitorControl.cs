@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -24,6 +25,7 @@ namespace vApus.Monitor {
 
         #region Fields
         private readonly object _lock = new object();
+        private List<object[]> _toDisplayRows = new List<object[]>();
         private readonly List<int> _filteredColumnIndices = new List<int>();
         private string[] _filter = new string[0];
         private bool _keepAtEnd = true;
@@ -59,12 +61,11 @@ namespace vApus.Monitor {
         private void MonitorControl_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
                 object value = null;
-                lock (_lock)
-                    if (e.RowIndex < MonitorResultCache.Rows.Count) {
-                        object[] row = MonitorResultCache.Rows[e.RowIndex];
-                        if (e.ColumnIndex < row.Length)
-                            value = row[e.ColumnIndex];
-                    }
+                if (e.RowIndex < _toDisplayRows.Count) {
+                    object[] row = _toDisplayRows[e.RowIndex];
+                    if (e.ColumnIndex < row.Length)
+                        value = row[e.ColumnIndex];
+                }
 
                 if (value == null)
                     if (e.ColumnIndex == 0)
@@ -80,12 +81,18 @@ namespace vApus.Monitor {
                         if (headerCell.Style.BackColor != Color.Yellow) headerCell.Style.BackColor = Color.Yellow;
 
                         s = f.ToString();
-                    } else s = StringUtil.FloatToLongString(f, false);
+                    } else {
+                        s = StringUtil.FloatToLongString(f, false);
+                    }
                     value = s;
-                } else value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                } else {
+                    value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                }
 
                 e.Value = value;
-            } catch { } //index out of range exception, the user is notified about this on receiving the monitor values 
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed at displaying monitor values.", ex);
+            }
         }
         /// <summary>
         ///     Must always happen before the first value was added.
@@ -95,6 +102,8 @@ namespace vApus.Monitor {
         public void Init(Monitor monitor, string[] units) {
             Rows.Clear();
             Columns.Clear();
+
+            _toDisplayRows.Clear();
 
             MonitorResultCache = new MonitorResult() { Monitor = monitor.ToString() };
             _filteredColumnIndices.Clear();
@@ -180,18 +189,29 @@ namespace vApus.Monitor {
         /// </summary>
         /// <param name="monitorValues"></param>
         public void AddMonitorValues(object[] monitorValues) {
-            if (ColumnCount != 0)
-                lock (_lock) {
-                    MonitorResultCache.Rows.Add(monitorValues);
+            try {
+                if (ColumnCount != 0) {
+                    _toDisplayRows.Add(monitorValues);
+
+                    // SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                     ++RowCount;
 
-                    if (monitorValues.Length != MonitorResultCache.Headers.Length)
-                        Loggers.Log(Level.Error, "[Monitoring] The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, monitorValues);
+                    if (_keepAtEnd) {
+                        Scroll -= MonitorControl_Scroll;
+                        FirstDisplayedScrollingRowIndex = RowCount - 1;
+                        Scroll += MonitorControl_Scroll;
+                    }
+                    //  }, null);
+
+                    lock (_lock) {
+                        MonitorResultCache.Rows.Add(monitorValues);
+
+                        if (monitorValues.Length != MonitorResultCache.Headers.Length)
+                            Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, monitorValues);
+                    }
                 }
-            if (_keepAtEnd) {
-                Scroll -= MonitorControl_Scroll;
-                FirstDisplayedScrollingRowIndex = RowCount - 1;
-                Scroll += MonitorControl_Scroll;
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed adding monitor values.", ex);
             }
         }
         /// <summary>
