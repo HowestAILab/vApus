@@ -138,6 +138,7 @@ namespace vApus.DistributedTesting {
                             _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
                             _tileStresstestView.MaxRerunsBreakOnLast = stresstestWrapper.MaxRerunsBreakOnLast;
 
+
                             if (stresstestWrapper.StresstestIdInDb != 0 && !string.IsNullOrEmpty(stresstestWrapper.MySqlHost)) {
                                 _tileStresstestView.ConnectToExistingDatabase(stresstestWrapper.MySqlHost, stresstestWrapper.MySqlPort, stresstestWrapper.MySqlDatabaseName, stresstestWrapper.MySqlUser,
                                     stresstestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
