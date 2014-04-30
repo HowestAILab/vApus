@@ -54,7 +54,6 @@ namespace vApus.Util {
 
                 nud.Dock = DockStyle.Fill;
 
-                //Use text changed rather then value changed, value changed is not invoked when the text is changed.
                 nud.Leave += nud_Leave;
                 nud.KeyUp += nud_KeyUp;
                 nud.ValueChanged += nud_ValueChanged;
@@ -75,18 +74,38 @@ namespace vApus.Util {
         }
 
         private void nud_Leave(object sender, EventArgs e) {
-            try {
-                var nud = sender as FixedNumericUpDown;
-                base.HandleValueChanged(ConvertToNumericType(nud.Value));
-            } catch {
-            }
+            HandleValueChangedAndFocusLoss(sender as FixedNumericUpDown);
         }
         private void nud_ValueChanged(object sender, EventArgs e) {
+            HandleValueChangedAndFocusLoss(sender as FixedNumericUpDown);
+        }
+
+        private void HandleValueChangedAndFocusLoss(FixedNumericUpDown nud) {
             try {
-                var nud = sender as FixedNumericUpDown;
-                base.HandleValueChanged(ConvertToNumericType(nud.Value));
-            } catch {
-            }
+                object value = ConvertToNumericType(nud.Value);
+
+                if (nud.Focused && __Value.__Value != null && value != null && !__Value.__Value.Equals(value)) {
+                    base.HandleValueChanged(value);
+
+                    //Ugly but works.
+                    if (ParentForm != null)
+                        try {
+                            if (ParentForm.MdiParent == null) {
+                                ParentForm.TopMost = true;
+                                ParentForm.TopMost = false;
+                                ParentForm.Activate();
+                            } else {
+                                ParentForm.MdiParent.TopMost = true;
+                                ParentForm.MdiParent.TopMost = false;
+                                ParentForm.MdiParent.Activate();
+                            }
+                        } catch {
+                        }
+
+                    Application.DoEvents();
+                    nud.Select();
+                }
+            } catch { }
         }
 
         private object ConvertToNumericType(decimal value) {
