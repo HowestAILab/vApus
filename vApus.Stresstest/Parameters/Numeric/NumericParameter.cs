@@ -172,7 +172,7 @@ namespace vApus.Stresstest {
                 _prefix = sr.ReadString();
                 _suffix = sr.ReadString();
                 _random = sr.ReadBoolean();
-                _step = sr.ReadInt32();
+                _step = sr.ReadDouble();
 
                 _tokenNumericIdentifier = sr.ReadInt32();
 
