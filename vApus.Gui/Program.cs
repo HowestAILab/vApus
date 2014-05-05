@@ -1,5 +1,4 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -8,8 +7,8 @@
  *
  * makecert.exe is in place to be able to auto generate an ssl certificate for capturing https trafic (vApus.Stresstest.EditLog).  
  */
+using RandomUtils.Log;
 using System;
-using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
@@ -18,7 +17,6 @@ using System.Threading;
 using System.Windows.Forms;
 using vApus.Gui.Properties;
 using vApus.Link;
-using vApus.Util;
 
 namespace vApus.Gui {
     internal static class Program {

@@ -26,8 +26,12 @@ namespace vApus.Stresstest {
     public partial class DetailedResultsControl : UserControl {
         public event EventHandler ResultsDeleted;
 
+        private event EventHandler<OnResultsEventArgs> OnResults;
+
         #region Fields
         private readonly object _lock = new object();
+        private Thread _workerThread;
+        private ManualResetEvent _waitHandle = new ManualResetEvent(true);
 
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
@@ -58,6 +62,8 @@ namespace vApus.Stresstest {
             this.VisibleChanged += DetailedResultsControl_VisibleChanged;
 
             cboShow.HandleCreated += cboShow_HandleCreated;
+
+            OnResults += DetailedResultsControl_OnResults;
         }
         #endregion
 
@@ -121,51 +127,57 @@ namespace vApus.Stresstest {
             } else ExpandConfig();
         }
 
-        async private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
-            if (cboShow.SelectedIndex != _currentSelectedIndex) {
-                _currentSelectedIndex = cboShow.SelectedIndex;
+        private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
+            lock (_lock) {
+                _waitHandle.Reset();
                 _cancellationTokenSource.Cancel();
+
+                lblLoading.Visible = false;
+                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = true;
+                dgvDetailedResults.Select();
+
+                FillCellView();
+
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                dgvDetailedResults.DataSource = null;
-                dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                try {
+                    if (cboShow.SelectedIndex != _currentSelectedIndex) {
+                        _currentSelectedIndex = cboShow.SelectedIndex;
 
-                flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
-                lblLoading.Visible = true;
+                        dgvDetailedResults.DataSource = null;
+                        dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 
-                int retry = 0;
-            Retry:
-                if (cboShow.SelectedIndex != -1 && _resultsHelper != null) {
-                    DataTable dt = null;
-                    Exception exception = null;
-                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
-                    try {
-                        dt = await Task.Run<DataTable>(() => GetDataSource(_cancellationTokenSource.Token, cultureInfo), _cancellationTokenSource.Token);
-                    } catch (Exception ex) {
-                        exception = ex;
+                        flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
+                        lblLoading.Visible = true;
+
+
+                        DetermineDataSource();
                     }
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed refreshing the results.", ex);
+                }
+                _waitHandle.Set();
+            }
+        }
 
-                    //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview and retry 3 times.
-                    if (dt == null) {
-                        if (retry++ < 2)
-                            goto Retry;
-                        else if (exception != null)
-                            Loggers.Log(Level.Error, "Failed loading detailed results.", exception, new object[] { sender, e });
-                    } else {
-                        if (dt.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                        try {
-                            dgvDetailedResults.DataSource = dt;
-                        } catch {
-                            dgvDetailedResults.DataSource = null;
-                            var errorDt = new DataTable("Error");
-                            errorDt.Columns.Add("Error");
-                            errorDt.Rows.Add("This control cannot handle the amount (" + dt.Columns.Count + ") of columns in the result set. Exporting to Excel should not be a problem.");
+        private void DetailedResultsControl_OnResults(object sender, DetailedResultsControl.OnResultsEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview and retry 3 times.
+                if (!_cancellationTokenSource.Token.IsCancellationRequested && e.Results != null) {
+                    if (e.Results.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                    try {
+                        dgvDetailedResults.DataSource = e.Results;
+                    } catch {
+                        dgvDetailedResults.DataSource = null;
+                        var errorDt = new DataTable("Error");
+                        errorDt.Columns.Add("Error");
+                        errorDt.Rows.Add("This control cannot handle the amount (" + e.Results.Columns.Count + ") of columns in the result set. Exporting to Excel should not be a problem.");
 
-                            dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
-                            dgvDetailedResults.DataSource = errorDt;
-                        }
+                        dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
+                        dgvDetailedResults.DataSource = errorDt;
                     }
                 }
+
 
                 SizeColumns();
 
@@ -174,25 +186,37 @@ namespace vApus.Stresstest {
                 dgvDetailedResults.Select();
 
                 FillCellView();
-            }
+            }, null);
         }
-        private DataTable GetDataSource(CancellationToken cancellationToken, CultureInfo cultureInfo) {
-            if (!cancellationToken.IsCancellationRequested) {
-                Thread.CurrentThread.CurrentCulture = cultureInfo;
-                Dictionary<string, List<string>> stub;
-                switch (_currentSelectedIndex) {
-                    case 0: return _resultsHelper.GetOverview(cancellationToken, _stresstestIds);
-                    case 1: return _resultsHelper.GetAverageConcurrencyResults(cancellationToken, _stresstestIds);
-                    case 2: return _resultsHelper.GetAverageUserActionResults(cancellationToken, _stresstestIds);
-                    case 3: return _resultsHelper.GetAverageLogEntryResults(cancellationToken, _stresstestIds);
-                    case 4: return _resultsHelper.GetErrors(cancellationToken, _stresstestIds);
-                    case 5: return _resultsHelper.GetUserActionComposition(cancellationToken, _stresstestIds);
-                    case 6: return _resultsHelper.GetMachineConfigurations(cancellationToken, _stresstestIds);
-                    case 7: return _resultsHelper.GetAverageMonitorResults(cancellationToken, _stresstestIds);
-                    case 8: return _resultsHelper.GetRunsOverTime(cancellationToken, out stub, _stresstestIds);
-                }
+
+        private void DetermineDataSource() {
+            if (!_cancellationTokenSource.IsCancellationRequested) {
+                _workerThread = new Thread((object parameter) => {
+                    try {
+                        DataTable dt = null;
+                        Dictionary<string, List<string>> stub;
+                        switch (_currentSelectedIndex) {
+                            case 0: dt = _resultsHelper.GetOverview((CancellationToken)parameter, _stresstestIds); break;
+                            case 1: dt = _resultsHelper.GetAverageConcurrencyResults((CancellationToken)parameter, _stresstestIds); break;
+                            case 2: dt = _resultsHelper.GetAverageUserActionResults((CancellationToken)parameter, _stresstestIds); break;
+                            case 3: dt = _resultsHelper.GetAverageLogEntryResults((CancellationToken)parameter, _stresstestIds); break;
+                            case 4: dt = _resultsHelper.GetErrors((CancellationToken)parameter, _stresstestIds); break;
+                            case 5: dt = _resultsHelper.GetUserActionComposition((CancellationToken)parameter, _stresstestIds); break;
+                            case 6: dt = _resultsHelper.GetMachineConfigurations((CancellationToken)parameter, _stresstestIds); break;
+                            case 7: dt = _resultsHelper.GetAverageMonitorResults((CancellationToken)parameter, _stresstestIds); break;
+                            case 8: dt = _resultsHelper.GetRunsOverTime((CancellationToken)parameter, out stub, _stresstestIds); break;
+                        }
+                        if (OnResults != null)
+                            foreach (EventHandler<OnResultsEventArgs> del in OnResults.GetInvocationList())
+                                if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
+                                    del.BeginInvoke(this, new OnResultsEventArgs(dt), null, null);
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed refreshing the results.", ex);
+                    }
+                });
+                _workerThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
+                _workerThread.Start(_cancellationTokenSource.Token);
             }
-            return null;
         }
         private void SizeColumns() {
             if (_tmrSizeColumns != null && dgvDetailedResults.Columns.Count < 100) {
@@ -203,19 +227,19 @@ namespace vApus.Stresstest {
             }
         }
         private void _tmrSizeColumns_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            lock (_lock) {
-                _tmrSizeColumns.Stop();
-                SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
-                    int[] widths = new int[dgvDetailedResults.ColumnCount];
-                    for (int i = 0; i != widths.Length; i++) {
-                        int width = dgvDetailedResults.Columns[i].Width;
-                        widths[i] = width > 500 ? 500 : width;
-                    }
-                    dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
-                    for (int i = 0; i != widths.Length; i++)
-                        dgvDetailedResults.Columns[i].Width = widths[i];
-                }, null);
-            }
+            // lock (_lock) {
+            _tmrSizeColumns.Stop();
+            SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
+                int[] widths = new int[dgvDetailedResults.ColumnCount];
+                for (int i = 0; i != widths.Length; i++) {
+                    int width = dgvDetailedResults.Columns[i].Width;
+                    widths[i] = width > 500 ? 500 : width;
+                }
+                dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                for (int i = 0; i != widths.Length; i++)
+                    dgvDetailedResults.Columns[i].Width = widths[i];
+            }, null);
+            //  }
         }
 
         private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
@@ -264,7 +288,7 @@ namespace vApus.Stresstest {
             dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             var cultureInfo = Thread.CurrentThread.CurrentCulture;
             try {
-                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => ExecuteQuery(codeTextBox.Text, cultureInfo), _cancellationTokenSource.Token);
+                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => { return ExecuteQuery(codeTextBox.Text, cultureInfo); }, _cancellationTokenSource.Token);
             } catch { }
 
             SizeColumns();
@@ -330,6 +354,11 @@ namespace vApus.Stresstest {
         /// <param name="resultsHelper">Give hte helper that made the db</param>
         /// <param name="stresstestIds">Filter on one or more stresstests, if this is empty no filter is applied.</param>
         public void RefreshResults(ResultsHelper resultsHelper, params int[] stresstestIds) {
+            if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
+            _cancellationTokenSource = new CancellationTokenSource();
+
+            _waitHandle.WaitOne();
+
             this.Enabled = true;
 
             _resultsHelper = resultsHelper;
@@ -347,5 +376,12 @@ namespace vApus.Stresstest {
             cboShow.SelectedIndex = -1;
         }
         #endregion
+
+        private class OnResultsEventArgs : EventArgs {
+            public DataTable Results { get; private set; }
+            public OnResultsEventArgs(DataTable results) {
+                Results = results;
+            }
+        }
     }
 }

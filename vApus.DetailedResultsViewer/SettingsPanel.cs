@@ -176,13 +176,16 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void dgvDatabases_RowEnter(object sender, DataGridViewCellEventArgs e) {
-            if (_rowEnterTimer != null) {
-                _rowEnterTimer.Stop();
-                _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
-                _rowEnterTimer.SetTag(e);
-                _rowEnterTimer.Elapsed += _rowEnterTimer_Elapsed;
-                _rowEnterTimer.Start();
-            }
+
+            dgvDatabases_RowEnterDelayed(e);
+
+            //if (_rowEnterTimer != null) {
+            //    _rowEnterTimer.Stop();
+            //    _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
+            //    _rowEnterTimer.SetTag(e);
+            //    _rowEnterTimer.Elapsed += _rowEnterTimer_Elapsed;
+            //    _rowEnterTimer.Start();
+            //}
         }
         private void _rowEnterTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
             if (_rowEnterTimer != null) {

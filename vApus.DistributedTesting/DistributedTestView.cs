@@ -1147,8 +1147,10 @@ namespace vApus.DistributedTesting {
                 detailedResultsControl.ClearResults();
                 detailedResultsControl.Enabled = false;
             } else {
+                this.Enabled = false;
                 detailedResultsControl.Enabled = true;
                 detailedResultsControl.RefreshResults(_resultsHelper, stresstestIds);
+                this.Enabled = true;
             }
         }
         #endregion
