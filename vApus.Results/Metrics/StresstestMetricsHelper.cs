@@ -90,7 +90,7 @@ namespace vApus.Results {
                     }
 
                     metrics.StartsAndStopsRuns.Add(new KeyValuePair<DateTime, DateTime>(runResult.StartedAt, runResult.StoppedAt));
-     
+
                     if (calculate95thPercentileResponseTimes && percent5 == -1)
                         percent5 = (int)(result.RunResults.Count * runResultMetrics.LogEntries * 0.05) + 1;
 
@@ -108,17 +108,19 @@ namespace vApus.Results {
 
                     //For the 95th percentile.
                     if (calculate95thPercentileResponseTimes) {
-                        foreach (var vur in runResult.VirtualUserResults)
-                            foreach (var ler in vur.LogEntryResults)
-                                if (ler != null && ler.VirtualUser != null) {
-                                    long lerTimeToLastByteInTicks = ler.TimeToLastByteInTicks;
-                                    for (int i = 0; i != timesToLastByteInTicks.Count; i++)
-                                        if (timesToLastByteInTicks[i] < lerTimeToLastByteInTicks) {
-                                            timesToLastByteInTicks.Insert(i, lerTimeToLastByteInTicks);
-                                            break;
+                        if (runResult.VirtualUserResults != null)
+                            foreach (var vur in runResult.VirtualUserResults)
+                                if (vur != null && vur.LogEntryResults != null)
+                                    foreach (var ler in vur.LogEntryResults)
+                                        if (ler != null && ler.VirtualUser != null) {
+                                            long lerTimeToLastByteInTicks = ler.TimeToLastByteInTicks;
+                                            for (int i = 0; i != timesToLastByteInTicks.Count; i++)
+                                                if (timesToLastByteInTicks[i] < lerTimeToLastByteInTicks) {
+                                                    timesToLastByteInTicks.Insert(i, lerTimeToLastByteInTicks);
+                                                    break;
+                                                }
+                                            while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
                                         }
-                                    while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
-                                }
                     } else if (sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
                         sw.Stop();
                         simplified = true;
@@ -217,7 +219,7 @@ namespace vApus.Results {
             var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
             int percent5 = -1;
             foreach (VirtualUserResult virtualUserResult in result.VirtualUserResults)
-                if (virtualUserResult != null) {
+                if (virtualUserResult != null && virtualUserResult.LogEntryResults != null) {
                     ++enteredUserResultsCount;
 
                     StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, ref simplified, allowSimplifiedVirtualUserMetrics);
@@ -284,7 +286,7 @@ namespace vApus.Results {
 
             int enteredUserResultsCount = 0;
             foreach (VirtualUserResult virtualUserResult in result.VirtualUserResults)
-                if (virtualUserResult != null) {
+                if (virtualUserResult != null && virtualUserResult.LogEntryResults != null) {
                     ++enteredUserResultsCount;
 
                     StresstestMetrics virtualUserMetrics = GetSimplifiedMetrics(virtualUserResult);
@@ -541,7 +543,7 @@ namespace vApus.Results {
             }
 
             //Now do the merge.
-            var mergedMetricsCache = new StresstestMetricsCache() { CalculatedSimplifiedMetrics = calculateSimplifiedMetrics } ;
+            var mergedMetricsCache = new StresstestMetricsCache() { CalculatedSimplifiedMetrics = calculateSimplifiedMetrics };
             foreach (var toBeMerged in pivotedMetrics)
                 mergedMetricsCache.Add(MergeStresstestMetrics(toBeMerged));
             return mergedMetricsCache;
