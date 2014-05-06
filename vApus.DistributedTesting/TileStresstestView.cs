@@ -435,15 +435,11 @@ namespace vApus.DistributedTesting {
                                                           LocalMonitor.NicsReceived);
                 } catch { } //Exception on false WMI. 
 
+                _stresstestMetricsCache.AllowSimplifiedMetrics = false;
                 fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
                 fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics(), false, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
 
                 fastResultsControl.SetRerunning(false);
-
-                if (_stresstestMetricsCache.CalculatedSimplifiedMetrics && !_simplifiedMetricsReturned) {
-                    _simplifiedMetricsReturned = true;
-                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
-                }
 
                 // Can only be cancelled once, calling multiple times is not a problem.
                 if (_stresstestCore != null && !_stresstestCore.IsDisposed) try { _stresstestCore.Cancel(); } catch { }

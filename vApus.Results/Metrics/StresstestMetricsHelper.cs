@@ -63,8 +63,8 @@ namespace vApus.Results {
         /// if calculate95thPercentileResponseTimes == false. If the time to calculate exceeds 3 seconds this is set to true, if calculate95thPercentileResponseTimes == false.</param>
         /// <param name="calculate95thPercentileResponseTimes"></param>
         /// <returns></returns>
-        public static StresstestMetrics GetMetrics(ConcurrencyResult result, ref bool simplified, bool calculate95thPercentileResponseTimes = true) {
-            if (calculate95thPercentileResponseTimes == true) simplified = false;
+        public static StresstestMetrics GetMetrics(ConcurrencyResult result, ref bool simplified, bool allowSimplifiedMetrics, bool calculate95thPercentileResponseTimes) {
+            if (calculate95thPercentileResponseTimes || !allowSimplifiedMetrics) simplified = false;
             else if (simplified) return GetSimplifiedMetrics(result);
 
             var sw = Stopwatch.StartNew();
@@ -83,7 +83,7 @@ namespace vApus.Results {
                 var timesToLastByteInTicks = new List<long>(new long[] { 0 }); //For the 95th percentile of the response times.
                 int percent5 = -1;
                 foreach (RunResult runResult in result.RunResults) {
-                    StresstestMetrics runResultMetrics = GetMetrics(runResult, ref simplified, false, false);
+                    StresstestMetrics runResultMetrics = GetMetrics(runResult, ref simplified, true, false, false);
                     if (simplified) { //Should return simplified if calculating one of the runs takes too long.
                         sw.Stop();
                         return GetSimplifiedMetrics(result);
@@ -121,7 +121,7 @@ namespace vApus.Results {
                                                 }
                                             while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
                                         }
-                    } else if (sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
+                    } else if (allowSimplifiedMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
                         sw.Stop();
                         simplified = true;
                         return GetSimplifiedMetrics(result);
@@ -200,8 +200,8 @@ namespace vApus.Results {
         /// if calculate95thPercentileResponseTimes == false. If the time to calculate exceeds 3 seconds this is set to true, if calculate95thPercentileResponseTimes == false.</param>
         /// <param name="calculate95thPercentileResponseTimes"></param>
         /// <returns></returns>
-        public static StresstestMetrics GetMetrics(RunResult result, ref bool simplified, bool calculate95thPercentileResponseTimes = true, bool allowSimplifiedVirtualUserMetrics = true) {
-            if (calculate95thPercentileResponseTimes == true) simplified = false;
+        public static StresstestMetrics GetMetrics(RunResult result, ref bool simplified, bool allowSimplifiedMetrics, bool calculate95thPercentileResponseTimes, bool allowSimplifiedMetricsVirtualUsersMetrics = true) {
+            if (calculate95thPercentileResponseTimes || !allowSimplifiedMetrics) simplified = false;
             else if (simplified) return GetSimplifiedMetrics(result);
 
             var sw = Stopwatch.StartNew();
@@ -222,7 +222,7 @@ namespace vApus.Results {
                 if (virtualUserResult != null && virtualUserResult.LogEntryResults != null) {
                     ++enteredUserResultsCount;
 
-                    StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, ref simplified, allowSimplifiedVirtualUserMetrics);
+                    StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, ref simplified, allowSimplifiedMetricsVirtualUsersMetrics);
                     if (simplified) {
                         sw.Stop();
                         return GetSimplifiedMetrics(result);
@@ -251,7 +251,7 @@ namespace vApus.Results {
                                     }
                                 while (timesToLastByteInTicks.Count > percent5) timesToLastByteInTicks.RemoveAt(percent5);
                             }
-                    } else if (allowSimplifiedVirtualUserMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
+                    } else if (allowSimplifiedMetricsVirtualUsersMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
                         sw.Stop();
                         simplified = true;
                         return GetSimplifiedMetrics(result);
