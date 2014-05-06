@@ -21,7 +21,7 @@ namespace vApus.DetailedResultsViewer {
     public partial class SettingsPanel : DockablePanel {
 
         public event EventHandler<ResultsSelectedEventArgs> ResultsSelected;
-        public event EventHandler CancelGettingResults;
+        public event EventHandler CancelGettingResults, EnableResultsPanel, DisableResultsPanel;
 
         private MySQLServerDialog _mySQLServerDialog = new MySQLServerDialog();
         [ThreadStatic]
@@ -176,16 +176,15 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void dgvDatabases_RowEnter(object sender, DataGridViewCellEventArgs e) {
+            if (DisableResultsPanel != null) DisableResultsPanel(this, null);
 
-            dgvDatabases_RowEnterDelayed(e);
-
-            //if (_rowEnterTimer != null) {
-            //    _rowEnterTimer.Stop();
-            //    _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
-            //    _rowEnterTimer.SetTag(e);
-            //    _rowEnterTimer.Elapsed += _rowEnterTimer_Elapsed;
-            //    _rowEnterTimer.Start();
-            //}
+            if (_rowEnterTimer != null) {
+                _rowEnterTimer.Stop();
+                _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
+                _rowEnterTimer.SetTag(e);
+                _rowEnterTimer.Elapsed += _rowEnterTimer_Elapsed;
+                _rowEnterTimer.Start();
+            }
         }
         private void _rowEnterTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
             if (_rowEnterTimer != null) {
@@ -195,13 +194,18 @@ namespace vApus.DetailedResultsViewer {
                     dgvDatabases_RowEnterDelayed(_rowEnterTimer.GetTag() as DataGridViewCellEventArgs);
                 } catch { }
             }
+            SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
+                if (EnableResultsPanel != null) EnableResultsPanel(this, null);
+            }, null);
         }
 
         private void dgvDatabases_RowEnterDelayed(DataGridViewCellEventArgs e) {
-            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] != _currentRow)
-                SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
-                    if (CancelGettingResults != null) CancelGettingResults(this, null);
-                }, null);
+            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] == _currentRow)
+                return;
+
+            SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
+                if (CancelGettingResults != null) CancelGettingResults(this, null);
+            }, null);
 
             _resultsHelper.KillConnection();
 

@@ -130,7 +130,7 @@ namespace vApus.Stresstest {
         private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             lock (_lock) {
                 _waitHandle.Reset();
-                _cancellationTokenSource.Cancel();
+                if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
 
                 lblLoading.Visible = false;
                 flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = true;
@@ -156,14 +156,13 @@ namespace vApus.Stresstest {
                 } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed refreshing the results.", ex);
                 }
-                _waitHandle.Set();
             }
         }
 
         private void DetailedResultsControl_OnResults(object sender, DetailedResultsControl.OnResultsEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 //Stuff tends to happen out of order when cancelling, therefore this check, so we don't have an empty datagridview and retry 3 times.
-                if (!_cancellationTokenSource.Token.IsCancellationRequested && e.Results != null) {
+                if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested && e.Results != null) {
                     if (e.Results.Columns.Count < 100) dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
                     try {
                         dgvDetailedResults.DataSource = e.Results;
@@ -190,21 +189,21 @@ namespace vApus.Stresstest {
         }
 
         private void DetermineDataSource() {
-            if (!_cancellationTokenSource.IsCancellationRequested) {
-                _workerThread = new Thread((object parameter) => {
+            if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested) {
+                _workerThread = new Thread(() => {
                     try {
                         DataTable dt = null;
                         Dictionary<string, List<string>> stub;
                         switch (_currentSelectedIndex) {
-                            case 0: dt = _resultsHelper.GetOverview((CancellationToken)parameter, _stresstestIds); break;
-                            case 1: dt = _resultsHelper.GetAverageConcurrencyResults((CancellationToken)parameter, _stresstestIds); break;
-                            case 2: dt = _resultsHelper.GetAverageUserActionResults((CancellationToken)parameter, _stresstestIds); break;
-                            case 3: dt = _resultsHelper.GetAverageLogEntryResults((CancellationToken)parameter, _stresstestIds); break;
-                            case 4: dt = _resultsHelper.GetErrors((CancellationToken)parameter, _stresstestIds); break;
-                            case 5: dt = _resultsHelper.GetUserActionComposition((CancellationToken)parameter, _stresstestIds); break;
-                            case 6: dt = _resultsHelper.GetMachineConfigurations((CancellationToken)parameter, _stresstestIds); break;
-                            case 7: dt = _resultsHelper.GetAverageMonitorResults((CancellationToken)parameter, _stresstestIds); break;
-                            case 8: dt = _resultsHelper.GetRunsOverTime((CancellationToken)parameter, out stub, _stresstestIds); break;
+                            case 0: dt = _resultsHelper.GetOverview(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 1: dt = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 2: dt = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 3: dt = _resultsHelper.GetAverageLogEntryResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 4: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 5: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 6: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 7: dt = _resultsHelper.GetAverageMonitorResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 8: dt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out stub, _stresstestIds); break;
                         }
                         if (OnResults != null)
                             foreach (EventHandler<OnResultsEventArgs> del in OnResults.GetInvocationList())
@@ -213,9 +212,10 @@ namespace vApus.Stresstest {
                     } catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed refreshing the results.", ex);
                     }
+                    _waitHandle.Set();
                 });
                 _workerThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
-                _workerThread.Start(_cancellationTokenSource.Token);
+                _workerThread.Start();
             }
         }
         private void SizeColumns() {
@@ -355,9 +355,6 @@ namespace vApus.Stresstest {
         /// <param name="stresstestIds">Filter on one or more stresstests, if this is empty no filter is applied.</param>
         public void RefreshResults(ResultsHelper resultsHelper, params int[] stresstestIds) {
             if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
-            _cancellationTokenSource = new CancellationTokenSource();
-
-            _waitHandle.WaitOne();
 
             this.Enabled = true;
 
@@ -373,6 +370,9 @@ namespace vApus.Stresstest {
                     }
                 }
             _currentSelectedIndex = int.MinValue;
+
+            _waitHandle.WaitOne();
+
             cboShow.SelectedIndex = -1;
         }
         #endregion

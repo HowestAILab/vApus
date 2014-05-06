@@ -83,11 +83,9 @@ namespace vApus.Util {
         public void ReleaseConnection() {
             if (_bufferedCommand != null) {
                 try { _bufferedCommand.Cancel(); } catch { }
-                _bufferedCommand = null;
             }
 
             if (_connection != null) {
-                //try { _connection.Close(); } catch { }
                 try { _connection.Dispose(); } catch { }
                 _connection = null;
             }
