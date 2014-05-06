@@ -870,7 +870,6 @@ namespace vApus.Stresstest {
                     detailedResultsControl.Enabled = false;
                 } else {
                     this.Enabled = false;
-                    detailedResultsControl.Enabled = true;
                     detailedResultsControl.RefreshResults(_resultsHelper);
                     this.Enabled = true;
                 }

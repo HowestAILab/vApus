@@ -17,6 +17,16 @@
 
             JumpStart.Done -= JumpStart_Done;
             Stop();
+
+            try {
+                if (_refreshDetailedResultsTimer != null) {
+                    try {
+                        _refreshDetailedResultsTimer.Stop();
+                        _refreshDetailedResultsTimer.Dispose();
+                    } catch { }
+                }
+                _refreshDetailedResultsTimer = null;
+            } catch { }
         }
 
         #region Windows Form Designer generated code

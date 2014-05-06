@@ -130,6 +130,8 @@ namespace vApus.Stresstest {
         private void cboShow_SelectedIndexChanged(object sender, EventArgs e) {
             lock (_lock) {
                 _waitHandle.Reset();
+                this.Enabled = false;
+
                 if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
 
                 lblLoading.Visible = false;
@@ -140,22 +142,53 @@ namespace vApus.Stresstest {
 
                 _cancellationTokenSource = new CancellationTokenSource();
 
-                try {
-                    if (cboShow.SelectedIndex != _currentSelectedIndex) {
-                        _currentSelectedIndex = cboShow.SelectedIndex;
+                if (cboShow.SelectedIndex != _currentSelectedIndex) {
+                    _currentSelectedIndex = cboShow.SelectedIndex;
 
-                        dgvDetailedResults.DataSource = null;
-                        dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
+                    dgvDetailedResults.DataSource = null;
+                    dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.None;
 
-                        flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
-                        lblLoading.Visible = true;
+                    flpConfiguration.Enabled = pnlBorderCollapse.Enabled = splitQueryData.Enabled = chkAdvanced.Enabled = btnSaveDisplayedResults.Enabled = btnExportToExcel.Enabled = btnDeleteResults.Enabled = false;
+                    lblLoading.Visible = true;
 
 
-                        DetermineDataSource();
-                    }
-                } catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Failed refreshing the results.", ex);
+                    DetermineDataSource();
+                } else {
+                    _waitHandle.Set();
+
+                    this.Enabled = true;
                 }
+            }
+        }
+
+        private void DetermineDataSource() {
+            if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested) {
+                _workerThread = new Thread(() => {
+                    try {
+                        DataTable dt = null;
+                        Dictionary<string, List<string>> stub;
+                        switch (_currentSelectedIndex) {
+                            case 0: dt = _resultsHelper.GetOverview(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 1: dt = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 2: dt = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 3: dt = _resultsHelper.GetAverageLogEntryResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 4: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 5: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 6: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 7: dt = _resultsHelper.GetAverageMonitorResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 8: dt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out stub, _stresstestIds); break;
+                        }
+                        if (OnResults != null)
+                            foreach (EventHandler<OnResultsEventArgs> del in OnResults.GetInvocationList())
+                                if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
+                                    del(this, new OnResultsEventArgs(dt));
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed refreshing the results.", ex);
+                    }
+                    _waitHandle.Set();
+                });
+                _workerThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
+                _workerThread.Start();
             }
         }
 
@@ -185,39 +218,11 @@ namespace vApus.Stresstest {
                 dgvDetailedResults.Select();
 
                 FillCellView();
+
+                this.Enabled = true;
             }, null);
         }
 
-        private void DetermineDataSource() {
-            if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested) {
-                _workerThread = new Thread(() => {
-                    try {
-                        DataTable dt = null;
-                        Dictionary<string, List<string>> stub;
-                        switch (_currentSelectedIndex) {
-                            case 0: dt = _resultsHelper.GetOverview(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 1: dt = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 2: dt = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 3: dt = _resultsHelper.GetAverageLogEntryResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 4: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 5: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 6: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 7: dt = _resultsHelper.GetAverageMonitorResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 8: dt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out stub, _stresstestIds); break;
-                        }
-                        if (OnResults != null)
-                            foreach (EventHandler<OnResultsEventArgs> del in OnResults.GetInvocationList())
-                                if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested)
-                                    del.BeginInvoke(this, new OnResultsEventArgs(dt), null, null);
-                    } catch (Exception ex) {
-                        Loggers.Log(Level.Error, "Failed refreshing the results.", ex);
-                    }
-                    _waitHandle.Set();
-                });
-                _workerThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
-                _workerThread.Start();
-            }
-        }
         private void SizeColumns() {
             if (_tmrSizeColumns != null && dgvDetailedResults.Columns.Count < 100) {
                 _tmrSizeColumns.Stop();
@@ -303,8 +308,8 @@ namespace vApus.Stresstest {
 
         private void btnDeleteResults_Click(object sender, EventArgs e) {
             if (MessageBox.Show("Are you sure you want to delete the results database?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
-                _resultsHelper.DeleteResults();
                 this.Enabled = false;
+                _resultsHelper.DeleteResults();
 
                 if (ResultsDeleted != null) ResultsDeleted(this, null);
             }
@@ -356,7 +361,7 @@ namespace vApus.Stresstest {
         public void RefreshResults(ResultsHelper resultsHelper, params int[] stresstestIds) {
             if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
 
-            this.Enabled = true;
+            this.Enabled = false;
 
             _resultsHelper = resultsHelper;
             if (_resultsHelper != null) _resultsHelper.ClearCache(); //Keeping the cache as clean as possible.
@@ -373,7 +378,9 @@ namespace vApus.Stresstest {
 
             _waitHandle.WaitOne();
 
-            cboShow.SelectedIndex = -1;
+            this.Enabled = true;
+
+            cboShow.SelectedIndex = -1; //If this is disabled the event will not take place.
         }
         #endregion
 

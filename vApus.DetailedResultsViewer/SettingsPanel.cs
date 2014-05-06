@@ -21,7 +21,7 @@ namespace vApus.DetailedResultsViewer {
     public partial class SettingsPanel : DockablePanel {
 
         public event EventHandler<ResultsSelectedEventArgs> ResultsSelected;
-        public event EventHandler CancelGettingResults, EnableResultsPanel, DisableResultsPanel;
+        public event EventHandler CancelGettingResults, DisableResultsPanel;
 
         private MySQLServerDialog _mySQLServerDialog = new MySQLServerDialog();
         [ThreadStatic]
@@ -194,9 +194,6 @@ namespace vApus.DetailedResultsViewer {
                     dgvDatabases_RowEnterDelayed(_rowEnterTimer.GetTag() as DataGridViewCellEventArgs);
                 } catch { }
             }
-            SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
-                if (EnableResultsPanel != null) EnableResultsPanel(this, null);
-            }, null);
         }
 
         private void dgvDatabases_RowEnterDelayed(DataGridViewCellEventArgs e) {
