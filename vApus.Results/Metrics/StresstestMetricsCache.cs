@@ -127,7 +127,7 @@ namespace vApus.Results {
                 if (o.Metrics.Run != 0) {
                     if (o.Result != null)
                         if ((_calculateSimplifiedMetrics && !_allowSimplifiedMetrics) || (o.Metrics.LogEntries == 0 || o.Metrics.LogEntriesProcessed != o.Metrics.LogEntries))
-                            o.Metrics = StresstestMetricsHelper.GetMetrics(o.Result as RunResult, ref _calculateSimplifiedMetrics, _allowSimplifiedMetrics, false);
+                            o.Metrics = StresstestMetricsHelper.GetMetrics(o.Result as RunResult, ref _calculateSimplifiedMetrics, _allowSimplifiedMetrics, false, _allowSimplifiedMetrics);
                     metrics.Add(o.Metrics);
                 }
             return metrics;
