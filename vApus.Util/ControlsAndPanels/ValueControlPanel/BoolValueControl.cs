@@ -71,5 +71,13 @@ namespace vApus.Util {
         private void SetChkText(CheckBox chk) {
             chk.Text = "[" + (chk.Checked ? "Checked " : "Unchecked ") + "equals " + chk.Checked + "]";
         }
+
+        protected override void RevertToDefaultValueOnGui() {
+            var chk = ValueControl as CheckBox;
+            chk.CheckedChanged -= chk_CheckedChanged;
+            chk.Checked = (bool)base.__Value.DefaultValue;
+            SetChkText(chk);
+            chk.CheckedChanged += chk_CheckedChanged;
+        }
     }
 }

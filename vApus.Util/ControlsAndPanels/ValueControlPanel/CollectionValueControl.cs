@@ -132,5 +132,9 @@ namespace vApus.Util {
             cc.SetValue(ienumerable);
             cc.ValueChanged += ucc_ValueChanged;
         }
+
+        protected override void RevertToDefaultValueOnGui() {
+            //Not available.
+        }
     }
 }

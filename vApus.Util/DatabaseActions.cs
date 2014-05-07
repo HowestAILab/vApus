@@ -104,7 +104,7 @@ namespace vApus.Util {
         /// <param name="parameters"></param>
         /// <returns></returns>
         private MySqlCommand BuildCommand(MySqlConnection connection, string commandText, CommandType commandType, MySqlParameter[] parameters) {
-            var _bufferedCommand = connection.CreateCommand();
+            _bufferedCommand = connection.CreateCommand();
             _bufferedCommand.CommandType = commandType;
             _bufferedCommand.CommandText = commandText;
             _bufferedCommand.CommandTimeout = _commandTimeout;

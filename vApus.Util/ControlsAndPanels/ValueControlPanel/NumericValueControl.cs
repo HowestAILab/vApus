@@ -128,5 +128,12 @@ namespace vApus.Util {
                 return Convert.ToDouble(value);
             return Convert.ToDecimal(value);
         }
+
+        protected override void RevertToDefaultValueOnGui() {
+            var nud = base.ValueControl as NumericUpDown;
+            nud.ValueChanged -= nud_ValueChanged;
+            nud.Value = Convert.ToDecimal(base.__Value.DefaultValue);
+            nud.ValueChanged += nud_ValueChanged;
+        }
     }
 }

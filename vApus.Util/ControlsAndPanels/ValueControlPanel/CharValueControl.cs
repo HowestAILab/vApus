@@ -61,5 +61,10 @@ namespace vApus.Util {
             } catch {
             }
         }
+
+        protected override void RevertToDefaultValueOnGui() {
+            var txt = ValueControl as TextBox;
+            txt.Text = base.__Value.DefaultValue.ToString();
+        }
     }
 }
