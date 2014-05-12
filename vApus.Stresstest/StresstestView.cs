@@ -400,7 +400,8 @@ namespace vApus.Stresstest {
                     monitorView.MonitorInitialized -= monitorView_MonitorInitialized;
                     monitorView.OnHandledException -= monitorView_OnHandledException;
                     monitorView.OnUnhandledException -= monitorView_OnUnhandledException;
-                } catch { }
+                } catch {
+                }
 
             foreach (Monitor.Monitor monitor in _stresstest.Monitors) {
                 var monitorView = SolutionComponentViewManager.Show(monitor) as MonitorView;
@@ -432,15 +433,30 @@ namespace vApus.Stresstest {
         private void monitorView_OnHandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(
                 delegate {
-                    fastResultsControl.AddEvent((sender as MonitorView).Text + ": A counter became unavailable while monitoring:\n" +
-                        e.GetException(), Level.Warning);
+                    if (_monitorsInitialized < _stresstest.Monitors.Length) {
+                        if (_stresstestCore != null) _stresstestCore.Cancel();
+                        btnStop.Enabled = true;
+                        Stop(StresstestStatus.Error, e.GetException());
+                        Show();
+                    } else {
+                        fastResultsControl.AddEvent((sender as MonitorView).Text + ": A counter became unavailable while monitoring:\n" +
+                            e.GetException(), Level.Warning);
+                    }
                 }, null);
         }
         private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(
                 delegate {
-                    fastResultsControl.AddEvent((sender as MonitorView).Text + ": An error has occured while monitoring, monitor stopped!\n" +
-                        e.GetException(), Level.Error);
+
+                    if (_monitorsInitialized < _stresstest.Monitors.Length) {
+                        if (_stresstestCore != null) _stresstestCore.Cancel();
+                        btnStop.Enabled = true;
+                        Stop(StresstestStatus.Error, e.GetException());
+                        Show();
+                    } else {
+                        fastResultsControl.AddEvent((sender as MonitorView).Text + ": An error has occured while monitoring, monitor stopped!\n" +
+                            e.GetException(), Level.Error);
+                    }
                 }, null);
         }
 
@@ -576,7 +592,7 @@ namespace vApus.Stresstest {
             string message = string.Concat(_stresstest.ToString(), " - Concurrency ", e.Result.Concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
 
-//#warning Enable REST
+            //#warning Enable REST
             //WriteRestProgress(RunStateChange.None);
         }
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
@@ -589,7 +605,7 @@ namespace vApus.Stresstest {
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
             }
 
-//#warning Enable REST
+            //#warning Enable REST
             //WriteRestProgress(RunStateChange.ToRunInitializedFirstTime);
 
             tmrProgress.Stop();
@@ -605,7 +621,7 @@ namespace vApus.Stresstest {
             string message = string.Concat(_stresstest.ToString(), " - Run ", e.Result.Run, " of concurrency ", concurrency, " finished.");
             TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
 
-//#warning Enable REST
+            //#warning Enable REST
             //WriteRestProgress(RunStateChange.None);
         }
 
@@ -633,7 +649,7 @@ namespace vApus.Stresstest {
                 }
                 _progressCountDown = PROGRESSUPDATEDELAY;
 
-////#warning Enable REST
+                ////#warning Enable REST
                 //WriteRestProgress(RunStateChange.None);
             }
         }
@@ -713,7 +729,7 @@ namespace vApus.Stresstest {
 
                 Cursor = Cursors.Default;
 
-//#warning Enable REST
+                //#warning Enable REST
                 // WriteRestProgress(RunStateChange.None);
 
                 int runningMonitors = 0;

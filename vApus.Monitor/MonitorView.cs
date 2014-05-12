@@ -249,10 +249,11 @@ namespace vApus.Monitor {
 
         private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                bool forStresstest = _forStresstest;
                 Stop();
                 Loggers.Log(Level.Error, Text + ": An error has occured while monitoring, monitor stopped.", e.GetException(), new object[] { sender, e });
 
-                if (_forStresstest && OnUnhandledException != null) {
+                if (forStresstest && OnUnhandledException != null) {
                     var invocationList = OnHandledException.GetInvocationList();
                     Parallel.For(0, invocationList.Length, (i) => {
                         (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);

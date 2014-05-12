@@ -44,7 +44,6 @@ namespace vApus.Util {
         /// </summary>
         private MySqlConnection _connection;
         private int _commandTimeout = 60; //Default 1 minute.
-        private MySqlCommand _bufferedCommand;
 
         #endregion
 
@@ -81,10 +80,6 @@ namespace vApus.Util {
         ///     Releases the connection.
         /// </summary>
         public void ReleaseConnection() {
-            if (_bufferedCommand != null) {
-                try { _bufferedCommand.Cancel(); } catch { }
-            }
-
             if (_connection != null) {
                 try { _connection.Dispose(); } catch { }
                 _connection = null;
@@ -104,16 +99,16 @@ namespace vApus.Util {
         /// <param name="parameters"></param>
         /// <returns></returns>
         private MySqlCommand BuildCommand(MySqlConnection connection, string commandText, CommandType commandType, MySqlParameter[] parameters) {
-            _bufferedCommand = connection.CreateCommand();
-            _bufferedCommand.CommandType = commandType;
-            _bufferedCommand.CommandText = commandText;
-            _bufferedCommand.CommandTimeout = _commandTimeout;
+            MySqlCommand command = connection.CreateCommand();
+            command.CommandType = commandType;
+            command.CommandText = commandText;
+            command.CommandTimeout = _commandTimeout;
 
             if (parameters != null)
                 foreach (var parameter in parameters)
-                    _bufferedCommand.Parameters.Add(parameter);
+                    command.Parameters.Add(parameter);
 
-            return _bufferedCommand;
+            return command;
         }
 
         /// <summary>
