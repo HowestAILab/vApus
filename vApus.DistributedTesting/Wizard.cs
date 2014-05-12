@@ -1,11 +1,11 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -14,7 +14,6 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using vApus.JumpStartStructures;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -466,7 +465,7 @@ namespace vApus.DistributedTesting {
         /// <summary></summary>
         /// <returns>The slaves added.</returns>
         private List<Slave> AddClientsAndSlavesToDistributedTest() {
-            RefreshDGV();
+            SetSlaveCountsPerClients();
 
             //Clear the clients in de distributed test, new ones will be added.
             _distributedTest.Clients.ClearWithoutInvokingEvent();

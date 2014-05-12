@@ -996,7 +996,6 @@ namespace vApus.DistributedTesting {
             bool monitorAfterRunning = _monitorAfterCountDown != null;
 
             if (_distributedTestCore != null) {
-
                 btnStart.Enabled = btnStop.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
 
                 try {
@@ -1229,9 +1228,63 @@ namespace vApus.DistributedTesting {
             if (--_pendingMonitorViewInitializations == 0) _monitorViewsInitializedWaitHandle.Set();
         }
 
-        private void monitorView_OnHandledException(object sender, ErrorEventArgs e) { var view = sender as MonitorView; }
+        private void monitorView_OnHandledException(object sender, ErrorEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(
+                (state) => {
+                    //If the test is not yet started, break it if a monitor fails.
+                    if (_pendingMonitorViewInitializations > 0) {
+                        btnStop.Enabled = true;
+                        if (_distributedTestCore != null) {
+                            btnStart.Enabled = btnStop.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
 
-        private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e) { var view = sender as MonitorView; }
+                            try {
+                                _distributedTestCore.Stop();
+                            } catch (Exception ex) {
+                                string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                                distributedStresstestControl.AppendMessages(message, Level.Error);
+                            }
+                        } else {
+                            distributedStresstestControl.AppendMessages("Test Failed!", Level.Error);
+
+                            btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
+                            StopMonitorsUpdateDetailedResultsAndSetMode(false);
+                            RemoveDatabase();
+                        }
+                        Show();
+                    }
+                    distributedStresstestControl.AppendMessages((sender as MonitorView).Text + ": A counter became unavailable while monitoring:\n" +
+                        e.GetException(), Level.Warning);
+                }, null);
+        }
+
+        private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send(
+                (state) => {
+                    //If the test is not yet started, break it if a monitor fails.
+                    if (_pendingMonitorViewInitializations > 0) {
+                        btnStop.Enabled = true;
+                        if (_distributedTestCore != null) {
+                            btnStart.Enabled = btnStop.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
+
+                            try {
+                                _distributedTestCore.Stop();
+                            } catch (Exception ex) {
+                                string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                                distributedStresstestControl.AppendMessages(message, Level.Error);
+                            }
+                        } else {
+                            distributedStresstestControl.AppendMessages("Test Failed!", Level.Error);
+
+                            btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
+                            StopMonitorsUpdateDetailedResultsAndSetMode(false);
+                            RemoveDatabase();
+                        }
+                        Show();
+                    }
+                    distributedStresstestControl.AppendMessages((sender as MonitorView).Text + ": An error has occured while monitoring, monitor stopped!\n" +
+                        e.GetException(), Level.Error);
+                }, null);
+        }
 
         /// <summary>
         /// Get all monitor result caches for al the running monitors.

@@ -432,7 +432,8 @@ namespace vApus.Stresstest {
         }
         private void monitorView_OnHandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(
-                delegate {
+                (state) => {
+                    //If the test is not yet started, break it if a monitor fails.
                     if (_monitorsInitialized < _stresstest.Monitors.Length) {
                         if (_stresstestCore != null) _stresstestCore.Cancel();
                         btnStop.Enabled = true;
@@ -446,8 +447,8 @@ namespace vApus.Stresstest {
         }
         private void monitorView_OnUnhandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(
-                delegate {
-
+                (state) => {
+                    //If the test is not yet started, break it if a monitor fails.
                     if (_monitorsInitialized < _stresstest.Monitors.Length) {
                         if (_stresstestCore != null) _stresstestCore.Cancel();
                         btnStop.Enabled = true;
