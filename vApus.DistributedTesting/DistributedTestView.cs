@@ -1253,7 +1253,7 @@ namespace vApus.DistributedTesting {
                         Show();
                     }
                     distributedStresstestControl.AppendMessages((sender as MonitorView).Text + ": A counter became unavailable while monitoring:\n" +
-                        e.GetException(), Level.Warning);
+                        e.GetException(), _pendingMonitorViewInitializations > 0 ? Level.Error : Level.Warning);
                 }, null);
         }
 
