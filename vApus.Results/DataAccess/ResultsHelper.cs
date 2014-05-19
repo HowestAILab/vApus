@@ -2337,8 +2337,16 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     int yColonUa = y.IndexOf(COLON);
                     if (yColonUa == -1) yColonUa = y.IndexOf(UA) - 1;
 
-                    int logX = int.Parse(x.Substring(LOG.Length, xColonUa - LOG.Length));
-                    int logY = int.Parse(y.Substring(LOG.Length, yColonUa - LOG.Length));
+                    int logX, logY;
+                    if (!int.TryParse(x.Substring(LOG.Length, xColonUa - LOG.Length), out logX)) {
+                        xColonUa = x.IndexOf(UA) - 1;
+                        int.TryParse(x.Substring(LOG.Length, xColonUa - LOG.Length), out logX);
+                    }
+                    if (!int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY)) {
+                        yColonUa = y.IndexOf(UA) - 1;
+                        int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY);
+                    }
+
                     if (logX > logY) return 1;
                     if (logY < logX) return -1;
 
