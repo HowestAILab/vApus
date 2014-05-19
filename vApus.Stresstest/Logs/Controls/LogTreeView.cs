@@ -196,8 +196,12 @@ namespace vApus.Stresstest {
             for (int v = 0; v != largeList.ViewCount; v++)
                 for (int i = 0; i != largeList[v].Count; i++) {
                     var ctrl = largeList[v][i];
-                    if (ctrl != _logTreeViewItem)
-                        (ctrl as UserActionTreeViewItem).SetVisibleControls();
+                    if (ctrl != _logTreeViewItem && ctrl != null && ctrl is UserActionTreeViewItem)
+                        try {
+                            (ctrl as UserActionTreeViewItem).SetVisibleControls();
+                        } catch {
+                            //In case of timer issues, occured one time only.
+                        }
                 }
         }
         #endregion
