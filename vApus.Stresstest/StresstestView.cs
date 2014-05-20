@@ -112,14 +112,6 @@ namespace vApus.Stresstest {
         }
         #endregion
 
-        private void stresstestControl_MonitorClicked(object sender, EventArgs e) {
-            //Make sure the first monitor is the first visible.
-            for (int i = _monitorViews.Count - 1; i != -1; i--) {
-                var view = _monitorViews[i];
-                if (view != null && !view.IsDisposed) view.Show();
-            }
-        }
-
         /// <summary>
         /// Get all monitor result caches for al the running monitors.
         /// </summary>

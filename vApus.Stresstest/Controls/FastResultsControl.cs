@@ -21,11 +21,6 @@ using vApus.Util;
 namespace vApus.Stresstest {
     public partial class FastResultsControl : UserControl {
 
-        /// <summary>
-        ///     To show the monitor view if any.
-        /// </summary>
-        public event EventHandler MonitorClicked;
-
         #region Fields
         private List<StresstestMetrics> _concurrencyStresstestMetrics = new List<StresstestMetrics>();
         private List<object[]> _concurrencyStresstestMetricsRows = new List<object[]>();
@@ -49,7 +44,7 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Not visible on a slave in a distributed test.
         /// </summary>
-        private bool _monitorConfigurationControlAndLinkButtonsVisible;
+        private bool _monitorConfigurationControlAndKeyValuePairControlVisible;
         /// <summary>
         /// Normally columns are only added to the datagrid view on gui interaction. For monitors this fails if the monitors are not yet initialized.
         /// </summary>
@@ -68,11 +63,11 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Should be false for a slave in a distributed test.
         /// </summary>
-        public bool MonitorConfigurationControlAndLinkButtonsVisible {
-            get { return _monitorConfigurationControlAndLinkButtonsVisible; }
+        public bool MonitorConfigurationControlAndKeyValuePairControlVisible {
+            get { return _monitorConfigurationControlAndKeyValuePairControlVisible; }
             set {
-                _monitorConfigurationControlAndLinkButtonsVisible = value;
-                btnMonitor.Visible = _monitorConfigurationControlAndLinkButtonsVisible;
+                _monitorConfigurationControlAndKeyValuePairControlVisible = value;
+                kvpMonitor.Visible = _monitorConfigurationControlAndKeyValuePairControlVisible;
             }
         }
 
@@ -146,14 +141,14 @@ namespace vApus.Stresstest {
             foreach (var lbtnMonitor in _monitorLinkButtons) flpFastResultsHeader.Controls.Remove(lbtnMonitor);
             _monitorLinkButtons.Clear();
 
-            if (_monitorConfigurationControlAndLinkButtonsVisible) {
+            if (_monitorConfigurationControlAndKeyValuePairControlVisible) {
                 if (monitors == null || monitors.Length == 0) {
-                    btnMonitor.Text = "No Monitor(s)";
-                    btnMonitor.BackColor = Color.Orange;
+                    kvpMonitor.Key = "No Monitor(s)";
+                    kvpMonitor.BackColor = Color.Orange;
                 } else {
                     lbtnStresstest.Visible = true;
-                    btnMonitor.Text = monitors.Combine(", ") + "...";
-                    btnMonitor.BackColor = Color.LightBlue;
+                    kvpMonitor.Key = monitors.Combine(", ");
+                    kvpMonitor.BackColor = Color.LightBlue;
 
                     foreach (var monitor in monitors) {
                         var lbtnMonitor = new LinkButton();
@@ -184,11 +179,6 @@ namespace vApus.Stresstest {
 
             //Reinit the datagridview.
             RefreshFastResults();
-        }
-        //Monitor button in configuration.
-        private void btnMonitor_Click(object sender, EventArgs e) {
-            if (btnMonitor.Text != "Monitor" && btnMonitor.Text != "No Monitor" && MonitorClicked != null)
-                MonitorClicked(this, null);
         }
 
         /// <summary>

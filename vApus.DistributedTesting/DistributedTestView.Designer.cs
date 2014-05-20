@@ -293,7 +293,7 @@
             this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
             this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fastResultsControl.Location = new System.Drawing.Point(3, 3);
-            this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
+            this.fastResultsControl.MonitorConfigurationControlAndKeyValuePairControlVisible = true;
             this.fastResultsControl.Name = "fastResultsControl";
             this.fastResultsControl.Size = new System.Drawing.Size(595, 622);
             this.fastResultsControl.TabIndex = 0;
