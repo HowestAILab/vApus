@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -250,13 +251,14 @@ namespace vApus.Gui {
         }
 
         private static string LogLevel(List<string> parameters) {
+            var logger = Loggers.GetLogger<FileLogger>();
             try {
                 if (parameters.Count != 0)
-                    LogWrapper.LogLevel = (LogLevel)int.Parse(parameters[0]);
+                    logger.CurrentLevel = (Level)int.Parse(parameters[0]);
             } catch (Exception ex) {
                 return "ERROR\nCould not set the log level!\n" + ex;
             }
-            return ((int)LogWrapper.LogLevel) + " (= " + LogWrapper.LogLevel + ")";
+            return ((int)logger.CurrentLevel) + " (= " + logger.CurrentLevel + ")";
         }
 
         private static string SocketListenerPort(List<string> parameters) {

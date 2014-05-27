@@ -90,5 +90,26 @@ namespace vApus.Util {
             } catch {
             }
         }
+
+        protected override void RevertToDefaultValueOnGui() {
+            var cbo = base.ValueControl as ComboBox;
+
+            cbo.SelectedIndexChanged -= cbo_SelectedIndexChanged;
+
+            cbo.Items.Clear();
+
+            if (base.ValueParent != null)
+                foreach (object childItem in (base.ValueParent as IEnumerable))
+                    if (childItem.GetType() == base.__Value.__Value.GetType())
+                        cbo.Items.Add(childItem);
+
+            cbo.SelectedItem = base.__Value.DefaultValue;
+
+            cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
+
+            //Revert to the first one available if the item is not found (handy when using an Item.Empty static property for instance, it must still have the correct parent!).
+            if (cbo.Items.Count != 0 && cbo.SelectedIndex == -1)
+                cbo.SelectedIndex = 0;
+        }
     }
 }

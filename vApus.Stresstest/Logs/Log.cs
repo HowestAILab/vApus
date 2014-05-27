@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -242,7 +243,7 @@ namespace vApus.Stresstest {
 
                     package.Flush();
                 } catch (Exception ex) {
-                    LogWrapper.LogByLevel("Failed to export the log + parameters.\n" + ex.ToString(), LogLevel.Error);
+                    Loggers.Log(Level.Error, "Failed to export the log + parameters", ex, new object[] { sender, e });
                 }
 
                 try {
@@ -265,7 +266,7 @@ namespace vApus.Stresstest {
                     if (logEntry.LexicalResult == LexicalResult.Error)
                         logEntriesWithErrors.Add(logEntry);
                 } catch (Exception ex) {
-                    LogWrapper.LogByLevel(ex, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Failed to apply log ruleset.", ex);
                 }
             }
 

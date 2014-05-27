@@ -6,6 +6,8 @@
  *    Dieter Vandroemme
  */
 
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -23,6 +25,7 @@ namespace vApus.Monitor {
 
         #region Fields
         private readonly object _lock = new object();
+        private List<object[]> _toDisplayRows = new List<object[]>();
         private readonly List<int> _filteredColumnIndices = new List<int>();
         private string[] _filter = new string[0];
         private bool _keepAtEnd = true;
@@ -58,7 +61,17 @@ namespace vApus.Monitor {
         private void MonitorControl_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
                 object value = null;
-                lock (_lock) value = MonitorResultCache.Rows[e.RowIndex][e.ColumnIndex];
+                if (e.RowIndex < _toDisplayRows.Count) {
+                    object[] row = _toDisplayRows[e.RowIndex];
+                    if (e.ColumnIndex < row.Length)
+                        value = row[e.ColumnIndex];
+                }
+
+                if (value == null)
+                    if (e.ColumnIndex == 0)
+                        value = DateTime.Now;
+                    else
+                        value = -1f;
 
                 if (value is float) {
                     var f = (float)value;
@@ -68,15 +81,18 @@ namespace vApus.Monitor {
                         if (headerCell.Style.BackColor != Color.Yellow) headerCell.Style.BackColor = Color.Yellow;
 
                         s = f.ToString();
+                    } else {
+                        s = StringUtil.FloatToLongString(f, false);
                     }
-                    else s = StringUtil.FloatToLongString(f, false);
                     value = s;
+                } else {
+                    value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
                 }
-                else value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
 
                 e.Value = value;
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed at displaying monitor values.", ex);
             }
-            catch { } //index out of range exception, the user is notified about this on receiving the monitor values 
         }
         /// <summary>
         ///     Must always happen before the first value was added.
@@ -86,6 +102,8 @@ namespace vApus.Monitor {
         public void Init(Monitor monitor, string[] units) {
             Rows.Clear();
             Columns.Clear();
+
+            _toDisplayRows.Clear();
 
             MonitorResultCache = new MonitorResult() { Monitor = monitor.ToString() };
             _filteredColumnIndices.Clear();
@@ -111,8 +129,7 @@ namespace vApus.Monitor {
                         }
 
                         lHeaders.Add(sb.ToString());
-                    }
-                    else
+                    } else
                         foreach (string instance in counterInfo.Instances) {
                             var sb = new StringBuilder();
                             sb.Append(entity.Name);
@@ -172,18 +189,29 @@ namespace vApus.Monitor {
         /// </summary>
         /// <param name="monitorValues"></param>
         public void AddMonitorValues(object[] monitorValues) {
-            if (ColumnCount != 0)
-                lock (_lock) {
-                    MonitorResultCache.Rows.Add(monitorValues);
+            try {
+                if (ColumnCount != 0) {
+                    _toDisplayRows.Add(monitorValues);
+
+                    // SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                     ++RowCount;
 
-                    if (monitorValues.Length != MonitorResultCache.Headers.Length)
-                        LogWrapper.LogByLevel("[Monitoring] The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", LogLevel.Error);
+                    if (_keepAtEnd) {
+                        Scroll -= MonitorControl_Scroll;
+                        FirstDisplayedScrollingRowIndex = RowCount - 1;
+                        Scroll += MonitorControl_Scroll;
+                    }
+                    //  }, null);
+
+                    lock (_lock) {
+                        MonitorResultCache.Rows.Add(monitorValues);
+
+                        if (monitorValues.Length != MonitorResultCache.Headers.Length)
+                            Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, monitorValues);
+                    }
                 }
-            if (_keepAtEnd) {
-                Scroll -= MonitorControl_Scroll;
-                FirstDisplayedScrollingRowIndex = RowCount - 1;
-                Scroll += MonitorControl_Scroll;
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed adding monitor values.", ex);
             }
         }
         /// <summary>
@@ -221,8 +249,7 @@ namespace vApus.Monitor {
                     foreach (var row in newCache) sw.WriteLine(row.Combine("\t"));
                     sw.Flush();
                 }
-            }
-            catch { MessageBox.Show("Cannot access '" + fileName + "' because it is in use!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            } catch { MessageBox.Show("Cannot access '" + fileName + "' because it is in use!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
         public void SaveFiltered(string fileName) {
             try {
@@ -232,8 +259,7 @@ namespace vApus.Monitor {
                     foreach (var row in newCache) sw.WriteLine(FilterArray(row).Combine("\t"));
                     sw.Flush();
                 }
-            }
-            catch { MessageBox.Show("Cannot access '" + fileName + "' because it is in use!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error); }
+            } catch { MessageBox.Show("Cannot access '" + fileName + "' because it is in use!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error); }
         }
         private List<string[]> GetSaveableCache() {
             lock (_lock) {
@@ -269,8 +295,7 @@ namespace vApus.Monitor {
                     foreach (DataGridViewColumn clm in Columns) {
                         clm.Visible = true;
                         _filteredColumnIndices.Add(i++);
-                    }
-                else {
+                    } else {
                     var visibleColumns = new List<DataGridViewColumn>();
                     visibleColumns.Add(Columns[0]);
 
@@ -282,8 +307,7 @@ namespace vApus.Monitor {
                         if (visibleColumns.Contains(clm)) {
                             clm.Visible = true;
                             _filteredColumnIndices.Add(i);
-                        }
-                        else clm.Visible = false;
+                        } else clm.Visible = false;
                         ++i;
                     }
                 }

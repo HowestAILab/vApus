@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 
+using RandomUtils;
 using System;
 using System.Net;
 using System.Runtime.InteropServices;
@@ -28,7 +29,7 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     To set the host name and ip
         /// </summary>
-        private readonly ActiveObject _activeObject = new ActiveObject();
+        private readonly BackgroundWorkQueue _backgroundWorkQueue = new BackgroundWorkQueue();
 
         private ClientTreeViewItem _clientTreeViewItem;
         private DistributedTest _distributedTest;
@@ -50,7 +51,7 @@ namespace vApus.DistributedTesting {
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
             _SetHostNameAndIPDel = SetHostNameAndIP_Callback;
-            _activeObject.OnResult += _activeObject_OnResult;
+            _backgroundWorkQueue.OnWorkItemProcessed += _activeObject_OnResult;
         }
 
         #endregion
@@ -210,7 +211,7 @@ namespace vApus.DistributedTesting {
             string hostname = string.Empty;
             bool online = false;
 
-            _activeObject.Send(_SetHostNameAndIPDel, ip, hostname, online);
+            _backgroundWorkQueue.EnqueueWorkItem(_SetHostNameAndIPDel, ip, hostname, online);
 
             return true;
         }
@@ -248,13 +249,13 @@ namespace vApus.DistributedTesting {
                 }
         }
 
-        private void _activeObject_OnResult(object sender, ActiveObject.OnResultEventArgs e) {
+        private void _activeObject_OnResult(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (!IsDisposed)
                     try {
-                        var ip = e.Arguments[0] as string;
-                        var hostname = e.Arguments[1] as string;
-                        var online = (bool)e.Arguments[2];
+                        var ip = e.Parameters[0] as string;
+                        var hostname = e.Parameters[1] as string;
+                        var online = (bool)e.Parameters[2];
                         bool changed = false;
 
                         if (_clientTreeViewItem.Client.IP != ip || _clientTreeViewItem.Client.HostName != hostname)

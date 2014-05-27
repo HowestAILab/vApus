@@ -24,7 +24,7 @@ namespace vApus.Stresstest {
         private string _decimalSeparator = ",";
         private double _doubleValue;
         private Fixed _fixed;
-        private int _maxValue = int.MaxValue, _minValue = int.MinValue;
+        private int _maxValue = 100, _minValue = 1;
 
         private string _prefix = string.Empty, _suffix = string.Empty;
         private bool _random;
@@ -43,13 +43,13 @@ namespace vApus.Stresstest {
                 _minValue = value;
                 if (_doubleValue < _minValue) {
                     _doubleValue = _minValue;
-                    Value = _minValue.ToString();
+                    Value = GetFixedValue();
                 }
             }
         }
 
         [PropertyControl(1), SavableCloneable]
-        [DisplayName("Maximum Value"), Description("An exclusive maximum value.")]
+        [DisplayName("Maximum Value"), Description("An inclusive maximum value.")]
         public int MaxValue {
             get { return _maxValue; }
             set {
@@ -57,9 +57,9 @@ namespace vApus.Stresstest {
                     value = _minValue;
 
                 _maxValue = value;
-                if (_doubleValue >= _maxValue) {
+                if (_doubleValue > _maxValue) {
                     _doubleValue = _maxValue;
-                    Value = _maxValue.ToString();
+                    Value = GetFixedValue();
                 }
             }
         }
@@ -111,14 +111,20 @@ namespace vApus.Stresstest {
         [Description("Prefix the output value.")]
         public string Prefix {
             get { return _prefix; }
-            set { _prefix = value; }
+            set {
+                _prefix = value;
+                Value = GetFixedValue();
+            }
         }
 
         [PropertyControl(101), SavableCloneable]
         [Description("Suffix the output value.")]
         public string Suffix {
             get { return _suffix; }
-            set { _suffix = value; }
+            set {
+                _suffix = value;
+                Value = GetFixedValue();
+            }
         }
 
         [PropertyControl(102), SavableCloneable]
@@ -166,12 +172,12 @@ namespace vApus.Stresstest {
                 _prefix = sr.ReadString();
                 _suffix = sr.ReadString();
                 _random = sr.ReadBoolean();
-                _step = sr.ReadInt32();
+                _step = sr.ReadDouble();
 
                 _tokenNumericIdentifier = sr.ReadInt32();
-                
-                Value = _minValue.ToString();
+
                 _doubleValue = _minValue;
+                Value = GetFixedValue();
             }
             sr = null;
         }
@@ -199,7 +205,7 @@ namespace vApus.Stresstest {
                 _doubleValue = ((_maxValue - _minValue) * random.NextDouble()) + _minValue;
             } else {
                 _doubleValue += _step;
-                if (_doubleValue >= _maxValue) {
+                if (_doubleValue > _maxValue) {
                     _doubleValue = _minValue;
                     _chosenValues.Clear();
                 }

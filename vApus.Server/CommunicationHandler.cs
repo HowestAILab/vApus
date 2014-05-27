@@ -6,13 +6,12 @@
  *    Dieter Vandroemme
  */
 using Newtonsoft.Json;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Text;
 using System.Threading;
 using vApus.DistributedTesting;
-using vApus.JSON;
 using vApus.Monitor;
 using vApus.Results;
 using vApus.Server.Shared;
@@ -28,62 +27,66 @@ namespace vApus.Server {
         /// <summary>
         /// Holds the whole or the significant part of the path as Key. Specifics are handled by the matching delegate.
         /// </summary>
-        private static Dictionary<string, HandleMessageDelegate> _delegates;
+        //private static Dictionary<string, HandleMessageDelegate> _delegates;
 
         static CommunicationHandler() {
-            // Fill delegates
-            _delegates = new Dictionary<string, HandleMessageDelegate>();
+            //// Fill delegates
+            //_delegates = new Dictionary<string, HandleMessageDelegate>();
 
-            // Send stuff that needs to be done. You receive an ack as plain text JSON.
-            // Indices are one-based. If no index is given, you get all available indices and the string representation of the objects.
-            _delegates.Add("/testconnection/#", TestConnection);
-            _delegates.Add("/startdistributedtest/#", StartDistributedTest);
-            _delegates.Add("/startsingletest/#", StartSingleTest);
-            _delegates.Add("/startmonitor/#/#", StartMonitor);
-            _delegates.Add("/stoptestandmonitors", StopTestAndMonitors);
+            //// Send stuff that needs to be done. You receive an ack as plain text JSON.
+            //// Indices are one-based. If no index is given, you get all available indices and the string representation of the objects.
+            //_delegates.Add("/testconnection/#", TestConnection);
 
-            // -----
+            //_delegates.Add("/startdistributedtest/#", StartDistributedTest);
+            //_delegates.Add("/startsingletest/#", StartSingleTest);
+            //_delegates.Add("/startmonitor/#/#", StartMonitor);
+            //_delegates.Add("/stoptestandmonitors", StopTestAndMonitors);
 
-            // Get data back as plain text JSON
-            _delegates.Add("/applicationlog/info", ApplicationLog);
-            _delegates.Add("/applicationlog/warning", ApplicationLog);
-            _delegates.Add("/applicationlog/error", ApplicationLog);
-            _delegates.Add("/applicationlog/fatal", ApplicationLog);
-            _delegates.Add("/resultsdb", ResultsDB);
+            //// -----
 
-            _delegates.Add("/runningtest/config", RunningTestConfig);
-            _delegates.Add("/runningtest/fastresults", RunningTestProgress);
-            _delegates.Add("/runningtest/clientmonitor", RunningTestClientMonitor); // nog voor distributed test
-            _delegates.Add("/runningtest/messages/info", RunningTestMessages); // nog voor distributed test
-            _delegates.Add("/runningtest/messages/warning", RunningTestMessages); // nog voor distributed test
-            _delegates.Add("/runningtest/messages/error", RunningTestMessages); // nog voor distributed test
+            //// Get data back as plain text JSON
+            //_delegates.Add("/applicationlog/info", ApplicationLog);
+            //_delegates.Add("/applicationlog/warning", ApplicationLog);
+            //_delegates.Add("/applicationlog/error", ApplicationLog);
+            //_delegates.Add("/applicationlog/fatal", ApplicationLog);
 
-            // For a single test
-            _delegates.Add("/runningtest/fastmonitorresults/#", RunningTestFastMonitorResults);
+            //_delegates.Add("/resultsdb", ResultsDB);
 
-            // For a tile stresstest
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastmonitorresults/#", TestConnection);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/config", TestConnection);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/fastresults", TestConnection);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", TestConnection);
-            _delegates.Add("/runningtest/tile/#/tilestresstest/#/messages", TestConnection);
+            //// For a single test and distributed test (as a whole)
+            //_delegates.Add("/runningtest/config", RunningTestConfig);
+            //_delegates.Add("/runningtest/fastresults", RunningTestFastResults);
+            //_delegates.Add("/runningtest/clientmonitor", RunningTestClientMonitor);
+            //_delegates.Add("/runningtest/messages/info", RunningTestMessages);
+            //_delegates.Add("/runningtest/messages/warning", RunningTestMessages);
+            //_delegates.Add("/runningtest/messages/error", RunningTestMessages);
+            //_delegates.Add("/runningtest/fastmonitorresults/#", RunningTestFastMonitorResults);//
 
-            _delegates.Add("/runningmonitor/#/config", RunningMonitorConfig);
-            _delegates.Add("/runningmonitor/#/hardwareconfig", RunningMonitorHardwareConfig);
-            _delegates.Add("/runningmonitor/#/metrics", RunningMonitorMetrics);
+
+            //// For a tile stresstest            
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/config", TileStresstestConfig);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/fastresults", TileStresstestFastResults);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", TileStresstestClientMonitor);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/info", TilestresstestMessages);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/warning", TilestresstestMessages);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/error", TilestresstestMessages);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/fastmonitorresults/#", TileFastMonitorResults);//
+
+            //_delegates.Add("/runningmonitor/#/config", RunningMonitorConfig);
+            //_delegates.Add("/runningmonitor/#/hardwareconfig", RunningMonitorHardwareConfig);
+            //_delegates.Add("/runningmonitor/#/metrics", RunningMonitorMetrics);
         }
 
         public static Message<Key> HandleMessage(SocketWrapper receiver, Message<Key> message) {
             if (message.Key == Key.Other) {
                 string msg = message.Content as string;
-                foreach (string path in _delegates.Keys) {
-                    if (Match(msg, path))
-                        try {
-                            return _delegates[path].Invoke(msg);
-                        } catch (Exception ex) {
-                            return new Message<Key>(Key.Other, SerializeFailed("500 Internal Server Error. " + msg + " Details: " + ex.Message));
-                        }
-                }
+                //foreach (string path in _delegates.Keys) {
+                //    if (Match(msg, path))
+                //        try {
+                //            return _delegates[path].Invoke(msg);
+                //        } catch (Exception ex) {
+                //            return new Message<Key>(Key.Other, SerializeFailed("500 Internal Server Error. " + msg + " Details: " + ex.Message));
+                //        }
+                //}
                 return new Message<Key>(Key.Other, SerializeFailed("404 Not Found. " + msg));
             }
             return SlaveSideCommunicationHandler.HandleMessage(receiver, message);
@@ -110,283 +113,263 @@ namespace vApus.Server {
             return true;
         }
 
-        private static Message<Key> TestConnection(string message) {
-            var connections = Solution.ActiveSolution.GetSolutionComponent(typeof(Connections));
-            int index = int.Parse(message.Split('/')[2]); // -1 not needed, connection proxies is the first item.
-            var connection = connections[index] as Connection;
-            ConnectionView view = null;
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view = connection.Activate() as ConnectionView; }, null);
+        //private static Message<Key> TestConnection(string message) {
+        //    var connections = Solution.ActiveSolution.GetSolutionComponent(typeof(Connections));
+        //    int index = int.Parse(message.Split('/')[2]); // -1 not needed, connection proxies is the first item.
+        //    var connection = connections[index] as Connection;
+        //    ConnectionView view = null;
+        //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view = connection.Activate() as ConnectionView; }, null);
 
-            string error = view.TestConnection(false);
-            if (error.Length != 0)
-                return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
+        //    string error = view.TestConnection(false);
+        //    if (error.Length != 0)
+        //        return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
 
-            return new Message<Key>(Key.Other, SerializeSucces(message));
-        }
-        private static Message<Key> StartDistributedTest(string message) {
-            var distributedTestingProject = Solution.ActiveSolution.GetProject("DistributedTestingProject");
-            int index = int.Parse(message.Split('/')[2]) - 1;
-            var distributedTest = distributedTestingProject[index] as DistributedTest;
+        //    return new Message<Key>(Key.Other, SerializeSucces(message));
+        //}
+        //private static Message<Key> StartDistributedTest(string message) {
+        //    var distributedTestingProject = Solution.ActiveSolution.GetProject("DistributedTestingProject");
+        //    int index = int.Parse(message.Split('/')[2]) - 1;
+        //    var distributedTest = distributedTestingProject[index] as DistributedTest;
 
-            DistributedTestView view = null;
-            string error = string.Empty;
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                view = distributedTest.Activate() as DistributedTestView;
-                view.StartDistributedTest(false);
-            }, null);
+        //    DistributedTestView view = null;
+        //    string error = string.Empty;
+        //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+        //        view = distributedTest.Activate() as DistributedTestView;
+        //        view.StartDistributedTest(false);
+        //    }, null);
 
-            while (view.DistributedTestMode == DistributedTestMode.Test)
-                Thread.Sleep(1);
+        //    while (view.DistributedTestMode == DistributedTestMode.Test)
+        //        Thread.Sleep(1);
 
+        //    //Wait for all progress messages to come in.
+        //    Thread.Sleep(5000);
 
-            if (error.Length != 0)
-                return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
+        //    if (error.Length != 0)
+        //        return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
 
-            return new Message<Key>(Key.Other, SerializeSucces(message));
-        }
-        private static Message<Key> StartSingleTest(string message) {
-            var stresstestProject = Solution.ActiveSolution.GetProject("StresstestProject");
-            int index = int.Parse(message.Split('/')[2]) + 2;
-            var stresstest = stresstestProject[index] as Stresstest.Stresstest;
+        //    return new Message<Key>(Key.Other, SerializeSucces(message));
+        //}
+        //private static Message<Key> StartSingleTest(string message) {
+        //    var stresstestProject = Solution.ActiveSolution.GetProject("StresstestProject");
+        //    int index = int.Parse(message.Split('/')[2]) + 2;
+        //    var stresstest = stresstestProject[index] as Stresstest.Stresstest;
 
-            StresstestView view = null;
-            string error = string.Empty;
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                view = stresstest.Activate() as StresstestView;
-                view.StartStresstest(false);
-            }, null);
+        //    StresstestView view = null;
+        //    string error = string.Empty;
+        //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+        //        view = stresstest.Activate() as StresstestView;
+        //        view.StartStresstest(false);
+        //    }, null);
 
-            while (view.StresstestStatus == StresstestStatus.Busy)
-                Thread.Sleep(1);
+        //    while (view.StresstestStatus == StresstestStatus.Busy)
+        //        Thread.Sleep(1);
 
-            if (error.Length != 0)
-                return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
+        //    if (error.Length != 0)
+        //        return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
 
-            return new Message<Key>(Key.Other, SerializeSucces(message));
-        }
+        //    return new Message<Key>(Key.Other, SerializeSucces(message));
+        //}
 
-        private static Message<Key> StartMonitor(string message) {
-            var monitorProject = Solution.ActiveSolution.GetProject("MonitorProject");
-            string[] split = message.Split('/');
-            int index = int.Parse(split[2]) - 1;
-            int timeInSeconds = int.Parse(split[3]);
-            var monitor = monitorProject[index] as Monitor.Monitor;
+        //private static Message<Key> StartMonitor(string message) {
+        //    var monitorProject = Solution.ActiveSolution.GetProject("MonitorProject");
+        //    string[] split = message.Split('/');
+        //    int index = int.Parse(split[2]) - 1;
+        //    int timeInSeconds = int.Parse(split[3]);
+        //    var monitor = monitorProject[index] as Monitor.Monitor;
 
-            MonitorView view = null;
-            string error = string.Empty;
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                view = monitor.Activate() as MonitorView;
-                view.InitializeForStresstest();
-                view.MonitorInitialized += (object sender, MonitorView.MonitorInitializedEventArgs e) => { _jobWaitHandle.Set(); };
-            }, null);
-
-
-            _jobWaitHandle.WaitOne();
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Start(); }, null);
-            _jobWaitHandle.WaitOne(timeInSeconds * 1000);
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Stop(); }, null);
+        //    MonitorView view = null;
+        //    string error = string.Empty;
+        //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+        //        view = monitor.Activate() as MonitorView;
+        //        view.InitializeForStresstest();
+        //        view.MonitorInitialized += (object sender, MonitorView.MonitorInitializedEventArgs e) => { _jobWaitHandle.Set(); };
+        //    }, null);
 
 
-            if (error.Length != 0)
-                return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
+        //    _jobWaitHandle.WaitOne();
+        //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Start(); }, null);
+        //    _jobWaitHandle.WaitOne(timeInSeconds * 1000);
+        //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Stop(); }, null);
 
-            return new Message<Key>(Key.Other, SerializeSucces(message));
-        }
 
-        private static Message<Key> StopTestAndMonitors(string message) {
-            _jobWaitHandle.Set();
+        //    if (error.Length != 0)
+        //        return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
 
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                foreach (var view in SolutionComponentViewManager.GetAllViews())
-                    if (view is DistributedTestView) {
-                        var dtv = view as DistributedTestView;
-                        dtv.StopDistributedTest();
-                    } else if (view is StresstestView) {
-                        var stv = view as StresstestView;
-                        stv.StopStresstest();
-                    } else if (view is MonitorView) {
-                        var mv = view as MonitorView;
-                        mv.Stop();
-                    }
-            }, null);
+        //    return new Message<Key>(Key.Other, SerializeSucces(message));
+        //}
 
-            string error = string.Empty;
-            if (error.Length != 0)
-                return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
+        //private static Message<Key> StopTestAndMonitors(string message) {
+        //    _jobWaitHandle.Set();
 
-            return new Message<Key>(Key.Other, SerializeSucces(message));
-        }
+        //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+        //        foreach (var view in SolutionComponentViewManager.GetAllViews())
+        //            if (view is DistributedTestView) {
+        //                var dtv = view as DistributedTestView;
+        //                dtv.StopDistributedTest();
+        //            } else if (view is StresstestView) {
+        //                var stv = view as StresstestView;
+        //                stv.StopStresstest();
+        //            } else if (view is MonitorView) {
+        //                var mv = view as MonitorView;
+        //                mv.Stop();
+        //            }
+        //    }, null);
 
-        private static Message<Key> ApplicationLog(string message) {
-            FileInfo fi = null;
-            if (File.Exists(LogWrapper.Default.Logger.LogFile))
-                fi = new FileInfo(LogWrapper.Default.Logger.LogFile);
-            else if (Directory.Exists(LogWrapper.Default.Logger.Location))
-                foreach (string file in Directory.GetFiles(LogWrapper.Default.Logger.Location)) {
-                    var tempfi = new FileInfo(file);
-                    if (fi == null || tempfi.CreationTime > fi.CreationTime)
-                        if (IsLog(tempfi.Name)) {
-                            fi = tempfi;
-                            break;
-                        }
-                }
+        //    string error = string.Empty;
+        //    if (error.Length != 0)
+        //        return new Message<Key>(Key.Other, SerializeFailed(message + " Details: " + error));
 
-            string latestLog = null;
-            if (fi != null)
-                latestLog = fi.FullName;
+        //    return new Message<Key>(Key.Other, SerializeSucces(message));
+        //}
 
-            string logEntries = string.Empty;
-            if (File.Exists(latestLog)) {
-                //Fast read this, if it fails once it is not a problem.
-                try {
-                    LogWrapper.Default.Logger.CloseWriter();
-                    using (var sr = new StreamReader(latestLog))
-                        logEntries = sr.ReadToEnd().Trim();
-                } catch {
-                } finally {
-                    try {
-                        LogWrapper.Default.Logger.OpenOrReOpenWriter();
-                    } catch {
-                    }
-                }
+        //private static Message<Key> ApplicationLog(string message) {
+        //    string log = string.Empty;
+        //    string currentLogFile = Loggers.GetLogger<FileLogger>().CurrentLogFile;
+        //    if (File.Exists(currentLogFile))
+        //        using (var sr = new StreamReader(currentLogFile))
+        //            log = sr.ReadToEnd();
 
-                if (!message.EndsWith("info")) {
-                    string[] lines = logEntries.Split(new char[] { '\n', '\r' }, StringSplitOptions.RemoveEmptyEntries);
-                    logEntries = string.Empty;
+        //    return new Message<Key>(Key.Other, log);
+        //}
+        //private static Message<Key> ResultsDB(string message) {
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(ConnectionStringManager.GetCurrentConnectionString(ConnectionStringManager.CurrentDatabaseName)));
+        //}
 
-                    int chosenLogLevel = 0;
-                    if (message.EndsWith("warning")) chosenLogLevel = 1;
-                    else if (message.EndsWith("error")) chosenLogLevel = 2;
-                    else if (message.EndsWith("fatal")) chosenLogLevel = 3;
+        //private static Message<Key> RunningTestConfig(string message) {
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestConfig));
+        //}
+        //private static Message<Key> RunningTestFastResults(string message) {
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestFastConcurrencyResults));
+        //}
+        //private static Message<Key> RunningTestClientMonitor(string message) {
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestClientMonitorMetrics));
+        //}
+        //private static Message<Key> RunningTestMessages(string message) {
+        //    var runningTestMessages = JSONObjectTreeHelper.RunningTestMessages;
+        //    if (!message.EndsWith("/info") && runningTestMessages != null) {
+        //        object key = runningTestMessages.Cache[0].Key;
+        //        ClientMessages value = (ClientMessages)runningTestMessages.Cache[0].Value;
 
-                    var tempOutput = new StringBuilder();
-                    foreach (string line in lines) {
-                        string[] entry = line.Split(';');
-                        if (entry.Length >= 3) {
-                            DateTime timeStamp;
-                            LogLevel logLevel;
+        //        var l = new List<string>();
 
-                            string[] timeStampSplit = entry[0].Split(',');
-                            string dateTimePart = timeStampSplit[0];
-                            if (DateTime.TryParse(dateTimePart, out timeStamp) && Enum.TryParse(entry[1], out logLevel))
-                                if ((int)logLevel >= chosenLogLevel) {
-                                    tempOutput.AppendLine(line);
-                                    //Continue if valid line
-                                    continue;
-                                }
-                        }
+        //        string check = "Warning";
+        //        if (message.EndsWith("/error"))
+        //            check = "Error";
 
-                        string s = tempOutput.ToString();
-                        if (s.Length != 0)
-                            logEntries += s + "\n";
-                        tempOutput.Clear();
-                    }
-                    logEntries.TrimEnd();
-                }
-            }
+        //        foreach (string s in value.Messages)
+        //            if (s.StartsWith(check))
+        //                l.Add(s);
 
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(logEntries));
-        }
-        private static bool IsLog(string file) {
-            if (file.EndsWith(".txt")) {
-                string[] split = file.Split(' ');
-                if (split.Length == 2) {
-                    DateTime timestamp;
-                    return (DateTime.TryParse(split[0], out timestamp) && split[1].StartsWith("PID_"));
-                }
-            }
-            return false;
-        }
-        private static Message<Key> ResultsDB(string message) {
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(ConnectionStringManager.GetCurrentConnectionString(ConnectionStringManager.CurrentDatabaseName)));
-        }
+        //        value.Messages = l.ToArray();
+        //        runningTestMessages.Cache[0] = new KeyValuePair<object, object>(key, value);
+        //    }
 
-        private static Message<Key> RunningTestConfig(string message) {
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestConfig));
-        }
-        private static Message<Key> RunningTestProgress(string message) {
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestFastConcurrencyResults));
-        }
-        private static Message<Key> RunningTestClientMonitor(string message) {
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningClientMonitorMetrics));
-        }
-        private static Message<Key> RunningTestMessages(string message) {
-            var runningTestMessages = JSONObjectTreeHelper.RunningTestMessages;
-            if (!message.EndsWith("/info") && runningTestMessages != null) {
-                object key = runningTestMessages.Cache[0].Key;
-                ClientMessages value = (ClientMessages)runningTestMessages.Cache[0].Value;
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(runningTestMessages));
+        //}
+        //private static Message<Key> RunningTestFastMonitorResults(string message) {
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestMessages));
+        //}
 
-                var l = new List<string>();
+        //private static Message<Key> TileStresstestConfig(string message) {
+        //    var runningTestConfig = JSONObjectTreeHelper.RunningTestConfig;
+        //    if ((runningTestConfig.Cache[0].Key as string).StartsWith("Distributed Test")) {
+        //        string[] split = message.Split('/');
+        //        int tileIndex = int.Parse(split[3]);
+        //        int testIndex = int.Parse(split[5]);
 
-                string check = "Warning";
-                if (message.EndsWith("/error"))
-                    check = "Error";
+        //        string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+        //        List<KeyValuePair<object, object>> tileStresstests = (runningTestConfig.Cache[0].Value as JSONObjectTree).Cache;
 
-                foreach (string s in value.Messages)
-                    if (s.StartsWith(check))
-                        l.Add(s);
+        //        foreach (var kvp in tileStresstests)
+        //            if ((kvp.Key as string).StartsWith(tileStresstest))
+        //                return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
+        //    }
 
-                value.Messages = l.ToArray();
-                runningTestMessages.Cache[0] = new KeyValuePair<object, object>(key, value);
-            }
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(null));
+        //}
+        //private static Message<Key> TileStresstestFastResults(string message) {
+        //    JSONObjectTree part = null;
+        //    var runningTestFastConcurrencyResults = JSONObjectTreeHelper.RunningTestFastConcurrencyResults;
+        //    if ((runningTestFastConcurrencyResults.Cache[0].Key as string).StartsWith("Distributed Test")) {
+        //        string[] split = message.Split('/');
+        //        int tileIndex = int.Parse(split[3]);
+        //        int testIndex = int.Parse(split[5]);
 
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(runningTestMessages));
-        }
-        private static Message<Key> RunningTestFastMonitorResults(string message) {
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestMessages));
-        }
+        //        string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+        //        List<KeyValuePair<object, object>> tileStresstests = (runningTestFastConcurrencyResults.Cache[0].Value as JSONObjectTree).Cache;
 
-        private static Message<Key> RunningMonitorConfig(string message) {
-            string[] split = message.Split('/');
-            int index = int.Parse(split[split.Length - 2]);
+        //        foreach (var kvp in tileStresstests)
+        //            if ((kvp.Key as string).StartsWith(tileStresstest)) {
+        //                part = kvp.Value as JSONObjectTree;
+        //                break;
+        //            }
+        //    }
 
-            JSONObjectTree part = null;
-            var runningMonitorConfig = JSONObjectTreeHelper.RunningMonitorConfig;
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        //}
+        //private static Message<Key> TileStresstestClientMonitor(string message) {
+        //    var runningTestClientMonitor = JSONObjectTreeHelper.RunningTestClientMonitorMetrics;
+        //    if ((runningTestClientMonitor.Cache[0].Key as string).StartsWith("Distributed Test")) {
+        //        string[] split = message.Split('/');
+        //        int tileIndex = int.Parse(split[3]);
+        //        int testIndex = int.Parse(split[5]);
 
-            for (int i = 0; i != runningMonitorConfig.Count; i++) {
-                var kvp = runningMonitorConfig.Cache[i];
-                if ((int)kvp.Key == index) {
-                    part = kvp.Value as JSONObjectTree;
-                    break;
-                }
-            }
+        //        string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+        //        foreach (var kvp in runningTestClientMonitor.Cache)
+        //            if ((kvp.Key as string).StartsWith(tileStresstest))
+        //                return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
+        //    }
 
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
-        }
-        private static Message<Key> RunningMonitorHardwareConfig(string message) {
-            string[] split = message.Split('/');
-            int index = int.Parse(split[split.Length - 2]);
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(null));
+        //}
+        //private static Message<Key> TilestresstestMessages(string message) {
+        //    var runningTestMessages = JSONObjectTreeHelper.RunningTestMessages;
+        //    if ((runningTestMessages.Cache[0].Key as string).StartsWith("Distributed Test")) {
+        //        string[] split = message.Split('/');
+        //        int tileIndex = int.Parse(split[3]);
+        //        int testIndex = int.Parse(split[5]);
 
-            JSONObjectTree part = null;
-            var runningMonitorHardwareConfig = JSONObjectTreeHelper.RunningMonitorHardwareConfig;
+        //        string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+        //        foreach (var kvp in runningTestMessages.Cache)
+        //            if ((kvp.Key as string).StartsWith(tileStresstest))
+        //                return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
+        //    }
 
-            for (int i = 0; i != runningMonitorHardwareConfig.Count; i++) {
-                var kvp = runningMonitorHardwareConfig.Cache[i];
-                if ((int)kvp.Key == index) {
-                    part = kvp.Value as JSONObjectTree;
-                    break;
-                }
-            }
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(null));
+        //}
+        //private static Message<Key> TileFastMonitorResults(string message) {
+        //    throw new NotImplementedException();
+        //}
 
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
-        }
-        private static Message<Key> RunningMonitorMetrics(string message) {
-            string[] split = message.Split('/');
-            int index = int.Parse(split[split.Length - 2]);
+        //private static Message<Key> RunningMonitorConfig(string message) {
+        //    string[] split = message.Split('/');
+        //    int index = int.Parse(split[2]);
 
-            JSONObjectTree part = null;
-            var runningMonitorMetrics = JSONObjectTreeHelper.RunningMonitorMetrics;
+        //    JSONObjectTree part = GetPart(JSONObjectTreeHelper.RunningMonitorConfig, index);
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        //}
+        //private static Message<Key> RunningMonitorHardwareConfig(string message) {
+        //    string[] split = message.Split('/');
+        //    int index = int.Parse(split[2]);
 
-            for (int i = 0; i != runningMonitorMetrics.Count; i++) {
-                var kvp = runningMonitorMetrics.Cache[i];
-                if ((int)kvp.Key == index) {
-                    part = kvp.Value as JSONObjectTree;
-                    break;
-                }
-            }
+        //    JSONObjectTree part = GetPart(JSONObjectTreeHelper.RunningMonitorHardwareConfig, index);
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        //}
+        //private static Message<Key> RunningMonitorMetrics(string message) {
+        //    string[] split = message.Split('/');
+        //    int index = int.Parse(split[split.Length - 2]);
 
-            return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
-        }
+        //    JSONObjectTree part = GetPart(JSONObjectTreeHelper.RunningMonitorMetrics, index);
+        //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
+        //}
+        //private static JSONObjectTree GetPart(JSONObjectTree tree, int index) {
+        //    for (int i = 0; i != tree.Count; i++) {
+        //        var kvp = tree.Cache[i];
+        //        if ((int)kvp.Key == index)
+        //            return kvp.Value as JSONObjectTree;
+        //    }
+        //    return null;
+        //}
 
         private static string SerializeSucces(string message) { return SerializeStatusMessage("succes", message); }
         private static string SerializeFailed(string message) { return SerializeStatusMessage("failed", message); }

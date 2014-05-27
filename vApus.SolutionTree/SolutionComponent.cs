@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -512,7 +513,7 @@ namespace vApus.SolutionTree {
         /// <param name="arg">true or false for added one or multiple; the removed solution component.</param>
         public void InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg = null) {
             //Fairly complicated setup to avoid gui freezes.
-            try { StaticActiveObjectWrapper.ActiveObject.Send(_invokeSolutionComponentChangedEventDelegate, doneAction, arg); } catch { }
+            try { BackgroundWorkQueueWrapper.BackgroundWorkQueue.EnqueueWorkItem(_invokeSolutionComponentChangedEventDelegate, doneAction, arg); } catch { }
         }
         private void InvokeSolutionComponentChangedEventCallback(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg) {
             try {

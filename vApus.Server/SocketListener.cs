@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -292,7 +293,7 @@ namespace vApus.Server {
                     DisconnectMaster(socketWrapper);
                     CommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
                     //The test cannot be valid without a master, stop the test if any.
-                    LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Warning);
+                    Loggers.Log(Level.Warning, "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".", exception);
                     if (ListeningError != null)
                         ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
                 }
@@ -323,7 +324,7 @@ namespace vApus.Server {
                 DisconnectMaster(socketWrapper);
                 CommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
                 //The test cannot be valid without a master, stop the test if any.
-                LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, LogLevel.Warning);
+                Loggers.Log(Level.Warning, "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".", exception);
                 if (ListeningError != null)
                     ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
             }

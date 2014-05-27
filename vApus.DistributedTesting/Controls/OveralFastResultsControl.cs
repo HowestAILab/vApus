@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -105,7 +106,7 @@ namespace vApus.DistributedTesting {
                     kvmMasterCPUUsage.BackColor = Color.GhostWhite;
                 } else {
                     kvmMasterCPUUsage.BackColor = Color.Orange;
-                    AppendMessages(cpuUsage + " % CPU Usage", LogLevel.Warning);
+                    AppendMessages(cpuUsage + " % CPU Usage", Level.Warning);
                 }
             }
             kvmMasterContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1) ? "N/A" : contextSwitchesPerSecond.ToString();
@@ -118,7 +119,7 @@ namespace vApus.DistributedTesting {
                     kvmMasterMemoryUsage.BackColor = Color.GhostWhite;
                 } else if (memoryUsage != 0) {
                     kvmMasterMemoryUsage.BackColor = Color.Orange;
-                    AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
+                    AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", Level.Warning);
                 }
             }
             if (nicsSent == -1) {
@@ -129,7 +130,7 @@ namespace vApus.DistributedTesting {
                     kvmMasterNicsSent.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmMasterNicsSent.BackColor = Color.Orange;
-                    AppendMessages(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
+                    AppendMessages(nicsSent + " % NIC Usage (Sent)", Level.Warning);
                 }
             }
             if (nicsReceived == -1) {
@@ -140,7 +141,7 @@ namespace vApus.DistributedTesting {
                     kvmMasterNicsReceived.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmMasterNicsReceived.BackColor = Color.Orange;
-                    AppendMessages(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
+                    AppendMessages(nicsReceived + " % NIC Usage (Received)", Level.Warning);
                 }
             }
         }
@@ -334,7 +335,8 @@ namespace vApus.DistributedTesting {
             return sb.ToString();
         }
 
-        public void AppendMessages(string message, LogLevel logLevel = LogLevel.Info) {
+        public List<EventViewItem> GetEvents() { return eventView.GetEvents(); }
+        public void AppendMessages(string message, Level logLevel = Level.Info) {
             try { eventView.AddEvent((EventViewEventType)logLevel, message); } catch { }
         }
 

@@ -94,5 +94,27 @@ namespace vApus.Util {
             }
             return null;
         }
+
+        protected override void RevertToDefaultValueOnGui() {
+            var cbo = base.ValueControl as ComboBox;
+            cbo.SelectedIndexChanged -= cbo_SelectedIndexChanged;
+            cbo.Items.Clear();
+            //Extract all the values.
+            Type valueType = base.__Value.DefaultValue.GetType();
+            foreach (Enum e in Enum.GetValues(valueType)) {
+                //The description value will be used instead of the tostring of the enum, if any.
+                var attr =
+                    valueType.GetField(e.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as
+                    DescriptionAttribute[];
+                cbo.Items.Add(attr.Length != 0 ? attr[0].Description : e.ToString());
+            }
+
+            var attr2 =
+                valueType.GetField(base.__Value.DefaultValue.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false)
+                as DescriptionAttribute[];
+            cbo.SelectedItem = attr2.Length > 0 ? attr2[0].Description : base.__Value.DefaultValue.ToString();
+
+            cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
+        }
     }
 }

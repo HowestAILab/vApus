@@ -181,6 +181,12 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SharpSSH\Org.Mentalis.Security.dll</HintPath>
     </Reference>
+    <Reference Include="RandomUtils">
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="RandomUtils.Log">
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
@@ -195,7 +201,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActiveObject\ActiveObject.cs" />
     <Compile Include="ClipboardWrapper.cs" />
     <Compile Include="CodeEditing\CodeTextBox.cs">
       <SubType>UserControl</SubType>
@@ -416,7 +421,6 @@
     <Compile Include="Dialogs\OptionsDialog.Designer.cs">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\Logging\PostNewIssue.cs" />
     <Compile Include="Dialogs\ScheduleDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -427,18 +431,12 @@
     <Compile Include="Extensions.cs" />
     <Compile Include="FastObjectCreator.cs" />
     <Compile Include="FastSerializer.cs" />
-    <Compile Include="ControlsAndPanels\Logging\ExceptionHelper.cs" />
-    <Compile Include="ControlsAndPanels\Logging\Logger.cs" />
-    <Compile Include="ControlsAndPanels\Logging\LogPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Logging\LogPanel.Designer.cs">
-      <DependentUpon>LogPanel.cs</DependentUpon>
-    </Compile>
-    <Compile Include="ControlsAndPanels\Logging\LogWrapper.cs" />
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
     <Compile Include="JSONObjectTree.cs" />
+    <Compile Include="ControlsAndPanels\LogPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
     <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -462,11 +460,10 @@
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />
-    <Compile Include="ActiveObject\StaticActiveObjectWrapper.cs" />
+    <Compile Include="ActiveObject\BackgroundWorkQueueWrapper.cs" />
     <Compile Include="ObjectService\ObjectRegistrar.cs" />
     <Compile Include="StringTree.cs" />
     <Compile Include="StringUtil.cs" />
-    <Compile Include="SynchronizationContextWrapper.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifier.cs" />
     <Compile Include="ControlsAndPanels\Tracert\Tracert.cs" />
@@ -556,9 +553,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\OptionsDialog.resx">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\Logging\LogPanel.resx">
-      <DependentUpon>LogPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ScheduleDialog.resx">
       <DependentUpon>ScheduleDialog.cs</DependentUpon>

@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -86,7 +87,7 @@ namespace vApus.Util {
 
                     if (!string.IsNullOrWhiteSpace(username) && !string.IsNullOrWhiteSpace(Settings.Default.PNPassword)) {
                         client.UseDefaultCredentials = false;
-                        client.Credentials = new NetworkCredential(Settings.Default.PNUsername, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
+                        client.Credentials = new NetworkCredential(username, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
                     }
 
                     var msg = new MailMessage("vapus@sizingservers.be", Settings.Default.PNEMailAddress, string.Concat("vApus@", NamedObjectRegistrar.Get<string>("IP"), ":", NamedObjectRegistrar.Get<int>("Port"), " Test Progress Notification"), message);
@@ -95,8 +96,8 @@ namespace vApus.Util {
                     msg.Priority = MailPriority.High;
                     msg.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
                     client.Send(msg);
-                } catch {
-                    LogWrapper.LogByLevel("A progress nofification mail could not be sent, please check the settings.", LogLevel.Error);
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "A progress nofification mail could not be sent, please check the settings.", ex);
                 }
             }
         }

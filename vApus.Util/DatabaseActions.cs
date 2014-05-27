@@ -81,7 +81,6 @@ namespace vApus.Util {
         /// </summary>
         public void ReleaseConnection() {
             if (_connection != null) {
-                try { _connection.Close(); } catch { }
                 try { _connection.Dispose(); } catch { }
                 _connection = null;
             }
@@ -100,7 +99,7 @@ namespace vApus.Util {
         /// <param name="parameters"></param>
         /// <returns></returns>
         private MySqlCommand BuildCommand(MySqlConnection connection, string commandText, CommandType commandType, MySqlParameter[] parameters) {
-            var command = connection.CreateCommand();
+            MySqlCommand command = connection.CreateCommand();
             command.CommandType = commandType;
             command.CommandText = commandText;
             command.CommandTimeout = _commandTimeout;

@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Diagnostics;
 using System.Drawing;
@@ -178,7 +179,7 @@ namespace vApus.Stresstest {
             if (ThreadWorkException != null) {
                 var invocationList = ThreadWorkException.GetInvocationList();
                 Parallel.For(0, invocationList.Length, (i) => {
-                    (invocationList[i] as EventHandler<MessageEventArgs>).Invoke(this, new MessageEventArgs(message, Color.Empty, LogLevel.Error));
+                    (invocationList[i] as EventHandler<MessageEventArgs>).Invoke(this, new MessageEventArgs(message, Color.Empty, Level.Error));
                 });
             }
         }

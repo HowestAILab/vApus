@@ -5,6 +5,8 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -23,7 +25,7 @@ using vApus.SolutionTree;
 using vApus.Util;
 
 namespace vApus.Gui {
-    public partial class MainWindow : Form {
+    public partial class Main : Form {
 
         #region Fields
         private readonly string[] _args;
@@ -46,7 +48,7 @@ namespace vApus.Gui {
         #endregion
 
         #region Constructor
-        public MainWindow(string[] args = null) {
+        public Main(string[] args = null) {
             _args = args;
             Init();
         }
@@ -57,7 +59,7 @@ namespace vApus.Gui {
             InitializeComponent();
             mainMenu.ImageList = new ImageList { ColorDepth = ColorDepth.Depth24Bit };
             _msgHandler = new Win32WindowMessageHandler();
-
+            Loggers.GetLogger<FileLogger>().CurrentLevel = (Level)Settings.Default.LogLevel;
             if (IsHandleCreated)
                 SetGui();
             else
@@ -80,11 +82,11 @@ namespace vApus.Gui {
 
                 string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
                 if (error.Length != 0)
-                    LogWrapper.LogByLevel("Argument Analyzer " + error, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Argument Analyzer " + error);
 
                 _updateNotifierPanel = new UpdateNotifierPanel();
                 _logPanel = new LogPanel();
-                _logPanel.LogErrorCountChanged += _logPanel_LogErrorCountChanged;
+                Loggers.GetLogger<FileLogger>().LogEntryWritten += Main_LogEntryWritten;
                 _logErrorToolTip = new LogErrorToolTip { AutoPopDelay = 10000 };
                 _logErrorToolTip.Click += lblLogLevel_Click;
 
@@ -112,7 +114,7 @@ namespace vApus.Gui {
                 _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
             } catch (Exception ex) {
-                LogWrapper.LogByLevel("Failed initializing GUI.\n" + ex, LogLevel.Error);
+                Loggers.Log(Level.Error, "Failed initializing GUI.", ex);
             }
         }
         #endregion
@@ -200,6 +202,7 @@ namespace vApus.Gui {
             Cursor = Cursors.WaitCursor;
             if (_optionsDialog == null) {
                 _optionsDialog = new OptionsDialog();
+                _optionsDialog.FormClosed += _optionsDialog_FormClosed;
                 _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
@@ -214,6 +217,11 @@ namespace vApus.Gui {
             _optionsDialog.ShowDialog(this);
             SetStatusStrip();
             Cursor = Cursors.Default;
+        }
+
+        private void _optionsDialog_FormClosed(object sender, FormClosedEventArgs e) {
+            Settings.Default.LogLevel = (int)Loggers.GetLogger<FileLogger>().CurrentLevel;
+            Settings.Default.Save();
         }
 
         private void detailedResultsViewerToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -493,17 +501,20 @@ namespace vApus.Gui {
         #endregion
 
         #region Status Strip
-        private void _logPanel_LogErrorCountChanged(object sender, LogPanel.LogErrorCountChangedEventArgs e) {
+        private void Main_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
             try {
-                //Show the error messages in a tooltip.
-                _logErrorToolTip.Hide();
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    //Show the error messages in a tooltip.
+                    _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
 
-                int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
-                int y = statusStrip.Location.Y - 30;
+                    if (!_logErrorToolTip.Visible) {
+                        int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                        int y = statusStrip.Location.Y - 30;
 
-                _logErrorToolTip.NumberOfErrorsOrFatals = e.LogErrorCount;
+                        _logErrorToolTip.Show(this, x, y);
+                    }
+                }, null);
 
-                _logErrorToolTip.Show(this, x, y);
             } catch {
             }
         }
@@ -533,7 +544,7 @@ namespace vApus.Gui {
             else
                 lblUpdateNotifier.Image = Resources.OK;
 
-            lblLogLevel.Text = LogWrapper.LogLevel.ToString();
+            lblLogLevel.Text = Loggers.GetLogger<FileLogger>().CurrentLevel.ToString();
             lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
             //SetProcessorAffinityLabel();
             lblSocketListener.Text = Dns.GetHostName() + ":" + SocketListenerLinker.SocketListenerPort;

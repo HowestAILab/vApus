@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -13,7 +14,6 @@ using System.Net.Sockets;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using vApus.JumpStartStructures;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
@@ -465,7 +465,7 @@ namespace vApus.DistributedTesting {
         /// <summary></summary>
         /// <returns>The slaves added.</returns>
         private List<Slave> AddClientsAndSlavesToDistributedTest() {
-            RefreshDGV();
+            SetSlaveCountsPerClients();
 
             //Clear the clients in de distributed test, new ones will be added.
             _distributedTest.Clients.ClearWithoutInvokingEvent();
@@ -502,12 +502,12 @@ namespace vApus.DistributedTesting {
                     client.Password = row.Tag as string;
 
                 //Add slaves to the client.
-                bool clientIsMaster = false;
-                foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName()))
-                    if (ipAddress.ToString() == client.IP) {
-                        clientIsMaster = true;
-                        break;
-                    }
+                //bool clientIsMaster = false;
+                //foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName()))
+                //    if (ipAddress.ToString() == client.IP) {
+                //        clientIsMaster = true;
+                //        break;
+                //    }
 
                 int startPort = 1347;
                 //if (clientIsMaster && startPort <= SocketListener.GetInstance().Port)

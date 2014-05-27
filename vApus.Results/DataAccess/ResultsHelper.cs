@@ -709,7 +709,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 }
 
                                 bool simplified = false;
-                                var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, ref simplified, true);
+                                var metrics = StresstestMetricsHelper.GetMetrics(concurrencyResult, ref simplified, false, true);
 
                                 averageConcurrentUsers.Rows.Add(stresstest, metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
                                     metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
@@ -1325,19 +1325,39 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     var monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, null, stresstestIds, "Id", "StresstestId", "Monitor", "ResultHeaders");
                     if (monitors == null || monitors.Rows.Count == 0) return CreateEmptyDataTable("AverageMonitorResults", "Stresstest", "Result Headers");
 
+                    //Sort the monitors based on the resultheaders to be able to group different monitor values under the same monitor headers.
+                    monitors.DefaultView.Sort = "ResultHeaders ASC";
+                    monitors = monitors.DefaultView.ToTable();
+
                     var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time (ms)", "Concurrency" });
+                    var resultHeaderStrings = new List<string>();
                     var resultHeaders = new List<string>();
+                    int prevResultHeadersCount = 0;
                     var monitorColumnOffsets = new Dictionary<int, int>(); //key monitorID, value offset
 
+                    //If there are monitors with the same headers we want to reuse those headers if possible for those monitors.
                     foreach (DataRow monitorRow in monitors.Rows) {
                         int monitorId = (int)monitorRow.ItemArray[0];
-                        var rh = (monitorRow[3] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
                         monitorColumnOffsets.Add(monitorId, resultHeaders.Count);
-                        resultHeaders.AddRange(rh);
+
+                        string rhs = monitorRow[3] as string;
+                        if (resultHeaderStrings.Contains(rhs)) {
+                            monitorColumnOffsets[monitorId] = prevResultHeadersCount;
+                        } else {
+                            prevResultHeadersCount = resultHeaders.Count;
+                            resultHeaderStrings.Add(rhs);
+                            var rh = rhs.Split(new string[] { "; " }, StringSplitOptions.None);
+                            resultHeaders.AddRange(rh);
+                        }
                     }
 
-                    columnNames.AddRange(resultHeaders);
+                    //We cannot have duplicate columnnames.
+                    foreach (string header in resultHeaders) {
+                        string formattedHeader = header;
+                        while (columnNames.Contains(formattedHeader)) formattedHeader += "_";
+                        columnNames.Add(formattedHeader);
+                    }
                     var averageMonitorResults = CreateEmptyDataTable("AverageMonitorResults", "Stresstest", columnNames.ToArray());
 
                     foreach (DataRow stresstestsRow in stresstests.Rows) {
@@ -2317,8 +2337,16 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     int yColonUa = y.IndexOf(COLON);
                     if (yColonUa == -1) yColonUa = y.IndexOf(UA) - 1;
 
-                    int logX = int.Parse(x.Substring(LOG.Length, xColonUa - LOG.Length));
-                    int logY = int.Parse(y.Substring(LOG.Length, yColonUa - LOG.Length));
+                    int logX, logY;
+                    if (!int.TryParse(x.Substring(LOG.Length, xColonUa - LOG.Length), out logX)) {
+                        xColonUa = x.IndexOf(UA) - 1;
+                        int.TryParse(x.Substring(LOG.Length, xColonUa - LOG.Length), out logX);
+                    }
+                    if (!int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY)) {
+                        yColonUa = y.IndexOf(UA) - 1;
+                        int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY);
+                    }
+
                     if (logX > logY) return 1;
                     if (logY < logX) return -1;
 

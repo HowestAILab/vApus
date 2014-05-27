@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -19,11 +20,6 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class FastResultsControl : UserControl {
-
-        /// <summary>
-        ///     To show the monitor view if any.
-        /// </summary>
-        public event EventHandler MonitorClicked;
 
         #region Fields
         private List<StresstestMetrics> _concurrencyStresstestMetrics = new List<StresstestMetrics>();
@@ -48,7 +44,7 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Not visible on a slave in a distributed test.
         /// </summary>
-        private bool _monitorConfigurationControlAndLinkButtonsVisible;
+        private bool _monitorConfigurationControlAndKeyValuePairControlVisible;
         /// <summary>
         /// Normally columns are only added to the datagrid view on gui interaction. For monitors this fails if the monitors are not yet initialized.
         /// </summary>
@@ -67,11 +63,11 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Should be false for a slave in a distributed test.
         /// </summary>
-        public bool MonitorConfigurationControlAndLinkButtonsVisible {
-            get { return _monitorConfigurationControlAndLinkButtonsVisible; }
+        public bool MonitorConfigurationControlAndKeyValuePairControlVisible {
+            get { return _monitorConfigurationControlAndKeyValuePairControlVisible; }
             set {
-                _monitorConfigurationControlAndLinkButtonsVisible = value;
-                btnMonitor.Visible = _monitorConfigurationControlAndLinkButtonsVisible;
+                _monitorConfigurationControlAndKeyValuePairControlVisible = value;
+                kvpMonitor.Visible = _monitorConfigurationControlAndKeyValuePairControlVisible;
             }
         }
 
@@ -145,14 +141,14 @@ namespace vApus.Stresstest {
             foreach (var lbtnMonitor in _monitorLinkButtons) flpFastResultsHeader.Controls.Remove(lbtnMonitor);
             _monitorLinkButtons.Clear();
 
-            if (_monitorConfigurationControlAndLinkButtonsVisible) {
+            if (_monitorConfigurationControlAndKeyValuePairControlVisible) {
                 if (monitors == null || monitors.Length == 0) {
-                    btnMonitor.Text = "No Monitor(s)";
-                    btnMonitor.BackColor = Color.Orange;
+                    kvpMonitor.Key = "No Monitor(s)";
+                    kvpMonitor.BackColor = Color.Orange;
                 } else {
                     lbtnStresstest.Visible = true;
-                    btnMonitor.Text = monitors.Combine(", ") + "...";
-                    btnMonitor.BackColor = Color.LightBlue;
+                    kvpMonitor.Key = monitors.Combine(", ");
+                    kvpMonitor.BackColor = Color.LightBlue;
 
                     foreach (var monitor in monitors) {
                         var lbtnMonitor = new LinkButton();
@@ -183,11 +179,6 @@ namespace vApus.Stresstest {
 
             //Reinit the datagridview.
             RefreshFastResults();
-        }
-        //Monitor button in configuration.
-        private void btnMonitor_Click(object sender, EventArgs e) {
-            if (btnMonitor.Text != "Monitor" && btnMonitor.Text != "No Monitor" && MonitorClicked != null)
-                MonitorClicked(this, null);
         }
 
         /// <summary>
@@ -258,7 +249,7 @@ namespace vApus.Stresstest {
                     kvmCPUUsage.BackColor = Color.GhostWhite;
                 } else {
                     kvmCPUUsage.BackColor = Color.Orange;
-                    AddEvent(cpuUsage + " % CPU Usage", LogLevel.Warning);
+                    AddEvent(cpuUsage + " % CPU Usage", Level.Warning);
                 }
             }
             kvmContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1) ? "N/A" : contextSwitchesPerSecond.ToString();
@@ -271,7 +262,7 @@ namespace vApus.Stresstest {
                     kvmMemoryUsage.BackColor = Color.GhostWhite;
                 } else if (memoryUsage != 0) {
                     kvmMemoryUsage.BackColor = Color.Orange;
-                    AddEvent(memoryUsage + " of " + totalVisibleMemory + " MB used", LogLevel.Warning);
+                    AddEvent(memoryUsage + " of " + totalVisibleMemory + " MB used", Level.Warning);
                 }
             }
             if (nicsSent == -1) {
@@ -282,7 +273,7 @@ namespace vApus.Stresstest {
                     kvmNicsSent.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmNicsSent.BackColor = Color.Orange;
-                    AddEvent(nicsSent + " % NIC Usage (Sent)", LogLevel.Warning);
+                    AddEvent(nicsSent + " % NIC Usage (Sent)", Level.Warning);
                 }
             }
             if (nicsReceived == -1) {
@@ -293,7 +284,7 @@ namespace vApus.Stresstest {
                     kvmNicsReceived.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmNicsReceived.BackColor = Color.Orange;
-                    AddEvent(nicsReceived + " % NIC Usage (Received)", LogLevel.Warning);
+                    AddEvent(nicsReceived + " % NIC Usage (Received)", Level.Warning);
                 }
             }
         }
@@ -478,9 +469,9 @@ namespace vApus.Stresstest {
             try {
                 string message = null;
                 if (exception != null) {
-                    message = exception.Message + "\n" + exception.StackTrace + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                    LogWrapper.LogByLevel(message, LogLevel.Error);
+                    var logger = Loggers.GetLogger<FileLogger>();
+                    message = exception.Message + "\n" + exception.StackTrace + "\n\nSee " + logger.CurrentLogFile;
+                    Loggers.Log(Level.Error, message);
                     AddEvent(message, Color.Red);
                 }
                 string lblStoppedText = null;
@@ -492,7 +483,7 @@ namespace vApus.Stresstest {
                             lblStopped.Text = lblStoppedText;
 
                             message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString());
-                            LogWrapper.LogByLevel(message, LogLevel.Info);
+                            Loggers.Log(message);
                             AddEvent(message, Color.GreenYellow);
 
                             SetStresstestStopped();
@@ -514,7 +505,7 @@ namespace vApus.Stresstest {
                             lblStopped.Text = lblStoppedText;
 
                             message = "The stresstest was cancelled.";
-                            LogWrapper.LogByLevel(message, LogLevel.Info);
+                            Loggers.Log(message);
                             AddEvent(message, Color.Orange);
 
                             SetStresstestStopped();
@@ -532,7 +523,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="message"></param>
         /// <param name="logLevel"></param>
-        public void AddEvent(string message, LogLevel logLevel = LogLevel.Info) {
+        public void AddEvent(string message, Level logLevel = Level.Info) {
             var c = new[] { Color.DarkGray, Color.Orange, Color.Red };
             AddEvent(message, c[(int)logLevel], logLevel);
         }
@@ -542,7 +533,7 @@ namespace vApus.Stresstest {
         /// <param name="message"></param>
         /// <param name="eventColor">a custom color if you need one</param>
         /// <param name="logLevel"></param>
-        public void AddEvent(string message, Color eventColor, LogLevel logLevel = LogLevel.Info) {
+        public void AddEvent(string message, Color eventColor, Level logLevel = Level.Info) {
             try { epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message); } catch { }
         }
 

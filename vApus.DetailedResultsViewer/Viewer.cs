@@ -29,6 +29,7 @@ namespace vApus.DetailedResultsViewer {
             _settingsPanel.CloseButtonVisible = false;
             _settingsPanel.ResultsSelected += _settingsPanel_ResultsSelected;
             _settingsPanel.CancelGettingResults += _settingsPanel_CancelGettingResults;
+            _settingsPanel.DisableResultsPanel += _settingsPanel_DisableResultsPanel;
 
             _resultsPanel.ResultsHelper = _resultsHelper;
             _resultsPanel.Enabled = false;
@@ -51,6 +52,9 @@ namespace vApus.DetailedResultsViewer {
         }
         private void _settingsPanel_CancelGettingResults(object sender, EventArgs e) {
             _resultsPanel.ClearResults();
+            _resultsPanel.Enabled = false;
+        }
+        private void _settingsPanel_DisableResultsPanel(object sender, EventArgs e) {
             _resultsPanel.Enabled = false;
         }
 

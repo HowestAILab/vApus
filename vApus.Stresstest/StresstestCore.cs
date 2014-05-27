@@ -1,4 +1,6 @@
-﻿/*
+﻿using RandomUtils;
+using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -15,7 +17,6 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using vApus.JSON;
 using vApus.Results;
 using vApus.Util;
 
@@ -117,7 +118,8 @@ namespace vApus.Stresstest {
 
             _stresstest = stresstest;
 
-            WriteRestConfig();
+//#warning Enable REST
+            // WriteRestConfig();
         }
         ~StresstestCore() {
             Dispose();
@@ -240,15 +242,15 @@ namespace vApus.Stresstest {
 
         private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) { InvokeMessage(e.Message, e.Color, e.LogLevel); }
 
-        private void InvokeMessage(string message, LogLevel logLevel = LogLevel.Info) { InvokeMessage(message, Color.Empty, logLevel); }
+        private void InvokeMessage(string message, Level logLevel = Level.Info) { InvokeMessage(message, Color.Empty, logLevel); }
         /// <summary>
         /// </summary>
         /// <param name="message"></param>
         /// <param name="color">can be Color.Empty</param>
         /// <param name="logLevel"></param>
-        private void InvokeMessage(string message, Color color, LogLevel logLevel = LogLevel.Info) {
+        private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
             try {
-                LogWrapper.LogByLevel(message, logLevel);
+                Loggers.Log(logLevel, message);
                 if (Message != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(
                         delegate {
@@ -294,7 +296,7 @@ namespace vApus.Stresstest {
             _sw.Start();
             if (_stresstest.Logs[0].Key.LogRuleSet.IsEmpty) {
                 var ex = new Exception("No rule set has been assigned to the selected log(s).");
-                LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
+                Loggers.Log(Level.Error, ex.ToString());
                 throw ex;
             }
             foreach (var kvp in _stresstest.Logs) {
@@ -302,7 +304,7 @@ namespace vApus.Stresstest {
 
                 if (kvp.Value != 0 && kvp.Key.Count == 0) {
                     var ex = new Exception("There are no user actions in a selected log.");
-                    LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
+                    Loggers.Log(Level.Error, ex.ToString());
                     throw ex;
                 }
             }
@@ -458,7 +460,7 @@ namespace vApus.Stresstest {
                 _connectionProxyPool.Dispose();
                 _connectionProxyPool = null;
                 var ex = new Exception(sb.ToString());
-                LogWrapper.LogByLevel(ex.ToString(), LogLevel.Error);
+                Loggers.Log(Level.Error, ex.ToString());
                 // This handles notification to the user.
                 throw ex;
             }
@@ -614,14 +616,14 @@ namespace vApus.Stresstest {
 
                                 tle[i] = new TestableLogEntry(logEntryIndex, sameAsLogEntryIndex, parameterizedStructureArr[testPatternIndex], logEntryParent, logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, _rerun);
                             } catch (Exception ex2) {
-                                LogWrapper.LogByLevel("Failed at determining test patterns>\n" + ex2, LogLevel.Error);
+                                Loggers.Log(Level.Error, "Failed at determining test patterns.", ex2);
                                 loopState.Break();
                             }
                         });
 
                         testableLogEntries.TryUpdate(user, tle, null);
                     } catch (Exception ex) {
-                        LogWrapper.LogByLevel("Failed at determining test patterns>\n" + ex, LogLevel.Error);
+                        Loggers.Log(Level.Error, "Failed at determining test patterns.", ex);
                         loopState.Break();
                     }
                 });
@@ -748,7 +750,7 @@ namespace vApus.Stresstest {
                         _threadPool.DoWorkAndWaitForIdle();
                     } catch (Exception ex) {
                         if (!_isDisposed)
-                            InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, LogLevel.Error);
+                            InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, Level.Error);
                     }
 
                     //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
@@ -866,7 +868,7 @@ namespace vApus.Stresstest {
                     testableLogEntryIndex += incrementIndex;
                 }
             } catch (Exception e) {
-                if (!_cancel && !_break) InvokeMessage("Work failed for " + Thread.CurrentThread.Name + ".\n" + e, Color.Red, LogLevel.Error);
+                if (!_cancel && !_break) InvokeMessage("Work failed for " + Thread.CurrentThread.Name + ".\n" + e, Color.Red, Level.Error);
             }
         }
 
@@ -934,7 +936,7 @@ namespace vApus.Stresstest {
                         }
                     }
 
-#warning Making threads on the fly is maybe not a very good idea, maybe this must reside in the thread pool (like parallel connection proxies are in the connection proxy pool)
+//#warning Making threads on the fly is maybe not a very good idea, maybe this must reside in the thread pool (like parallel connection proxies are in the connection proxy pool)
 
                     //Make a mini thread pool (Thread pools in thread pools, what it this madness?! :p)
                     var pThreads = new Thread[parallelConnectionProxies.Length];
@@ -1017,41 +1019,41 @@ namespace vApus.Stresstest {
         }
         #endregion
 
-        private void WriteRestConfig() {
-            try {
-                var testConfigCache = new JSONObjectTree();
+        //private void WriteRestConfig() {
+        //    try {
+        //        var testConfigCache = new JSONObjectTree();
 
-                var monitors = _stresstest.Monitors;
-                var newMonitors = new string[monitors.Length];
-                for (int i = 0; i != monitors.Length; i++)
-                    newMonitors[i] = monitors[i].ToString();
+        //        var monitors = _stresstest.Monitors;
+        //        var newMonitors = new string[monitors.Length];
+        //        for (int i = 0; i != monitors.Length; i++)
+        //            newMonitors[i] = monitors[i].ToString();
 
-                var logs = _stresstest.Logs;
-                var newLogs = new string[logs.Length];
-                for (int i = 0; i != logs.Length; i++)
-                    newLogs[i] = logs[i].Key.ToString();
+        //        var logs = _stresstest.Logs;
+        //        var newLogs = new string[logs.Length];
+        //        for (int i = 0; i != logs.Length; i++)
+        //            newLogs[i] = logs[i].Key.ToString();
 
-                JSONObjectTreeHelper.ApplyToRunningStresstestConfig(testConfigCache,
-                                        _stresstest.ToString(),
-                                        _stresstest.Connection.ToString(),
-                                        _stresstest.ConnectionProxy.ToString(),
-                                        newMonitors,
-                                        newLogs,
-                                        _stresstest.LogRuleSet,
-                                        _stresstest.Concurrencies,
-                                        _stresstest.Runs,
-                                        _stresstest.MinimumDelay,
-                                        _stresstest.MaximumDelay,
-                                        _stresstest.Shuffle,
-                                        _stresstest.ActionDistribution,
-                                        _stresstest.MaximumNumberOfUserActions,
-                                        _stresstest.MonitorBefore,
-                                        _stresstest.MonitorAfter);
+        //        JSONObjectTreeHelper.ApplyToRunningStresstestConfig(testConfigCache,
+        //                                _stresstest.ToString(),
+        //                                _stresstest.Connection.ToString(),
+        //                                _stresstest.ConnectionProxy.ToString(),
+        //                                newMonitors,
+        //                                newLogs,
+        //                                _stresstest.LogRuleSet,
+        //                                _stresstest.Concurrencies,
+        //                                _stresstest.Runs,
+        //                                _stresstest.MinimumDelay,
+        //                                _stresstest.MaximumDelay,
+        //                                _stresstest.Shuffle,
+        //                                _stresstest.ActionDistribution,
+        //                                _stresstest.MaximumNumberOfUserActions,
+        //                                _stresstest.MonitorBefore,
+        //                                _stresstest.MonitorAfter);
 
-                JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
-            } catch {
-            }
-        }
+        //        JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
+        //    } catch {
+        //    }
+        //}
 
         public void Dispose() {
             if (!_isDisposed) {

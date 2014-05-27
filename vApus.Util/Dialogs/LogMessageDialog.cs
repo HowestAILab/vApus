@@ -1,4 +1,6 @@
-﻿/*
+﻿using RandomUtils;
+using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -43,10 +45,10 @@ namespace vApus.Util {
             btnReportThisBug.Width = 103;
             btnReportThisBug.Enabled = false;
 
-            NewIssue.Post(rtxt.Text);
+            //NewIssue.Post(rtxt.Text);
         }
 
-        private void NewIssue_Done(object sender, ActiveObject.OnResultEventArgs e) {
+        private void NewIssue_Done(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
             if (e != null && e.ReturnValue != null) {
                 if (e.Exception == null) {
                     btnReportThisBug.Width = 93;
@@ -58,7 +60,7 @@ namespace vApus.Util {
                     btnReportThisBug.Text = "Report this bug";
                     btnReportThisBug.Enabled = true;
 
-                    LogWrapper.LogByLevel("[" + this + "] " + e.Exception, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Failed posting new issue.", e.Exception, new object[] { sender, e });
                     MessageBox.Show(e.Exception.Message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 _reporting = false;
@@ -83,7 +85,7 @@ namespace vApus.Util {
 
         public LogMessageDialog() {
             InitializeComponent();
-            NewIssue.Done += NewIssue_Done;
+           // NewIssue.Done += NewIssue_Done;
         }
 
         #endregion

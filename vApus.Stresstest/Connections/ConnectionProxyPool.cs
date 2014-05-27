@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -195,14 +196,8 @@ namespace vApus.Stresstest {
         /// <param name="index">Only used for messages, can be any value.</param>
         /// <returns></returns>
         private Exception ReconnectOnce(IConnectionProxy connectionProxy, int index, Exception ex) {
-            if (ex == null)
-                LogWrapper.LogByLevel(
-                    "Connection for connection proxy #" + index +
-                    " could not be opened, trying to make a new one. (Expensive operation!)", LogLevel.Warning);
-            else
-                LogWrapper.LogByLevel(
-                    "Connection for connection proxy #" + index +
-                    " could not be opened, trying to make a new one. (Expensive operation!)\n" + ex, LogLevel.Warning);
+            Loggers.Log(Level.Warning, "Connection for connection proxy #" + index +
+                    " could not be opened, trying to make a new one. (Expensive operation!)", ex, new object[] { connectionProxy, index });
             try {
                 connectionProxy =
                     _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
@@ -210,12 +205,11 @@ namespace vApus.Stresstest {
                 connectionProxy.OpenConnection();
                 if (!connectionProxy.IsConnectionOpen) {
                     ex = new Exception("Reconnecting failed for connection proxy " + index + "!");
-                    LogWrapper.LogByLevel(ex, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Reconnecting failed for connection proxy " + index + "!", null, new object[] { connectionProxy, index });
                     return ex;
                 }
             } catch (Exception e) {
-                ex = new Exception("Reconnecting failed for connection proxy #" + index + "!\n" + e);
-                LogWrapper.LogByLevel(ex, LogLevel.Error);
+                Loggers.Log(Level.Error, "Reconnecting failed for connection proxy " + index + "!", e, new object[] { connectionProxy, index });
                 return ex;
             }
             return null;

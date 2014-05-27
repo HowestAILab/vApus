@@ -1,4 +1,6 @@
-﻿/*
+﻿using RandomUtils;
+using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -14,7 +16,6 @@ using System.IO;
 using System.Net;
 using System.Threading;
 using System.Threading.Tasks;
-using vApus.JSON;
 using vApus.Results;
 using vApus.Server.Shared;
 using vApus.Stresstest;
@@ -32,6 +33,7 @@ namespace vApus.DistributedTesting {
         public event EventHandler<MessageEventArgs> Message;
         /// <summary>
         /// Get the TileStresstestMessage from eg var tpms = _distributedTestCore.TileStresstestMessages; var tpm = tpms[e.TileStresstest].
+        /// There is a delay of 500 ms.
         /// </summary>
         public event EventHandler OnTestProgressMessageReceivedDelayed;
         public event EventHandler<ListeningErrorEventArgs> OnListeningError;
@@ -133,7 +135,8 @@ namespace vApus.DistributedTesting {
 
             _tmrOnInvokeTestProgressMessageReceivedDelayed.Elapsed += _tmrOnInvokeTestProgressMessageReceivedDelayed_Elapsed;
 
-            WriteRestConfig();
+            //#warning Enable REST
+            // WriteRestConfig();
         }
         ~DistributedTestCore() {
             Dispose();
@@ -143,14 +146,13 @@ namespace vApus.DistributedTesting {
         #region Functions
 
         #region Event Handling
-        private void InvokeMessage(string message, LogLevel logLevel = LogLevel.Info) { InvokeMessage(message, Color.Empty, logLevel); }
-        private void InvokeMessage(string message, Color color, LogLevel logLevel = LogLevel.Info) {
-            LogWrapper.LogByLevel(message, logLevel);
+        private void InvokeMessage(string message, Level logLevel = Level.Info) { InvokeMessage(message, Color.Empty, logLevel); }
+        private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
+            Loggers.Log(logLevel, message);
             if (Message != null) {
-                if (logLevel == LogLevel.Error) {
+                if (logLevel == Level.Error) {
                     string[] split = message.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
-                    message = split[0] + "\n\nSee " +
-                              Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
+                    message = split[0] + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
                 }
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
             }
@@ -173,7 +175,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void InvokeOnListeningError(ListeningErrorEventArgs listeningErrorEventArgs) {
-            LogWrapper.LogByLevel(listeningErrorEventArgs, LogLevel.Error);
+            Loggers.Log(Level.Error, "A listening error occured", listeningErrorEventArgs.Exception);
             if (OnListeningError != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnListeningError(this, listeningErrorEventArgs); }, null);
         }
@@ -228,24 +230,23 @@ namespace vApus.DistributedTesting {
                 } else {
                     Dispose();
                     var ex = new Exception(string.Format("Could not connect to one of the slaves ({0} - {1})!{2}{3}", dividedTileStresstest.Parent, dividedTileStresstest, Environment.NewLine, exception));
-                    string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
-                                     Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                    InvokeMessage(message, LogLevel.Error);
+                    string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                    InvokeMessage(message, Level.Error);
                     throw ex;
                 }
             }
             if (_totalTestCount == 0) {
                 var ex = new Exception("Please use at least one test!");
-                string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " +
-                   Path.Combine(Logger.DEFAULT_LOCATION, DateTime.Now.ToString("dd-MM-yyyy") + " " + LogWrapper.Default.Logger.Name + ".txt");
-                InvokeMessage(message, LogLevel.Warning);
+                string message = ex.Message + "\n" + ex.StackTrace + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                InvokeMessage(message, Level.Warning);
                 throw ex;
             }
             _sw.Stop();
             InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
         }
-        async private void SetvApusInstancesAndStresstestsInDb() {
+
+        private void SetvApusInstancesAndStresstestsInDb() {
             _tileStresstestsWithDbIds = new Dictionary<TileStresstest, int>(_usedTileStresstests.Count);
             foreach (TileStresstest ts in _usedTileStresstests.Keys) {
                 var slave = ts.BasicTileStresstest.Slaves[0];
@@ -255,12 +256,11 @@ namespace vApus.DistributedTesting {
                 foreach (var kvp in ts.AdvancedTileStresstest.Logs)
                     logKeys.Add(kvp.Key);
 
-                int id = await Task<int>.Run(() => {
-                    return _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
+                int id = _resultsHelper.SetStresstest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStresstest.Connection.ToString(), ts.BasicTileStresstest.ConnectionProxy,
                         ts.BasicTileStresstest.Connection.ConnectionString, logKeys.Combine(", "), ts.AdvancedTileStresstest.LogRuleSet, ts.AdvancedTileStresstest.Concurrencies,
                         ts.AdvancedTileStresstest.Runs, ts.AdvancedTileStresstest.MinimumDelay, ts.AdvancedTileStresstest.MaximumDelay, ts.AdvancedTileStresstest.Shuffle, ts.AdvancedTileStresstest.ActionDistribution,
                         ts.AdvancedTileStresstest.MaximumNumberOfUserActions, ts.AdvancedTileStresstest.MonitorBefore, ts.AdvancedTileStresstest.MonitorAfter);
-                });
+
                 _tileStresstestsWithDbIds.Add(ts, id);
             }
 
@@ -278,7 +278,7 @@ namespace vApus.DistributedTesting {
             Exception exception = MasterSideCommunicationHandler.InitializeTests(_usedTileStresstests, stresstestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization, _distributedTest.MaxRerunsBreakOnLast);
             if (exception != null) {
                 var ex = new Exception("Could not initialize one or more tests!\n" + exception);
-                InvokeMessage(ex.ToString(), LogLevel.Error);
+                InvokeMessage(ex.ToString(), Level.Error);
                 throw ex;
             }
 
@@ -294,7 +294,7 @@ namespace vApus.DistributedTesting {
                     var ex =
                         new Exception(string.Format("Could not initialize {0} - {1}.{2}{3}", e.TileStresstest.Parent,
                                                     e.TileStresstest, Environment.NewLine, e.Exception));
-                    InvokeMessage(ex.ToString(), LogLevel.Error);
+                    InvokeMessage(ex.ToString(), Level.Error);
                 }
         }
 
@@ -307,7 +307,7 @@ namespace vApus.DistributedTesting {
                 InvokeMessage(" ...Started!", Color.LightGreen);
             } else {
                 Dispose();
-                InvokeMessage(exception.ToString(), LogLevel.Error);
+                InvokeMessage(exception.ToString(), Level.Error);
                 throw exception;
             }
 
@@ -316,7 +316,7 @@ namespace vApus.DistributedTesting {
                 var ex =
                     new Exception(string.Format("Could not start the Distributed Test.{0}{1}", Environment.NewLine,
                                                 exception.ToString()));
-                InvokeMessage(ex.ToString(), LogLevel.Error);
+                InvokeMessage(ex.ToString(), Level.Error);
                 throw ex;
             }
         }
@@ -457,7 +457,7 @@ namespace vApus.DistributedTesting {
                     if (Cancelled != 0 || Failed != 0) Stop(); //Test is invalid stop the test.
                     if (Finished == _totalTestCount) HandleFinished();
                 } catch (Exception ex) {
-                    LogWrapper.LogByLevel("Something went wrong when handling test progress in the distributed test core.\n" + ex, LogLevel.Error);
+                    Loggers.Log(Level.Error, "Something went wrong when handling test progress in the distributed test core.", ex);
                 }
             }
         }
@@ -567,57 +567,57 @@ namespace vApus.DistributedTesting {
 
             return newArr;
         }
-        private void WriteRestConfig() {
-            try {
-                //Converter.ClearWrittenFiles();
+        //private void WriteRestConfig() {
+        //    try {
+        //        //Converter.ClearWrittenFiles();
 
-                var testConfigCache = new JSONObjectTree();
-                var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), testConfigCache);
+        //        var testConfigCache = new JSONObjectTree();
+        //        var distributedTestCache = JSONObjectTreeHelper.AddSubCache(_distributedTest.ToString(), testConfigCache);
 
-                foreach (Tile tile in _distributedTest.Tiles)
-                    foreach (TileStresstest tileStresstest in tile)
-                        if (tileStresstest.Use) {
-                            var slaves = tileStresstest.BasicTileStresstest.Slaves;
-                            var newSlaves = new string[slaves.Length];
-                            for (int i = 0; i != slaves.Length; i++)
-                                newSlaves[i] = slaves[i].ToString();
+        //        foreach (Tile tile in _distributedTest.Tiles)
+        //            foreach (TileStresstest tileStresstest in tile)
+        //                if (tileStresstest.Use) {
+        //                    var slaves = tileStresstest.BasicTileStresstest.Slaves;
+        //                    var newSlaves = new string[slaves.Length];
+        //                    for (int i = 0; i != slaves.Length; i++)
+        //                        newSlaves[i] = slaves[i].ToString();
 
-                            var monitors = tileStresstest.BasicTileStresstest.Monitors;
-                            var newMonitors = new string[monitors.Length];
-                            for (int i = 0; i != monitors.Length; i++)
-                                newMonitors[i] = monitors[i].ToString();
+        //                    var monitors = tileStresstest.BasicTileStresstest.Monitors;
+        //                    var newMonitors = new string[monitors.Length];
+        //                    for (int i = 0; i != monitors.Length; i++)
+        //                        newMonitors[i] = monitors[i].ToString();
 
-                            var logs = tileStresstest.AdvancedTileStresstest.Logs;
-                            var newLogs = new string[logs.Length];
-                            for (int i = 0; i != logs.Length; i++)
-                                newLogs[i] = logs[i].Key.ToString();
+        //                    var logs = tileStresstest.AdvancedTileStresstest.Logs;
+        //                    var newLogs = new string[logs.Length];
+        //                    for (int i = 0; i != logs.Length; i++)
+        //                        newLogs[i] = logs[i].Key.ToString();
 
-                            JSONObjectTreeHelper.ApplyToRunningDistributedTestConfig(distributedTestCache,
-                                                    _distributedTest.RunSynchronization.ToString(),
-                                                    "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
-                                                    tileStresstest.Index + " " +
-                                                    tileStresstest.BasicTileStresstest.Connection.Label,
-                                                    tileStresstest.BasicTileStresstest.Connection.ToString(),
-                                                    tileStresstest.BasicTileStresstest.ConnectionProxy,
-                                                    newMonitors,
-                                                    newSlaves,
-                                                    newLogs,
-                                                    tileStresstest.AdvancedTileStresstest.LogRuleSet,
-                                                    tileStresstest.AdvancedTileStresstest.Concurrencies,
-                                                    tileStresstest.AdvancedTileStresstest.Runs,
-                                                    tileStresstest.AdvancedTileStresstest.MinimumDelay,
-                                                    tileStresstest.AdvancedTileStresstest.MaximumDelay,
-                                                    tileStresstest.AdvancedTileStresstest.Shuffle,
-                                                    tileStresstest.AdvancedTileStresstest.ActionDistribution,
-                                                    tileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions,
-                                                    tileStresstest.AdvancedTileStresstest.MonitorBefore,
-                                                    tileStresstest.AdvancedTileStresstest.MonitorAfter);
-                        }
-
-                //Converter.WriteToFile(testConfigCache, "TestConfig");
-            } catch {
-            }
-        }
+        //                    JSONObjectTreeHelper.ApplyToRunningDistributedTestConfig(distributedTestCache,
+        //                                            _distributedTest.RunSynchronization.ToString(),
+        //                                            "Tile " + (tileStresstest.Parent as Tile).Index + " Stresstest " +
+        //                                            tileStresstest.Index + " " +
+        //                                            tileStresstest.BasicTileStresstest.Connection.Label,
+        //                                            tileStresstest.BasicTileStresstest.Connection.ToString(),
+        //                                            tileStresstest.BasicTileStresstest.ConnectionProxy,
+        //                                            newMonitors,
+        //                                            newSlaves,
+        //                                            newLogs,
+        //                                            tileStresstest.AdvancedTileStresstest.LogRuleSet,
+        //                                            tileStresstest.AdvancedTileStresstest.Concurrencies,
+        //                                            tileStresstest.AdvancedTileStresstest.Runs,
+        //                                            tileStresstest.AdvancedTileStresstest.MinimumDelay,
+        //                                            tileStresstest.AdvancedTileStresstest.MaximumDelay,
+        //                                            tileStresstest.AdvancedTileStresstest.Shuffle,
+        //                                            tileStresstest.AdvancedTileStresstest.ActionDistribution,
+        //                                            tileStresstest.AdvancedTileStresstest.MaximumNumberOfUserActions,
+        //                                            tileStresstest.AdvancedTileStresstest.MonitorBefore,
+        //                                            tileStresstest.AdvancedTileStresstest.MonitorAfter);
+        //                }
+        //        JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
+        //        //Converter.WriteToFile(testConfigCache, "TestConfig");
+        //    } catch {
+        //    }
+        //}
         #endregion
 
         #endregion

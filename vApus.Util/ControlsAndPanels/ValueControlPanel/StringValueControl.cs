@@ -85,5 +85,10 @@ namespace vApus.Util {
             var txt = base.ValueControl as TextBox;
             txt.UseSystemPasswordChar = !txt.UseSystemPasswordChar;
         }
+
+        protected override void RevertToDefaultValueOnGui() {
+            var txt = base.ValueControl as TextBox;
+            txt.Text = base.__Value.DefaultValue as string;
+        }
     }
 }

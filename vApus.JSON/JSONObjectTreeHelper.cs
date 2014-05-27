@@ -22,7 +22,7 @@ namespace vApus.JSON {
         public static JSONObjectTree RunningTestFastConcurrencyResults { get; set; }
         public static JSONObjectTree RunningMonitorConfig { get; set; }
         public static JSONObjectTree RunningMonitorMetrics { get; set; }
-        public static JSONObjectTree RunningClientMonitorMetrics { get; set; }
+        public static JSONObjectTree RunningTestClientMonitorMetrics { get; set; }
         public static JSONObjectTree RunningTestMessages { get; set; }
         public static JSONObjectTree RunningMonitorHardwareConfig { get; set; }
 
@@ -50,8 +50,6 @@ namespace vApus.JSON {
                 MonitorAfterInMinutes = monitorAfter
             };
             testConfigCache.Add(tileStresstest, testConfig);
-
-            RunningTestConfig = testConfigCache;
         }
 
         public static void ApplyToRunningStresstestConfig(JSONObjectTree testConfigCache, string stresstest, string connection, string connectionProxy,
@@ -184,7 +182,7 @@ namespace vApus.JSON {
         /// <param name="totalVisibleMemory"></param>
         /// <param name="nicsSent"></param>
         /// <param name="nicsReceived"></param>
-        public static void ApplyToRunningClientMonitorMetrics(JSONObjectTree clientMonitorCache, string stresstest, int busyThreadCount, float cpuUsage, float contextSwitchesPerSecond,
+        public static void ApplyToRunningTestClientMonitorMetrics(JSONObjectTree clientMonitorCache, string stresstest, int busyThreadCount, float cpuUsage, float contextSwitchesPerSecond,
             uint memoryUsage, uint totalVisibleMemory, float nicsSent, float nicsReceived) {
             var clientMonitorMetrics = new ClientMonitorMetrics() {
                 BusyThreadCount = busyThreadCount,

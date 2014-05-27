@@ -58,9 +58,9 @@ namespace vApus.Util {
         /// <returns></returns>
         public static string GenerateRandomName(int len) {
             var sb = new StringBuilder();
-            var random = new Random();
             char c;
             for (int i = 0; i < len; i++) {
+                var random = new Random(Guid.NewGuid().GetHashCode());
                 c = Convert.ToChar(Convert.ToInt32(Math.Floor(26 * random.NextDouble() + 65)));
                 sb.Append(c);
             }
@@ -74,7 +74,7 @@ namespace vApus.Util {
         /// <param name="max">exclusive</param>
         /// <returns></returns>
         public static string GenerateRandomName(int min, int max) {
-            return GenerateRandomName((new Random()).Next(min, max));
+            return GenerateRandomName((new Random(Guid.NewGuid().GetHashCode())).Next(min, max));
         }
 
         /// <summary>
@@ -97,36 +97,36 @@ namespace vApus.Util {
 
             for (int j = 0; j < chars.Length; j++) {
                 char c = chars[j];
-                var rand = new Random();
+                var random = new Random(Guid.NewGuid().GetHashCode());
                 int i = 0;
 
                 switch (c) {
                     case '0':
-                        returnPattern.Append(Convert.ToChar(rand.Next(48, 58)));
+                        returnPattern.Append(Convert.ToChar(random.Next(48, 58)));
                         break;
                     case '9':
-                        i = rand.Next(48, 59);
+                        i = random.Next(48, 59);
                         if (i != 58) returnPattern.Append(Convert.ToChar(i));
                         break;
                     case 'A':
-                        returnPattern.Append(Convert.ToChar(rand.Next(65, 91)));
+                        returnPattern.Append(Convert.ToChar(random.Next(65, 91)));
                         break;
                     case 'a':
-                        returnPattern.Append(Convert.ToChar(rand.Next(97, 123)));
+                        returnPattern.Append(Convert.ToChar(random.Next(97, 123)));
                         break;
                     case 'B':
-                        i = rand.Next(65, 92);
+                        i = random.Next(65, 92);
                         if (i != 92) returnPattern.Append(Convert.ToChar(i));
                         break;
                     case 'b':
-                        i = rand.Next(97, 124);
+                        i = random.Next(97, 124);
                         if (i != 123) returnPattern.Append(Convert.ToChar(i));
                         break;
                     case '#':
-                        returnPattern.Append(Convert.ToChar(rand.Next(32, 127)));
+                        returnPattern.Append(Convert.ToChar(random.Next(32, 127)));
                         break;
                     case '?':
-                        i = rand.Next(32, 128);
+                        i = random.Next(32, 128);
                         if (i != 127) returnPattern.Append(Convert.ToChar(i));
                         break;
                     default:

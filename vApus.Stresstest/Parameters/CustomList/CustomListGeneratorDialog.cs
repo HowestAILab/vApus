@@ -29,7 +29,10 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Design time constructor
         /// </summary>
-        public CustomListGeneratorDialog() { InitializeComponent(); }
+        public CustomListGeneratorDialog() {
+            InitializeComponent();
+            _parameterTypeSolutionComponentPropertyPanel.AllowInvokingSolutionComponentChangedEvent = false;
+        }
         /// <summary>
         /// To generate a list of parameters of a given type. Those are added to the given CustomListParameter.
         /// </summary>
@@ -94,8 +97,7 @@ namespace vApus.Stresstest {
                     pnlPlaceHolder.Controls.Add(_parameterTypeSolutionComponentPropertyPanel);
                     _parameterTypeSolutionComponentPropertyPanel.Dock = DockStyle.Fill;
                 }
-                _parameterTypeSolutionComponentPropertyPanel.SolutionComponent =
-                    _customListParameter.GenerateFromParameter;
+                _parameterTypeSolutionComponentPropertyPanel.SolutionComponent = _customListParameter.GenerateFromParameter;
                 timer.Start();
             }
         }

@@ -66,9 +66,7 @@ namespace vApus.Util {
 
             if (Started != null) {
                 var invocationList = Started.GetInvocationList();
-                Parallel.For(0, invocationList.Length, (i) => {
-                    (invocationList[i] as EventHandler).Invoke(this, null);
-                });
+                Parallel.For(0, invocationList.Length, (i) => {  (invocationList[i] as EventHandler).Invoke(this, null);    });
             }
         }
 
@@ -78,9 +76,7 @@ namespace vApus.Util {
 
             if (Stopped != null) {
                 var invocationList = Stopped.GetInvocationList();
-                Parallel.For(0, invocationList.Length, (i) => {
-                    (invocationList[i] as EventHandler).Invoke(this, null);
-                });
+                Parallel.For(0, invocationList.Length, (i) => {   (invocationList[i] as EventHandler).Invoke(this, null);  });
             }
         }
 
@@ -93,9 +89,7 @@ namespace vApus.Util {
 
             if (Tick != null) {
                 var invocationList = Tick.GetInvocationList();
-                Parallel.For(0, invocationList.Length, (i) => {
-                    (invocationList[i] as EventHandler).Invoke(this, e);
-                });
+                Parallel.For(0, invocationList.Length, (i) => {   (invocationList[i] as EventHandler).Invoke(this, e);     });
             }
 
             if (_countdownTime == 0) Stop();

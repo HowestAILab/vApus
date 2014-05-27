@@ -31,7 +31,7 @@
             // 
             // fctxtScript
             // 
-            this.fctxtScript.AutoScrollMinSize = new System.Drawing.Size(0, 798);
+            this.fctxtScript.AutoScrollMinSize = new System.Drawing.Size(0, 784);
             this.fctxtScript.BackBrush = null;
             this.fctxtScript.CharHeight = 14;
             this.fctxtScript.CharWidth = 8;

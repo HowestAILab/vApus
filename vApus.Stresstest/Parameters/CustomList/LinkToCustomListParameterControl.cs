@@ -108,5 +108,9 @@ namespace vApus.Stresstest {
             } catch {
             }
         }
+
+        protected override void RevertToDefaultValueOnGui() {
+            //Not supported
+        }
     }
 }

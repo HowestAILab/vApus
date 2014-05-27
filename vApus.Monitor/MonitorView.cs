@@ -1,4 +1,6 @@
-﻿/*
+﻿using RandomUtils;
+using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -14,7 +16,6 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using vApus.JSON;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -56,9 +57,10 @@ namespace vApus.Monitor {
             get { return _configuration; }
             private set {
                 _configuration = value;
-                JSONObjectTree monitorHwConfig = new JSONObjectTree();
-                JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
-                JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
+////#warning Enable REST
+                //JSONObjectTree monitorHwConfig = (JSONObjectTreeHelper.RunningMonitorHardwareConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorHardwareConfig;
+                //JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
+                //JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
             }
         }
         public bool IsRunning {
@@ -92,9 +94,6 @@ namespace vApus.Monitor {
             InitializeComponent();
 
             _monitor = solutionComponent as Monitor;
-            JSONObjectTree monitorConfig = new JSONObjectTree();
-            JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
-            JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
 
             _invokeChangedTmr.Elapsed += _invokeChangedTmr_Elapsed;
 
@@ -133,9 +132,14 @@ namespace vApus.Monitor {
             _previousMonitorSourceForParameters = _monitor.MonitorSource;
             _previousFilter = _monitor.Filter.Combine(", ");
 
+//#warning Enable REST
+            //JSONObjectTree monitorConfig = (JSONObjectTreeHelper.RunningMonitorConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorConfig;
+            // JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
+            //JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
+
             if (exception != null) {
                 string message = "Could not connect to the monitor client.";
-                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
+                Loggers.Log(Level.Error, message, exception);
             }
 
             //Use this for filtering the counters.
@@ -232,8 +236,7 @@ namespace vApus.Monitor {
 
         private void _monitorProxy_OnHandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                LogWrapper.LogByLevel(
-                    Text + ": A counter became unavailable while monitoring:\n" + e.GetException(), LogLevel.Warning);
+                Loggers.Log(Level.Warning, Text + ": A counter became unavailable while monitoring.", e.GetException(), new object[] { sender, e });
 
                 if (_forStresstest && OnHandledException != null) {
                     var invocationList = OnHandledException.GetInvocationList();
@@ -246,12 +249,11 @@ namespace vApus.Monitor {
 
         private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                bool forStresstest = _forStresstest;
                 Stop();
-                LogWrapper.LogByLevel(
-                    Text + ": An error has occured while monitoring, monitor stopped!\n" + e.GetException(),
-                    LogLevel.Error);
+                Loggers.Log(Level.Error, Text + ": An error has occured while monitoring, monitor stopped.", e.GetException(), new object[] { sender, e });
 
-                if (_forStresstest && OnUnhandledException != null) {
+                if (forStresstest && OnUnhandledException != null) {
                     var invocationList = OnHandledException.GetInvocationList();
                     Parallel.For(0, invocationList.Length, (i) => {
                         (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
@@ -264,6 +266,8 @@ namespace vApus.Monitor {
         private void _monitorProxy_OnMonitor(object sender, OnMonitorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 try {
+                    monitorControl.AddMonitorValues(e.MonitorValues);
+
                     //Don't do this when stopped
                     if (tmrProgressDelayCountDown.Enabled) {
                         int refreshInS = _refreshTimeInMS / 1000;
@@ -272,17 +276,14 @@ namespace vApus.Monitor {
                         lblCountDown.Text = "Updates in " + refreshInS;
                     }
 
-                    monitorControl.AddMonitorValues(e.MonitorValues);
-
-                    JSONObjectTree monitorProgress = new JSONObjectTree();
-                    JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
-                    JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;
-
+//#warning Enable REST
+                    //JSONObjectTree monitorProgress = (JSONObjectTreeHelper.RunningMonitorMetrics == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorMetrics;
+                    //JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
+                    //JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;
 
                     btnSaveAllMonitorCounters.Enabled = monitorControl.ColumnCount != 0;
                     btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&
                                                                txtFilterMonitorControlColumns.Text.Length != 0;
-
 
                     var schedule = btnSchedule.Tag as ExtendedSchedule;
                     if (schedule != null && schedule.Duration.Ticks != 0) {
@@ -290,7 +291,8 @@ namespace vApus.Monitor {
                         if (endsAt <= DateTime.Now)
                             Stop();
                     }
-                } catch {
+                } catch { // (Exception ex) {
+                    //Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex);
                 }
             }, null);
         }
@@ -373,8 +375,9 @@ namespace vApus.Monitor {
                     btnStart.Enabled = btnSchedule.Enabled = false;
 
                     string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
+                    Loggers.Log(Level.Error, message, exception);
+                    
                     if (!_forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
                 }
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
@@ -1248,7 +1251,7 @@ namespace vApus.Monitor {
                     } else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                LogWrapper.LogByLevel(message + "\n" + exception, LogLevel.Error);
+                Loggers.Log(Level.Error, message, exception);
             }
             Cursor = Cursors.Default;
         }

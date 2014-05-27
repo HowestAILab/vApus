@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -20,7 +21,7 @@ namespace vApus.DetailedResultsViewer {
     public partial class SettingsPanel : DockablePanel {
 
         public event EventHandler<ResultsSelectedEventArgs> ResultsSelected;
-        public event EventHandler CancelGettingResults;
+        public event EventHandler CancelGettingResults, DisableResultsPanel;
 
         private MySQLServerDialog _mySQLServerDialog = new MySQLServerDialog();
         [ThreadStatic]
@@ -175,6 +176,8 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void dgvDatabases_RowEnter(object sender, DataGridViewCellEventArgs e) {
+            if (DisableResultsPanel != null) DisableResultsPanel(this, null);
+
             if (_rowEnterTimer != null) {
                 _rowEnterTimer.Stop();
                 _rowEnterTimer.Elapsed -= _rowEnterTimer_Elapsed;
@@ -194,10 +197,12 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void dgvDatabases_RowEnterDelayed(DataGridViewCellEventArgs e) {
-            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] != _currentRow)
-                SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
-                    if (CancelGettingResults != null) CancelGettingResults(this, null);
-                }, null);
+            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] == _currentRow)
+                return;
+
+            SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
+                if (CancelGettingResults != null) CancelGettingResults(this, null);
+            }, null);
 
             _resultsHelper.KillConnection();
 

@@ -17,6 +17,16 @@
 
             JumpStart.Done -= JumpStart_Done;
             Stop();
+
+            try {
+                if (_refreshDetailedResultsTimer != null) {
+                    try {
+                        _refreshDetailedResultsTimer.Stop();
+                        _refreshDetailedResultsTimer.Dispose();
+                    } catch { }
+                }
+                _refreshDetailedResultsTimer = null;
+            } catch { }
         }
 
         #region Windows Form Designer generated code
@@ -283,7 +293,7 @@
             this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
             this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.fastResultsControl.Location = new System.Drawing.Point(3, 3);
-            this.fastResultsControl.MonitorConfigurationControlAndLinkButtonsVisible = true;
+            this.fastResultsControl.MonitorConfigurationControlAndKeyValuePairControlVisible = true;
             this.fastResultsControl.Name = "fastResultsControl";
             this.fastResultsControl.Size = new System.Drawing.Size(595, 622);
             this.fastResultsControl.TabIndex = 0;

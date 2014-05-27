@@ -106,7 +106,6 @@ namespace vApus.Util {
             } else {
                 compilerParameters.GenerateInMemory = true;
                 compilerParameters.IncludeDebugInformation = false;
-                //  compilerParameters.TempFiles = new TempFileCollection(_tempFilesDirectory, false);
             }
 
             compilerParameters.CompilerOptions = "/Optimize";

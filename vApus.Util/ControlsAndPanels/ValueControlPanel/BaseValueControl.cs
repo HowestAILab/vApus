@@ -23,7 +23,7 @@ namespace vApus.Util {
     ///     The value of the property may not be null or an exception will be thrown.
     /// </summary>
     [ToolboxItem(false)]
-    public partial class BaseValueControl : UserControl {
+    public abstract partial class BaseValueControl : UserControl {
         public event EventHandler<ValueChangedEventArgs> ValueChanged;
 
         #region Enums
@@ -137,10 +137,16 @@ namespace vApus.Util {
         private void SetValue(object value) {
             if (value == null && _value.__Value == null)
                 return;
+
+            //Revert to the default value if need be.
+            if (value.ToString().Length == 0 && _value.DefaultValue.ToString().Length != 0) {
+                value = _value.DefaultValue;
+                RevertToDefaultValueOnGui();
+                SetCollapsedTextBoxText();
+            }
+
             //Equals is used instead of  ==  because == results in a shallow check (just handles (pointers)).
-            if (_value.__Value != null &&
-                value != null &&
-                !_value.__Value.Equals(value)) {
+            if (!_value.__Value.Equals(value)) {
                 object oldValue = _value.__Value;
                 _value.__Value = value;
                 try {
@@ -152,6 +158,11 @@ namespace vApus.Util {
                 }
             }
         }
+
+        /// <summary>
+        /// If the tostring of the value is empty, the value is defaulted. This should be present in the gui also, without invoking events to prevent endless loops. 
+        /// </summary>
+        protected abstract void RevertToDefaultValueOnGui();
 
         private void _collapsedTextBox_GotFocus(object sender, EventArgs e) {
             if (Parent != null)
@@ -313,6 +324,7 @@ namespace vApus.Util {
             public bool IsReadOnly;
             public string Label;
             public object __Value;
+            public object DefaultValue;
 
             /// <summary>
             /// Only for integer values.

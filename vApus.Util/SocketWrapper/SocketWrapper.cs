@@ -303,15 +303,30 @@ namespace vApus.Util {
 
         #region Binary
 
+        public byte[] ObjectToByteArray(object obj) {
+            byte[] buffer = null;
+
+            //Set the initial buffer size to 1 byte (default == 256 bytes), this way we do not have '\0' bytes in buffer.
+            using (var ms = new MemoryStream(1)) {
+                var bf = new BinaryFormatter();
+                bf.Serialize(ms, obj);
+
+                //.ToArray() was also possible (no '\0' bytes) but this makes a copy of the buffer and results in having twice the buffer in memory.
+                buffer = ms.GetBuffer();
+                bf = null;
+            }
+            return buffer;
+        }
+
         /// <summary>
         ///     Convert an object to a byte[] using deflate or gzip compression. Use gzip only for text, deflate for everything else.
         /// </summary>
         /// <param name="obj"></param>
         /// <param name="deflate">false for gzip compression.</param>
         /// <returns></returns>
-        public byte[] ObjectToByteArray(object obj, bool deflate = true) {
-            return deflate ? ObjectToByteArrayDeflate(obj) : ObjectToByteArrayGZip(obj);
-        }
+        ////public byte[] ObjectToByteArray(object obj, bool deflate = true) {
+        ////    return deflate ? ObjectToByteArrayDeflate(obj) : ObjectToByteArrayGZip(obj);
+        ////}
         public byte[] ObjectToByteArrayDeflate(object obj) {
             byte[] buffer = null;
 
@@ -480,15 +495,27 @@ namespace vApus.Util {
 
         #region Binary
 
+        public object ByteArrayToObject(byte[] buffer, bool deflate = true) {
+            object obj = null;
+
+            using (var ms = new MemoryStream(buffer)) {
+                var bf = new BinaryFormatter();
+                obj = bf.Deserialize(ms);
+
+                bf = null;
+            }
+            return obj;
+        }
+
         /// <summary>
         ///     Converts a byte[] to an object using deflate of gzip compression. Use gzip only for text, deflate for everything else.
         /// </summary>
         /// <param name="buffer"></param>
         /// <param name="deflate">false for gzip compression.</param>
         /// <returns></returns>
-        public object ByteArrayToObject(byte[] buffer, bool deflate = true) {
-            return deflate ? ByteArrayToObjectDeflate(buffer) : ByteArrayToObjectGzip(buffer);
-        }
+        //public object ByteArrayToObject(byte[] buffer, bool deflate = true) {
+        //    return deflate ? ByteArrayToObjectDeflate(buffer) : ByteArrayToObjectGzip(buffer);
+        //}
         private object ByteArrayToObjectDeflate(byte[] buffer) {
             object obj = null;
 

@@ -1,3 +1,4 @@
+using RandomUtils.Log;
 /*
  * Copyright 2007 (c) Blancke Karen, Cavaliere Leandro, Kets Brecht, Vandroemme Dieter
  * Technical University Kortrijk, department PIH
@@ -66,7 +67,7 @@ namespace vApus.Monitor {
 
                 Cursor = Cursors.Default;
             } catch (Exception ex) {
-                LogWrapper.LogByLevel("[" + this + "] " + "The configuration is not a wellformed xml.\n" + ex, LogLevel.Error);
+                Loggers.Log(Level.Error, "The configuration is not a wellformed xml.", ex, new object[] { configuration });
                 Close();
             }
         }
