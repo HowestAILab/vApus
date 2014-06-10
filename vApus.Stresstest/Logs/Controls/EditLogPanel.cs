@@ -88,7 +88,11 @@ namespace vApus.Stresstest {
         private void captureControl_StopClicked(object sender, EventArgs e) {
             SaveCaptureSettings();
             Import(captureControl.ParsedLog, false);
-            ProxyHelper.UnsetProxy();
+            try {
+                ProxyHelper.UnsetProxy();
+            }catch(Exception ex){
+                Loggers.Log(Level.Warning, "Failed to unset the proxy.", ex);
+            }
         }
         private void SaveCaptureSettings() {
             try {
