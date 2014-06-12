@@ -489,6 +489,7 @@ namespace vApus.Stresstest {
             fctxtxPlainText.ClearUndo();
             fctxtxPlainText.TextChanged += fctxtxPlainText_TextChanged;
 
+            btnApply.BackColor = Color.White;
             btnApply.Enabled = false;
 
             SetEditableOrAsImported();
@@ -762,6 +763,7 @@ namespace vApus.Stresstest {
         private void btnShowHideParameterTokens_Click(object sender, EventArgs e) {
             if (btnShowHideParameterTokens.Text == "Show Parameter Tokens") {
                 btnShowHideParameterTokens.Text = "Hide Parameter Tokens";
+                toolTip.SetToolTip(btnShowHideParameterTokens, btnShowHideParameterTokens.Text);
 
                 splitParameterTokens.Panel2Collapsed = false;
 
@@ -780,12 +782,14 @@ namespace vApus.Stresstest {
                 flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                 splitParameterTokens.Panel2Collapsed = true;
             }
+            toolTip.SetToolTip(btnShowHideParameterTokens, btnShowHideParameterTokens.Text);
         }
         private void split_SplitterMoved(object sender, SplitterEventArgs e) {
             cboParameterScope.Refresh();
         }
 
         private void fctxtxPlainText_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
+            btnApply.BackColor = Color.LawnGreen;
             btnApply.Enabled = true;
         }
         private void btnApply_Click(object sender, EventArgs e) {
@@ -820,6 +824,7 @@ namespace vApus.Stresstest {
                 SetBtnSplit();
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
+            btnApply.BackColor = Color.White;
             btnApply.Enabled = false;
         }
 
@@ -997,6 +1002,7 @@ namespace vApus.Stresstest {
         private void dgvLogEntries_CellEnter(object sender, DataGridViewCellEventArgs e) { FillEditView(); }
         private void fctxteditView_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             if (dgvLogEntries.CurrentCell != null) {
+                btnApplyEditView.BackColor = Color.LawnGreen;
                 btnApplyEditView.Enabled = true;
                 if (dgvLogEntries.CurrentCell.ColumnIndex != dgvLogEntries.Columns.Count - 1 && fctxteditView.Text.Contains(_log.LogRuleSet.ChildDelimiter))
                     toolTip.SetToolTip(btnApplyEditView, "Be careful to insert the log entry delimiter (green-colored '" + _log.LogRuleSet.ChildDelimiter + "'), doing this can make log entries invalid!\nIf this happens you can fix it in the 'Plain Text'-tab page");
@@ -1033,6 +1039,7 @@ namespace vApus.Stresstest {
                         toolTip.SetToolTip(btnApplyEditView, null);
                         fctxteditView.Text = string.Empty;
                     }
+                    btnApplyEditView.BackColor = Color.White;
                     btnApplyEditView.Enabled = false;
 
                     fctxteditView.TextChanged += fctxteditView_TextChanged;

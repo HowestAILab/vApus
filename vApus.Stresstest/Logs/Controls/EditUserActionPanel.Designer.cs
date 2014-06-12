@@ -24,23 +24,14 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditUserActionPanel));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle19 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle20 = new System.Windows.Forms.DataGridViewCellStyle();
             this.lblLabel = new System.Windows.Forms.Label();
             this.txtLabel = new System.Windows.Forms.TextBox();
             this.lblMove = new System.Windows.Forms.Label();
             this.lblSteps = new System.Windows.Forms.Label();
             this.nudMoveSteps = new System.Windows.Forms.NumericUpDown();
-            this.dgvLogEntries = new System.Windows.Forms.DataGridView();
-            this.tc = new vApus.Util.TabControlWithAdjustableBorders();
-            this.tpStructured = new System.Windows.Forms.TabPage();
-            this.chkUseEditView = new System.Windows.Forms.CheckBox();
-            this.splitStructured = new System.Windows.Forms.SplitContainer();
-            this.btnApplyEditView = new System.Windows.Forms.Button();
-            this.fctxteditView = new FastColoredTextBoxNS.FastColoredTextBox();
-            this.tpPlainText = new System.Windows.Forms.TabPage();
-            this.fctxtxPlainText = new FastColoredTextBoxNS.FastColoredTextBox();
             this.lblConnection = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -57,8 +48,6 @@
             this.label5 = new System.Windows.Forms.Label();
             this.label6 = new System.Windows.Forms.Label();
             this.flpConfiguration = new System.Windows.Forms.FlowLayoutPanel();
-            this.lbtnAsImported = new vApus.Util.LinkButton();
-            this.lbtnEditable = new vApus.Util.LinkButton();
             this.btnApply = new System.Windows.Forms.Button();
             this.btnRevertToImported = new System.Windows.Forms.Button();
             this.lblLinkTo = new System.Windows.Forms.Label();
@@ -66,17 +55,18 @@
             this.picMoveDown = new System.Windows.Forms.PictureBox();
             this.picMoveUp = new System.Windows.Forms.PictureBox();
             this.lblLogEntryCount = new System.Windows.Forms.Label();
+            this.lbtnAsImported = new vApus.Util.LinkButton();
+            this.lbtnEditable = new vApus.Util.LinkButton();
+            this.tc = new vApus.Util.TabControlWithAdjustableBorders();
+            this.tpStructured = new System.Windows.Forms.TabPage();
+            this.chkUseEditView = new System.Windows.Forms.CheckBox();
+            this.splitStructured = new System.Windows.Forms.SplitContainer();
+            this.dgvLogEntries = new System.Windows.Forms.DataGridView();
+            this.btnApplyEditView = new System.Windows.Forms.Button();
+            this.fctxteditView = new FastColoredTextBoxNS.FastColoredTextBox();
+            this.tpPlainText = new System.Windows.Forms.TabPage();
+            this.fctxtxPlainText = new FastColoredTextBoxNS.FastColoredTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.nudMoveSteps)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).BeginInit();
-            this.tc.SuspendLayout();
-            this.tpStructured.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitStructured)).BeginInit();
-            this.splitStructured.Panel1.SuspendLayout();
-            this.splitStructured.Panel2.SuspendLayout();
-            this.splitStructured.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.fctxteditView)).BeginInit();
-            this.tpPlainText.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelay)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCopy)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitParameterTokens)).BeginInit();
@@ -88,6 +78,16 @@
             this.flpLink.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).BeginInit();
+            this.tc.SuspendLayout();
+            this.tpStructured.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitStructured)).BeginInit();
+            this.splitStructured.Panel1.SuspendLayout();
+            this.splitStructured.Panel2.SuspendLayout();
+            this.splitStructured.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fctxteditView)).BeginInit();
+            this.tpPlainText.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).BeginInit();
             this.SuspendLayout();
             // 
             // lblLabel
@@ -148,177 +148,6 @@
             0,
             0,
             0});
-            // 
-            // dgvLogEntries
-            // 
-            this.dgvLogEntries.AllowDrop = true;
-            this.dgvLogEntries.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
-            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dgvLogEntries.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
-            this.dgvLogEntries.BackgroundColor = System.Drawing.Color.White;
-            this.dgvLogEntries.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.dgvLogEntries.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
-            this.dgvLogEntries.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
-            this.dgvLogEntries.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
-            this.dgvLogEntries.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.dgvLogEntries.EnableHeadersVisualStyles = false;
-            this.dgvLogEntries.Font = new System.Drawing.Font("Consolas", 9.75F);
-            this.dgvLogEntries.Location = new System.Drawing.Point(0, 0);
-            this.dgvLogEntries.Name = "dgvLogEntries";
-            this.dgvLogEntries.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
-            this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle2;
-            this.dgvLogEntries.Size = new System.Drawing.Size(985, 387);
-            this.dgvLogEntries.TabIndex = 32;
-            this.dgvLogEntries.VirtualMode = true;
-            this.dgvLogEntries.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLogEntries_CellEnter);
-            this.dgvLogEntries.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValueNeeded);
-            this.dgvLogEntries.CellValuePushed += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValuePushed);
-            this.dgvLogEntries.DragDrop += new System.Windows.Forms.DragEventHandler(this.dgvLogEntries_DragDrop);
-            this.dgvLogEntries.DragOver += new System.Windows.Forms.DragEventHandler(this.dgvLogEntries_DragOver);
-            this.dgvLogEntries.KeyUp += new System.Windows.Forms.KeyEventHandler(this.dgvLogEntries_KeyUp);
-            this.dgvLogEntries.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dgvLogEntries_MouseDown);
-            this.dgvLogEntries.MouseMove += new System.Windows.Forms.MouseEventHandler(this.dgvLogEntries_MouseMove);
-            // 
-            // tc
-            // 
-            this.tc.BottomVisible = false;
-            this.tc.Controls.Add(this.tpStructured);
-            this.tc.Controls.Add(this.tpPlainText);
-            this.tc.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tc.LeftVisible = false;
-            this.tc.Location = new System.Drawing.Point(0, 0);
-            this.tc.Name = "tc";
-            this.tc.RightVisible = false;
-            this.tc.SelectedIndex = 0;
-            this.tc.Size = new System.Drawing.Size(988, 449);
-            this.tc.TabIndex = 33;
-            this.tc.TopVisible = true;
-            this.tc.SelectedIndexChanged += new System.EventHandler(this.tc_SelectedIndexChanged);
-            // 
-            // tpStructured
-            // 
-            this.tpStructured.BackColor = System.Drawing.Color.White;
-            this.tpStructured.Controls.Add(this.chkUseEditView);
-            this.tpStructured.Controls.Add(this.splitStructured);
-            this.tpStructured.Location = new System.Drawing.Point(0, 22);
-            this.tpStructured.Name = "tpStructured";
-            this.tpStructured.Padding = new System.Windows.Forms.Padding(3);
-            this.tpStructured.Size = new System.Drawing.Size(987, 426);
-            this.tpStructured.TabIndex = 0;
-            this.tpStructured.Text = "Structured";
-            // 
-            // chkUseEditView
-            // 
-            this.chkUseEditView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkUseEditView.AutoSize = true;
-            this.chkUseEditView.Location = new System.Drawing.Point(8, 400);
-            this.chkUseEditView.Name = "chkUseEditView";
-            this.chkUseEditView.Size = new System.Drawing.Size(92, 17);
-            this.chkUseEditView.TabIndex = 34;
-            this.chkUseEditView.Text = "Use Edit View";
-            this.toolTip.SetToolTip(this.chkUseEditView, "Show an edit view when a cell is selected, if checked.");
-            this.chkUseEditView.UseVisualStyleBackColor = true;
-            this.chkUseEditView.CheckedChanged += new System.EventHandler(this.chkUseEditView_CheckedChanged);
-            // 
-            // splitStructured
-            // 
-            this.splitStructured.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.splitStructured.BackColor = System.Drawing.SystemColors.Control;
-            this.splitStructured.Location = new System.Drawing.Point(0, 0);
-            this.splitStructured.Name = "splitStructured";
-            this.splitStructured.Orientation = System.Windows.Forms.Orientation.Horizontal;
-            // 
-            // splitStructured.Panel1
-            // 
-            this.splitStructured.Panel1.BackColor = System.Drawing.Color.White;
-            this.splitStructured.Panel1.Controls.Add(this.dgvLogEntries);
-            // 
-            // splitStructured.Panel2
-            // 
-            this.splitStructured.Panel2.Controls.Add(this.btnApplyEditView);
-            this.splitStructured.Panel2.Controls.Add(this.fctxteditView);
-            this.splitStructured.Panel2Collapsed = true;
-            this.splitStructured.Size = new System.Drawing.Size(985, 387);
-            this.splitStructured.SplitterDistance = 193;
-            this.splitStructured.TabIndex = 33;
-            // 
-            // btnApplyEditView
-            // 
-            this.btnApplyEditView.AutoSize = true;
-            this.btnApplyEditView.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnApplyEditView.BackColor = System.Drawing.Color.White;
-            this.btnApplyEditView.Enabled = false;
-            this.btnApplyEditView.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnApplyEditView.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnApplyEditView.Location = new System.Drawing.Point(467, 161);
-            this.btnApplyEditView.MaximumSize = new System.Drawing.Size(9999, 24);
-            this.btnApplyEditView.MinimumSize = new System.Drawing.Size(0, 24);
-            this.btnApplyEditView.Name = "btnApplyEditView";
-            this.btnApplyEditView.Size = new System.Drawing.Size(50, 24);
-            this.btnApplyEditView.TabIndex = 72;
-            this.btnApplyEditView.Text = "Apply";
-            this.btnApplyEditView.UseVisualStyleBackColor = false;
-            this.btnApplyEditView.Click += new System.EventHandler(this.btnApplyEditView_Click);
-            // 
-            // fctxteditView
-            // 
-            this.fctxteditView.AutoScrollMinSize = new System.Drawing.Size(0, 14);
-            this.fctxteditView.BackBrush = null;
-            this.fctxteditView.CharHeight = 14;
-            this.fctxteditView.CharWidth = 8;
-            this.fctxteditView.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.fctxteditView.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.fctxteditView.Enabled = false;
-            this.fctxteditView.IsReplaceMode = false;
-            this.fctxteditView.Location = new System.Drawing.Point(6, 0);
-            this.fctxteditView.Name = "fctxteditView";
-            this.fctxteditView.Paddings = new System.Windows.Forms.Padding(0);
-            this.fctxteditView.PreferredLineWidth = 65536;
-            this.fctxteditView.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.fctxteditView.Size = new System.Drawing.Size(973, 155);
-            this.fctxteditView.TabIndex = 2;
-            this.fctxteditView.WordWrap = true;
-            this.fctxteditView.Zoom = 100;
-            this.fctxteditView.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxteditView_TextChanged);
-            // 
-            // tpPlainText
-            // 
-            this.tpPlainText.BackColor = System.Drawing.Color.White;
-            this.tpPlainText.Controls.Add(this.fctxtxPlainText);
-            this.tpPlainText.Location = new System.Drawing.Point(0, 22);
-            this.tpPlainText.Name = "tpPlainText";
-            this.tpPlainText.Padding = new System.Windows.Forms.Padding(3);
-            this.tpPlainText.Size = new System.Drawing.Size(987, 426);
-            this.tpPlainText.TabIndex = 1;
-            this.tpPlainText.Text = "Plain Text";
-            // 
-            // fctxtxPlainText
-            // 
-            this.fctxtxPlainText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.fctxtxPlainText.AutoScrollMinSize = new System.Drawing.Size(0, 14);
-            this.fctxtxPlainText.BackBrush = null;
-            this.fctxtxPlainText.CharHeight = 14;
-            this.fctxtxPlainText.CharWidth = 8;
-            this.fctxtxPlainText.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.fctxtxPlainText.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.fctxtxPlainText.IsReplaceMode = false;
-            this.fctxtxPlainText.Location = new System.Drawing.Point(3, 3);
-            this.fctxtxPlainText.Name = "fctxtxPlainText";
-            this.fctxtxPlainText.Paddings = new System.Windows.Forms.Padding(0);
-            this.fctxtxPlainText.PreferredLineWidth = 65536;
-            this.fctxtxPlainText.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.fctxtxPlainText.Size = new System.Drawing.Size(981, 386);
-            this.fctxtxPlainText.TabIndex = 1;
-            this.fctxtxPlainText.WordWrap = true;
-            this.fctxtxPlainText.Zoom = 100;
-            this.fctxtxPlainText.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxtxPlainText_TextChanged);
             // 
             // lblConnection
             // 
@@ -543,52 +372,6 @@
             this.flpConfiguration.Size = new System.Drawing.Size(150, 31);
             this.flpConfiguration.TabIndex = 48;
             // 
-            // lbtnAsImported
-            // 
-            this.lbtnAsImported.Active = false;
-            this.lbtnAsImported.ActiveLinkColor = System.Drawing.Color.DimGray;
-            this.lbtnAsImported.AutoSize = true;
-            this.lbtnAsImported.BackColor = System.Drawing.Color.Transparent;
-            this.lbtnAsImported.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.lbtnAsImported.ForeColor = System.Drawing.Color.DimGray;
-            this.lbtnAsImported.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lbtnAsImported.LinkColor = System.Drawing.Color.DimGray;
-            this.lbtnAsImported.Location = new System.Drawing.Point(70, 6);
-            this.lbtnAsImported.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.lbtnAsImported.Name = "lbtnAsImported";
-            this.lbtnAsImported.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.lbtnAsImported.RadioButtonBehavior = true;
-            this.lbtnAsImported.Size = new System.Drawing.Size(80, 20);
-            this.lbtnAsImported.TabIndex = 35;
-            this.lbtnAsImported.TabStop = true;
-            this.lbtnAsImported.Text = "As Imported";
-            this.lbtnAsImported.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnAsImported.VisitedLinkColor = System.Drawing.Color.DimGray;
-            this.lbtnAsImported.ActiveChanged += new System.EventHandler(this.lbtn_ActiveChanged);
-            // 
-            // lbtnEditable
-            // 
-            this.lbtnEditable.Active = true;
-            this.lbtnEditable.ActiveLinkColor = System.Drawing.Color.Black;
-            this.lbtnEditable.AutoSize = true;
-            this.lbtnEditable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbtnEditable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.lbtnEditable.ForeColor = System.Drawing.Color.Black;
-            this.lbtnEditable.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.lbtnEditable.LinkColor = System.Drawing.Color.Black;
-            this.lbtnEditable.Location = new System.Drawing.Point(6, 6);
-            this.lbtnEditable.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.lbtnEditable.Name = "lbtnEditable";
-            this.lbtnEditable.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.lbtnEditable.RadioButtonBehavior = true;
-            this.lbtnEditable.Size = new System.Drawing.Size(61, 22);
-            this.lbtnEditable.TabIndex = 34;
-            this.lbtnEditable.TabStop = true;
-            this.lbtnEditable.Text = "Editable";
-            this.lbtnEditable.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnEditable.VisitedLinkColor = System.Drawing.Color.Black;
-            this.lbtnEditable.ActiveChanged += new System.EventHandler(this.lbtn_ActiveChanged);
-            // 
             // btnApply
             // 
             this.btnApply.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
@@ -680,7 +463,226 @@
             this.lblLogEntryCount.TabIndex = 78;
             this.lblLogEntryCount.Text = "[0]";
             // 
-            // EditUserAction
+            // lbtnAsImported
+            // 
+            this.lbtnAsImported.Active = false;
+            this.lbtnAsImported.ActiveLinkColor = System.Drawing.Color.DimGray;
+            this.lbtnAsImported.AutoSize = true;
+            this.lbtnAsImported.BackColor = System.Drawing.Color.Transparent;
+            this.lbtnAsImported.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnAsImported.ForeColor = System.Drawing.Color.DimGray;
+            this.lbtnAsImported.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
+            this.lbtnAsImported.LinkColor = System.Drawing.Color.DimGray;
+            this.lbtnAsImported.Location = new System.Drawing.Point(70, 6);
+            this.lbtnAsImported.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.lbtnAsImported.Name = "lbtnAsImported";
+            this.lbtnAsImported.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.lbtnAsImported.RadioButtonBehavior = true;
+            this.lbtnAsImported.Size = new System.Drawing.Size(80, 20);
+            this.lbtnAsImported.TabIndex = 35;
+            this.lbtnAsImported.TabStop = true;
+            this.lbtnAsImported.Text = "As Imported";
+            this.lbtnAsImported.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbtnAsImported.VisitedLinkColor = System.Drawing.Color.DimGray;
+            this.lbtnAsImported.ActiveChanged += new System.EventHandler(this.lbtn_ActiveChanged);
+            // 
+            // lbtnEditable
+            // 
+            this.lbtnEditable.Active = true;
+            this.lbtnEditable.ActiveLinkColor = System.Drawing.Color.Black;
+            this.lbtnEditable.AutoSize = true;
+            this.lbtnEditable.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbtnEditable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnEditable.ForeColor = System.Drawing.Color.Black;
+            this.lbtnEditable.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.lbtnEditable.LinkColor = System.Drawing.Color.Black;
+            this.lbtnEditable.Location = new System.Drawing.Point(6, 6);
+            this.lbtnEditable.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.lbtnEditable.Name = "lbtnEditable";
+            this.lbtnEditable.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.lbtnEditable.RadioButtonBehavior = true;
+            this.lbtnEditable.Size = new System.Drawing.Size(61, 22);
+            this.lbtnEditable.TabIndex = 34;
+            this.lbtnEditable.TabStop = true;
+            this.lbtnEditable.Text = "Editable";
+            this.lbtnEditable.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbtnEditable.VisitedLinkColor = System.Drawing.Color.Black;
+            this.lbtnEditable.ActiveChanged += new System.EventHandler(this.lbtn_ActiveChanged);
+            // 
+            // tc
+            // 
+            this.tc.BottomVisible = false;
+            this.tc.Controls.Add(this.tpStructured);
+            this.tc.Controls.Add(this.tpPlainText);
+            this.tc.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tc.LeftVisible = false;
+            this.tc.Location = new System.Drawing.Point(0, 0);
+            this.tc.Name = "tc";
+            this.tc.RightVisible = false;
+            this.tc.SelectedIndex = 0;
+            this.tc.Size = new System.Drawing.Size(988, 449);
+            this.tc.TabIndex = 33;
+            this.tc.TopVisible = true;
+            this.tc.SelectedIndexChanged += new System.EventHandler(this.tc_SelectedIndexChanged);
+            // 
+            // tpStructured
+            // 
+            this.tpStructured.BackColor = System.Drawing.Color.White;
+            this.tpStructured.Controls.Add(this.chkUseEditView);
+            this.tpStructured.Controls.Add(this.splitStructured);
+            this.tpStructured.Location = new System.Drawing.Point(0, 22);
+            this.tpStructured.Name = "tpStructured";
+            this.tpStructured.Padding = new System.Windows.Forms.Padding(3);
+            this.tpStructured.Size = new System.Drawing.Size(987, 426);
+            this.tpStructured.TabIndex = 0;
+            this.tpStructured.Text = "Structured";
+            // 
+            // chkUseEditView
+            // 
+            this.chkUseEditView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkUseEditView.AutoSize = true;
+            this.chkUseEditView.Location = new System.Drawing.Point(8, 400);
+            this.chkUseEditView.Name = "chkUseEditView";
+            this.chkUseEditView.Size = new System.Drawing.Size(92, 17);
+            this.chkUseEditView.TabIndex = 34;
+            this.chkUseEditView.Text = "Use Edit View";
+            this.toolTip.SetToolTip(this.chkUseEditView, "Show an edit view when a cell is selected, if checked.");
+            this.chkUseEditView.UseVisualStyleBackColor = true;
+            this.chkUseEditView.CheckedChanged += new System.EventHandler(this.chkUseEditView_CheckedChanged);
+            // 
+            // splitStructured
+            // 
+            this.splitStructured.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.splitStructured.BackColor = System.Drawing.SystemColors.Control;
+            this.splitStructured.Location = new System.Drawing.Point(0, 0);
+            this.splitStructured.Name = "splitStructured";
+            this.splitStructured.Orientation = System.Windows.Forms.Orientation.Horizontal;
+            // 
+            // splitStructured.Panel1
+            // 
+            this.splitStructured.Panel1.BackColor = System.Drawing.Color.White;
+            this.splitStructured.Panel1.Controls.Add(this.dgvLogEntries);
+            // 
+            // splitStructured.Panel2
+            // 
+            this.splitStructured.Panel2.Controls.Add(this.btnApplyEditView);
+            this.splitStructured.Panel2.Controls.Add(this.fctxteditView);
+            this.splitStructured.Panel2Collapsed = true;
+            this.splitStructured.Size = new System.Drawing.Size(985, 387);
+            this.splitStructured.SplitterDistance = 193;
+            this.splitStructured.TabIndex = 33;
+            // 
+            // dgvLogEntries
+            // 
+            this.dgvLogEntries.AllowDrop = true;
+            this.dgvLogEntries.AllowUserToDeleteRows = false;
+            dataGridViewCellStyle19.BackColor = System.Drawing.Color.White;
+            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle19;
+            this.dgvLogEntries.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
+            this.dgvLogEntries.BackgroundColor = System.Drawing.Color.White;
+            this.dgvLogEntries.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.dgvLogEntries.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
+            this.dgvLogEntries.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            this.dgvLogEntries.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
+            this.dgvLogEntries.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.dgvLogEntries.EnableHeadersVisualStyles = false;
+            this.dgvLogEntries.Font = new System.Drawing.Font("Consolas", 9.75F);
+            this.dgvLogEntries.Location = new System.Drawing.Point(0, 0);
+            this.dgvLogEntries.Name = "dgvLogEntries";
+            this.dgvLogEntries.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
+            dataGridViewCellStyle20.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle20;
+            this.dgvLogEntries.Size = new System.Drawing.Size(985, 387);
+            this.dgvLogEntries.TabIndex = 32;
+            this.dgvLogEntries.VirtualMode = true;
+            this.dgvLogEntries.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLogEntries_CellEnter);
+            this.dgvLogEntries.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValueNeeded);
+            this.dgvLogEntries.CellValuePushed += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValuePushed);
+            this.dgvLogEntries.DragDrop += new System.Windows.Forms.DragEventHandler(this.dgvLogEntries_DragDrop);
+            this.dgvLogEntries.DragOver += new System.Windows.Forms.DragEventHandler(this.dgvLogEntries_DragOver);
+            this.dgvLogEntries.KeyUp += new System.Windows.Forms.KeyEventHandler(this.dgvLogEntries_KeyUp);
+            this.dgvLogEntries.MouseDown += new System.Windows.Forms.MouseEventHandler(this.dgvLogEntries_MouseDown);
+            this.dgvLogEntries.MouseMove += new System.Windows.Forms.MouseEventHandler(this.dgvLogEntries_MouseMove);
+            // 
+            // btnApplyEditView
+            // 
+            this.btnApplyEditView.AutoSize = true;
+            this.btnApplyEditView.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnApplyEditView.BackColor = System.Drawing.Color.White;
+            this.btnApplyEditView.Enabled = false;
+            this.btnApplyEditView.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnApplyEditView.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnApplyEditView.Location = new System.Drawing.Point(467, 161);
+            this.btnApplyEditView.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnApplyEditView.MinimumSize = new System.Drawing.Size(0, 24);
+            this.btnApplyEditView.Name = "btnApplyEditView";
+            this.btnApplyEditView.Size = new System.Drawing.Size(50, 24);
+            this.btnApplyEditView.TabIndex = 72;
+            this.btnApplyEditView.Text = "Apply";
+            this.btnApplyEditView.UseVisualStyleBackColor = false;
+            this.btnApplyEditView.Click += new System.EventHandler(this.btnApplyEditView_Click);
+            // 
+            // fctxteditView
+            // 
+            this.fctxteditView.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.fctxteditView.BackBrush = null;
+            this.fctxteditView.CharHeight = 22;
+            this.fctxteditView.CharWidth = 8;
+            this.fctxteditView.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.fctxteditView.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.fctxteditView.Enabled = false;
+            this.fctxteditView.IsReplaceMode = false;
+            this.fctxteditView.LineInterval = 8;
+            this.fctxteditView.Location = new System.Drawing.Point(6, 0);
+            this.fctxteditView.Name = "fctxteditView";
+            this.fctxteditView.Paddings = new System.Windows.Forms.Padding(0);
+            this.fctxteditView.PreferredLineWidth = 65536;
+            this.fctxteditView.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctxteditView.Size = new System.Drawing.Size(973, 155);
+            this.fctxteditView.TabIndex = 2;
+            this.fctxteditView.WordWrap = true;
+            this.fctxteditView.Zoom = 100;
+            this.fctxteditView.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxteditView_TextChanged);
+            // 
+            // tpPlainText
+            // 
+            this.tpPlainText.BackColor = System.Drawing.Color.White;
+            this.tpPlainText.Controls.Add(this.fctxtxPlainText);
+            this.tpPlainText.Location = new System.Drawing.Point(0, 22);
+            this.tpPlainText.Name = "tpPlainText";
+            this.tpPlainText.Padding = new System.Windows.Forms.Padding(3);
+            this.tpPlainText.Size = new System.Drawing.Size(987, 426);
+            this.tpPlainText.TabIndex = 1;
+            this.tpPlainText.Text = "Plain Text";
+            // 
+            // fctxtxPlainText
+            // 
+            this.fctxtxPlainText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.fctxtxPlainText.AutoScrollMinSize = new System.Drawing.Size(0, 22);
+            this.fctxtxPlainText.BackBrush = null;
+            this.fctxtxPlainText.CharHeight = 22;
+            this.fctxtxPlainText.CharWidth = 8;
+            this.fctxtxPlainText.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.fctxtxPlainText.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.fctxtxPlainText.IsReplaceMode = false;
+            this.fctxtxPlainText.LineInterval = 8;
+            this.fctxtxPlainText.Location = new System.Drawing.Point(3, 3);
+            this.fctxtxPlainText.Name = "fctxtxPlainText";
+            this.fctxtxPlainText.Paddings = new System.Windows.Forms.Padding(0);
+            this.fctxtxPlainText.PreferredLineWidth = 65536;
+            this.fctxtxPlainText.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctxtxPlainText.Size = new System.Drawing.Size(981, 386);
+            this.fctxtxPlainText.TabIndex = 1;
+            this.fctxtxPlainText.WordWrap = true;
+            this.fctxtxPlainText.Zoom = 100;
+            this.fctxtxPlainText.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxtxPlainText_TextChanged);
+            // 
+            // EditUserActionPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -705,21 +707,9 @@
             this.Controls.Add(this.lblMove);
             this.Controls.Add(this.lblLabel);
             this.Controls.Add(this.txtLabel);
-            this.Name = "EditUserAction";
+            this.Name = "EditUserActionPanel";
             this.Size = new System.Drawing.Size(1000, 641);
             ((System.ComponentModel.ISupportInitialize)(this.nudMoveSteps)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).EndInit();
-            this.tc.ResumeLayout(false);
-            this.tpStructured.ResumeLayout(false);
-            this.tpStructured.PerformLayout();
-            this.splitStructured.Panel1.ResumeLayout(false);
-            this.splitStructured.Panel2.ResumeLayout(false);
-            this.splitStructured.Panel2.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.splitStructured)).EndInit();
-            this.splitStructured.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.fctxteditView)).EndInit();
-            this.tpPlainText.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelay)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCopy)).EndInit();
             this.splitParameterTokens.Panel1.ResumeLayout(false);
@@ -734,6 +724,18 @@
             this.flpLink.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveDown)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMoveUp)).EndInit();
+            this.tc.ResumeLayout(false);
+            this.tpStructured.ResumeLayout(false);
+            this.tpStructured.PerformLayout();
+            this.splitStructured.Panel1.ResumeLayout(false);
+            this.splitStructured.Panel2.ResumeLayout(false);
+            this.splitStructured.Panel2.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.splitStructured)).EndInit();
+            this.splitStructured.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.dgvLogEntries)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.fctxteditView)).EndInit();
+            this.tpPlainText.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.fctxtxPlainText)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 

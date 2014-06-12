@@ -81,9 +81,9 @@
             // 
             // chkClearLogBeforeCapture
             // 
-            this.chkClearLogBeforeCapture.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkClearLogBeforeCapture.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
             this.chkClearLogBeforeCapture.AutoSize = true;
-            this.chkClearLogBeforeCapture.Location = new System.Drawing.Point(6, 557);
+            this.chkClearLogBeforeCapture.Location = new System.Drawing.Point(335, 557);
             this.chkClearLogBeforeCapture.Name = "chkClearLogBeforeCapture";
             this.chkClearLogBeforeCapture.Size = new System.Drawing.Size(139, 17);
             this.chkClearLogBeforeCapture.TabIndex = 30;
@@ -194,6 +194,7 @@
             this.fctxtxImport.CharHeight = 14;
             this.fctxtxImport.CharWidth = 8;
             this.fctxtxImport.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.fctxtxImport.DelayedTextChangedInterval = 200;
             this.fctxtxImport.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fctxtxImport.IsReplaceMode = false;
             this.fctxtxImport.Location = new System.Drawing.Point(0, 0);
@@ -205,7 +206,6 @@
             this.fctxtxImport.TabIndex = 0;
             this.fctxtxImport.WordWrap = true;
             this.fctxtxImport.Zoom = 100;
-            this.fctxtxImport.DelayedTextChangedInterval = 200;
             this.fctxtxImport.TextChangedDelayed += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxtxImport_TextChangedDelayed);
             // 
             // tpExtraTools
@@ -290,12 +290,12 @@
             this.saveFileDialog.DefaultExt = "txt";
             this.saveFileDialog.Filter = "Text File (*.txt)|*.txt";
             // 
-            // EditLog
+            // EditLogPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.tc);
-            this.Name = "EditLog";
+            this.Name = "EditLogPanel";
             this.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.Size = new System.Drawing.Size(748, 609);
             this.tc.ResumeLayout(false);

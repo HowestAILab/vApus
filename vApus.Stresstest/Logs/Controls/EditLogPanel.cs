@@ -1,11 +1,11 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -90,7 +90,7 @@ namespace vApus.Stresstest {
             Import(captureControl.ParsedLog, false);
             try {
                 ProxyHelper.UnsetProxy();
-            }catch(Exception ex){
+            } catch (Exception ex) {
                 Loggers.Log(Level.Warning, "Failed to unset the proxy.", ex);
             }
         }
@@ -264,7 +264,7 @@ namespace vApus.Stresstest {
             //#if EnableBetaFeature
             //            bool successfullyParallized = SetParallelExecutions();
             //#else
-//#warning Parallel executions temp not available
+            //#warning Parallel executions temp not available
             bool successfullyParallized = true;
             //#endif
             //SetIgnoreDelays();
