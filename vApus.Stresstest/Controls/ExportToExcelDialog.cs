@@ -174,7 +174,7 @@ namespace vApus.Stresstest {
 
                                 int rangeWidth, rangeOffset, rangeHeight;
                                 MakeWorksheet(doc, avgUserActions, worksheetIndex++, stresstest + " - Average User Actions", out rangeWidth, out rangeOffset, out rangeHeight);
-                                MakeWorksheet(doc, errors, worksheetIndex++, stresstest + " - Errors", out rangeWidth, out rangeOffset, out rangeHeight);
+                                MakeErrorsSheet(doc, errors, worksheetIndex++, stresstest + " - Errors");
                                 MakeUserActionCompositionSheet(doc, userActionComposition, worksheetIndex++, stresstest + " - User Action Composition");
 
                                 overview = null;
@@ -425,6 +425,22 @@ namespace vApus.Stresstest {
             }
 
             return worksheet;
+        }
+
+        private string MakeErrorsSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+            var errors = new DataTable("Errors");
+            foreach (DataColumn column in dt.Columns)
+                errors.Columns.Add(column.ColumnName);
+
+            foreach (DataRow row in dt.Rows) {
+                object[] arr = row.ItemArray;
+                arr[5] = (row[5] as string).Replace("<16 0C 02 12$>", "•");
+                arr[6] = (row[6] as string).Replace("<16 0C 02 12$>", "•");
+                errors.Rows.Add(arr);
+            }
+
+            int rangeWidth, rangeOffset, rangeHeight;
+            return MakeWorksheet(doc, errors, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
         }
         /// <summary>
         /// Format the user action comosition differently so it is more readable for customers.
