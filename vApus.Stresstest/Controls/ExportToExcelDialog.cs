@@ -269,7 +269,7 @@ namespace vApus.Stresstest {
             var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-            chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 45, 20);
+            chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
 
             //Plot the throughput
             chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
@@ -408,7 +408,7 @@ namespace vApus.Stresstest {
                 var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
                 chart.SetChartType(SLColumnChartType.ClusteredColumn);
                 chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-                chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 45, 20);
+                chart.SetChartPosition(0, rangeWidth + 1, 45, rangeWidth + 21);
 
                 //Set the titles
                 chart.Title.SetTitle(title);
@@ -590,7 +590,7 @@ namespace vApus.Stresstest {
                 }
             }
 
-            chart.SetChartPosition(rangeHeight + rangeOffset + 1, 0, rangeHeight + 45, 20);
+            chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
 
             doc.InsertChart(chart);
 
