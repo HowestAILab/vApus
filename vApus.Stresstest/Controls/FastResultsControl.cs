@@ -296,7 +296,7 @@ namespace vApus.Stresstest {
         public void UpdateFastConcurrencyResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
             _concurrencyStresstestMetrics = metrics;
             _simplifiedMetricsReturned = simplified;
-            _concurrencyStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
+            _concurrencyStresstestMetricsRows = FastStresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
             if (cboDrillDown.SelectedIndex == 0 && lbtnStresstest.Active) {
                 int count = _concurrencyStresstestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
@@ -339,7 +339,7 @@ namespace vApus.Stresstest {
         public void UpdateFastRunResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
             _runStresstestMetrics = metrics;
             _simplifiedMetricsReturned = simplified;
-            _runStresstestMetricsRows = StresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
+            _runStresstestMetricsRows = FastStresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
             if (cboDrillDown.SelectedIndex == 1) {
                 int count = _runStresstestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
@@ -595,7 +595,7 @@ namespace vApus.Stresstest {
             string monitorToString = null;
             string[] columnHeaders = null;
             if (lbtnStresstest.Active)
-                columnHeaders = cboDrillDown.SelectedIndex == 0 ? StresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked) : StresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
+                columnHeaders = cboDrillDown.SelectedIndex == 0 ? FastStresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked) : FastStresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
             else {
                 foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
                 if (monitorToString != null)

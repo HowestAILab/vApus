@@ -149,7 +149,7 @@ namespace vApus.Results {
             if (btnSave.Enabled) btnSave.PerformClick();
 
             var dba = new DatabaseActions {
-                ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};Pooling=True;UseCompression=True;", txtHost.Text, (int)nudPort.Value, txtUser.Text, txtPassword.Text)
+                ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};", txtHost.Text, (int)nudPort.Value, txtUser.Text, txtPassword.Text)
             };
             DataTable datatable = dba.GetDataTable("Show Databases;", CommandType.Text);
             bool succes = datatable.Columns.Count != 0;

@@ -31,7 +31,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public static event EventHandler<NewTestEventArgs> NewTest;
 
-        private delegate void SendPushMessageDelegate(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+        private delegate void SendPushMessageDelegate(string tileStresstestIndex, FastStresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
                                               TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
 
         #region Fields
@@ -237,7 +237,7 @@ namespace vApus.DistributedTesting {
         /// <param name="stresstestCore"></param>
         /// <param name="events"></param>
         /// <param name="concurrentUsersStateChange"></param>
-        public static void SendPushMessage(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+        public static void SendPushMessage(string tileStresstestIndex, FastStresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
                                            TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
                 if (_sendQueue != null)
@@ -246,7 +246,7 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        private static void SendQueuedPushMessage(string tileStresstestIndex, StresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+        private static void SendQueuedPushMessage(string tileStresstestIndex, FastStresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
                                                   TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (_masterSocketWrapper != null)
                 try {

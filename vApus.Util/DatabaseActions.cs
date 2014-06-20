@@ -177,14 +177,19 @@ namespace vApus.Util {
                 var dataAdapter = GetNewDataAdapter();
                 dataAdapter.SelectCommand = BuildCommand(commandText, commandType, parameters);
 
-                var dataSet = new DataSet();
-                dataAdapter.Fill(dataSet);
+                var dt = new DataTable();
+                dataAdapter.Fill(dt);
 
-                return dataSet.Tables[0];
+                return dt;
             } catch {
             }
             return new DataTable();
         }
+        //public DataTable GetDataTable(string commandText, CommandType commandType = CommandType.Text, params MySqlParameter[] parameters) {
+        //    var dt = new DataTable();
+        //    dt.Load(GetDataReader(commandText, commandType, parameters));
+        //    return dt;
+        //}
 
         /// <summary>
         ///     Gets data in a dataReader, to execute it requires to close the connection, recommended for web apps.

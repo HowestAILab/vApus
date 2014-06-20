@@ -46,7 +46,7 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Caching the results to visualize in the stresstestcontrol.
         /// </summary>
-        private StresstestMetricsCache _stresstestMetricsCache;
+        private FastStresstestMetricsCache _stresstestMetricsCache;
         private StresstestCore _stresstestCore;
         private StresstestResult _stresstestResult;
         private StresstestStatus _stresstestStatus; //Set on calling Stop(...);
@@ -228,7 +228,7 @@ namespace vApus.Stresstest {
             fastResultsControl.SetStresstestInitialized();
 
             _stresstestResult = null;
-            _stresstestMetricsCache = new StresstestMetricsCache();
+            _stresstestMetricsCache = new FastStresstestMetricsCache();
             _monitorMetricsCache = new MonitorMetricsCache();
             detailedResultsControl.ClearResults();
             detailedResultsControl.Enabled = false;
@@ -577,7 +577,7 @@ namespace vApus.Stresstest {
                 }
 
             //Update the metrics.
-            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.AddOrUpdate(e.Result), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics && _stresstestMetricsCache.AllowSimplifiedMetrics);
+            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.AddOrUpdate(e.Result), true, _stresstestMetricsCache.SimplifiedMetrics);
             foreach (var monitorResultCache in GetMonitorResultCaches())
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
         }
@@ -591,8 +591,8 @@ namespace vApus.Stresstest {
         private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             StopProgressDelayCountDown();
 
-            fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.AddOrUpdate(e.Result), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
-            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), false, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
+            fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.AddOrUpdate(e.Result), true, _stresstestMetricsCache.SimplifiedMetrics);
+            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), false, _stresstestMetricsCache.SimplifiedMetrics);
             foreach (var monitorResultCache in GetMonitorResultCaches()) {
                 fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
@@ -628,14 +628,14 @@ namespace vApus.Stresstest {
                 } catch { } //Exception on false WMI. 
 
                 if (_canUpdateMetrics) {
-                    fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
-                    fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics(), false, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
+                    fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.SimplifiedMetrics);
+                    fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics(), false, _stresstestMetricsCache.SimplifiedMetrics);
                     foreach (var monitorResultCache in GetMonitorResultCaches()) {
                         fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
                         fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                     }
 
-                    if (_stresstestMetricsCache.CalculatedSimplifiedMetrics && !_simplifiedMetricsReturned) {
+                    if (_stresstestMetricsCache.SimplifiedMetrics && !_simplifiedMetricsReturned) {
                         _simplifiedMetricsReturned = true;
                         fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
                     }
@@ -824,8 +824,8 @@ namespace vApus.Stresstest {
                 } catch { } //Exception on false WMI. 
 
                 _stresstestMetricsCache.AllowSimplifiedMetrics = false;
-                fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
-                fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics(), false, _stresstestMetricsCache.CalculatedSimplifiedMetrics);
+                fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.SimplifiedMetrics);
+                fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics(), false, _stresstestMetricsCache.SimplifiedMetrics);
                 foreach (var monitorResultCache in GetMonitorResultCaches()) {
                     fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
                     fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));

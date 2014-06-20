@@ -103,11 +103,13 @@
     <Reference Include="System.Core" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
+    <Reference Include="System.ServiceModel" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DataAccess\AverageConcurrentUsersCalculator.cs" />
     <Compile Include="DataAccess\ReaderAndCombiner.cs" />
     <Compile Include="DataAccess\Schema.cs" />
     <Compile Include="DescriptionAndTagsInputDialog.cs">
@@ -116,12 +118,13 @@
     <Compile Include="DescriptionAndTagsInputDialog.Designer.cs">
       <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="Metrics\DetailedStresstestMetricsHelper.cs" />
     <Compile Include="Metrics\MonitorMetrics.cs" />
     <Compile Include="Metrics\MonitorMetricsCache.cs" />
     <Compile Include="Metrics\MonitorMetricsHelper.cs" />
     <Compile Include="Metrics\StresstestMetrics.cs" />
-    <Compile Include="Metrics\StresstestMetricsCache.cs" />
-    <Compile Include="Metrics\StresstestMetricsHelper.cs" />
+    <Compile Include="Metrics\FastStresstestMetricsCache.cs" />
+    <Compile Include="Metrics\FastStresstestMetricsHelper.cs" />
     <Compile Include="Results\MonitorResult.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>

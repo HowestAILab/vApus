@@ -114,7 +114,7 @@ namespace vApus.Server.Shared {
 
         public int ThreadsInUse;
         public string TileStresstestIndex;
-        public StresstestMetricsCache StresstestMetricsCache;
+        public FastStresstestMetricsCache StresstestMetricsCache;
         public bool SimplifiedMetrics;
 
         /// <summary>

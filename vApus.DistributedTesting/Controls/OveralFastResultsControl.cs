@@ -23,7 +23,7 @@ namespace vApus.DistributedTesting {
         private DistributedTest _distributedTest;
 
         //Caching the progress here.
-        Dictionary<TileStresstest, StresstestMetricsCache> _progress = new Dictionary<TileStresstest, StresstestMetricsCache>();
+        Dictionary<TileStresstest, FastStresstestMetricsCache> _progress = new Dictionary<TileStresstest, FastStresstestMetricsCache>();
         private List<object[]> _concurrencyStresstestMetricsRows = new List<object[]>();
         private List<object[]> _runStresstestMetricsRows = new List<object[]>();
 
@@ -56,7 +56,7 @@ namespace vApus.DistributedTesting {
         public void ClearFastResults() {
             dgvFastResults.RowCount = 0;
 
-            _progress = new Dictionary<TileStresstest, StresstestMetricsCache>();
+            _progress = new Dictionary<TileStresstest, FastStresstestMetricsCache>();
 
             _concurrencyStresstestMetricsRows = new List<object[]>();
             _runStresstestMetricsRows = new List<object[]>();
@@ -157,7 +157,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <param name="title">Distributed test or the tostring of the tile</param>
         /// <param name="progress"></param>
-        public void SetOverallFastResults(Dictionary<TileStresstest, StresstestMetricsCache> progress) {
+        public void SetOverallFastResults(Dictionary<TileStresstest, FastStresstestMetricsCache> progress) {
             _progress = progress;
 
             RefreshRows();
@@ -172,8 +172,8 @@ namespace vApus.DistributedTesting {
 
             foreach (TileStresstest ts in _progress.Keys) {
                 var metricsCache = _progress[ts];
-                _concurrencyStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), StresstestMetricsHelper.MetricsToRows(metricsCache.GetConcurrencyMetrics(), chkReadable.Checked, metricsCache.CalculatedSimplifiedMetrics)));
-                _runStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), StresstestMetricsHelper.MetricsToRows(metricsCache.GetRunMetrics(), chkReadable.Checked, metricsCache.CalculatedSimplifiedMetrics)));
+                _concurrencyStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStresstestMetricsHelper.MetricsToRows(metricsCache.GetConcurrencyMetrics(), chkReadable.Checked, metricsCache.SimplifiedMetrics)));
+                _runStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStresstestMetricsHelper.MetricsToRows(metricsCache.GetRunMetrics(), chkReadable.Checked, metricsCache.SimplifiedMetrics)));
             }
             for (int i = 0; i != _concurrencyStresstestMetricsRows.Count; i++)
                 _invalidateConcurrencyRows.Add(i);
@@ -230,8 +230,8 @@ namespace vApus.DistributedTesting {
             //Set the headers.
             dgvFastResults.Columns.Clear();
             string[] columnHeaders = null;
-            columnHeaders = cboDrillDown.SelectedIndex == 0 ? StresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked)
-                : StresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
+            columnHeaders = cboDrillDown.SelectedIndex == 0 ? FastStresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked)
+                : FastStresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
 
             if (readableChanged) RefreshRows();
 

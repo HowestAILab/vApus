@@ -151,7 +151,7 @@ namespace vApus.DistributedTesting {
         public static TestProgressMessage GetMergedTestProgressMessage(TileStresstest tileStresstest, ICollection<TestProgressMessage> toBeMerged) {
             if (toBeMerged.Count == 1) foreach (var tpm in toBeMerged) return tpm;
 
-            var stresstestMetricsCaches = new List<StresstestMetricsCache>(toBeMerged.Count);
+            var stresstestMetricsCaches = new List<FastStresstestMetricsCache>(toBeMerged.Count);
             foreach (var tpm in toBeMerged) stresstestMetricsCaches.Add(tpm.StresstestMetricsCache);
 
             if (stresstestMetricsCaches.Contains(null)) {
@@ -189,7 +189,7 @@ namespace vApus.DistributedTesting {
                 if (tpm.TotalVisibleMemory > testProgressMessage.TotalVisibleMemory) testProgressMessage.TotalVisibleMemory = tpm.TotalVisibleMemory;
             }
             //Then the test progress
-            testProgressMessage.StresstestMetricsCache = StresstestMetricsHelper.MergeStresstestMetricsCaches(stresstestMetricsCaches);
+            testProgressMessage.StresstestMetricsCache = FastStresstestMetricsHelper.MergeStresstestMetricsCaches(stresstestMetricsCaches);
 
             return testProgressMessage;
         }

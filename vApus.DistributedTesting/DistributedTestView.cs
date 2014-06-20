@@ -861,7 +861,7 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.SetTitle("Distributed Test");
                     if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                         testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
-                        var progress = new Dictionary<TileStresstest, StresstestMetricsCache>(testProgressMessages.Count);
+                        var progress = new Dictionary<TileStresstest, FastStresstestMetricsCache>(testProgressMessages.Count);
                         foreach (TileStresstest tileStresstest in testProgressMessages.Keys) {
                             var metricsCache = testProgressMessages[tileStresstest].StresstestMetricsCache;
                             if (metricsCache != null) progress.Add(tileStresstest, metricsCache);
@@ -874,7 +874,7 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.SetTitle(ttvi.Tile.Name + " " + ttvi.Tile.Index);
                     if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                         testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
-                        var progress = new Dictionary<TileStresstest, StresstestMetricsCache>();
+                        var progress = new Dictionary<TileStresstest, FastStresstestMetricsCache>();
                         foreach (TileStresstest tileStresstest in testProgressMessages.Keys)
                             if (ttvi.Tile.Contains(tileStresstest)) {
                                 var metricsCache = testProgressMessages[tileStresstest].StresstestMetricsCache;
@@ -898,8 +898,8 @@ namespace vApus.DistributedTesting {
                 //Build and add fast results. Do not show the updates in label if monitoring before.
                 fastResultsControl.ClearFastResults(testProgressMessage.StartedAt == DateTime.MinValue);
                 if (testProgressMessage.StresstestMetricsCache != null) {
-                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics(), true, testProgressMessage.StresstestMetricsCache.CalculatedSimplifiedMetrics);
-                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics(), false, testProgressMessage.StresstestMetricsCache.CalculatedSimplifiedMetrics);
+                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics(), true, testProgressMessage.StresstestMetricsCache.SimplifiedMetrics);
+                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics(), false, testProgressMessage.StresstestMetricsCache.SimplifiedMetrics);
                 }
                 var monitorResultCaches = GetMonitorResultCaches(tileStresstest);
                 foreach (var monitorResultCache in monitorResultCaches) {

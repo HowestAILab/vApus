@@ -74,7 +74,7 @@ namespace vApus.Results {
                 if (stresstestIndex != -1)
                     combinedRow[stresstestIndex] = stresstest;
 
-                if (combined == null) combined = MakeEmptyCopy(part);
+                if (combined == null) combined = part.Clone();
                 combined.Rows.Add(combinedRow);
             }
 
@@ -147,7 +147,7 @@ namespace vApus.Results {
                     }
                 }
 
-                if (combined == null) combined = MakeEmptyCopy(part);
+                if (combined == null) combined = part.Clone();
                 combined.Rows.Add(combinedRow);
             }
             return combined;
@@ -223,7 +223,7 @@ namespace vApus.Results {
                     }
 
                     //Copy the table and column names.
-                    if (combined == null) combined = MakeEmptyCopy(dividedParts[0]);
+                    if (combined == null) combined = dividedParts[0].Clone();
                     combined.Rows.Add(combinedRow);
                 }
             }
@@ -309,7 +309,7 @@ namespace vApus.Results {
                     }
 
                     //Copy the table and column names.
-                    if (combined == null) combined = MakeEmptyCopy(dividedParts[0]);
+                    if (combined == null) combined = dividedParts[0].Clone();
                     combined.Rows.Add(combinedRow);
                 }
             }
@@ -353,13 +353,13 @@ namespace vApus.Results {
 
                 DataTable combinedRun = null;
 
-                var stresstestsAndDividedRows = GetStresstestsAndDividedLogEntryResultRows(cancellationToken, databaseActions, selectColumns, where, runResultId);
+                Dictionary<string, List<DataTable>> stresstestsAndDividedRows = GetStresstestsAndDividedLogEntryResultRows(cancellationToken, databaseActions, selectColumns, where, runResultId);
                 if (cancellationToken.IsCancellationRequested) return null;
 
                 foreach (string stresstest in stresstestsAndDividedRows.Keys) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    var dividedParts = stresstestsAndDividedRows[stresstest];
+                    List<DataTable> dividedParts = stresstestsAndDividedRows[stresstest];
                     ulong correctId = 0;
                     int correctRunResultId = 0;
                     var linkReplaceVirtualUsers = new Dictionary<string, string>();
@@ -388,7 +388,7 @@ namespace vApus.Results {
                         }
                     }
 
-                    //Add instead of merge, just increase the Id and the vApus Thread Pool Thread # if needed.
+                    //Add instead of merge, just increase the Id and the vApus Thread Pool Thread # if needed. Only do this when there are multiple parts.
                     string[] linkReplaceVirtualUsersKeys = new string[linkReplaceVirtualUsers.Count];
                     linkReplaceVirtualUsers.Keys.CopyTo(linkReplaceVirtualUsersKeys, 0);
                     for (int i = 1; i != dividedParts.Count; i++) {
@@ -424,13 +424,13 @@ namespace vApus.Results {
                     }
 
                     if (combined == null)
-                        combined = MakeEmptyCopy(combinedRun);
+                        combined = combinedRun;
+                    else
+                        foreach (DataRow row in combinedRun.Rows) {
+                            if (cancellationToken.IsCancellationRequested) return null;
 
-                    foreach (DataRow row in combinedRun.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        combined.Rows.Add(row.ItemArray);
-                    }
+                            combined.ImportRow(row);
+                        }
                 }
             }
             return combined;
@@ -516,8 +516,8 @@ namespace vApus.Results {
 
                     string stresstest = GetCombinedStresstestToString(row["Stresstest"] as string);
                     if (!dict.ContainsKey(stresstest))
-                        dict.Add(stresstest, MakeEmptyCopy(dt));
-                    dict[stresstest].Rows.Add(row.ItemArray);
+                        dict.Add(stresstest, dt.Clone());
+                    dict[stresstest].ImportRow(row);
                 }
             }
             return dict;
@@ -561,9 +561,9 @@ namespace vApus.Results {
 
                         if (dt.Rows.Count != 0) {
                             if (!dict.ContainsKey(stresstest))
-                                dict.Add(stresstest, MakeEmptyCopy(dt));
+                                dict.Add(stresstest, dt.Clone());
 
-                            dict[stresstest].Rows.Add(dt.Rows[0].ItemArray);
+                            dict[stresstest].ImportRow(dt.Rows[0]);
                         }
                     }
                 }
@@ -608,12 +608,12 @@ namespace vApus.Results {
                     foreach (DataRow row in dictStresstestResults[stresstest].Rows) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        var emptyCopy = MakeEmptyCopy(dt);
+                        var emptyCopy = dt.Clone();
                         foreach (DataRow toAdd in dt.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
                             if (toAdd["StresstestResultId"].Equals(row["Id"]))
-                                emptyCopy.Rows.Add(toAdd.ItemArray);
+                                emptyCopy.ImportRow(toAdd);
                         }
 
                         if (emptyCopy.Rows.Count != 0)
@@ -662,7 +662,7 @@ namespace vApus.Results {
                     foreach (var crDt in dictStresstestConcurrencyResults[stresstest]) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        var emptyCopy = MakeEmptyCopy(dt);
+                        var emptyCopy = dt.Clone();
                         foreach (DataRow row in crDt.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
@@ -670,7 +670,7 @@ namespace vApus.Results {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 if (toAdd["ConcurrencyResultId"].Equals(row["Id"]))
-                                    emptyCopy.Rows.Add(toAdd.ItemArray);
+                                    emptyCopy.ImportRow(toAdd);
                             }
                         }
 
@@ -724,11 +724,11 @@ namespace vApus.Results {
                         foreach (var rrDt in dictStresstestRunResults[stresstest]) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var emptyCopy = MakeEmptyCopy(dt);
+                            var emptyCopy = dt.Clone();
                             foreach (DataRow row in rrDt.Rows)
                                 foreach (DataRow toAdd in dt.Rows)
                                     if (toAdd["RunResultId"].Equals(row["Id"]))
-                                        emptyCopy.Rows.Add(toAdd.ItemArray);
+                                        emptyCopy.ImportRow(toAdd);
 
                             if (emptyCopy.Rows.Count != 0)
                                 dict[stresstest].Add(emptyCopy);
@@ -933,12 +933,6 @@ namespace vApus.Results {
             return where;
         }
 
-        private static DataTable MakeEmptyCopy(DataTable from) {
-            var objectType = typeof(object);
-            var dataTable = new DataTable(from.TableName);
-            foreach (DataColumn column in from.Columns) dataTable.Columns.Add(column.ColumnName, objectType);
-            return dataTable;
-        }
         private static DataTable CreateEmptyDataTable(string name, string[] columnNames) {
             var objectType = typeof(object);
             var dataTable = new DataTable(name);

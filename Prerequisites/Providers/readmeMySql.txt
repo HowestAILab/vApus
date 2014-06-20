@@ -2,38 +2,49 @@ ZIP bevat alle dll, code sample, enzo...
 http://dev.mysql.com/downloads/
 ----------------------------------
 
-MySQL Connector/Net 1.0.5
-MySQL AB's ADO.Net Driver for MySQL
-Copyright (c) 2004-2005 MySQL AB
+MySQL Connector/Net 6.x
 
-CONTENTS
+This is a release of MySQL Connector/Net, Oracle's dual-
+license ADO.Net Driver for MySQL. For the avoidance of
+doubt, this particular copy of the software is released
+under the version 2 of the GNU General Public License.
+MySQL Connector/Net is brought to you by Oracle.
 
-* License
-* Documentation Location
+Copyright (c) 2004, 2013, Oracle and/or its affiliates. All rights reserved.
 
+License information can be found in the COPYING file.
 
-LICENSE
+MySQL FOSS License Exception
+We want free and open source software applications under 
+certain licenses to be able to use the GPL-licensed MySQL 
+Connector/NET (specified GPL-licensed MySQL client libraries)
+despite the fact that not all such FOSS licenses are 
+compatible with version 2 of the GNU General Public License.
+Therefore there are special exceptions to the terms and
+conditions of the GPLv2 as applied to these client libraries, 
+which are identified and described in more detail in the 
+FOSS License Exception at
+<http://www.mysql.com/about/legal/licensing/foss-exception.html>
 
-MySQL Connector/Net is licensed under the GPL or a commercial license
-from MySQL AB. 
+This distribution may include materials developed by third
+parties. For license and attribution notices for these
+materials, please refer to the documentation that accompanies
+this distribution (see the "Licenses for Third-Party Components"
+appendix) or view the online documentation at 
+<http://dev.mysql.com/doc/>
 
-If you have licensed this product under the GPL, please see the COPYING
-file for more information. 
+The accompanying documentation currently exists in MSDN help 
+format and is located in the 'doc' directory.
 
-If you have licensed this product under a commercial license from
-MySQL AB, please see the file "MySQLEULA.txt" that comes with this 
-distribution for the terms of the license.
+GPLv2 Disclaimer
+For the avoidance of doubt, except that if any license choice
+other than GPL or LGPL is available it will apply instead, 
+Oracle elects to use only the General Public License version 2 
+(GPLv2) at this time for any software where a choice of GPL 
+license versions is made available with the language indicating 
+that GPLv2 or any later version may be used, or where a choice 
+of which version of the GPL is applied is otherwise unspecified.
 
-If you need non-GPL licenses for commercial distribution please contact 
-me <reggie@mysql.com> or <sales@mysql.com>.
-
-
-DOCUMENTATION LOCATION
- 
-The documentation currently exists in MSDN help format and is located in the 'doc' 
-directory.
-
---
 This software is OSI Certified Open Source Software.
 OSI Certified is a certification mark of the Open Source Initiative.
 
