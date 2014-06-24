@@ -77,7 +77,7 @@ namespace vApus.Results {
                 if (combined == null) combined = part.Clone();
                 combined.Rows.Add(combinedRow);
             }
-
+            if (combined != null) combined.TableName = "stresstests";
             return combined;
         }
 
@@ -90,6 +90,13 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetStresstestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] stresstestIds, params string[] selectColumns) {
+            if (GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds).Length == stresstestIds.Length) {  //No divided stresstests, so we can immediatly return results.
+                if (stresstestIds.Length == 0)
+                    return databaseActions.GetDataTable(string.Format("Select {0} From stresstestresults;", GetValidSelect(selectColumns)));
+
+                return databaseActions.GetDataTable(string.Format("Select {0} From stresstestresults Where StresstestId In({1});", GetValidSelect(selectColumns), stresstestIds.Combine(", ")));
+            }
+
             int startedAtIndex = 2;
             int stoppedAtIndex = 3;
             int statusIndex = 4;
@@ -150,6 +157,7 @@ namespace vApus.Results {
                 if (combined == null) combined = part.Clone();
                 combined.Rows.Add(combinedRow);
             }
+            if (combined != null) combined.TableName = "stresstestresults";
             return combined;
         }
 
@@ -165,6 +173,13 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetConcurrencyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestResultIds, params string[] selectColumns) {
+            if (GetStresstestResultIdsAndSiblings(cancellationToken, databaseActions, stresstestResultIds).Length == stresstestResultIds.Length) {  //No divided stresstests, so we can immediatly return results.
+                if (stresstestResultIds.Length == 0)
+                    return databaseActions.GetDataTable(string.Format("Select {0} From concurrencyresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
+
+                return databaseActions.GetDataTable(string.Format("Select {0} From concurrencyresults Where StresstestResultId In({1}){2};", GetValidSelect(selectColumns), stresstestResultIds.Combine(", "), GetValidWhere(where, false)));
+            }
+
             int concurrencyIndex = 2;
             int startedAtIndex = 3;
             int stoppedAtIndex = 4;
@@ -227,6 +242,7 @@ namespace vApus.Results {
                     combined.Rows.Add(combinedRow);
                 }
             }
+            if (combined != null) combined.TableName = "concurrencyresults";
             return combined;
         }
 
@@ -242,6 +258,13 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetRunResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] concurrencyResultIds, params string[] selectColumns) {
+            if (GetConcurrencyResultIdsAndSiblings(cancellationToken, databaseActions, concurrencyResultIds).Length == concurrencyResultIds.Length) { //No divided stresstests, so we can immediatly return results.
+                if (concurrencyResultIds.Length == 0)
+                    return databaseActions.GetDataTable(string.Format("Select {0} From runresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
+
+                return databaseActions.GetDataTable(string.Format("Select {0} From runresults Where ConcurrencyResultId In({1}){2};", GetValidSelect(selectColumns), concurrencyResultIds.Combine(", "), GetValidWhere(where, false)));
+            }
+
             int totalLogEntryCountIndex = 3;
             int rerunCountIndex = 4;
             int startedAtIndex = 5;
@@ -313,6 +336,7 @@ namespace vApus.Results {
                     combined.Rows.Add(combinedRow);
                 }
             }
+            if (combined != null) combined.TableName = "runresults";
             return combined;
         }
 
@@ -328,6 +352,17 @@ namespace vApus.Results {
         /// <param name="selectColumns">If none given all columns are selected.</param>
         /// <returns></returns>
         private static DataTable GetLogEntryResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
+            if (GetRunResultIdsAndSiblings(cancellationToken, databaseActions, runResultIds).Length == runResultIds.Length) {//No divided stresstests, so we can immediatly return results.
+                if (runResultIds.Length == 0)
+                    return databaseActions.GetDataTable(string.Format("Select {0} From logentryresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
+
+                //No need for the where if all run result ids are selected.
+                DataTable runResults = databaseActions.GetDataTable("Select count(*) from runresults;");
+                if((long)runResults.Rows[0].ItemArray[0] == runResultIds.LongLength)
+                    return databaseActions.GetDataTable(string.Format("Select {0} From logentryresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
+
+                return databaseActions.GetDataTable(string.Format("Select {0} From logentryresults Where RunResultId In({1}){2};", GetValidSelect(selectColumns), runResultIds.Combine(", "), GetValidWhere(where, false)));
+            }
             int idIndex = 0;
             int runResultIdIndex = 1;
             int virtualUserIndex = 2;
@@ -426,13 +461,10 @@ namespace vApus.Results {
                     if (combined == null)
                         combined = combinedRun;
                     else
-                        foreach (DataRow row in combinedRun.Rows) {
-                            if (cancellationToken.IsCancellationRequested) return null;
-
-                            combined.ImportRow(row);
-                        }
+                        combined.Merge(combinedRun, true);
                 }
             }
+            if (combined != null) combined.TableName = "logentryresults";
             return combined;
         }
 
@@ -446,16 +478,19 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         public static DataTable GetMonitors(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] stresstestIds, params string[] selectColumns) {
-            if (databaseActions != null)
+            DataTable combined = null;
+            if (databaseActions != null) {
                 if (stresstestIds.Length == 0) {
-                    return databaseActions.GetDataTable(string.Format("Select {0} From monitors{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
+                    combined = databaseActions.GetDataTable(string.Format("Select {0} From monitors{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
                 } else {
                     stresstestIds = GetStresstestIdsAndSiblings(cancellationToken, databaseActions, stresstestIds);
                     if (cancellationToken.IsCancellationRequested) return null;
 
-                    return databaseActions.GetDataTable(string.Format("Select {0} From monitors Where StresstestId In({1}){2};", GetValidSelect(selectColumns), stresstestIds.Combine(", "), GetValidWhere(where, false)));
+                    combined = databaseActions.GetDataTable(string.Format("Select {0} From monitors Where StresstestId In({1}){2};", GetValidSelect(selectColumns), stresstestIds.Combine(", "), GetValidWhere(where, false)));
                 }
-            return null;
+            }
+            if (combined != null) combined.TableName = "monitors";
+            return combined;
         }
 
         public static DataTable GetMonitorResults(DatabaseActions databaseActions, int monitorId, params string[] selectColumns) { return GetMonitorResults(databaseActions, new int[] { monitorId }, selectColumns); }
@@ -467,11 +502,14 @@ namespace vApus.Results {
         /// <param name="selectColumns"></param>
         /// <returns></returns>
         private static DataTable GetMonitorResults(DatabaseActions databaseActions, int[] monitorIds, params string[] selectColumns) {
+            DataTable combined = null;
             if (databaseActions != null)
-                return (monitorIds.Length == 0) ?
+                combined = (monitorIds.Length == 0) ?
                     databaseActions.GetDataTable(string.Format("Select {0} From monitorresults;", GetValidSelect(selectColumns))) :
                     databaseActions.GetDataTable(string.Format("Select {0} From monitorresults Where MonitorId In({1});", GetValidSelect(selectColumns), monitorIds.Combine(", ")));
-            return null;
+
+            if (combined != null) combined.TableName = "monitorresults";
+            return combined;
         }
 
         public static string GetCombinedStresstestToString(string stresstest) {
@@ -511,7 +549,8 @@ namespace vApus.Results {
                     dt = databaseActions.GetDataTable(string.Format("Select {0} From stresstests Where Id In({1});", select, stresstestIds.Combine(", ")));
                 }
 
-                foreach (DataRow row in dt.Rows) {
+                DataRow[] allRows = dt.Select();
+                foreach (DataRow row in allRows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
                     string stresstest = GetCombinedStresstestToString(row["Stresstest"] as string);
@@ -601,6 +640,7 @@ namespace vApus.Results {
                         stresstestResultIds.Combine(", "), GetValidWhere(where, false)));
                 }
 
+                DataRow[] allRows = dt.Select();
                 foreach (string stresstest in dictStresstestResults.Keys) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
@@ -609,7 +649,7 @@ namespace vApus.Results {
                         if (cancellationToken.IsCancellationRequested) return null;
 
                         var emptyCopy = dt.Clone();
-                        foreach (DataRow toAdd in dt.Rows) {
+                        foreach (DataRow toAdd in allRows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
                             if (toAdd["StresstestResultId"].Equals(row["Id"]))
@@ -655,18 +695,19 @@ namespace vApus.Results {
                         concurrencyResultIds.Combine(", "), GetValidWhere(where, false)));
                 }
 
+                DataRow[] allRows = dt.Select();
                 foreach (string stresstest in dictStresstestConcurrencyResults.Keys) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
                     dict.Add(stresstest, new List<DataTable>());
-                    foreach (var crDt in dictStresstestConcurrencyResults[stresstest]) {
+                    foreach (DataTable crDt in dictStresstestConcurrencyResults[stresstest]) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
                         var emptyCopy = dt.Clone();
                         foreach (DataRow row in crDt.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            foreach (DataRow toAdd in dt.Rows) {
+                            foreach (DataRow toAdd in allRows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 if (toAdd["ConcurrencyResultId"].Equals(row["Id"]))
@@ -717,16 +758,18 @@ namespace vApus.Results {
 
                     if (dict[stresstest].Count == 0) dict.Remove(stresstest);
                 } else {
+
+                    DataRow[] allRows = dt.Select();
                     foreach (string stresstest in dictStresstestRunResults.Keys) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
                         dict.Add(stresstest, new List<DataTable>());
-                        foreach (var rrDt in dictStresstestRunResults[stresstest]) {
+                        foreach (DataTable rrDt in dictStresstestRunResults[stresstest]) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
                             var emptyCopy = dt.Clone();
                             foreach (DataRow row in rrDt.Rows)
-                                foreach (DataRow toAdd in dt.Rows)
+                                foreach (DataRow toAdd in allRows)
                                     if (toAdd["RunResultId"].Equals(row["Id"]))
                                         emptyCopy.ImportRow(toAdd);
 
@@ -855,17 +898,18 @@ namespace vApus.Results {
             l.Sort();
             return l.ToArray();
         }
-        private static int[] GetRunResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int runResultId) {
+        private static int[] GetRunResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] runResultIds) {
             if (cancellationToken.IsCancellationRequested) return null;
 
             var l = new List<int>();
             if (databaseActions != null) {
                 //Find to which concurrencies the runs belong to.
-                var dt = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From runresults Where Id in({0});", runResultId));
+                var dt = databaseActions.GetDataTable(string.Format("Select Id, ConcurrencyResultId From runresults Where Id in({0});", runResultIds.Combine(", ")));
 
                 foreach (DataRow row in dt.Rows) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
+                    int runResultId = (int)row["Id"];
                     l.Add(runResultId);
 
                     int concurrencyResultId = (int)row["ConcurrencyResultId"];
@@ -904,6 +948,9 @@ namespace vApus.Results {
             }
             l.Sort();
             return l.ToArray();
+        }
+        private static int[] GetRunResultIdsAndSiblings(CancellationToken cancellationToken, DatabaseActions databaseActions, int runResultId) {
+            return GetRunResultIdsAndSiblings(cancellationToken, databaseActions, new int[] { runResultId });
         }
 
         private static string TrimDividedPart(string stresstest) {

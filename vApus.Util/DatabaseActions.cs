@@ -35,7 +35,7 @@ using System.Data;
 using MySql.Data.MySqlClient;
 
 namespace vApus.Util {
-    public class DatabaseActions {
+    public class DatabaseActions : IDisposable {
 
         #region Fields
 
@@ -292,6 +292,15 @@ namespace vApus.Util {
             return 0;
         }
 
+        public void Dispose() {
+            ReleaseConnection();
+        }
+        public static DataTable CreateEmptyDataTable(string name, params string[] columnNames) {
+            var objectType = typeof(object);
+            var dataTable = new DataTable(name);
+            foreach (string columnName in columnNames) dataTable.Columns.Add(columnName, objectType);
+            return dataTable;
+        }
         #endregion
     }
 }

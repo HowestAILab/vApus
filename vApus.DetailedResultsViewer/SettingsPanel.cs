@@ -176,6 +176,9 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void dgvDatabases_RowEnter(object sender, DataGridViewCellEventArgs e) {
+            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] == _currentRow)
+                return;
+
             if (DisableResultsPanel != null) DisableResultsPanel(this, null);
 
             if (_rowEnterTimer != null) {
