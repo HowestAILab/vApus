@@ -7,6 +7,7 @@
  */
 using System;
 using System.Collections;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Reflection;
 
@@ -23,7 +24,7 @@ namespace vApus.Util {
     }
     public class FunctionOutputCache : IDisposable {
         private bool _isDisposed;
-        private List<CacheEntry> _cache = new List<CacheEntry>();
+        private ConcurrentBag<CacheEntry> _cache = new ConcurrentBag<CacheEntry>();
 
         public bool IsDisposed { get { return _isDisposed; } }
 
@@ -41,7 +42,6 @@ namespace vApus.Util {
 
             var newEntry = new CacheEntry(methodBase, inputArguments);
             _cache.Add(newEntry);
-            _cache.Sort(CacheEntryComparer.GetInstance);
             return newEntry;
         }
         private bool InspectArgumentEquality(object a, object b) {
@@ -80,9 +80,6 @@ namespace vApus.Util {
             if (!_isDisposed) {
                 _isDisposed = true;
                 _cache = null;
-
-                GC.WaitForPendingFinalizers();
-                GC.Collect();
             }
         }
         /// <summary>
@@ -98,16 +95,6 @@ namespace vApus.Util {
                 MethodBase = methodBase;
                 InputArguments = inputArguments;
             }
-        }
-        private class CacheEntryComparer : IComparer<CacheEntry> {
-            private static CacheEntryComparer _cacheEntryComparer = new CacheEntryComparer();
-
-            private CacheEntryComparer() { }
-            public int Compare(CacheEntry x, CacheEntry y) {
-                return x.MethodBase.Name.CompareTo(y.MethodBase.Name);
-            }
-
-            public static CacheEntryComparer GetInstance { get { return _cacheEntryComparer; } }
         }
     }
 }

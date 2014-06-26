@@ -15,9 +15,12 @@ using System.Threading.Tasks;
 using vApus.Util;
 
 namespace vApus.Results {
-    internal class AverageConcurrentUsersCalculator {
-        public static DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
-            DataTable averageConcurrentUsers = DatabaseActions.CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
+    internal sealed class AverageConcurrentUsersCalculator : BaseResultSetCalculator {
+        private static AverageConcurrentUsersCalculator _instance = new AverageConcurrentUsersCalculator();
+        public static AverageConcurrentUsersCalculator GetInstance() { return _instance; }
+        private AverageConcurrentUsersCalculator() { }
+        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
+            DataTable averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
 "Log Entries Processed", "Log Entries", "Errors", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
 "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)");
 
@@ -48,7 +51,7 @@ namespace vApus.Results {
         }
 
         //Get all data from the database to be processed later.
-        private static ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
+        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
             var data = new ConcurrentDictionary<string, DataTable>();
 
             data.TryAdd("stresstests", ReaderAndCombiner.GetStresstests(cancellationToken, databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "Runs"));
@@ -77,46 +80,10 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            int runCount = runResults.Rows.Count;
-            int threads = 4; //Getting log entry results won't scale much further due to table locks. 4 threads seem to be the sweet spot.
-
-            //Adaptive parallelization.
-            if (threads > Environment.ProcessorCount) threads = Environment.ProcessorCount;
-            if (threads > runCount) threads = runCount;
-
-            int partRange = runCount / threads;
-            int remainder = runCount % threads;
-
-            int[][] runResultIds = new int[threads][];
-
-            int inclLower = 0;
-            for (int thread = 0; thread != threads; thread++) {
-                int exclUpper = inclLower + partRange;
-                if (remainder != 0) {
-                    ++exclUpper;
-                    --remainder;
-                }
-
-                runResultIds[thread] = new int[exclUpper - inclLower];
-                for (int i = inclLower; i != exclUpper; i++)
-                    runResultIds[thread][i - inclLower] = (int)runResults.Rows[i][0];
-
-                inclLower = exclUpper;
-            }
-
-            var parts = new DataTable[runResultIds.Length];
-            Parallel.For(0, runResultIds.Length, (i, loopState) => {
-                using (var dba = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString, CommandTimeout = 600 }) {
-                    if (cancellationToken.IsCancellationRequested) loopState.Break();
-                    parts[i] = ReaderAndCombiner.GetLogEntryResults(cancellationToken, dba, runResultIds[i], "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "RunResultId");
-                }
-            });
-            if (cancellationToken.IsCancellationRequested) return null;
-
+            DataTable[] parts = GetLogEntryResultsThreaded(databaseActions, cancellationToken, runResults, 4, "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
                 data.TryAdd("logentryresults" + i, parts[i]);
-
             parts = null;
 
             //int[] runResultIds = new int[runResults.Rows.Count];
@@ -131,7 +98,7 @@ namespace vApus.Results {
             return data;
         }
 
-        private static ConcurrentDictionary<ConcurrencyResult, string> GetResults(ConcurrentDictionary<string, DataTable> data, CancellationToken cancellationToken) {
+        private ConcurrentDictionary<ConcurrencyResult, string> GetResults(ConcurrentDictionary<string, DataTable> data, CancellationToken cancellationToken) {
             DataRow[] stresstests = data["stresstests"].Select();
             if (stresstests == null || stresstests.Length == 0) return null;
 
@@ -267,7 +234,7 @@ namespace vApus.Results {
             return concurrencyResultsDic;
         }
 
-        private static ConcurrentDictionary<StresstestMetrics, string> GetMetrics(ConcurrentDictionary<ConcurrencyResult, string> results, CancellationToken cancellationToken) {
+        private ConcurrentDictionary<StresstestMetrics, string> GetMetrics(ConcurrentDictionary<ConcurrencyResult, string> results, CancellationToken cancellationToken) {
             var metricsDic = new ConcurrentDictionary<StresstestMetrics, string>();
             Parallel.ForEach(results, (item, loopState) => {
                 if (cancellationToken.IsCancellationRequested) loopState.Break();

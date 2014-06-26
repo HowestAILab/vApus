@@ -295,12 +295,6 @@ namespace vApus.Util {
         public void Dispose() {
             ReleaseConnection();
         }
-        public static DataTable CreateEmptyDataTable(string name, params string[] columnNames) {
-            var objectType = typeof(object);
-            var dataTable = new DataTable(name);
-            foreach (string columnName in columnNames) dataTable.Columns.Add(columnName, objectType);
-            return dataTable;
-        }
         #endregion
     }
 }
