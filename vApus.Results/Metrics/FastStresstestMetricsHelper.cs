@@ -407,11 +407,11 @@ namespace vApus.Results {
                         metrics.LogEntriesProcessed + " / " +
                         (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
                         metrics.Errors,
-                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2).ToString(),
-                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2).ToString(),
-                        simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2).ToString(),
-                        simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2).ToString(),
-                        simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, 2).ToString()
+                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
                     };
             return new object[]
                 {
@@ -423,11 +423,11 @@ namespace vApus.Results {
                     metrics.LogEntriesProcessed + " / " +
                     (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
                     metrics.Errors,
-                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2).ToString(),
-                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2).ToString(),
-                    simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2).ToString(),
-                    simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2).ToString(),
-                    simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, 2).ToString()
+                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
                 };
         }
         private static object[] CalculatableMetricsToRow(StresstestMetrics metrics, bool simplified) {
@@ -435,33 +435,33 @@ namespace vApus.Results {
                 return new object[]
                     {
                         metrics.StartMeasuringTime.ToString(),
-                        Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
-                        Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
+                        Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, MidpointRounding.AwayFromZero),
+                        Math.Round(metrics.MeasuredTime.TotalMilliseconds, MidpointRounding.AwayFromZero),
                         metrics.Concurrency,
                         metrics.LogEntriesProcessed,
                         metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
                         metrics.Errors,
-                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2).ToString(),
-                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2).ToString(),
-                        simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2).ToString(),
-                        simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2).ToString(),
-                        simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, 2).ToString()
+                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
                     };
             return new object[]
                 {
                     metrics.StartMeasuringTime.ToString(),
-                    Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, 2),
-                    Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
+                    Math.Round(metrics.EstimatedTimeLeft.TotalMilliseconds, MidpointRounding.AwayFromZero),
+                    Math.Round(metrics.MeasuredTime.TotalMilliseconds, MidpointRounding.AwayFromZero),
                     metrics.Concurrency,
                     metrics.Run,
                     metrics.LogEntriesProcessed,
                     metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
                     metrics.Errors,
-                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2).ToString(),
-                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2).ToString(),
-                    simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2).ToString(),
-                    simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2).ToString(),
-                    simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, 2).ToString()
+                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
                 };
         }
 

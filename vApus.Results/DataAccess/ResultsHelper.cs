@@ -1092,7 +1092,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 var startedAt = concurrencyDelimiters[concurrencyId].Key;
-                                var measuredRunTime = Math.Round((concurrencyDelimiters[concurrencyId].Value - startedAt).TotalMilliseconds, 2);
+                                var measuredRunTime = Math.Round((concurrencyDelimiters[concurrencyId].Value - startedAt).TotalMilliseconds, MidpointRounding.AwayFromZero);
 
                                 string concurrency = concurrencies[concurrencyId] == 0 ? "--" : concurrencies[concurrencyId].ToString();
 

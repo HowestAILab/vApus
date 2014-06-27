@@ -206,10 +206,10 @@ namespace vApus.Results {
                                     if (cancellationToken.IsCancellationRequested) loopState.Break();
 
                                     averageLogEntries.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
-                                        Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2),
-                                        Math.Round(((double)maxTimeToLastByteInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
-                                        Math.Round(((double)percTimeToLastBytesInTicks[s]) / TimeSpan.TicksPerMillisecond, 2),
-                                        Math.Round(avgDelay[s], 2),
+                                        Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                                        maxTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond,
+                                        percTimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
+                                        Math.Round(avgDelay[s], MidpointRounding.AwayFromZero),
                                         errors[s]);
                                 }
                         }

@@ -38,10 +38,10 @@ namespace vApus.Results {
             foreach (StresstestMetrics metrics in metricsDic.Keys) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                averageConcurrentUsers.Rows.Add(metricsDic[metrics], metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, 2),
-                    metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2), Math.Round(metrics.UserActionsPerSecond, 2),
-                    Math.Round(metrics.AverageResponseTime.TotalMilliseconds, 2), Math.Round(metrics.MaxResponseTime.TotalMilliseconds, 2), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, 2),
-                    Math.Round(metrics.AverageDelay.TotalMilliseconds, 2));
+                averageConcurrentUsers.Rows.Add(metricsDic[metrics], metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, MidpointRounding.AwayFromZero),
+                    metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero), Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero),
+                    Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero),
+                    Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero));
             }
 
             DataView dv = averageConcurrentUsers.DefaultView;

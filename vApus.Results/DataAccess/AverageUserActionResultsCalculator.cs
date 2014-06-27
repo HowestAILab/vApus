@@ -289,10 +289,10 @@ namespace vApus.Results {
                         if (cancellationToken.IsCancellationRequested) return null;
 
                         averageUserActions.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
-                            Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, 2),
-                            Math.Round(((double)maxTimeToLastByteInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
-                            Math.Round(((double)percTimeToLastBytesInTicks[userAction]) / TimeSpan.TicksPerMillisecond, 2),
-                            Math.Round(avgDelay[userAction], 2),
+                            Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                            maxTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond,
+                            percTimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond,
+                            Math.Round(avgDelay[userAction], MidpointRounding.AwayFromZero),
                             errors[userAction]);
                     }
                 }
