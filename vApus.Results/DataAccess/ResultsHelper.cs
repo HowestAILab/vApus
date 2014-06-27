@@ -10,6 +10,7 @@ using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
+using System.Globalization;
 using System.Linq;
 using System.Reflection;
 using System.Text;
@@ -383,6 +384,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
         public void SetMonitorResults(MonitorResult monitorResultCache) {
             lock (_lock) {
+                //Store monitor values with a '.' for decimal seperator.
+                CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
+                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
                 if (_databaseActions != null && monitorResultCache.Rows.Count != 0) {
                     ulong monitorConfigurationId = monitorResultCache.MonitorConfigurationId;
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
@@ -401,6 +405,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
                     _databaseActions.ExecuteSQL(string.Format("INSERT INTO monitorresults(MonitorId, TimeStamp, Value) VALUES {0};", rowsToInsert.Combine(", ")));
                 }
+                Thread.CurrentThread.CurrentCulture = prevCulture;
             }
         }
 
@@ -1008,7 +1013,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             var newConcurrencyDelimiters = new Dictionary<int, KeyValuePair<DateTime, DateTime>>(concurrencyResults.Rows.Count);
                             var newConcurrencies = new Dictionary<int, int>();
 
-                            var firstConcurrency = runDelimiters[1];
+                            var firstConcurrency = runDelimiters.First().Value;
                             foreach (var firstStart in firstConcurrency.Keys) {
                                 var bogusStop = firstStart.Subtract(new TimeSpan(TimeSpan.TicksPerMillisecond));
                                 var bogusStart = bogusStop.Subtract(new TimeSpan(monitorAfterInMinutes * TimeSpan.TicksPerMinute));
@@ -1065,6 +1070,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     }
 
                                     if (canAdd) {
+                                        //Monitor values stored with a '.' for decimal seperator.
+                                        CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
+                                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
                                         string[] splittedValue = (monitorResultsRow[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
                                         float[] values = new float[splittedValue.Length];
 
@@ -1074,6 +1083,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                             values[l] = float.Parse(splittedValue[l].Trim());
                                         }
                                         monitorValues.Add(new KeyValuePair<DateTime, float[]>(timeStamp, values));
+
+                                        Thread.CurrentThread.CurrentCulture = prevCulture;
                                     }
                                 }
 
@@ -1092,7 +1103,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     fragmentedAverages[p] = "--";
 
                                 int offset = monitorColumnOffsets[monitorId];
-                                averages.CopyTo(fragmentedAverages, offset);
+
+                                //Correct the formatting here.
+                                string[] stringAverages = new string[averages.LongLength];
+                                for (long l = 0L; l != averages.LongLength; l++)
+                                    stringAverages[l] = StringUtil.FloatToLongString(averages[l]);
+
+                                stringAverages.CopyTo(fragmentedAverages, offset);
 
                                 newRow.AddRange(fragmentedAverages);
                                 averageMonitorResults.Rows.Add(newRow.ToArray());
@@ -1180,7 +1197,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             string[] headers = (monitorRow.ItemArray[2] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
                             var columns = new List<string>();
-                            columns.AddRange("Monitor", "Timestamp");
+                            columns.Add("Monitor");
+                            columns.Add("Timestamp");
 
                             int headerIndex = 1;
                             foreach (string header in headers)
@@ -1190,11 +1208,18 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                             DataTable mrs = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
 
+                            //Store monitor values with a '.' for decimal seperator.
+                            CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
+                            Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
                             var monitorValues = new Dictionary<DateTime, float[]>(mrs.Rows.Count);
                             foreach (DataRow monitorResultsRow in mrs.Rows) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                string[] values = (monitorResultsRow.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                                string[] stringValues = (monitorResultsRow.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                                object[] values = new object[stringValues.LongLength];
+                                for (long l = 0L; l != stringValues.LongLength; l++)
+                                    values[l] = float.Parse(stringValues[l]);
 
                                 var row = new List<object>();
                                 row.Add(stresstest);
@@ -1204,6 +1229,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                                 monitorResults.Rows.Add(row.ToArray());
                             }
+
+                            Thread.CurrentThread.CurrentCulture = prevCulture;
 
                             dts.Add(monitorResults);
                         }

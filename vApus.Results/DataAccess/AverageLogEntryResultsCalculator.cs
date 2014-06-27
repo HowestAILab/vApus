@@ -1,9 +1,15 @@
-﻿using System;
+﻿/*
+ * Copyright 2014 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Linq;
-using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using vApus.Util;
@@ -121,7 +127,7 @@ namespace vApus.Results {
                             var uniqueLogEntryCounts = new ConcurrentDictionary<string, int>(); //To make a correct average.
                             var userActions = new ConcurrentDictionary<string, string>(); //log entry index, User Action
 
-                            foreach (DataRow lerRow in logEntryResults) { 
+                            foreach (DataRow lerRow in logEntryResults) {
                                 if (cancellationToken.IsCancellationRequested) loopState.Break();
 
                                 string logEntryIndex = lerRow["SameAsLogEntryIndex"] as string; //Combine results when using distribution like this.

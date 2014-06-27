@@ -508,10 +508,6 @@ namespace vApus.Util {
         }
     }
     public static class ListExtension {
-        public static void AddRange<T>(this List<T> list, T item1, params T[] items) {
-            list.Add(item1);
-            foreach (T item in items) list.Add(item);
-        }
         public static string Combine<T>(this List<T> list, string separator, params object[] exclude) {
             if (list.Count == 0) return string.Empty;
 

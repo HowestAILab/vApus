@@ -396,6 +396,8 @@ namespace vApus.Stresstest {
                                 doc.SetCellValue(rowIndex + 3, i + 1, s);
                         } else if (value is int) {
                             doc.SetCellValue(rowIndex + 3, i + 1, (int)value);
+                        } else if (value is float) {
+                            doc.SetCellValue(rowIndex + 3, i + 1, (float)value);
                         } else {
                             doc.SetCellValue(rowIndex + 3, i + 1, (double)value);
                         }
@@ -650,6 +652,9 @@ namespace vApus.Stresstest {
                         doc.SetCellValue(rowInSheet, clmIndex, (int)value);
                     } else if (value is long) {
                         doc.SetCellValue(rowInSheet, clmIndex, (long)value);
+                    } else if (value is float) {
+                        doc.SetCellValue(rowInSheet, clmIndex, (float)value);
+                    } else if (value is DateTime) {
                     } else if (value is double) {
                         doc.SetCellValue(rowInSheet, clmIndex, (double)value);
                     } else if (value is DateTime) {

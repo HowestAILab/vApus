@@ -1,11 +1,11 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -385,7 +385,10 @@ namespace vApus.Stresstest {
                         e.Value = (e.ColumnIndex < row.Length) ? row[e.ColumnIndex] : "--";
 
                         string valueString = e.Value.ToString();
-                        if (valueString == "0" || valueString == "-1") e.Value = "--";
+                        if (valueString == "0" || valueString == "-1")
+                            e.Value = "--";
+                        else if (e.Value is float)
+                            e.Value = StringUtil.FloatToLongString((float)e.Value);
                     }
                 }
             } catch { }
