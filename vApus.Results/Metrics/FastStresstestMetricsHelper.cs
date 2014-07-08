@@ -407,8 +407,8 @@ namespace vApus.Results {
                         metrics.LogEntriesProcessed + " / " +
                         (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
                         metrics.Errors,
-                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
                         simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
                         simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
                         simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
@@ -423,8 +423,8 @@ namespace vApus.Results {
                     metrics.LogEntriesProcessed + " / " +
                     (metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString()),
                     metrics.Errors,
-                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
                     simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
                     simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
                     simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
@@ -441,8 +441,8 @@ namespace vApus.Results {
                         metrics.LogEntriesProcessed,
                         metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
                         metrics.Errors,
-                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
                         simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
                         simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
                         simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
@@ -457,8 +457,8 @@ namespace vApus.Results {
                     metrics.LogEntriesProcessed,
                     metrics.LogEntries == 0 ? "--" : metrics.LogEntries.ToString(),
                     metrics.Errors,
-                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
                     simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
                     simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
                     simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()

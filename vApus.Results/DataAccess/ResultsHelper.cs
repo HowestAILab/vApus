@@ -611,6 +611,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
         }
 
+        public DataTable GetTop5HeaviestUserActions(CancellationToken cancellationToken, params int[] stresstestIds) {
+            return null;
+        }
+
         /// <summary>
         /// 
         /// </summary>
@@ -718,7 +722,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         DataTable stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
                         if (stresstests == null || stresstests.Rows.Count == 0) return null;
 
-                        var errors = CreateEmptyDataTable("Error", "Stresstest", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
+                        var errors = CreateEmptyDataTable("Errors", "Stresstest", "At", "Concurrency", "Run", "Virtual User", "User Action", "Log Entry", "Error");
 
                         foreach (DataRow stresstestsRow in stresstests.Rows) {
                             if (cancellationToken.IsCancellationRequested) return null;
@@ -749,12 +753,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     int runResultId = (int)rrRow.ItemArray[0];
                                     object run = rrRow.ItemArray[1];
 
-                                    DataTable logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Error)!=0", runResultId, "VirtualUser", "UserAction", "LogEntry", "Error");
+                                    DataTable logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Error)!=0", runResultId, "VirtualUser", "UserAction", "LogEntry", "SentAt", "Error");
                                     if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
 
                                     foreach (DataRow ldr in logEntryResults.Rows) {
                                         if (cancellationToken.IsCancellationRequested) return null;
-                                        errors.Rows.Add(stresstest, concurrency, run, ldr["VirtualUser"], ldr["UserAction"], ldr["LogEntry"], ldr["Error"]);
+                                        errors.Rows.Add(stresstest, ldr["SentAt"], concurrency, run, ldr["VirtualUser"], ldr["UserAction"], ldr["LogEntry"], ldr["Error"]);
                                     }
                                 }
                             }
@@ -916,7 +920,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     monitors.DefaultView.Sort = "ResultHeaders ASC";
                     monitors = monitors.DefaultView.ToTable();
 
-                    var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time (ms)", "Concurrency" });
+                    var columnNames = new List<string>(new string[] { "Monitor", "Started At", "Measured Time", "Measured Time (ms)", "Concurrency" });
                     var resultHeaderStrings = new List<string>();
                     var resultHeaders = new List<string>();
                     int prevResultHeadersCount = 0;
@@ -1092,11 +1096,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 var startedAt = concurrencyDelimiters[concurrencyId].Key;
-                                var measuredRunTime = Math.Round((concurrencyDelimiters[concurrencyId].Value - startedAt).TotalMilliseconds, MidpointRounding.AwayFromZero);
+                                TimeSpan measuredRunTime = (concurrencyDelimiters[concurrencyId].Value - startedAt);
 
                                 string concurrency = concurrencies[concurrencyId] == 0 ? "--" : concurrencies[concurrencyId].ToString();
 
-                                var newRow = new List<object>(new object[] { stresstest, monitor, startedAt, measuredRunTime, concurrency });
+                                var newRow = new List<object>(new object[] { stresstest, monitor, startedAt, measuredRunTime.ToString("hh':'mm':'ss'.'fff"), Math.Round(measuredRunTime.TotalMilliseconds, MidpointRounding.AwayFromZero) , concurrency });
 
                                 var fragmentedAverages = new object[resultHeaders.Count];
                                 for (long p = 0; p != fragmentedAverages.Length; p++)

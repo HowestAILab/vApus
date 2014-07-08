@@ -20,7 +20,7 @@ namespace vApus.Results {
         public static AverageConcurrentUsersCalculator GetInstance() { return _instance; }
         private AverageConcurrentUsersCalculator() { }
         public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
-            DataTable averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time (ms)", "Concurrency",
+            DataTable averageConcurrentUsers = CreateEmptyDataTable("AverageConcurrentUsers", "Stresstest", "Started At", "Measured Time", "Measured Time (ms)", "Concurrency",
 "Log Entries Processed", "Log Entries", "Errors", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
 "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)");
 
@@ -38,8 +38,8 @@ namespace vApus.Results {
             foreach (StresstestMetrics metrics in metricsDic.Keys) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                averageConcurrentUsers.Rows.Add(metricsDic[metrics], metrics.StartMeasuringTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, MidpointRounding.AwayFromZero),
-                    metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, MidpointRounding.AwayFromZero), Math.Round(metrics.UserActionsPerSecond, MidpointRounding.AwayFromZero),
+                averageConcurrentUsers.Rows.Add(metricsDic[metrics], metrics.StartMeasuringTime, metrics.MeasuredTime.ToString("hh':'mm':'ss'.'fff"), Math.Round(metrics.MeasuredTime.TotalMilliseconds, MidpointRounding.AwayFromZero),
+                    metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero), Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero),
                     Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero),
                     Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero));
             }

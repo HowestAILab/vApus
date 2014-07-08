@@ -19,6 +19,8 @@ namespace vApus.Results {
         private static AverageLogEntryResultsCalculator _instance = new AverageLogEntryResultsCalculator();
         public static AverageLogEntryResultsCalculator GetInstance() { return _instance; }
 
+        private readonly object _lock = new object();
+
         private AverageLogEntryResultsCalculator() { }
 
         public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -29,6 +31,10 @@ namespace vApus.Results {
             data = null;
             if (cancellationToken.IsCancellationRequested) return null;
 
+            DataView dv = results.DefaultView;
+            dv.Sort = "Concurrency";
+            results = dv.ToTable();
+            
             return results;
         }
 
@@ -70,7 +76,6 @@ namespace vApus.Results {
             return data;
         }
 
-        private readonly object _lock = new object();
         private DataTable GetResults(ConcurrentDictionary<string, DataTable> data, CancellationToken cancellationToken) {
             DataRow[] stresstests = data["stresstests"].Select();
             if (stresstests == null || stresstests.Length == 0) return null;

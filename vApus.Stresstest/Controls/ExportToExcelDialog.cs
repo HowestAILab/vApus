@@ -161,10 +161,11 @@ namespace vApus.Stresstest {
                             //----------
                             if (general) {
                                 //For some strange reason the doubles are changed to string.
-                                var overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
-                                var avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
-                                var errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
-                                var userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
+                                DataTable overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
+                                DataTable avgConcurrency = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, stresstestId);
+                                DataTable avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
+                                DataTable errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
+                                DataTable userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
 
 
                                 string worksheet = MakeCumulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
@@ -173,6 +174,7 @@ namespace vApus.Stresstest {
                                 MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
 
                                 int rangeWidth, rangeOffset, rangeHeight;
+                                MakeWorksheet(doc, avgConcurrency, worksheetIndex++, stresstest + " - Average Concurrency", out rangeWidth, out rangeOffset, out rangeHeight);
                                 MakeWorksheet(doc, avgUserActions, worksheetIndex++, stresstest + " - Average User Actions", out rangeWidth, out rangeOffset, out rangeHeight);
                                 MakeErrorsSheet(doc, errors, worksheetIndex++, stresstest + " - Errors");
                                 MakeUserActionCompositionSheet(doc, userActionComposition, worksheetIndex++, stresstest + " - User Action Composition");
@@ -436,8 +438,8 @@ namespace vApus.Stresstest {
 
             foreach (DataRow row in dt.Rows) {
                 object[] arr = row.ItemArray;
-                arr[5] = (row[5] as string).Replace("<16 0C 02 12$>", "•");
                 arr[6] = (row[6] as string).Replace("<16 0C 02 12$>", "•");
+                arr[7] = (row[7] as string).Replace("<16 0C 02 12$>", "•");
                 errors.Rows.Add(arr);
             }
 
@@ -654,7 +656,7 @@ namespace vApus.Stresstest {
                         doc.SetCellValue(rowInSheet, clmIndex, (long)value);
                     } else if (value is float) {
                         doc.SetCellValue(rowInSheet, clmIndex, (float)value);
-                    } else if (value is DateTime) {
+                        //} else if (value is DateTime) {
                     } else if (value is double) {
                         doc.SetCellValue(rowInSheet, clmIndex, (double)value);
                     } else if (value is DateTime) {

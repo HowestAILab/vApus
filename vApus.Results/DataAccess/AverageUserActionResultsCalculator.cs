@@ -28,6 +28,10 @@ namespace vApus.Results {
             data = null;
             if (cancellationToken.IsCancellationRequested) return null;
 
+            //DataView dv = results.DefaultView;
+            //dv.Sort = "Concurrency";
+            //results = dv.ToTable();
+
             return results;
         }
         protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
