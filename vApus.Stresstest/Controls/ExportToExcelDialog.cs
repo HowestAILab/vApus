@@ -162,16 +162,24 @@ namespace vApus.Stresstest {
                             if (general) {
                                 //For some strange reason the doubles are changed to string.
                                 DataTable overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
+                                DataTable overview95thPercentile = _resultsHelper.GetOverview95thPercentile(_cancellationTokenSource.Token, stresstestId);
+
+                                DataTable top5HeaviestuserActions = _resultsHelper.GetTop5HeaviestUserActions(_cancellationTokenSource.Token, stresstestId);
+                                DataTable top5HeaviestuserActions95thPercentile = _resultsHelper.GetTop5HeaviestUserActions95thPercentile(_cancellationTokenSource.Token, stresstestId);
+
                                 DataTable avgConcurrency = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, stresstestId);
                                 DataTable avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
                                 DataTable errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                                 DataTable userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
 
 
-                                string worksheet = MakeCumulativeResponseTimesVsAchievedThroughputSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
+                                string worksheet = MakeOverviewSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
                                 if (firstWorksheet == null) firstWorksheet = worksheet;
 
                                 MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
+
+                                MakeOverviewSheet(doc, overview95thPercentile, worksheetIndex++, stresstest + " - Overview: Response Times 95th Percentile, Throughput & Errors");
+                                MakeTop5HeaviestUserActionsSheet(doc, overview95thPercentile, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions 95th Percentile");
 
                                 int rangeWidth, rangeOffset, rangeHeight;
                                 MakeWorksheet(doc, avgConcurrency, worksheetIndex++, stresstest + " - Average Concurrency", out rangeWidth, out rangeOffset, out rangeHeight);
@@ -261,7 +269,7 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="title"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeCumulativeResponseTimesVsAchievedThroughputSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeOverviewSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, dt, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
 
