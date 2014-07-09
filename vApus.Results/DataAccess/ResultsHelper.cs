@@ -678,6 +678,24 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
         }
 
+        public DataTable GetOverviewErrors(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions == null) return null;
+
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null) {
+                    DataTable overview = GetOverview(cancellationToken, stresstestIds);
+                    cacheEntryDt = CreateEmptyDataTable("OverviewErrors", "Stresstest", "Concurrency", "Errors", "Throughput");
+
+                    foreach (DataRow row in overview.Rows) 
+                        cacheEntryDt.Rows.Add(row["Stresstest"], row["Concurrency"], row["Errors"], row["Throughput"]);
+                    
+                    cacheEntry.ReturnValue = cacheEntryDt;
+                }
+                return cacheEntryDt;
+            }
+        }
         /// <summary>
         /// 
         /// </summary>

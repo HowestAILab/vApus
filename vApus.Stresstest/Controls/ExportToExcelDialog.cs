@@ -163,6 +163,7 @@ namespace vApus.Stresstest {
                                 //For some strange reason the doubles are changed to string.
                                 DataTable overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
                                 DataTable overview95thPercentile = _resultsHelper.GetOverview95thPercentile(_cancellationTokenSource.Token, stresstestId);
+                                DataTable overviewErrors = _resultsHelper.GetOverviewErrors(_cancellationTokenSource.Token, stresstestId);
 
                                 DataTable top5HeaviestuserActions = _resultsHelper.GetTop5HeaviestUserActions(_cancellationTokenSource.Token, stresstestId);
                                 DataTable top5HeaviestuserActions95thPercentile = _resultsHelper.GetTop5HeaviestUserActions95thPercentile(_cancellationTokenSource.Token, stresstestId);
@@ -175,6 +176,8 @@ namespace vApus.Stresstest {
 
                                 string worksheet = MakeOverviewSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
                                 if (firstWorksheet == null) firstWorksheet = worksheet;
+
+                                MakeOverviewErrorsSheet(doc, overviewErrors, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
 
                                 MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
 
@@ -276,32 +279,71 @@ namespace vApus.Stresstest {
             //Don't use the bonus column "Errors"
             --rangeWidth;
             //Plot the response times
-            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
-            chart.SetChartType(SLColumnChartType.StackedColumn);
-            chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-            chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
+            var chart1 = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+            chart1.SetChartType(SLColumnChartType.StackedColumn);
+            chart1.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
+            chart1.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
 
             //Plot the throughput
-            chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
+            chart1.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
 
             //Set the titles
-            chart.Title.SetTitle(title.Replace("Overview: Response Times, Throughput & Errors", "Cumulative Response Times vs Achieved Throughput"));
-            chart.ShowChartTitle(false);
-            chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
-            chart.PrimaryTextAxis.ShowTitle = true;
-            chart.PrimaryValueAxis.Title.SetTitle("Cumulative Response Time (ms)");
-            chart.PrimaryValueAxis.ShowTitle = true;
-            chart.PrimaryValueAxis.ShowMinorGridlines = true;
-            chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
-            chart.SecondaryValueAxis.ShowTitle = true;
+            chart1.Title.SetTitle(title.Replace("Overview: Response Times, Throughput & Errors", "Cumulative Response Times vs Achieved Throughput"));
+            chart1.ShowChartTitle(false);
+            chart1.PrimaryTextAxis.Title.SetTitle("Concurrency");
+            chart1.PrimaryTextAxis.ShowTitle = true;
+            chart1.PrimaryValueAxis.Title.SetTitle("Cumulative Response Time (ms)");
+            chart1.PrimaryValueAxis.ShowTitle = true;
+            chart1.PrimaryValueAxis.ShowMinorGridlines = true;
+            chart1.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
+            chart1.SecondaryValueAxis.ShowTitle = true;
 
-            SetDataSeriesColors(chart, rangeWidth - 2, _colorPalette);
+            SetDataSeriesColors(chart1, rangeWidth - 2, _colorPalette);
 
-            var dso = chart.GetDataSeriesOptions(rangeWidth - 1);
-            dso.Line.SetSolidLine(Color.LimeGreen, 0);
-            chart.SetDataSeriesOptions(rangeWidth - 1, dso);
+            var dso1 = chart1.GetDataSeriesOptions(rangeWidth - 1);
+            dso1.Line.SetSolidLine(Color.LimeGreen, 0);
+            chart1.SetDataSeriesOptions(rangeWidth - 1, dso1);
 
-            doc.InsertChart(chart);
+            doc.InsertChart(chart1);
+
+            return worksheet;
+        }
+
+        private string MakeOverviewErrorsSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+            int rangeWidth, rangeOffset, rangeHeight;
+            string worksheet = MakeWorksheet(doc, dt, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
+
+            //And now an errors vs throughput sheet.
+            var chart2 = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+            chart2.SetChartType(SLLineChartType.Line);
+            chart2.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
+            chart2.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
+
+            //Plot the throughput
+            chart2.PlotDataSeriesAsSecondaryLineChart(1, SLChartDataDisplayType.Normal, false);
+
+            //Set the titles
+            chart2.Title.SetTitle(title.Replace("Overview: Response Times, Throughput & Errors", "Errors vs Achieved Throughput"));
+
+            chart2.ShowChartTitle(false);
+            chart2.PrimaryTextAxis.Title.SetTitle("Concurrency");
+            chart2.PrimaryTextAxis.ShowTitle = true;
+            chart2.PrimaryValueAxis.Title.SetTitle("Errors");
+            chart2.PrimaryValueAxis.ShowTitle = true;
+            chart2.PrimaryValueAxis.ShowMinorGridlines = true;
+            chart2.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
+            chart2.SecondaryValueAxis.ShowTitle = true;
+
+            var dso2 = chart2.GetDataSeriesOptions(1);
+            dso2.Line.SetSolidLine(Color.LimeGreen, 0);
+            chart2.SetDataSeriesOptions(1, dso2);
+
+            var dso3 = chart2.GetDataSeriesOptions(2);
+            dso3.Line.SetSolidLine(Color.Red, 0);
+            chart2.SetDataSeriesOptions(2, dso3);
+
+
+            doc.InsertChart(chart2);
 
             return worksheet;
         }
