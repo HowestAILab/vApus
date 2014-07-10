@@ -117,9 +117,6 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <metadata name="saveFileDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
   <assembly alias="System.Drawing" name="System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a" />
   <data name="picOverview.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -544,7 +541,7 @@
 </value>
   </data>
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>146, 17</value>
+    <value>17, 17</value>
   </metadata>
   <data name="picTop5HeaviestUserActions.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
@@ -4789,7 +4786,7 @@
   <data name="picRunsOverTime.Image" type="System.Drawing.Bitmap, System.Drawing" mimetype="application/x-microsoft.net.object.bytearray.base64">
     <value>
         iVBORw0KGgoAAAANSUhEUgAABYEAAANJCAIAAADVxmQBAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8
-        YQUAAAAJcEhZcwAADr4AAA6+AepCscAAAItLSURBVHhe7f1PjiTJkidoxhHyAG//1m8bue6r+FEqgVok
+        YQUAAAAJcEhZcwAADr0AAA69AUf7kK0AAItLSURBVHhe7f1PjiTJkidoxhHyAG//1m8bue6r+FEqgVok
         fFObAhK1qlo3BmivzWC6gOnuA/Ri0EA0+io5rH9MjE1NzYR+5ipqLCzfB8J7ZmoqqmRCTKwiFB4ef/zb
         v/3bfwAAAADY0r/927/90f7v3wEAAAC29B/+w38wgwAAAAA2ZwYBAAAAPIMZBAAAAPAMZhAAAADAM5hB
         AAAAAM9gBgEAAAA8gxkEAAAA8AxmEAAAAMAzmEEAAAAAz2AGAQAAADyDGQQAAADwDGYQAAAAwDOYQQAA
@@ -5404,4 +5401,7 @@ Check this to put the monitor data in different files. They will be placed in th
         xeTvgfgAJtBBeX6lGFUAAAAASUVORK5CYII=
 </value>
   </data>
+  <metadata name="folderBrowserDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
+    <value>107, 17</value>
+  </metadata>
 </root>

@@ -11,6 +11,7 @@ using System;
 using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
+using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -40,7 +41,6 @@ namespace vApus.Stresstest {
         public ExportToExcelDialog() {
             InitializeComponent();
             FillColorPalette();
-            saveFileDialog.FileName = "results" + DateTime.Now.ToString("yyyyMMddHHmmss") + ".xlsx";
         }
         #endregion
 
@@ -107,7 +107,11 @@ namespace vApus.Stresstest {
             if (!chkMonitorDataToDifferentFiles.Enabled) chkMonitorDataToDifferentFiles.Checked = true;
         }
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
-            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+            if (folderBrowserDialog.ShowDialog() == DialogResult.OK) {
+                string path = Path.Combine(folderBrowserDialog.SelectedPath, _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_'));
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
                 btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = chkMonitorDataToDifferentFiles.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
                 int selectedIndex = cboStresstest.SelectedIndex;
@@ -117,16 +121,10 @@ namespace vApus.Stresstest {
                 bool specialized = chkSpecialized.Checked;
                 bool monitorDataToDifferentFiles = chkMonitorDataToDifferentFiles.Checked;
 
-                string fileNameWithoutExtension = saveFileDialog.FileName;
-                if (fileNameWithoutExtension.EndsWith(".xlsx"))
-                    fileNameWithoutExtension = fileNameWithoutExtension.Substring(0, fileNameWithoutExtension.Length - 5);
-
                 var cultureInfo = Thread.CurrentThread.CurrentCulture;
                 await Task.Run(() => {
                     try {
                         Thread.CurrentThread.CurrentCulture = cultureInfo;
-
-                        var doc = new SLDocument();
 
                         //Make different sheets per test.
                         var stresstests = new Dictionary<int, string>();
@@ -135,7 +133,8 @@ namespace vApus.Stresstest {
                             foreach (DataRow row in stresstestsDt.Rows) {
                                 string stresstest = row.ItemArray[1] as string;
                                 if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1];
-                                stresstest += " " + (row.ItemArray[2] as string);
+                                stresstest += "_" + (row.ItemArray[2] as string);
+                                stresstest = stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_');
                                 stresstests.Add((int)row.ItemArray[0], stresstest);
                             }
                         } else {
@@ -144,7 +143,8 @@ namespace vApus.Stresstest {
                                 if (selectedIndex == i) {
                                     string stresstest = row.ItemArray[1] as string;
                                     if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1].TrimStart();
-                                    stresstest += " " + (row.ItemArray[2] as string);
+                                    stresstest += "_" + (row.ItemArray[2] as string);
+                                    stresstest = stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_');
                                     stresstests.Add(i, stresstest);
                                     break;
                                 }
@@ -153,8 +153,9 @@ namespace vApus.Stresstest {
                         stresstestsDt = null;
 
                         string firstWorksheet = null;
-                        int worksheetIndex = 1; //Just for a unique sheet name
                         foreach (int stresstestId in stresstests.Keys) {
+                            var doc = new SLDocument();
+
                             string stresstest = stresstests[stresstestId];
 
                             //Save general stuff
@@ -165,30 +166,27 @@ namespace vApus.Stresstest {
                                 DataTable overview95thPercentile = _resultsHelper.GetOverview95thPercentile(_cancellationTokenSource.Token, stresstestId);
                                 DataTable overviewErrors = _resultsHelper.GetOverviewErrors(_cancellationTokenSource.Token, stresstestId);
 
-                                DataTable top5HeaviestuserActions = _resultsHelper.GetTop5HeaviestUserActions(_cancellationTokenSource.Token, stresstestId);
-                                DataTable top5HeaviestuserActions95thPercentile = _resultsHelper.GetTop5HeaviestUserActions95thPercentile(_cancellationTokenSource.Token, stresstestId);
-
                                 DataTable avgConcurrency = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, stresstestId);
                                 DataTable avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
                                 DataTable errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                                 DataTable userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
 
 
-                                string worksheet = MakeOverviewSheet(doc, overview, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
+                                string worksheet = MakeOverviewSheet(doc, overview);
                                 if (firstWorksheet == null) firstWorksheet = worksheet;
 
-                                MakeOverviewErrorsSheet(doc, overviewErrors, worksheetIndex++, stresstest + " - Overview: Response Times, Throughput & Errors");
+                                MakeOverviewErrorsSheet(doc, overviewErrors);
 
-                                MakeTop5HeaviestUserActionsSheet(doc, overview, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions");
+                                MakeTop5HeaviestUserActionsSheet(doc, overview);
 
-                                MakeOverviewSheet(doc, overview95thPercentile, worksheetIndex++, stresstest + " - Overview: Response Times 95th Percentile, Throughput & Errors");
-                                MakeTop5HeaviestUserActionsSheet(doc, overview95thPercentile, worksheetIndex++, stresstest + " - Top 5 Heaviest User Actions 95th Percentile");
+                                MakeOverviewSheet(doc, overview95thPercentile, "95th Percentile of Response Times vs Throughput");
+                                MakeTop5HeaviestUserActionsSheet(doc, overview95thPercentile, "Top 5 Heaviest User Actions 95th Percentile");
 
                                 int rangeWidth, rangeOffset, rangeHeight;
-                                MakeWorksheet(doc, avgConcurrency, worksheetIndex++, stresstest + " - Average Concurrency", out rangeWidth, out rangeOffset, out rangeHeight);
-                                MakeWorksheet(doc, avgUserActions, worksheetIndex++, stresstest + " - Average User Actions", out rangeWidth, out rangeOffset, out rangeHeight);
-                                MakeErrorsSheet(doc, errors, worksheetIndex++, stresstest + " - Errors");
-                                MakeUserActionCompositionSheet(doc, userActionComposition, worksheetIndex++, stresstest + " - User Action Composition");
+                                MakeWorksheet(doc, avgConcurrency, "Average Concurrency", out rangeWidth, out rangeOffset, out rangeHeight);
+                                MakeWorksheet(doc, avgUserActions, "Average User Actions", out rangeWidth, out rangeOffset, out rangeHeight);
+                                MakeErrorsSheet(doc, errors);
+                                MakeUserActionCompositionSheet(doc, userActionComposition);
 
                                 overview = null;
                                 avgUserActions = null;
@@ -204,19 +202,19 @@ namespace vApus.Stresstest {
                                 try {
                                     foreach (DataTable monitorDt in monitors)
                                         if (monitorDt.Rows.Count != 0) {
-                                            var monitor = monitorDt.Rows[0].ItemArray[1];
+                                            var monitor = monitorDt.Rows[0].ItemArray[1].ToString();
 
                                             if (monitorDataToDifferentFiles) {
                                                 SLDocument monitorDoc = new SLDocument();
-                                                var monitorSheet = MakeMonitorSheet(monitorDoc, monitorDt, 1, stresstest + " - " + monitor);
+                                                var monitorSheet = MakeMonitorSheet(monitorDoc, monitorDt, monitor);
                                                 try { monitorDoc.SelectWorksheet(monitorSheet); } catch { }
                                                 try { monitorDoc.DeleteWorksheet("Sheet1"); } catch { }
 
-                                                string monitorFileName = fileNameWithoutExtension + "_" + monitor.ToString().ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
-                                                monitorDoc.SaveAs(monitorFileName);
+                                                string monitorFileName = stresstest + "_" + monitor.ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
+                                                monitorDoc.SaveAs(Path.Combine(path, monitorFileName));
 
                                             } else {
-                                                string worksheet = MakeMonitorSheet(doc, monitorDt, worksheetIndex++, stresstest + " - " + monitor);
+                                                string worksheet = MakeMonitorSheet(doc, monitorDt, monitor);
                                                 if (firstWorksheet == null) firstWorksheet = worksheet;
                                             }
                                         }
@@ -226,11 +224,23 @@ namespace vApus.Stresstest {
                                 }
                                 monitors = null;
                             }
+
+                            if (firstWorksheet == null) {
+                                doc = null;
+                            } else {
+                                try { doc.SelectWorksheet(firstWorksheet); } catch { }
+                                try { doc.DeleteWorksheet("Sheet1"); } catch { }
+                                try { doc.SaveAs(Path.Combine(path, stresstest + ".xlsx")); } catch {
+                                    MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
                         }
 
                         //Save specialized stuff
                         //----------
                         if (specialized) {
+                            var doc = new SLDocument();
+
                             int[] stresstestIds = new int[stresstests.Count];
                             stresstests.Keys.CopyTo(stresstestIds, 0);
                             Dictionary<string, List<string>> concurrencyAndRuns;
@@ -239,15 +249,15 @@ namespace vApus.Stresstest {
                             string worksheet = MakeRunsOverTimeSheet(doc, runsOverTimeDt, concurrencyAndRuns);
                             if (firstWorksheet == null) firstWorksheet = worksheet;
                             runsOverTimeDt = null;
-                        }
 
-                        if (firstWorksheet == null) {
-                            doc = null;
-                        } else {
-                            try { doc.SelectWorksheet(firstWorksheet); } catch { }
-                            try { doc.DeleteWorksheet("Sheet1"); } catch { }
-                            try { doc.SaveAs(saveFileDialog.FileName); } catch {
-                                MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            if (firstWorksheet == null) {
+                                doc = null;
+                            } else {
+                                try { doc.SelectWorksheet(firstWorksheet); } catch { }
+                                try { doc.DeleteWorksheet("Sheet1"); } catch { }
+                                try { doc.SaveAs(Path.Combine(path, "RunsOverTime.xlsx")); } catch {
+                                    MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
                             }
                         }
 
@@ -272,78 +282,78 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="title"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeOverviewSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeOverviewSheet(SLDocument doc, DataTable dt, string title = "Response Times vs Throughput") {
             int rangeWidth, rangeOffset, rangeHeight;
-            string worksheet = MakeWorksheet(doc, dt, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            string worksheet = MakeWorksheet(doc, dt, title, out rangeWidth, out rangeOffset, out rangeHeight);
 
             //Don't use the bonus column "Errors"
             --rangeWidth;
             //Plot the response times
-            var chart1 = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
-            chart1.SetChartType(SLColumnChartType.StackedColumn);
-            chart1.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-            chart1.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+            chart.SetChartType(SLColumnChartType.StackedColumn);
+            chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
+            chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
 
             //Plot the throughput
-            chart1.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
+            chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
 
             //Set the titles
-            chart1.Title.SetTitle(title.Replace("Overview: Response Times, Throughput & Errors", "Cumulative Response Times vs Achieved Throughput"));
-            chart1.ShowChartTitle(false);
-            chart1.PrimaryTextAxis.Title.SetTitle("Concurrency");
-            chart1.PrimaryTextAxis.ShowTitle = true;
-            chart1.PrimaryValueAxis.Title.SetTitle("Cumulative Response Time (ms)");
-            chart1.PrimaryValueAxis.ShowTitle = true;
-            chart1.PrimaryValueAxis.ShowMinorGridlines = true;
-            chart1.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
-            chart1.SecondaryValueAxis.ShowTitle = true;
+            chart.Title.SetTitle(title);
+            chart.ShowChartTitle(false);
+            chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
+            chart.PrimaryTextAxis.ShowTitle = true;
+            chart.PrimaryValueAxis.Title.SetTitle("Cumulative Response Time (ms)");
+            chart.PrimaryValueAxis.ShowTitle = true;
+            chart.PrimaryValueAxis.ShowMinorGridlines = true;
+            chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
+            chart.SecondaryValueAxis.ShowTitle = true;
 
-            SetDataSeriesColors(chart1, rangeWidth - 2, _colorPalette);
+            SetDataSeriesColors(chart, rangeWidth - 2, _colorPalette);
 
-            var dso1 = chart1.GetDataSeriesOptions(rangeWidth - 1);
-            dso1.Line.SetSolidLine(Color.LimeGreen, 0);
-            chart1.SetDataSeriesOptions(rangeWidth - 1, dso1);
+            var dso = chart.GetDataSeriesOptions(rangeWidth - 1);
+            dso.Line.SetSolidLine(Color.LimeGreen, 0);
+            chart.SetDataSeriesOptions(rangeWidth - 1, dso);
 
-            doc.InsertChart(chart1);
+            doc.InsertChart(chart);
 
             return worksheet;
         }
 
-        private string MakeOverviewErrorsSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeOverviewErrorsSheet(SLDocument doc, DataTable dt) {
             int rangeWidth, rangeOffset, rangeHeight;
-            string worksheet = MakeWorksheet(doc, dt, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            string worksheet = MakeWorksheet(doc, dt, "Errors vs Throughput", out rangeWidth, out rangeOffset, out rangeHeight);
 
             //And now an errors vs throughput sheet.
-            var chart2 = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
-            chart2.SetChartType(SLLineChartType.Line);
-            chart2.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
-            chart2.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+            chart.SetChartType(SLLineChartType.Line);
+            chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
+            chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
 
             //Plot the throughput
-            chart2.PlotDataSeriesAsSecondaryLineChart(1, SLChartDataDisplayType.Normal, false);
+            chart.PlotDataSeriesAsSecondaryLineChart(1, SLChartDataDisplayType.Normal, false);
 
             //Set the titles
-            chart2.Title.SetTitle(title.Replace("Overview: Response Times, Throughput & Errors", "Errors vs Achieved Throughput"));
+            chart.Title.SetTitle(worksheet);
 
-            chart2.ShowChartTitle(false);
-            chart2.PrimaryTextAxis.Title.SetTitle("Concurrency");
-            chart2.PrimaryTextAxis.ShowTitle = true;
-            chart2.PrimaryValueAxis.Title.SetTitle("Errors");
-            chart2.PrimaryValueAxis.ShowTitle = true;
-            chart2.PrimaryValueAxis.ShowMinorGridlines = true;
-            chart2.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
-            chart2.SecondaryValueAxis.ShowTitle = true;
+            chart.ShowChartTitle(false);
+            chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
+            chart.PrimaryTextAxis.ShowTitle = true;
+            chart.PrimaryValueAxis.Title.SetTitle("Errors");
+            chart.PrimaryValueAxis.ShowTitle = true;
+            chart.PrimaryValueAxis.ShowMinorGridlines = true;
+            chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
+            chart.SecondaryValueAxis.ShowTitle = true;
 
-            var dso2 = chart2.GetDataSeriesOptions(1);
-            dso2.Line.SetSolidLine(Color.LimeGreen, 0);
-            chart2.SetDataSeriesOptions(1, dso2);
+            var dso1 = chart.GetDataSeriesOptions(1);
+            dso1.Line.SetSolidLine(Color.LimeGreen, 0);
+            chart.SetDataSeriesOptions(1, dso1);
 
-            var dso3 = chart2.GetDataSeriesOptions(2);
-            dso3.Line.SetSolidLine(Color.Red, 0);
-            chart2.SetDataSeriesOptions(2, dso3);
+            var dso2 = chart.GetDataSeriesOptions(2);
+            dso2.Line.SetSolidLine(Color.Red, 0);
+            chart.SetDataSeriesOptions(2, dso2);
 
 
-            doc.InsertChart(chart2);
+            doc.InsertChart(chart);
 
             return worksheet;
         }
@@ -354,9 +364,9 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="title"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeTop5HeaviestUserActionsSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeTop5HeaviestUserActionsSheet(SLDocument doc, DataTable dt, string title = "Top 5 Heaviest User Actions") {
             //max 31 chars
-            string worksheet = worksheetIndex + ") " + title.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
+            string worksheet = title;
             if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
             doc.AddWorksheet(worksheet);
 
@@ -409,14 +419,7 @@ namespace vApus.Stresstest {
                 if (dt.Columns.Count > 1) sortedColumns.Insert(0, 1);
 
                 //Add data to the worksheet, only the second column and the 5 heaviest actions
-                int rangeWidth = sortedColumns.Count, rangeOffset = 2, rangeHeight = dt.Rows.Count;
-
-                //Add the title
-                var titleStyle = new SLStyle();
-                titleStyle.Font.Bold = true;
-                titleStyle.Font.FontSize = 12d;
-                doc.SetCellValue(1, 1, title);
-                doc.SetCellStyle(1, 1, titleStyle);
+                int rangeWidth = sortedColumns.Count, rangeOffset = 1, rangeHeight = dt.Rows.Count;
 
                 var colorPalette = new List<Color>(5);
                 var boldStyle = new SLStyle();
@@ -443,18 +446,18 @@ namespace vApus.Stresstest {
                         if (value is string) {
                             string s = value as string;
                             if (s.IsNumeric())
-                                doc.SetCellValue(rowIndex + 3, i + 1, double.Parse(s));
+                                doc.SetCellValue(rowIndex + 2, i + 1, double.Parse(s));
                             else
-                                doc.SetCellValue(rowIndex + 3, i + 1, s);
+                                doc.SetCellValue(rowIndex + 2, i + 1, s);
                         } else if (value is int) {
-                            doc.SetCellValue(rowIndex + 3, i + 1, (int)value);
+                            doc.SetCellValue(rowIndex + 2, i + 1, (int)value);
                         } else if (value is float) {
-                            doc.SetCellValue(rowIndex + 3, i + 1, (float)value);
+                            doc.SetCellValue(rowIndex + 2, i + 1, (float)value);
                         } else {
-                            doc.SetCellValue(rowIndex + 3, i + 1, (double)value);
+                            doc.SetCellValue(rowIndex + 2, i + 1, (double)value);
                         }
 
-                        if (i == 0) doc.SetCellStyle(rowIndex + 3, i + 1, boldStyle);
+                        if (i == 0) doc.SetCellStyle(rowIndex + 2, i + 1, boldStyle);
                     }
                 }
 
@@ -481,7 +484,7 @@ namespace vApus.Stresstest {
             return worksheet;
         }
 
-        private string MakeErrorsSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeErrorsSheet(SLDocument doc, DataTable dt) {
             var errors = new DataTable("Errors");
             foreach (DataColumn column in dt.Columns)
                 errors.Columns.Add(column.ColumnName);
@@ -494,7 +497,7 @@ namespace vApus.Stresstest {
             }
 
             int rangeWidth, rangeOffset, rangeHeight;
-            return MakeWorksheet(doc, errors, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            return MakeWorksheet(doc, errors, "Errors", out rangeWidth, out rangeOffset, out rangeHeight);
         }
         /// <summary>
         /// Format the user action comosition differently so it is more readable for customers.
@@ -504,7 +507,7 @@ namespace vApus.Stresstest {
         /// <param name="worksheetIndex"></param>
         /// <param name="title"></param>
         /// <returns></returns>
-        private string MakeUserActionCompositionSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeUserActionCompositionSheet(SLDocument doc, DataTable dt) {
             var userActionComposition = new DataTable("UserActionComposition");
             userActionComposition.Columns.Add("stubClm");
             userActionComposition.Columns.Add();
@@ -525,29 +528,22 @@ namespace vApus.Stresstest {
             }
 
             int rangeWidth, rangeOffset, rangeHeight;
-            return MakeWorksheet(doc, userActionComposition, worksheetIndex, title, out rangeWidth, out rangeOffset, out rangeHeight, true);
+            return MakeWorksheet(doc, userActionComposition, "User Action Composition", out rangeWidth, out rangeOffset, out rangeHeight, true);
         }
-        private string MakeMonitorSheet(SLDocument doc, DataTable dt, int worksheetIndex, string title) {
+        private string MakeMonitorSheet(SLDocument doc, DataTable dt, string title) {
             dt.Columns.RemoveAt(1);
 
             int rangeWidth, rangeOffset, rangeHeight;
-            return MakeWorksheet(doc, dt, worksheetIndex++, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            return MakeWorksheet(doc, dt, title, out rangeWidth, out rangeOffset, out rangeHeight);
         }
 
         private string MakeRunsOverTimeSheet(SLDocument doc, DataTable dt, Dictionary<string, List<string>> concurrencyAndRuns) {
             string title = "Runs over Time in Minutes";
             doc.AddWorksheet(title);
 
-            int rangeOffset = 2;
+            int rangeOffset = 1;
             int rangeWidth = dt.Columns.Count - 1;
             int rangeHeight = dt.Rows.Count;
-
-            //Add the title
-            var titleStyle = new SLStyle();
-            titleStyle.Font.Bold = true;
-            titleStyle.Font.FontSize = 12d;
-            doc.SetCellValue(1, 1, title);
-            doc.SetCellStyle(1, 1, titleStyle);
 
             var boldStyle = new SLStyle();
             boldStyle.Font.Bold = true;
@@ -566,7 +562,7 @@ namespace vApus.Stresstest {
             }
 
             var formattedValues = new List<List<string>>();
-            int rowOffset = 3;
+            int rowOffset = 2;
             for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
                 var row = dt.Rows[rowIndex].ItemArray;
                 formattedValues.Add(new List<string>());
@@ -661,22 +657,15 @@ namespace vApus.Stresstest {
         /// <param name="rangeWidth"></param>
         /// <param name="rangeHeight"></param>
         /// <returns>worksheet name</returns>
-        private string MakeWorksheet(SLDocument doc, DataTable dt, int worksheetIndex, string title, out int rangeWidth, out int rangeOffset, out int rangeHeight, bool doNotAddHeaders = false) {
+        private string MakeWorksheet(SLDocument doc, DataTable dt, string title, out int rangeWidth, out int rangeOffset, out int rangeHeight, bool doNotAddHeaders = false) {
             //max 31 chars
-            string worksheet = worksheetIndex + ") " + title.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
+            string worksheet = title.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
             if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
             doc.AddWorksheet(worksheet);
 
-            rangeOffset = 2;
+            rangeOffset = 1;
             rangeWidth = dt.Columns.Count - 1;
             rangeHeight = dt.Rows.Count;
-
-            //Add the title
-            var titleStyle = new SLStyle();
-            titleStyle.Font.Bold = true;
-            titleStyle.Font.FontSize = 12d;
-            doc.SetCellValue(1, 1, title);
-            doc.SetCellStyle(1, 1, titleStyle);
 
             var boldStyle = new SLStyle();
             boldStyle.Font.Bold = true;
@@ -687,7 +676,7 @@ namespace vApus.Stresstest {
                     doc.SetCellStyle(rangeOffset, clmIndex, boldStyle);
                 }
 
-            int rowOffset = doNotAddHeaders ? 2 : 3;
+            int rowOffset = doNotAddHeaders ? 1 : 2;
             for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
                 var row = dt.Rows[rowIndex].ItemArray;
                 for (int clmIndex = 1; clmIndex < row.Length; clmIndex++) {
@@ -719,25 +708,6 @@ namespace vApus.Stresstest {
                 }
             }
             return worksheet;
-        }
-
-        /// <summary>
-        /// string = stresstest, int1 = start row index, int2 = number of rows
-        /// </summary>
-        /// <param name="dt"></param>
-        /// <returns></returns>
-        private Dictionary<string, KeyValuePair<int, int>> GetRowRangesPerStresstest(DataTable dt) {
-            var rowRangesPerStresstest = new Dictionary<string, KeyValuePair<int, int>>(); //string = stresstest, int1 = start row index, int2 = number of rows
-            foreach (DataRow row in dt.Rows) {
-                string stresstest = row.ItemArray[0] as string;
-                if (rowRangesPerStresstest.ContainsKey(stresstest)) {
-                    var kvp = rowRangesPerStresstest[stresstest];
-                    rowRangesPerStresstest[stresstest] = new KeyValuePair<int, int>(kvp.Key, kvp.Value + 1);
-                } else {
-                    rowRangesPerStresstest.Add(stresstest, new KeyValuePair<int, int>(rowRangesPerStresstest.Count, 1));
-                }
-            }
-            return rowRangesPerStresstest;
         }
 
         private void SetDataSeriesColors(SLChart chart, int numberOfSeries, List<Color> colorPalette) {

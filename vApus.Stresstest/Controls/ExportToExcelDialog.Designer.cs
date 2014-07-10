@@ -26,7 +26,6 @@
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExportToExcelDialog));
             this.btnExportToExcel = new System.Windows.Forms.Button();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.picOverview = new System.Windows.Forms.PictureBox();
             this.flpGeneral = new System.Windows.Forms.FlowLayoutPanel();
             this.picTop5HeaviestUserActions = new System.Windows.Forms.PictureBox();
@@ -47,6 +46,7 @@
             this.flpSpecialized = new System.Windows.Forms.FlowLayoutPanel();
             this.chkGeneral = new System.Windows.Forms.CheckBox();
             this.chkSpecialized = new System.Windows.Forms.CheckBox();
+            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.picOverview)).BeginInit();
             this.flpGeneral.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).BeginInit();
@@ -78,12 +78,6 @@
             this.btnExportToExcel.Text = "Export to Excel...";
             this.btnExportToExcel.UseVisualStyleBackColor = false;
             this.btnExportToExcel.Click += new System.EventHandler(this.btnExportToExcel_Click);
-            // 
-            // saveFileDialog
-            // 
-            this.saveFileDialog.DefaultExt = "xlsx";
-            this.saveFileDialog.FileName = "results";
-            this.saveFileDialog.Filter = "Excel files|*.xlsx";
             // 
             // picOverview
             // 
@@ -340,6 +334,10 @@
             this.chkSpecialized.UseVisualStyleBackColor = true;
             this.chkSpecialized.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
             // 
+            // folderBrowserDialog
+            // 
+            this.folderBrowserDialog.Description = "Select where to save the Excel file(s).";
+            // 
             // ExportToExcelDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -387,7 +385,6 @@
         #endregion
 
         private System.Windows.Forms.Button btnExportToExcel;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.PictureBox picOverview;
         private System.Windows.Forms.FlowLayoutPanel flpGeneral;
         private System.Windows.Forms.Label lblDescription;
@@ -408,5 +405,6 @@
         private System.Windows.Forms.CheckBox chkGeneral;
         private System.Windows.Forms.CheckBox chkMonitorData;
         private System.Windows.Forms.CheckBox chkSpecialized;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
     }
 }
