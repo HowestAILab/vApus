@@ -125,8 +125,8 @@ namespace vApus.Monitor {
                     ++i;
                     bandWidth = (float)_nics[i];
 
-                    float s = ((sent.NextValue() / bandWidth) / instancesCount);
-                    float r = ((received.NextValue() / bandWidth) / instancesCount);
+                    float s = sent.NextValue() / bandWidth;
+                    float r = received.NextValue() / bandWidth;
 
                     if (s > NicsSent || r > NicsReceived) {
                         NicsSent = s;
