@@ -63,7 +63,10 @@ namespace vApus.Results {
             Parallel.For(0, runResultIds.Length, (i, loopState) => {
                 using (var dba = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString, CommandTimeout = 600 }) {
                     if (cancellationToken.IsCancellationRequested) loopState.Break();
-                    parts[i] = ReaderAndCombiner.GetLogEntryResults(cancellationToken, dba, runResultIds[i], columns);
+                    try {
+                        parts[i] = ReaderAndCombiner.GetLogEntryResults(cancellationToken, dba, runResultIds[i], columns);
+                    } catch { 
+                    }
                 }
             });
             return parts;

@@ -109,7 +109,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataAccess\AverageConcurrentUsersCalculator.cs" />
+    <Compile Include="DataAccess\AverageConcurrencyResultsCalculator.cs" />
     <Compile Include="DataAccess\AverageLogEntryResultsCalculator.cs" />
     <Compile Include="DataAccess\AverageUserActionResultsCalculator.cs" />
     <Compile Include="DataAccess\BaseResultSetCalculator.cs" />

@@ -83,7 +83,7 @@ namespace vApus.Results {
                     logEntryResultsDataList.Add(data[key]);
             DataTable[] logEntryResultsData = logEntryResultsDataList.ToArray();
 
-            var averageUserActions = CreateEmptyDataTable("AverageUserActions", "Stresstest", "ConcurrencyId", "Concurrency", "User Action", "Avg. Response Time (ms)",
+            var averageUserActionResults = CreateEmptyDataTable("AverageUserActionResults", "Stresstest", "ConcurrencyId", "Concurrency", "User Action", "Avg. Response Time (ms)",
                            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
 
             foreach (DataRow stresstestsRow in stresstests) {
@@ -292,7 +292,7 @@ namespace vApus.Results {
                     foreach (string userAction in sortedUserActions) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        averageUserActions.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
+                        averageUserActionResults.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
                             Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
                             maxTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond,
                             percTimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond,
@@ -302,7 +302,7 @@ namespace vApus.Results {
                 }
             }
 
-            return averageUserActions;
+            return averageUserActionResults;
         }
 
         private class UserActionComparer : IComparer<string> {

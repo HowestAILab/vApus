@@ -203,7 +203,7 @@ namespace vApus.Stresstest {
                                 try {
                                     foreach (DataTable monitorDt in monitors)
                                         if (monitorDt.Rows.Count != 0) {
-                                            var monitor = monitorDt.Rows[0].ItemArray[1].ToString();
+                                            string monitor = monitorDt.Rows[0].ItemArray[1].ToString();
 
                                             var monitorDoc = new SLDocument();
                                             string firstWorksheet = MakeMonitorSheet(monitorDoc, monitorDt, monitor);
@@ -229,7 +229,7 @@ namespace vApus.Stresstest {
                             int[] stresstestIds = new int[stresstests.Count];
                             stresstests.Keys.CopyTo(stresstestIds, 0);
                             Dictionary<string, List<string>> concurrencyAndRuns;
-                            var runsOverTimeDt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out concurrencyAndRuns, stresstestIds); //This one is special, it is for multiple tests by default.
+                            DataTable runsOverTimeDt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out concurrencyAndRuns, stresstestIds); //This one is special, it is for multiple tests by default.
 
                             string firstWorksheet = MakeRunsOverTimeSheet(doc, runsOverTimeDt, concurrencyAndRuns);
 

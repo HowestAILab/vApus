@@ -87,7 +87,7 @@ namespace vApus.Results {
                     logEntryResultsDataList.Add(data[key]);
             DataTable[] logEntryResultsData = logEntryResultsDataList.ToArray();
 
-            var averageLogEntries = CreateEmptyDataTable("AverageLogEntries", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
+            var averageLogEntryResults = CreateEmptyDataTable("AverageLogEntryResults", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
 "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
 
             foreach (DataRow stresstestsRow in stresstests) {
@@ -210,7 +210,7 @@ namespace vApus.Results {
                                 foreach (string s in sortedLogEntryIndices) {
                                     if (cancellationToken.IsCancellationRequested) loopState.Break();
 
-                                    averageLogEntries.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
+                                    averageLogEntryResults.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
                                         Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
                                         maxTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond,
                                         percTimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
@@ -222,7 +222,7 @@ namespace vApus.Results {
                 }
                 );
             }
-            return averageLogEntries;
+            return averageLogEntryResults;
         }
 
         private class LogEntryIndexComparer : IComparer<string> {

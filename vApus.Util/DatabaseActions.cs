@@ -33,9 +33,10 @@
 using System;
 using System.Data;
 using MySql.Data.MySqlClient;
+using RandomUtils.Log;
 
 namespace vApus.Util {
-    public class DatabaseActions : IDisposable {
+    public sealed class DatabaseActions : IDisposable {
 
         #region Fields
 
@@ -181,7 +182,8 @@ namespace vApus.Util {
                 dataAdapter.Fill(dt);
 
                 return dt;
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed at getting data table", ex);
             }
             return new DataTable();
         }

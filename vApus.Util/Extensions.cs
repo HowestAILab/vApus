@@ -5,6 +5,8 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -526,11 +528,58 @@ namespace vApus.Util {
             return sb.ToString();
         }
     }
-    public static class DataColumnCollectionExtension {
-        public static void AddRange(this DataColumnCollection dataColumnCollection, string column1, params string[] columns) {
-            dataColumnCollection.Add(column1);
-            foreach (string column in columns)
-                dataColumnCollection.Add(column);
+    public static class DataTableExtension {
+        /// <summary>
+        /// Convert a data table to json using Newtonsoft.Json.
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        public static string ToJson(this DataTable table) {
+            Type type = table.GetType();
+
+            var json = new JsonSerializer();
+
+            json.NullValueHandling = NullValueHandling.Ignore;
+
+            json.ObjectCreationHandling = ObjectCreationHandling.Replace;
+            json.MissingMemberHandling = MissingMemberHandling.Ignore;
+            json.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+
+
+            json.Converters.Add(new DataTableConverter());
+
+            var sw = new StringWriter();
+            var writer = new JsonTextWriter(sw);
+            writer.Formatting = Formatting.None;
+
+            writer.QuoteChar = '"';
+            json.Serialize(writer, table);
+
+            string output = sw.ToString();
+            writer.Close();
+            sw.Close();
+
+            return output;
+        }
+        /// <summary>
+        /// Convert json text to a data table using Newtonsoft.Json.
+        /// </summary>
+        /// <param name="jsonText"></param>
+        /// <returns></returns>
+        public static DataTable ToDataTable(this string jsonText) {
+            var json = new JsonSerializer();
+
+            json.NullValueHandling = NullValueHandling.Ignore;
+            json.ObjectCreationHandling = ObjectCreationHandling.Replace;
+            json.MissingMemberHandling = MissingMemberHandling.Ignore;
+            json.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+
+            var sr = new StringReader(jsonText);
+            JsonTextReader reader = new JsonTextReader(sr);
+            DataTable table = json.Deserialize<DataTable>(reader);
+            reader.Close();
+
+            return table;
         }
     }
 }
