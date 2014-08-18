@@ -65,7 +65,8 @@
             this.txtFilter.Name = "txtFilter";
             this.txtFilter.Size = new System.Drawing.Size(288, 50);
             this.txtFilter.TabIndex = 0;
-            this.toolTip.SetToolTip(this.txtFilter, "Filter on tags and description.");
+            this.toolTip.SetToolTip(this.txtFilter, "Filter on tags and description. Wild cards * + - \\\"\\\" can be used. Not case sensi" +
+        "tive.");
             this.txtFilter.TextChanged += new System.EventHandler(this.txtFilter_TextChanged);
             this.txtFilter.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFilter_KeyDown);
             this.txtFilter.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtFilter_KeyPress);
@@ -94,7 +95,7 @@
             this.pnlTagsContainer.Size = new System.Drawing.Size(288, 65);
             this.pnlTagsContainer.TabIndex = 8;
             // 
-            // FilterResults
+            // FilterResultsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -103,7 +104,7 @@
             this.Controls.Add(this.txtFilter);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label2);
-            this.Name = "FilterResults";
+            this.Name = "FilterResultsControl";
             this.Size = new System.Drawing.Size(314, 150);
             this.Resize += new System.EventHandler(this.FilterResults_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();

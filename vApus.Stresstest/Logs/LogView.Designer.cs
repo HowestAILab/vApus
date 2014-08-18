@@ -123,7 +123,7 @@
             this.txtFind.Size = new System.Drawing.Size(304, 20);
             this.txtFind.TabIndex = 0;
             this.txtFind.TabStop = false;
-            this.toolTip.SetToolTip(this.txtFind, "Wild cards * + - \"\" can be used. No whole words; Not case sensitive.");
+            this.toolTip.SetToolTip(this.txtFind, "Wild cards * + - \"\" can be used. Not case sensitive.");
             this.txtFind.TextChanged += new System.EventHandler(this.txtFind_TextChanged);
             this.txtFind.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFind_KeyDown);
             // 

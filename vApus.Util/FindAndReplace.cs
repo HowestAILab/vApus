@@ -16,8 +16,8 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="s">You can use *, +, - "" like in Google.</param>
         /// <param name="inText"></param>
-        /// <param name="rows"></param>
-        /// <param name="columns"></param>
+        /// <param name="rows">The rows where a match is found.</param>
+        /// <param name="columns">The columns where a match is found.</param>
         /// <param name="matchLengths"></param>
         public static void Find(string s, string inText, out List<int> rows, out List<int> columns, out List<int> matchLengths, bool wholeWords, bool ignoreCase) {
             string text = inText.Replace("\r\n", "\n").Replace("\n\r", "\n").Replace("\r", "\n");
