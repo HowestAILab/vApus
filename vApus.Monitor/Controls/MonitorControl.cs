@@ -18,7 +18,7 @@ using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
-using vApusSMT.Base;
+using vApus.Monitor.Sources.Base;
 
 namespace vApus.Monitor {
     public class MonitorControl : DataGridView {
@@ -98,8 +98,7 @@ namespace vApus.Monitor {
         ///     Must always happen before the first value was added.
         /// </summary>
         /// <param name="monitor">The Wiw and the to string is used.</param>
-        /// <param name="units"></param>
-        public void Init(Monitor monitor, string[] units) {
+        public void Init(Monitor monitor) {
             Rows.Clear();
             Columns.Clear();
 
@@ -113,40 +112,24 @@ namespace vApus.Monitor {
             var lHeaders = new List<string>();
             lHeaders.Add(string.Empty);
 
-            int unitIndex = 0;
-            foreach (Entity entity in monitor.Wiw.Keys)
-                foreach (CounterInfo counterInfo in monitor.Wiw[entity])
-                    if (counterInfo.Instances.Count == 0) {
+            foreach (Entity entity in monitor.Wiw)
+                foreach (CounterInfo counterInfo in entity.GetSubs())
+                    if (counterInfo.GetSubs().Count == 0) {
                         var sb = new StringBuilder();
-                        sb.Append(entity.Name);
+                        sb.Append(entity.GetName());
                         sb.Append("/");
-                        sb.Append(counterInfo.Counter);
-                        string unit = units[unitIndex++];
-                        if (!string.IsNullOrEmpty(unit)) {
-                            sb.Append(" [");
-                            sb.Append(unit);
-                            sb.Append("]");
-                        }
+                        sb.Append(counterInfo.GetName());
 
                         lHeaders.Add(sb.ToString());
                     } else
-                        foreach (string instance in counterInfo.Instances) {
+                        foreach (CounterInfo instance in counterInfo.GetSubs()) {
                             var sb = new StringBuilder();
-                            sb.Append(entity.Name);
+                            sb.Append(entity.GetName());
                             sb.Append("/");
-                            sb.Append(counterInfo.Counter);
+                            sb.Append(counterInfo.GetName());
+                            sb.Append("/");
+                            sb.Append(instance.GetName());
 
-                            string unit = units[unitIndex++];
-                            if (!string.IsNullOrEmpty(unit)) {
-                                sb.Append(" [");
-                                sb.Append(unit);
-                                sb.Append("]");
-                            }
-
-                            if (instance != String.Empty) {
-                                sb.Append("/");
-                                sb.Append(instance);
-                            }
                             lHeaders.Add(sb.ToString());
                         }
 
@@ -187,11 +170,15 @@ namespace vApus.Monitor {
         /// <summary>
         ///     This will add values to the collection and will update the Gui.
         /// </summary>
-        /// <param name="monitorValues"></param>
-        public void AddMonitorValues(object[] monitorValues) {
+        /// <param name="counters"></param>
+        public void AddCounters(Entities counters) {
             try {
                 if (ColumnCount != 0) {
-                    _toDisplayRows.Add(monitorValues);
+                    List<string> counterValues = counters.GetCountersAtLastLevel();
+                    object[] row = new object[ColumnCount];
+                    for (int i = 0; i != ColumnCount; i++)
+                        row[i] = counterValues;
+                    _toDisplayRows.Add(row);
 
                     // SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                     ++RowCount;
@@ -204,10 +191,10 @@ namespace vApus.Monitor {
                     //  }, null);
 
                     lock (_lock) {
-                        MonitorResultCache.Rows.Add(monitorValues);
+                        MonitorResultCache.Rows.Add(row);
 
-                        if (monitorValues.Length != MonitorResultCache.Headers.Length)
-                            Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, monitorValues);
+                        if (row.Length != MonitorResultCache.Headers.Length)
+                            Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, row);
                     }
                 }
             } catch (Exception ex) {

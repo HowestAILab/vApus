@@ -179,12 +179,8 @@
     <Reference Include="System.Management" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
-    <Reference Include="vApusSMT.Base, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Prerequisites\vApus SMT\vApusSMT.Base.dll</HintPath>
-    </Reference>
-    <Reference Include="vApusSMT.Proxy">
-      <HintPath>..\Prerequisites\vApus SMT\vApusSMT.Proxy.dll</HintPath>
+    <Reference Include="vApus.Monitor.Sources.Base">
+      <HintPath>..\Prerequisites\vApus.Monitor.Sources\vApus.Monitor.Sources.Base.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
@@ -200,7 +196,7 @@
     <Compile Include="LocalMonitor.cs" />
     <Compile Include="Monitor.cs" />
     <Compile Include="MonitorProject.cs" />
-    <Compile Include="MonitorSource.cs" />
+    <Compile Include="MonitorSourceClient.cs" />
     <Compile Include="MonitorView.cs">
       <SubType>Form</SubType>
     </Compile>
