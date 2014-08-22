@@ -85,7 +85,7 @@ namespace vApus.Monitor {
                         s = StringUtil.FloatToLongString(f, false);
                     }
                     value = s;
-                } else {
+                } else if(value is DateTime) {
                     value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
                 }
 
@@ -176,8 +176,23 @@ namespace vApus.Monitor {
                 if (ColumnCount != 0) {
                     List<string> counterValues = counters.GetCountersAtLastLevel();
                     object[] row = new object[ColumnCount];
-                    for (int i = 0; i != ColumnCount; i++)
-                        row[i] = counterValues;
+                    row[0] = DateTime.Now;
+                    for (int i = 0; i != counterValues.Count; i++) {
+                        if (i >= ColumnCount) break;
+
+                        string counterValue = counterValues[i];
+                        object parsedValue = null;
+                        if (counterValue.IsNumeric()) {
+                            parsedValue = float.Parse(counterValue);
+                        } else {
+                            DateTime timeStamp;
+                            if (DateTime.TryParse(counterValue, out timeStamp))
+                                parsedValue = timeStamp;
+                            else
+                                parsedValue = counterValue;
+                        }
+                        row[i + 1] = parsedValue;
+                    }
                     _toDisplayRows.Add(row);
 
                     // SynchronizationContextWrapper.SynchronizationContext.Send((state) => {

@@ -593,7 +593,7 @@ namespace vApus.Monitor {
             if (counterNode.Level == 0) {
                 foreach (TreeNode node in counterNode.Nodes)
                     node.Checked = counterNode.Checked;
-                
+
                 if (counterNode.Tag != null) {
                     var counterNodes = counterNode.Tag as TreeNode[];
                     foreach (TreeNode node in counterNodes)
@@ -946,9 +946,12 @@ namespace vApus.Monitor {
                 string entityName = lvwi.SubItems[1].Text;
                 Entity entity = _monitor.Wiw.GetEntity(entityName);
                 lvwi.Checked = entity != null;
+
+                Entity newEntity = null;
                 if (lvwi.Checked) {
                     ParseTag(lvwi);
-                    newWIW.Add(entity);
+                    newEntity = new Entity(entity.GetName(), entity.IsAvailable());
+                    newWIW.Add(newEntity);
                 }
 
                 var nodes = lvwi.Tag as TreeNode[];
@@ -965,15 +968,15 @@ namespace vApus.Monitor {
 
                                 newInfo = new CounterInfo(info.GetName(), node.Nodes.Count == 0 ? null : new List<string>());
 
+                                foreach (TreeNode child in node.Nodes) {
+                                    CounterInfo instanceCandidate = GetCounterInfo(child.Text, info.GetSubs());
+                                    child.Checked = instanceCandidate != null;
+                                    if (child.Checked)
+                                        newInfo.GetSubs().Add(new CounterInfo(instanceCandidate.GetName()));
+                                }
+
                                 var childNodes = node.Tag as TreeNode[];
-                                if (childNodes == null) {
-                                    foreach (TreeNode child in node.Nodes) {
-                                        CounterInfo instanceCandidate = GetCounterInfo(child.Text, info.GetSubs());
-                                        child.Checked = instanceCandidate != null;
-                                        if (child.Checked)
-                                            newInfo.GetSubs().Add(new CounterInfo(instanceCandidate.GetName()));
-                                    }
-                                } else { //Only if the node was not expanded.
+                                if (childNodes != null) { //Only if the node was not expanded.
                                     foreach (TreeNode child in childNodes) {
                                         CounterInfo instanceCandidate = GetCounterInfo(child.Text, info.GetSubs());
                                         child.Checked = instanceCandidate != null;
@@ -982,7 +985,7 @@ namespace vApus.Monitor {
                                     }
                                 }
 
-                                entity.GetSubs().Add(newInfo);
+                                newEntity.GetSubs().Add(newInfo);
 
                             } else {
                                 foreach (TreeNode child in node.Nodes)
@@ -1158,27 +1161,29 @@ namespace vApus.Monitor {
             //Set the parameters and the values in the gui and in the proxy
             SetValuesToParameters();
 
-            _monitorSourceClient.OnMonitor += _monitorSourceClient_OnMonitor;
+            //Re-establish the connection.
+            if (_monitorSourceClient.Connect()) {
+                _monitorSourceClient.OnMonitor += _monitorSourceClient_OnMonitor;
 
-            _monitorSourceClient.WIW = _monitor.Wiw;
+                _monitorSourceClient.WIW = _monitor.Wiw;
 
+                monitorControl.Init(_monitor);
+                btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
 
-            monitorControl.Init(_monitor);
-            btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
+                int refreshInS = _refreshTimeInMS / 1000;
+                lblCountDown.Tag = refreshInS;
+                lblCountDown.Text = "Updates in " + refreshInS;
 
-            int refreshInS = _refreshTimeInMS / 1000;
-            lblCountDown.Tag = refreshInS;
-            lblCountDown.Text = "Updates in " + refreshInS;
+                lblCountDown.ForeColor = Color.SteelBlue;
+                lblCountDown.BackColor = Color.Transparent;
+                lblCountDown.Visible = true;
 
-            lblCountDown.ForeColor = Color.SteelBlue;
-            lblCountDown.BackColor = Color.Transparent;
-            lblCountDown.Visible = true;
+                tmrProgressDelayCountDown.Start();
 
-            tmrProgressDelayCountDown.Start();
+                tc.SelectedIndex = 1;
+            }
 
-            tc.SelectedIndex = 1;
-
-            if (!_monitorSourceClient.Start()) {
+            if (!_monitorSourceClient.IsConnected || !_monitorSourceClient.Start()) {
                 Stop();
                 string message = "Could not connect to the monitor!";
                 if (_forStresstest)
@@ -1203,7 +1208,7 @@ namespace vApus.Monitor {
 
                 if (_monitorSourceClient != null)
                     try {
-                        _monitorSourceClient.Stop();
+                        _monitorSourceClient.Disconnect();
                         _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
                     } catch {
                     }
