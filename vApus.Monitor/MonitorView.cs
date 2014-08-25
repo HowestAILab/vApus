@@ -240,7 +240,7 @@ namespace vApus.Monitor {
         private void _monitorSourceClient_OnMonitor(object sender, OnMonitorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 try {
-                    monitorControl.AddCounters(e.Counters);
+                    monitorControl.AddCounters(e.Counters, _decimalSeparator);
 
                     //Don't do this when stopped
                     if (tmrProgressDelayCountDown.Enabled) {
@@ -1208,7 +1208,7 @@ namespace vApus.Monitor {
 
                 if (_monitorSourceClient != null)
                     try {
-                        _monitorSourceClient.Disconnect();
+                        _monitorSourceClient.Stop();
                         _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
                     } catch {
                     }

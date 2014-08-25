@@ -1,11 +1,11 @@
-﻿using Newtonsoft.Json;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -61,7 +61,7 @@ namespace vApus.Monitor {
                 return _monitorSourceClient;
             }
             set {
-                _monitorSourceClient = value;
+                _monitorSourceClient = value;                
                 _monitorSourceClientIndex = _monitorSourceClients.IndexOf(_monitorSourceClient);
             }
         }

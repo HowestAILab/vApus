@@ -5,20 +5,18 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
-using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
+using vApus.Monitor.Sources.Base;
 using vApus.Results;
 using vApus.Util;
-using vApus.Monitor.Sources.Base;
 
 namespace vApus.Monitor {
     public class MonitorControl : DataGridView {
@@ -85,7 +83,7 @@ namespace vApus.Monitor {
                         s = StringUtil.FloatToLongString(f, false);
                     }
                     value = s;
-                } else if(value is DateTime) {
+                } else if (value is DateTime) {
                     value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
                 }
 
@@ -171,47 +169,50 @@ namespace vApus.Monitor {
         ///     This will add values to the collection and will update the Gui.
         /// </summary>
         /// <param name="counters"></param>
-        public void AddCounters(Entities counters) {
+        public void AddCounters(Entities counters, string decimalSeparator) {
             try {
-                if (ColumnCount != 0) {
-                    List<string> counterValues = counters.GetCountersAtLastLevel();
-                    object[] row = new object[ColumnCount];
-                    row[0] = DateTime.Now;
-                    for (int i = 0; i != counterValues.Count; i++) {
-                        if (i >= ColumnCount) break;
+                if (ColumnCount == 0) return;
 
-                        string counterValue = counterValues[i];
-                        object parsedValue = null;
-                        if (counterValue.IsNumeric()) {
-                            parsedValue = float.Parse(counterValue);
-                        } else {
-                            DateTime timeStamp;
-                            if (DateTime.TryParse(counterValue, out timeStamp))
-                                parsedValue = timeStamp;
-                            else
-                                parsedValue = counterValue;
-                        }
-                        row[i + 1] = parsedValue;
+                Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator = decimalSeparator;
+
+                List<string> counterValues = counters.GetCountersAtLastLevel();
+                object[] row = new object[ColumnCount];
+                row[0] = DateTime.Now;
+                for (int i = 0; i != counterValues.Count; i++) {
+                    if (i >= ColumnCount) break;
+
+                    string counterValue = counterValues[i];
+                    object parsedValue = null;
+                    if (counterValue.IsNumeric()) {
+                        parsedValue = float.Parse(counterValue);
+                    } else {
+                        DateTime timeStamp;
+                        if (DateTime.TryParse(counterValue, out timeStamp))
+                            parsedValue = timeStamp;
+                        else
+                            parsedValue = counterValue;
                     }
-                    _toDisplayRows.Add(row);
-
-                    // SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    ++RowCount;
-
-                    if (_keepAtEnd) {
-                        Scroll -= MonitorControl_Scroll;
-                        FirstDisplayedScrollingRowIndex = RowCount - 1;
-                        Scroll += MonitorControl_Scroll;
-                    }
-                    //  }, null);
-
-                    lock (_lock) {
-                        MonitorResultCache.Rows.Add(row);
-
-                        if (row.Length != MonitorResultCache.Headers.Length)
-                            Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, row);
-                    }
+                    row[i + 1] = parsedValue;
                 }
+                _toDisplayRows.Add(row);
+
+                // SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                ++RowCount;
+
+                if (_keepAtEnd) {
+                    Scroll -= MonitorControl_Scroll;
+                    FirstDisplayedScrollingRowIndex = RowCount - 1;
+                    Scroll += MonitorControl_Scroll;
+                }
+                //  }, null);
+
+                lock (_lock) {
+                    MonitorResultCache.Rows.Add(row);
+
+                    if (row.Length != MonitorResultCache.Headers.Length)
+                        Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, row);
+                }
+
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed adding monitor values.", ex);
             }
