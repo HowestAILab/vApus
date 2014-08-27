@@ -387,9 +387,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="monitorResultCache">Should have a filled in monitor configuration id.</param>
         public void SetMonitorResults(MonitorResult monitorResultCache) {
             lock (_lock) {
-                //Store monitor values with a '.' for decimal seperator.
+                //Store monitor values with a ',' for decimal seperator.
                 CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
-                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("nl-BE");
                 if (_databaseActions != null && monitorResultCache.Rows.Count != 0) {
                     ulong monitorConfigurationId = monitorResultCache.MonitorConfigurationId;
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
@@ -1351,11 +1351,15 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     }
 
                                     if (canAdd) {
-                                        //Monitor values stored with a '.' for decimal seperator.
+                                        //Monitor values stored with a ',' for decimal seperator.
                                         CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
-                                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+                                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("nl-BE");
 
-                                        string[] splittedValue = (monitorResultsRow[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                                        string stringValueBlob = monitorResultsRow[1] as string;
+                                        //Workaround
+                                        if (stringValueBlob.Contains(".")) Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
+                                        string[] splittedValue = stringValueBlob.Split(new string[] { "; " }, StringSplitOptions.None);
                                         float[] values = new float[splittedValue.Length];
 
                                         for (long l = 0; l != splittedValue.LongLength; l++) {
@@ -1492,15 +1496,19 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                                 DataTable mrs = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
 
-                                //Store monitor values with a '.' for decimal seperator.
+                                //Store monitor values with a ',' for decimal seperator.
                                 CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
-                                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+                                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("nl-BE");
 
                                 var monitorValues = new Dictionary<DateTime, float[]>(mrs.Rows.Count);
                                 foreach (DataRow monitorResultsRow in mrs.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    string[] stringValues = (monitorResultsRow.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+                                    string stringValueBlob = monitorResultsRow.ItemArray[1] as string;
+                                    //Workaround
+                                    if (stringValueBlob.Contains(".")) Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
+                                    string[] stringValues = stringValueBlob.Split(new string[] { "; " }, StringSplitOptions.None);
                                     object[] values = new object[stringValues.LongLength];
                                     for (long l = 0L; l != stringValues.LongLength; l++)
                                         values[l] = float.Parse(stringValues[l]);
