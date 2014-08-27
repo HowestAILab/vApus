@@ -61,7 +61,7 @@ namespace vApus.Monitor {
                 return _monitorSourceClient;
             }
             set {
-                _monitorSourceClient = value;                
+                _monitorSourceClient = value;
                 _monitorSourceClientIndex = _monitorSourceClients.IndexOf(_monitorSourceClient);
             }
         }
@@ -92,7 +92,11 @@ namespace vApus.Monitor {
                 return JsonConvert.SerializeObject(_wiw, Formatting.None, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
             }
             set {
-                _wiw = JsonConvert.DeserializeObject<Entities>(value);
+                try {
+                    _wiw = JsonConvert.DeserializeObject<Entities>(value);
+                } catch { 
+                    //To make it 'backwards compatible' with older vass files.
+                }
                 if (_wiw == null) _wiw = new Entities();
             }
         }
