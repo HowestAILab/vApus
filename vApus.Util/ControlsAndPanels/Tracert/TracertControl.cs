@@ -1,11 +1,11 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Drawing;
 using System.Net.NetworkInformation;
@@ -83,7 +83,7 @@ namespace vApus.Util {
         }
 
         private void btnTraceRoute_Click(object sender, EventArgs e) {
-            _tracertDialog.ClearHops();
+            _tracertDialog.SetStarted();
             btnTraceRoute.Enabled = false;
             Trace();
 
@@ -92,38 +92,40 @@ namespace vApus.Util {
 
         private void _tracert_Hop(object sender, Tracert.HopEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    kvpHops.Key = ((++_hops) == 1 ? "1 Hop" : _hops + " Hop");
-                    string roundtripTime = "N/A";
-                    if (e.Status == IPStatus.Success) {
-                        TimeSpan ts = TimeSpan.FromMilliseconds(e.RoundTripTime);
-                        roundtripTime = ts.ToShortFormattedString();
-                        kvpRoundtripTime.Key = roundtripTime + " Roundtrip Time";
-                    } else {
-                        kvpRoundtripTime.Key = "Roundtrip Time N/A";
-                    }
-                    _lastStatus = e.Status;
+                kvpHops.Key = ((++_hops) == 1 ? "1 Hop" : _hops + " Hop");
+                string roundtripTime = "N/A";
+                if (e.Status == IPStatus.Success) {
+                    TimeSpan ts = TimeSpan.FromMilliseconds(e.RoundTripTime);
+                    roundtripTime = ts.ToShortFormattedString();
+                    kvpRoundtripTime.Key = roundtripTime + " Roundtrip Time";
+                } else {
+                    kvpRoundtripTime.Key = "Roundtrip Time N/A";
+                }
+                _lastStatus = e.Status;
 
-                    _tracertDialog.AddHop(e.IP, e.HostName, roundtripTime);
-                }, null);
+                _tracertDialog.AddHop(e.IP, e.HostName, roundtripTime);
+            }, null);
         }
 
         private void _tracert_Done(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    if (_lastStatus == IPStatus.Success) {
-                        btnStatus.Text = "Success...";
-                        btnStatus.BackColor = Color.LightGreen;
-                    } else {
-                        btnStatus.Text = "Failed...";
-                        btnStatus.BackColor = Color.Orange;
-                    }
-                    btnTraceRoute.Enabled = true;
+                if (_lastStatus == IPStatus.Success) {
+                    btnStatus.Text = "Success...";
+                    btnStatus.BackColor = Color.LightGreen;
+                } else {
+                    btnStatus.Text = "Failed...";
+                    btnStatus.BackColor = Color.Orange;
+                }
+                btnTraceRoute.Enabled = true;
 
-                    _tracert.Dispose();
-                    _tracert = null;
+                _tracert.Dispose();
+                _tracert = null;
 
-                    if (Done != null)
-                        Done(this, null);
-                }, null);
+                _tracertDialog.SetCompleted();
+
+                if (Done != null)
+                    Done(this, null);
+            }, null);
         }
 
         private void btnStatus_Click(object sender, EventArgs e) {

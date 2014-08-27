@@ -1,12 +1,12 @@
-﻿using RandomUtils;
-using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -447,6 +447,7 @@ namespace vApus.DistributedTesting {
 
             fastResultsControl.SetStresstestStopped();
             _stresstestResult = null;
+            _canUpdateMetrics = false;
         }
 
         private void StopProgressDelayCountDown() {

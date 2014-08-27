@@ -500,7 +500,8 @@ namespace vApus.Stresstest {
                     } catch {
                     }
 
-                    fastResultsControl.ToggleCollapseEventPanel();
+                    fastResultsControl.ExpandEventPanel();
+                    fastResultsControl.AddEvent("Monitoring before the test starts: " + (_stresstest.MonitorBefore * 60) + " s.");
                     _monitorBeforeCountDown.Start();
                 } else {
                     MonitorBeforeDone();
@@ -519,7 +520,7 @@ namespace vApus.Stresstest {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                fastResultsControl.AddEvent("The test will start in " + ts.ToShortFormattedString() + ", monitoring first.");
+                fastResultsControl.AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null && _stresstest.Monitors.Length != 0)
@@ -749,6 +750,8 @@ namespace vApus.Stresstest {
                     } catch {
                     }
 
+                    fastResultsControl.ExpandEventPanel();
+                    fastResultsControl.AddEvent("Monitoring after the test is finished: " + (_stresstest.MonitorAfter * 60) + " s.");
                     _monitorAfterCountDown.Start();
                 } else {
                     StopMonitorsAndUnlockGui(ex, false);
@@ -837,6 +840,7 @@ namespace vApus.Stresstest {
 
             fastResultsControl.SetStresstestStopped();
             _stresstestResult = null;
+            _canUpdateMetrics = false;
         }
 
         /// <summary>

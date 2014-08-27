@@ -713,6 +713,7 @@ namespace vApus.DistributedTesting {
                             }
 
                             testTreeView.SetMonitoringBeforeAfter();
+                            distributedStresstestControl.AppendMessages("Monitoring before the test starts: " + (monitorBefore * 60) + " s.");
                             _monitorBeforeCountDown.Start();
                         } else {
                             MonitorBeforeDone();
@@ -1120,6 +1121,7 @@ namespace vApus.DistributedTesting {
                 }
 
                 testTreeView.SetMonitoringBeforeAfter();
+                distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " + (monitorAfterTime * 60) + " s.");
                 _monitorAfterCountDown.Start();
             } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
         }
@@ -1320,8 +1322,7 @@ namespace vApus.DistributedTesting {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                distributedStresstestControl.AppendMessages("The test will start in " + ts.ToShortFormattedString() +
-                                                            ", monitoring first.");
+                distributedStresstestControl.AppendMessages("Monitoring before the test starts: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
                 foreach (TileStresstest tileStresstest in _monitorViews.Keys)

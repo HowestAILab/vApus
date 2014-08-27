@@ -93,7 +93,8 @@ namespace vApus.Stresstest {
             (dgvFastResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvFastResults, true);
 
             cboDrillDown.SelectedIndex = 0;
-            ToggleCollapseEventPanel();
+            btnCollapseExpand.PerformClick();
+            epnlMessages.Collapsed = true;
         }
         #endregion
 
@@ -187,7 +188,7 @@ namespace vApus.Stresstest {
         /// <param name="start"></param>
         public void SetStresstestStarted(DateTime at) {
             _stresstestStartedAt = at;
-            lblStarted.Text = "Test started at " + at;
+            lblStarted.Text = "Test started at " + at.ToString("yyyy'-'MM'-'dd HH':'mm':'ss");
             epnlMessages.BeginOfTimeFrame = at;
         }
 
@@ -418,11 +419,13 @@ namespace vApus.Stresstest {
         private void SetMeasuredRuntime() {
             epnlMessages.SetEndOfTimeFrameToNow();
             _measuredRuntime = epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame;
+            _measuredRuntime = _measuredRuntime.Subtract(new TimeSpan(_measuredRuntime.Ticks % TimeSpan.TicksPerSecond));
             if (_measuredRuntime.TotalSeconds > 1)
                 lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString();
         }
         public void SetMeasuredRuntime(TimeSpan measuredRuntime) {
             epnlMessages.SetEndOfTimeFrameTo(epnlMessages.BeginOfTimeFrame + measuredRuntime);
+            measuredRuntime = _measuredRuntime.Subtract(new TimeSpan(measuredRuntime.Ticks % TimeSpan.TicksPerSecond));
             if (measuredRuntime.TotalSeconds > 1) {
                 string s = "; ran " + measuredRuntime.ToShortFormattedString();
                 if (lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
@@ -707,9 +710,8 @@ namespace vApus.Stresstest {
                 splitTop.BackColor = SystemColors.Control;
             }
         }
-        public void ToggleCollapseEventPanel() {
-            btnCollapseExpand.PerformClick();
-            epnlMessages.Collapsed = btnCollapseExpand.Text == "+";
+        public void ExpandEventPanel() {
+            epnlMessages.Collapsed = false;
         }
         /// <summary>
         /// Set the splitter distance of the splitcontainer if collapsed has changed.

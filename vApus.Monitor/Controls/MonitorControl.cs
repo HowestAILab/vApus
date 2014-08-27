@@ -66,10 +66,8 @@ namespace vApus.Monitor {
                 }
 
                 if (value == null)
-                    if (e.ColumnIndex == 0)
-                        value = DateTime.Now;
-                    else
-                        value = -1f;
+                    if (e.ColumnIndex == 0) value = DateTime.Now;
+                    else value = -1f;
 
                 if (value is float) {
                     var f = (float)value;
