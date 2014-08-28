@@ -923,8 +923,9 @@ namespace vApus.DistributedTesting {
                     }
                 }
 
-                fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage, testProgressMessage.ContextSwitchesPerSecond,
-                    (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
+                fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage,
+                    (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.Nic, testProgressMessage.NicBandwidth,
+                    testProgressMessage.NicSent, testProgressMessage.NicReceived);
             }
         }
         private void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -979,8 +980,8 @@ namespace vApus.DistributedTesting {
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
                 distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed,
-                    LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent,
-                    LocalMonitor.NicsReceived);
+                    LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent,
+                    LocalMonitor.NicReceived);
             } catch { } //Exception on false WMI. 
         }
         #endregion
@@ -1071,9 +1072,9 @@ namespace vApus.DistributedTesting {
                     try {
                         distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK,
                                                                          _distributedTestCore.Cancelled, _distributedTestCore.Failed,
-                                                                         LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
-                                                                         (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
-                                                                         LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                                                                         LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
+                                                                         LocalMonitor.Nic, LocalMonitor.NicBandwidth,
+                                                                         LocalMonitor.NicSent, LocalMonitor.NicReceived);
                     } catch { } //Exception on false WMI. 
                 } catch (Exception ex) {
                     string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
@@ -1454,6 +1455,8 @@ namespace vApus.DistributedTesting {
 
             if (!disposing) {
                 SetMode(DistributedTestMode.Edit, true);
+
+                this.Focus();
 
                 //Update the detailed results in the gui if any.
                 RefreshDetailedResults();

@@ -19,25 +19,34 @@ namespace vApus.Monitor {
     public static class LocalMonitor {
 
         #region Fields
-        private static object _lock = new object();
+        //private static object _lock = new object();
         private static readonly Timer _tmr = new Timer();
 
         private static readonly PerformanceCounter _cpuUsage = new PerformanceCounter("Processor", "% Processor Time", "_Total", true);
-        private static readonly PerformanceCounter _contextSwitchesPerSecond = new PerformanceCounter("System", "Context Switches/sec", true);
         private static readonly ManagementObjectSearcher _availableMemory = new ManagementObjectSearcher("SELECT AvailableMBytes FROM Win32_PerfFormattedData_PerfOS_Memory");
         private static readonly PerformanceCounterCategory _nicsCat = new PerformanceCounterCategory("Network Interface");
 
         private static int _nicsDifference;
-        private static readonly List<object> _nics = new List<object>();
+        private static readonly Dictionary<string, List<object>> _nicSentReceivedAndBandwidth = new Dictionary<string, List<object>>();
         #endregion
 
         #region Properties
         public static float CPUUsage { get; private set; }
-        public static float ContextSwitchesPerSecond { get; private set; }
         public static uint MemoryUsage { get; private set; }
         public static uint TotalVisibleMemory { get; private set; }
-        public static float NicsSent { get; private set; }
-        public static float NicsReceived { get; private set; }
+        public static string Nic { get; private set; }
+        /// <summary>
+        /// In %
+        /// </summary>
+        public static float NicSent { get; private set; }
+        /// <summary>
+        /// In %
+        /// </summary>
+        public static float NicReceived { get; private set; }
+        /// <summary>
+        /// In Mbps
+        /// </summary>
+        public static int NicBandwidth { get; private set; }
         #endregion
 
         #region Constructor
@@ -50,6 +59,9 @@ namespace vApus.Monitor {
             var searcher = new ManagementObjectSearcher("SELECT TotalVisibleMemorySize FROM Win32_OperatingSystem");
             foreach (ManagementObject queryObj in searcher.Get())
                 TotalVisibleMemory = Convert.ToUInt32(queryObj.Properties["TotalVisibleMemorySize"].Value) / 1024;
+
+            //Refresh first.
+            Get();
         }
         #endregion
 
@@ -59,10 +71,11 @@ namespace vApus.Monitor {
             _tmr.Interval = refreshInterval;
             _tmr.Start();
         }
-        private static void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
+        private static void _tmr_Elapsed(object sender, ElapsedEventArgs e) { Get(); }
+        private static void Get() {
+            //lock (_lock)
             try {
                 CPUUsage = _cpuUsage.NextValue();
-                ContextSwitchesPerSecond = _contextSwitchesPerSecond.NextValue();
 
                 uint availableMemory = 0;
                 foreach (ManagementObject queryObj in _availableMemory.Get())
@@ -76,8 +89,8 @@ namespace vApus.Monitor {
                 float bandWidth;
                 int instancesCount = instances.Length - _nicsDifference;
 
-                if (_nics.Count != instancesCount * 3) {
-                    _nics.Clear();
+                if (_nicSentReceivedAndBandwidth.Count != instancesCount) {
+                    _nicSentReceivedAndBandwidth.Clear();
                     _nicsDifference = 0;
                     NetworkInterface[] nics = NetworkInterface.GetAllNetworkInterfaces();
                     foreach (string instance in instances) {
@@ -99,40 +112,49 @@ namespace vApus.Monitor {
 
                         sent = new PerformanceCounter("Network Interface", "Bytes Sent/sec", instance);
                         received = new PerformanceCounter("Network Interface", "Bytes Received/sec", instance);
-                        bandWidth =
-                            (new PerformanceCounter("Network Interface", "Current Bandwidth", instance)).NextValue() / 800;
+                        bandWidth = (new PerformanceCounter("Network Interface", "Current Bandwidth", instance)).NextValue();
 
                         if (bandWidth == 0f) {
                             ++_nicsDifference;
                             continue;
                         }
 
-                        _nics.Add(sent);
-                        _nics.Add(received);
-                        _nics.Add(bandWidth);
+                        var l = new List<object>();
+                        l.Add(sent);
+                        l.Add(received);
+                        l.Add(bandWidth);
+                        _nicSentReceivedAndBandwidth.Add(instance, l);
                     }
 
                     instancesCount = instances.Length - _nicsDifference;
                 }
 
-                NicsSent = 0f;
-                NicsReceived = 0f;
+                NicSent = 0f;
+                NicReceived = 0f;
 
-                for (int i = 0; i != _nics.Count; i++) {
-                    sent = _nics[i] as PerformanceCounter;
-                    ++i;
-                    received = _nics[i] as PerformanceCounter;
-                    ++i;
-                    bandWidth = (float)_nics[i];
+                foreach (string instance in _nicSentReceivedAndBandwidth.Keys) {
+                    List<object> l = _nicSentReceivedAndBandwidth[instance];
+                    sent = l[0] as PerformanceCounter;
+                    received = l[1] as PerformanceCounter;
+                    bandWidth = (float)l[2];
 
-                    float s = sent.NextValue() / bandWidth;
-                    float r = received.NextValue() / bandWidth;
+                    float b = bandWidth / 800;
+                    float s = sent.NextValue() / b;
+                    float r = received.NextValue() / b;
 
-                    if (s > NicsSent || r > NicsReceived) {
-                        NicsSent = s;
-                        NicsReceived = r;
+                    if (s > NicSent || r > NicReceived) {
+                        Nic = instance;
+                        NicSent = s;
+                        NicReceived = r;
+                        NicBandwidth = Convert.ToInt32(bandWidth / 1000000);
                     }
                 }
+                if (NicBandwidth == 0) {
+                    Nic = "Nic";
+                    NicBandwidth = -1;
+                    NicReceived = NicSent = -1;
+                }
+
             } catch {
             }
         }

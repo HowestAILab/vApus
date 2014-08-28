@@ -239,7 +239,8 @@ namespace vApus.Stresstest {
         /// <param name="threadContentionsPerSecond"></param>
         /// <param name="memoryUsage"></param>
         /// <param name="totalVisibleMemory"></param>
-        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, float contextSwitchesPerSecond = -1f, int memoryUsage = -1, int totalVisibleMemory = -1, float nicsSent = -1, float nicsReceived = -1) {
+        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, int memoryUsage = -1, int totalVisibleMemory = -1, 
+            string nic = "Nic", float nicBandwidth = -1, float nicsSent = -1, float nicsReceived = -1) {
             kvmThreadsInUse.Value = threadsInUse.ToString();
             if (cpuUsage == -1) {
                 kvmCPUUsage.Value = "N/A";
@@ -253,7 +254,6 @@ namespace vApus.Stresstest {
                     AddEvent(cpuUsage + " % CPU Usage", Level.Warning);
                 }
             }
-            kvmContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1) ? "N/A" : contextSwitchesPerSecond.ToString();
 
             if (memoryUsage == -1 || totalVisibleMemory == -1) {
                 kvmMemoryUsage.Value = "N/A";
@@ -266,6 +266,11 @@ namespace vApus.Stresstest {
                     AddEvent(memoryUsage + " of " + totalVisibleMemory + " MB used", Level.Warning);
                 }
             }
+            kvmNic.Key = nic;
+            if (nicBandwidth == -1)
+                kvmNic.Value = "N/A";
+            else
+                kvmNic.Value = nicBandwidth + " Mbps";
             if (nicsSent == -1) {
                 kvmNicsSent.Value = "N/A";
             } else {

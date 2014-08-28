@@ -686,7 +686,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         for (int i = offset; i != offset + range; i++) { //Add the avg response times
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[6] : 0d);
+                            row.Add(i < averageUserActions.Rows.Count ? Convert.ToDouble(averageUserActions.Rows[i].ItemArray[6]) : 0d);
                         }
                         row.Add(averageConcurrentUsers.Rows[overview95thPercentile.Rows.Count]["Throughput (responses / s)"]); //And the throughput
                         row.Add(averageConcurrentUsers.Rows[overview95thPercentile.Rows.Count]["Errors"]); //And the errors: Bonus

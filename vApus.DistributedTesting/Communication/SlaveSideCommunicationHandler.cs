@@ -1,12 +1,12 @@
-﻿using RandomUtils;
-using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2010 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
  *  
  * Author(s):
  *    Vandroemme Dieter
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -258,9 +258,10 @@ namespace vApus.DistributedTesting {
                         tpm.CPUUsage = LocalMonitor.CPUUsage;
                         tpm.MemoryUsage = LocalMonitor.MemoryUsage;
                         tpm.TotalVisibleMemory = LocalMonitor.TotalVisibleMemory;
-                        tpm.ContextSwitchesPerSecond = LocalMonitor.ContextSwitchesPerSecond;
-                        tpm.NicsSent = LocalMonitor.NicsSent;
-                        tpm.NicsReceived = LocalMonitor.NicsReceived;
+                        tpm.Nic = LocalMonitor.Nic;
+                        tpm.NicSent = LocalMonitor.NicSent;
+                        tpm.NicReceived = LocalMonitor.NicReceived;
+                        tpm.NicBandwidth = LocalMonitor.NicBandwidth;
                     } catch {
                     } //Exception on false WMI. 
 

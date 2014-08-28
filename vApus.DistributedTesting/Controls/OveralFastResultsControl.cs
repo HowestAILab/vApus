@@ -83,8 +83,8 @@ namespace vApus.DistributedTesting {
         /// <param name="totalVisibleMemory"></param>
         /// <param name="nicsSent"></param>
         /// <param name="nicsReceived"></param>
-        public void SetMasterMonitoring(int runningTests = 0, int ok = 0, int cancelled = 0, int failed = 0, float cpuUsage = -1f, float contextSwitchesPerSecond = -1f,
-                                        int memoryUsage = -1, int totalVisibleMemory = -1, float nicsSent = -1, float nicsReceived = -1) {
+        public void SetMasterMonitoring(int runningTests = 0, int ok = 0, int cancelled = 0, int failed = 0, float cpuUsage = -1f,
+                                        int memoryUsage = -1, int totalVisibleMemory = -1, string nic = "Nic", float nicBandwidth = -1, float nicsSent = -1, float nicsReceived = -1) {
             kvpRunningTests.Visible = runningTests != 0;
             kvpRunningTests.Value = runningTests.ToString();
 
@@ -109,7 +109,6 @@ namespace vApus.DistributedTesting {
                     AppendMessages(cpuUsage + " % CPU Usage", Level.Warning);
                 }
             }
-            kvmMasterContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1) ? "N/A" : contextSwitchesPerSecond.ToString();
 
             if (memoryUsage == -1 || totalVisibleMemory == -1) {
                 kvmMasterMemoryUsage.Value = "N/A";
@@ -122,6 +121,11 @@ namespace vApus.DistributedTesting {
                     AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", Level.Warning);
                 }
             }
+            kvmMasterNic.Key = nic;
+            if (nicBandwidth == -1) 
+                kvmMasterNic.Value = "N/A";
+             else 
+                kvmMasterNic.Value = nicBandwidth + " Mbps";
             if (nicsSent == -1) {
                 kvmMasterNicsSent.Value = "N/A";
             } else {
