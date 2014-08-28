@@ -57,7 +57,7 @@
             // 
             // txtFilter
             // 
-            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFilter.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.txtFilter.Location = new System.Drawing.Point(23, 26);
@@ -65,8 +65,7 @@
             this.txtFilter.Name = "txtFilter";
             this.txtFilter.Size = new System.Drawing.Size(288, 50);
             this.txtFilter.TabIndex = 0;
-            this.toolTip.SetToolTip(this.txtFilter, "Filter on tags and description. Wild cards * + - \\\"\\\" can be used. Not case sensi" +
-        "tive.");
+            this.toolTip.SetToolTip(this.txtFilter, "Filter on tags and description. Wild cards *(auto-complete) +: must have word -: cannot have word \"\": ommit spaces of a double-quoted piece of text. The filter is not case sensitive.");
             this.txtFilter.TextChanged += new System.EventHandler(this.txtFilter_TextChanged);
             this.txtFilter.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFilter_KeyDown);
             this.txtFilter.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtFilter_KeyPress);
@@ -85,8 +84,8 @@
             // 
             // pnlTagsContainer
             // 
-            this.pnlTagsContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.pnlTagsContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlTagsContainer.AutoScroll = true;
             this.pnlTagsContainer.Controls.Add(this.flpTags);
