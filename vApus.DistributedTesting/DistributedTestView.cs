@@ -713,6 +713,7 @@ namespace vApus.DistributedTesting {
                             }
 
                             testTreeView.SetMonitoringBeforeAfter();
+                            distributedStresstestControl.AppendMessages("Monitoring before the test starts: " + (monitorBefore * 60) + " s.");
                             _monitorBeforeCountDown.Start();
                         } else {
                             MonitorBeforeDone();
@@ -922,8 +923,9 @@ namespace vApus.DistributedTesting {
                     }
                 }
 
-                fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage, testProgressMessage.ContextSwitchesPerSecond,
-                    (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
+                fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage,
+                    (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.Nic, testProgressMessage.NicBandwidth,
+                    testProgressMessage.NicSent, testProgressMessage.NicReceived);
             }
         }
         private void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -978,8 +980,8 @@ namespace vApus.DistributedTesting {
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
                 distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed,
-                    LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent,
-                    LocalMonitor.NicsReceived);
+                    LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent,
+                    LocalMonitor.NicReceived);
             } catch { } //Exception on false WMI. 
         }
         #endregion
@@ -1070,9 +1072,9 @@ namespace vApus.DistributedTesting {
                     try {
                         distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK,
                                                                          _distributedTestCore.Cancelled, _distributedTestCore.Failed,
-                                                                         LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
-                                                                         (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
-                                                                         LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                                                                         LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
+                                                                         LocalMonitor.Nic, LocalMonitor.NicBandwidth,
+                                                                         LocalMonitor.NicSent, LocalMonitor.NicReceived);
                     } catch { } //Exception on false WMI. 
                 } catch (Exception ex) {
                     string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
@@ -1120,6 +1122,7 @@ namespace vApus.DistributedTesting {
                 }
 
                 testTreeView.SetMonitoringBeforeAfter();
+                distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " + (monitorAfterTime * 60) + " s.");
                 _monitorAfterCountDown.Start();
             } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
         }
@@ -1320,8 +1323,7 @@ namespace vApus.DistributedTesting {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                distributedStresstestControl.AppendMessages("The test will start in " + ts.ToShortFormattedString() +
-                                                            ", monitoring first.");
+                distributedStresstestControl.AppendMessages("Monitoring before the test starts: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
                 foreach (TileStresstest tileStresstest in _monitorViews.Keys)
@@ -1453,6 +1455,8 @@ namespace vApus.DistributedTesting {
 
             if (!disposing) {
                 SetMode(DistributedTestMode.Edit, true);
+
+                this.Focus();
 
                 //Update the detailed results in the gui if any.
                 RefreshDetailedResults();

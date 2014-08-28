@@ -1,12 +1,12 @@
-﻿using RandomUtils;
-using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -176,9 +176,10 @@ namespace vApus.DistributedTesting {
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 if (e.Exception == null) {
                     try {
-                        fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
+                        fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
                                                               (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
-                                                              LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                                                              LocalMonitor.Nic, LocalMonitor.NicBandwidth,
+                                                              LocalMonitor.NicSent, LocalMonitor.NicReceived);
                     } catch { } //Exception on false WMI. 
                 } else {
                     Stop(e.Exception);
@@ -253,9 +254,8 @@ namespace vApus.DistributedTesting {
         private void tmrProgress_Tick(object sender, ElapsedEventArgs e) {
             try {
                 fastResultsControl.SetClientMonitoring(
-                    _stresstestCore == null ? 0 : _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
-                    LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage,
-                    (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                    _stresstestCore == null ? 0 : _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage,
+                    (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent, LocalMonitor.NicReceived);
             } catch { } //Exception on false WMI. 
 
             if (_canUpdateMetrics) {
@@ -429,10 +429,9 @@ namespace vApus.DistributedTesting {
             if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
                 try {
                     fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
-                                                          LocalMonitor.ContextSwitchesPerSecond,
                                                           (int)LocalMonitor.MemoryUsage,
-                                                          (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent,
-                                                          LocalMonitor.NicsReceived);
+                                                          (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth,
+                                                          LocalMonitor.NicSent, LocalMonitor.NicReceived);
                 } catch { } //Exception on false WMI. 
 
                 _stresstestMetricsCache.AllowSimplifiedMetrics = false;
@@ -447,6 +446,7 @@ namespace vApus.DistributedTesting {
 
             fastResultsControl.SetStresstestStopped();
             _stresstestResult = null;
+            _canUpdateMetrics = false;
         }
 
         private void StopProgressDelayCountDown() {

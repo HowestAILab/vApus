@@ -500,7 +500,8 @@ namespace vApus.Stresstest {
                     } catch {
                     }
 
-                    fastResultsControl.ToggleCollapseEventPanel();
+                    fastResultsControl.ExpandEventPanel();
+                    fastResultsControl.AddEvent("Monitoring before the test starts: " + (_stresstest.MonitorBefore * 60) + " s.");
                     _monitorBeforeCountDown.Start();
                 } else {
                     MonitorBeforeDone();
@@ -519,7 +520,7 @@ namespace vApus.Stresstest {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                fastResultsControl.AddEvent("The test will start in " + ts.ToShortFormattedString() + ", monitoring first.");
+                fastResultsControl.AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null && _stresstest.Monitors.Length != 0)
@@ -623,8 +624,8 @@ namespace vApus.Stresstest {
         private void tmrProgress_Tick(object sender, EventArgs e) {
             if (_stresstestCore != null) {
                 try {
-                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
-                                                          (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
+                                                          (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent, LocalMonitor.NicReceived);
                 } catch { } //Exception on false WMI. 
 
                 if (_canUpdateMetrics) {
@@ -749,10 +750,13 @@ namespace vApus.Stresstest {
                     } catch {
                     }
 
+                    fastResultsControl.ExpandEventPanel();
+                    fastResultsControl.AddEvent("Monitoring after the test is finished: " + (_stresstest.MonitorAfter * 60) + " s.");
                     _monitorAfterCountDown.Start();
                 } else {
                     StopMonitorsAndUnlockGui(ex, false);
                 }
+                this.Focus();
 
                 if (stresstestStatus == StresstestStatus.Cancelled || stresstestStatus == StresstestStatus.Error)
                     RemoveDatabase();
@@ -819,8 +823,8 @@ namespace vApus.Stresstest {
 
             if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
                 try {
-                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage,
-                                                          (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage,
+                                                          (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent, LocalMonitor.NicReceived);
                 } catch { } //Exception on false WMI. 
 
                 _stresstestMetricsCache.AllowSimplifiedMetrics = false;
@@ -837,6 +841,7 @@ namespace vApus.Stresstest {
 
             fastResultsControl.SetStresstestStopped();
             _stresstestResult = null;
+            _canUpdateMetrics = false;
         }
 
         /// <summary>

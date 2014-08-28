@@ -93,7 +93,8 @@ namespace vApus.Stresstest {
             (dgvFastResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvFastResults, true);
 
             cboDrillDown.SelectedIndex = 0;
-            ToggleCollapseEventPanel();
+            btnCollapseExpand.PerformClick();
+            epnlMessages.Collapsed = true;
         }
         #endregion
 
@@ -187,7 +188,7 @@ namespace vApus.Stresstest {
         /// <param name="start"></param>
         public void SetStresstestStarted(DateTime at) {
             _stresstestStartedAt = at;
-            lblStarted.Text = "Test started at " + at;
+            lblStarted.Text = "Test started at " + at.ToString("yyyy'-'MM'-'dd HH':'mm':'ss");
             epnlMessages.BeginOfTimeFrame = at;
         }
 
@@ -238,7 +239,8 @@ namespace vApus.Stresstest {
         /// <param name="threadContentionsPerSecond"></param>
         /// <param name="memoryUsage"></param>
         /// <param name="totalVisibleMemory"></param>
-        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, float contextSwitchesPerSecond = -1f, int memoryUsage = -1, int totalVisibleMemory = -1, float nicsSent = -1, float nicsReceived = -1) {
+        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, int memoryUsage = -1, int totalVisibleMemory = -1, 
+            string nic = "Nic", float nicBandwidth = -1, float nicsSent = -1, float nicsReceived = -1) {
             kvmThreadsInUse.Value = threadsInUse.ToString();
             if (cpuUsage == -1) {
                 kvmCPUUsage.Value = "N/A";
@@ -252,7 +254,6 @@ namespace vApus.Stresstest {
                     AddEvent(cpuUsage + " % CPU Usage", Level.Warning);
                 }
             }
-            kvmContextSwitchesPerSecond.Value = (contextSwitchesPerSecond == -1) ? "N/A" : contextSwitchesPerSecond.ToString();
 
             if (memoryUsage == -1 || totalVisibleMemory == -1) {
                 kvmMemoryUsage.Value = "N/A";
@@ -265,6 +266,11 @@ namespace vApus.Stresstest {
                     AddEvent(memoryUsage + " of " + totalVisibleMemory + " MB used", Level.Warning);
                 }
             }
+            kvmNic.Key = nic;
+            if (nicBandwidth == -1)
+                kvmNic.Value = "N/A";
+            else
+                kvmNic.Value = nicBandwidth + " Mbps";
             if (nicsSent == -1) {
                 kvmNicsSent.Value = "N/A";
             } else {
@@ -418,11 +424,13 @@ namespace vApus.Stresstest {
         private void SetMeasuredRuntime() {
             epnlMessages.SetEndOfTimeFrameToNow();
             _measuredRuntime = epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame;
+            _measuredRuntime = _measuredRuntime.Subtract(new TimeSpan(_measuredRuntime.Ticks % TimeSpan.TicksPerSecond));
             if (_measuredRuntime.TotalSeconds > 1)
                 lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString();
         }
         public void SetMeasuredRuntime(TimeSpan measuredRuntime) {
             epnlMessages.SetEndOfTimeFrameTo(epnlMessages.BeginOfTimeFrame + measuredRuntime);
+            measuredRuntime = _measuredRuntime.Subtract(new TimeSpan(measuredRuntime.Ticks % TimeSpan.TicksPerSecond));
             if (measuredRuntime.TotalSeconds > 1) {
                 string s = "; ran " + measuredRuntime.ToShortFormattedString();
                 if (lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
@@ -707,9 +715,8 @@ namespace vApus.Stresstest {
                 splitTop.BackColor = SystemColors.Control;
             }
         }
-        public void ToggleCollapseEventPanel() {
-            btnCollapseExpand.PerformClick();
-            epnlMessages.Collapsed = btnCollapseExpand.Text == "+";
+        public void ExpandEventPanel() {
+            epnlMessages.Collapsed = false;
         }
         /// <summary>
         /// Set the splitter distance of the splitcontainer if collapsed has changed.

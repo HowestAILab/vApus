@@ -73,8 +73,8 @@
             this.label2 = new System.Windows.Forms.Label();
             this.kvmThreadsInUse = new vApus.Util.KeyValuePairControl();
             this.kvmCPUUsage = new vApus.Util.KeyValuePairControl();
-            this.kvmContextSwitchesPerSecond = new vApus.Util.KeyValuePairControl();
             this.kvmMemoryUsage = new vApus.Util.KeyValuePairControl();
+            this.kvmNic = new vApus.Util.KeyValuePairControl();
             this.kvmNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnExport = new System.Windows.Forms.Button();
@@ -677,10 +677,10 @@
             this.flpMetrics.AutoScroll = true;
             this.flpMetrics.BackColor = System.Drawing.Color.White;
             this.flpMetrics.Controls.Add(this.label2);
-            this.flpMetrics.Controls.Add(this.kvmThreadsInUse);
             this.flpMetrics.Controls.Add(this.kvmCPUUsage);
-            this.flpMetrics.Controls.Add(this.kvmContextSwitchesPerSecond);
             this.flpMetrics.Controls.Add(this.kvmMemoryUsage);
+            this.flpMetrics.Controls.Add(this.kvmThreadsInUse);
+            this.flpMetrics.Controls.Add(this.kvmNic);
             this.flpMetrics.Controls.Add(this.kvmNicsSent);
             this.flpMetrics.Controls.Add(this.kvmNicsReceived);
             this.flpMetrics.Controls.Add(this.btnExport);
@@ -701,26 +701,13 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(312, 20);
             this.label2.TabIndex = 9;
-            this.label2.Text = "Client Monitoring and Stresstest Messages";
-            // 
-            // kvmThreadsInUse
-            // 
-            this.kvmThreadsInUse.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmThreadsInUse.Key = "Threads in Use";
-            this.kvmThreadsInUse.Location = new System.Drawing.Point(324, 9);
-            this.kvmThreadsInUse.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
-            this.kvmThreadsInUse.Name = "kvmThreadsInUse";
-            this.kvmThreadsInUse.Size = new System.Drawing.Size(112, 16);
-            this.kvmThreadsInUse.TabIndex = 8;
-            this.kvmThreadsInUse.TabStop = false;
-            this.kvmThreadsInUse.Tooltip = "The number of threads in use should remain equal to the concurrent users just unt" +
-    "ill the end of the test for tests with low delays.";
-            this.kvmThreadsInUse.Value = "0";
+            this.label2.Text = "Client Monitoring";
+
             // 
             // kvmCPUUsage
             // 
             this.kvmCPUUsage.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmCPUUsage.Key = "CPU Usage";
+            this.kvmCPUUsage.Key = "CPU";
             this.kvmCPUUsage.Location = new System.Drawing.Point(439, 9);
             this.kvmCPUUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmCPUUsage.Name = "kvmCPUUsage";
@@ -730,23 +717,10 @@
             this.kvmCPUUsage.Tooltip = "Try to keep this below 60 % to ensure that the client is not the bottleneck.";
             this.kvmCPUUsage.Value = "N/A";
             // 
-            // kvmContextSwitchesPerSecond
-            // 
-            this.kvmContextSwitchesPerSecond.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmContextSwitchesPerSecond.Key = "Context Switches / s";
-            this.kvmContextSwitchesPerSecond.Location = new System.Drawing.Point(547, 9);
-            this.kvmContextSwitchesPerSecond.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
-            this.kvmContextSwitchesPerSecond.Name = "kvmContextSwitchesPerSecond";
-            this.kvmContextSwitchesPerSecond.Size = new System.Drawing.Size(158, 16);
-            this.kvmContextSwitchesPerSecond.TabIndex = 8;
-            this.kvmContextSwitchesPerSecond.TabStop = false;
-            this.kvmContextSwitchesPerSecond.Tooltip = "";
-            this.kvmContextSwitchesPerSecond.Value = "N/A";
-            // 
             // kvmMemoryUsage
             // 
             this.kvmMemoryUsage.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmMemoryUsage.Key = "Memory Usage";
+            this.kvmMemoryUsage.Key = "Memory";
             this.kvmMemoryUsage.Location = new System.Drawing.Point(708, 9);
             this.kvmMemoryUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMemoryUsage.Name = "kvmMemoryUsage";
@@ -757,10 +731,37 @@
     "eck.";
             this.kvmMemoryUsage.Value = "N/A";
             // 
+            // kvmThreadsInUse
+            // 
+            this.kvmThreadsInUse.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvmThreadsInUse.Key = "Threads";
+            this.kvmThreadsInUse.Location = new System.Drawing.Point(324, 9);
+            this.kvmThreadsInUse.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
+            this.kvmThreadsInUse.Name = "kvmThreadsInUse";
+            this.kvmThreadsInUse.Size = new System.Drawing.Size(112, 16);
+            this.kvmThreadsInUse.TabIndex = 8;
+            this.kvmThreadsInUse.TabStop = false;
+            this.kvmThreadsInUse.Tooltip = "The number of threads in use should remain equal to the concurrent users just unt" +
+    "ill the end of the test for tests with low delays.";
+            this.kvmThreadsInUse.Value = "0";
+            // 
+            // kvmNic
+            // 
+            this.kvmNic.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvmNic.Key = "Nic";
+            this.kvmNic.Location = new System.Drawing.Point(3, 35);
+            this.kvmNic.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
+            this.kvmNic.Name = "kvmNic";
+            this.kvmNic.Size = new System.Drawing.Size(139, 16);
+            this.kvmNic.TabIndex = 10;
+            this.kvmNic.TabStop = false;
+            this.kvmNic.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
+            this.kvmNic.Value = "N/A";
+            // 
             // kvmNicsSent
             // 
             this.kvmNicsSent.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmNicsSent.Key = "NIC Usage (Sent)";
+            this.kvmNicsSent.Key = "Tx";
             this.kvmNicsSent.Location = new System.Drawing.Point(3, 35);
             this.kvmNicsSent.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNicsSent.Name = "kvmNicsSent";
@@ -773,7 +774,7 @@
             // kvmNicsReceived
             // 
             this.kvmNicsReceived.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmNicsReceived.Key = "NIC Usage (Received)";
+            this.kvmNicsReceived.Key = "Rx";
             this.kvmNicsReceived.Location = new System.Drawing.Point(145, 35);
             this.kvmNicsReceived.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNicsReceived.Name = "kvmNicsReceived";
@@ -863,8 +864,8 @@
         private System.Windows.Forms.Label label2;
         private vApus.Util.KeyValuePairControl kvmThreadsInUse;
         private vApus.Util.KeyValuePairControl kvmCPUUsage;
-        private vApus.Util.KeyValuePairControl kvmContextSwitchesPerSecond;
         private vApus.Util.KeyValuePairControl kvmMemoryUsage;
+        private vApus.Util.KeyValuePairControl kvmNic;
         private vApus.Util.KeyValuePairControl kvmNicsSent;
         private vApus.Util.KeyValuePairControl kvmNicsReceived;
         private vApus.Util.KeyValuePairControl kvpLogRuleSet;

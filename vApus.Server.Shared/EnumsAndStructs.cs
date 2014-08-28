@@ -92,7 +92,7 @@ namespace vApus.Server.Shared {
 
     [Serializable]
     public struct TestProgressMessage {
-        public float CPUUsage, ContextSwitchesPerSecond;
+        public float CPUUsage;
         public List<EventPanelEvent> Events;
         public string Exception;
 
@@ -101,8 +101,10 @@ namespace vApus.Server.Shared {
         /// </summary>
         public uint MemoryUsage;
 
-        public float NicsReceived;
-        public float NicsSent;
+        public string Nic;
+        public float NicReceived;
+        public float NicSent;
+        public int NicBandwidth;
 
         public RunStateChange RunStateChange;
         public bool RunFinished;
