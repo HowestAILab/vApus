@@ -65,8 +65,7 @@
             this.txtFilter.Name = "txtFilter";
             this.txtFilter.Size = new System.Drawing.Size(288, 50);
             this.txtFilter.TabIndex = 0;
-            this.toolTip.SetToolTip(this.txtFilter, "Filter on tags and description. Wild cards * + - \\\"\\\" can be used. Not case sensi" +
-        "tive.");
+            this.toolTip.SetToolTip(this.txtFilter, "Filter on tags and description. Wild cards *(auto-complete) +: must have word -: cannot have word \"\": ommit spaces of a double-quoted piece of text. The filter is not case sensitive.");
             this.txtFilter.TextChanged += new System.EventHandler(this.txtFilter_TextChanged);
             this.txtFilter.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFilter_KeyDown);
             this.txtFilter.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtFilter_KeyPress);
