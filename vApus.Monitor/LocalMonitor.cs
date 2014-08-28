@@ -11,6 +11,7 @@ using System.Diagnostics;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Timers;
+using vApus.Util;
 
 namespace vApus.Monitor {
     /// <summary>
@@ -99,13 +100,24 @@ namespace vApus.Monitor {
                             continue;
                         }
 
+                        string nicName = instance;
                         bool down = false;
-                        foreach (NetworkInterface nic in nics)
-                            if (nic.Name == instance && nic.OperationalStatus != OperationalStatus.Up) {
-                                down = true;
-                                ++_nicsDifference;
+                        foreach (NetworkInterface nic in nics) {
+                            string description = nic.Description;
+                            description = description.Replace("\\", "_");
+                            description = description.Replace("/", "_");
+                            description = description.Replace("(", "[");
+                            description = description.Replace(")", "]");
+                            description = description.Replace("#", "_");
+                            if (description == instance) {
+                                nicName = nic.Name;
+                                if (nic.OperationalStatus != OperationalStatus.Up) {
+                                    down = true;
+                                    ++_nicsDifference;
+                                }
                                 break;
                             }
+                        }
 
                         if (down)
                             continue;
@@ -123,17 +135,15 @@ namespace vApus.Monitor {
                         l.Add(sent);
                         l.Add(received);
                         l.Add(bandWidth);
-                        _nicSentReceivedAndBandwidth.Add(instance, l);
+                        _nicSentReceivedAndBandwidth.Add(nicName, l);
                     }
-
-                    instancesCount = instances.Length - _nicsDifference;
                 }
 
                 NicSent = 0f;
                 NicReceived = 0f;
 
-                foreach (string instance in _nicSentReceivedAndBandwidth.Keys) {
-                    List<object> l = _nicSentReceivedAndBandwidth[instance];
+                foreach (string name in _nicSentReceivedAndBandwidth.Keys) {
+                    List<object> l = _nicSentReceivedAndBandwidth[name];
                     sent = l[0] as PerformanceCounter;
                     received = l[1] as PerformanceCounter;
                     bandWidth = (float)l[2];
@@ -142,8 +152,8 @@ namespace vApus.Monitor {
                     float s = sent.NextValue() / b;
                     float r = received.NextValue() / b;
 
-                    if (s > NicSent || r > NicReceived) {
-                        Nic = instance;
+                    if (s > NicSent) {
+                        Nic = name;
                         NicSent = s;
                         NicReceived = r;
                         NicBandwidth = Convert.ToInt32(bandWidth / 1000000);
