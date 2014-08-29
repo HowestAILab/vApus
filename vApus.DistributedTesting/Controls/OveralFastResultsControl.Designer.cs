@@ -437,7 +437,7 @@ namespace vApus.DistributedTesting {
             // kvmMasterNic
             // 
             this.kvmMasterNic.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmMasterNic.Key = "Nic";
+            this.kvmMasterNic.Key = "NIC";
             this.kvmMasterNic.Location = new System.Drawing.Point(129, 37);
             this.kvmMasterNic.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNic.Name = "kvmMasterNic";

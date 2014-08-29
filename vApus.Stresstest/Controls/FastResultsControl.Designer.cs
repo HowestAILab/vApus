@@ -748,7 +748,7 @@
             // kvmNic
             // 
             this.kvmNic.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmNic.Key = "Nic";
+            this.kvmNic.Key = "NIC";
             this.kvmNic.Location = new System.Drawing.Point(3, 35);
             this.kvmNic.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNic.Name = "kvmNic";
