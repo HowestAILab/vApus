@@ -160,7 +160,7 @@ namespace vApus.Monitor {
                     }
                 }
                 if (NicBandwidth == 0) {
-                    Nic = "Nic";
+                    Nic = "NIC";
                     NicBandwidth = -1;
                     NicReceived = NicSent = -1;
                 }

@@ -84,7 +84,7 @@ namespace vApus.DistributedTesting {
         /// <param name="nicsSent"></param>
         /// <param name="nicsReceived"></param>
         public void SetMasterMonitoring(int runningTests = 0, int ok = 0, int cancelled = 0, int failed = 0, float cpuUsage = -1f,
-                                        int memoryUsage = -1, int totalVisibleMemory = -1, string nic = "Nic", float nicBandwidth = -1, float nicsSent = -1, float nicsReceived = -1) {
+                                        int memoryUsage = -1, int totalVisibleMemory = -1, string nic = "NIC", float nicBandwidth = -1, float nicsSent = -1, float nicsReceived = -1) {
             kvpRunningTests.Visible = runningTests != 0;
             kvpRunningTests.Value = runningTests.ToString();
 
