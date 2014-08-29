@@ -34,7 +34,7 @@ namespace vApus.Results {
             DataView dv = results.DefaultView;
             dv.Sort = "Concurrency";
             results = dv.ToTable();
-            
+
             return results;
         }
 
@@ -153,9 +153,9 @@ namespace vApus.Results {
                             var logEntries = new Dictionary<string, string>(); //log entry index, log entry
 
                             var avgTimeToLastByteInTicks = new Dictionary<string, double>();
-                            var maxTimeToLastByteInTicks = new Dictionary<string, long>();
-                            var timeToLastBytesInTicks = new Dictionary<string, List<long>>();
-                            var percTimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
+                            var maxTimeToLastByteInTicks = new Dictionary<string, double>();
+                            var timeToLastBytesInTicks = new Dictionary<string, List<double>>();
+                            var percTimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
 
                             var avgDelay = new Dictionary<string, double>();
                             var errors = new Dictionary<string, long>();
@@ -168,8 +168,8 @@ namespace vApus.Results {
 
                                 string userAction = lerRow["UserAction"] as string;
                                 string logEntry = lerRow["LogEntry"] as string;
-                                long ttlb = (long)lerRow["TimeToLastByteInTicks"];
-                                int delay = (int)lerRow["DelayInMilliseconds"];
+                                double ttlb = Convert.ToDouble((long)lerRow["TimeToLastByteInTicks"]);
+                                double delay = Convert.ToDouble((int)lerRow["DelayInMilliseconds"]);
                                 string error = lerRow["Error"] as string;
 
                                 int uniqueLogEntryCount = uniqueLogEntryCounts[logEntryIndex];
@@ -177,16 +177,16 @@ namespace vApus.Results {
                                 if (!userActions.ContainsKey(logEntryIndex)) userActions.TryAdd(logEntryIndex, userAction);
                                 if (!logEntries.ContainsKey(logEntryIndex)) logEntries.Add(logEntryIndex, logEntry);
 
-                                if (avgTimeToLastByteInTicks.ContainsKey(logEntryIndex)) avgTimeToLastByteInTicks[logEntryIndex] += (((double)ttlb) / uniqueLogEntryCount);
-                                else avgTimeToLastByteInTicks.Add(logEntryIndex, (((double)ttlb) / uniqueLogEntryCount));
+                                if (avgTimeToLastByteInTicks.ContainsKey(logEntryIndex)) avgTimeToLastByteInTicks[logEntryIndex] += (ttlb / uniqueLogEntryCount);
+                                else avgTimeToLastByteInTicks.Add(logEntryIndex, (ttlb / uniqueLogEntryCount));
 
                                 if (maxTimeToLastByteInTicks.ContainsKey(logEntryIndex)) { if (maxTimeToLastByteInTicks[logEntryIndex] < ttlb) maxTimeToLastByteInTicks[logEntryIndex] = ttlb; } else maxTimeToLastByteInTicks.Add(logEntryIndex, ttlb);
 
-                                if (!timeToLastBytesInTicks.ContainsKey(logEntryIndex)) timeToLastBytesInTicks.Add(logEntryIndex, new List<long>(uniqueLogEntryCount));
+                                if (!timeToLastBytesInTicks.ContainsKey(logEntryIndex)) timeToLastBytesInTicks.Add(logEntryIndex, new List<double>(uniqueLogEntryCount));
                                 timeToLastBytesInTicks[logEntryIndex].Add(ttlb);
 
-                                if (avgDelay.ContainsKey(logEntryIndex)) avgDelay[logEntryIndex] += (((double)delay) / uniqueLogEntryCount);
-                                else avgDelay.Add(logEntryIndex, ((double)delay) / uniqueLogEntryCount);
+                                if (avgDelay.ContainsKey(logEntryIndex)) avgDelay[logEntryIndex] += (delay / uniqueLogEntryCount);
+                                else avgDelay.Add(logEntryIndex, delay / uniqueLogEntryCount);
 
 
                                 if (!errors.ContainsKey(logEntryIndex)) errors.Add(logEntryIndex, 0);
@@ -198,7 +198,7 @@ namespace vApus.Results {
                             Parallel.ForEach(timeToLastBytesInTicks, (item, loopState2) => {
                                 if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
-                                percTimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<long>.Get(timeToLastBytesInTicks[item.Key], 95));
+                                percTimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<double>.Get(timeToLastBytesInTicks[item.Key], 95));
                             }
                             );
                             if (cancellationToken.IsCancellationRequested) loopState.Break();
@@ -211,10 +211,10 @@ namespace vApus.Results {
                                     if (cancellationToken.IsCancellationRequested) loopState.Break();
 
                                     averageLogEntryResults.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
-                                        Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
-                                        maxTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond,
-                                        percTimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
-                                        Math.Round(avgDelay[s], MidpointRounding.AwayFromZero),
+                                        Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2, MidpointRounding.AwayFromZero),
+                                        Math.Round(maxTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, 2, MidpointRounding.AwayFromZero),
+                                        Math.Round(percTimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond, 2, MidpointRounding.AwayFromZero),
+                                        Math.Round(avgDelay[s], 2, MidpointRounding.AwayFromZero),
                                         errors[s]);
                                 }
                         }
