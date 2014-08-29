@@ -1,11 +1,11 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -55,7 +55,7 @@ namespace vApus.Stresstest {
 
         private ParameterTokenTextStyle _plainTextParameterTokenTextStyle, _editViewParameterTokenTextStyle;
 
-        private System.Timers.Timer _labelChanged = new System.Timers.Timer(500);
+        // private System.Timers.Timer _labelChanged = new System.Timers.Timer(500);
         #endregion
 
         #region Properties
@@ -73,6 +73,7 @@ namespace vApus.Stresstest {
                 _tmr.Elapsed += _tmr_Elapsed;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
             } catch { }
+            this.HandleCreated += EditUserActionPanel_HandleCreated;
         }
         #endregion
 
@@ -88,6 +89,15 @@ namespace vApus.Stresstest {
             }
         }
 
+        private void EditUserActionPanel_HandleCreated(object sender, EventArgs e) {
+            this.HandleCreated -= EditUserActionPanel_HandleCreated;
+            ParentForm.FormClosing += ParentForm_FormClosing;
+        }
+        private void ParentForm_FormClosing(object sender, FormClosingEventArgs e) {
+            ParentForm.FormClosing -= ParentForm_FormClosing;
+            SetLabelChanged();
+        }
+
         internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
             LockWindowUpdate(this.Handle);
@@ -96,11 +106,11 @@ namespace vApus.Stresstest {
 
             cboParameterScope.SelectedIndex = 5;
 
-            txtLabel.TextChanged -= txtLabel_TextChanged;
+            //txtLabel.TextChanged -= txtLabel_TextChanged;
             txtLabel.Text = userActionTreeViewItem.UserAction.Label;
-            txtLabel.TextChanged += txtLabel_TextChanged;
+            //txtLabel.TextChanged += txtLabel_TextChanged;
 
-            _labelChanged.Elapsed += _labelChanged_Elapsed;
+            // _labelChanged.Elapsed += _labelChanged_Elapsed;
 
             if (_plainTextParameterTokenTextStyle == null) SetCodeStyle();
             SetMove();
@@ -111,23 +121,34 @@ namespace vApus.Stresstest {
             LockWindowUpdate(IntPtr.Zero);
         }
 
-        private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            if (_labelChanged != null) _labelChanged.Stop();
-            if (!IsDisposed)
-                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
-                    UserActionTreeViewItem.SetLabel();
-                    UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-                }, null);
-        }
+        //private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+        //    if (_labelChanged != null) _labelChanged.Stop();
+        //    if (!IsDisposed)
+        //        SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+        //            UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
+        //            UserActionTreeViewItem.SetLabel();
+        //            UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+        //        }, null);
+        //}
 
         private void txtLabel_TextChanged(object sender, EventArgs e) {
-            if (_labelChanged != null) {
-                _labelChanged.Stop();
-                _labelChanged.Start();
-            }
+            //if (_labelChanged != null) {
+            //    _labelChanged.Stop();
+            //    _labelChanged.Start();
+            //}
         }
 
+        private void txtLabel_KeyUp(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) SetLabelChanged();
+        }
+        private void txtLabel_Leave(object sender, EventArgs e) {
+            SetLabelChanged();
+        }
+        private void SetLabelChanged() {
+            UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
+            UserActionTreeViewItem.SetLabel();
+            UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
         private void picMoveUp_Click(object sender, EventArgs e) {
             MoveUserAction(false);
             SetMove();
@@ -1053,5 +1074,6 @@ namespace vApus.Stresstest {
         #endregion
 
         #endregion
+
     }
 }
