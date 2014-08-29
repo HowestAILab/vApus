@@ -2116,17 +2116,18 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
         private bool HasResultSetsTable() {
             DataTable tables = _databaseActions.GetDataTable("show tables;");
-            foreach (DataRow row in tables.Rows)
-                if (row[0].ToString().Equals("ResultSets", StringComparison.InvariantCultureIgnoreCase)) {
-                    return true;
-                }
+            if (tables.Columns.Count != 0)
+                foreach (DataRow row in tables.Rows)
+                    if (row[0].ToString().Equals("ResultSets", StringComparison.InvariantCultureIgnoreCase)) {
+                        return true;
+                    }
             return false;
         }
         private DataTable GetResultSet(string name, params int[] stresstestIds) {
             if (HasResultSetsTable()) {
                 DataRow row = null;
                 if (stresstestIds.Length == 1)
-                    row = _databaseActions.GetDataTable(string.Format("Select ResultSet from ResultSets where StresstestId={0} Name='{1}';", stresstestIds[0], name)).Rows[0];
+                    row = _databaseActions.GetDataTable(string.Format("Select ResultSet from ResultSets where StresstestId={0} and Name='{1}';", stresstestIds[0], name)).Rows[0];
                 else
                     row = _databaseActions.GetDataTable(string.Format("Select ResultSet from ResultSets where Name='{0}';", name)).Rows[0];
 

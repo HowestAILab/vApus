@@ -111,9 +111,9 @@ namespace vApus.Results {
 
                     //Place the log entry results under the right virtual user and the right user action
                     var userActions = new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>>>(); // <VirtualUser,<UserAction, LogEntryResult
-                    Parallel.ForEach(runResults, (rrRow, loopState) => {
-                        //foreach (DataRow rrRow in runResults) {
-                        if (cancellationToken.IsCancellationRequested) loopState.Break();
+                    //Parallel.ForEach(runResults, (rrRow, loopState) => {
+                    foreach (DataRow rrRow in runResults) {
+                        if (cancellationToken.IsCancellationRequested) return null;
 
                         int runResultId = (int)rrRow.ItemArray[0];
 
@@ -130,7 +130,7 @@ namespace vApus.Results {
                             int runs = ((int)rrRow.ItemArray[1]) + 1;
                             var userActionsMap = new ConcurrentDictionary<string, string>(); //Map duplicate user actions to the original ones, if need be.
                             for (int reRun = 0; reRun != runs; reRun++) {
-                                if (cancellationToken.IsCancellationRequested) loopState.Break();
+                                if (cancellationToken.IsCancellationRequested) return null;
 
                                 var uas = new ConcurrentDictionary<string, ConcurrentDictionary<string, SynchronizedCollection<LogEntryResult>>>(); // <VirtualUser,<UserAction, LogEntryResult
 
@@ -163,17 +163,17 @@ namespace vApus.Results {
                                     }
                                 }
                                 );
-                                if (cancellationToken.IsCancellationRequested) loopState.Break();
+                                if (cancellationToken.IsCancellationRequested) return null;
 
                                 //Map duplicate user actions to the original ones, if need be.
-                                Parallel.ForEach(uas, (item, loopState2) => {
-                                    //foreach (string virtualUser in uas.Keys) {
-                                    if (cancellationToken.IsCancellationRequested) loopState2.Break();
+                                //Parallel.ForEach(uas, (item, loopState2) => {
+                                foreach (var item in uas) {
+                                    //if (cancellationToken.IsCancellationRequested) loopState2.Break();
                                     //if (cancellationToken.IsCancellationRequested) return null;
 
                                     var kvp = new KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>>(item.Key, new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>());
                                     foreach (string userAction in uas[item.Key].Keys) {
-                                        if (cancellationToken.IsCancellationRequested) loopState2.Break();
+                                        //if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
                                         string mappedUserAction = userAction;
                                         var lers = uas[item.Key][userAction];
@@ -185,22 +185,24 @@ namespace vApus.Results {
                                     }
                                     userActions.Add(kvp);
                                 }
-                                );
+                                //);
                             }
                         }
                     }
-                    );
+                    //);
                     if (cancellationToken.IsCancellationRequested) return null;
 
                     //Determine following for each user action "UserAction", "TimeToLastByteInTicks", "DelayInMilliseconds", "Errors"
                     var userActionResultsList = new ConcurrentBag<object[]>();
 
-                    Parallel.For(0, userActions.Count, (i, loopState) => {
-                        //for (int i = 0; i != userActions.Count; i++) {
-                        if (cancellationToken.IsCancellationRequested) loopState.Break();
+                    //Parallel.For(0, userActions.Count, (i, loopState) => {
+                    for (int i = 0; i != userActions.Count; i++) {
+                        //if (cancellationToken.IsCancellationRequested) loopState.Break();
+                        if (cancellationToken.IsCancellationRequested) return null;
 
                         foreach (var kvp in userActions[i].Value) {
-                            if (cancellationToken.IsCancellationRequested) loopState.Break();
+                            //if (cancellationToken.IsCancellationRequested) loopState.Break();
+                            if (cancellationToken.IsCancellationRequested) return null;
 
                             long ttlb = 0;
                             int delay = -1;
@@ -210,7 +212,8 @@ namespace vApus.Results {
                             var lers = kvp.Value;
 
                             for (int j = lers.Count - 1; j != -1; j--) {
-                                if (cancellationToken.IsCancellationRequested) loopState.Break();
+                                //if (cancellationToken.IsCancellationRequested) loopState.Break();
+                                if (cancellationToken.IsCancellationRequested) return null;
 
                                 var ler = lers[j];
                                 if (delay == -1) {
@@ -224,23 +227,24 @@ namespace vApus.Results {
                             userActionResultsList.Add(new object[] { userAction, ttlb, delay, ers });
                         }
                     }
-                    );
+                    // );
                     if (cancellationToken.IsCancellationRequested) return null;
 
                     var userActionResults = userActionResultsList.ToArray();
 
                     var uniqueUserActionCounts = new ConcurrentDictionary<string, int>(); //To make a correct average.
 
-                    Parallel.ForEach(userActionResults, (uarRow, loopState) => {
-                        //foreach (object[] uarRow in userActionResults) {
-                        if (cancellationToken.IsCancellationRequested) loopState.Break();
+                    //Parallel.ForEach(userActionResults, (uarRow, loopState) => {
+                    foreach (object[] uarRow in userActionResults) {
+                        //if (cancellationToken.IsCancellationRequested) loopState.Break();
+                        if (cancellationToken.IsCancellationRequested) return null;
 
                         string userAction = uarRow[0] as string;
 
                         if (uniqueUserActionCounts.ContainsKey(userAction)) ++uniqueUserActionCounts[userAction];
                         else uniqueUserActionCounts.TryAdd(userAction, 1);
                     }
-                    );
+                    // );
                     if (cancellationToken.IsCancellationRequested) return null;
 
                     //Finally the averages
