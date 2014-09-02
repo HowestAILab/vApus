@@ -16,8 +16,10 @@ namespace vApus.Stresstest {
         public ChartDialog() {
             InitializeComponent();
         }
-        public ChartDialog(Image chart)
+        public ChartDialog(string title, Image chart)
             : this() {
+            Text = title;
+            toolTip.SetToolTip(pic, title + "\nClick to close");
             pic.Image = chart;
         }
 
