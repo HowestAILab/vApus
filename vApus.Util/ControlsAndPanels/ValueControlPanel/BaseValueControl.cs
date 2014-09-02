@@ -129,9 +129,12 @@ namespace vApus.Util {
             SetValue(value);
         }
 
-        public void HandleKeyUp(Keys key, object value) {
-            if (key == Keys.Enter)
+        public bool HandleKeyUp(Keys key, object value) {
+            if (key == Keys.Enter) {
                 SetValue(value);
+                return true;
+            }
+            return false;
         }
 
         private void SetValue(object value) {
