@@ -159,23 +159,22 @@ namespace vApus.Stresstest {
                         string[] split = parameterizedValue.Split(new[] { token }, StringSplitOptions.None);
 
                         var customListParameter = parameter as CustomListParameter;
-                        if (customListParameter != null && customListParameter.LinkTo.IsEmpty)
-                            customListParameter = null;
-
-                        List<int> valueIndices = null;
-                        if (customListParameter != null) valueIndices = new List<int>();
 
                         parameterizedValue = string.Empty;
                         for (int i = 0; i != split.Length - 1; i++) {
                             parameter.Next();
-                            if (customListParameter != null) valueIndices.Add(parameter.Index);
                             parameterizedValue += split[i] + parameter.Value;
                         }
                         parameterizedValue += split[split.Length - 1];
 
-                        if (customListParameter != null)
+                        if (customListParameter != null && !customListParameter.LinkTo.IsEmpty) {
+                            var valueIndices = new List<int>();
+
+                            valueIndices.Add(customListParameter.CurrentValueIndex);
                             parameterizedValue = GetParameterizeValueUsingLinkedToParameter(parameterTokens, null, null, null, null,
                                                             parameterizedValue, parameter as CustomListParameter, currentScope, valueIndices);
+                            customListParameter.LinkTo.SetValueAt(customListParameter.CurrentValueIndex);
+                        }
 
                         continue;
                     }
@@ -184,9 +183,15 @@ namespace vApus.Stresstest {
                         parameter.Next();
                     parameterizedValue = parameterizedValue.Replace(token, parameter.Value);
 
-                    if (parameter is CustomListParameter)
-                        parameterizedValue = GetParameterizeValueUsingLinkedToParameter(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope, chosenNextValueParametersForLNScope,
-                            parameterizedValue, parameter as CustomListParameter, currentScope, null);
+                    if (parameter is CustomListParameter) {
+                        var customListParameter = parameter as CustomListParameter;
+                        if (!customListParameter.LinkTo.IsEmpty) {
+                            parameterizedValue = GetParameterizeValueUsingLinkedToParameter(parameterTokens, chosenNextValueParametersForLScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForLEScope, chosenNextValueParametersForLNScope,
+                                parameterizedValue, customListParameter, currentScope, null);
+
+                            customListParameter.LinkTo.SetValueAt(customListParameter.CurrentValueIndex);
+                        }
+                    }
                 }
 
             return parameterizedValue;
@@ -208,7 +213,7 @@ namespace vApus.Stresstest {
             string parameterizedValue, CustomListParameter parameter, string currentScope, List<int> valueIndicesForEmptyScope) {
             if (!parameter.LinkTo.IsEmpty) {
                 foreach (string token in parameterTokens.Keys)
-                    if (parameterizedValue.Contains(token) && parameterTokens[token] == parameter && token.Contains(currentScope)) {
+                    if (_value.Contains(token) && parameterTokens[token] == parameter.LinkTo && token.Contains(currentScope)) {
                         if (currentScope == LOG_PARAMETER_SCOPE) {
                             chosenNextValueParametersForLScope.Add(parameter);
                             chosenNextValueParametersForUAScope.Add(parameter);
