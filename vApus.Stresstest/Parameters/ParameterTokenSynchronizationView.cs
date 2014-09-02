@@ -13,6 +13,7 @@ using vApus.SolutionTree;
 
 namespace vApus.Stresstest {
     /// <summary>
+    ///     For debugging purposes only.
     ///     Visualizes the old and new indices of parameters if a parameter is added or removed.
     ///     Don't forget to call VisualizeSynchronization.
     /// </summary>
