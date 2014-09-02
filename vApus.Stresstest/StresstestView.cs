@@ -129,6 +129,7 @@ namespace vApus.Stresstest {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnSchedule_Click(object sender, EventArgs e) {
+            this.ActiveControl = tc;
             _scheduleDialog = (btnSchedule.Tag is DateTime)
                                     ? new ScheduleDialog((DateTime)btnSchedule.Tag)
                                     : new ScheduleDialog();
@@ -145,12 +146,6 @@ namespace vApus.Stresstest {
             }
             _scheduleDialog = null;
         }
-        private void btnSchedule_MouseEnter(object sender, EventArgs e) {
-            btnSchedule.Text = btnSchedule.ToolTipText;
-        }
-        private void btnSchedule_MouseLeave(object sender, EventArgs e) {
-            if (!btnSchedule.Text.StartsWith("Scheduled") && _scheduleDialog == null) btnSchedule.Text = string.Empty;
-        }
 
         /// <summary>
         ///     Start a test with or without monitoring it.
@@ -158,6 +153,7 @@ namespace vApus.Stresstest {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnStart_Click(object sender, EventArgs e) {
+            this.ActiveControl = tc;
             StartStresstest(true);
         }
         async public void StartStresstest(bool allowMessageBox) {
@@ -891,7 +887,7 @@ namespace vApus.Stresstest {
                 if (exception == null) {
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", _stresstestStatus, "."));
                 } else {
-                    Loggers.Log(Level.Error, _stresstest.ToString() + " Failed.", exception);
+                    //Loggers.Log(Level.Error, _stresstest.ToString() + " Failed.", exception);
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", _stresstestStatus, "."), exception);
                 }
             }

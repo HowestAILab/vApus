@@ -107,7 +107,7 @@
             this.txtLabel.Name = "txtLabel";
             this.txtLabel.Size = new System.Drawing.Size(935, 20);
             this.txtLabel.TabIndex = 25;
-            this.txtLabel.TextChanged += new System.EventHandler(this.txtLabel_TextChanged);
+            //this.txtLabel.TextChanged += new System.EventHandler(this.txtLabel_TextChanged);
             this.txtLabel.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtLabel_KeyUp);
             this.txtLabel.Leave += new System.EventHandler(this.txtLabel_Leave);
             // 

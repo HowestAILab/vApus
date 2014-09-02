@@ -101,8 +101,6 @@
             this.btnSchedule.Tag = "";
             this.btnSchedule.ToolTipText = "Schedule...";
             this.btnSchedule.Click += new System.EventHandler(this.btnSchedule_Click);
-            this.btnSchedule.MouseEnter += new System.EventHandler(this.btnSchedule_MouseEnter);
-            this.btnSchedule.MouseLeave += new System.EventHandler(this.btnSchedule_MouseLeave);
             // 
             // btnStart
             // 

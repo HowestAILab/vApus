@@ -169,6 +169,7 @@ namespace vApus.DistributedTesting {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnSchedule_Click(object sender, EventArgs e) {
+            this.ActiveControl = tcTest;
             _schedule = (btnSchedule.Tag != null && btnSchedule.Tag is DateTime) ? new ScheduleDialog((DateTime)btnSchedule.Tag) : new ScheduleDialog();
             if (_schedule.ShowDialog() == DialogResult.OK) {
                 if (_schedule.ScheduledAt > DateTime.Now) {
@@ -183,12 +184,6 @@ namespace vApus.DistributedTesting {
                 btnSchedule.Text = string.Empty;
             }
             _schedule = null;
-        }
-        private void btnSchedule_MouseEnter(object sender, EventArgs e) {
-            btnSchedule.Text = btnSchedule.ToolTipText;
-        }
-        private void btnSchedule_MouseLeave(object sender, EventArgs e) {
-            if (!btnSchedule.Text.StartsWith("Scheduled") && _schedule == null) btnSchedule.Text = string.Empty;
         }
 
         private void tpTree_SelectedIndexChanged(object sender, EventArgs e) {
@@ -348,7 +343,10 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Start & Schedule
-        private void btnStart_Click(object sender, EventArgs e) { StartDistributedTest(true); }
+        private void btnStart_Click(object sender, EventArgs e) {
+            this.ActiveControl = tcTest;
+            StartDistributedTest(true);
+        }
         public void StartDistributedTest(bool allowMessageBox) {
             if (allowMessageBox)
                 if (_distributedTestCore != null && _distributedTestCore.HasResults &&

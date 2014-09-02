@@ -100,7 +100,7 @@ namespace vApus.Stresstest {
                 foreach (DataRow stresstestRow in stresstests.Rows)
                     cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
 
-                cboStresstest.SelectedIndex = 1;
+                cboStresstest.SelectedIndex = 0;
             }
         }
 
