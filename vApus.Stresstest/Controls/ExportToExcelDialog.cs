@@ -705,7 +705,8 @@ namespace vApus.Stresstest {
         }
 
         private void pic_Click(object sender, EventArgs e) {
-            var dialog = new ChartDialog((sender as PictureBox).Image);
+            var pic = sender as PictureBox;
+            var dialog = new ChartDialog(toolTip.GetToolTip(pic), pic.Image);
             dialog.ShowDialog();
         }
 

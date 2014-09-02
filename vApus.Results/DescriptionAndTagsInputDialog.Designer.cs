@@ -23,24 +23,27 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
+            this.components = new System.ComponentModel.Container();
             this.label1 = new System.Windows.Forms.Label();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.lblCouldNotConnect = new System.Windows.Forms.Label();
             this.txtTags = new vApus.Util.CueTextBox();
             this.txtDescription = new vApus.Util.CueTextBox();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // label1
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(16, 11);
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(548, 41);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Add a short description and tags to the stresstest results.\r\nThese values will be" +
-    " stored in the generated results database for easy finding.";
+            this.label1.Text = "Add a short description and comma-seperated tags to the stresstest results.\r\nThes" +
+    "e values will be stored in the generated results database for easy finding.";
             // 
             // btnOK
             // 
@@ -51,6 +54,7 @@
             this.btnOK.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnOK.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnOK.Location = new System.Drawing.Point(16, 215);
+            this.btnOK.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnOK.Name = "btnOK";
             this.btnOK.Size = new System.Drawing.Size(472, 30);
             this.btnOK.TabIndex = 0;
@@ -66,7 +70,8 @@
             this.btnCancel.BackColor = System.Drawing.Color.White;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancel.Location = new System.Drawing.Point(494, 215);
+            this.btnCancel.Location = new System.Drawing.Point(493, 215);
+            this.btnCancel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCancel.MinimumSize = new System.Drawing.Size(0, 30);
             this.btnCancel.Name = "btnCancel";
             this.btnCancel.Size = new System.Drawing.Size(68, 30);
@@ -81,7 +86,7 @@
             this.lblCouldNotConnect.AutoSize = true;
             this.lblCouldNotConnect.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblCouldNotConnect.ForeColor = System.Drawing.Color.Red;
-            this.lblCouldNotConnect.Location = new System.Drawing.Point(15, 248);
+            this.lblCouldNotConnect.Location = new System.Drawing.Point(15, 249);
             this.lblCouldNotConnect.Name = "lblCouldNotConnect";
             this.lblCouldNotConnect.Size = new System.Drawing.Size(550, 13);
             this.lblCouldNotConnect.TabIndex = 4;
@@ -96,9 +101,11 @@
             this.txtTags.Cue = "Comma-separated tags";
             this.txtTags.ForeColor = System.Drawing.Color.Black;
             this.txtTags.Location = new System.Drawing.Point(16, 177);
+            this.txtTags.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtTags.Name = "txtTags";
-            this.txtTags.Size = new System.Drawing.Size(546, 22);
+            this.txtTags.Size = new System.Drawing.Size(545, 22);
             this.txtTags.TabIndex = 2;
+            this.toolTip.SetToolTip(this.txtTags, "Comma-separated tags");
             // 
             // txtDescription
             // 
@@ -107,10 +114,12 @@
             this.txtDescription.Cue = "Description";
             this.txtDescription.ForeColor = System.Drawing.Color.Black;
             this.txtDescription.Location = new System.Drawing.Point(16, 55);
+            this.txtDescription.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
-            this.txtDescription.Size = new System.Drawing.Size(546, 114);
+            this.txtDescription.Size = new System.Drawing.Size(545, 114);
             this.txtDescription.TabIndex = 1;
+            this.toolTip.SetToolTip(this.txtDescription, "Description");
             // 
             // DescriptionAndTagsInputDialog
             // 
@@ -126,6 +135,7 @@
             this.Controls.Add(this.txtDescription);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.None;
+            this.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.MaximizeBox = false;
             this.MinimizeBox = false;
             this.Name = "DescriptionAndTagsInputDialog";
@@ -146,5 +156,6 @@
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.Label lblCouldNotConnect;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }
