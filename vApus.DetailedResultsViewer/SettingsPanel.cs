@@ -1,11 +1,11 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -238,15 +238,13 @@ namespace vApus.DetailedResultsViewer {
                 } else {
                     if (stresstests.Rows.Count == 1) {
                         cboStresstest.Items.Add((string)stresstests.Rows[0].ItemArray[1] + " " + stresstests.Rows[0].ItemArray[2]);
-
-                        cboStresstest.SelectedIndex = 0;
                     } else {
                         cboStresstest.Items.Add("<All>");
                         foreach (DataRow stresstestRow in stresstests.Rows)
                             cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
-
-                        cboStresstest.SelectedIndex = 1;
                     }
+                    cboStresstest.SelectedIndex = 0;
+
                     if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, 1));
                 }
 

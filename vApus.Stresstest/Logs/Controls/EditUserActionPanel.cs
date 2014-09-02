@@ -92,11 +92,17 @@ namespace vApus.Stresstest {
         private void EditUserActionPanel_HandleCreated(object sender, EventArgs e) {
             this.HandleCreated -= EditUserActionPanel_HandleCreated;
             ParentForm.FormClosing += ParentForm_FormClosing;
+            ParentForm.Leave += ParentForm_Leave;
         }
+
         private void ParentForm_FormClosing(object sender, FormClosingEventArgs e) {
+            txtLabel.Leave -= txtLabel_Leave;
             ParentForm.FormClosing -= ParentForm_FormClosing;
+            ParentForm.Leave -= ParentForm_Leave;
             SetLabelChanged();
         }
+
+        private void ParentForm_Leave(object sender, EventArgs e) { SetLabelChanged(); }
 
         internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
@@ -131,12 +137,12 @@ namespace vApus.Stresstest {
         //        }, null);
         //}
 
-        private void txtLabel_TextChanged(object sender, EventArgs e) {
-            //if (_labelChanged != null) {
-            //    _labelChanged.Stop();
-            //    _labelChanged.Start();
-            //}
-        }
+        //private void txtLabel_TextChanged(object sender, EventArgs e) {
+        //if (_labelChanged != null) {
+        //    _labelChanged.Stop();
+        //    _labelChanged.Start();
+        //}
+        //}
 
         private void txtLabel_KeyUp(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) SetLabelChanged();

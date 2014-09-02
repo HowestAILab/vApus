@@ -21,7 +21,8 @@ namespace vApus.Stresstest {
 
         private readonly ConnectionProxyCode _connectionProxyCode;
 
-        private bool _codeInitialized;
+        //private bool _codeInitialized;
+        private string _prevCode; //Track if changed.
         private CSharpTextStyle _csharpTextStyle;
         private int _previousSplitterDistance;
 
@@ -68,27 +69,58 @@ namespace vApus.Stresstest {
         private void SetGui() {
             _csharpTextStyle = new CSharpTextStyle(codeTextBox);
             codeTextBox.Text = (_connectionProxyCode.Parent as ConnectionProxy).BuildConnectionProxyClass();
+            _prevCode = codeTextBox.Text;
             codeTextBox.ClearUndo();
 
             references.CodeTextBox = codeTextBox;
             find.CodeTextBox = codeTextBox;
             compile.ConnectionProxyCode = _connectionProxyCode;
             codeTextBox.DelayedTextChangedInterval = 1000;
-            codeTextBox.TextChangedDelayed += codeTextBox_TextChangedDelayed;
+            //codeTextBox.TextChangedDelayed += codeTextBox_TextChangedDelayed;
+            codeTextBox.TextChanged += codeTextBox_TextChanged;
+
+            codeTextBox.Leave += codeTextBox_Leave;
+            FormClosing += ConnectionProxyCodeView_FormClosing;
+            Leave += ConnectionProxyCodeView_Leave;
+            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
 
-        private void codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e) {
-            if (_codeInitialized) {
-                if (_connectionProxyCode.Code != codeTextBox.Text) {
-                    _connectionProxyCode.Code = codeTextBox.Text;
-                    _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                    if (!this.IsActivated) this.Activate();
-                    codeTextBox.Focus();
-                }
-            } else {
-                _codeInitialized = true;
+        private void codeTextBox_Leave(object sender, EventArgs e) { SetCodeChanged(); }
+        private void ConnectionProxyCodeView_Leave(object sender, EventArgs e) { SetCodeChanged(); }
+        private void ConnectionProxyCodeView_FormClosing(object sender, FormClosingEventArgs e) {
+            codeTextBox.Leave -= codeTextBox_Leave;
+            FormClosing -= ConnectionProxyCodeView_FormClosing;
+            Leave -= ConnectionProxyCodeView_Leave;
+            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+
+            SetCodeChanged();
+        }
+
+        private void codeTextBox_TextChanged(object sender, TextChangedEventArgs e) {
+            _connectionProxyCode.Code = codeTextBox.Text;
+        }
+        //private void codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e) {
+        //    if (_codeInitialized) {
+        //        if (_connectionProxyCode.Code != codeTextBox.Text) {
+        //            _connectionProxyCode.Code = codeTextBox.Text;
+        //            _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+        //            if (!this.IsActivated) this.Activate();
+        //            codeTextBox.Focus();
+        //        }
+        //    } else {
+        //        _codeInitialized = true;
+        //    }
+        //}
+        private void SetCodeChanged() {
+            if (_connectionProxyCode.Code != _prevCode) {
+                _connectionProxyCode.Code = _prevCode = codeTextBox.Text;
+                _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
+        private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
+            if (Solution.ActiveSolution.IsSaved) _prevCode = _connectionProxyCode.Code;
+        }
+
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender == _connectionProxyCode && e.__DoneAction == SolutionComponentChangedEventArgs.DoneAction.Edited) {
                 if (!this.IsActivated) this.Activate();
