@@ -43,7 +43,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(int.MaxValue)]
-        [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stresstest, a value at the same index is asked for the other. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
+        [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stresstest, a value at the same index is asked for the other. ONLY WORKS IF BOTH ARE IN THE SAME NODE OF A LOG ENTRY. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
         public CustomListParameter LinkTo {
             get {
                 var parent = Parent as CustomListParameters;
