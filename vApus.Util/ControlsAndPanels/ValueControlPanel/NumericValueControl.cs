@@ -88,20 +88,25 @@ namespace vApus.Util {
         private void NumericValueControl_Leave(object sender, EventArgs e) { HandleValueChangedOnLeave(); }
 
         private void ParentForm_FormClosing(object sender, FormClosingEventArgs e) {
-            ParentForm.FormClosing -= ParentForm_FormClosing;
-            ParentForm.Leave -= ParentForm_Leave;
-            Leave -= NumericValueControl_Leave;
+            if (ParentForm != null)
+                try {
+                    ParentForm.FormClosing -= ParentForm_FormClosing;
+                    ParentForm.Leave -= ParentForm_Leave;
+                    Leave -= NumericValueControl_Leave;
 
-            HandleValueChangedOnLeave();
+                    HandleValueChangedOnLeave();
+                } catch { }
         }
 
         private void HandleValueChangedOnLeave() {
-            object value = ConvertToNumericType(_nud.Value);
+            try {
+                object value = ConvertToNumericType(_nud.Value);
 
-            if (_nud.Focused && __Value.__Value != null && value != null && !__Value.__Value.Equals(value))
-                base.HandleValueChanged(value);
+                if (_nud.Focused && __Value.__Value != null && value != null && !__Value.__Value.Equals(value))
+                    base.HandleValueChanged(value);
 
-            _prevValue = __Value.__Value;
+                _prevValue = __Value.__Value;
+            } catch { }
         }
         private void HandleValueChangedAndFocusLoss() {
             try {

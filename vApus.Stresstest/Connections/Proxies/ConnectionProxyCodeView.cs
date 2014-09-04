@@ -88,12 +88,15 @@ namespace vApus.Stresstest {
         private void codeTextBox_Leave(object sender, EventArgs e) { SetCodeChanged(); }
         private void ConnectionProxyCodeView_Leave(object sender, EventArgs e) { SetCodeChanged(); }
         private void ConnectionProxyCodeView_FormClosing(object sender, FormClosingEventArgs e) {
-            codeTextBox.Leave -= codeTextBox_Leave;
-            FormClosing -= ConnectionProxyCodeView_FormClosing;
-            Leave -= ConnectionProxyCodeView_Leave;
-            Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
+            if (ParentForm != null)
+                try {
+                    codeTextBox.Leave -= codeTextBox_Leave;
+                    FormClosing -= ConnectionProxyCodeView_FormClosing;
+                    Leave -= ConnectionProxyCodeView_Leave;
+                    Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
 
-            SetCodeChanged();
+                    SetCodeChanged();
+                } catch { }
         }
 
         private void codeTextBox_TextChanged(object sender, TextChangedEventArgs e) {
@@ -112,10 +115,12 @@ namespace vApus.Stresstest {
         //    }
         //}
         private void SetCodeChanged() {
-            if (_connectionProxyCode.Code != _prevCode) {
-                _connectionProxyCode.Code = _prevCode = codeTextBox.Text;
-                _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-            }
+            try {
+                if (_connectionProxyCode.Code != _prevCode) {
+                    _connectionProxyCode.Code = _prevCode = codeTextBox.Text;
+                    _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                }
+            } catch { }
         }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (Solution.ActiveSolution.IsSaved) _prevCode = _connectionProxyCode.Code;
