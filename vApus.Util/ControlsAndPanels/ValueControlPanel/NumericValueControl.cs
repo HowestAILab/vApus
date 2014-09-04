@@ -102,11 +102,12 @@ namespace vApus.Util {
             try {
                 object value = ConvertToNumericType(_nud.Value);
 
-                if (_nud.Focused && __Value.__Value != null && value != null && !__Value.__Value.Equals(value))
+                if (__Value.__Value != null && value != null && !__Value.__Value.Equals(value))
                     base.HandleValueChanged(value);
 
                 _prevValue = __Value.__Value;
-            } catch { }
+            } catch {
+            }
         }
         private void HandleValueChangedAndFocusLoss() {
             try {
