@@ -793,6 +793,9 @@ namespace vApus.Stresstest {
         private void monitorAfterCountdown_Stopped(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 StopMonitorsAndUnlockGui(null, false);
+
+                this.Focus();
+
                 if (_monitorAfterBogusConcurrencyResult != null) {
                     var stoppedAt = DateTime.Now;
                     var difference = stoppedAt - _monitorAfterBogusConcurrencyResult.StartedAt;

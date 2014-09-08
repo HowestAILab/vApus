@@ -1123,6 +1123,8 @@ namespace vApus.DistributedTesting {
                 distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " + (monitorAfterTime * 60) + " s.");
                 _monitorAfterCountDown.Start();
             } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
+
+            this.Focus();
         }
 
         private void RefreshDetailedResults() {
