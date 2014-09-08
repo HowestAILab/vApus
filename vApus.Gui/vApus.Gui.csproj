@@ -298,7 +298,6 @@
     <None Include="Resources\RecycleBin.png" />
     <None Include="Resources\delete16x16.png" />
     <None Include="Resources\Liz_van_Dijk.png" />
-    <None Include="Resources\Philip_Dubois.jpg" />
     <None Include="Resources\Philip_Dubois.png" />
     <None Include="Resources\Dieter_Vandroemme.jpg" />
     <Content Include="Welcome\images\Link1.PNG">
@@ -321,7 +320,6 @@
     </Content>
     <None Include="Resources\linkedIn.png" />
     <None Include="Resources\Glenn_Desmadryl.png" />
-    <None Include="Resources\Dieter_Vandroemme.png" />
     <None Include="Resources\Icon_16x16_Refresh.png" />
     <None Include="Resources\Warning.png" />
     <None Include="Resources\Error.png" />

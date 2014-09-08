@@ -1,11 +1,11 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
  *  
  * Author(s):
  *    Vandroemme Dieter
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using vApus.Results;
@@ -151,7 +151,7 @@ namespace vApus.DistributedTesting {
         public static TestProgressMessage GetMergedTestProgressMessage(TileStresstest tileStresstest, ICollection<TestProgressMessage> toBeMerged) {
             if (toBeMerged.Count == 1) foreach (var tpm in toBeMerged) return tpm;
 
-            var stresstestMetricsCaches = new List<StresstestMetricsCache>(toBeMerged.Count);
+            var stresstestMetricsCaches = new List<FastStresstestMetricsCache>(toBeMerged.Count);
             foreach (var tpm in toBeMerged) stresstestMetricsCaches.Add(tpm.StresstestMetricsCache);
 
             if (stresstestMetricsCaches.Contains(null)) {
@@ -168,7 +168,6 @@ namespace vApus.DistributedTesting {
             testProgressMessage.Events = new List<EventPanelEvent>();
             foreach (var tpm in toBeMerged) {
                 if (tpm.CPUUsage > testProgressMessage.CPUUsage) testProgressMessage.CPUUsage = tpm.CPUUsage;
-                if (tpm.ContextSwitchesPerSecond > testProgressMessage.ContextSwitchesPerSecond) testProgressMessage.ContextSwitchesPerSecond = tpm.ContextSwitchesPerSecond;
 
                 testProgressMessage.Events.AddRange(tpm.Events);
 
@@ -177,8 +176,8 @@ namespace vApus.DistributedTesting {
                     testProgressMessage.Exception += tpm.Exception + "\n";
                 }
                 if (tpm.MemoryUsage > testProgressMessage.MemoryUsage) testProgressMessage.MemoryUsage = tpm.MemoryUsage;
-                if (tpm.NicsReceived > testProgressMessage.NicsReceived) testProgressMessage.NicsReceived = tpm.NicsReceived;
-                if (tpm.NicsSent > testProgressMessage.NicsSent) testProgressMessage.NicsSent = tpm.NicsSent;
+                if (tpm.NicReceived > testProgressMessage.NicReceived) testProgressMessage.NicReceived = tpm.NicReceived;
+                if (tpm.NicSent > testProgressMessage.NicSent) testProgressMessage.NicSent = tpm.NicSent;
                 //if (tpm.RunStateChange > testProgressMessage.RunStateChange) testProgressMessage.RunStateChange = tpm.RunStateChange; //OKAY for run sync?
                 if (tpm.StresstestStatus < testProgressMessage.StresstestStatus) testProgressMessage.StresstestStatus = tpm.StresstestStatus;
                 if (tpm.StartedAt < testProgressMessage.StartedAt) testProgressMessage.StartedAt = tpm.StartedAt;
@@ -189,7 +188,7 @@ namespace vApus.DistributedTesting {
                 if (tpm.TotalVisibleMemory > testProgressMessage.TotalVisibleMemory) testProgressMessage.TotalVisibleMemory = tpm.TotalVisibleMemory;
             }
             //Then the test progress
-            testProgressMessage.StresstestMetricsCache = StresstestMetricsHelper.MergeStresstestMetricsCaches(stresstestMetricsCaches);
+            testProgressMessage.StresstestMetricsCache = FastStresstestMetricsHelper.MergeStresstestMetricsCaches(stresstestMetricsCaches);
 
             return testProgressMessage;
         }

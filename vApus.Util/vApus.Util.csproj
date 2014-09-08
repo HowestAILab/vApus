@@ -173,9 +173,14 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
+    <Reference Include="MySql.Data, Version=6.8.3.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\Providers\MySql.Data.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
+    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Prerequisites\JSON.NET\Newtonsoft.Json.dll</HintPath>
     </Reference>
     <Reference Include="Org.Mentalis.Security, Version=1.0.13.715, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
@@ -437,6 +442,8 @@
     <Compile Include="ControlsAndPanels\LogPanel.cs">
       <SubType>Component</SubType>
     </Compile>
+    <Compile Include="MultiThreadedQuickSort.cs" />
+    <Compile Include="PercentileCalculator.cs" />
     <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>

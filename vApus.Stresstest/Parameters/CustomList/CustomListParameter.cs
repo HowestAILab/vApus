@@ -43,7 +43,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(int.MaxValue)]
-        [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stresstest, a value at the same index is asked for the other. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
+        [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stresstest, a value at the same index is asked for the other. ONLY WORKS IF BOTH ARE IN THE SAME NODE OF A LOG ENTRY. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
         public CustomListParameter LinkTo {
             get {
                 var parent = Parent as CustomListParameters;
@@ -53,7 +53,7 @@ namespace vApus.Stresstest {
                     _linkTo.SetTag(this); //To not include 'this' in the selectable values on the gui.
                     return _linkTo;
                 }
-                if ((!this.IsEmpty && _linkTo == null) || _linkTo.Parent == null || _linkTo._linkTo != this) { //Links should work in both directions. if the other becomes empty or not this than this should be cleared.
+                if ((!this.IsEmpty && _linkTo == null) || _linkTo.Parent == null || _linkTo.LinkToIndex != Parent.IndexOf(this)) { //Links should work in both directions. if the other becomes empty or not this than this should be cleared.
                     _linkToIndex = -1;
                     _linkTo = GetEmpty(typeof(CustomListParameter), parent) as CustomListParameter;
                     _linkTo.SetParent(parent);
@@ -70,11 +70,13 @@ namespace vApus.Stresstest {
                     throw new Exception("Cannot link to self.");
 
                 _linkTo = value;
+                _linkTo.SetParent(Parent);
                 _linkTo.SetTag(this);
                 if (_linkTo.IsEmpty) {
                     _linkToIndex = -1;
                 } else {
-                    _linkTo._linkTo = this; //Make a link from the other side.
+                    _linkTo._linkTo = this;
+                    _linkTo._linkToIndex = Parent.IndexOf(this); //Make a link from the other side.
                     _linkTo._linkTo.SetTag(_linkTo);
                     _linkToIndex = Parent.IndexOf(LinkTo);
                 }

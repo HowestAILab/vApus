@@ -25,7 +25,7 @@ namespace vApus.DetailedResultsViewer {
         private AutoResetEvent _waitHandle = new AutoResetEvent(false);
         private readonly object _lock = new object();
 
-        public string[] Filter { get { return txtFilter.Text.Split(new char[] { ' ', ',' }, StringSplitOptions.RemoveEmptyEntries); } }
+        public string Filter { get { return txtFilter.Text.Trim(); } }
 
         public FilterResultsControl() {
             InitializeComponent();

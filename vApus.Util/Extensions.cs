@@ -5,6 +5,8 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -41,87 +43,77 @@ namespace vApus.Util {
         }
     }
     public static class TimeSpanExtension {
-        private static readonly object _lock = new object();
-
         public static string ToLongFormattedString(this TimeSpan timeSpan) {
-            lock (_lock) {
-                StringBuilder sb = new StringBuilder();
-                if (timeSpan.Days != 0) {
-                    sb.Append(timeSpan.Days);
-                    sb.Append(" days");
-                }
-                if (timeSpan.Hours != 0) {
-                    if (sb.ToString().Length != 0)
-                        sb.Append(", ");
-                    sb.Append(timeSpan.Hours);
-                    sb.Append(" hours");
-                }
-                if (timeSpan.Minutes != 0) {
-                    if (sb.ToString().Length != 0)
-                        sb.Append(", ");
-                    sb.Append(timeSpan.Minutes);
-                    sb.Append(" minutes");
-                }
-                if (timeSpan.Seconds != 0) {
-                    if (sb.ToString().Length != 0)
-                        sb.Append(", ");
-                    sb.Append(timeSpan.Seconds);
-                    sb.Append(" seconds");
-                }
-                if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
-                    if (sb.ToString().Length != 0)
-                        sb.Append(", ");
-                    sb.Append(timeSpan.Milliseconds);
-                    sb.Append(" milliseconds");
-                }
-                return sb.ToString();
+            StringBuilder sb = new StringBuilder();
+            if (timeSpan.Days != 0) {
+                sb.Append(timeSpan.Days);
+                sb.Append(" days");
             }
+            if (timeSpan.Hours != 0) {
+                if (sb.ToString().Length != 0)
+                    sb.Append(", ");
+                sb.Append(timeSpan.Hours);
+                sb.Append(" hours");
+            }
+            if (timeSpan.Minutes != 0) {
+                if (sb.ToString().Length != 0)
+                    sb.Append(", ");
+                sb.Append(timeSpan.Minutes);
+                sb.Append(" minutes");
+            }
+            if (timeSpan.Seconds != 0) {
+                if (sb.ToString().Length != 0)
+                    sb.Append(", ");
+                sb.Append(timeSpan.Seconds);
+                sb.Append(" seconds");
+            }
+            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
+                if (sb.ToString().Length != 0)
+                    sb.Append(", ");
+                sb.Append(timeSpan.Milliseconds);
+                sb.Append(" milliseconds");
+            }
+            return sb.ToString();
         }
         public static string ToShortFormattedString(this TimeSpan timeSpan) {
-            lock (_lock) {
-                StringBuilder sb = new StringBuilder();
-                if (timeSpan.Days != 0) {
-                    sb.Append(timeSpan.Days);
-                    sb.Append(" d");
-                }
-                if (timeSpan.Hours != 0) {
-                    if (sb.ToString().Length != 0)
-                        sb.Append(", ");
-                    sb.Append(timeSpan.Hours);
-                    sb.Append(" h");
-                }
-                if (timeSpan.Minutes != 0) {
-                    if (sb.ToString().Length != 0)
-                        sb.Append(", ");
-                    sb.Append(timeSpan.Minutes);
-                    sb.Append(" m");
-                }
-                if (timeSpan.Seconds != 0) {
-                    if (sb.ToString().Length != 0)
-                        sb.Append(", ");
-                    sb.Append(timeSpan.Seconds);
-                    sb.Append(" s");
-                }
-                if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
-                    if (sb.ToString().Length != 0)
-                        sb.Append(", ");
-                    sb.Append(timeSpan.Milliseconds);
-                    sb.Append(" ms");
-                }
-                return sb.ToString();
+            StringBuilder sb = new StringBuilder();
+            if (timeSpan.Days != 0) {
+                sb.Append(timeSpan.Days);
+                sb.Append(" d");
             }
+            if (timeSpan.Hours != 0) {
+                if (sb.ToString().Length != 0)
+                    sb.Append(", ");
+                sb.Append(timeSpan.Hours);
+                sb.Append(" h");
+            }
+            if (timeSpan.Minutes != 0) {
+                if (sb.ToString().Length != 0)
+                    sb.Append(", ");
+                sb.Append(timeSpan.Minutes);
+                sb.Append(" m");
+            }
+            if (timeSpan.Seconds != 0) {
+                if (sb.ToString().Length != 0)
+                    sb.Append(", ");
+                sb.Append(timeSpan.Seconds);
+                sb.Append(" s");
+            }
+            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
+                if (sb.ToString().Length != 0)
+                    sb.Append(", ");
+                sb.Append(timeSpan.Milliseconds);
+                sb.Append(" ms");
+            }
+            return sb.ToString();
         }
     }
     public static class StringExtension {
-        private static readonly object _lock = new object();
-
         public static bool ContainsChars(this string s, params char[] values) {
-            lock (_lock) {
-                foreach (var value in values)
-                    if (!s.Contains(value))
-                        return false;
-                return true;
-            }
+            foreach (var value in values)
+                if (!s.Contains(value))
+                    return false;
+            return true;
         }
 
         /// <summary>
@@ -130,14 +122,12 @@ namespace vApus.Util {
         /// <param name="s"></param>
         /// <returns></returns>
         public static bool IsValidWindowsFilenameString(this string s) {
-            lock (_lock) {
-                if (s == null || s.Length == 0)
+            if (s == null || s.Length == 0)
+                return false;
+            foreach (char c in s)
+                if (!c.IsValidWindowsFilenameChar())
                     return false;
-                foreach (char c in s)
-                    if (!c.IsValidWindowsFilenameChar())
-                        return false;
-                return true;
-            }
+            return true;
         }
         /// <summary>
         /// Replaces \,*,/,:,<,>,?,\ and | with the given character in a new string.
@@ -146,28 +136,24 @@ namespace vApus.Util {
         /// <param name="newChar"></param>
         /// <returns></returns>
         public static string ReplaceInvalidWindowsFilenameChars(this string s, char newChar) {
-            lock (_lock) {
-                StringBuilder sb = new StringBuilder(s.Length);
-                if (s == null)
-                    throw new ArgumentNullException("s");
-                foreach (char c in s)
-                    if (c.IsValidWindowsFilenameChar())
-                        sb.Append(c);
-                    else
-                        sb.Append(newChar);
-                return sb.ToString();
-            }
+            StringBuilder sb = new StringBuilder(s.Length);
+            if (s == null)
+                throw new ArgumentNullException("s");
+            foreach (char c in s)
+                if (c.IsValidWindowsFilenameChar())
+                    sb.Append(c);
+                else
+                    sb.Append(newChar);
+            return sb.ToString();
         }
         /// <summary>
         /// </summary>
         /// <param name="s"></param>
         /// <returns></returns>
         public static bool IsNumeric(this string s) {
-            lock (_lock) {
-                ulong ul;
-                double d;
-                return ulong.TryParse(s, out ul) || double.TryParse(s, out d);
-            }
+            ulong ul;
+            double d;
+            return ulong.TryParse(s, out ul) || double.TryParse(s, out d);
         }
         /// <summary>
         /// A simple way to encrypt a string.
@@ -178,11 +164,9 @@ namespace vApus.Util {
         /// <param name="salt"></param>
         /// <returns>The encrypted string.</returns>
         public static string Encrypt(this string s, string password, byte[] salt) {
-            lock (_lock) {
-                PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
-                byte[] encrypted = Encrypt(System.Text.Encoding.Unicode.GetBytes(s), pdb.GetBytes(32), pdb.GetBytes(16));
-                return Convert.ToBase64String(encrypted);
-            }
+            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
+            byte[] encrypted = Encrypt(System.Text.Encoding.Unicode.GetBytes(s), pdb.GetBytes(32), pdb.GetBytes(16));
+            return Convert.ToBase64String(encrypted);
         }
         private static byte[] Encrypt(byte[] toEncrypt, byte[] key, byte[] IV) {
             MemoryStream ms = new MemoryStream();
@@ -203,11 +187,9 @@ namespace vApus.Util {
         /// <param name="salt"></param>
         /// <returns>The decrypted string.</returns>
         public static string Decrypt(this string s, string password, byte[] salt) {
-            lock (_lock) {
-                PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
-                byte[] decrypted = Decrypt(Convert.FromBase64String(s), pdb.GetBytes(32), pdb.GetBytes(16));
-                return System.Text.Encoding.Unicode.GetString(decrypted);
-            }
+            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
+            byte[] decrypted = Decrypt(Convert.FromBase64String(s), pdb.GetBytes(32), pdb.GetBytes(16));
+            return System.Text.Encoding.Unicode.GetString(decrypted);
         }
         private static byte[] Decrypt(byte[] toDecrypt, byte[] Key, byte[] IV) {
             MemoryStream ms = new MemoryStream();
@@ -221,15 +203,12 @@ namespace vApus.Util {
             } catch { }
             return ms.ToArray();
         }
-
         public static string Reverse(this string s) {
-            lock (_lock) {
-                StringBuilder sb = new StringBuilder(s.Length); ;
-                for (int i = s.Length - 1; i != -1; i--)
-                    sb.Append(s[i]);
+            StringBuilder sb = new StringBuilder(s.Length); ;
+            for (int i = s.Length - 1; i != -1; i--)
+                sb.Append(s[i]);
 
-                return sb.ToString();
-            }
+            return sb.ToString();
         }
 
         /// <summary>
@@ -239,47 +218,42 @@ namespace vApus.Util {
         /// <param name="separator"></param>
         /// <returns></returns>
         public static object ToByteArrayToObject(this string s, string separator = ",") {
-            lock (_lock) {
-                string[] split = s.Split(new string[] { separator }, StringSplitOptions.None);
-                byte[] buffer = new byte[split.Length];
-                for (int i = 0; i != split.Length; i++)
-                    buffer[i] = byte.Parse(split[i]);
+            string[] split = s.Split(new string[] { separator }, StringSplitOptions.None);
+            byte[] buffer = new byte[split.Length];
+            for (int i = 0; i != split.Length; i++)
+                buffer[i] = byte.Parse(split[i]);
 
-                object o = null;
-                using (var ms = new MemoryStream(buffer)) {
-                    BinaryFormatter bf = new BinaryFormatter();
-                    o = bf.UnsafeDeserialize(ms, null);
-                    bf = null;
-                }
-                buffer = null;
-
-                return o;
+            object o = null;
+            using (var ms = new MemoryStream(buffer)) {
+                BinaryFormatter bf = new BinaryFormatter();
+                o = bf.UnsafeDeserialize(ms, null);
+                bf = null;
             }
+            buffer = null;
+
+            return o;
         }
     }
     public static class CharExtension {
-        private static readonly object _lock = new object();
         /// <summary>
         /// Determines if the char is or is not \,*,/,:,<,>,?,\ or |.
         /// </summary>
         /// <param name="c"></param>
         /// <returns></returns>
         public static bool IsValidWindowsFilenameChar(this char c) {
-            lock (_lock) {
-                switch ((int)c) {
-                    case 34:  // '\"'
-                    case 42:  // '*'
-                    case 47:  // '/'
-                    case 58:  // ':'
-                    case 60:  // '<'
-                    case 62:  // '>'
-                    case 63:  // '?'
-                    case 92:  // '\\'
-                    case 124: // '|'
-                        return false;
-                }
-                return true;
+            switch ((int)c) {
+                case 34:  // '\"'
+                case 42:  // '*'
+                case 47:  // '/'
+                case 58:  // ':'
+                case 60:  // '<'
+                case 62:  // '>'
+                case 63:  // '?'
+                case 92:  // '\\'
+                case 124: // '|'
+                    return false;
             }
+            return true;
         }
     }
     public static class ObjectExtension {
@@ -446,18 +420,14 @@ namespace vApus.Util {
         }
     }
     public static class DataGridViewExtension {
-        private static readonly object _lock = new object();
         public static void DoubleBuffered(this DataGridView dgv, bool doubleBuffered) {
-            lock (_lock) {
-                Type dgvType = dgv.GetType();
-                PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
-                    BindingFlags.Instance | BindingFlags.NonPublic);
-                pi.SetValue(dgv, doubleBuffered, null);
-            }
+            Type dgvType = dgv.GetType();
+            PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
+                BindingFlags.Instance | BindingFlags.NonPublic);
+            pi.SetValue(dgv, doubleBuffered, null);
         }
     }
     public static class DataGridViewRowExtension {
-        private static readonly object _lock = new object();
         /// <summary>
         /// To CSV for example.
         /// </summary>
@@ -465,18 +435,16 @@ namespace vApus.Util {
         /// <param name="separator"></param>
         /// <returns></returns>
         public static string ToSV(this DataGridViewRow row, string separator) {
-            lock (_lock) {
-                if (row.Cells.Count == 0) return string.Empty;
-                if (row.Cells.Count == 1) return row.Cells[0].Value.ToString();
+            if (row.Cells.Count == 0) return string.Empty;
+            if (row.Cells.Count == 1) return row.Cells[0].Value.ToString();
 
-                StringBuilder sb = new StringBuilder();
-                for (int i = 0; i != row.Cells.Count - 1; i++) {
-                    sb.Append(row.Cells[i].Value);
-                    sb.Append(separator);
-                }
-                sb.Append(row.Cells[row.Cells.Count - 1].Value);
-                return sb.ToString();
+            StringBuilder sb = new StringBuilder();
+            for (int i = 0; i != row.Cells.Count - 1; i++) {
+                sb.Append(row.Cells[i].Value);
+                sb.Append(separator);
             }
+            sb.Append(row.Cells[row.Cells.Count - 1].Value);
+            return sb.ToString();
         }
     }
     public static class ArrayExtension {
@@ -542,41 +510,76 @@ namespace vApus.Util {
         }
     }
     public static class ListExtension {
-        private static readonly object _lock = new object();
-        public static void AddRange<T>(this List<T> list, T item1, params T[] items) {
-            lock (_lock) {
-                list.Add(item1);
-                foreach (T item in items) list.Add(item);
-            }
-        }
         public static string Combine<T>(this List<T> list, string separator, params object[] exclude) {
-            lock (_lock) {
-                if (list.Count == 0) return string.Empty;
+            if (list.Count == 0) return string.Empty;
 
-                var sb = new StringBuilder();
-                object value;
-                for (int i = 0; i != list.Count - 1; i++) {
-                    value = list[i];
-                    if (exclude == null || !exclude.Contains(value)) {
-                        sb.Append(value);
-                        sb.Append(separator);
-                    }
+            var sb = new StringBuilder();
+            object value;
+            for (int i = 0; i != list.Count - 1; i++) {
+                value = list[i];
+                if (exclude == null || !exclude.Contains(value)) {
+                    sb.Append(value);
+                    sb.Append(separator);
                 }
-                value = list[list.Count - 1];
-                if (exclude == null || !exclude.Contains(value)) sb.Append(value);
-
-                return sb.ToString();
             }
+            value = list[list.Count - 1];
+            if (exclude == null || !exclude.Contains(value)) sb.Append(value);
+
+            return sb.ToString();
         }
     }
-    public static class DataColumnCollectionExtension {
-        private static readonly object _lock = new object();
-        public static void AddRange(this DataColumnCollection dataColumnCollection, string column1, params string[] columns) {
-            lock (_lock) {
-                dataColumnCollection.Add(column1);
-                foreach (string column in columns)
-                    dataColumnCollection.Add(column);
-            }
+    public static class DataTableExtension {
+        /// <summary>
+        /// Convert a data table to json using Newtonsoft.Json.
+        /// </summary>
+        /// <param name="table"></param>
+        /// <returns></returns>
+        public static string ToJson(this DataTable table) {
+            Type type = table.GetType();
+
+            var json = new JsonSerializer();
+
+            json.NullValueHandling = NullValueHandling.Ignore;
+
+            json.ObjectCreationHandling = ObjectCreationHandling.Replace;
+            json.MissingMemberHandling = MissingMemberHandling.Ignore;
+            json.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+
+
+            json.Converters.Add(new DataTableConverter());
+
+            var sw = new StringWriter();
+            var writer = new JsonTextWriter(sw);
+            writer.Formatting = Formatting.None;
+
+            writer.QuoteChar = '"';
+            json.Serialize(writer, table);
+
+            string output = sw.ToString();
+            writer.Close();
+            sw.Close();
+
+            return output;
+        }
+        /// <summary>
+        /// Convert json text to a data table using Newtonsoft.Json.
+        /// </summary>
+        /// <param name="jsonText"></param>
+        /// <returns></returns>
+        public static DataTable ToDataTable(this string jsonText) {
+            var json = new JsonSerializer();
+
+            json.NullValueHandling = NullValueHandling.Ignore;
+            json.ObjectCreationHandling = ObjectCreationHandling.Replace;
+            json.MissingMemberHandling = MissingMemberHandling.Ignore;
+            json.ReferenceLoopHandling = ReferenceLoopHandling.Ignore;
+
+            var sr = new StringReader(jsonText);
+            JsonTextReader reader = new JsonTextReader(sr);
+            DataTable table = json.Deserialize<DataTable>(reader);
+            reader.Close();
+
+            return table;
         }
     }
 }

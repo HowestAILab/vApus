@@ -39,7 +39,6 @@
             this.pic.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.pic.TabIndex = 7;
             this.pic.TabStop = false;
-            this.toolTip.SetToolTip(this.pic, "Click to close");
             this.pic.Click += new System.EventHandler(this.pic_Click);
             // 
             // ChartDialog

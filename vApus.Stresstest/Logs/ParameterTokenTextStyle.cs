@@ -20,13 +20,14 @@ namespace vApus.Stresstest {
 
         #region Fields
         private readonly MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
+
         private readonly TextStyle _customListParameterStyle = new TextStyle(Brushes.Black, Brushes.LightPink, FontStyle.Bold);
         private readonly IEnumerable<string> _customListParameters;
 
         private readonly TextStyle _customRandomParameterStyle = new TextStyle(Brushes.Black, Brushes.Yellow, FontStyle.Bold);
         private readonly IEnumerable<string> _customRandomParameters;
 
-        private readonly TextStyle _delimiterStyle = new TextStyle(Brushes.Green, null, FontStyle.Bold);
+        private readonly TextStyle _delimiterStyle = new TextStyle(Brushes.Green, Brushes.GhostWhite, FontStyle.Italic | FontStyle.Underline);
         private readonly TextStyle _vblrStyle = new TextStyle(Brushes.Gray, null, FontStyle.Italic);
 
         private readonly IEnumerable<string> _delimiters;
@@ -105,6 +106,7 @@ namespace vApus.Stresstest {
 
             //clear style of changed range
             range.ClearStyle(FastColoredTextBoxNS.StyleIndex.All);
+
             string regex = ExtractRegex(_delimiters);
             if (regex != null) range.SetStyle(_delimiterStyle, regex);
 

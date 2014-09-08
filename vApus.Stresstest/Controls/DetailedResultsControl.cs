@@ -250,10 +250,15 @@ namespace vApus.Stresstest {
         private void chkAdvanced_CheckedChanged(object sender, EventArgs e) { splitQueryData.Panel1Collapsed = !chkAdvanced.Checked; }
 
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
+            if (cboShow.SelectedIndex == -1) return;
+
             var sfd = new SaveFileDialog();
             sfd.Title = "Where do you want to save the displayed results?";
             //sfd.FileName = kvpStresstest.Key.ReplaceInvalidWindowsFilenameChars('_');
             sfd.Filter = "TXT|*.txt";
+
+            if (_resultsHelper.DatabaseName != null)
+                sfd.FileName = _resultsHelper.DatabaseName + "_" + cboShow.SelectedItem.ToString().Replace(' ', '_').ToUpperInvariant() + ".txt";
             if (sfd.ShowDialog() == DialogResult.OK)
                 try {
                     using (var sw = new StreamWriter(sfd.FileName)) {
@@ -265,11 +270,20 @@ namespace vApus.Stresstest {
                 }
         }
         /// <summary>
-        ///     Get the displayed results.
+        ///     Get the displayed results, description and tags ae also included.
         /// </summary>
         /// <returns></returns>
         private string GetDisplayedResults() {
             var sb = new StringBuilder();
+            if (_resultsHelper.DatabaseName != null) {
+                sb.AppendLine("Description:");
+                sb.AppendLine(_resultsHelper.GetDescription());
+                sb.AppendLine();
+                sb.AppendLine("Tags:");
+                sb.AppendLine(_resultsHelper.GetTags().Combine(" "));
+                sb.AppendLine();
+            }
+
             //Write column headers
             foreach (DataGridViewColumn clm in dgvDetailedResults.Columns) {
                 sb.Append(clm.HeaderText);

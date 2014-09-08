@@ -200,7 +200,7 @@ namespace vApus.Results {
         private static object[] CalculatableMetricsToRow(MonitorMetrics metrics) {
             var row = new List<object>(metrics.AverageMonitorResults.Length + 4);
             row.Add(metrics.StartMeasuringRuntime.ToString());
-            row.Add(Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, 2));
+            row.Add(Math.Round(metrics.MeasuredRunTime.TotalMilliseconds, MidpointRounding.AwayFromZero));
             row.Add(metrics.ConcurrentUsers);
 
             if (metrics.Run != 0) row.Add(metrics.Run);

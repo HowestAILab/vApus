@@ -1,8 +1,6 @@
 ﻿using vApus.Stresstest;
-namespace vApus.DistributedTesting
-{
-    partial class OveralFastResultsControl
-    {
+namespace vApus.DistributedTesting {
+    partial class OveralFastResultsControl {
         /// <summary> 
         /// Required designer variable.
         /// </summary>
@@ -12,10 +10,8 @@ namespace vApus.DistributedTesting
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
-            if (disposing && (components != null))
-            {
+        protected override void Dispose(bool disposing) {
+            if (disposing && (components != null)) {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -27,8 +23,7 @@ namespace vApus.DistributedTesting
         /// Required method for Designer support - do not modify 
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
@@ -55,8 +50,8 @@ namespace vApus.DistributedTesting
             this.kvpCancelled = new vApus.Util.KeyValuePairControl();
             this.kvpFailed = new vApus.Util.KeyValuePairControl();
             this.kvmMasterCPUUsage = new vApus.Util.KeyValuePairControl();
-            this.kvmMasterContextSwitchesPerSecond = new vApus.Util.KeyValuePairControl();
             this.kvmMasterMemoryUsage = new vApus.Util.KeyValuePairControl();
+            this.kvmMasterNic = new vApus.Util.KeyValuePairControl();
             this.kvmMasterNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmMasterNicsReceived = new vApus.Util.KeyValuePairControl();
             this.btnMasterExportMessages = new System.Windows.Forms.Button();
@@ -99,8 +94,8 @@ namespace vApus.DistributedTesting
             this.dgvFastResults.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
             this.dgvFastResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvFastResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvFastResults.BackgroundColor = System.Drawing.Color.White;
@@ -138,7 +133,7 @@ namespace vApus.DistributedTesting
             // 
             // flpFastResultsHeader
             // 
-            this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpFastResultsHeader.AutoScroll = true;
             this.flpFastResultsHeader.Controls.Add(this.lblFastResults);
@@ -199,7 +194,7 @@ namespace vApus.DistributedTesting
             // 
             // flpFastMetrics
             // 
-            this.flpFastMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.flpFastMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpFastMetrics.Controls.Add(this.label1);
             this.flpFastMetrics.Controls.Add(this.pnlBorder);
@@ -332,8 +327,8 @@ namespace vApus.DistributedTesting
             this.flpMetricsMaster.Controls.Add(this.kvpCancelled);
             this.flpMetricsMaster.Controls.Add(this.kvpFailed);
             this.flpMetricsMaster.Controls.Add(this.kvmMasterCPUUsage);
-            this.flpMetricsMaster.Controls.Add(this.kvmMasterContextSwitchesPerSecond);
             this.flpMetricsMaster.Controls.Add(this.kvmMasterMemoryUsage);
+            this.flpMetricsMaster.Controls.Add(this.kvmMasterNic);
             this.flpMetricsMaster.Controls.Add(this.kvmMasterNicsSent);
             this.flpMetricsMaster.Controls.Add(this.kvmMasterNicsReceived);
             this.flpMetricsMaster.Controls.Add(this.btnMasterExportMessages);
@@ -355,7 +350,7 @@ namespace vApus.DistributedTesting
             this.label5.Name = "label5";
             this.label5.Size = new System.Drawing.Size(312, 20);
             this.label5.TabIndex = 19;
-            this.label5.Text = "Client Monitoring and Stresstest Messages";
+            this.label5.Text = "Client Monitoring";
             // 
             // kvpRunningTests
             // 
@@ -415,7 +410,7 @@ namespace vApus.DistributedTesting
             // kvmMasterCPUUsage
             // 
             this.kvmMasterCPUUsage.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmMasterCPUUsage.Key = "CPU Usage";
+            this.kvmMasterCPUUsage.Key = "CPU";
             this.kvmMasterCPUUsage.Location = new System.Drawing.Point(653, 9);
             this.kvmMasterCPUUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterCPUUsage.Name = "kvmMasterCPUUsage";
@@ -425,23 +420,10 @@ namespace vApus.DistributedTesting
             this.kvmMasterCPUUsage.Tooltip = "Try to keep this below 60 % to ensure that the client is not the bottleneck.";
             this.kvmMasterCPUUsage.Value = "N/A";
             // 
-            // kvmMasterContextSwitchesPerSecond
-            // 
-            this.kvmMasterContextSwitchesPerSecond.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmMasterContextSwitchesPerSecond.Key = "Context Switches / s";
-            this.kvmMasterContextSwitchesPerSecond.Location = new System.Drawing.Point(761, 9);
-            this.kvmMasterContextSwitchesPerSecond.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
-            this.kvmMasterContextSwitchesPerSecond.Name = "kvmMasterContextSwitchesPerSecond";
-            this.kvmMasterContextSwitchesPerSecond.Size = new System.Drawing.Size(158, 16);
-            this.kvmMasterContextSwitchesPerSecond.TabIndex = 8;
-            this.kvmMasterContextSwitchesPerSecond.TabStop = false;
-            this.kvmMasterContextSwitchesPerSecond.Tooltip = "";
-            this.kvmMasterContextSwitchesPerSecond.Value = "N/A";
-            // 
             // kvmMasterMemoryUsage
             // 
             this.kvmMasterMemoryUsage.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmMasterMemoryUsage.Key = "Memory Usage";
+            this.kvmMasterMemoryUsage.Key = "Memory";
             this.kvmMasterMemoryUsage.Location = new System.Drawing.Point(3, 37);
             this.kvmMasterMemoryUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterMemoryUsage.Name = "kvmMasterMemoryUsage";
@@ -452,10 +434,23 @@ namespace vApus.DistributedTesting
     "eck.";
             this.kvmMasterMemoryUsage.Value = "N/A";
             // 
+            // kvmMasterNic
+            // 
+            this.kvmMasterNic.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvmMasterNic.Key = "NIC";
+            this.kvmMasterNic.Location = new System.Drawing.Point(129, 37);
+            this.kvmMasterNic.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
+            this.kvmMasterNic.Name = "kvmMasterNic";
+            this.kvmMasterNic.Size = new System.Drawing.Size(139, 16);
+            this.kvmMasterNic.TabIndex = 12;
+            this.kvmMasterNic.TabStop = false;
+            this.kvmMasterNic.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
+            this.kvmMasterNic.Value = "N/A";
+            // 
             // kvmMasterNicsSent
             // 
             this.kvmMasterNicsSent.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmMasterNicsSent.Key = "NIC Usage (Sent)";
+            this.kvmMasterNicsSent.Key = "Tx";
             this.kvmMasterNicsSent.Location = new System.Drawing.Point(129, 37);
             this.kvmMasterNicsSent.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNicsSent.Name = "kvmMasterNicsSent";
@@ -468,7 +463,7 @@ namespace vApus.DistributedTesting
             // kvmMasterNicsReceived
             // 
             this.kvmMasterNicsReceived.BackColor = System.Drawing.Color.GhostWhite;
-            this.kvmMasterNicsReceived.Key = "NIC Usage (Received)";
+            this.kvmMasterNicsReceived.Key = "Rx";
             this.kvmMasterNicsReceived.Location = new System.Drawing.Point(271, 37);
             this.kvmMasterNicsReceived.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNicsReceived.Name = "kvmMasterNicsReceived";
@@ -525,8 +520,8 @@ namespace vApus.DistributedTesting
 
         private System.Windows.Forms.FlowLayoutPanel flpMetricsMaster;
         private vApus.Util.KeyValuePairControl kvmMasterCPUUsage;
-        private vApus.Util.KeyValuePairControl kvmMasterContextSwitchesPerSecond;
         private vApus.Util.KeyValuePairControl kvmMasterMemoryUsage;
+        private vApus.Util.KeyValuePairControl kvmMasterNic;
         private vApus.Util.KeyValuePairControl kvmMasterNicsSent;
         private vApus.Util.KeyValuePairControl kvmMasterNicsReceived;
         private System.Windows.Forms.Button btnMasterExportMessages;

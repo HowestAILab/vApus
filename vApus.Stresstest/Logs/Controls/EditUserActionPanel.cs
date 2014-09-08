@@ -1,11 +1,11 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -55,7 +55,7 @@ namespace vApus.Stresstest {
 
         private ParameterTokenTextStyle _plainTextParameterTokenTextStyle, _editViewParameterTokenTextStyle;
 
-        private System.Timers.Timer _labelChanged = new System.Timers.Timer(500);
+        // private System.Timers.Timer _labelChanged = new System.Timers.Timer(500);
         #endregion
 
         #region Properties
@@ -73,6 +73,7 @@ namespace vApus.Stresstest {
                 _tmr.Elapsed += _tmr_Elapsed;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
             } catch { }
+            this.HandleCreated += EditUserActionPanel_HandleCreated;
         }
         #endregion
 
@@ -88,6 +89,21 @@ namespace vApus.Stresstest {
             }
         }
 
+        private void EditUserActionPanel_HandleCreated(object sender, EventArgs e) {
+            this.HandleCreated -= EditUserActionPanel_HandleCreated;
+            ParentForm.FormClosing += ParentForm_FormClosing;
+            ParentForm.Leave += ParentForm_Leave;
+        }
+
+        private void ParentForm_FormClosing(object sender, FormClosingEventArgs e) {
+            txtLabel.Leave -= txtLabel_Leave;
+            ParentForm.FormClosing -= ParentForm_FormClosing;
+            ParentForm.Leave -= ParentForm_Leave;
+            SetLabelChanged();
+        }
+
+        private void ParentForm_Leave(object sender, EventArgs e) { SetLabelChanged(); }
+
         internal void SetLog(Log log) { _log = log; }
         internal void SetLogAndUserAction(Log log, UserActionTreeViewItem userActionTreeViewItem) {
             LockWindowUpdate(this.Handle);
@@ -96,11 +112,11 @@ namespace vApus.Stresstest {
 
             cboParameterScope.SelectedIndex = 5;
 
-            txtLabel.TextChanged -= txtLabel_TextChanged;
+            //txtLabel.TextChanged -= txtLabel_TextChanged;
             txtLabel.Text = userActionTreeViewItem.UserAction.Label;
-            txtLabel.TextChanged += txtLabel_TextChanged;
+            //txtLabel.TextChanged += txtLabel_TextChanged;
 
-            _labelChanged.Elapsed += _labelChanged_Elapsed;
+            // _labelChanged.Elapsed += _labelChanged_Elapsed;
 
             if (_plainTextParameterTokenTextStyle == null) SetCodeStyle();
             SetMove();
@@ -111,23 +127,34 @@ namespace vApus.Stresstest {
             LockWindowUpdate(IntPtr.Zero);
         }
 
-        private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            if (_labelChanged != null) _labelChanged.Stop();
-            if (!IsDisposed)
-                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
-                    UserActionTreeViewItem.SetLabel();
-                    UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-                }, null);
-        }
+        //private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+        //    if (_labelChanged != null) _labelChanged.Stop();
+        //    if (!IsDisposed)
+        //        SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+        //            UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
+        //            UserActionTreeViewItem.SetLabel();
+        //            UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+        //        }, null);
+        //}
 
-        private void txtLabel_TextChanged(object sender, EventArgs e) {
-            if (_labelChanged != null) {
-                _labelChanged.Stop();
-                _labelChanged.Start();
-            }
-        }
+        //private void txtLabel_TextChanged(object sender, EventArgs e) {
+        //if (_labelChanged != null) {
+        //    _labelChanged.Stop();
+        //    _labelChanged.Start();
+        //}
+        //}
 
+        private void txtLabel_KeyUp(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter) SetLabelChanged();
+        }
+        private void txtLabel_Leave(object sender, EventArgs e) {
+            SetLabelChanged();
+        }
+        private void SetLabelChanged() {
+            UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
+            UserActionTreeViewItem.SetLabel();
+            UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+        }
         private void picMoveUp_Click(object sender, EventArgs e) {
             MoveUserAction(false);
             SetMove();
@@ -489,6 +516,7 @@ namespace vApus.Stresstest {
             fctxtxPlainText.ClearUndo();
             fctxtxPlainText.TextChanged += fctxtxPlainText_TextChanged;
 
+            btnApply.BackColor = Color.White;
             btnApply.Enabled = false;
 
             SetEditableOrAsImported();
@@ -762,6 +790,7 @@ namespace vApus.Stresstest {
         private void btnShowHideParameterTokens_Click(object sender, EventArgs e) {
             if (btnShowHideParameterTokens.Text == "Show Parameter Tokens") {
                 btnShowHideParameterTokens.Text = "Hide Parameter Tokens";
+                toolTip.SetToolTip(btnShowHideParameterTokens, btnShowHideParameterTokens.Text);
 
                 splitParameterTokens.Panel2Collapsed = false;
 
@@ -780,12 +809,14 @@ namespace vApus.Stresstest {
                 flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                 splitParameterTokens.Panel2Collapsed = true;
             }
+            toolTip.SetToolTip(btnShowHideParameterTokens, btnShowHideParameterTokens.Text);
         }
         private void split_SplitterMoved(object sender, SplitterEventArgs e) {
             cboParameterScope.Refresh();
         }
 
         private void fctxtxPlainText_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
+            btnApply.BackColor = Color.LawnGreen;
             btnApply.Enabled = true;
         }
         private void btnApply_Click(object sender, EventArgs e) {
@@ -820,6 +851,7 @@ namespace vApus.Stresstest {
                 SetBtnSplit();
                 userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
+            btnApply.BackColor = Color.White;
             btnApply.Enabled = false;
         }
 
@@ -997,6 +1029,7 @@ namespace vApus.Stresstest {
         private void dgvLogEntries_CellEnter(object sender, DataGridViewCellEventArgs e) { FillEditView(); }
         private void fctxteditView_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             if (dgvLogEntries.CurrentCell != null) {
+                btnApplyEditView.BackColor = Color.LawnGreen;
                 btnApplyEditView.Enabled = true;
                 if (dgvLogEntries.CurrentCell.ColumnIndex != dgvLogEntries.Columns.Count - 1 && fctxteditView.Text.Contains(_log.LogRuleSet.ChildDelimiter))
                     toolTip.SetToolTip(btnApplyEditView, "Be careful to insert the log entry delimiter (green-colored '" + _log.LogRuleSet.ChildDelimiter + "'), doing this can make log entries invalid!\nIf this happens you can fix it in the 'Plain Text'-tab page");
@@ -1033,6 +1066,7 @@ namespace vApus.Stresstest {
                         toolTip.SetToolTip(btnApplyEditView, null);
                         fctxteditView.Text = string.Empty;
                     }
+                    btnApplyEditView.BackColor = Color.White;
                     btnApplyEditView.Enabled = false;
 
                     fctxteditView.TextChanged += fctxteditView_TextChanged;
@@ -1046,5 +1080,6 @@ namespace vApus.Stresstest {
         #endregion
 
         #endregion
+
     }
 }

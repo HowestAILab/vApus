@@ -109,8 +109,9 @@ namespace vApus.Stresstest {
 
             for (int j = 0; j != l1.Count; j++) oldAndNewIndices.Add(l1[j], l2[j]);
 
-            if (oldAndNewIndices.Count != 0)
-                (SolutionComponentViewManager.Show(this, typeof(ParameterTokenSynchronizationView)) as ParameterTokenSynchronizationView).VisualizeSynchronization(oldAndNewIndices);
+            //For debugging purposes only.
+            //if (oldAndNewIndices.Count != 0)
+            //    (SolutionComponentViewManager.Show(this, typeof(ParameterTokenSynchronizationView)) as ParameterTokenSynchronizationView).VisualizeSynchronization(oldAndNewIndices);
         }
 
         public void GetObjectData(SerializationInfo info, StreamingContext context) {

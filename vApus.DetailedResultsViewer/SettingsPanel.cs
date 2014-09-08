@@ -1,13 +1,14 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Collections.Concurrent;
+using System.Collections.Generic;
 using System.Data;
 using System.Text.RegularExpressions;
 using System.Threading;
@@ -112,7 +113,7 @@ namespace vApus.DetailedResultsViewer {
             try {
                 _dataSource = null;
                 dgvDatabases.DataSource = null;
-                string[] filter = filterResults.Filter;
+                string filter = filterResults.Filter;
                 _dataSource = new DataTable("dataSource");
                 _dataSource.Columns.Add("CreatedAt", typeof(DateTime));
                 _dataSource.Columns.Add("Tags");
@@ -132,32 +133,32 @@ namespace vApus.DetailedResultsViewer {
                 int done = 0;
                 foreach (DataRow dbsr in dbs.Rows) {
                     string database = dbsr.ItemArray[0] as string;
-                    var cultureInfo = Thread.CurrentThread.CurrentCulture;
-                    ThreadPool.QueueUserWorkItem((object state) => {
-                        if (done < count) {
-                            try {
-                                Thread.CurrentThread.CurrentCulture = cultureInfo;
-                                if (_filterDatabasesWorkItem == null) _filterDatabasesWorkItem = new FilterDatabasesWorkItem();
+                    //var cultureInfo = Thread.CurrentThread.CurrentCulture;
+                    //ThreadPool.QueueUserWorkItem((object state) => { OVERKILL
+                    //if (done < count) {
+                    try {
+                        //Thread.CurrentThread.CurrentCulture = cultureInfo;
+                        if (_filterDatabasesWorkItem == null) _filterDatabasesWorkItem = new FilterDatabasesWorkItem();
 
-                                var dba = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString };
-                                var arr = _filterDatabasesWorkItem.FilterDatabase(dba, state as string, filter);
-                                lock (_lock) {
-                                    if (arr != null) _dataSource.Rows.Add(arr);
-                                    ++done;
-                                }
-                                dba.ReleaseConnection();
-                                if (done == count) _waitHandle.Set();
-                            } catch {
-                                try {
-                                    lock (_lock) done = int.MaxValue;
-                                    _waitHandle.Set();
-                                } catch { }
-                            }
+                        using (var dba = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString }) {
+                            var arr = _filterDatabasesWorkItem.FilterDatabase(dba, database, filter);
+                            //lock (_lock) {
+                            if (arr != null) _dataSource.Rows.Add(arr);
+                            //++done;
+                            //}
                         }
-                    }, database);
+                        //if (done == count) _waitHandle.Set();
+                    } catch {
+                        //try {
+                        //    lock (_lock) done = int.MaxValue;
+                        //    _waitHandle.Set();
+                        //} catch { }
+                    }
+                    //}
+                    //}, database);
                 }
 
-                if (count != 0) _waitHandle.WaitOne();
+                // if (count != 0) _waitHandle.WaitOne();
                 _dataSource.DefaultView.Sort = "CreatedAt DESC";
                 _dataSource = _dataSource.DefaultView.ToTable();
                 dgvDatabases.DataSource = _dataSource;
@@ -176,6 +177,9 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void dgvDatabases_RowEnter(object sender, DataGridViewCellEventArgs e) {
+            if (_dataSource != null && e.RowIndex != -1 && e.RowIndex < _dataSource.Rows.Count && _dataSource.Rows[e.RowIndex] == _currentRow)
+                return;
+
             if (DisableResultsPanel != null) DisableResultsPanel(this, null);
 
             if (_rowEnterTimer != null) {
@@ -234,15 +238,13 @@ namespace vApus.DetailedResultsViewer {
                 } else {
                     if (stresstests.Rows.Count == 1) {
                         cboStresstest.Items.Add((string)stresstests.Rows[0].ItemArray[1] + " " + stresstests.Rows[0].ItemArray[2]);
-
-                        cboStresstest.SelectedIndex = 0;
                     } else {
                         cboStresstest.Items.Add("<All>");
                         foreach (DataRow stresstestRow in stresstests.Rows)
                             cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
-
-                        cboStresstest.SelectedIndex = 1;
                     }
+                    cboStresstest.SelectedIndex = 0;
+
                     if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, 1));
                 }
 
@@ -263,7 +265,7 @@ namespace vApus.DetailedResultsViewer {
             /// <param name="database"></param>
             /// <param name="filter"></param>
             /// <returns>Contents of a data row.</returns>
-            public object[] FilterDatabase(DatabaseActions databaseActions, string database, string[] filter) {
+            public object[] FilterDatabase(DatabaseActions databaseActions, string database, string filter) {
                 try {
                     object[] itemArray = new object[4];
 
@@ -284,29 +286,17 @@ namespace vApus.DetailedResultsViewer {
                         itemArray[2] = dr.ItemArray[0];
                         break;
                     }
+
                     bool canAdd = true;
                     if (filter.Length != 0) {
-                        //First filter on tags.
-                        string s = itemArray[1] as string;
-                        for (int i = 0; i != filter.Length; i++) {
-                            string p = "\\b" + Regex.Escape(filter[i]) + "\\b";
-                            if (!Regex.IsMatch(s, p, RegexOptions.IgnoreCase)) {
-                                canAdd = false;
-                                break;
-                            }
-                        }
-                        //If that fails filter on description.
-                        if (!canAdd) {
-                            s = itemArray[2] as string;
-                            for (int i = 0; i != filter.Length; i++) {
-                                string p = Regex.Escape(filter[i]);
-                                if (Regex.IsMatch(s, p, RegexOptions.IgnoreCase)) {
-                                    canAdd = true;
-                                    break;
-                                }
-                            }
-                        }
+                        string tagsAndDescription = itemArray[1] as string + " " + itemArray[2] as string;
+
+                        //Filter on tags and description.
+                        List<int> rows, columns, matchLengths;
+                        vApus.Util.FindAndReplace.Find(filter, tagsAndDescription, out rows, out columns, out matchLengths, false, true);
+                        if (rows.Count == 0) canAdd = false;
                     }
+
                     if (canAdd) {
                         //Get the DateTime, to be formatted later.
                         string[] dtParts = database.Substring(5).Split('_');//yyyy_MM_dd_HH_mm_ss_fffffff or MM_dd_yyyy_HH_mm_ss_fffffff

@@ -169,6 +169,7 @@ namespace vApus.DistributedTesting {
         /// <param name="sender"></param>
         /// <param name="e"></param>
         private void btnSchedule_Click(object sender, EventArgs e) {
+            this.ActiveControl = tcTest;
             _schedule = (btnSchedule.Tag != null && btnSchedule.Tag is DateTime) ? new ScheduleDialog((DateTime)btnSchedule.Tag) : new ScheduleDialog();
             if (_schedule.ShowDialog() == DialogResult.OK) {
                 if (_schedule.ScheduledAt > DateTime.Now) {
@@ -183,12 +184,6 @@ namespace vApus.DistributedTesting {
                 btnSchedule.Text = string.Empty;
             }
             _schedule = null;
-        }
-        private void btnSchedule_MouseEnter(object sender, EventArgs e) {
-            btnSchedule.Text = btnSchedule.ToolTipText;
-        }
-        private void btnSchedule_MouseLeave(object sender, EventArgs e) {
-            if (!btnSchedule.Text.StartsWith("Scheduled") && _schedule == null) btnSchedule.Text = string.Empty;
         }
 
         private void tpTree_SelectedIndexChanged(object sender, EventArgs e) {
@@ -261,6 +256,7 @@ namespace vApus.DistributedTesting {
 
             //Update the detailed results in the gui if any.
             RefreshDetailedResults();
+            this.Focus();
         }
         private void testTreeView_TileStresstestTreeViewItemDoubleClicked(object sender, EventArgs e) {
             tcTest.SelectedIndex = 0;
@@ -348,7 +344,10 @@ namespace vApus.DistributedTesting {
         #endregion
 
         #region Start & Schedule
-        private void btnStart_Click(object sender, EventArgs e) { StartDistributedTest(true); }
+        private void btnStart_Click(object sender, EventArgs e) {
+            this.ActiveControl = tcTest;
+            StartDistributedTest(true);
+        }
         public void StartDistributedTest(bool allowMessageBox) {
             if (allowMessageBox)
                 if (_distributedTestCore != null && _distributedTestCore.HasResults &&
@@ -713,6 +712,7 @@ namespace vApus.DistributedTesting {
                             }
 
                             testTreeView.SetMonitoringBeforeAfter();
+                            distributedStresstestControl.AppendMessages("Monitoring before the test starts: " + (monitorBefore * 60) + " s.");
                             _monitorBeforeCountDown.Start();
                         } else {
                             MonitorBeforeDone();
@@ -861,7 +861,7 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.SetTitle("Distributed Test");
                     if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                         testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
-                        var progress = new Dictionary<TileStresstest, StresstestMetricsCache>(testProgressMessages.Count);
+                        var progress = new Dictionary<TileStresstest, FastStresstestMetricsCache>(testProgressMessages.Count);
                         foreach (TileStresstest tileStresstest in testProgressMessages.Keys) {
                             var metricsCache = testProgressMessages[tileStresstest].StresstestMetricsCache;
                             if (metricsCache != null) progress.Add(tileStresstest, metricsCache);
@@ -874,7 +874,7 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.SetTitle(ttvi.Tile.Name + " " + ttvi.Tile.Index);
                     if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                         testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
-                        var progress = new Dictionary<TileStresstest, StresstestMetricsCache>();
+                        var progress = new Dictionary<TileStresstest, FastStresstestMetricsCache>();
                         foreach (TileStresstest tileStresstest in testProgressMessages.Keys)
                             if (ttvi.Tile.Contains(tileStresstest)) {
                                 var metricsCache = testProgressMessages[tileStresstest].StresstestMetricsCache;
@@ -898,8 +898,8 @@ namespace vApus.DistributedTesting {
                 //Build and add fast results. Do not show the updates in label if monitoring before.
                 fastResultsControl.ClearFastResults(testProgressMessage.StartedAt == DateTime.MinValue);
                 if (testProgressMessage.StresstestMetricsCache != null) {
-                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics(), true, testProgressMessage.StresstestMetricsCache.CalculatedSimplifiedMetrics);
-                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics(), false, testProgressMessage.StresstestMetricsCache.CalculatedSimplifiedMetrics);
+                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StresstestMetricsCache.GetConcurrencyMetrics(), true, testProgressMessage.StresstestMetricsCache.SimplifiedMetrics);
+                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StresstestMetricsCache.GetRunMetrics(), false, testProgressMessage.StresstestMetricsCache.SimplifiedMetrics);
                 }
                 var monitorResultCaches = GetMonitorResultCaches(tileStresstest);
                 foreach (var monitorResultCache in monitorResultCaches) {
@@ -922,8 +922,9 @@ namespace vApus.DistributedTesting {
                     }
                 }
 
-                fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage, testProgressMessage.ContextSwitchesPerSecond,
-                    (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.NicsSent, testProgressMessage.NicsReceived);
+                fastResultsControl.SetClientMonitoring(testProgressMessage.ThreadsInUse, testProgressMessage.CPUUsage,
+                    (int)testProgressMessage.MemoryUsage, (int)testProgressMessage.TotalVisibleMemory, testProgressMessage.Nic, testProgressMessage.NicBandwidth,
+                    testProgressMessage.NicSent, testProgressMessage.NicReceived);
             }
         }
         private void SetSlaveProgressInTreeView(TileStresstest tileStresstest, TestProgressMessage testProgressMessage) {
@@ -978,8 +979,8 @@ namespace vApus.DistributedTesting {
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
                 distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed,
-                    LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.NicsSent,
-                    LocalMonitor.NicsReceived);
+                    LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent,
+                    LocalMonitor.NicReceived);
             } catch { } //Exception on false WMI. 
         }
         #endregion
@@ -1070,9 +1071,9 @@ namespace vApus.DistributedTesting {
                     try {
                         distributedStresstestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK,
                                                                          _distributedTestCore.Cancelled, _distributedTestCore.Failed,
-                                                                         LocalMonitor.CPUUsage, LocalMonitor.ContextSwitchesPerSecond,
-                                                                         (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
-                                                                         LocalMonitor.NicsSent, LocalMonitor.NicsReceived);
+                                                                         LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
+                                                                         LocalMonitor.Nic, LocalMonitor.NicBandwidth,
+                                                                         LocalMonitor.NicSent, LocalMonitor.NicReceived);
                     } catch { } //Exception on false WMI. 
                 } catch (Exception ex) {
                     string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
@@ -1120,8 +1121,11 @@ namespace vApus.DistributedTesting {
                 }
 
                 testTreeView.SetMonitoringBeforeAfter();
+                distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " + (monitorAfterTime * 60) + " s.");
                 _monitorAfterCountDown.Start();
             } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
+
+            this.Focus();
         }
 
         private void RefreshDetailedResults() {
@@ -1173,6 +1177,7 @@ namespace vApus.DistributedTesting {
                     detailedResultsControl.RefreshResults(_resultsHelper, stresstestIds);
                     this.Enabled = true;
                 }
+                this.Show();
             }, null);
         }
         #endregion
@@ -1320,8 +1325,7 @@ namespace vApus.DistributedTesting {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                distributedStresstestControl.AppendMessages("The test will start in " + ts.ToShortFormattedString() +
-                                                            ", monitoring first.");
+                distributedStresstestControl.AppendMessages("Monitoring before the test starts: " + ts.ToShortFormattedString() + ".");
 
                 int runningMonitors = 0;
                 foreach (TileStresstest tileStresstest in _monitorViews.Keys)
@@ -1456,6 +1460,8 @@ namespace vApus.DistributedTesting {
 
                 //Update the detailed results in the gui if any.
                 RefreshDetailedResults();
+
+                this.Focus();
             }
         }
         #endregion
