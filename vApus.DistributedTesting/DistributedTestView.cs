@@ -256,6 +256,7 @@ namespace vApus.DistributedTesting {
 
             //Update the detailed results in the gui if any.
             RefreshDetailedResults();
+            this.Focus();
         }
         private void testTreeView_TileStresstestTreeViewItemDoubleClicked(object sender, EventArgs e) {
             tcTest.SelectedIndex = 0;
@@ -1176,6 +1177,7 @@ namespace vApus.DistributedTesting {
                     detailedResultsControl.RefreshResults(_resultsHelper, stresstestIds);
                     this.Enabled = true;
                 }
+                this.Show();
             }, null);
         }
         #endregion
@@ -1456,10 +1458,10 @@ namespace vApus.DistributedTesting {
             if (!disposing) {
                 SetMode(DistributedTestMode.Edit, true);
 
-                this.Focus();
-
                 //Update the detailed results in the gui if any.
                 RefreshDetailedResults();
+
+                this.Focus();
             }
         }
         #endregion
