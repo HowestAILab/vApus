@@ -1,7 +1,5 @@
-﻿namespace vApus.Monitor
-{
-    partial class MonitorView
-    {
+﻿namespace vApus.Monitor {
+    partial class MonitorView {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -11,26 +9,17 @@
         /// Clean up any resources being used.
         /// </summary>
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
-        protected override void Dispose(bool disposing)
-        {
+        protected override void Dispose(bool disposing) {
             //Make sure to dispose.
-            try
-            {
-                if (_monitorProxy != null)
-                {
-                    try {
-                        System.Exception stopEx;
-                        _monitorProxy.Stop(out stopEx);
-                    }
-                    catch { }
-                    try { _monitorProxy.Dispose(); }
-                    catch { }
-                    _monitorProxy = null;
+            try {
+                if (_monitorSourceClient != null) {
+                    try { _monitorSourceClient.Stop(); } catch { }
+                    _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
+                    _monitorSourceClient.Dispose();
+                    _monitorSourceClient = null;
                 }
-            }
-            catch { }
-            if (disposing && (components != null))
-            {
+            } catch { }
+            if (disposing && (components != null)) {
                 components.Dispose();
             }
             base.Dispose(disposing);
@@ -42,8 +31,7 @@
         /// Required method for Designer support - do not modify
         /// the contents of this method with the code editor.
         /// </summary>
-        private void InitializeComponent()
-        {
+        private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MonitorView));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
@@ -56,7 +44,7 @@
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.split = new System.Windows.Forms.SplitContainer();
             this.lblMonitorSourceMismatch = new System.Windows.Forms.Label();
-            this.label4 = new System.Windows.Forms.Label();
+            this.lblMonitorSourceParameters = new System.Windows.Forms.Label();
             this.parameterPanel = new vApus.Monitor.MonitorParameterPanel();
             this.propertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnConfiguration = new System.Windows.Forms.Button();
@@ -177,7 +165,7 @@
             // 
             this.split.Panel1.BackColor = System.Drawing.Color.White;
             this.split.Panel1.Controls.Add(this.lblMonitorSourceMismatch);
-            this.split.Panel1.Controls.Add(this.label4);
+            this.split.Panel1.Controls.Add(this.lblMonitorSourceParameters);
             this.split.Panel1.Controls.Add(this.parameterPanel);
             this.split.Panel1.Controls.Add(this.propertyPanel);
             this.split.Panel1.Controls.Add(this.btnConfiguration);
@@ -196,7 +184,7 @@
             // 
             // lblMonitorSourceMismatch
             // 
-            this.lblMonitorSourceMismatch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.lblMonitorSourceMismatch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblMonitorSourceMismatch.AutoEllipsis = true;
             this.lblMonitorSourceMismatch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
@@ -213,33 +201,33 @@
             // 
             // label4
             // 
-            this.label4.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.label4.AutoSize = true;
-            this.label4.BackColor = System.Drawing.Color.White;
-            this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label4.Location = new System.Drawing.Point(597, 6);
-            this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(160, 13);
-            this.label4.TabIndex = 8;
-            this.label4.Text = "Monitor Source Parameters";
+            this.lblMonitorSourceParameters.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.lblMonitorSourceParameters.AutoSize = true;
+            this.lblMonitorSourceParameters.BackColor = System.Drawing.Color.White;
+            this.lblMonitorSourceParameters.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.lblMonitorSourceParameters.Location = new System.Drawing.Point(597, 6);
+            this.lblMonitorSourceParameters.Name = "label4";
+            this.lblMonitorSourceParameters.Size = new System.Drawing.Size(160, 13);
+            this.lblMonitorSourceParameters.TabIndex = 8;
+            this.lblMonitorSourceParameters.Text = "Monitor Source Parameters";
             // 
             // parameterPanel
             // 
-            this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.parameterPanel.AutoSelectControl = false;
             this.parameterPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
             this.parameterPanel.Location = new System.Drawing.Point(597, 23);
             this.parameterPanel.Name = "parameterPanel";
-            this.parameterPanel.ParametersWithValues = null;
+            this.parameterPanel.Parameters = null;
             this.parameterPanel.Size = new System.Drawing.Size(404, 272);
             this.parameterPanel.TabIndex = 1;
             this.parameterPanel.ParameterValueChanged += new System.EventHandler(this.parameterPanel_ParameterValueChanged);
             // 
             // propertyPanel
             // 
-            this.propertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.propertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyPanel.BackColor = System.Drawing.Color.Transparent;
             this.propertyPanel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -285,7 +273,7 @@
             // 
             // panel1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.Controls.Add(this.llblUncheckAllVisible);
             this.panel1.Controls.Add(this.picFilter);
@@ -361,7 +349,7 @@
             // 
             // txtFilter
             // 
-            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFilter.HideSelection = false;
             this.txtFilter.Location = new System.Drawing.Point(1, 1);
@@ -379,7 +367,7 @@
             // 
             // lvwEntities
             // 
-            this.lvwEntities.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            this.lvwEntities.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)));
             this.lvwEntities.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lvwEntities.CheckBoxes = true;
@@ -427,8 +415,8 @@
             // 
             // tvwCounters
             // 
-            this.tvwCounters.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.tvwCounters.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tvwCounters.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tvwCounters.CheckBoxes = true;
@@ -457,7 +445,7 @@
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.Controls.Add(this.lblCountDown);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
@@ -498,7 +486,7 @@
             // 
             // txtFilterMonitorControlColumns
             // 
-            this.txtFilterMonitorControlColumns.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.txtFilterMonitorControlColumns.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFilterMonitorControlColumns.HideSelection = false;
             this.txtFilterMonitorControlColumns.Location = new System.Drawing.Point(12, 16);
@@ -558,8 +546,8 @@
             this.monitorControl.AllowUserToResizeRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
             this.monitorControl.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.monitorControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.monitorControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.monitorControl.BackgroundColor = System.Drawing.Color.White;
             this.monitorControl.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -582,8 +570,8 @@
             // 
             // tc
             // 
-            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
-            | System.Windows.Forms.AnchorStyles.Left) 
+            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpConfigure);
@@ -670,7 +658,7 @@
         private System.Windows.Forms.ColumnHeader clmChosenCounters;
         private System.Windows.Forms.Label lblMonitorSourceMismatch;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.Label lblMonitorSourceParameters;
         private MonitorParameterPanel parameterPanel;
         private vApus.Monitor.MonitorControl monitorControl;
         private System.Windows.Forms.Button btnSaveFilteredMonitoredCounters;

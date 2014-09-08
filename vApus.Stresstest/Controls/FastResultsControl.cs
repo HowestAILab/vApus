@@ -239,7 +239,7 @@ namespace vApus.Stresstest {
         /// <param name="threadContentionsPerSecond"></param>
         /// <param name="memoryUsage"></param>
         /// <param name="totalVisibleMemory"></param>
-        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, int memoryUsage = -1, int totalVisibleMemory = -1, 
+        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, int memoryUsage = -1, int totalVisibleMemory = -1,
             string nic = "NIC", float nicBandwidth = -1, float nicsSent = -1, float nicsReceived = -1) {
             kvmThreadsInUse.Value = threadsInUse.ToString();
             if (cpuUsage == -1) {

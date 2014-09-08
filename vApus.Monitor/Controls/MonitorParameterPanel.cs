@@ -8,12 +8,12 @@
 
 using System;
 using System.Collections.Generic;
+using vApus.Monitor.Sources.Base;
 using vApus.Util;
-using vApusSMT.Base;
 
 namespace vApus.Monitor {
     public partial class MonitorParameterPanel : ValueControlPanel {
-        private Dictionary<Parameter, object> _parametersWithValues;
+        private Parameter[] _parameters;
 
         public MonitorParameterPanel() {
             InitializeComponent();
@@ -28,11 +28,11 @@ namespace vApus.Monitor {
         /// <summary>
         ///     Sets the Gui if the panel is empty.
         /// </summary>
-        public Dictionary<Parameter, object> ParametersWithValues {
+        public Parameter[] Parameters {
             //Get is not used, but it is here when needed.
-            get { return _parametersWithValues; }
+            get { return _parameters; }
             set {
-                _parametersWithValues = value;
+                _parameters = value;
                 SetGui();
             }
         }
@@ -48,9 +48,9 @@ namespace vApus.Monitor {
 
         private void ParameterPanel_ValueChanged(object sender, ValueChangedEventArgs e) {
             int i = 0;
-            foreach (Parameter parameter in _parametersWithValues.Keys)
+            foreach (Parameter parameter in _parameters)
                 if (i++ == e.Index) {
-                    _parametersWithValues[parameter] = e.NewValue;
+                    parameter.Value = e.NewValue;
                     break;
                 }
             if (ParameterValueChanged != null)
@@ -62,13 +62,9 @@ namespace vApus.Monitor {
         }
 
         private void SetGui() {
-            if (_parametersWithValues != null) {
-                var values = new List<BaseValueControl.Value>(_parametersWithValues.Count);
-                foreach (Parameter parameter in _parametersWithValues.Keys) {
-                    object value = _parametersWithValues[parameter];
-                    if (value == null)
-                        value = parameter.DefaultValue;
-
+            if (_parameters != null) {
+                var values = new List<BaseValueControl.Value>(_parameters.Length);
+                foreach (Parameter parameter in _parameters) {
                     string description = parameter.Description;
                     if (parameter.DefaultValue.ToString().Length != 0)
                         description += " [Default Value: '" + parameter.DefaultValue + "']";
@@ -76,7 +72,7 @@ namespace vApus.Monitor {
                         description += " [Obligatory]";
 
                     values.Add(new BaseValueControl.Value {
-                        __Value = value,
+                        __Value = parameter.Value,
                         Description = description,
                         IsEncrypted = parameter.Encrypted,
                         IsReadOnly = false,

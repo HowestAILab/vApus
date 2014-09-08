@@ -16,12 +16,10 @@ using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using vApus.Monitor.Sources.Base;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
-using vApusSMT.Base;
-using vApusSMT.Proxy;
-using PowerState = vApusSMT.Base.PowerState;
 
 namespace vApus.Monitor {
     /// <summary>
@@ -35,17 +33,20 @@ namespace vApus.Monitor {
         #region Fields
         private readonly Monitor _monitor;
         private string _configuration;
-        private IMonitorProxy _monitorProxy;
-
-        private readonly Dictionary<Parameter, object> _parametersWithValues = new Dictionary<Parameter, object>();
 
         private int _refreshTimeInMS;
 
         private bool _forStresstest;
         private string _previousFilter;
-        private MonitorSource _previousMonitorSourceForParameters;
+        private MonitorSourceClient _previousMonitorSourceForParameters;
 
         private System.Timers.Timer _invokeChangedTmr = new System.Timers.Timer(1000);
+
+        private IClient _monitorSourceClient;
+
+        private Entities _wdyh = null;
+        private string _decimalSeparator;
+
         #endregion
 
         #region Properties
@@ -57,7 +58,7 @@ namespace vApus.Monitor {
             get { return _configuration; }
             private set {
                 _configuration = value;
-////#warning Enable REST
+                ////#warning Enable REST
                 //JSONObjectTree monitorHwConfig = (JSONObjectTreeHelper.RunningMonitorHardwareConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorHardwareConfig;
                 //JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
                 //JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
@@ -122,17 +123,16 @@ namespace vApus.Monitor {
             if (SynchronizationContextWrapper.SynchronizationContext == null)
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
 
-            Exception exception = InitMonitorProxy();
+            Exception exception = InitMonitorSourceClient();
             propertyPanel.SolutionComponent = _monitor;
             SetFilterTextBox();
 
-            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
-            SetParameters(parameters);
+            SetValuesToParameters();
 
             _previousMonitorSourceForParameters = _monitor.MonitorSource;
             _previousFilter = _monitor.Filter.Combine(", ");
 
-//#warning Enable REST
+            //#warning Enable REST
             //JSONObjectTree monitorConfig = (JSONObjectTreeHelper.RunningMonitorConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorConfig;
             // JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
             //JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
@@ -150,51 +150,28 @@ namespace vApus.Monitor {
         ///     Destroys the previous one if any and returns a new one.
         /// </summary>
         /// <returns></returns>
-        private Exception InitMonitorProxy() {
+        private Exception InitMonitorSourceClient() {
             Exception exception = null;
 
             try {
-                if (_monitorProxy != null) {
+                if (_monitorSourceClient != null) {
                     try {
-                        Exception stopEx;
-                        _monitorProxy.Stop(out stopEx);
+                        _monitorSourceClient.Stop();
                     } catch {
                     }
-                    try {
-                        _monitorProxy.Dispose();
-                    } catch {
-                    }
-                    _monitorProxy = null;
+                    _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
+                    _monitorSourceClient.Dispose();
+                    _monitorSourceClient = null;
                 }
 
-                _monitorProxy = CreateMonitorProxy();
+                _monitor.InitMonitorSourceClients();
+
+                _monitorSourceClient = ClientFactory.Create(_monitor.MonitorSource.Type);
             } catch (Exception ex) {
                 exception = ex;
             }
 
-            if (exception == null) {
-                //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
-                Directory.SetCurrentDirectory(Application.StartupPath);
-
-                string[] sources = _monitorProxy.GetMonitorSources(out exception);
-                //Ignore this exception
-                _monitor.SetMonitorSources(sources);
-
-                exception = null;
-            }
             return exception;
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <returns></returns>
-        private IMonitorProxy CreateMonitorProxy() {
-            var monitorProxy = new MonitorProxy();
-            monitorProxy.OnHandledException += _monitorProxy_OnHandledException;
-            monitorProxy.OnUnhandledException += _monitorProxy_OnUnhandledException;
-            monitorProxy.OnMonitor += _monitorProxy_OnMonitor;
-
-            return monitorProxy;
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
@@ -202,12 +179,9 @@ namespace vApus.Monitor {
                 if (_monitor.MonitorSource != _previousMonitorSourceForParameters) {
                     _previousMonitorSourceForParameters = _monitor.MonitorSource;
 
-                    Exception exception;
-                    if (_monitorProxy == null)
-                        _monitorProxy = CreateMonitorProxy();
+                    InitMonitorSourceClient();
 
-                    Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
-                    SetParameters(parameters);
+                    SetValuesToParameters();
                 }
                 if (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
                     lvwEntities.Items.Count == 0) {
@@ -234,39 +208,39 @@ namespace vApus.Monitor {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(IntPtr hWnd);
 
-        private void _monitorProxy_OnHandledException(object sender, ErrorEventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                Loggers.Log(Level.Warning, Text + ": A counter became unavailable while monitoring.", e.GetException(), new object[] { sender, e });
+        //private void _monitorProxy_OnHandledException(object sender, ErrorEventArgs e) {
+        //    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+        //        Loggers.Log(Level.Warning, Text + ": A counter became unavailable while monitoring.", e.GetException(), new object[] { sender, e });
 
-                if (_forStresstest && OnHandledException != null) {
-                    var invocationList = OnHandledException.GetInvocationList();
-                    Parallel.For(0, invocationList.Length, (i) => {
-                        (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
-                    });
-                }
-            }, null);
-        }
+        //        if (_forStresstest && OnHandledException != null) {
+        //            var invocationList = OnHandledException.GetInvocationList();
+        //            Parallel.For(0, invocationList.Length, (i) => {
+        //                (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
+        //            });
+        //        }
+        //    }, null);
+        //}
 
-        private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e) {
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                bool forStresstest = _forStresstest;
-                Stop();
-                Loggers.Log(Level.Error, Text + ": An error has occured while monitoring, monitor stopped.", e.GetException(), new object[] { sender, e });
+        //private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e) {
+        //    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+        //        bool forStresstest = _forStresstest;
+        //        Stop();
+        //        Loggers.Log(Level.Error, Text + ": An error has occured while monitoring, monitor stopped.", e.GetException(), new object[] { sender, e });
 
-                if (forStresstest && OnUnhandledException != null) {
-                    var invocationList = OnHandledException.GetInvocationList();
-                    Parallel.For(0, invocationList.Length, (i) => {
-                        (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
-                    });
+        //        if (forStresstest && OnUnhandledException != null) {
+        //            var invocationList = OnHandledException.GetInvocationList();
+        //            Parallel.For(0, invocationList.Length, (i) => {
+        //                (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
+        //            });
 
-                }
-            }, null);
-        }
+        //        }
+        //    }, null);
+        //}
 
-        private void _monitorProxy_OnMonitor(object sender, OnMonitorEventArgs e) {
+        private void _monitorSourceClient_OnMonitor(object sender, OnMonitorEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 try {
-                    monitorControl.AddMonitorValues(e.MonitorValues);
+                    monitorControl.AddCounters(e.Counters, _decimalSeparator);
 
                     //Don't do this when stopped
                     if (tmrProgressDelayCountDown.Enabled) {
@@ -276,7 +250,7 @@ namespace vApus.Monitor {
                         lblCountDown.Text = "Updates in " + refreshInS;
                     }
 
-//#warning Enable REST
+                    //#warning Enable REST
                     //JSONObjectTree monitorProgress = (JSONObjectTreeHelper.RunningMonitorMetrics == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorMetrics;
                     //JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
                     //JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;
@@ -328,13 +302,10 @@ namespace vApus.Monitor {
 
             string errorMessage = null;
             if (split.Panel2.Enabled && lvwEntities.Items.Count != 0 && tvwCounters.Nodes.Count != 0) {
-                errorMessage = Text + ": No counters were chosen.";
-                if (_monitor.Wiw.Count != 0)
-                    foreach (Entity entity in _monitor.Wiw.Keys) {
-                        if (_monitor.Wiw[entity].Count != 0)
-                            errorMessage = null;
-                        break;
-                    }
+
+                if (_monitor.Wiw.GetDeepCount() == 0)
+                    errorMessage = Text + ": No counters were chosen.";
+
             } else {
                 errorMessage = Text + ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
             }
@@ -343,30 +314,29 @@ namespace vApus.Monitor {
         }
 
         private void __WDYH() {
-            if (_monitorProxy == null)
-                _monitorProxy = CreateMonitorProxy();
+            if (_monitorSourceClient == null)
+                InitMonitorSourceClient();
 
-            Dictionary<Entity, List<CounterInfo>> wdyh = null;
-            string configuration = null;
-
+            string config = null;
             //Set the parameters and the values in the gui and in the proxy
-            Exception exception;
-            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetParameters(parameters); }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetValuesToParameters(); }, null);
 
-            if (exception == null) _monitorProxy.Connect(_monitor.MonitorSource.Source, out exception);
-            _refreshTimeInMS = 20000;
-            if (exception == null) _refreshTimeInMS = _monitorProxy.GetRefreshRateInMs(_monitor.MonitorSource.Source, out exception);
-            if (exception == null) {
-                configuration = _monitorProxy.GetConfigurationXML(out exception);
-                wdyh = _monitorProxy.GetWDYH(out exception);
+            Exception exception = null;
+            if (_monitorSourceClient.Connect()) {
+                _refreshTimeInMS = _monitorSourceClient.RefreshCountersInterval;
+
+                config = _monitorSourceClient.Config;
+                _decimalSeparator = _monitorSourceClient.DecimalSeparator;
+                _wdyh = _monitorSourceClient.WDYH;
+            } else {
+                exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".");
             }
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                if (exception == null) {
-                    btnConfiguration.Enabled = (configuration != null);
-                    Configuration = configuration;
-                    try { FillEntities(wdyh); } catch (Exception ex) { exception = ex; }
+                if (_monitorSourceClient.IsConnected) {
+                    btnConfiguration.Enabled = (config != null);
+                    Configuration = config;
+                    try { FillEntities(_wdyh); } catch (Exception ex) { exception = ex; }
                 }
 
                 btnGetCounters.Text = "Get Counters";
@@ -376,7 +346,7 @@ namespace vApus.Monitor {
 
                     string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
                     Loggers.Log(Level.Error, message, exception);
-                    
+
                     if (!_forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
@@ -387,41 +357,21 @@ namespace vApus.Monitor {
             }, null);
         }
 
-        private void SetParameters(Parameter[] parameters) {
-            _parametersWithValues.Clear();
-            if (parameters != null) {
-                //Get parameter values and set the parameters
-                object[] monitorParameters = _monitor.Parameters;
-                for (int i = 0; i != parameters.Length; i++) {
-                    Parameter parameter = parameters[i];
-                    object value = parameter.DefaultValue;
-                    if (i < monitorParameters.Length) {
-                        object candidate = monitorParameters[i];
-                        if (candidate.GetType() == parameter.Type)
-                            value = candidate;
-                    }
-                    _parametersWithValues.Add(parameter, value);
-                }
+        private void SetValuesToParameters() {
+            //Get parameter values and set the parameters
+            for (int i = 0; i != _monitorSourceClient.Parameters.Length; i++) {
+                if (i >= _monitor.ParameterValues.Length) break;
 
-                var parameterValues = new object[_parametersWithValues.Count];
+                Parameter parameter = _monitorSourceClient.Parameters[i];
 
-                int valueIndex = 0;
-                foreach (Parameter key in _parametersWithValues.Keys) {
-                    object value = _parametersWithValues[key];
-                    //Take encryption into account.
-                    if (key.Encrypted && value is string)
-                        value = (value as string).Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
-                                                          new byte[]
-                                                              {
-                                                                  0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76,
-                                                                  0x65, 0x64, 0x65, 0x76
-                                                              });
-                    parameterValues[valueIndex++] = value;
-                }
-                Exception ex;
-                _monitorProxy.SetParameterValues(parameterValues, out ex);
+                object candidate = _monitor.ParameterValues[i];
+                if (candidate.GetType() == parameter.DefaultValue.GetType())
+                    parameter.Value = candidate;
             }
-            parameterPanel.ParametersWithValues = _parametersWithValues;
+
+            parameterPanel.Parameters = _monitorSourceClient.Parameters;
+
+            lblMonitorSourceParameters.Visible = _monitorSourceClient.Parameters.Length != 0;
         }
 
         private void parameterPanel_ParameterValueChanged(object sender, EventArgs e) {
@@ -432,24 +382,24 @@ namespace vApus.Monitor {
         ///     Store from _parametersWithValues to the monitor object
         /// </summary>
         private void StoreParameterValues() {
-            var monitorParameters = new object[_parametersWithValues.Count];
+            var parameterValues = new object[_monitorSourceClient.Parameters.Length];
             int i = 0;
-            foreach (object value in _parametersWithValues.Values)
-                monitorParameters[i++] = value;
-            _monitor.Parameters = monitorParameters;
+            foreach (Parameter parameter in _monitorSourceClient.Parameters)
+                parameterValues[i++] = parameter.Value;
+            _monitor.ParameterValues = parameterValues;
 
             InvokeChanged();
         }
 
-        private void FillEntities(Dictionary<Entity, List<CounterInfo>> entitiesAndCounters) {
-            foreach (Entity entity in entitiesAndCounters.Keys) {
+        private void FillEntities(Entities entitiesAndCounters) {
+            foreach (Entity entity in entitiesAndCounters) {
                 var lvwi = new ListViewItem(string.Empty);
 
-                lvwi.SubItems.Add(entity.Name);
+                lvwi.SubItems.Add(entity.GetName());
                 lvwi.SubItems.Add("[0]");
-                lvwi.ImageIndex = (int)entity.PowerState;
+                lvwi.ImageIndex = entity.IsAvailable() ? 0 : 1;
                 lvwi.StateImageIndex = lvwi.ImageIndex;
-                lvwi.Tag = entitiesAndCounters[entity];
+                lvwi.Tag = entity;
                 lvwi.Checked = false;
 
                 lvwEntities.Items.Add(lvwi);
@@ -507,7 +457,7 @@ namespace vApus.Monitor {
                         ApplyToWIW(counterNode);
                 }
                 if (!selectedChecked) {
-                    Entity entity = GetEntity(_monitor.Wiw, selected.SubItems[1].Text);
+                    Entity entity = _monitor.Wiw.GetEntity(selected.SubItems[1].Text);
                     _monitor.Wiw.Remove(entity);
                 }
                 tvwCounters.AfterCheck += tvwCounter_AfterCheck;
@@ -528,11 +478,11 @@ namespace vApus.Monitor {
             foreach (ListViewItem lvwi in lvwEntities.Items)
                 applyCountTo.Add(lvwi);
 
-            foreach (Entity entity in _monitor.Wiw.Keys) {
-                List<CounterInfo> l = _monitor.Wiw[entity];
+            foreach (Entity entity in _monitor.Wiw) {
+                List<CounterInfo> l = entity.GetSubs();
                 int count = GetTotalCountOfCounters(l);
                 foreach (ListViewItem lvwi in lvwEntities.Items)
-                    if (lvwi.SubItems[1].Text == entity.Name) {
+                    if (lvwi.SubItems[1].Text == entity.GetName()) {
                         lvwi.SubItems[2].Text = "[" + count + "]";
                         applyCountTo.Remove(lvwi);
                         break;
@@ -546,9 +496,8 @@ namespace vApus.Monitor {
         private int GetTotalCountOfCounters(List<CounterInfo> list) {
             int count = 0;
             foreach (CounterInfo info in list) {
-                int c = info.Instances.Count;
-                if (c == 0)
-                    c = 1;
+                int c = info.GetSubs().Count;
+                if (c == 0) c = 1;
                 count += c;
             }
             return count;
@@ -691,7 +640,11 @@ namespace vApus.Monitor {
 
             var lvwiEntity = lvwEntities.Tag as ListViewItem;
             string entityName = lvwiEntity.SubItems[1].Text;
-            Entity entity = GetEntity(_monitor.Wiw, entityName);
+            Entity entity = _monitor.Wiw.GetEntity(entityName);
+            if (entity == null) {
+                entity = new Entity(entityName, true);
+                _monitor.Wiw.Add(entity);
+            }
 
             lvwiEntity.Checked = false;
             var nodes = lvwiEntity.Tag as TreeNode[];
@@ -702,48 +655,50 @@ namespace vApus.Monitor {
                 }
 
             if (lvwiEntity.Checked) {
-                if (_monitor.Wiw.ContainsKey(entity)) {
-                    foreach (CounterInfo info in _monitor.Wiw[entity])
-                        if (info.Counter == counterNode.Text) {
-                            _monitor.Wiw[entity].Remove(info);
+                if (_monitor.Wiw.Contains(entity)) {
+                    foreach (CounterInfo info in entity.GetSubs())
+                        if (info.GetName() == counterNode.Text) {
+                            entity.GetSubs().Remove(info);
                             break;
                         }
                     if (counterNode.Checked) {
                         var newCounterInfo = new CounterInfo(counterNode.Text);
+
                         foreach (TreeNode node in counterNode.Nodes)
                             if (node.Checked)
-                                newCounterInfo.Instances.Add(node.Text);
+                                newCounterInfo.GetSubs().Add(new CounterInfo(node.Text));
 
                         if (counterNode.Tag != null) {
                             var counterNodes = counterNode.Tag as TreeNode[];
                             foreach (TreeNode node in counterNodes)
                                 if (node.Checked)
-                                    newCounterInfo.Instances.Add(node.Text);
+                                    newCounterInfo.GetSubs().Add(new CounterInfo(node.Text));
                         }
 
-                        _monitor.Wiw[entity].Add(newCounterInfo);
+                        entity.GetSubs().Add(newCounterInfo);
                     }
                 } else {
-                    var counters = new List<CounterInfo>();
                     var newCounterInfo = new CounterInfo(counterNode.Text);
+
                     foreach (TreeNode node in counterNode.Nodes)
                         if (node.Checked)
-                            newCounterInfo.Instances.Add(node.Text);
+                            newCounterInfo.GetSubs().Add(new CounterInfo(node.Text));
 
                     if (counterNode.Tag != null) {
                         var counterNodes = counterNode.Tag as TreeNode[];
                         foreach (TreeNode node in counterNodes)
                             if (node.Checked)
-                                newCounterInfo.Instances.Add(node.Text);
+                                newCounterInfo.GetSubs().Add(new CounterInfo(node.Text));
                     }
-                    counters.Add(newCounterInfo);
+                    entity.GetSubs().Add(newCounterInfo);
 
                     //Random powerstate, doesn't matter
-                    entity = new Entity(entityName, PowerState.On);
-                    _monitor.Wiw.Add(entity, counters);
+                    entity = new Entity(entityName, true);
+                    _monitor.Wiw.Add(entity);
                 }
-            } else
+            } else {
                 _monitor.Wiw.Remove(entity);
+            }
 
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
         }
@@ -938,19 +893,19 @@ namespace vApus.Monitor {
         /// <param name="tvw">searches for existing nodes in this tvw</param>
         private void ParseTag(ListViewItem item) {
             //Make a gui for the data store in the tag (this tag will be switched with the gui).
-            if (item.Tag is List<CounterInfo>) {
-                var counters = item.Tag as List<CounterInfo>;
-                var newTag = new TreeNode[counters.Count];
-                for (int i = 0; i != counters.Count; i++) {
-                    CounterInfo counterInfo = counters[i];
-                    string counter = counterInfo.Counter;
+            if (item.Tag is Entity) {
+                var counterInfos = (item.Tag as Entity).GetSubs();
+                var newTag = new TreeNode[counterInfos.Count];
+                for (int i = 0; i != counterInfos.Count; i++) {
+                    CounterInfo counterInfo = counterInfos[i];
+                    string counter = counterInfo.GetName();
                     TreeNode counterNode = null;
 
                     //Search from end (faster) if the counter node already exists.
                     //The number of instances is important, it is possible that not each instance has the same entities for a counter.
                     for (int j = tvwCounters.Nodes.Count - 1; j != -1; j--) {
                         TreeNode node = tvwCounters.Nodes[j];
-                        if (node.Text == counter && node.Nodes.Count == counterInfo.Instances.Count) {
+                        if (node.Text == counter && node.Nodes.Count == counterInfo.GetSubs().Count) {
                             counterNode = node;
                             break;
                         }
@@ -960,15 +915,15 @@ namespace vApus.Monitor {
                         counterNode = new TreeNode(counter);
                     newTag[i] = counterNode;
 
-                    if (counterInfo.Instances.Count != 0) {
+                    if (counterInfo.GetSubs().Count != 0) {
                         //Only add the first, the rest will be added when the node expands. (tvwCounter.BeforeExpand)
-                        counterNode.Nodes.Add(counterInfo.Instances[0]);
+                        counterNode.Nodes.Add(counterInfo.GetSubs()[0].GetName());
 
                         //Keep the rest in the tag.
-                        if (counterInfo.Instances.Count != 1) {
-                            var otherInstances = new TreeNode[counterInfo.Instances.Count - 1];
-                            Parallel.For(1, counterInfo.Instances.Count,
-                                         delegate(int k) { otherInstances[k - 1] = new TreeNode(counterInfo.Instances[k]); });
+                        if (counterInfo.GetSubs().Count != 1) {
+                            var otherInstances = new TreeNode[counterInfo.GetSubs().Count - 1];
+                            Parallel.For(1, counterInfo.GetSubs().Count,
+                                         delegate(int k) { otherInstances[k - 1] = new TreeNode(counterInfo.GetSubs()[k].GetName()); });
 
                             counterNode.Tag = otherInstances;
                         }
@@ -976,18 +931,6 @@ namespace vApus.Monitor {
                 }
                 item.Tag = newTag;
             }
-        }
-
-        /// <summary>
-        /// </summary>
-        /// <param name="wiw"></param>
-        /// <param name="entityName"></param>
-        /// <returns>If not found a new entity with an empty name is returned</returns>
-        private Entity GetEntity(Dictionary<Entity, List<CounterInfo>> wiw, string entityName) {
-            foreach (Entity entity in wiw.Keys)
-                if (entity.Name == entityName)
-                    return entity;
-            return new Entity(string.Empty, PowerState.Off);
         }
 
         private void PushSavedWiW() {
@@ -998,20 +941,23 @@ namespace vApus.Monitor {
             TreeNode firstVisible = null;
 
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
-            var newWIW = new Dictionary<Entity, List<CounterInfo>>();
+            var newWIW = new Entities();
             foreach (ListViewItem lvwi in lvwEntities.Items) {
                 string entityName = lvwi.SubItems[1].Text;
-                Entity entity = GetEntity(_monitor.Wiw, entityName);
-                lvwi.Checked = entity.Name.Length != 0;
+                Entity entity = _monitor.Wiw.GetEntity(entityName);
+                lvwi.Checked = entity != null;
+
+                Entity newEntity = null;
                 if (lvwi.Checked) {
                     ParseTag(lvwi);
-                    newWIW.Add(entity, new List<CounterInfo>());
+                    newEntity = new Entity(entity.GetName(), entity.IsAvailable());
+                    newWIW.Add(newEntity);
                 }
 
                 var nodes = lvwi.Tag as TreeNode[];
                 if (nodes != null)
                     if (lvwi.Checked) {
-                        List<CounterInfo> l = _monitor.Wiw[entity];
+                        List<CounterInfo> l = entity.GetSubs();
                         foreach (TreeNode node in nodes) {
                             CounterInfo info = GetCounterInfo(node.Text, l);
                             CounterInfo newInfo = null;
@@ -1020,29 +966,31 @@ namespace vApus.Monitor {
                             if (node.Checked) {
                                 if (firstVisible == null) firstVisible = node;
 
-                                newInfo = new CounterInfo(info.Counter, node.Nodes.Count == 0 ? null : new List<string>());
+                                newInfo = new CounterInfo(info.GetName(), node.Nodes.Count == 0 ? null : new List<string>());
+
                                 foreach (TreeNode child in node.Nodes) {
-                                    child.Checked = info.Instances.Contains(child.Text);
+                                    CounterInfo instanceCandidate = GetCounterInfo(child.Text, info.GetSubs());
+                                    child.Checked = instanceCandidate != null;
                                     if (child.Checked)
-                                        newInfo.Instances.Add(child.Text);
+                                        newInfo.GetSubs().Add(new CounterInfo(instanceCandidate.GetName()));
                                 }
-                            } else
+
+                                var childNodes = node.Tag as TreeNode[];
+                                if (childNodes != null) { //Only if the node was not expanded.
+                                    foreach (TreeNode child in childNodes) {
+                                        CounterInfo instanceCandidate = GetCounterInfo(child.Text, info.GetSubs());
+                                        child.Checked = instanceCandidate != null;
+                                        if (child.Checked)
+                                            newInfo.GetSubs().Add(new CounterInfo(instanceCandidate.GetName()));
+                                    }
+                                }
+
+                                newEntity.GetSubs().Add(newInfo);
+
+                            } else {
                                 foreach (TreeNode child in node.Nodes)
                                     child.Checked = false;
-
-                            var childNodes = node.Tag as TreeNode[];
-                            if (childNodes != null)
-                                if (node.Checked)
-                                    foreach (TreeNode child in childNodes) {
-                                        child.Checked = info.Instances.Contains(child.Text);
-                                        if (child.Checked)
-                                            newInfo.Instances.Add(child.Text);
-                                    } else
-                                    foreach (TreeNode child in childNodes)
-                                        child.Checked = false;
-
-                            if (newInfo != null)
-                                newWIW[entity].Add(newInfo);
+                            }
                         }
                     } else {
                         foreach (TreeNode node in nodes) {
@@ -1095,13 +1043,15 @@ namespace vApus.Monitor {
             tmr.Start();
         }
 
-        void tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            throw new NotImplementedException();
-        }
-
-        private CounterInfo GetCounterInfo(string counter, List<CounterInfo> l) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="counterName"></param>
+        /// <param name="l"></param>
+        /// <returns>Null if not found</returns>
+        private CounterInfo GetCounterInfo(string counterName, List<CounterInfo> l) {
             foreach (CounterInfo info in l)
-                if (info.Counter == counter)
+                if (info.GetName() == counterName)
                     return info;
             return null;
         }
@@ -1207,20 +1157,17 @@ namespace vApus.Monitor {
 
         private void StartMonitor() {
             Cursor = Cursors.WaitCursor;
-            Exception exception;
-            string[] units = { };
 
             //Set the parameters and the values in the gui and in the proxy
-            Parameter[] parameters = _monitorProxy.GetParameters(_monitor.MonitorSource.Source, out exception);
-            SetParameters(parameters);
+            SetValuesToParameters();
 
-            if (exception == null)
-                _monitorProxy.SetWIW(_monitor.Wiw, out exception);
-            if (exception == null)
-                units = _monitorProxy.GetUnits(out exception);
+            //Re-establish the connection.
+            if (_monitorSourceClient.Connect()) {
+                _monitorSourceClient.OnMonitor += _monitorSourceClient_OnMonitor;
 
-            if (exception == null) {
-                monitorControl.Init(_monitor, units);
+                _monitorSourceClient.WIW = _monitor.Wiw;
+
+                monitorControl.Init(_monitor);
                 btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
 
                 int refreshInS = _refreshTimeInMS / 1000;
@@ -1236,9 +1183,7 @@ namespace vApus.Monitor {
                 tc.SelectedIndex = 1;
             }
 
-            if (exception == null) {
-                _monitorProxy.Start(out exception);
-            } else {
+            if (!_monitorSourceClient.IsConnected || !_monitorSourceClient.Start()) {
                 Stop();
                 string message = "Could not connect to the monitor!";
                 if (_forStresstest)
@@ -1251,7 +1196,7 @@ namespace vApus.Monitor {
                     } else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                Loggers.Log(Level.Error, message, exception);
+                Loggers.Log(Level.Error, message);
             }
             Cursor = Cursors.Default;
         }
@@ -1261,10 +1206,10 @@ namespace vApus.Monitor {
             try {
                 tmrProgressDelayCountDown.Stop();
 
-                if (_monitorProxy != null)
+                if (_monitorSourceClient != null)
                     try {
-                        Exception stopEx;
-                        _monitorProxy.Stop(out stopEx);
+                        _monitorSourceClient.Stop();
+                        _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
                     } catch {
                     }
 
@@ -1274,8 +1219,7 @@ namespace vApus.Monitor {
                     if (schedule != null)
                         btnSchedule.Text += GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                 } else if (btnSchedule.Text.StartsWith("Scheduled at")) {
-                    btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt +
-                                       GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
+                    btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                 }
                 tmrSchedule.Stop();
 
@@ -1320,8 +1264,8 @@ namespace vApus.Monitor {
         /// <returns></returns>
         public string GetConnectionString() {
             var connectionString = new List<string>();
-            foreach (Parameter key in _parametersWithValues.Keys)
-                connectionString.Add(key.Name + "=" + _parametersWithValues[key]);
+            foreach (Parameter parameter in _monitorSourceClient.Parameters)
+                connectionString.Add(parameter.Name + "=" + parameter.Value);
             return connectionString.Combine(", ");
         }
 

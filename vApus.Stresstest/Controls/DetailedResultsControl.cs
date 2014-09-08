@@ -307,8 +307,9 @@ namespace vApus.Stresstest {
             dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             var cultureInfo = Thread.CurrentThread.CurrentCulture;
             try {
-                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => { return ExecuteQuery(codeTextBox.Text, cultureInfo); }, _cancellationTokenSource.Token);
-            } catch { }
+                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => { return ExecuteQuery(codeTextBox.Text, cultureInfo); });
+            } catch {
+            }
 
             SizeColumns();
 

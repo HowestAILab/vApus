@@ -10,6 +10,7 @@ using RandomUtils.Log;
 using System;
 using System.CodeDom.Compiler;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.SolutionTree;
