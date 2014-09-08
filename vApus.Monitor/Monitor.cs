@@ -30,6 +30,7 @@ namespace vApus.Monitor {
 
         private MonitorSourceClient _monitorSourceClient = new MonitorSourceClient();
         private int _monitorSourceClientIndex, _previousMonitorSourceIndexForCounters;
+        private string _monitorSourceClientName = string.Empty;
         protected internal List<MonitorSourceClient> _monitorSourceClients = new List<MonitorSourceClient>();
 
         private Entities _wiw = new Entities();
@@ -54,6 +55,12 @@ namespace vApus.Monitor {
             set { _monitorSourceClientIndex = value; }
         }
 
+        [SavableCloneable]
+        public string MonitorSourceName {
+            get { return _monitorSourceClientName; }
+            set { _monitorSourceClientName = value; }
+        }
+
         [DisplayName("Monitor Source"), PropertyControl(1)]
         public MonitorSourceClient MonitorSource {
             get {
@@ -63,6 +70,7 @@ namespace vApus.Monitor {
             set {
                 _monitorSourceClient = value;
                 _monitorSourceClientIndex = _monitorSourceClients.IndexOf(_monitorSourceClient);
+                _monitorSourceClientName = _monitorSourceClient.ToString();
             }
         }
 
@@ -94,7 +102,7 @@ namespace vApus.Monitor {
             set {
                 try {
                     _wiw = JsonConvert.DeserializeObject<Entities>(value);
-                } catch { 
+                } catch {
                     //To make it 'backwards compatible' with older vass files.
                 }
                 if (_wiw == null) _wiw = new Entities();
@@ -145,13 +153,27 @@ namespace vApus.Monitor {
 
                 if (clients.Count == 0) {
                     _monitorSourceClientIndex = -1;
+                    _monitorSourceClientName = string.Empty;
                 } else {
-                    if (_monitorSourceClientIndex == -1)
-                        _monitorSourceClientIndex = 0;
-                    else if (_monitorSourceClientIndex >= _monitorSourceClients.Count)
-                        _monitorSourceClientIndex = _monitorSourceClients.Count - 1;
+                    if (_monitorSourceClientName == string.Empty) {
+                        //Backwards compatible.
+                        if (_monitorSourceClientIndex == -1)
+                            _monitorSourceClientIndex = 0;
+                        else if (_monitorSourceClientIndex >= _monitorSourceClients.Count)
+                            _monitorSourceClientIndex = _monitorSourceClients.Count - 1;
+                    } else {
+
+                        //Match names instead of indices #727 
+                        int candidate = 0;
+                        for (; candidate != _monitorSourceClients.Count; candidate++)
+                            if (_monitorSourceClients[candidate].ToString() == _monitorSourceClientName)
+                                break;
+
+                        _monitorSourceClientIndex = candidate;
+                    }
 
                     _monitorSourceClient = _monitorSourceClients[_monitorSourceClientIndex];
+                    _monitorSourceClientName = _monitorSourceClient.ToString();
                 }
             }
         }
