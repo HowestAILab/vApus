@@ -142,7 +142,7 @@ namespace vApus.Util {
                 return;
 
             //Revert to the default value if need be.
-            if (value.ToString().Length == 0 && _value.DefaultValue.ToString().Length != 0) {
+            if (value.ToString().Length == 0 && _value.DefaultValue != null && _value.DefaultValue.ToString().Length != 0) {
                 value = _value.DefaultValue;
                 RevertToDefaultValueOnGui();
                 SetCollapsedTextBoxText();
