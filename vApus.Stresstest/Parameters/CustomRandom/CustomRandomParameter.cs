@@ -66,7 +66,10 @@ return start.AddTicks(randomTicks);
         #endregion
 
         #region Constructors
-        public CustomRandomParameter() { Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged; }
+        public CustomRandomParameter() {
+            if (Solution.ActiveSolution == null)
+                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+        }
         public CustomRandomParameter(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {

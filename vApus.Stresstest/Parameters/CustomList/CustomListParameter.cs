@@ -55,6 +55,14 @@ namespace vApus.Stresstest {
                 }
                 if ((!this.IsEmpty && _linkTo == null) || _linkTo.Parent == null || _linkTo.LinkToIndex != Parent.IndexOf(this)) { //Links should work in both directions. if the other becomes empty or not this than this should be cleared.
                     _linkToIndex = -1;
+                    
+                    //Clean up to be sure
+                    if (_linkTo != null) {
+                        _linkTo._linkTo = null;
+                        _linkTo._linkToIndex = -1;
+                        _linkTo = null;
+                    }
+
                     _linkTo = GetEmpty(typeof(CustomListParameter), parent) as CustomListParameter;
                     _linkTo.SetParent(parent);
                     _linkTo.SetTag(this); //To not include 'this' in the selectable values on the gui.

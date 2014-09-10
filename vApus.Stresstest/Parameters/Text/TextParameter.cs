@@ -87,7 +87,10 @@ namespace vApus.Stresstest {
         /// <summary>
         /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
         /// </summary>
-        public TextParameter() { Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged; }
+        public TextParameter() {
+            if (Solution.ActiveSolution == null)
+                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+        }
         /// <summary>
         /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
         /// </summary>
@@ -119,7 +122,6 @@ namespace vApus.Stresstest {
             if (Parent != null && Parent is CustomListParameter)
                 ShowInGui = false;
         }
-
         public override void Next() {
             SetValue();
             while (!_chosenValues.Add(Value))

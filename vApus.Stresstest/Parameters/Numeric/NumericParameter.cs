@@ -145,7 +145,8 @@ namespace vApus.Stresstest {
             _doubleValue = _minValue;
 
             _decimalSeparator = CultureInfo.CurrentCulture.NumberFormat.NumberDecimalSeparator;
-            Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
+            if (Solution.ActiveSolution == null)
+                Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
         }
         /// <summary>
         /// Generates numeric values with a pre- or suffix if you like.
@@ -189,7 +190,6 @@ namespace vApus.Stresstest {
             if (Parent != null && Parent is CustomListParameter)
                 ShowInGui = false;
         }
-
         public override void Next() {
             SetValue();
             while (!_chosenValues.Add(Value))
