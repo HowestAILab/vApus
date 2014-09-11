@@ -372,13 +372,15 @@ namespace vApus.SolutionTree {
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
 
-                if (errorMessage.Length > 0)
+                if (errorMessage.Length > 0) {
+                    Loggers.Log(Level.Warning, errorMessage);
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
 This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
 Take a copy of the file to be sure and test if stresstesting works.
 
 See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             return false;
         }
@@ -424,13 +426,16 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
 
-                if (errorMessage.Length > 0)
+                if (errorMessage.Length > 0) {
+                    Loggers.Log(Level.Warning, errorMessage);
+
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
 This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
 Take a copy of the file to be sure and test if stresstesting works.
 
 See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             return false;
         }
@@ -494,7 +499,9 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
 
-                if (errorMessage.Length > 0)
+                if (errorMessage.Length > 0) {
+                    Loggers.Log(Level.Warning, errorMessage);
+
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
 This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
@@ -502,6 +509,7 @@ Take a copy of the file to be sure and test if stresstesting works.
 
 See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty,
                                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
+                }
             }
             return false;
         }
