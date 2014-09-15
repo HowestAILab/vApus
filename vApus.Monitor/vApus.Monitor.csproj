@@ -193,6 +193,7 @@
     <Compile Include="Controls\MonitorParameterPanel.Designer.cs">
       <DependentUpon>MonitorParameterPanel.cs</DependentUpon>
     </Compile>
+    <Compile Include="DefaultWIWs.cs" />
     <Compile Include="LocalMonitor.cs" />
     <Compile Include="Monitor.cs" />
     <Compile Include="MonitorProject.cs" />
