@@ -147,8 +147,10 @@ namespace vApus.Results {
                 var timestamp = (DateTime)row[0];
                 if (timestamp >= from && timestamp <= to) {
                     var values = new float[row.Length - 1];
-                    for (int i = 0; i != values.Length; i++)
-                        values[i] = (float)row[i + 1];
+                    for (int i = 0; i != values.Length; i++) {
+                        object cellValue = row[i + 1];
+                        values[i] = cellValue is float ? (float)cellValue : -1;
+                    }
 
                     if (!monitorValues.ContainsKey(timestamp))
                         monitorValues.Add(timestamp, values);

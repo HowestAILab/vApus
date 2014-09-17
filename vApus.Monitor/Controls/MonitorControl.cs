@@ -181,8 +181,11 @@ namespace vApus.Monitor {
 
                     string counterValue = counterValues[i];
                     object parsedValue = null;
+                    bool boolValue = false;
                     if (counterValue.IsNumeric()) {
                         parsedValue = float.Parse(counterValue);
+                    } else if (bool.TryParse(counterValue, out boolValue)) {
+                        parsedValue = boolValue ? 1f : 0f;
                     } else {
                         DateTime timeStamp;
                         if (DateTime.TryParse(counterValue, out timeStamp))

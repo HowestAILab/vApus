@@ -940,15 +940,9 @@ namespace vApus.Monitor {
             //Autoscroll to the first selected/checked counter.
             TreeNode firstVisible = null;
 
-            //Get default WIW when needed and if available.
-            if (_monitor.Wiw.Count == 0) {
-                string defaultWIW = DefaultWIWs.Get(_monitor.MonitorSource.ToString());
-                if (!string.IsNullOrEmpty(defaultWIW)) {
-                    _monitor.WIWRepresentation = defaultWIW;
-                    _monitor.Wiw[0].name = _wdyh[0].GetName();
-                    _monitor.Wiw[0].isAvailable = _wdyh[0].IsAvailable();
-                }
-            }
+            //Default WIW when needed and if available.
+            if (_monitor.Wiw.Count == 0) 
+                DefaultWIWs.Set(_monitor, _wdyh);
 
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
             var newWIW = new Entities();
