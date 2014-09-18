@@ -34,8 +34,8 @@
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(MonitorView));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
@@ -50,6 +50,7 @@
             this.btnConfiguration = new System.Windows.Forms.Button();
             this.btnGetCounters = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
+            this.chkGroupChecked = new System.Windows.Forms.CheckBox();
             this.llblUncheckAllVisible = new System.Windows.Forms.LinkLabel();
             this.picFilter = new System.Windows.Forms.PictureBox();
             this.llblCheckAllVisible = new System.Windows.Forms.LinkLabel();
@@ -184,7 +185,7 @@
             // 
             // lblMonitorSourceMismatch
             // 
-            this.lblMonitorSourceMismatch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.lblMonitorSourceMismatch.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblMonitorSourceMismatch.AutoEllipsis = true;
             this.lblMonitorSourceMismatch.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
@@ -199,21 +200,21 @@
         "tion or \'get\' the counters again.");
             this.lblMonitorSourceMismatch.Visible = false;
             // 
-            // label4
+            // lblMonitorSourceParameters
             // 
             this.lblMonitorSourceParameters.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.lblMonitorSourceParameters.AutoSize = true;
             this.lblMonitorSourceParameters.BackColor = System.Drawing.Color.White;
             this.lblMonitorSourceParameters.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblMonitorSourceParameters.Location = new System.Drawing.Point(597, 6);
-            this.lblMonitorSourceParameters.Name = "label4";
+            this.lblMonitorSourceParameters.Name = "lblMonitorSourceParameters";
             this.lblMonitorSourceParameters.Size = new System.Drawing.Size(160, 13);
             this.lblMonitorSourceParameters.TabIndex = 8;
             this.lblMonitorSourceParameters.Text = "Monitor Source Parameters";
             // 
             // parameterPanel
             // 
-            this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.parameterPanel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.parameterPanel.AutoSelectControl = false;
             this.parameterPanel.FlowDirection = System.Windows.Forms.FlowDirection.TopDown;
@@ -226,8 +227,8 @@
             // 
             // propertyPanel
             // 
-            this.propertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.propertyPanel.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.propertyPanel.BackColor = System.Drawing.Color.Transparent;
             this.propertyPanel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
@@ -273,8 +274,9 @@
             // 
             // panel1
             // 
-            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.panel1.Controls.Add(this.chkGroupChecked);
             this.panel1.Controls.Add(this.llblUncheckAllVisible);
             this.panel1.Controls.Add(this.picFilter);
             this.panel1.Controls.Add(this.llblCheckAllVisible);
@@ -282,8 +284,20 @@
             this.panel1.Location = new System.Drawing.Point(362, 4);
             this.panel1.MinimumSize = new System.Drawing.Size(227, 21);
             this.panel1.Name = "panel1";
-            this.panel1.Size = new System.Drawing.Size(355, 21);
+            this.panel1.Size = new System.Drawing.Size(456, 21);
             this.panel1.TabIndex = 1;
+            // 
+            // chkGroupChecked
+            // 
+            this.chkGroupChecked.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.chkGroupChecked.AutoSize = true;
+            this.chkGroupChecked.Location = new System.Drawing.Point(357, 3);
+            this.chkGroupChecked.Name = "chkGroupChecked";
+            this.chkGroupChecked.Size = new System.Drawing.Size(100, 17);
+            this.chkGroupChecked.TabIndex = 10;
+            this.chkGroupChecked.Text = "Group checked";
+            this.chkGroupChecked.UseVisualStyleBackColor = true;
+            this.chkGroupChecked.CheckedChanged += new System.EventHandler(this.chkGroupChecked_CheckedChanged);
             // 
             // llblUncheckAllVisible
             // 
@@ -349,7 +363,7 @@
             // 
             // txtFilter
             // 
-            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtFilter.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFilter.HideSelection = false;
             this.txtFilter.Location = new System.Drawing.Point(1, 1);
@@ -367,7 +381,7 @@
             // 
             // lvwEntities
             // 
-            this.lvwEntities.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.lvwEntities.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.lvwEntities.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lvwEntities.CheckBoxes = true;
@@ -382,7 +396,7 @@
             this.lvwEntities.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lvwEntities.MultiSelect = false;
             this.lvwEntities.Name = "lvwEntities";
-            this.lvwEntities.Size = new System.Drawing.Size(353, 323);
+            this.lvwEntities.Size = new System.Drawing.Size(353, 327);
             this.lvwEntities.SmallImageList = this.imgListEntityState;
             this.lvwEntities.TabIndex = 0;
             this.lvwEntities.UseCompatibleStateImageBehavior = false;
@@ -415,15 +429,15 @@
             // 
             // tvwCounters
             // 
-            this.tvwCounters.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tvwCounters.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tvwCounters.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tvwCounters.CheckBoxes = true;
             this.tvwCounters.Location = new System.Drawing.Point(359, 33);
             this.tvwCounters.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.tvwCounters.Name = "tvwCounters";
-            this.tvwCounters.Size = new System.Drawing.Size(642, 293);
+            this.tvwCounters.Size = new System.Drawing.Size(642, 297);
             this.tvwCounters.TabIndex = 2;
             this.tvwCounters.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwCounter_AfterCheck);
             this.tvwCounters.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwCounter_BeforeExpand);
@@ -445,7 +459,7 @@
             // 
             // flowLayoutPanel1
             // 
-            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.flowLayoutPanel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flowLayoutPanel1.Controls.Add(this.lblCountDown);
             this.flowLayoutPanel1.FlowDirection = System.Windows.Forms.FlowDirection.RightToLeft;
@@ -486,7 +500,7 @@
             // 
             // txtFilterMonitorControlColumns
             // 
-            this.txtFilterMonitorControlColumns.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtFilterMonitorControlColumns.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtFilterMonitorControlColumns.HideSelection = false;
             this.txtFilterMonitorControlColumns.Location = new System.Drawing.Point(12, 16);
@@ -544,10 +558,10 @@
             this.monitorControl.AllowUserToAddRows = false;
             this.monitorControl.AllowUserToDeleteRows = false;
             this.monitorControl.AllowUserToResizeRows = false;
-            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
-            this.monitorControl.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.monitorControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+            this.monitorControl.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            this.monitorControl.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.monitorControl.BackgroundColor = System.Drawing.Color.White;
             this.monitorControl.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -562,16 +576,16 @@
             this.monitorControl.ReadOnly = true;
             this.monitorControl.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.monitorControl.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.monitorControl.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.monitorControl.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.monitorControl.Size = new System.Drawing.Size(1007, 579);
             this.monitorControl.TabIndex = 3;
             this.monitorControl.VirtualMode = true;
             // 
             // tc
             // 
-            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpConfigure);
@@ -671,5 +685,6 @@
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.LinkLabel llblUncheckAllVisible;
+        private System.Windows.Forms.CheckBox chkGroupChecked;
     }
 }

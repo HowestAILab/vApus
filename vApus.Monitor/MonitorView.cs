@@ -8,6 +8,7 @@
 using RandomUtils;
 using RandomUtils.Log;
 using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
@@ -300,6 +301,8 @@ namespace vApus.Monitor {
 
             await Task.Run(() => __WDYH());
 
+            GroupChecked = chkGroupChecked.Checked;
+
             string errorMessage = null;
             if (split.Panel2.Enabled && lvwEntities.Items.Count != 0 && tvwCounters.Nodes.Count != 0) {
 
@@ -584,6 +587,8 @@ namespace vApus.Monitor {
             ExtractWIWForTreeViewAction(e.Node);
             llblUncheckAllVisible.Enabled = HasCheckedNodes();
             llblCheckAllVisible.Enabled = HasUncheckedNodes();
+
+            GroupChecked = chkGroupChecked.Checked;
         }
 
         private void ExtractWIWForTreeViewAction(TreeNode counterNode) {
@@ -842,6 +847,8 @@ namespace vApus.Monitor {
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
+
+                GroupChecked = chkGroupChecked.Checked;
             }
         }
 
@@ -941,7 +948,7 @@ namespace vApus.Monitor {
             TreeNode firstVisible = null;
 
             //Default WIW when needed and if available.
-            if (_monitor.Wiw.Count == 0) 
+            if (_monitor.Wiw.Count == 0)
                 DefaultWIWs.Set(_monitor, _wdyh);
 
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
@@ -1090,6 +1097,29 @@ namespace vApus.Monitor {
             }
         }
 
+        private void chkGroupChecked_CheckedChanged(object sender, EventArgs e) { GroupChecked = chkGroupChecked.Checked; }
+        private bool GroupChecked {
+            get { return chkGroupChecked.Checked; }
+            set {
+                chkGroupChecked.CheckedChanged -= chkGroupChecked_CheckedChanged;
+
+                chkGroupChecked.Checked = value;
+                if (chkGroupChecked.Checked) {
+                    tvwCounters.TreeViewNodeSorter = CountersReverseTreeNodeTextComparer.GetInstance(); //Sorting in tvws is strange.
+                    tvwCounters.TreeViewNodeSorter = CountersTreeNodeCheckedComparer.GetInstance();
+                } else {
+                    tvwCounters.TreeViewNodeSorter = CountersTreeNodeTextComparer.GetInstance();
+
+                    foreach (TreeNode node in tvwCounters.Nodes)
+                        if (node.Checked) {
+                            node.EnsureVisible(); 
+                            break;
+                        }
+                }
+
+                chkGroupChecked.CheckedChanged += chkGroupChecked_CheckedChanged;
+            }
+        }
         #endregion
 
         #endregion
@@ -1282,6 +1312,33 @@ namespace vApus.Monitor {
             public MonitorInitializedEventArgs(string errorMessage) {
                 ErrorMessage = errorMessage;
             }
+        }
+
+        private class CountersTreeNodeTextComparer : IComparer {
+            private static CountersTreeNodeTextComparer _instance = new CountersTreeNodeTextComparer();
+            public int Compare(object x, object y) {
+                return (x as TreeNode).Text.CompareTo((y as TreeNode).Text);
+            }
+            private CountersTreeNodeTextComparer() { }
+            public static CountersTreeNodeTextComparer GetInstance() { return _instance; }
+        }
+
+        private class CountersReverseTreeNodeTextComparer : IComparer {
+            private static CountersReverseTreeNodeTextComparer _instance = new CountersReverseTreeNodeTextComparer();
+            public int Compare(object x, object y) {
+                return (y as TreeNode).Text.CompareTo((x as TreeNode).Text);
+            }
+            private CountersReverseTreeNodeTextComparer() { }
+            public static CountersReverseTreeNodeTextComparer GetInstance() { return _instance; }
+        }
+
+        private class CountersTreeNodeCheckedComparer : IComparer {
+            private static CountersTreeNodeCheckedComparer _instance = new CountersTreeNodeCheckedComparer();
+            public int Compare(object x, object y) {
+                return (y as TreeNode).Checked.CompareTo((x as TreeNode).Checked);
+            }
+            private CountersTreeNodeCheckedComparer() { }
+            public static CountersTreeNodeCheckedComparer GetInstance() { return _instance; }
         }
     }
 }
