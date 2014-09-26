@@ -182,16 +182,25 @@ namespace vApus.Monitor {
                     string counterValue = counterValues[i];
                     object parsedValue = null;
                     bool boolValue = false;
+                    float floatValue = -1f;
                     if (counterValue.IsNumeric()) {
                         parsedValue = float.Parse(counterValue);
-                    } else if (bool.TryParse(counterValue, out boolValue)) {
-                        parsedValue = boolValue ? 1f : 0f;
-                    } else {
-                        DateTime timeStamp;
-                        if (DateTime.TryParse(counterValue, out timeStamp))
-                            parsedValue = timeStamp;
-                        else
-                            parsedValue = counterValue;
+                    } else if (counterValue.Contains("E+")) {
+                        if (float.TryParse(counterValue, out floatValue))
+                            parsedValue = floatValue;
+                        else if (counterValue[1] == ',' && float.TryParse(counterValue.Replace(',', '.'), out floatValue))
+                            parsedValue = floatValue;
+                    }
+                    if (parsedValue == null) {
+                        if (bool.TryParse(counterValue, out boolValue)) {
+                            parsedValue = boolValue ? 1f : 0f;
+                        } else {
+                            DateTime timeStamp;
+                            if (DateTime.TryParse(counterValue, out timeStamp))
+                                parsedValue = timeStamp;
+                            else
+                                parsedValue = counterValue;
+                        }
                     }
                     row[i + 1] = parsedValue;
                 }
@@ -272,7 +281,14 @@ namespace vApus.Monitor {
                     var newRow = new string[row.Length];
                     for (int i = 0; i != row.Length; i++) {
                         object o = row[i];
-                        newRow[i] = (o is float) ? StringUtil.FloatToLongString((float)o) : ((DateTime)o).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                        string s = string.Empty;
+                        if (o is float)
+                            s = StringUtil.FloatToLongString((float)o);
+                        else if (o is DateTime)
+                            s = ((DateTime)o).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                        else s = o.ToString();
+
+                        newRow[i] = s;
                     }
                     newCache.Add(newRow);
                 }

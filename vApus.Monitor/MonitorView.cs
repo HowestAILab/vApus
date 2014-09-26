@@ -317,8 +317,7 @@ namespace vApus.Monitor {
         }
 
         private void __WDYH() {
-            if (_monitorSourceClient == null)
-                InitMonitorSourceClient();
+            InitMonitorSourceClient();
 
             string config = null;
             //Set the parameters and the values in the gui and in the proxy
@@ -948,8 +947,20 @@ namespace vApus.Monitor {
             TreeNode firstVisible = null;
 
             //Default WIW when needed and if available.
-            if (_monitor.Wiw.Count == 0)
+            if (_monitor.Wiw.Count == 0) {
                 DefaultWIWs.Set(_monitor, _wdyh);
+            } else {
+                //Correct entity names, if needed 
+                for (int entityIndex = 0; entityIndex != _monitor.Wiw.Count; entityIndex++) {
+                    if (entityIndex >= _wdyh.Count)
+                        break;
+
+                    var wiwEntity = _monitor.Wiw[entityIndex];
+                    var wihEntity = _wdyh[entityIndex];
+                    wiwEntity.name = wihEntity.GetName();
+                    wiwEntity.isAvailable = wihEntity.IsAvailable();
+                }
+            }
 
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
             var newWIW = new Entities();
@@ -1112,7 +1123,7 @@ namespace vApus.Monitor {
 
                     foreach (TreeNode node in tvwCounters.Nodes)
                         if (node.Checked) {
-                            node.EnsureVisible(); 
+                            node.EnsureVisible();
                             break;
                         }
                 }
