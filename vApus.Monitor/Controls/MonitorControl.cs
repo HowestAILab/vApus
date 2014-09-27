@@ -9,6 +9,7 @@ using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
 using System.Text;
 using System.Text.RegularExpressions;
@@ -171,7 +172,13 @@ namespace vApus.Monitor {
             try {
                 if (ColumnCount == 0) return;
 
-                Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator = decimalSeparator;
+                CultureInfo currentCulture = null;
+                if (Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator != decimalSeparator) {
+                    currentCulture = Thread.CurrentThread.CurrentCulture;
+                    CultureInfo tempCulture = currentCulture.Clone() as CultureInfo;
+                    tempCulture.NumberFormat.NumberDecimalSeparator = decimalSeparator;
+                    Thread.CurrentThread.CurrentCulture = tempCulture;
+                }
 
                 List<string> counterValues = counters.GetCountersAtLastLevel();
                 object[] row = new object[ColumnCount];
@@ -182,25 +189,17 @@ namespace vApus.Monitor {
                     string counterValue = counterValues[i];
                     object parsedValue = null;
                     bool boolValue = false;
-                    float floatValue = -1f;
                     if (counterValue.IsNumeric()) {
                         parsedValue = float.Parse(counterValue);
-                    } else if (counterValue.Contains("E+")) {
-                        if (float.TryParse(counterValue, out floatValue))
-                            parsedValue = floatValue;
-                        else if (counterValue[1] == ',' && float.TryParse(counterValue.Replace(',', '.'), out floatValue))
-                            parsedValue = floatValue;
-                    }
-                    if (parsedValue == null) {
-                        if (bool.TryParse(counterValue, out boolValue)) {
-                            parsedValue = boolValue ? 1f : 0f;
-                        } else {
-                            DateTime timeStamp;
-                            if (DateTime.TryParse(counterValue, out timeStamp))
-                                parsedValue = timeStamp;
-                            else
-                                parsedValue = counterValue;
-                        }
+                    } else if (bool.TryParse(counterValue, out boolValue)) {
+                        parsedValue = boolValue ? 1f : 0f;
+                    } else {
+                        DateTime timeStamp;
+                        if (DateTime.TryParse(counterValue, out timeStamp))
+                            parsedValue = timeStamp;
+                        else
+                            parsedValue = counterValue;
+
                     }
                     row[i + 1] = parsedValue;
                 }
@@ -214,6 +213,9 @@ namespace vApus.Monitor {
                     FirstDisplayedScrollingRowIndex = RowCount - 1;
                     Scroll += MonitorControl_Scroll;
                 }
+
+                if (currentCulture != null)
+                    Thread.CurrentThread.CurrentCulture = currentCulture;
                 //  }, null);
 
                 lock (_lock) {
