@@ -395,7 +395,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
                     foreach (var row in monitorResultCache.Rows) {
                         var value = new List<string>();
-                        for (int i = 1; i < row.Length; i++) value.Add(StringUtil.FloatToLongString((float)row[i]));
+                        for (int i = 1; i < row.Length; i++) value.Add(StringUtil.DoubleToLongString((double)row[i]));
 
                         var sb = new StringBuilder("('");
                         sb.Append(monitorConfigurationId);
@@ -751,12 +751,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             heaviestRow = row;
 
                     //Get the response times in descending order.
-                    var heaviestResponseTimes = new Dictionary<string, float>();
+                    var heaviestResponseTimes = new Dictionary<string, double>();
                     for (int i = 2; i != heaviestRow.ItemArray.Length - 2; i++)  //We do not want the first two and the last two columns.
-                        heaviestResponseTimes.Add(overview.Columns[i].ColumnName, float.Parse(heaviestRow[i].ToString()));
+                        heaviestResponseTimes.Add(overview.Columns[i].ColumnName, double.Parse(heaviestRow[i].ToString()));
 
                     var uselessDataStructureMakingStuffHard = heaviestResponseTimes.OrderByDescending(kvp => kvp.Value);
-                    heaviestResponseTimes = new Dictionary<string, float>();
+                    heaviestResponseTimes = new Dictionary<string, double>();
                     foreach (var kvp in uselessDataStructureMakingStuffHard)
                         heaviestResponseTimes.Add(kvp.Key, kvp.Value);
 
@@ -811,12 +811,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             heaviestRow = row;
 
                     //Get the response times in descending order.
-                    var heaviestResponseTimes = new Dictionary<string, float>();
+                    var heaviestResponseTimes = new Dictionary<string, double>();
                     for (int i = 2; i != heaviestRow.ItemArray.Length - 2; i++)  //We do not want the first two and the last two columns.
-                        heaviestResponseTimes.Add(overview.Columns[i].ColumnName, float.Parse(heaviestRow[i].ToString()));
+                        heaviestResponseTimes.Add(overview.Columns[i].ColumnName, double.Parse(heaviestRow[i].ToString()));
 
                     var uselessDataStructureMakingStuffHard = heaviestResponseTimes.OrderByDescending(kvp => kvp.Value);
-                    heaviestResponseTimes = new Dictionary<string, float>();
+                    heaviestResponseTimes = new Dictionary<string, double>();
                     foreach (var kvp in uselessDataStructureMakingStuffHard)
                         heaviestResponseTimes.Add(kvp.Key, kvp.Value);
 
@@ -1334,7 +1334,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 DataTable monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
                                 if (monitorResults == null || monitorResults.Rows.Count == 0) continue;
 
-                                var monitorValues = new List<KeyValuePair<DateTime, float[]>>(monitorResults.Rows.Count);
+                                var monitorValues = new List<KeyValuePair<DateTime, double[]>>(monitorResults.Rows.Count);
                                 foreach (DataRow monitorResultsRow in monitorResults.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
@@ -1360,20 +1360,20 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                         if (stringValueBlob.Contains(".")) Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
 
                                         string[] splittedValue = stringValueBlob.Split(new string[] { "; " }, StringSplitOptions.None);
-                                        float[] values = new float[splittedValue.Length];
+                                        double[] values = new double[splittedValue.Length];
 
                                         for (long l = 0; l != splittedValue.LongLength; l++) {
                                             if (cancellationToken.IsCancellationRequested) return null;
 
-                                            values[l] = float.Parse(splittedValue[l].Trim());
+                                            values[l] = double.Parse(splittedValue[l].Trim());
                                         }
-                                        monitorValues.Add(new KeyValuePair<DateTime, float[]>(timeStamp, values));
+                                        monitorValues.Add(new KeyValuePair<DateTime, double[]>(timeStamp, values));
 
                                         Thread.CurrentThread.CurrentCulture = prevCulture;
                                     }
                                 }
 
-                                float[] averages = GetAverageMonitorResults(cancellationToken, monitorValues);
+                                double[] averages = GetAverageMonitorResults(cancellationToken, monitorValues);
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 var startedAt = concurrencyDelimiters[concurrencyId].Key;
@@ -1392,7 +1392,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 //Correct the formatting here.
                                 string[] stringAverages = new string[averages.LongLength];
                                 for (long l = 0L; l != averages.LongLength; l++)
-                                    stringAverages[l] = StringUtil.FloatToLongString(averages[l]);
+                                    stringAverages[l] = StringUtil.DoubleToLongString(averages[l]);
 
                                 stringAverages.CopyTo(fragmentedAverages, offset);
 
@@ -1407,30 +1407,30 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
         }
         /// <summary>
-        /// From a 2 dimensional collection to an array of floats.
+        /// From a 2 dimensional collection to an array of doubles.
         /// </summary>
         /// <param name="cancellationToken">Used in await Tast.Run...</param>
         /// <param name="monitorValues"></param>        /// <returns></returns>
-        private float[] GetAverageMonitorResults(CancellationToken cancellationToken, List<KeyValuePair<DateTime, float[]>> monitorValues) {
-            var averageMonitorResults = new float[0];
+        private double[] GetAverageMonitorResults(CancellationToken cancellationToken, List<KeyValuePair<DateTime, double[]>> monitorValues) {
+            var averageMonitorResults = new double[0];
             if (monitorValues.Count != 0) {
                 //Average divider
                 int valueCount = monitorValues.Count;
-                averageMonitorResults = new float[valueCount];
+                averageMonitorResults = new double[valueCount];
 
                 foreach (var kvp in monitorValues) {
                     if (cancellationToken.IsCancellationRequested) return null;
 
                     var timeStamp = kvp.Key;
-                    var floats = kvp.Value;
+                    var doubles = kvp.Value;
 
-                    // The averages length must be the same as the floats length.
-                    if (averageMonitorResults.Length != floats.Length) averageMonitorResults = new float[floats.Length];
+                    // The averages length must be the same as the doubles length.
+                    if (averageMonitorResults.Length != doubles.Length) averageMonitorResults = new double[doubles.Length];
 
-                    for (long l = 0; l != floats.LongLength; l++) {
+                    for (long l = 0; l != doubles.LongLength; l++) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        float value = floats[l], average = averageMonitorResults[l];
+                        double value = doubles[l], average = averageMonitorResults[l];
 
                         if (value == -1) //Detect invalid values.
                             averageMonitorResults[l] = -1;
@@ -1500,7 +1500,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
                                 Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("nl-BE");
 
-                                var monitorValues = new Dictionary<DateTime, float[]>(mrs.Rows.Count);
+                                var monitorValues = new Dictionary<DateTime, double[]>(mrs.Rows.Count);
                                 foreach (DataRow monitorResultsRow in mrs.Rows) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
@@ -1511,7 +1511,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     string[] stringValues = stringValueBlob.Split(new string[] { "; " }, StringSplitOptions.None);
                                     object[] values = new object[stringValues.LongLength];
                                     for (long l = 0L; l != stringValues.LongLength; l++)
-                                        values[l] = float.Parse(stringValues[l]);
+                                        values[l] = double.Parse(stringValues[l]);
 
                                     var row = new List<object>();
                                     row.Add(stresstest);
@@ -1608,13 +1608,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
 
                     //Add run time and gap columns.
-                    float longestRowCountMod = ((float)longestRowCount / 2) + 0.5f;
+                    double longestRowCountMod = ((double)longestRowCount / 2) + 0.5d;
                     var objectType = typeof(object);
 
-                    for (float f = 1f; f != longestRowCountMod; f += 0.5f) {
+                    for (double dou = 1f; dou != longestRowCountMod; dou += 0.5d) {
                         if (cancellationToken.IsCancellationRequested) return null;
-                        int i = (int)f;
-                        runsOverTime.Columns.Add((f - i == 0.5) ? "Init time " + i : i.ToString(), objectType);
+                        int i = (int)dou;
+                        runsOverTime.Columns.Add((dou - i == 0.5) ? "Init time " + i : i.ToString(), objectType);
                     }
 
                     //Add the rows.
@@ -1654,7 +1654,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                     int stresstestsRowCount = stresstests.Rows.Count;
                     var tpsPerWatt = new List<List<double>>();
-                    var secondaryCounterValues = new List<float>();
+                    var secondaryCounterValues = new List<double>();
 
                     bool hasSecondaryCounterValues = secondaryMonitorName != null && secondaryCounter != null;
 
@@ -1671,7 +1671,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             double tpPerWatt = (double)dtRow.ItemArray[1];
                             if (tpPerWatt != 0d) l.Add(tpPerWatt);
 
-                            if (hasSecondaryCounterValues && dtRowIndex >= secondaryCounterValues.Count) secondaryCounterValues.Add((float)dtRow.ItemArray[2]);
+                            if (hasSecondaryCounterValues && dtRowIndex >= secondaryCounterValues.Count) secondaryCounterValues.Add((double)dtRow.ItemArray[2]);
                         }
                     }
 
@@ -1731,7 +1731,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             bool hasSecondaryCounterValues = secondaryMonitorName != null && secondaryCounter != null;
 
             int secondaryMonitorBefore = 0, secondaryMonitorAfter = 0;
-            Dictionary<DateTime, float> secondaryCounterValues = null;
+            Dictionary<DateTime, double> secondaryCounterValues = null;
 
             if (hasSecondaryCounterValues) {
                 int secondaryMonitorStresstestId = 0;
@@ -1840,7 +1840,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             //Now we need to get the watt and performance counter for each minute of the test. Monitor before and after must be taken into account.
 
             var wattPerMinute = GetAveragePerMinute(cancellationToken, wattCounterValues);
-            Dictionary<int, float> secondaryCounterPerMinute = null;
+            Dictionary<int, double> secondaryCounterPerMinute = null;
             if (hasSecondaryCounterValues)
                 secondaryCounterPerMinute = GetAveragePerMinute(cancellationToken, secondaryCounterValues);
 
@@ -1870,8 +1870,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 if (tpm == 0d) {
                     row[1] = 0d;
                 } else {
-                    float wpm = wattPerMinute[newMinute];
-                    row[1] = wpm == 0f ? 0d : throughputPerMinute[minute] / wpm;
+                    double wpm = wattPerMinute[newMinute];
+                    row[1] = wpm == 0d ? 0d : throughputPerMinute[minute] / wpm;
                 }
 
                 if (hasSecondaryCounterValues)
@@ -1901,7 +1901,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="monitorName"></param>
         /// <param name="counter"></param>
         /// <returns></returns>
-        private Dictionary<DateTime, float> GetMonitorCounterValues(CancellationToken cancellationToken, string monitorName, string counter, out int stresstestId) {
+        private Dictionary<DateTime, double> GetMonitorCounterValues(CancellationToken cancellationToken, string monitorName, string counter, out int stresstestId) {
             stresstestId = 0;
             var monitor = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, "Monitor='" + monitorName + "'", new int[0], new string[] { "Id", "StresstestId", "ResultHeaders" });
             if (monitor == null || monitor.Rows.Count == 0) return null;
@@ -1915,7 +1915,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             var monitorResults = ReaderAndCombiner.GetMonitorResults(_databaseActions, id, "TimeStamp", "Value");
             if (monitorResults == null || monitorResults.Rows.Count == 0) return null;
 
-            var dict = new Dictionary<DateTime, float>(monitorResults.Rows.Count);
+            var dict = new Dictionary<DateTime, double>(monitorResults.Rows.Count);
 
             for (int i = 0; i != monitorResults.Rows.Count; i++) {
                 if (cancellationToken.IsCancellationRequested) return null;
@@ -1923,18 +1923,18 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 row = monitorResults.Rows[i];
                 string[] value = (row.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
-                dict.Add((DateTime)row.ItemArray[0], float.Parse(value[resultHeaderIndex]));
+                dict.Add((DateTime)row.ItemArray[0], double.Parse(value[resultHeaderIndex]));
             }
 
             return dict;
         }
-        private Dictionary<int, float> GetAveragePerMinute(CancellationToken cancellationToken, Dictionary<DateTime, float> dict) {
-            var averagePerMinute = new Dictionary<int, float>();
+        private Dictionary<int, double> GetAveragePerMinute(CancellationToken cancellationToken, Dictionary<DateTime, double> dict) {
+            var averagePerMinute = new Dictionary<int, double>();
 
             DateTime nextMinute = dict.GetKeyAt(0).AddMinutes(1);
 
-            var currentMinute = new List<float>();
-            float average;
+            var currentMinute = new List<double>();
+            double average;
             int count;
             foreach (var key in dict.Keys) {
                 if (cancellationToken.IsCancellationRequested) return null;
@@ -1951,7 +1951,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     averagePerMinute.Add(averagePerMinute.Count + 1, average);
 
                     nextMinute = nextMinute.AddMinutes(1);
-                    currentMinute = new List<float>();
+                    currentMinute = new List<double>();
                 }
                 currentMinute.Add(dict[key]);
             }
@@ -2086,8 +2086,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
             //Now we need to get the watt and performance counter for each minute of the test. Monitor before and after must be taken into account.
 
-            float averageWatt = GetAverage(cancellationToken, wattCounterValues, firstSentAt, lastSentAt);
-            if (averageWatt == -1f) return null;
+            double averageWatt = GetAverage(cancellationToken, wattCounterValues, firstSentAt, lastSentAt);
+            if (averageWatt == -1d) return null;
 
             //Gather everything and return the data table.
             var throughputPerWatt = CreateEmptyDataTable("ThroughputPerWatt", new string[] { "Throughput per Watt" }, new Type[] { typeof(double) });
@@ -2095,8 +2095,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
             return throughputPerWatt;
         }
-        private float GetAverage(CancellationToken cancellationToken, Dictionary<DateTime, float> dict, DateTime from, DateTime to) {
-            var average = 0f;
+        private double GetAverage(CancellationToken cancellationToken, Dictionary<DateTime, double> dict, DateTime from, DateTime to) {
+            double average = 0d;
             int count = 0;
             foreach (var key in dict.Keys) {
                 if (cancellationToken.IsCancellationRequested) return -1f;

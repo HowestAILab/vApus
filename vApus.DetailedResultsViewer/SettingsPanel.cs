@@ -130,7 +130,7 @@ namespace vApus.DetailedResultsViewer {
                 }
 
                 int count = dbs.Rows.Count;
-                int done = 0;
+                //int done = 0;
                 foreach (DataRow dbsr in dbs.Rows) {
                     string database = dbsr.ItemArray[0] as string;
                     //var cultureInfo = Thread.CurrentThread.CurrentCulture;

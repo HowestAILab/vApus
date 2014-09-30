@@ -1299,7 +1299,7 @@ namespace vApus.Monitor {
             return monitorControl.MonitorResultCache;
         }
 
-        public Dictionary<DateTime, float[]> GetMonitorValues() {
+        public Dictionary<DateTime, double[]> GetMonitorValues() {
             return monitorControl.GetMonitorValues();
         }
 

@@ -316,7 +316,7 @@ namespace vApus.Stresstest {
             //Don't use the bonus column "Errors"
             --rangeWidth;
             //Plot the response times
-            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries= false, ShowHiddenData = false });
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
             chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
@@ -350,7 +350,7 @@ namespace vApus.Stresstest {
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, dt, "Errors vs Throughput", out rangeWidth, out rangeOffset, out rangeHeight);
 
-            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
             chart.SetChartType(SLLineChartType.Line);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
             chart.SetChartPosition(0, rangeWidth + 1, 45, rangeWidth + 21);
@@ -477,7 +477,7 @@ namespace vApus.Stresstest {
                         } else if (value is int) {
                             doc.SetCellValue(rowIndex + 2, i + 1, (int)value);
                         } else if (value is float) {
-                            doc.SetCellValue(rowIndex + 2, i + 1, (float)value);
+                            doc.SetCellValue(rowIndex + 2, i + 1, (double)(decimal)(float)value);
                         } else {
                             doc.SetCellValue(rowIndex + 2, i + 1, (double)value);
                         }
@@ -487,7 +487,7 @@ namespace vApus.Stresstest {
                 }
 
                 //Plot the response times
-                var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+                var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
                 chart.SetChartType(SLColumnChartType.ClusteredColumn);
                 chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
                 chart.SetChartPosition(0, rangeWidth + 1, 45, rangeWidth + 21);
@@ -621,7 +621,7 @@ namespace vApus.Stresstest {
                 }
             }
 
-            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth + rangeOffset, false, false);
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth + rangeOffset, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
             chart.Title.SetTitle("Runs over Time");
             chart.ShowChartTitle(false);
             chart.HideChartLegend();
@@ -720,7 +720,7 @@ namespace vApus.Stresstest {
                     } else if (value is long) {
                         doc.SetCellValue(rowInSheet, clmIndex, (long)value);
                     } else if (value is float) {
-                        doc.SetCellValue(rowInSheet, clmIndex, (float)value);
+                        doc.SetCellValue(rowInSheet, clmIndex, (double)(decimal)(float)value);
                     } else if (value is double) {
                         doc.SetCellValue(rowInSheet, clmIndex, (double)value);
                     } else if (value is DateTime) {

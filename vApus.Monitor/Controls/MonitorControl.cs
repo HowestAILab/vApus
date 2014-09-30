@@ -70,16 +70,16 @@ namespace vApus.Monitor {
                     if (e.ColumnIndex == 0) value = DateTime.Now;
                     else value = -1f;
 
-                if (value is float) {
-                    var f = (float)value;
+                if (value is double) {
+                    var dou = (double)value;
                     string s = null;
-                    if (f == -1f) {
+                    if (dou == -1d) {
                         DataGridViewColumnHeaderCell headerCell = Columns[e.ColumnIndex].HeaderCell;
                         if (headerCell.Style.BackColor != Color.Yellow) headerCell.Style.BackColor = Color.Yellow;
 
-                        s = f.ToString();
+                        s = dou.ToString();
                     } else {
-                        s = StringUtil.FloatToLongString(f, false);
+                        s = StringUtil.DoubleToLongString(dou, false);
                     }
                     value = s;
                 } else if (value is DateTime) {
@@ -190,7 +190,7 @@ namespace vApus.Monitor {
                     object parsedValue = null;
                     bool boolValue = false;
                     if (counterValue.IsNumeric()) {
-                        parsedValue = float.Parse(counterValue);
+                        parsedValue = double.Parse(counterValue);
                     } else if (bool.TryParse(counterValue, out boolValue)) {
                         parsedValue = boolValue ? 1f : 0f;
                     } else {
@@ -233,15 +233,15 @@ namespace vApus.Monitor {
         ///     Returns all monitor values.
         /// </summary>
         /// <returns></returns>
-        public Dictionary<DateTime, float[]> GetMonitorValues() {
-            var monitorValues = new Dictionary<DateTime, float[]>();
+        public Dictionary<DateTime, double[]> GetMonitorValues() {
+            var monitorValues = new Dictionary<DateTime, double[]>();
             lock (_lock)
                 foreach (var row in MonitorResultCache.Rows) {
                     if (row == null) continue;
                     if (RowContainsNull(row)) continue;
                     var timestamp = (DateTime)row[0];
-                    var values = new float[row.Length - 1];
-                    for (int i = 0; i != values.Length; i++) values[i] = (float)row[i + 1];
+                    var values = new double[row.Length - 1];
+                    for (int i = 0; i != values.Length; i++) values[i] = (double)row[i + 1];
 
                     if (!monitorValues.ContainsKey(timestamp)) monitorValues.Add(timestamp, values);
                 }
@@ -284,8 +284,8 @@ namespace vApus.Monitor {
                     for (int i = 0; i != row.Length; i++) {
                         object o = row[i];
                         string s = string.Empty;
-                        if (o is float)
-                            s = StringUtil.FloatToLongString((float)o);
+                        if (o is double)
+                            s = StringUtil.DoubleToLongString((double)o);
                         else if (o is DateTime)
                             s = ((DateTime)o).ToString("dd/MM/yyyy HH:mm:ss.fff");
                         else s = o.ToString();
