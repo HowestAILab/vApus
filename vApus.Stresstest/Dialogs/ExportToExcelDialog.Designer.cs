@@ -30,6 +30,7 @@
             this.flpGeneral = new System.Windows.Forms.FlowLayoutPanel();
             this.picErrorsVsThroughput = new System.Windows.Forms.PictureBox();
             this.picTop5HeaviestUserActions = new System.Windows.Forms.PictureBox();
+            this.picAverageConcurrency = new System.Windows.Forms.PictureBox();
             this.picAverageUserActions = new System.Windows.Forms.PictureBox();
             this.picErrors = new System.Windows.Forms.PictureBox();
             this.picUserActionComposition = new System.Windows.Forms.PictureBox();
@@ -46,12 +47,12 @@
             this.flpSpecialized = new System.Windows.Forms.FlowLayoutPanel();
             this.chkGeneral = new System.Windows.Forms.CheckBox();
             this.chkSpecialized = new System.Windows.Forms.CheckBox();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.picAverageConcurrency = new System.Windows.Forms.PictureBox();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             ((System.ComponentModel.ISupportInitialize)(this.picCumulativeResponseTimeVsThroughput)).BeginInit();
             this.flpGeneral.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picErrorsVsThroughput)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picAverageConcurrency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picAverageUserActions)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picErrors)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picUserActionComposition)).BeginInit();
@@ -61,7 +62,6 @@
             this.pnlBorderStresstest.SuspendLayout();
             this.flpMonitors.SuspendLayout();
             this.flpSpecialized.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.picAverageConcurrency)).BeginInit();
             this.SuspendLayout();
             // 
             // btnExportToExcel
@@ -145,6 +145,20 @@
             this.toolTip.SetToolTip(this.picTop5HeaviestUserActions, "Top 5 Heaviest User Actions Example\r\nThe same chart is made for the 95th percenti" +
         "le of the response times");
             this.picTop5HeaviestUserActions.Click += new System.EventHandler(this.pic_Click);
+            // 
+            // picAverageConcurrency
+            // 
+            this.picAverageConcurrency.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picAverageConcurrency.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picAverageConcurrency.Image = ((System.Drawing.Image)(resources.GetObject("picAverageConcurrency.Image")));
+            this.picAverageConcurrency.Location = new System.Drawing.Point(447, 6);
+            this.picAverageConcurrency.Name = "picAverageConcurrency";
+            this.picAverageConcurrency.Size = new System.Drawing.Size(141, 89);
+            this.picAverageConcurrency.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picAverageConcurrency.TabIndex = 13;
+            this.picAverageConcurrency.TabStop = false;
+            this.toolTip.SetToolTip(this.picAverageConcurrency, "Average User Actions Example");
+            this.picAverageConcurrency.Click += new System.EventHandler(this.pic_Click);
             // 
             // picAverageUserActions
             // 
@@ -235,6 +249,8 @@
             // 
             this.chkMonitorData.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkMonitorData.AutoSize = true;
+            this.chkMonitorData.Checked = true;
+            this.chkMonitorData.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkMonitorData.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkMonitorData.Location = new System.Drawing.Point(12, 299);
             this.chkMonitorData.Name = "chkMonitorData";
@@ -349,23 +365,11 @@
             this.chkSpecialized.UseVisualStyleBackColor = true;
             this.chkSpecialized.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
             // 
-            // folderBrowserDialog
+            // saveFileDialog
             // 
-            this.folderBrowserDialog.Description = "Select where to save the Excel file(s).";
-            // 
-            // picAverageConcurrency
-            // 
-            this.picAverageConcurrency.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.picAverageConcurrency.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picAverageConcurrency.Image = ((System.Drawing.Image)(resources.GetObject("picAverageConcurrency.Image")));
-            this.picAverageConcurrency.Location = new System.Drawing.Point(447, 6);
-            this.picAverageConcurrency.Name = "picAverageConcurrency";
-            this.picAverageConcurrency.Size = new System.Drawing.Size(141, 89);
-            this.picAverageConcurrency.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picAverageConcurrency.TabIndex = 13;
-            this.picAverageConcurrency.TabStop = false;
-            this.toolTip.SetToolTip(this.picAverageConcurrency, "Average User Actions Example");
-            this.picAverageConcurrency.Click += new System.EventHandler(this.pic_Click);
+            this.saveFileDialog.Filter = "Zip file|*.zip";
+            this.saveFileDialog.Title = "Give the name of the zip file that will hold the Excel files. Those files will be" +
+    " prefixed with the given name.";
             // 
             // ExportToExcelDialog
             // 
@@ -398,6 +402,7 @@
             this.flpGeneral.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picErrorsVsThroughput)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picTop5HeaviestUserActions)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picAverageConcurrency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picAverageUserActions)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picErrors)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picUserActionComposition)).EndInit();
@@ -407,7 +412,6 @@
             this.pnlBorderStresstest.ResumeLayout(false);
             this.flpMonitors.ResumeLayout(false);
             this.flpSpecialized.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.picAverageConcurrency)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -435,8 +439,8 @@
         private System.Windows.Forms.CheckBox chkGeneral;
         private System.Windows.Forms.CheckBox chkMonitorData;
         private System.Windows.Forms.CheckBox chkSpecialized;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.PictureBox picErrorsVsThroughput;
         private System.Windows.Forms.PictureBox picAverageConcurrency;
+        private System.Windows.Forms.SaveFileDialog saveFileDialog;
     }
 }

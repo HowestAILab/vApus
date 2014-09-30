@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.Packaging;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -108,16 +109,22 @@ namespace vApus.Stresstest {
             btnExportToExcel.Enabled = chkGeneral.Checked || chkMonitorData.Checked || chkSpecialized.Checked;
         }
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK) {
-                string path = Path.Combine(folderBrowserDialog.SelectedPath, _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_'));
-                if (Directory.Exists(path) && MessageBox.Show("There is already a results folder present. Do you want to override it?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                    Directory.Delete(path, true);
-
-                Directory.CreateDirectory(path);
-
+            saveFileDialog.FileName = _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_');
+            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
+
+                string zipPath = saveFileDialog.FileName;
+                string[] splittedPath = zipPath.Split('\\');
+                string fileName = splittedPath[splittedPath.Length - 1].Split(new string[] { ".zip" }, StringSplitOptions.None)[0];
+                string directory = Path.GetDirectoryName(zipPath);
+
+                if (File.Exists(zipPath)) try {
+                        File.Delete(zipPath);
+                    } catch { }
+
                 int selectedIndex = cboStresstest.SelectedIndex;
+
 
                 bool general = chkGeneral.Checked;
                 bool monitorData = chkMonitorData.Checked;
@@ -134,7 +141,7 @@ namespace vApus.Stresstest {
                         if (selectedIndex == 0) {
                             foreach (DataRow row in stresstestsDt.Rows) {
                                 string stresstest = row.ItemArray[1] as string;
-                                if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1];
+                                if (stresstest.Contains(": ")) stresstest = stresstest.Split(new string[] { ": " }, StringSplitOptions.None)[1];
                                 stresstest += "_" + (row.ItemArray[2] as string);
                                 stresstest = stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_');
                                 stresstests.Add((int)row.ItemArray[0], stresstest);
@@ -144,7 +151,7 @@ namespace vApus.Stresstest {
                                 int i = (int)row.ItemArray[0];
                                 if (selectedIndex == i) {
                                     string stresstest = row.ItemArray[1] as string;
-                                    if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1].TrimStart();
+                                    if (stresstest.Contains(": ")) stresstest = stresstest.Split(new string[] { ": " }, StringSplitOptions.None)[1];
                                     stresstest += "_" + (row.ItemArray[2] as string);
                                     stresstest = stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_');
                                     stresstests.Add(i, stresstest);
@@ -190,8 +197,15 @@ namespace vApus.Stresstest {
 
                                 try { doc.SelectWorksheet(firstWorksheet); } catch { }
                                 try { doc.DeleteWorksheet("Sheet1"); } catch { }
-                                try { doc.SaveAs(Path.Combine(path, stresstest + ".xlsx")); } catch {
-                                    MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                try {
+                                    string docPath = Path.Combine(directory, fileName + "_" + stresstest + ".xlsx");
+                                    doc.SaveAs(docPath);
+
+                                    AddFileToZip(zipPath, docPath);
+
+                                    File.Delete(docPath);
+                                } catch {
+                                    MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
                             }
 
@@ -210,11 +224,15 @@ namespace vApus.Stresstest {
                                             try { monitorDoc.SelectWorksheet(firstWorksheet); } catch { }
                                             try { monitorDoc.DeleteWorksheet("Sheet1"); } catch { }
 
-                                            string monitorFileName = stresstest + "_" + monitor.ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
-                                            monitorDoc.SaveAs(Path.Combine(path, monitorFileName));
+                                            string monitorFileName = Path.Combine(directory, fileName + "_" + stresstest + "_" + monitor.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_') + ".xlsx");
+                                            monitorDoc.SaveAs(monitorFileName);
+
+                                            AddFileToZip(zipPath, monitorFileName);
+
+                                            File.Delete(monitorFileName);
                                         }
                                 } catch {
-                                    MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     break;
                                 }
                                 monitors = null;
@@ -235,8 +253,15 @@ namespace vApus.Stresstest {
 
                             try { doc.SelectWorksheet(firstWorksheet); } catch { }
                             try { doc.DeleteWorksheet("Sheet1"); } catch { }
-                            try { doc.SaveAs(Path.Combine(path, "RunsOverTime.xlsx")); } catch {
-                                MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            try {
+                                string docPath = Path.Combine(directory, "RunsOverTime.xlsx");
+                                doc.SaveAs(docPath);
+
+                                AddFileToZip(zipPath, docPath);
+
+                                File.Delete(docPath);
+                            } catch {
+                                MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
 
@@ -251,6 +276,28 @@ namespace vApus.Stresstest {
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
             }
+        }
+
+        private void AddFileToZip(string zipFilename, string fileToAdd, CompressionOption compressionOption = CompressionOption.Normal) {
+            using (Package zip = System.IO.Packaging.Package.Open(zipFilename, FileMode.OpenOrCreate)) {
+                string destFilename = ".\\" + Path.GetFileName(fileToAdd);
+                Uri uri = PackUriHelper.CreatePartUri(new Uri(destFilename, UriKind.Relative));
+                if (zip.PartExists(uri))
+                    zip.DeletePart(uri);
+
+                PackagePart part = zip.CreatePart(uri, "", compressionOption);
+                using (var fileStream = new FileStream(fileToAdd, FileMode.Open, FileAccess.Read))
+                using (Stream dest = part.GetStream())
+                    CopyStream(fileStream, dest);
+            }
+        }
+
+        private void CopyStream(System.IO.FileStream inputStream, System.IO.Stream outputStream) {
+            long bufferSize = inputStream.Length < 4096 ? inputStream.Length : 4096;
+            var buffer = new byte[bufferSize];
+            int bytesRead = 0;
+            while ((bytesRead = inputStream.Read(buffer, 0, buffer.Length)) != 0)
+                outputStream.Write(buffer, 0, bytesRead);
         }
 
         /// <summary>
@@ -507,7 +554,8 @@ namespace vApus.Stresstest {
             return MakeWorksheet(doc, userActionComposition, "User Action Composition", out rangeWidth, out rangeOffset, out rangeHeight, true);
         }
         private string MakeMonitorSheet(SLDocument doc, DataTable dt, string title) {
-            dt.Columns.RemoveAt(1);
+            if (dt.Columns[1].ColumnName == "Monitor")
+                dt.Columns.RemoveAt(1);
 
             int rangeWidth, rangeOffset, rangeHeight;
             return MakeWorksheet(doc, dt, title, out rangeWidth, out rangeOffset, out rangeHeight);
@@ -671,7 +719,6 @@ namespace vApus.Stresstest {
                         doc.SetCellValue(rowInSheet, clmIndex, (long)value);
                     } else if (value is float) {
                         doc.SetCellValue(rowInSheet, clmIndex, (float)value);
-                        //} else if (value is DateTime) {
                     } else if (value is double) {
                         doc.SetCellValue(rowInSheet, clmIndex, (double)value);
                     } else if (value is DateTime) {

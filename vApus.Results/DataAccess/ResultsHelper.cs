@@ -394,8 +394,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     ulong monitorConfigurationId = monitorResultCache.MonitorConfigurationId;
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
                     foreach (var row in monitorResultCache.Rows) {
-                        var value = new List<float>();
-                        for (int i = 1; i < row.Length; i++) value.Add((float)row[i]);
+                        var value = new List<string>();
+                        for (int i = 1; i < row.Length; i++) value.Add(StringUtil.FloatToLongString((float)row[i]));
 
                         var sb = new StringBuilder("('");
                         sb.Append(monitorConfigurationId);
