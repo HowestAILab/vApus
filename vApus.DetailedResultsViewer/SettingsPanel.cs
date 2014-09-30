@@ -245,16 +245,21 @@ namespace vApus.DetailedResultsViewer {
                     }
                     cboStresstest.SelectedIndex = 0;
 
-                    if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(databaseName, 1));
+                    InvokeResultsSelected();
                 }
 
                 cboStresstest.SelectedIndexChanged += cboStresstest_SelectedIndexChanged;
             }, null);
         }
-        private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
-            int stresstestId = cboStresstest.SelectedIndex;
-            if (cboStresstest.Items.Count == 1) ++stresstestId;
-            if (cboStresstest.SelectedIndex > -1 && ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, stresstestId));
+        private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) { InvokeResultsSelected(); }
+        private void InvokeResultsSelected() {
+            if (ResultsSelected != null) {
+                int stresstestId = cboStresstest.SelectedIndex;
+                if (stresstestId != -1) {
+                    if (cboStresstest.Items.Count == 1) ++stresstestId;
+                    ResultsSelected(this, new ResultsSelectedEventArgs(_currentRow[3] as string, stresstestId));
+                }
+            }
         }
 
         private class FilterDatabasesWorkItem {

@@ -97,7 +97,8 @@ namespace vApus.Stresstest {
             if (stresstests.Rows.Count == 0) {
                 this.Enabled = false;
             } else {
-                cboStresstest.Items.Add("<All>");
+                if (stresstests.Rows.Count > 1)
+                    cboStresstest.Items.Add("<All>");
                 foreach (DataRow stresstestRow in stresstests.Rows)
                     cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
 
@@ -124,6 +125,7 @@ namespace vApus.Stresstest {
                     } catch { }
 
                 int selectedIndex = cboStresstest.SelectedIndex;
+                if (cboStresstest.Items.Count == 1) ++selectedIndex;
 
 
                 bool general = chkGeneral.Checked;
