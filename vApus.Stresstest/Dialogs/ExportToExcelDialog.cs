@@ -295,6 +295,7 @@ namespace vApus.Stresstest {
         private string MakeOverviewSheet(SLDocument doc, DataTable dt, string workSheetTitle = "Response time vs throughput", string chartTitle = "Cumulative response time vs throughput (average)", string primaryValueAxisTitle = "Cumulative response time (ms)") {
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, dt, workSheetTitle, out rangeWidth, out rangeOffset, out rangeHeight);
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
 
             //Don't use the bonus column "Errors"
             --rangeWidth;
@@ -332,6 +333,7 @@ namespace vApus.Stresstest {
         private string MakeOverviewErrorsSheet(SLDocument doc, DataTable dt) {
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, dt, "Errors vs throughput", out rangeWidth, out rangeOffset, out rangeHeight);
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
 
             var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
             chart.SetChartType(SLLineChartType.Line);
@@ -508,9 +510,9 @@ namespace vApus.Stresstest {
 
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, errors, "Errors", out rangeWidth, out rangeOffset, out rangeHeight);
-
             doc.Filter(1, rangeOffset, 1 + rangeHeight, rangeOffset + rangeWidth - 1);
             doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
             return worksheet;
         }
         /// <summary>
@@ -542,18 +544,17 @@ namespace vApus.Stresstest {
             }
 
             int rangeWidth, rangeOffset, rangeHeight;
-            string worksheet = MakeWorksheet(doc, userActionComposition, "User action composition", out rangeWidth, out rangeOffset, out rangeHeight, true);
-            doc.Filter(1, rangeOffset, 1 + rangeHeight, 1);
-            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
-
-            return worksheet;
+            return MakeWorksheet(doc, userActionComposition, "User action composition", out rangeWidth, out rangeOffset, out rangeHeight, true);
         }
         private string MakeMonitorSheet(SLDocument doc, DataTable dt, string title) {
             if (dt.Columns[1].ColumnName == "Monitor")
                 dt.Columns.RemoveAt(1);
 
             int rangeWidth, rangeOffset, rangeHeight;
-            return MakeWorksheet(doc, dt, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            string worksheet = MakeWorksheet(doc, dt, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
+            return worksheet;
         }
 
         private string MakeRunsOverTimeSheet(SLDocument doc, DataTable dt, Dictionary<string, List<string>> concurrencyAndRuns) {
@@ -728,7 +729,6 @@ namespace vApus.Stresstest {
                 }
             }
 
-            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
             return worksheet;
         }
 
