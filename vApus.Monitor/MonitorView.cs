@@ -186,12 +186,12 @@ namespace vApus.Monitor {
                 }
                 if (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
                     lvwEntities.Items.Count == 0) {
-                    split.Panel2.Enabled = true;
+                    split.Panel2.Enabled = llblSetDefaultWiw.Enabled = true;
                     lblMonitorSourceMismatch.Visible = false;
 
                     btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
                 } else {
-                    split.Panel2.Enabled = false;
+                    split.Panel2.Enabled = llblSetDefaultWiw.Enabled = false;
                     lblMonitorSourceMismatch.Visible = true;
 
                     btnStart.Enabled = btnSchedule.Enabled = false;
@@ -289,7 +289,7 @@ namespace vApus.Monitor {
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
             parameterPanel.Enabled = false;
-            split.Panel2.Enabled = false;
+            split.Panel2.Enabled = llblSetDefaultWiw.Enabled = false;
 
             tvwCounters.Nodes.Clear();
             lvwEntities.Items.Clear();
@@ -350,6 +350,10 @@ namespace vApus.Monitor {
                     Loggers.Log(Level.Error, message, exception);
 
                     if (!_forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    llblSetDefaultWiw.Enabled = false;
+                } else {
+                    llblSetDefaultWiw.Enabled = true;
                 }
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
@@ -406,7 +410,7 @@ namespace vApus.Monitor {
 
                 lvwEntities.Items.Add(lvwi);
             }
-            split.Panel2.Enabled = lvwEntities.Items.Count != 0;
+            split.Panel2.Enabled =llblSetDefaultWiw.Enabled = lvwEntities.Items.Count != 0;
 
             if (lvwEntities.Items.Count != 0)
                 lvwEntities.Items[0].Selected = true;
@@ -947,9 +951,9 @@ namespace vApus.Monitor {
             TreeNode firstVisible = null;
 
             //Default WIW when needed and if available.
-            if (_monitor.Wiw.Count == 0) {
-                DefaultWIWs.Set(_monitor, _wdyh);
-            } 
+            //if (_monitor.Wiw.Count == 0) {
+            //    DefaultWIWs.Set(_monitor, _wdyh);
+            //} 
             //else { //Funky functionality, maybe implemented later on.
             //    //Correct entity names, if needed 
             //    for (int entityIndex = 0; entityIndex != _monitor.Wiw.Count; entityIndex++) {
@@ -1065,6 +1069,11 @@ namespace vApus.Monitor {
             };
             tmr.Start();
         }
+        private void llblSetDefaultWiw_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            _monitor.Wiw.Clear();
+            DefaultWIWs.Set(_monitor, _wdyh);
+            PushSavedWiW();
+        }
 
         /// <summary>
         /// 
@@ -1160,6 +1169,7 @@ namespace vApus.Monitor {
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
             parameterPanel.Enabled = false;
+            llblSetDefaultWiw.Enabled = false;
 
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
@@ -1273,6 +1283,7 @@ namespace vApus.Monitor {
                 btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
                 parameterPanel.Enabled = true;
+                llblSetDefaultWiw.Enabled = true;
 
                 if (!toolStrip.Visible) {
                     //Releasing it from stresstest if any
