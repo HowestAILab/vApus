@@ -143,6 +143,9 @@ namespace vApus.Util {
         /// <param name="f"></param>
         /// <returns></returns>
         public static string FloatToLongString(float f, bool thousandSeparator = false) {
+            if (Single.IsNaN(f) || Single.IsPositiveInfinity(f) || Single.IsNegativeInfinity(f))
+                return f.ToString();
+
             return NumberToLongString(f, thousandSeparator && f > 999);
         }
 
@@ -152,6 +155,9 @@ namespace vApus.Util {
         /// <param name="f"></param>
         /// <returns></returns>
         public static string DoubleToLongString(double d, bool thousandSeparator = false) {
+            if (Double.IsNaN(d) || Double.IsPositiveInfinity(d) || Double.IsNegativeInfinity(d))
+                return d.ToString();
+
             return NumberToLongString(d, thousandSeparator && d > 999);
         }
 

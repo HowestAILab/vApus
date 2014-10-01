@@ -949,18 +949,19 @@ namespace vApus.Monitor {
             //Default WIW when needed and if available.
             if (_monitor.Wiw.Count == 0) {
                 DefaultWIWs.Set(_monitor, _wdyh);
-            } else {
-                //Correct entity names, if needed 
-                for (int entityIndex = 0; entityIndex != _monitor.Wiw.Count; entityIndex++) {
-                    if (entityIndex >= _wdyh.Count)
-                        break;
+            } 
+            //else { //Funky functionality, maybe implemented later on.
+            //    //Correct entity names, if needed 
+            //    for (int entityIndex = 0; entityIndex != _monitor.Wiw.Count; entityIndex++) {
+            //        if (entityIndex >= _wdyh.Count)
+            //            break;
 
-                    var wiwEntity = _monitor.Wiw[entityIndex];
-                    var wihEntity = _wdyh[entityIndex];
-                    wiwEntity.name = wihEntity.GetName();
-                    wiwEntity.isAvailable = wihEntity.IsAvailable();
-                }
-            }
+            //        var wiwEntity = _monitor.Wiw[entityIndex];
+            //        var wihEntity = _wdyh[entityIndex];
+            //        wiwEntity.name = wihEntity.GetName();
+            //        wiwEntity.isAvailable = wihEntity.IsAvailable();
+            //    }
+            //}
 
             //Make a new wiw to ensure that only valid counters remain in WiW (different machines can have different counters)
             var newWIW = new Entities();

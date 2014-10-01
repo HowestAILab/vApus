@@ -395,7 +395,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
                     foreach (var row in monitorResultCache.Rows) {
                         var value = new List<string>();
-                        for (int i = 1; i < row.Length; i++) value.Add(StringUtil.DoubleToLongString((double)row[i]));
+                        for (int i = 1; i < row.Length; i++) {
+                            object cell = row[i];
+                            if (cell is double)
+                                value.Add(StringUtil.DoubleToLongString((double)cell));
+                            else
+                                value.Add(cell.ToString());
+                        }
 
                         var sb = new StringBuilder("('");
                         sb.Append(monitorConfigurationId);
@@ -1365,7 +1371,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                         for (long l = 0; l != splittedValue.LongLength; l++) {
                                             if (cancellationToken.IsCancellationRequested) return null;
 
-                                            values[l] = double.Parse(splittedValue[l].Trim());
+                                            double dou;
+                                            values[l] = double.TryParse(splittedValue[l].Trim(), out dou) ? dou : -1d;
                                         }
                                         monitorValues.Add(new KeyValuePair<DateTime, double[]>(timeStamp, values));
 
@@ -1391,8 +1398,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                                 //Correct the formatting here.
                                 string[] stringAverages = new string[averages.LongLength];
-                                for (long l = 0L; l != averages.LongLength; l++)
-                                    stringAverages[l] = StringUtil.DoubleToLongString(averages[l]);
+                                for (long l = 0L; l != averages.LongLength; l++) {
+                                    double dou = averages[l];
+                                    stringAverages[l] = dou == -1d ? "--" : StringUtil.DoubleToLongString(dou);
+                                }
 
                                 stringAverages.CopyTo(fragmentedAverages, offset);
 
@@ -1510,8 +1519,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                                     string[] stringValues = stringValueBlob.Split(new string[] { "; " }, StringSplitOptions.None);
                                     object[] values = new object[stringValues.LongLength];
-                                    for (long l = 0L; l != stringValues.LongLength; l++)
-                                        values[l] = double.Parse(stringValues[l]);
+                                    for (long l = 0L; l != stringValues.LongLength; l++) {
+                                        string stringValue = stringValues[l];
+                                        double dou;
+                                        if (double.TryParse(stringValue, out dou))
+                                            values[l] = dou;
+                                        else
+                                            values[l] = stringValue;
+                                    }
 
                                     var row = new List<object>();
                                     row.Add(stresstest);
@@ -1611,7 +1626,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     double longestRowCountMod = ((double)longestRowCount / 2) + 0.5d;
                     var objectType = typeof(object);
 
-                    for (double dou = 1f; dou != longestRowCountMod; dou += 0.5d) {
+                    for (double dou = 1d; dou != longestRowCountMod; dou += 0.5d) {
                         if (cancellationToken.IsCancellationRequested) return null;
                         int i = (int)dou;
                         runsOverTime.Columns.Add((dou - i == 0.5) ? "Init time " + i : i.ToString(), objectType);
@@ -1923,7 +1938,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 row = monitorResults.Rows[i];
                 string[] value = (row.ItemArray[1] as string).Split(new string[] { "; " }, StringSplitOptions.None);
 
-                dict.Add((DateTime)row.ItemArray[0], double.Parse(value[resultHeaderIndex]));
+                double dou;
+                dict.Add((DateTime)row.ItemArray[0], double.TryParse(value[resultHeaderIndex], out dou) ? dou : -1d);
             }
 
             return dict;

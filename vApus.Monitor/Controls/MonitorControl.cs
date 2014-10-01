@@ -72,15 +72,22 @@ namespace vApus.Monitor {
 
                 if (value is double) {
                     var dou = (double)value;
-                    string s = null;
+                    string s = (-1d).ToString();
+                    if (dou != -1d)
+                        if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou))
+                            dou = -1d;
+                        else
+                            try {
+                                s = StringUtil.DoubleToLongString(dou, false);
+                            } catch {
+                                dou = -1d;
+                            }
+
                     if (dou == -1d) {
                         DataGridViewColumnHeaderCell headerCell = Columns[e.ColumnIndex].HeaderCell;
                         if (headerCell.Style.BackColor != Color.Yellow) headerCell.Style.BackColor = Color.Yellow;
-
-                        s = dou.ToString();
-                    } else {
-                        s = StringUtil.DoubleToLongString(dou, false);
                     }
+
                     value = s;
                 } else if (value is DateTime) {
                     value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
@@ -190,16 +197,18 @@ namespace vApus.Monitor {
                     object parsedValue = null;
                     bool boolValue = false;
                     if (counterValue.IsNumeric()) {
-                        parsedValue = double.Parse(counterValue);
+                        double dou = double.Parse(counterValue);
+                        if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou))
+                            dou = -1d;
+                        parsedValue = dou;
                     } else if (bool.TryParse(counterValue, out boolValue)) {
-                        parsedValue = boolValue ? 1f : 0f;
+                        parsedValue = boolValue ? 1d : 0d;
                     } else {
                         DateTime timeStamp;
                         if (DateTime.TryParse(counterValue, out timeStamp))
                             parsedValue = timeStamp;
                         else
                             parsedValue = counterValue;
-
                     }
                     row[i + 1] = parsedValue;
                 }
