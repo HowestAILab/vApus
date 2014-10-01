@@ -28,9 +28,9 @@ namespace vApus.Stresstest {
 
         #region Fields
         private bool _actionizeOnComment = true;
-        private string _beginCommentString = string.Empty;
+        private string _beginCommentString = "<!--";
         private uint _beginTimestampIndex;
-        private string _endCommentString = string.Empty;
+        private string _endCommentString = "-->";
         private uint _endTimestampIndex;
         private string _singleLineCommentString = string.Empty;
         #endregion

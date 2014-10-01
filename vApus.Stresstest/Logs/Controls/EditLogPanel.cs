@@ -377,15 +377,23 @@ namespace vApus.Stresstest {
 
         #region Extra Tools
         private void btnExportToTextFile_Click(object sender, EventArgs e) {
+            saveFileDialog.FileName = _log.ToString().ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_');
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 var sb = new StringBuilder();
-                foreach (UserAction ua in _log) {
-                    sb.Append(_log.LogRuleSet.BeginCommentString);
-                    sb.Append(ua.Label);
-                    sb.AppendLine(_log.LogRuleSet.EndCommentString);
-                    foreach (LogEntry le in ua)
-                        sb.AppendLine(le.LogEntryString);
-                }
+                if (_log.LogRuleSet.BeginCommentString.Length != 0 && _log.LogRuleSet.EndCommentString.Length != 0)
+                    foreach (UserAction ua in _log) {
+                        sb.Append(_log.LogRuleSet.BeginCommentString);
+                        sb.Append(ua.Label);
+                        sb.AppendLine(_log.LogRuleSet.EndCommentString);
+                        foreach (LogEntry le in ua)
+                            sb.AppendLine(le.LogEntryString);
+                    }
+                else
+                    foreach (UserAction ua in _log) {
+                        foreach (LogEntry le in ua)
+                            sb.AppendLine(le.LogEntryString);
+                    }
+
                 using (var sw = new StreamWriter(saveFileDialog.FileName))
                     sw.Write(sb.ToString().TrimEnd());
             }
