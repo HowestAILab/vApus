@@ -186,12 +186,12 @@ namespace vApus.Monitor {
                 }
                 if (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
                     lvwEntities.Items.Count == 0) {
-                    split.Panel2.Enabled = llblSetDefaultWiw.Enabled = true;
+                    split.Panel2.Enabled = btnSetDefaultWiw.Enabled = true;
                     lblMonitorSourceMismatch.Visible = false;
 
                     btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
                 } else {
-                    split.Panel2.Enabled = llblSetDefaultWiw.Enabled = false;
+                    split.Panel2.Enabled = btnSetDefaultWiw.Enabled = false;
                     lblMonitorSourceMismatch.Visible = true;
 
                     btnStart.Enabled = btnSchedule.Enabled = false;
@@ -289,7 +289,7 @@ namespace vApus.Monitor {
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
             parameterPanel.Enabled = false;
-            split.Panel2.Enabled = llblSetDefaultWiw.Enabled = false;
+            split.Panel2.Enabled = btnSetDefaultWiw.Enabled = false;
 
             tvwCounters.Nodes.Clear();
             lvwEntities.Items.Clear();
@@ -297,7 +297,7 @@ namespace vApus.Monitor {
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
 
-            btnGetCounters.Text = "Getting Counters...";
+            btnGetCounters.Text = "Getting counters...";
 
             await Task.Run(() => __WDYH());
 
@@ -341,7 +341,7 @@ namespace vApus.Monitor {
                     try { FillEntities(_wdyh); } catch (Exception ex) { exception = ex; }
                 }
 
-                btnGetCounters.Text = "Get Counters";
+                btnGetCounters.Text = "Get counters";
 
                 if (exception != null) {
                     btnStart.Enabled = btnSchedule.Enabled = false;
@@ -351,9 +351,9 @@ namespace vApus.Monitor {
 
                     if (!_forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
-                    llblSetDefaultWiw.Enabled = false;
+                    btnSetDefaultWiw.Enabled = false;
                 } else {
-                    llblSetDefaultWiw.Enabled = true;
+                    btnSetDefaultWiw.Enabled = true;
                 }
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
@@ -410,7 +410,7 @@ namespace vApus.Monitor {
 
                 lvwEntities.Items.Add(lvwi);
             }
-            split.Panel2.Enabled =llblSetDefaultWiw.Enabled = lvwEntities.Items.Count != 0;
+            split.Panel2.Enabled =btnSetDefaultWiw.Enabled = lvwEntities.Items.Count != 0;
 
             if (lvwEntities.Items.Count != 0)
                 lvwEntities.Items[0].Selected = true;
@@ -1069,7 +1069,7 @@ namespace vApus.Monitor {
             };
             tmr.Start();
         }
-        private void llblSetDefaultWiw_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+        private void btnSetDefaultWiw_Click(object sender, EventArgs e) {
             _monitor.Wiw.Clear();
             DefaultWIWs.Set(_monitor, _wdyh);
             PushSavedWiW();
@@ -1169,7 +1169,7 @@ namespace vApus.Monitor {
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
             parameterPanel.Enabled = false;
-            llblSetDefaultWiw.Enabled = false;
+            btnSetDefaultWiw.Enabled = false;
 
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
@@ -1283,7 +1283,7 @@ namespace vApus.Monitor {
                 btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
                 parameterPanel.Enabled = true;
-                llblSetDefaultWiw.Enabled = true;
+                btnSetDefaultWiw.Enabled = true;
 
                 if (!toolStrip.Visible) {
                     //Releasing it from stresstest if any

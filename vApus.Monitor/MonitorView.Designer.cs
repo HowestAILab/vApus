@@ -48,7 +48,7 @@
             this.propertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.btnConfiguration = new System.Windows.Forms.Button();
             this.btnGetCounters = new System.Windows.Forms.Button();
-            this.llblSetDefaultWiw = new System.Windows.Forms.LinkLabel();
+            this.btnSetDefaultWiw = new System.Windows.Forms.Button();
             this.panel1 = new System.Windows.Forms.Panel();
             this.chkGroupChecked = new System.Windows.Forms.CheckBox();
             this.llblUncheckAllVisible = new System.Windows.Forms.LinkLabel();
@@ -176,7 +176,7 @@
             // split.Panel2
             // 
             this.split.Panel2.BackColor = System.Drawing.Color.White;
-            this.split.Panel2.Controls.Add(this.llblSetDefaultWiw);
+            this.split.Panel2.Controls.Add(this.btnSetDefaultWiw);
             this.split.Panel2.Controls.Add(this.panel1);
             this.split.Panel2.Controls.Add(this.lvwEntities);
             this.split.Panel2.Controls.Add(this.tvwCounters);
@@ -261,27 +261,21 @@
             this.btnGetCounters.UseVisualStyleBackColor = false;
             this.btnGetCounters.Click += new System.EventHandler(this.btnGetCounters_Click);
             // 
-            // llblSetDefaultWiw
+            // btnSetDefaultWiw
             // 
-            this.llblSetDefaultWiw.ActiveLinkColor = System.Drawing.Color.Black;
-            this.llblSetDefaultWiw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.llblSetDefaultWiw.BackColor = System.Drawing.SystemColors.Control;
-            this.llblSetDefaultWiw.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.llblSetDefaultWiw.Enabled = false;
-            this.llblSetDefaultWiw.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.llblSetDefaultWiw.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.llblSetDefaultWiw.LinkColor = System.Drawing.Color.Black;
-            this.llblSetDefaultWiw.Location = new System.Drawing.Point(3, 302);
-            this.llblSetDefaultWiw.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.llblSetDefaultWiw.MinimumSize = new System.Drawing.Size(2, 20);
-            this.llblSetDefaultWiw.Name = "llblSetDefaultWiw";
-            this.llblSetDefaultWiw.Size = new System.Drawing.Size(353, 20);
-            this.llblSetDefaultWiw.TabIndex = 10000;
-            this.llblSetDefaultWiw.TabStop = true;
-            this.llblSetDefaultWiw.Text = "Set default";
-            this.llblSetDefaultWiw.TextAlign = System.Drawing.ContentAlignment.MiddleCenter;
-            this.llblSetDefaultWiw.VisitedLinkColor = System.Drawing.Color.Black;
-            this.llblSetDefaultWiw.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblSetDefaultWiw_LinkClicked);
+            this.btnSetDefaultWiw.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnSetDefaultWiw.BackColor = System.Drawing.SystemColors.Control;
+            this.btnSetDefaultWiw.Enabled = false;
+            this.btnSetDefaultWiw.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnSetDefaultWiw.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnSetDefaultWiw.Location = new System.Drawing.Point(3, 300);
+            this.btnSetDefaultWiw.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
+            this.btnSetDefaultWiw.Name = "btnSetDefaultWiw";
+            this.btnSetDefaultWiw.Size = new System.Drawing.Size(353, 22);
+            this.btnSetDefaultWiw.TabIndex = 10000;
+            this.btnSetDefaultWiw.Text = "Set default";
+            this.btnSetDefaultWiw.UseVisualStyleBackColor = false;
+            this.btnSetDefaultWiw.Click += new System.EventHandler(this.btnSetDefaultWiw_Click);
             // 
             // panel1
             // 
@@ -407,7 +401,7 @@
             this.lvwEntities.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lvwEntities.MultiSelect = false;
             this.lvwEntities.Name = "lvwEntities";
-            this.lvwEntities.Size = new System.Drawing.Size(353, 299);
+            this.lvwEntities.Size = new System.Drawing.Size(353, 297);
             this.lvwEntities.SmallImageList = this.imgListEntityState;
             this.lvwEntities.TabIndex = 0;
             this.lvwEntities.UseCompatibleStateImageBehavior = false;
@@ -448,7 +442,7 @@
             this.tvwCounters.Location = new System.Drawing.Point(359, 33);
             this.tvwCounters.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.tvwCounters.Name = "tvwCounters";
-            this.tvwCounters.Size = new System.Drawing.Size(642, 299);
+            this.tvwCounters.Size = new System.Drawing.Size(642, 296);
             this.tvwCounters.TabIndex = 2;
             this.tvwCounters.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvwCounter_AfterCheck);
             this.tvwCounters.BeforeExpand += new System.Windows.Forms.TreeViewCancelEventHandler(this.tvwCounter_BeforeExpand);
@@ -710,6 +704,6 @@
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.LinkLabel llblUncheckAllVisible;
         private System.Windows.Forms.CheckBox chkGroupChecked;
-        private System.Windows.Forms.LinkLabel llblSetDefaultWiw;
+        private System.Windows.Forms.Button btnSetDefaultWiw;
     }
 }
