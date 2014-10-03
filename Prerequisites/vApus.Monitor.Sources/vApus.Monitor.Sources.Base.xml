@@ -344,13 +344,19 @@
             (Hint) Basically a clone of wiw with the counters in wih set to this object (_wiwWithCounters.SetCounters(_wih);). 
             </summary>
         </member>
+        <member name="M:vApus.Monitor.Sources.Base.BasePollingClient.Start">
+            <summary>
+            Start polling.
+            </summary>
+            <returns>True if started.</returns>
+        </member>
         <member name="M:vApus.Monitor.Sources.Base.BasePollingClient.PollCounters">
             <summary>
             <para>Poll and transform counters in here. The timer will call this fx periodically.</para> 
             <para>Example:</para>
             <para>RMCPCounters counters = RMCPHelper.GetCounters(HostNameOrIPAddress);</para>
             <para>protected override Entities PollCounters() {</para>
-            <para>if (_wih == null) _wih = base._wdyh.Clone();</para>
+            <para>if (_wih == null) _wih = WDYH.Clone();</para>
             <para>for (int i = 0; i != 8; i++) {</para>
             <para>int outlet = i + 1;</para>
             <para>var entity = _wih[i];</para>
@@ -363,6 +369,20 @@
             </summary>
             <returns>_wihWithCounters</returns>
         </member>
+        <member name="M:vApus.Monitor.Sources.Base.BasePollingClient.Stop">
+            <summary>
+            Stop polling.
+            </summary>
+            <returns>True if stopped.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BasePollingClient.Test(System.Boolean,System.Int32,System.Object[])">
+            <summary>
+            Function for the client tester.
+            </summary>
+            <param name="verboseConsoleOutput"></param>
+            <param name="id"></param>
+            <param name="parameterValues"></param>
+        </member>
         <member name="T:vApus.Monitor.Sources.Base.BaseSocketClient`1">
             <summary>
             Holds a socket. No polling logic implemented, since data can also be pushed from the server.
@@ -373,6 +393,11 @@
         <member name="F:vApus.Monitor.Sources.Base.BaseSocketClient`1.CONNECTTIMEOUT">
             <summary>
             In ms.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BaseSocketClient`1._socket">
+            <summary>
+            
             </summary>
         </member>
         <member name="F:vApus.Monitor.Sources.Base.BaseSocketClient`1._socketType">
@@ -399,6 +424,7 @@
             <summary>
             Tries to connect to the host name or ip address in parameter "Host Name or IP address" with the port in parameter "Port".
             There is a connect timeout of 2 seconds for each host entry found in dns.
+            The send- and receive timeout is  60 seconds.
             </summary>
             <returns></returns>
         </member>
@@ -422,6 +448,11 @@
             Stops and disconnects, do all other cleanup stuff in Stop().
             </summary>
             <returns></returns>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IsConnected">
+            <summary>
+            
+            </summary>
         </member>
         <member name="T:vApus.Monitor.Sources.Base.CounterInfo">
             <summary>
