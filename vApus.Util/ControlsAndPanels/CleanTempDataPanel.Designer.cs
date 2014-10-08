@@ -154,7 +154,7 @@
             this.btnDeleteConnectionProxyTempFiles.Name = "btnDeleteConnectionProxyTempFiles";
             this.btnDeleteConnectionProxyTempFiles.Size = new System.Drawing.Size(24, 24);
             this.btnDeleteConnectionProxyTempFiles.TabIndex = 3;
-            this.btnDeleteConnectionProxyTempFiles.Tag = "ConnectionProxyTempFiles";
+            this.btnDeleteConnectionProxyTempFiles.Tag = "CompilerUnitTempFiles";
             this.btnDeleteConnectionProxyTempFiles.TextAlign = System.Drawing.ContentAlignment.MiddleRight;
             this.btnDeleteConnectionProxyTempFiles.UseVisualStyleBackColor = false;
             this.btnDeleteConnectionProxyTempFiles.Click += new System.EventHandler(this.btnDelete_Click);
@@ -173,7 +173,7 @@
             this.btnOpenConnectionProxyTempFiles.Name = "btnOpenConnectionProxyTempFiles";
             this.btnOpenConnectionProxyTempFiles.Size = new System.Drawing.Size(355, 25);
             this.btnOpenConnectionProxyTempFiles.TabIndex = 2;
-            this.btnOpenConnectionProxyTempFiles.Tag = "ConnectionProxyTempFiles";
+            this.btnOpenConnectionProxyTempFiles.Tag = "CompilerUnitTempFiles";
             this.btnOpenConnectionProxyTempFiles.Text = "     ConnectionProxyTempFiles... [?MB]";
             this.btnOpenConnectionProxyTempFiles.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.btnOpenConnectionProxyTempFiles.UseVisualStyleBackColor = false;

@@ -21,7 +21,7 @@ namespace vApus.Util {
     /// </summary>
     public class CompilerUnit {
         private readonly List<TempFileCollection> _tempFiles = new List<TempFileCollection>();
-        private readonly string _tempFilesDirectory = Path.Combine(Application.StartupPath, "ConnectionProxyTempFiles");
+        private readonly string _tempFilesDirectory = Path.Combine(Application.StartupPath, "CompilerUnitTempFiles");
 
         public CompilerUnit() { Application.ApplicationExit += Application_ApplicationExit;   }
 

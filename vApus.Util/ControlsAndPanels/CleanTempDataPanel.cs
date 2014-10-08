@@ -26,7 +26,7 @@ namespace vApus.Util {
         public CleanTempDataPanel() {
             InitializeComponent();
 
-            _d.Add("ConnectionProxyTempFiles", 0);
+            _d.Add("CompilerUnitTempFiles", 0);
             _d.Add("Logs", 0);
             _d.Add("UpdateTempFiles", 0);
 
@@ -69,9 +69,9 @@ namespace vApus.Util {
 
             if (IsHandleCreated) {
                 btnOpenConnectionProxyTempFiles.Text = string.Format("     ConnectionProxyTempFiles... [{0}MB]",
-                                                                     _d["ConnectionProxyTempFiles"]);
+                                                                     _d["CompilerUnitTempFiles"]);
                 btnOpenConnectionProxyTempFiles.Enabled =
-                    btnDeleteConnectionProxyTempFiles.Enabled = (_d["ConnectionProxyTempFiles"] != 0);
+                    btnDeleteConnectionProxyTempFiles.Enabled = (_d["CompilerUnitTempFiles"] != 0);
 
                 btnOpenLogs.Text = string.Format("     Logs... [{0}MB]", _d["Logs"]);
                 btnOpenLogs.Enabled = btnDeleteLogs.Enabled = (_d["Logs"] != 0);
