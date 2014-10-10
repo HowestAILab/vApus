@@ -144,7 +144,7 @@ namespace vApus.JSON {
                 subTree.Cache[0] = new KeyValuePair<object, object>(monitor, config);
             }
         }
-        public static void ApplyToRunningMonitorMetrics(JSONObjectTree monitorProgressCache, string monitor, string[] headers, Dictionary<DateTime, float[]> values) {
+        public static void ApplyToRunningMonitorMetrics(JSONObjectTree monitorProgressCache, string monitor, string[] headers, Dictionary<DateTime, double[]> values) {
             int index = -1;
             for (int i = 0; i != monitorProgressCache.Count; i++) {
                 var kvp = monitorProgressCache.Cache[i];
@@ -175,21 +175,21 @@ namespace vApus.JSON {
         /// </summary>
         /// <param name="clientMonitorCache"></param>
         /// <param name="stresstest">or tile stresstest</param>
-        /// <param name="busyThreadCount"></param>
+        /// <param name="threadsInUse"></param>
         /// <param name="cpuUsage"></param>
         /// <param name="contextSwitchesPerSecond"></param>
         /// <param name="memoryUsage"></param>
         /// <param name="totalVisibleMemory"></param>
         /// <param name="nicsSent"></param>
         /// <param name="nicsReceived"></param>
-        public static void ApplyToRunningTestClientMonitorMetrics(JSONObjectTree clientMonitorCache, string stresstest, int busyThreadCount, float cpuUsage, float contextSwitchesPerSecond,
-            uint memoryUsage, uint totalVisibleMemory, float nicsSent, float nicsReceived) {
+        public static void ApplyToRunningTestClientMonitorMetrics(JSONObjectTree clientMonitorCache, string stresstest, int threadsInUse, float cpuUsage,
+            uint memoryUsage, uint totalVisibleMemory, string nic, float nicsSent, float nicsReceived) {
             var clientMonitorMetrics = new ClientMonitorMetrics() {
-                BusyThreadCount = busyThreadCount,
+                BusyThreadCount = threadsInUse,
                 CPUUsage = cpuUsage,
-                ContextSwitchesPerSecond = contextSwitchesPerSecond,
                 MemoryUsage = memoryUsage,
                 TotalVisibleMemory = totalVisibleMemory,
+                Nic = nic,
                 NicsSent = nicsSent,
                 NicsReceived = nicsReceived
             };
@@ -207,5 +207,12 @@ namespace vApus.JSON {
             return child;
         }
 
+        public static void WriteToFile(object cache, string fileName) {
+            string writeDir = Path.Combine(Application.StartupPath, "REST");
+            if (!Directory.Exists(writeDir)) Directory.CreateDirectory(writeDir);
+
+            using (var sw = new StreamWriter(Path.Combine(writeDir, fileName)))
+                sw.Write(Newtonsoft.Json.JsonConvert.SerializeObject(cache));
+        }
     }
 }
