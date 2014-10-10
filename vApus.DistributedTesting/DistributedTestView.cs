@@ -885,8 +885,8 @@ namespace vApus.DistributedTesting {
                         distributedStresstestControl.SetOverallFastResults(progress);
                     }
                 }
-                #warning Enabled REST
-                  WriteRestProgress(testProgressMessages);
+                //#warning Enabled REST
+                //  WriteRestProgress(testProgressMessages);
             }
         }
         /// <summary>
@@ -975,8 +975,8 @@ namespace vApus.DistributedTesting {
                 setCountDown = (_selectedTestTreeViewItem as TileStresstestTreeViewItem).StresstestResult == StresstestStatus.Busy;
             if (--_progressCountDown > 0 && setCountDown) fastResultsControl.SetCountDownProgressDelay(_progressCountDown);
 
-#warning Enabled REST
-            WriteMonitorRestProgress();
+//#warning Enabled REST
+//            WriteMonitorRestProgress();
         }
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
@@ -1209,8 +1209,8 @@ namespace vApus.DistributedTesting {
             if (!_monitorMetricsCaches.ContainsKey(tileStresstest))
                 _monitorMetricsCaches.Add(tileStresstest, new MonitorMetricsCache());
 
-#warning Enabled REST
-            WriteMonitorRestConfig();
+//#warning Enabled REST
+//            WriteMonitorRestConfig();
         }
 
         /// <summary>
@@ -1341,9 +1341,9 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
-#warning Enabled REST
-                WriteMonitorRestConfig();
-                WriteMonitorRestProgress();
+//#warning Enabled REST
+//                WriteMonitorRestConfig();
+//                WriteMonitorRestProgress();
             }, null);
         }
 
@@ -1362,9 +1362,9 @@ namespace vApus.DistributedTesting {
                 _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
             }
 
-#warning Enabled REST
-            WriteMonitorRestConfig();
-            WriteMonitorRestProgress();
+//#warning Enabled REST
+//            WriteMonitorRestConfig();
+//            WriteMonitorRestProgress();
 
             MonitorBeforeDone();
         }
@@ -1412,9 +1412,9 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
-#warning Enabled REST
-                WriteMonitorRestConfig();
-                WriteMonitorRestProgress();
+//#warning Enabled REST
+//                WriteMonitorRestConfig();
+//                WriteMonitorRestProgress();
             }, null);
         }
         private void monitorAfterCountDown_Stopped(object sender, EventArgs e) {
@@ -1428,9 +1428,9 @@ namespace vApus.DistributedTesting {
             }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
 
-#warning Enabled REST
-            WriteMonitorRestConfig();
-            WriteMonitorRestProgress();
+//#warning Enabled REST
+//            WriteMonitorRestConfig();
+//            WriteMonitorRestProgress();
         }
 
         /// <summary>

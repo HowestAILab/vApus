@@ -504,14 +504,16 @@ namespace vApus.Gui {
         private void Main_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    //Show the error messages in a tooltip.
-                    _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
+                    if (e.Entry.Level > Level.Warning) {
+                        //Show the error messages in a tooltip.
+                        _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
 
-                    if (!_logErrorToolTip.Visible) {
-                        int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
-                        int y = statusStrip.Location.Y - 30;
+                        if (!_logErrorToolTip.Visible) {
+                            int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                            int y = statusStrip.Location.Y - 30;
 
-                        _logErrorToolTip.Show(this, x, y);
+                            _logErrorToolTip.Show(this, x, y);
+                        }
                     }
                 }, null);
 
