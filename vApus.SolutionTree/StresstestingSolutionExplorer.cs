@@ -1,4 +1,5 @@
 ﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -105,7 +106,8 @@ namespace vApus.SolutionTree {
                             }
                             tvw.AfterLabelEdit += tvw_AfterLabelEdit;
                             tvw.BeforeLabelEdit += tvw_BeforeLabelEdit;
-                        } catch {
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Warning, "Failed begin editting treenode label.", ex, new object[] { sender, e });
                         }
                     }, null);
                 }, e.Node);
@@ -130,12 +132,14 @@ namespace vApus.SolutionTree {
                                         item.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                                         SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
                                     }
-                                } catch {
+                                } catch (Exception ex) {
+                                    Loggers.Log(Level.Error, "Failed end editting tree node label.", ex, new object[] { sender, e });
                                 }
                             }
                             //A leave and enter will otherwise lead in resulting a wrong label of the node.
                             node.Text = item.ToString();
-                        } catch {
+                        } catch (Exception exc) {
+                            Loggers.Log(Level.Error, "Failed end editting tree node labels.", exc, new object[] { sender, e });
                         }
                     }, null);
                 }, e.Node);
@@ -241,8 +245,8 @@ namespace vApus.SolutionTree {
                                 if (childNode.Tag is LabeledBaseItem && (childNode.Tag as LabeledBaseItem).Label.Length == 0)
                                     try {
                                         childNode.BeginEdit();
-                                    } catch {
-
+                                    } catch (Exception ex) {
+                                        Loggers.Log(Level.Error, "Failed begin editting added tree node label.", ex, new object[] { sender, e });
                                     }
                             } else {
                                 node.Nodes.Clear();

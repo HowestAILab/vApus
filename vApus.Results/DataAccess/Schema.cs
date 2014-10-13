@@ -136,13 +136,17 @@ TimeStamp datetime(6) NOT NULL, Value longtext NOT NULL)");
 
             if (string.IsNullOrEmpty(connectionString)) throw new Exception("No MySQL connection was set.");
 
-            var databaseActions = new DatabaseActions {  ConnectionString = connectionString };
+            var databaseActions = new DatabaseActions { ConnectionString = connectionString };
 
             return databaseActions;
         }
 
         private static void ReleaseConnection(DatabaseActions databaseActions) {
-            try { databaseActions.ReleaseConnection(); } catch { }
+            try {
+                databaseActions.ReleaseConnection();
+            } catch {
+                //Ignore.
+            }
             databaseActions = null;
         }
 

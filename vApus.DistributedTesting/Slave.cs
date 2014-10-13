@@ -59,6 +59,7 @@ namespace vApus.DistributedTesting {
                         if (ts.BasicTileStresstest.Slaves.Contains(this))
                             return ts;
                 } catch {
+                    //Handled later on.
                 }
                 return null;
             }

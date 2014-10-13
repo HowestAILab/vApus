@@ -72,7 +72,9 @@ namespace vApus.Monitor {
                     SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                         isRunning = btnStop.Enabled;
                     }, null);
-                } catch { }
+                } catch {
+                    //Ignore.
+                }
                 return isRunning;
             }
         }
@@ -158,7 +160,8 @@ namespace vApus.Monitor {
                 if (_monitorSourceClient != null) {
                     try {
                         _monitorSourceClient.Stop();
-                    } catch {
+                    } catch (Exception exc) {
+                        Loggers.Log(Level.Warning, "Failed stopping the monitor source client.", exc);
                     }
                     _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
                     _monitorSourceClient.Dispose();
@@ -266,8 +269,8 @@ namespace vApus.Monitor {
                         if (endsAt <= DateTime.Now)
                             Stop();
                     }
-                } catch { // (Exception ex) {
-                    //Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex);
+                } catch  (Exception ex) {
+                    Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex);
                 }
             }, null);
         }
@@ -410,7 +413,7 @@ namespace vApus.Monitor {
 
                 lvwEntities.Items.Add(lvwi);
             }
-            split.Panel2.Enabled =btnSetDefaultWiw.Enabled = lvwEntities.Items.Count != 0;
+            split.Panel2.Enabled = btnSetDefaultWiw.Enabled = lvwEntities.Items.Count != 0;
 
             if (lvwEntities.Items.Count != 0)
                 lvwEntities.Items[0].Selected = true;
@@ -796,6 +799,7 @@ namespace vApus.Monitor {
                 btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&
                                                            txtFilterMonitorControlColumns.Text.Length != 0;
             } catch {
+                //Ignore. Only happens on gui disposed.
             }
         }
 
@@ -1115,6 +1119,7 @@ namespace vApus.Monitor {
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
             } catch {
+                //Ignore. Only on gui disposed.
             }
         }
 
@@ -1266,7 +1271,8 @@ namespace vApus.Monitor {
                     try {
                         _monitorSourceClient.Stop();
                         _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
-                    } catch {
+                    } catch(Exception ex) {
+                        Loggers.Log(Level.Error, "Failed stopping the monitor.", ex);
                     }
 
                 var schedule = btnSchedule.Tag as ExtendedSchedule;
@@ -1301,7 +1307,8 @@ namespace vApus.Monitor {
                 lblCountDown.ForeColor = Color.Black;
                 lblCountDown.BackColor = Color.Orange;
                 lblCountDown.Text = "Stopped!";
-            } catch {
+            } catch (Exception exc) {
+                Loggers.Log(Level.Error, "Failed stopping the monitor.", exc);
             }
 
             Cursor = Cursors.Default;

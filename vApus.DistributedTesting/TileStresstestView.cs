@@ -324,7 +324,9 @@ namespace vApus.DistributedTesting {
             if (!_finishedSent) {
                 var estimatedRuntimeLeft = FastStresstestMetricsHelper.GetEstimatedRuntimeLeft(_stresstestResult, _stresstest.Concurrencies.Length, _stresstest.Runs);
                 var events = new List<EventPanelEvent>();
-                try { events = fastResultsControl.GetEvents(); } catch { }
+                try { events = fastResultsControl.GetEvents(); } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed getting events.", ex);
+                }
                 SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt,
                     fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, events, runStateChange, runFinished, concurrencyFinished);
                 if (_stresstestStatus != StresstestStatus.Busy) _finishedSent = true;
@@ -441,7 +443,12 @@ namespace vApus.DistributedTesting {
                 fastResultsControl.SetRerunning(false);
 
                 // Can only be cancelled once, calling multiple times is not a problem.
-                if (_stresstestCore != null && !_stresstestCore.IsDisposed) try { _stresstestCore.Cancel(); } catch { }
+                if (_stresstestCore != null && !_stresstestCore.IsDisposed)
+                    try {
+                        _stresstestCore.Cancel();
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed cancelling the test.", ex);
+                    }
             }
 
             fastResultsControl.SetStresstestStopped();
@@ -455,6 +462,7 @@ namespace vApus.DistributedTesting {
                 if (fastResultsControl != null && !fastResultsControl.IsDisposed)
                     fastResultsControl.SetCountDownProgressDelay(-1);
             } catch {
+                //Don't care.
             }
         }
         #endregion

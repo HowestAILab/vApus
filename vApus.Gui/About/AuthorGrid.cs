@@ -1,3 +1,4 @@
+using RandomUtils.Log;
 /*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -65,9 +66,7 @@ namespace vApus.Gui {
                     e.Paint(e.ClipBounds, e.PaintParts);
 
                     try {
-                        var image =
-                            Resources.ResourceManager.GetObject(authorElement.GetAttribute("name").Replace(' ', '_')) as
-                            Image;
+                        var image = Resources.ResourceManager.GetObject(authorElement.GetAttribute("name").Replace(' ', '_')) as Image;
 
                         int x = e.CellBounds.Left + e.CellStyle.Padding.Left;
                         int y = e.CellBounds.Top + e.CellStyle.Padding.Top;
@@ -76,7 +75,8 @@ namespace vApus.Gui {
 
                         g.DrawImage(image, x, y, width, height);
                         e.Handled = true;
-                    } catch {
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed painting an author image.", ex, new object[] { sender, e });
                     }
                 } else if (e.ColumnIndex == 1) {
                     // Draw Merged Cell

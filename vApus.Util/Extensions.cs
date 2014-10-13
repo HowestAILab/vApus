@@ -200,7 +200,9 @@ namespace vApus.Util {
             cs.Write(toDecrypt, 0, toDecrypt.Length);
             try {
                 cs.Close();
-            } catch { }
+            } catch {
+                //Don't care.
+            }
             return ms.ToArray();
         }
         public static string Reverse(this string s) {

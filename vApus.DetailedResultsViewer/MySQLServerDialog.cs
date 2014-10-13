@@ -14,7 +14,9 @@ namespace vApus.DetailedResultsViewer {
             get {
                 try {
                     return savingResultsPanel.ConnectionString;
-                } catch { }
+                } catch {
+                    //Handled later.
+                }
                 return null;
             }
         }

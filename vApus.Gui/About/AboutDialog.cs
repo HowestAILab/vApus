@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -117,10 +118,12 @@ namespace vApus.Gui {
                 try {
                     sr.Close();
                 } catch {
+                    //Failed closing the stream reader. Ignore.
                 }
                 try {
                     sr.Dispose();
                 } catch {
+                    //Failed disposing the stream reader. Ignore.
                 }
                 sr = null;
             }
@@ -186,7 +189,11 @@ namespace vApus.Gui {
         }
 
         private void lblWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            try { Process.Start("http://www.sizingservers.be"); } catch { }
+            try {
+                Process.Start("http://www.sizingservers.be");
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed browsing sizingservers.be.", ex, new object[] { sender, e });
+            }
         }
         #endregion
     }

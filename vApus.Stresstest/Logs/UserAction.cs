@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -83,7 +84,9 @@ namespace vApus.Stresstest {
                     foreach (int i in _linkedToUserActionIndices)
                         l.Add(log[i - 1] as UserAction);
 
-                } catch { }
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed linking user actions", ex);
+                }
                 return l.ToArray();
             }
         }

@@ -122,9 +122,9 @@ namespace vApus.DistributedTesting {
                 }
             }
             kvmMasterNic.Key = nic;
-            if (nicBandwidth == -1) 
+            if (nicBandwidth == -1)
                 kvmMasterNic.Value = "N/A";
-             else 
+            else
                 kvmMasterNic.Value = nicBandwidth + " Mbps";
             if (nicsSent == -1) {
                 kvmMasterNicsSent.Value = "N/A";
@@ -209,7 +209,9 @@ namespace vApus.DistributedTesting {
                     else dgvFastResults.RowCount = count;
                     dgvFastResults.AutoResizeColumns();
                 }
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed setting overal fast concurrency results.", ex);
+            }
         }
         private void SetOverallFastRunResults() {
             try {
@@ -221,7 +223,9 @@ namespace vApus.DistributedTesting {
                     else dgvFastResults.RowCount = count;
                     dgvFastResults.AutoResizeColumns();
                 }
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed setting overal fast run results.", ex);
+            }
         }
 
         private void cboDrillDown_SelectedIndexChanged(object sender, EventArgs e) {
@@ -271,7 +275,9 @@ namespace vApus.DistributedTesting {
                     if (e.ColumnIndex < row.Length)
                         e.Value = row[e.ColumnIndex];
                 }
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed displaying cell value.", ex, new object[] { sender, e });
+            }
         }
 
         private void dgvFastResults_Scroll(object sender, ScrollEventArgs e) {
@@ -341,7 +347,11 @@ namespace vApus.DistributedTesting {
 
         public List<EventViewItem> GetEvents() { return eventView.GetEvents(); }
         public void AppendMessages(string message, Level logLevel = Level.Info) {
-            try { eventView.AddEvent((EventViewEventType)logLevel, message); } catch { }
+            try {
+                eventView.AddEvent((EventViewEventType)logLevel, message);
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed appending event.", ex, new object[] { message, logLevel });
+            }
         }
 
         private void btnExport_Click(object sender, EventArgs e) { eventView.Export(); }

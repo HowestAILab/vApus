@@ -46,7 +46,9 @@ namespace vApus.Stresstest {
             try {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-            } catch { }
+            } catch {
+                //Should / can never happen.
+            }
         }
         #endregion
 
@@ -121,7 +123,9 @@ namespace vApus.Stresstest {
                     if (editted)
                         _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed saving capture settings.", ex);
+            }
         }
         #endregion
 
@@ -142,7 +146,9 @@ namespace vApus.Stresstest {
                     bool logEntryContainsTokens;
                     _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
                     SetCodeStyle();
-                } catch { }
+                } catch(Exception ex) {
+                    Loggers.Log(Level.Error, "Failed getting parameter token delimiters + setting code style.", ex, new object[] { sender, e });
+                }
             }
         }
         private void SetCodeStyle() {
@@ -387,8 +393,7 @@ namespace vApus.Stresstest {
                         sb.AppendLine(_log.LogRuleSet.EndCommentString);
                         foreach (LogEntry le in ua)
                             sb.AppendLine(le.LogEntryString);
-                    }
-                else
+                    } else
                     foreach (UserAction ua in _log) {
                         foreach (LogEntry le in ua)
                             sb.AppendLine(le.LogEntryString);

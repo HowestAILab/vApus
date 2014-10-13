@@ -104,6 +104,7 @@ namespace vApus.CommitTool {
                 try {
                     sftp.Close();
                 } catch {
+                    //Ignore.
                 }
                 sftp = null;
             }
@@ -111,6 +112,7 @@ namespace vApus.CommitTool {
                 try {
                     ssh.Close();
                 } catch {
+                    //Ignore.
                 }
                 ssh = null;
             }

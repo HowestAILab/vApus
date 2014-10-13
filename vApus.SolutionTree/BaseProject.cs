@@ -237,7 +237,8 @@ namespace vApus.SolutionTree {
                             }
                         }
                     }
-                } catch {
+                } catch(Exception ex) {
+                    Loggers.Log(Level.Error, "Failed pasting base item.", ex);
                 }
             }
         }

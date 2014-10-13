@@ -163,7 +163,9 @@ namespace vApus.DistributedTesting {
                 try {
                     _tmrOnInvokeTestProgressMessageReceivedDelayed.Stop();
                     _tmrOnInvokeTestProgressMessageReceivedDelayed.Start();
-                } catch { }
+                } catch {
+                    //Only on gui closed.
+                }
         }
         private void _tmrOnInvokeTestProgressMessageReceivedDelayed_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
             if (!_isDisposed && _tmrOnInvokeTestProgressMessageReceivedDelayed != null)
@@ -171,6 +173,7 @@ namespace vApus.DistributedTesting {
                     _tmrOnInvokeTestProgressMessageReceivedDelayed.Stop();
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { OnTestProgressMessageReceivedDelayed(this, null); }, null);
                 } catch {
+                    //Only on gui closed.
                 }
         }
 
@@ -350,7 +353,8 @@ namespace vApus.DistributedTesting {
                         if (Finished == _totalTestCount)
                             HandleFinished();
                     }
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed handling communication error.", ex);
                 }
             }
         }
@@ -546,7 +550,8 @@ namespace vApus.DistributedTesting {
                     _runDoneOnce = null;
 
                     _tmrOnInvokeTestProgressMessageReceivedDelayed = null;
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed disposing distributed test core.", ex);
                 }
 
                 ObjectRegistrar.Unregister(this);

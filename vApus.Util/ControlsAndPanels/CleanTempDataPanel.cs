@@ -7,6 +7,7 @@
  */
 
 using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -52,7 +53,8 @@ namespace vApus.Util {
         private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { GetAndStoreAllSizes(); }, null);
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Warning, "Failed getting temp files.", ex);
             }
         }
 
@@ -94,7 +96,8 @@ namespace vApus.Util {
 
             try {
                 sizeInMB = Directory.Exists(d2) ? DirSize(new DirectoryInfo(d2)) : 0;
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Warning, "Failed getting dir size.", ex);
             }
 
             sizeInMB /= (1024 * 1024);
@@ -135,11 +138,12 @@ namespace vApus.Util {
                     foreach (string f in files)
                         try {
                             File.Delete(f);
-                        } catch {
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed deleting file.", ex);
                         }
-
                     Directory.Delete(d, true);
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed deleting the temp dir.", ex);
                 }
         }
 

@@ -59,7 +59,9 @@ namespace vApus.DetailedResultsViewer {
                     try {
                         _rowEnterTimer.Stop();
                         _rowEnterTimer.Dispose();
-                    } catch { }
+                    } catch {
+                        //Fails only on gui closed.
+                    }
                 }
                 _rowEnterTimer = null;
             } catch { }

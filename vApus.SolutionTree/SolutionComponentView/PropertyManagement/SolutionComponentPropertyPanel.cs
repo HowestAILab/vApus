@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -215,7 +216,8 @@ namespace vApus.SolutionTree {
             if (invokeEvent)
                 try {
                     _solutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                } catch {
+                } catch(Exception ex) {
+                    Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { index, newValue, oldValue, invokeEvent});
                 }
         }
 

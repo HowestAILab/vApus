@@ -512,9 +512,10 @@ namespace vApus.DistributedTesting {
                     throw;
                 }
 
-            } catch {
+            } catch (Exception ex) {
                 RemoveDatabase(false);
                 Stop();
+                Loggers.Log(Level.Error, "Failed starting the test.", ex);
             }
         }
 
@@ -680,7 +681,11 @@ namespace vApus.DistributedTesting {
                                         Loggers.Log(Level.Error, monitorView.Text + " is not started.", e);
                                         distributedStresstestControl.AppendMessages(monitorView.Text + " is not started.");
 
-                                        try { monitorView.Stop(); } catch { }
+                                        try {
+                                            monitorView.Stop();
+                                        } catch {
+                                            //Dont't care at this point.
+                                        }
                                     }
                         }
 
@@ -709,7 +714,8 @@ namespace vApus.DistributedTesting {
                                             fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                                         }
                                     }
-                            } catch {
+                            } catch (Exception ex) {
+                                Loggers.Log(Level.Error, "Failed updating metrics.", ex);
                             }
 
                             testTreeView.SetMonitoringBeforeAfter();
@@ -975,8 +981,8 @@ namespace vApus.DistributedTesting {
                 setCountDown = (_selectedTestTreeViewItem as TileStresstestTreeViewItem).StresstestResult == StresstestStatus.Busy;
             if (--_progressCountDown > 0 && setCountDown) fastResultsControl.SetCountDownProgressDelay(_progressCountDown);
 
-//#warning Enabled REST
-//            WriteMonitorRestProgress();
+            //#warning Enabled REST
+            //            WriteMonitorRestProgress();
         }
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
@@ -1052,7 +1058,9 @@ namespace vApus.DistributedTesting {
                 StopMonitorsUpdateDetailedResultsAndSetMode(true);
 
                 if (_distributedTestCore != null)
-                    try { _distributedTestCore.Stop(); } catch { }
+                    try { _distributedTestCore.Stop(); } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed stopping the distributed test core.", ex);
+                    }
             } else {
                 Solution.ExplicitCancelFormClosing = true;
                 e.Cancel = true;
@@ -1062,7 +1070,11 @@ namespace vApus.DistributedTesting {
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
                 if (!confirm || MessageBox.Show("Do you want to remove the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
                     == DialogResult.Yes)
-                    try { _resultsHelper.DeleteResults(); } catch { }
+                    try {
+                        _resultsHelper.DeleteResults();
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed removing the results database.", ex, new object[] { confirm });
+                    }
         }
         private void Stop(bool monitorAfter = false) {
             Cursor = Cursors.WaitCursor;
@@ -1119,7 +1131,8 @@ namespace vApus.DistributedTesting {
                                 fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                             }
                         }
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed setting metrics.", ex, new object[] { monitorAfter });
                 }
 
                 testTreeView.SetMonitoringBeforeAfter();
@@ -1148,7 +1161,9 @@ namespace vApus.DistributedTesting {
                 _refreshDetailedResultsTimer.Elapsed -= _rowEnterTimer_Elapsed;
                 try {
                     RefreshDetailedResultsDelayed();
-                } catch { }
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed refreshing detailed results.", ex, new object[] { sender, e });
+                }
             }
         }
         private void RefreshDetailedResultsDelayed() {
@@ -1209,8 +1224,8 @@ namespace vApus.DistributedTesting {
             if (!_monitorMetricsCaches.ContainsKey(tileStresstest))
                 _monitorMetricsCaches.Add(tileStresstest, new MonitorMetricsCache());
 
-//#warning Enabled REST
-//            WriteMonitorRestConfig();
+            //#warning Enabled REST
+            //            WriteMonitorRestConfig();
         }
 
         /// <summary>
@@ -1323,7 +1338,8 @@ namespace vApus.DistributedTesting {
                                     fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                                 }
                             }
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed setting metrics.", ex, new object[] { sender, e });
                 }
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
@@ -1341,9 +1357,9 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
-//#warning Enabled REST
-//                WriteMonitorRestConfig();
-//                WriteMonitorRestProgress();
+                //#warning Enabled REST
+                //                WriteMonitorRestConfig();
+                //                WriteMonitorRestProgress();
             }, null);
         }
 
@@ -1362,9 +1378,9 @@ namespace vApus.DistributedTesting {
                 _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
             }
 
-//#warning Enabled REST
-//            WriteMonitorRestConfig();
-//            WriteMonitorRestProgress();
+            //#warning Enabled REST
+            //            WriteMonitorRestConfig();
+            //            WriteMonitorRestProgress();
 
             MonitorBeforeDone();
         }
@@ -1395,7 +1411,8 @@ namespace vApus.DistributedTesting {
                                     fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                                 }
                             }
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed setting metrics.", ex, new object[] { sender, e });
                 }
 
                 var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
@@ -1412,9 +1429,9 @@ namespace vApus.DistributedTesting {
                     distributedStresstestControl.AppendMessages("All monitors were manually closed.");
                 }
 
-//#warning Enabled REST
-//                WriteMonitorRestConfig();
-//                WriteMonitorRestProgress();
+                //#warning Enabled REST
+                //                WriteMonitorRestConfig();
+                //                WriteMonitorRestProgress();
             }, null);
         }
         private void monitorAfterCountDown_Stopped(object sender, EventArgs e) {
@@ -1428,9 +1445,9 @@ namespace vApus.DistributedTesting {
             }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
 
-//#warning Enabled REST
-//            WriteMonitorRestConfig();
-//            WriteMonitorRestProgress();
+            //#warning Enabled REST
+            //            WriteMonitorRestConfig();
+            //            WriteMonitorRestProgress();
         }
 
         /// <summary>
@@ -1438,11 +1455,11 @@ namespace vApus.DistributedTesting {
         /// </summary>
         private void StopMonitorsUpdateDetailedResultsAndSetMode(bool disposing) {
             if (_monitorBeforeCountDown != null) {
-                try { _monitorBeforeCountDown.Dispose(); } catch { }
+                try { _monitorBeforeCountDown.Dispose(); } catch { } //Don't care.
                 _monitorBeforeCountDown = null;
             }
             if (_monitorAfterCountDown != null) {
-                try { _monitorAfterCountDown.Dispose(); } catch { }
+                try { _monitorAfterCountDown.Dispose(); } catch { } //Don't care.
                 _monitorAfterCountDown = null;
             }
 
@@ -1489,7 +1506,8 @@ namespace vApus.DistributedTesting {
 
                 JSONObjectTreeHelper.RunningMonitorConfig = monitorConfigCache;
                 JSONObjectTreeHelper.WriteToFile(monitorConfigCache, "MonitorConfig");
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed writing REST.", ex);
             }
         }
         private void WriteMonitorRestProgress() {
@@ -1509,7 +1527,8 @@ namespace vApus.DistributedTesting {
                     JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgressCache;
                     JSONObjectTreeHelper.WriteToFile(monitorProgressCache, "MonitorProgress");
                 }
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed writing REST.", ex);
             }
         }
         private void WriteRestProgress(Dictionary<TileStresstest, TestProgressMessage> testProgressMessages) {
@@ -1558,7 +1577,8 @@ namespace vApus.DistributedTesting {
                 //JSONObjectTreeHelper.RunningTestClientMonitorMetrics = clientMonitorCache;
                 //JSONObjectTreeHelper.RunningTestMessages = messagesCache;
                 JSONObjectTreeHelper.WriteToFile(testProgressCache, "TestProgress");
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed writing REST.", ex);
             }
         }
         #endregion

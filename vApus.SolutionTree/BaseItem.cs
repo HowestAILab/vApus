@@ -348,7 +348,8 @@ namespace vApus.SolutionTree {
                     if (value != null)
                         try {
                             info.SetValue(this, value, null);
-                        } catch {
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed resolving branch indices.", ex);
                         }
                 }
                 _branchedInfos = null;
@@ -374,7 +375,8 @@ namespace vApus.SolutionTree {
                     if (o is int) {
                         try {
                             item = item[(int)o];
-                        } catch {
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed resolving branch index.", ex, new object[] { branchedIndex });
                         }
                     } else {
                         foreach (FieldInfo info in item.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
@@ -497,7 +499,8 @@ namespace vApus.SolutionTree {
                             PasteXmlStructure(xmlDocument);
                         }
                     }
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed pasting base item.", ex);
                 }
             }
         }

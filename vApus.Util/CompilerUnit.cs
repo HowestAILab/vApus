@@ -6,6 +6,7 @@
  *    Vandroemme Dieter
  */
 using Microsoft.CSharp;
+using RandomUtils.Log;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -23,7 +24,7 @@ namespace vApus.Util {
         private readonly List<TempFileCollection> _tempFiles = new List<TempFileCollection>();
         private readonly string _tempFilesDirectory = Path.Combine(Application.StartupPath, "CompilerUnitTempFiles");
 
-        public CompilerUnit() { Application.ApplicationExit += Application_ApplicationExit;   }
+        public CompilerUnit() { Application.ApplicationExit += Application_ApplicationExit; }
 
         /// <summary>
         ///     A threadsafe compile.
@@ -96,7 +97,7 @@ namespace vApus.Util {
                 string readme = Path.Combine(_tempFilesDirectory, "README.TXT");
                 if (!File.Exists(readme))
                     using (var sw = new StreamWriter(readme)) {
-                        sw.Write( "These files are compiled connection proxies used for stresstesting, this folder can be removed safely.");
+                        sw.Write("These files are compiled connection proxies used for stresstesting, this folder can be removed safely.");
                         sw.Flush();
                     }
                 compilerParameters.GenerateInMemory = false;
@@ -123,12 +124,13 @@ namespace vApus.Util {
                     if (compilerResults.Errors.HasErrors && i == 3 || !compilerResults.Errors.HasErrors) {
                         break;
                     } else {
-                        if (debug)  break;
+                        if (debug) break;
 
                         compilerResults.Errors.Clear();
                         Thread.Sleep(1000 * i);
                     }
                 } catch {
+                    //Ignore. Will be handled later on.
                 }
 
             if (!debug)
@@ -192,7 +194,8 @@ namespace vApus.Util {
                 tempFiles.KeepFiles = false;
                 try {
                     tempFiles.Delete();
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed deleting a temp file.", ex);
                 }
             }
             _tempFiles.Clear();
@@ -200,7 +203,8 @@ namespace vApus.Util {
             if (Directory.Exists(_tempFilesDirectory))
                 try {
                     Directory.Delete(_tempFilesDirectory, true);
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed deleting the temp dir.", ex);
                 }
         }
 
@@ -208,7 +212,8 @@ namespace vApus.Util {
             if (Directory.Exists(_tempFilesDirectory))
                 try {
                     Directory.Delete(_tempFilesDirectory, true);
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed deleting the temp dir.", ex);
                 }
         }
     }

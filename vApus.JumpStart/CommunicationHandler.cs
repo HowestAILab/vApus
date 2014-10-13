@@ -33,7 +33,9 @@ namespace vApus.JumpStart {
                     case Key.SmartUpdate:
                         return HandleSmartUpdate(message);
                 }
-            } catch { }
+            } catch {
+                //Handled later.
+            }
             return message;
         }
 
@@ -81,6 +83,7 @@ namespace vApus.JumpStart {
                     p.WaitForExit(10000);
                 }
             } catch {
+                //Don't care.
             }
         }
 
@@ -144,6 +147,7 @@ namespace vApus.JumpStart {
                             p.WaitForExit(10000);
                         }
                     } catch {
+                        //Ignore.
                     }
                     p = null;
                 }

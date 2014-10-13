@@ -204,6 +204,7 @@ namespace vApus.Util {
                 try {
                     p.Dispose();
                 } catch {
+                    //Already gone?
                 }
             p = null;
         }

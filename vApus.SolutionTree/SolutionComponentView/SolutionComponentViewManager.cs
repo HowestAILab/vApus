@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -212,8 +213,14 @@ namespace vApus.SolutionTree {
             try {
                 foreach (FieldInfo info in view.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                     if (!info.FieldType.IsValueType)
-                        try { info.SetValue(view, null); } catch { }
-            } catch { }
+                        try {
+                            info.SetValue(view, null);
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed dereferencing field.", ex, new object[] { sender, e });
+                        }
+            } catch(Exception exc) {
+                Loggers.Log(Level.Error, "Failed dereferencing fields.", exc, new object[] { sender, e });
+            }
         }
 
         #endregion

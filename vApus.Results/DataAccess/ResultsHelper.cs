@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using MySql.Data.MySqlClient;
+using RandomUtils.Log;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -2248,7 +2249,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 try {
                     Schema.Drop(databaseName, _databaseActions);
                     _databaseName = null;
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed deleting the results database.", ex);
                 }
         }
 

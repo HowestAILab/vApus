@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using SpreadsheetLight;
 using SpreadsheetLight.Charts;
 using System;
@@ -122,7 +123,9 @@ namespace vApus.Stresstest {
 
                 if (File.Exists(zipPath)) try {
                         File.Delete(zipPath);
-                    } catch { }
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Warning, "Failed deleting zipped Excel results.", ex, new object[] { zipPath });
+                    }
 
                 int selectedIndex = cboStresstest.SelectedIndex;
                 if (cboStresstest.Items.Count == 1) ++selectedIndex;
@@ -192,7 +195,7 @@ namespace vApus.Stresstest {
 
                                 int rangeWidth, rangeOffset, rangeHeight;
                                 MakeWorksheet(doc, avgConcurrency, "Results per concurrency", out rangeWidth, out rangeOffset, out rangeHeight);
-                                doc.Filter(1, rangeOffset, 1 + rangeHeight, rangeOffset + rangeWidth -1);
+                                doc.Filter(1, rangeOffset, 1 + rangeHeight, rangeOffset + rangeWidth - 1);
                                 doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
 
                                 MakeWorksheet(doc, avgUserActions, "Results per user action", out rangeWidth, out rangeOffset, out rangeHeight);
@@ -202,8 +205,17 @@ namespace vApus.Stresstest {
                                 MakeErrorsSheet(doc, errors);
                                 MakeUserActionCompositionSheet(doc, userActionComposition);
 
-                                try { doc.SelectWorksheet(firstWorksheet); } catch { }
-                                try { doc.DeleteWorksheet("Sheet1"); } catch { }
+                                try {
+                                    doc.SelectWorksheet(firstWorksheet);
+                                } catch (Exception ex) {
+                                    Loggers.Log(Level.Error, "Failed selecting first worksheet.", ex, new object[] { firstWorksheet });
+                                }
+
+                                try {
+                                    doc.DeleteWorksheet("Sheet1");
+                                } catch (Exception ex) {
+                                    Loggers.Log(Level.Warning, "Failed deleting Sheet1.", ex);
+                                }
                                 try {
                                     string docPath = Path.Combine(directory, fileName + "_" + stresstest + ".xlsx");
                                     doc.SaveAs(docPath);
@@ -300,7 +312,7 @@ namespace vApus.Stresstest {
             //Don't use the bonus column "Errors"
             --rangeWidth;
             //Plot the response times
-            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries= false, ShowHiddenData = false });
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
             chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);

@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -382,7 +383,8 @@ namespace vApus.Results {
                     if (runs > 0 && lastStoppedRun != null)
                         estimatedRuntimeLeft = (lastStoppedRun.StoppedAt - lastStoppedRun.StartedAt).Ticks * runs;
                 }
-            } catch {
+            } catch (Exception ex){
+                Loggers.Log(Level.Warning, "Failed calcullating estimated runtime left.", ex);
             }
             return new TimeSpan(estimatedRuntimeLeft);
         }

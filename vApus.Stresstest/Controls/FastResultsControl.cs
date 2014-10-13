@@ -397,7 +397,9 @@ namespace vApus.Stresstest {
                             e.Value = StringUtil.FloatToLongString((float)e.Value);
                     }
                 }
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed displaying cell value.", ex, new object[] { sender, e });
+            }
         }
 
         /// <summary>
@@ -526,7 +528,9 @@ namespace vApus.Stresstest {
                         lblStopped.Text = string.Empty;
                         break;
                 }
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed setting stresstest stopped.", ex, new object[] { stresstestResult, exception });
+            }
         }
 
         /// <summary>
@@ -545,7 +549,11 @@ namespace vApus.Stresstest {
         /// <param name="eventColor">a custom color if you need one</param>
         /// <param name="logLevel"></param>
         public void AddEvent(string message, Color eventColor, Level logLevel = Level.Info) {
-            try { epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message); } catch { }
+            try {
+                epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message);
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed adding event.", ex, new object[] { message, eventColor, logLevel });
+            }
         }
 
         /// <summary>
@@ -733,7 +741,9 @@ namespace vApus.Stresstest {
 
                 splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
                 BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed setting collapsed or expanded.", ex, new object[] { sender, e });
+            }
 
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Bottom | AnchorStyles.Right;
         }

@@ -165,7 +165,9 @@ namespace vApus.Util {
                 client.Send(msg);
 
                 return true;
-            } catch { }
+            } catch {
+                //Handled later on.
+            }
             return false;
         }
         private void SaveSettings() {

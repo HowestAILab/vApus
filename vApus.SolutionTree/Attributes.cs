@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -202,7 +203,8 @@ namespace vApus.SolutionTree {
                     contextMenuStrip.Items.Add(item);
                 }
                 return contextMenuStrip;
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed building the context menu.", ex, new object[] { target });
             }
             return null;
         }
