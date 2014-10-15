@@ -269,7 +269,7 @@ namespace vApus.Monitor {
                         if (endsAt <= DateTime.Now)
                             Stop();
                     }
-                } catch  (Exception ex) {
+                } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex);
                 }
             }, null);
@@ -327,14 +327,18 @@ namespace vApus.Monitor {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetValuesToParameters(); }, null);
 
             Exception exception = null;
-            if (_monitorSourceClient.Connect()) {
-                _refreshTimeInMS = _monitorSourceClient.RefreshCountersInterval;
+            try {
+                if (_monitorSourceClient.Connect()) {
+                    _refreshTimeInMS = _monitorSourceClient.RefreshCountersInterval;
 
-                config = _monitorSourceClient.Config;
-                _decimalSeparator = _monitorSourceClient.DecimalSeparator;
-                _wdyh = _monitorSourceClient.WDYH;
-            } else {
-                exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".");
+                    config = _monitorSourceClient.Config;
+                    _decimalSeparator = _monitorSourceClient.DecimalSeparator;
+                    _wdyh = _monitorSourceClient.WDYH;
+                } else {
+                    exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".");
+                }
+            } catch (Exception ex) {
+                exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".", ex);
             }
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -1271,7 +1275,7 @@ namespace vApus.Monitor {
                     try {
                         _monitorSourceClient.Stop();
                         _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
-                    } catch(Exception ex) {
+                    } catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed stopping the monitor.", ex);
                     }
 
