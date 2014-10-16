@@ -1223,33 +1223,38 @@ namespace vApus.Monitor {
         private void StartMonitor() {
             Cursor = Cursors.WaitCursor;
 
-            //Set the parameters and the values in the gui and in the proxy
-            SetValuesToParameters();
+            try {
+                //Set the parameters and the values in the gui and in the proxy
+                SetValuesToParameters();
 
-            //Re-establish the connection.
-            if (_monitorSourceClient.Connect()) {
-                _monitorSourceClient.OnMonitor += _monitorSourceClient_OnMonitor;
+                //Re-establish the connection.
+                if (_monitorSourceClient.Connect()) {
+                    _monitorSourceClient.OnMonitor += _monitorSourceClient_OnMonitor;
 
-                _monitorSourceClient.WIW = _monitor.Wiw;
+                    _monitorSourceClient.WIW = _monitor.Wiw;
 
-                monitorControl.Init(_monitor);
-                btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
+                    monitorControl.Init(_monitor);
+                    btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
 
-                int refreshInS = _refreshTimeInMS / 1000;
-                lblCountDown.Tag = refreshInS;
-                lblCountDown.Text = "Updates in " + refreshInS;
+                    int refreshInS = _refreshTimeInMS / 1000;
+                    lblCountDown.Tag = refreshInS;
+                    lblCountDown.Text = "Updates in " + refreshInS;
 
-                lblCountDown.ForeColor = Color.SteelBlue;
-                lblCountDown.BackColor = Color.Transparent;
-                lblCountDown.Visible = true;
+                    lblCountDown.ForeColor = Color.SteelBlue;
+                    lblCountDown.BackColor = Color.Transparent;
+                    lblCountDown.Visible = true;
 
-                tmrProgressDelayCountDown.Start();
+                    tmrProgressDelayCountDown.Start();
 
-                tc.SelectedIndex = 1;
-            }
+                    tc.SelectedIndex = 1;
+                }
 
-            if (!_monitorSourceClient.IsConnected || !_monitorSourceClient.Start()) {
-                Stop();
+                if (!_monitorSourceClient.IsConnected || !_monitorSourceClient.Start()) {
+                    Stop();
+                    throw new Exception("The monitor did not start.");
+                }
+
+            } catch (Exception ex) {
                 string message = "Could not connect to the monitor!";
                 if (_forStresstest)
                     if (OnUnhandledException != null) {
@@ -1261,7 +1266,7 @@ namespace vApus.Monitor {
                     } else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                Loggers.Log(Level.Error, message);
+                Loggers.Log(Level.Error, message, ex);
             }
             Cursor = Cursors.Default;
         }
