@@ -526,7 +526,14 @@ namespace vApus.SolutionTree {
                 if (SolutionComponentChanged != null && Solution.ActiveSolution != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                         try {
-                            SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction, arg));
+                            foreach (EventHandler<SolutionComponentChangedEventArgs> del in SolutionComponentChanged.GetInvocationList())
+                                if (del != null)
+                                    if (del.Target != null && del.Target is Control && !(del.Target as Control).IsDisposed)
+                                        del(this, new SolutionComponentChangedEventArgs(doneAction, arg));
+                                    else //If the target == null no issue, disposed => crash.
+                                        try { del(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch {
+                                            //Ignore in this case. Do not care.
+                                        }
                         } catch (Exception ex) {
                             Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { doneAction, arg });
                         }

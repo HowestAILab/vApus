@@ -203,8 +203,8 @@ namespace vApus.Util {
             if (Directory.Exists(_tempFilesDirectory))
                 try {
                     Directory.Delete(_tempFilesDirectory, true);
-                } catch (Exception ex) {
-                    Loggers.Log(Level.Warning, "Failed deleting the temp dir.", ex);
+                } catch {
+                    //Not important. Don't care.
                 }
         }
 
@@ -212,8 +212,8 @@ namespace vApus.Util {
             if (Directory.Exists(_tempFilesDirectory))
                 try {
                     Directory.Delete(_tempFilesDirectory, true);
-                } catch (Exception ex) {
-                    Loggers.Log(Level.Warning, "Failed deleting the temp dir.", ex);
+                } catch {
+                    //Not important. Don't care.
                 }
         }
     }

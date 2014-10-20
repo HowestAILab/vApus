@@ -107,7 +107,7 @@ namespace vApus.SolutionTree {
                             tvw.AfterLabelEdit += tvw_AfterLabelEdit;
                             tvw.BeforeLabelEdit += tvw_BeforeLabelEdit;
                         } catch (Exception ex) {
-                            Loggers.Log(Level.Warning, "Failed begin editting treenode label.", ex, new object[] { sender, e });
+                            Loggers.Log(Level.Warning, "Failed begin editing treenode label.", ex, new object[] { sender, e });
                         }
                     }, null);
                 }, e.Node);
@@ -133,13 +133,13 @@ namespace vApus.SolutionTree {
                                         SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
                                     }
                                 } catch (Exception ex) {
-                                    Loggers.Log(Level.Error, "Failed end editting tree node label.", ex, new object[] { sender, e });
+                                    Loggers.Log(Level.Error, "Failed end editing tree node label.", ex, new object[] { sender, e });
                                 }
                             }
                             //A leave and enter will otherwise lead in resulting a wrong label of the node.
                             node.Text = item.ToString();
                         } catch (Exception exc) {
-                            Loggers.Log(Level.Error, "Failed end editting tree node labels.", exc, new object[] { sender, e });
+                            Loggers.Log(Level.Error, "Failed end editing tree node labels.", exc, new object[] { sender, e });
                         }
                     }, null);
                 }, e.Node);
@@ -242,11 +242,12 @@ namespace vApus.SolutionTree {
                                 childNode.ExpandAll();
                                 RefreshTreeNode(node);
                                 tvw.SelectedNode = childNode;
-                                if (childNode.Tag is LabeledBaseItem && (childNode.Tag as LabeledBaseItem).Label.Length == 0)
+                                if (childNode.Tag is LabeledBaseItem && (childNode.Tag as LabeledBaseItem).Label.Length == 0) 
                                     try {
+                                        tvw.LabelEdit = true;
                                         childNode.BeginEdit();
                                     } catch (Exception ex) {
-                                        Loggers.Log(Level.Error, "Failed begin editting added tree node label.", ex, new object[] { sender, e });
+                                        Loggers.Log(Level.Error, "Failed begin editing added tree node label.", ex, new object[] { sender, e });
                                     }
                             } else {
                                 node.Nodes.Clear();
