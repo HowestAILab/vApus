@@ -773,7 +773,7 @@ namespace vApus.Stresstest {
                     }
                 }
             } catch(Exception ex) {
-                Loggers.Log(Level.Error, "Failed displaying cell value.", ex, new object[] { sender, e });
+                //Cell is probably deleted. Logged and tested this.
             }
         }
 
