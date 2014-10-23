@@ -28,16 +28,16 @@ namespace vApus.Stresstest {
 
         #region Fields
         private bool _actionizeOnComment = true;
-        private string _beginCommentString = string.Empty;
+        private string _beginCommentString = "<!--";
         private uint _beginTimestampIndex;
-        private string _endCommentString = string.Empty;
+        private string _endCommentString = "-->";
         private uint _endTimestampIndex;
         private string _singleLineCommentString = string.Empty;
         #endregion
 
         #region Properties
         [SavableCloneable, PropertyControl(1)]
-        [Description("If no delimiter is given, the log entry will not be splitted into parts (space = valid). Please use <16 0C 02 12$> as it is the default for the log recorder. Just like new lines this is replaced by \"◦\" in the labels of the log entry controls for readability."),
+        [Description("If no delimiter is given, the log entry will not be splitted into parts (space = valid). Please use <16 0C 02 12$> as it is the default for the log recorder."),
         DisplayName("Child Delimiter")]
         public override string ChildDelimiter {
             get { return base.ChildDelimiter; }

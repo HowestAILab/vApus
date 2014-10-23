@@ -5,13 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
+using vApus.Monitor.Sources.Base;
 using vApus.SolutionTree;
 using vApus.Util;
-using vApusSMT.Base;
 
 namespace vApus.Monitor {
     /// <summary>
@@ -27,13 +28,14 @@ namespace vApus.Monitor {
         #region Fields
         private string[] _filter = new string[0];
 
-        private MonitorSource _monitorSource = new MonitorSource(string.Empty);
-        private int _monitorSourceIndex, _previousMonitorSourceIndexForCounters;
-        protected internal List<MonitorSource> _monitorSources = new List<MonitorSource>();
+        private MonitorSourceClient _monitorSourceClient = new MonitorSourceClient();
+        private int _monitorSourceClientIndex, _previousMonitorSourceIndexForCounters;
+        private string _monitorSourceClientName = string.Empty;
+        protected internal List<MonitorSourceClient> _monitorSourceClients = new List<MonitorSourceClient>();
 
-        private Dictionary<Entity, List<CounterInfo>> _wiw = new Dictionary<Entity, List<CounterInfo>>();
+        private Entities _wiw = new Entities();
 
-        private object[] _parameters = new object[0];
+        private object[] _parameterValues = new object[0];
         #endregion
 
         #region Properties
@@ -49,36 +51,43 @@ namespace vApus.Monitor {
 
         [SavableCloneable]
         public int MonitorSourceIndex {
-            get { return _monitorSourceIndex; }
-            set { _monitorSourceIndex = value; }
+            get { return _monitorSourceClientIndex; }
+            set { _monitorSourceClientIndex = value; }
+        }
+
+        [SavableCloneable]
+        public string MonitorSourceName {
+            get { return _monitorSourceClientName; }
+            set { _monitorSourceClientName = value; }
         }
 
         [DisplayName("Monitor Source"), PropertyControl(1)]
-        public MonitorSource MonitorSource {
+        public MonitorSourceClient MonitorSource {
             get {
-                _monitorSource.SetParent(_monitorSources);
-                return _monitorSource;
+                _monitorSourceClient.SetParent(_monitorSourceClients);
+                return _monitorSourceClient;
             }
             set {
-                _monitorSource = value;
-                _monitorSourceIndex = _monitorSources.IndexOf(_monitorSource);
+                _monitorSourceClient = value;
+                _monitorSourceClientIndex = _monitorSourceClients.IndexOf(_monitorSourceClient);
+                _monitorSourceClientName = _monitorSourceClient.ToString();
             }
         }
 
         /// <summary>
         ///     The counters you want to monitor.
         /// </summary>
-        public Dictionary<Entity, List<CounterInfo>> Wiw {
+        public Entities Wiw {
             get { return _wiw; }
-            internal set { _wiw = value; }
+            set { _wiw = value; }
         }
 
         /// <summary>
         ///     All the parameters, just the values, the names and types and such come from the monitor source.
         /// </summary>
-        public object[] Parameters {
-            get { return _parameters; }
-            set { _parameters = value; }
+        public object[] ParameterValues {
+            get { return _parameterValues; }
+            set { _parameterValues = value; }
         }
 
         /// <summary>
@@ -86,11 +95,17 @@ namespace vApus.Monitor {
         /// </summary>
         [SavableCloneable]
         public string WIWRepresentation {
-            get { return _wiw.ToBinaryToString(); }
+            get {
+                if (_wiw == null) _wiw = new Entities();
+                return JsonConvert.SerializeObject(_wiw, Formatting.None, new JsonSerializerSettings() { NullValueHandling = NullValueHandling.Ignore });
+            }
             set {
-                _wiw = value.ToByteArrayToObject() as Dictionary<Entity, List<CounterInfo>>;
-                if (_wiw == null)
-                    _wiw = new Dictionary<Entity, List<CounterInfo>>();
+                try {
+                    _wiw = JsonConvert.DeserializeObject<Entities>(value);
+                } catch {
+                    //To make it 'backwards compatible' with older vass files.
+                }
+                if (_wiw == null) _wiw = new Entities();
             }
         }
 
@@ -100,15 +115,15 @@ namespace vApus.Monitor {
         [SavableCloneable]
         public string[] ParametersRepresentation {
             get {
-                var repr = new string[_parameters.Length];
-                for (int i = 0; i != _parameters.Length; i++)
-                    repr[i] = _parameters[i].ToBinaryToString();
+                var repr = new string[_parameterValues.Length];
+                for (int i = 0; i != _parameterValues.Length; i++)
+                    repr[i] = _parameterValues[i].ToBinaryToString();
                 return repr;
             }
             set {
-                _parameters = new object[value.Length];
+                _parameterValues = new object[value.Length];
                 for (int i = 0; i != value.Length; i++)
-                    _parameters[i] = value[i].ToByteArrayToObject();
+                    _parameterValues[i] = value[i].ToByteArrayToObject();
             }
         }
 
@@ -124,29 +139,45 @@ namespace vApus.Monitor {
         #region Functions
 
         /// <summary>
-        ///     Set the monitor sources to be able to monitor.
+        /// Get all monitor source clients.
         /// </summary>
         /// <param name="monitorSources"></param>
-        public void SetMonitorSources(string[] monitorSources) {
-            _monitorSources.Clear();
-            if (monitorSources != null)
-                foreach (string source in monitorSources) {
-                    var monitorSource = new MonitorSource(source);
-                    _monitorSources.Add(monitorSource);
-                    monitorSource.SetParent(_monitorSources);
+        public void InitMonitorSourceClients() {
+            if (_monitorSourceClients.Count == 0) {
+                Dictionary<string, Type> clients = ClientFactory.Clients;
+                foreach (var kvp in clients) {
+                    var monitorSource = new MonitorSourceClient(kvp.Key, kvp.Value);
+                    _monitorSourceClients.Add(monitorSource);
+                    monitorSource.SetParent(_monitorSourceClients);
                 }
 
-            if (monitorSources == null || monitorSources.Length == 0) {
-                _monitorSourceIndex = -1;
-            } else {
-                if (_monitorSourceIndex == -1)
-                    _monitorSourceIndex = 0;
-                else if (_monitorSourceIndex >= _monitorSources.Count)
-                    _monitorSourceIndex = _monitorSources.Count - 1;
+                if (clients.Count == 0) {
+                    _monitorSourceClientIndex = -1;
+                    _monitorSourceClientName = string.Empty;
+                } else {
+                    if (_monitorSourceClientName == string.Empty) {
+                        //Backwards compatible.
+                        if (_monitorSourceClientIndex == -1)
+                            _monitorSourceClientIndex = 0;
+                        else if (_monitorSourceClientIndex >= _monitorSourceClients.Count)
+                            _monitorSourceClientIndex = _monitorSourceClients.Count - 1;
+                    } else {
 
-                _monitorSource = _monitorSources[_monitorSourceIndex];
+                        //Match names instead of indices #727 
+                        int candidate = 0;
+                        for (; candidate != _monitorSourceClients.Count; candidate++)
+                            if (_monitorSourceClients[candidate].ToString() == _monitorSourceClientName)
+                                break;
+
+                        _monitorSourceClientIndex = candidate;
+                    }
+
+                    _monitorSourceClient = _monitorSourceClients[_monitorSourceClientIndex];
+                    _monitorSourceClientName = _monitorSourceClient.ToString();
+                }
             }
         }
+
 
         public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
 

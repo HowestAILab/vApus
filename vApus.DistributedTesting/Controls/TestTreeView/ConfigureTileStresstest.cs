@@ -144,7 +144,9 @@ namespace vApus.DistributedTesting {
                     try {
                         _selectNextAvailableSlave.Click -= _selectNextAvailableSlave_Click;
                         _selectNextAvailableSlave = null;
-                    } catch { }
+                    } catch {
+                        //Should / can not happen.
+                    }
 
                 _selectNextAvailableSlave = new LinkButton();
                 _selectNextAvailableSlave.Text = "Select Next Available Slave";
@@ -156,7 +158,9 @@ namespace vApus.DistributedTesting {
                 toolTip.SetToolTip(_selectNextAvailableSlave, "Slaves in unused tile stresstests can also be selected.");
                 _selectNextAvailableSlave.Click += _selectNextAvailableSlave_Click;
                 solutionComponentPropertyPanelBasic.Controls.Add(_selectNextAvailableSlave);
-            } catch { }
+            } catch {
+                //Only on gui closed.
+            }
         }
 
         private void _selectNextAvailableSlave_Click(object sender, EventArgs e) {
@@ -185,6 +189,7 @@ namespace vApus.DistributedTesting {
                     }
                 }
             } catch {
+                //Only on gui closed.
             }
         }
 

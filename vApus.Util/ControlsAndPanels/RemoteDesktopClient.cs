@@ -7,6 +7,7 @@
  */
 using AxMSTSCLib;
 using MSTSCLib;
+using RandomUtils.Log;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -99,11 +100,13 @@ namespace vApus.Util {
                     try {
                         if (rdp.Connected.ToString() == "1")
                             rdp.Disconnect();
-                    } catch {
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Warning, "Failed disconnecting remote desktop.", ex);
                     }
                 }
                 tc.TabPages.Clear();
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed clearing remote desktops.", ex);
             }
         }
 
@@ -131,7 +134,8 @@ namespace vApus.Util {
             try {
                 if (rdp.Connected.ToString() == "1")
                     rdp.Disconnect();
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Warning, "Failed disconnecting remote desktop.", ex, new object[] { tabPage });
             }
             tc.TabPages.Remove(tabPage);
         }

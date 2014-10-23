@@ -103,7 +103,7 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Set to true when distributed testing.
         /// </summary>
-        public bool WaitWhenInitializedTheFirstRun {   set { _waitWhenInitializedTheFirstRun = value; }  }
+        public bool WaitWhenInitializedTheFirstRun { set { _waitWhenInitializedTheFirstRun = value; } }
         #endregion
 
         #region Con-/Destructor
@@ -118,7 +118,7 @@ namespace vApus.Stresstest {
 
             _stresstest = stresstest;
 
-//#warning Enable REST
+            //#warning Enable REST
             // WriteRestConfig();
         }
         ~StresstestCore() {
@@ -514,9 +514,7 @@ namespace vApus.Stresstest {
                     StringTree[] structure = null;
                     if (parameterLessStructures.ContainsKey(log)) {
                         structure = parameterLessStructures[log];
-                    }
-                    else
-                    {
+                    } else {
                         bool hasParameters;
                         structure = log.GetParameterizedStructure(out hasParameters);
                         if (!hasParameters) parameterLessStructures.Add(log, structure);
@@ -936,7 +934,7 @@ namespace vApus.Stresstest {
                         }
                     }
 
-//#warning Making threads on the fly is maybe not a very good idea, maybe this must reside in the thread pool (like parallel connection proxies are in the connection proxy pool)
+                    //#warning Making threads on the fly is maybe not a very good idea, maybe this must reside in the thread pool (like parallel connection proxies are in the connection proxy pool)
 
                     //Make a mini thread pool (Thread pools in thread pools, what it this madness?! :p)
                     var pThreads = new Thread[parallelConnectionProxies.Length];
@@ -1086,7 +1084,8 @@ namespace vApus.Stresstest {
 
                     _stresstestResult = null;
                     _sw = null;
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed disposing the stresstest core.", ex);
                 }
             }
             ObjectRegistrar.Unregister(this);
@@ -1209,7 +1208,11 @@ namespace vApus.Stresstest {
                                     testableLogEntry.ParameterizedLogEntryString + ") are not correct:\n" + ex + "\n\nReconnect failure:\n" + e);
                         }
                     } else {
-                        try { if (connectionProxy != null)   connectionProxy.Dispose(); } catch { }
+                        try {
+                            if (connectionProxy != null) connectionProxy.Dispose();
+                        } catch (Exception exc) {
+                            Loggers.Log(Level.Warning, "Failed disposing connection proxy.", exc);
+                        }
                         connectionProxy = null;
                         exception = new Exception("An error in the connection proxy has occured, after the second try, (and is now disposed) due to for instance a time out or a bug in the connection proxy code; Metrics for this log entry (" +
                                 testableLogEntry.ParameterizedLogEntryString + ") are not correct:\n" + ex);

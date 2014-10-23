@@ -87,7 +87,13 @@ namespace vApus.DistributedTesting {
 
         private static Message<Key> HandleInitializeTest(Message<Key> message) {
             try {
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { try { Solution.HideStresstestingSolutionExplorer(); } catch { } }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                    try {
+                        Solution.HideStresstestingSolutionExplorer();
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Warning, "Failed hiding solution explorer.", ex, new object[] { message });
+                    }
+                }, null);
                 //init the send queue for push messages.
                 _sendQueue = new BackgroundWorkQueue();
 
@@ -101,7 +107,11 @@ namespace vApus.DistributedTesting {
 
                 try {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                        try { SolutionComponentViewManager.DisposeViews(); } catch { }
+                        try {
+                            SolutionComponentViewManager.DisposeViews();
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Warning, "Failed disposing views.", ex, new object[] { message });
+                        }
                     }, null);
 
                     Exception pushIPException = null;
@@ -148,7 +158,11 @@ namespace vApus.DistributedTesting {
                             if (++done != 4) {
                                 Thread.Sleep(1000);
 
-                                try { SolutionComponentViewManager.DisposeViews(); } catch { }
+                                try {
+                                    SolutionComponentViewManager.DisposeViews();
+                                } catch (Exception ex) {
+                                    Loggers.Log(Level.Warning, "Failed disposing views.", ex, new object[] { message });
+                                }
 
                                 goto Retry;
                             }
@@ -278,12 +292,18 @@ namespace vApus.DistributedTesting {
                     tpm.ConcurrencyFinished = concurrencyFinished;
 
                     if (!_masterSocketWrapper.Connected) {
-                        try { if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose(); } catch { }
+                        try {
+                            if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose();
+                        } catch {
+                            //Don't care.
+                        }
 
                         var socket = new Socket(_masterSocketWrapper.IP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                         _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
 
-                        try { _masterSocketWrapper.Connect(1000, 3); } catch { }
+                        try { _masterSocketWrapper.Connect(1000, 3); } catch {
+                            //Master could be not available. Ignore.
+                        }
                     }
 
                     if (_masterSocketWrapper.Connected) {
@@ -291,7 +311,9 @@ namespace vApus.DistributedTesting {
                         byte[] buffer = SynchronizeBuffers(message);
                         _masterSocketWrapper.SendBytes(buffer);
                     }
-                } catch { }
+                } catch {
+                    //Master not available. Ignore.
+                }
         }
         #endregion
 

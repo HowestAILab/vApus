@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Data;
@@ -72,7 +73,9 @@ namespace vApus.Stresstest {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 _tmr.Elapsed += _tmr_Elapsed;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-            } catch { }
+            } catch {
+                //Should / can never happen.
+            }
             this.HandleCreated += EditUserActionPanel_HandleCreated;
         }
         #endregion
@@ -769,7 +772,8 @@ namespace vApus.Stresstest {
                         e.Value = _cache.Rows[e.RowIndex][e.ColumnIndex];
                     }
                 }
-            } catch {
+            } catch(Exception ex) {
+                //Cell is probably deleted. Logged and tested this.
             }
         }
 
@@ -1074,7 +1078,8 @@ namespace vApus.Stresstest {
                     fctxteditView.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                     splitStructured.Panel2Collapsed = true;
                 }
-            } catch {
+            } catch(Exception ex) {
+                Loggers.Log(Level.Error, "Failed filling edit view.", ex);
             }
         }
         #endregion

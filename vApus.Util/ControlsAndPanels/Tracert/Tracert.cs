@@ -80,6 +80,7 @@ namespace vApus.Util {
                         ProcessHop(e.Reply.Address, e.Reply.Status);
                         _ping.SendAsync(_ip, _timeout, Buffer, _options, null);
                     } catch {
+                        //Handled elsewhere.
                     }
             });
         }
@@ -116,6 +117,7 @@ namespace vApus.Util {
                 try {
                     hostName = Dns.GetHostEntry(ip).HostName;
                 } catch {
+                    //Some things don't have (known) a host name.
                 }
                 Hop(this, new HopEventArgs(ip.ToString(), hostName, roundTripTime, status));
             }
@@ -132,6 +134,7 @@ namespace vApus.Util {
                 try {
                     _ping.Dispose();
                 } catch {
+                    //Don't care.
                 }
             _ping = null;
         }

@@ -56,7 +56,13 @@ namespace vApus.Gui {
         /// </summary>
         static ArgumentsAnalyzer() {
             Init();
-            Application.ApplicationExit += (object sender, EventArgs e) => { try { FreeConsole(); } catch { } };
+            Application.ApplicationExit += (object sender, EventArgs e) => {
+                try {
+                    FreeConsole();
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed freeing the console.", ex, new object[] { sender, e });
+                }
+            };
         }
         #endregion
 

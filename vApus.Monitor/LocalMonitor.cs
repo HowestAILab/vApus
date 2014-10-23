@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -165,7 +166,8 @@ namespace vApus.Monitor {
                     NicReceived = NicSent = -1;
                 }
 
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed getting wmi stuff.", ex);
             }
         }
         #endregion

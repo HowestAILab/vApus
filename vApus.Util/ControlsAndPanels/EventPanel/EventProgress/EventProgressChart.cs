@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -215,7 +216,8 @@ namespace vApus.Util {
                 }
                 if (entered != null)
                     entered.Draw(g);
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed drawing the chart.", ex, new object[] { e });
             }
         }
         /// <summary>

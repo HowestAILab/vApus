@@ -7,6 +7,7 @@
  */
 
 using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -26,7 +27,7 @@ namespace vApus.Util {
         public CleanTempDataPanel() {
             InitializeComponent();
 
-            _d.Add("ConnectionProxyTempFiles", 0);
+            _d.Add("CompilerUnitTempFiles", 0);
             _d.Add("Logs", 0);
             _d.Add("UpdateTempFiles", 0);
 
@@ -52,7 +53,8 @@ namespace vApus.Util {
         private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { GetAndStoreAllSizes(); }, null);
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Warning, "Failed getting temp files.", ex);
             }
         }
 
@@ -69,9 +71,9 @@ namespace vApus.Util {
 
             if (IsHandleCreated) {
                 btnOpenConnectionProxyTempFiles.Text = string.Format("     ConnectionProxyTempFiles... [{0}MB]",
-                                                                     _d["ConnectionProxyTempFiles"]);
+                                                                     _d["CompilerUnitTempFiles"]);
                 btnOpenConnectionProxyTempFiles.Enabled =
-                    btnDeleteConnectionProxyTempFiles.Enabled = (_d["ConnectionProxyTempFiles"] != 0);
+                    btnDeleteConnectionProxyTempFiles.Enabled = (_d["CompilerUnitTempFiles"] != 0);
 
                 btnOpenLogs.Text = string.Format("     Logs... [{0}MB]", _d["Logs"]);
                 btnOpenLogs.Enabled = btnDeleteLogs.Enabled = (_d["Logs"] != 0);
@@ -94,7 +96,8 @@ namespace vApus.Util {
 
             try {
                 sizeInMB = Directory.Exists(d2) ? DirSize(new DirectoryInfo(d2)) : 0;
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Warning, "Failed getting dir size.", ex);
             }
 
             sizeInMB /= (1024 * 1024);
@@ -135,11 +138,12 @@ namespace vApus.Util {
                     foreach (string f in files)
                         try {
                             File.Delete(f);
-                        } catch {
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed deleting file.", ex);
                         }
-
                     Directory.Delete(d, true);
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed deleting the temp dir.", ex);
                 }
         }
 

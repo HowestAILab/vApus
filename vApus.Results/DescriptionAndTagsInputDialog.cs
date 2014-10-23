@@ -89,7 +89,11 @@ namespace vApus.Results {
         private void FocusDescription() {
             var t = new Thread(delegate() {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    try { txtDescription.Focus(); } catch { }
+                    try {
+                        txtDescription.Focus();
+                    } catch {
+                        //Don't care.
+                    }
                 }, null);
             });
             t.IsBackground = true;
@@ -113,7 +117,9 @@ namespace vApus.Results {
                 Loggers.Log(Level.Error, "Could not add the description and tags to the database.", ex, new object[] { sender, e });
             }
             DialogResult = DialogResult.OK;
-            try { Close(); } catch { }
+            try { Close(); } catch {
+                //Only fails on gui closed.
+            }
         }
 
         private void btnCancel_Click(object sender, EventArgs e) {

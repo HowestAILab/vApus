@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using SpreadsheetLight;
 using SpreadsheetLight.Charts;
 using System;
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.IO;
+using System.IO.Packaging;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
@@ -96,7 +98,8 @@ namespace vApus.Stresstest {
             if (stresstests.Rows.Count == 0) {
                 this.Enabled = false;
             } else {
-                cboStresstest.Items.Add("<All>");
+                if (stresstests.Rows.Count > 1)
+                    cboStresstest.Items.Add("<All>");
                 foreach (DataRow stresstestRow in stresstests.Rows)
                     cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
 
@@ -108,16 +111,25 @@ namespace vApus.Stresstest {
             btnExportToExcel.Enabled = chkGeneral.Checked || chkMonitorData.Checked || chkSpecialized.Checked;
         }
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK) {
-                string path = Path.Combine(folderBrowserDialog.SelectedPath, _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_'));
-                if (Directory.Exists(path) && MessageBox.Show("There is already a results folder present. Do you want to override it?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                    Directory.Delete(path, true);
-
-                Directory.CreateDirectory(path);
-
+            saveFileDialog.FileName = _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_');
+            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = chkGeneral.Enabled = chkMonitorData.Enabled = chkSpecialized.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
+
+                string zipPath = saveFileDialog.FileName;
+                string[] splittedPath = zipPath.Split('\\');
+                string fileName = splittedPath[splittedPath.Length - 1].Split(new string[] { ".zip" }, StringSplitOptions.None)[0];
+                string directory = Path.GetDirectoryName(zipPath);
+
+                if (File.Exists(zipPath)) try {
+                        File.Delete(zipPath);
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Warning, "Failed deleting zipped Excel results.", ex, new object[] { zipPath });
+                    }
+
                 int selectedIndex = cboStresstest.SelectedIndex;
+                if (cboStresstest.Items.Count == 1) ++selectedIndex;
+
 
                 bool general = chkGeneral.Checked;
                 bool monitorData = chkMonitorData.Checked;
@@ -134,7 +146,7 @@ namespace vApus.Stresstest {
                         if (selectedIndex == 0) {
                             foreach (DataRow row in stresstestsDt.Rows) {
                                 string stresstest = row.ItemArray[1] as string;
-                                if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1];
+                                if (stresstest.Contains(": ")) stresstest = stresstest.Split(new string[] { ": " }, StringSplitOptions.None)[1];
                                 stresstest += "_" + (row.ItemArray[2] as string);
                                 stresstest = stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_');
                                 stresstests.Add((int)row.ItemArray[0], stresstest);
@@ -144,7 +156,7 @@ namespace vApus.Stresstest {
                                 int i = (int)row.ItemArray[0];
                                 if (selectedIndex == i) {
                                     string stresstest = row.ItemArray[1] as string;
-                                    if (stresstest.Contains(": ")) stresstest = stresstest.Split(':')[1].TrimStart();
+                                    if (stresstest.Contains(": ")) stresstest = stresstest.Split(new string[] { ": " }, StringSplitOptions.None)[1];
                                     stresstest += "_" + (row.ItemArray[2] as string);
                                     stresstest = stresstest.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_');
                                     stresstests.Add(i, stresstest);
@@ -174,24 +186,45 @@ namespace vApus.Stresstest {
 
 
                                 string firstWorksheet = MakeOverviewSheet(doc, overview);
+                                MakeOverviewSheet(doc, overview95thPercentile, "Response time vs throughput_", "Cumulative response time vs throughput (95th percentile)", "Cumulative 95th percentile of the response times (ms)");
 
                                 MakeOverviewErrorsSheet(doc, overviewErrors);
 
                                 MakeTop5HeaviestUserActionsSheet(doc, overview);
-
-                                MakeOverviewSheet(doc, overview95thPercentile, "Cumulative 95th Percentile of the Response Times vs Throughput", "Cumulative 95th Percentile of the Response Times (ms)");
-                                MakeTop5HeaviestUserActionsSheet(doc, overview95thPercentile, "Top 5 Heaviest User Actions 95th Percentile", "95th Percentile of the Response Times (ms)");
+                                MakeTop5HeaviestUserActionsSheet(doc, overview95thPercentile, "Top 5 heaviest user actions_", "Top 5 heaviest user actions (95th percentile)", "95th percentile of the response times (ms)");
 
                                 int rangeWidth, rangeOffset, rangeHeight;
-                                MakeWorksheet(doc, avgConcurrency, "Average Concurrency", out rangeWidth, out rangeOffset, out rangeHeight);
-                                MakeWorksheet(doc, avgUserActions, "Average User Actions", out rangeWidth, out rangeOffset, out rangeHeight);
+                                MakeWorksheet(doc, avgConcurrency, "Results per concurrency", out rangeWidth, out rangeOffset, out rangeHeight);
+                                doc.Filter(1, rangeOffset, 1 + rangeHeight, rangeOffset + rangeWidth - 1);
+                                doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
+                                MakeWorksheet(doc, avgUserActions, "Results per user action", out rangeWidth, out rangeOffset, out rangeHeight);
+                                doc.Filter(1, rangeOffset, 1 + rangeHeight, rangeOffset + rangeWidth - 1);
+                                doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
                                 MakeErrorsSheet(doc, errors);
                                 MakeUserActionCompositionSheet(doc, userActionComposition);
 
-                                try { doc.SelectWorksheet(firstWorksheet); } catch { }
-                                try { doc.DeleteWorksheet("Sheet1"); } catch { }
-                                try { doc.SaveAs(Path.Combine(path, stresstest + ".xlsx")); } catch {
-                                    MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                try {
+                                    doc.SelectWorksheet(firstWorksheet);
+                                } catch (Exception ex) {
+                                    Loggers.Log(Level.Error, "Failed selecting first worksheet.", ex, new object[] { firstWorksheet });
+                                }
+
+                                try {
+                                    doc.DeleteWorksheet("Sheet1");
+                                } catch (Exception ex) {
+                                    Loggers.Log(Level.Warning, "Failed deleting Sheet1.", ex);
+                                }
+                                try {
+                                    string docPath = Path.Combine(directory, fileName + "_" + stresstest + ".xlsx");
+                                    doc.SaveAs(docPath);
+
+                                    AddFileToZip(zipPath, docPath);
+
+                                    File.Delete(docPath);
+                                } catch {
+                                    MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                                 }
                             }
 
@@ -210,11 +243,15 @@ namespace vApus.Stresstest {
                                             try { monitorDoc.SelectWorksheet(firstWorksheet); } catch { }
                                             try { monitorDoc.DeleteWorksheet("Sheet1"); } catch { }
 
-                                            string monitorFileName = stresstest + "_" + monitor.ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
-                                            monitorDoc.SaveAs(Path.Combine(path, monitorFileName));
+                                            string monitorFileName = Path.Combine(directory, fileName + "_" + stresstest + "_" + monitor.ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_') + ".xlsx");
+                                            monitorDoc.SaveAs(monitorFileName);
+
+                                            AddFileToZip(zipPath, monitorFileName);
+
+                                            File.Delete(monitorFileName);
                                         }
                                 } catch {
-                                    MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                    MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                                     break;
                                 }
                                 monitors = null;
@@ -235,8 +272,15 @@ namespace vApus.Stresstest {
 
                             try { doc.SelectWorksheet(firstWorksheet); } catch { }
                             try { doc.DeleteWorksheet("Sheet1"); } catch { }
-                            try { doc.SaveAs(Path.Combine(path, "RunsOverTime.xlsx")); } catch {
-                                MessageBox.Show("Failed to export because the Excel file is in use.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                            try {
+                                string docPath = Path.Combine(directory, "RunsOverTime.xlsx");
+                                doc.SaveAs(docPath);
+
+                                AddFileToZip(zipPath, docPath);
+
+                                File.Delete(docPath);
+                            } catch {
+                                MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
                         }
 
@@ -258,16 +302,17 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="dt"></param>
-        /// <param name="title"></param>
+        /// <param name="workSheetTitle"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeOverviewSheet(SLDocument doc, DataTable dt, string title = "Cumulative Response Time vs Throughput", string primaryValueAxisTitle = "Cumulative Response Time (ms)") {
+        private string MakeOverviewSheet(SLDocument doc, DataTable dt, string workSheetTitle = "Response time vs throughput", string chartTitle = "Cumulative response time vs throughput (average)", string primaryValueAxisTitle = "Cumulative response time (ms)") {
             int rangeWidth, rangeOffset, rangeHeight;
-            string worksheet = MakeWorksheet(doc, dt, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            string worksheet = MakeWorksheet(doc, dt, workSheetTitle, out rangeWidth, out rangeOffset, out rangeHeight);
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
 
             //Don't use the bonus column "Errors"
             --rangeWidth;
             //Plot the response times
-            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
             chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
@@ -276,7 +321,7 @@ namespace vApus.Stresstest {
             chart.PlotDataSeriesAsSecondaryLineChart(rangeWidth - 1, SLChartDataDisplayType.Normal, false);
 
             //Set the titles
-            chart.Title.SetTitle(title);
+            chart.Title.SetTitle(chartTitle);
             chart.ShowChartTitle(false);
             chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
             chart.PrimaryTextAxis.ShowTitle = true;
@@ -299,9 +344,10 @@ namespace vApus.Stresstest {
 
         private string MakeOverviewErrorsSheet(SLDocument doc, DataTable dt) {
             int rangeWidth, rangeOffset, rangeHeight;
-            string worksheet = MakeWorksheet(doc, dt, "Errors vs Throughput", out rangeWidth, out rangeOffset, out rangeHeight);
+            string worksheet = MakeWorksheet(doc, dt, "Errors vs throughput", out rangeWidth, out rangeOffset, out rangeHeight);
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
 
-            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
             chart.SetChartType(SLLineChartType.Line);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
             chart.SetChartPosition(0, rangeWidth + 1, 45, rangeWidth + 21);
@@ -338,11 +384,11 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="doc"></param>
         /// <param name="dt"></param>
-        /// <param name="title"></param>
+        /// <param name="workSheetTitle"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeTop5HeaviestUserActionsSheet(SLDocument doc, DataTable dt, string title = "Top 5 Heaviest User Actions", string primaryValueAxisTitle = "Response Time (ms)") {
+        private string MakeTop5HeaviestUserActionsSheet(SLDocument doc, DataTable dt, string workSheetTitle = "Top 5 heaviest user actions", string chartTitle = "Top 5 heaviest user actions (average)", string primaryValueAxisTitle = "Response time (ms)") {
             //max 31 chars
-            string worksheet = title;
+            string worksheet = workSheetTitle;
             if (worksheet.Length > 31) worksheet = worksheet.Substring(0, 31);
             doc.AddWorksheet(worksheet);
 
@@ -428,7 +474,7 @@ namespace vApus.Stresstest {
                         } else if (value is int) {
                             doc.SetCellValue(rowIndex + 2, i + 1, (int)value);
                         } else if (value is float) {
-                            doc.SetCellValue(rowIndex + 2, i + 1, (float)value);
+                            doc.SetCellValue(rowIndex + 2, i + 1, (double)(decimal)(float)value);
                         } else {
                             doc.SetCellValue(rowIndex + 2, i + 1, (double)value);
                         }
@@ -437,14 +483,16 @@ namespace vApus.Stresstest {
                     }
                 }
 
+                doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
                 //Plot the response times
-                var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, false, false);
+                var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
                 chart.SetChartType(SLColumnChartType.ClusteredColumn);
                 chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
                 chart.SetChartPosition(0, rangeWidth + 1, 45, rangeWidth + 21);
 
                 //Set the titles
-                chart.Title.SetTitle(title);
+                chart.Title.SetTitle(chartTitle);
                 chart.ShowChartTitle(false);
                 chart.PrimaryTextAxis.Title.SetTitle("Concurrency");
                 chart.PrimaryTextAxis.ShowTitle = true;
@@ -473,7 +521,11 @@ namespace vApus.Stresstest {
             }
 
             int rangeWidth, rangeOffset, rangeHeight;
-            return MakeWorksheet(doc, errors, "Errors", out rangeWidth, out rangeOffset, out rangeHeight);
+            string worksheet = MakeWorksheet(doc, errors, "Errors", out rangeWidth, out rangeOffset, out rangeHeight);
+            doc.Filter(1, rangeOffset, 1 + rangeHeight, rangeOffset + rangeWidth - 1);
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
+            return worksheet;
         }
         /// <summary>
         /// Format the user action comosition differently so it is more readable for customers.
@@ -504,17 +556,21 @@ namespace vApus.Stresstest {
             }
 
             int rangeWidth, rangeOffset, rangeHeight;
-            return MakeWorksheet(doc, userActionComposition, "User Action Composition", out rangeWidth, out rangeOffset, out rangeHeight, true);
+            return MakeWorksheet(doc, userActionComposition, "User action composition", out rangeWidth, out rangeOffset, out rangeHeight, true);
         }
         private string MakeMonitorSheet(SLDocument doc, DataTable dt, string title) {
-            dt.Columns.RemoveAt(1);
+            if (dt.Columns[1].ColumnName == "Monitor")
+                dt.Columns.RemoveAt(1);
 
             int rangeWidth, rangeOffset, rangeHeight;
-            return MakeWorksheet(doc, dt, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            string worksheet = MakeWorksheet(doc, dt, title, out rangeWidth, out rangeOffset, out rangeHeight);
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
+            return worksheet;
         }
 
         private string MakeRunsOverTimeSheet(SLDocument doc, DataTable dt, Dictionary<string, List<string>> concurrencyAndRuns) {
-            string title = "Runs over Time in Minutes";
+            string title = "Runs over time in minutes";
             doc.AddWorksheet(title);
 
             int rangeOffset = 1;
@@ -571,8 +627,10 @@ namespace vApus.Stresstest {
                 }
             }
 
-            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth + rangeOffset, false, false);
-            chart.Title.SetTitle("Runs over Time");
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
+            var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth + rangeOffset, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
+            chart.Title.SetTitle("Runs over time");
             chart.ShowChartTitle(false);
             chart.HideChartLegend();
 
@@ -580,7 +638,7 @@ namespace vApus.Stresstest {
             chart.PrimaryValueAxis.MajorUnit = 1;
             chart.PrimaryValueAxis.MinorUnit = 1.0d / 6;
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
-            chart.PrimaryValueAxis.Title.SetTitle("Concurrency.Run Duration in Minutes");
+            chart.PrimaryValueAxis.Title.SetTitle("Concurrency.Run duration in minutes");
             chart.PrimaryValueAxis.ShowTitle = true;
 
             chart.PrimaryTextAxis.InReverseOrder = true;
@@ -670,8 +728,7 @@ namespace vApus.Stresstest {
                     } else if (value is long) {
                         doc.SetCellValue(rowInSheet, clmIndex, (long)value);
                     } else if (value is float) {
-                        doc.SetCellValue(rowInSheet, clmIndex, (float)value);
-                        //} else if (value is DateTime) {
+                        doc.SetCellValue(rowInSheet, clmIndex, (double)(decimal)(float)value);
                     } else if (value is double) {
                         doc.SetCellValue(rowInSheet, clmIndex, (double)value);
                     } else if (value is DateTime) {
@@ -683,6 +740,7 @@ namespace vApus.Stresstest {
                     if (clmIndex == 1) doc.SetCellStyle(rowInSheet, clmIndex, boldStyle);
                 }
             }
+
             return worksheet;
         }
 
@@ -704,6 +762,28 @@ namespace vApus.Stresstest {
             }
         }
 
+        private void AddFileToZip(string zipFilename, string fileToAdd, CompressionOption compressionOption = CompressionOption.Normal) {
+            using (Package zip = System.IO.Packaging.Package.Open(zipFilename, FileMode.OpenOrCreate)) {
+                string destFilename = ".\\" + Path.GetFileName(fileToAdd);
+                Uri uri = PackUriHelper.CreatePartUri(new Uri(destFilename, UriKind.Relative));
+                if (zip.PartExists(uri))
+                    zip.DeletePart(uri);
+
+                PackagePart part = zip.CreatePart(uri, "", compressionOption);
+                using (var fileStream = new FileStream(fileToAdd, FileMode.Open, FileAccess.Read))
+                using (Stream dest = part.GetStream())
+                    CopyStream(fileStream, dest);
+            }
+        }
+
+        private void CopyStream(System.IO.FileStream inputStream, System.IO.Stream outputStream) {
+            long bufferSize = inputStream.Length < 4096 ? inputStream.Length : 4096;
+            var buffer = new byte[bufferSize];
+            int bytesRead = 0;
+            while ((bytesRead = inputStream.Read(buffer, 0, buffer.Length)) != 0)
+                outputStream.Write(buffer, 0, bytesRead);
+        }
+
         private void pic_Click(object sender, EventArgs e) {
             var pic = sender as PictureBox;
             var dialog = new ChartDialog(toolTip.GetToolTip(pic), pic.Image);
@@ -711,6 +791,7 @@ namespace vApus.Stresstest {
         }
 
         private void SaveChartsDialog_FormClosing(object sender, FormClosingEventArgs e) { _cancellationTokenSource.Cancel(); }
+
         #endregion
     }
 }

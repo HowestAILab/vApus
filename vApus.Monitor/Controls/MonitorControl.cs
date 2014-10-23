@@ -5,20 +5,19 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-
-using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.Globalization;
 using System.IO;
-using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 using System.Windows.Forms;
+using vApus.Monitor.Sources.Base;
 using vApus.Results;
 using vApus.Util;
-using vApusSMT.Base;
 
 namespace vApus.Monitor {
     public class MonitorControl : DataGridView {
@@ -68,24 +67,29 @@ namespace vApus.Monitor {
                 }
 
                 if (value == null)
-                    if (e.ColumnIndex == 0)
-                        value = DateTime.Now;
-                    else
-                        value = -1f;
+                    if (e.ColumnIndex == 0) value = DateTime.Now;
+                    else value = -1f;
 
-                if (value is float) {
-                    var f = (float)value;
-                    string s = null;
-                    if (f == -1f) {
+                if (value is double) {
+                    var dou = (double)value;
+                    string s = (-1d).ToString();
+                    if (dou != -1d)
+                        if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou))
+                            dou = -1d;
+                        else
+                            try {
+                                s = StringUtil.DoubleToLongString(dou, false);
+                            } catch {
+                                dou = -1d;
+                            }
+
+                    if (dou == -1d) {
                         DataGridViewColumnHeaderCell headerCell = Columns[e.ColumnIndex].HeaderCell;
                         if (headerCell.Style.BackColor != Color.Yellow) headerCell.Style.BackColor = Color.Yellow;
-
-                        s = f.ToString();
-                    } else {
-                        s = StringUtil.FloatToLongString(f, false);
                     }
+
                     value = s;
-                } else {
+                } else if (value is DateTime) {
                     value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
                 }
 
@@ -98,8 +102,7 @@ namespace vApus.Monitor {
         ///     Must always happen before the first value was added.
         /// </summary>
         /// <param name="monitor">The Wiw and the to string is used.</param>
-        /// <param name="units"></param>
-        public void Init(Monitor monitor, string[] units) {
+        public void Init(Monitor monitor) {
             Rows.Clear();
             Columns.Clear();
 
@@ -113,40 +116,24 @@ namespace vApus.Monitor {
             var lHeaders = new List<string>();
             lHeaders.Add(string.Empty);
 
-            int unitIndex = 0;
-            foreach (Entity entity in monitor.Wiw.Keys)
-                foreach (CounterInfo counterInfo in monitor.Wiw[entity])
-                    if (counterInfo.Instances.Count == 0) {
+            foreach (Entity entity in monitor.Wiw)
+                foreach (CounterInfo counterInfo in entity.GetSubs())
+                    if (counterInfo.GetSubs().Count == 0) {
                         var sb = new StringBuilder();
-                        sb.Append(entity.Name);
+                        sb.Append(entity.GetName());
                         sb.Append("/");
-                        sb.Append(counterInfo.Counter);
-                        string unit = units[unitIndex++];
-                        if (!string.IsNullOrEmpty(unit)) {
-                            sb.Append(" [");
-                            sb.Append(unit);
-                            sb.Append("]");
-                        }
+                        sb.Append(counterInfo.GetName());
 
                         lHeaders.Add(sb.ToString());
                     } else
-                        foreach (string instance in counterInfo.Instances) {
+                        foreach (CounterInfo instance in counterInfo.GetSubs()) {
                             var sb = new StringBuilder();
-                            sb.Append(entity.Name);
+                            sb.Append(entity.GetName());
                             sb.Append("/");
-                            sb.Append(counterInfo.Counter);
+                            sb.Append(counterInfo.GetName());
+                            sb.Append("/");
+                            sb.Append(instance.GetName());
 
-                            string unit = units[unitIndex++];
-                            if (!string.IsNullOrEmpty(unit)) {
-                                sb.Append(" [");
-                                sb.Append(unit);
-                                sb.Append("]");
-                            }
-
-                            if (instance != String.Empty) {
-                                sb.Append("/");
-                                sb.Append(instance);
-                            }
                             lHeaders.Add(sb.ToString());
                         }
 
@@ -187,29 +174,66 @@ namespace vApus.Monitor {
         /// <summary>
         ///     This will add values to the collection and will update the Gui.
         /// </summary>
-        /// <param name="monitorValues"></param>
-        public void AddMonitorValues(object[] monitorValues) {
+        /// <param name="counters"></param>
+        public void AddCounters(Entities counters, string decimalSeparator) {
             try {
-                if (ColumnCount != 0) {
-                    _toDisplayRows.Add(monitorValues);
+                if (ColumnCount == 0) return;
 
-                    // SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    ++RowCount;
-
-                    if (_keepAtEnd) {
-                        Scroll -= MonitorControl_Scroll;
-                        FirstDisplayedScrollingRowIndex = RowCount - 1;
-                        Scroll += MonitorControl_Scroll;
-                    }
-                    //  }, null);
-
-                    lock (_lock) {
-                        MonitorResultCache.Rows.Add(monitorValues);
-
-                        if (monitorValues.Length != MonitorResultCache.Headers.Length)
-                            Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, monitorValues);
-                    }
+                CultureInfo currentCulture = null;
+                if (Thread.CurrentThread.CurrentCulture.NumberFormat.NumberDecimalSeparator != decimalSeparator) {
+                    currentCulture = Thread.CurrentThread.CurrentCulture;
+                    CultureInfo tempCulture = currentCulture.Clone() as CultureInfo;
+                    tempCulture.NumberFormat.NumberDecimalSeparator = decimalSeparator;
+                    Thread.CurrentThread.CurrentCulture = tempCulture;
                 }
+
+                List<string> counterValues = counters.GetCountersAtLastLevel();
+                object[] row = new object[ColumnCount];
+                row[0] = DateTime.Now;
+                for (int i = 0; i != counterValues.Count; i++) {
+                    if (i >= ColumnCount) break;
+
+                    string counterValue = counterValues[i];
+                    object parsedValue = null;
+                    bool boolValue = false;
+                    if (counterValue.IsNumeric()) {
+                        double dou = double.Parse(counterValue);
+                        if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou))
+                            dou = -1d;
+                        parsedValue = dou;
+                    } else if (bool.TryParse(counterValue, out boolValue)) {
+                        parsedValue = boolValue ? 1d : 0d;
+                    } else {
+                        DateTime timeStamp;
+                        if (DateTime.TryParse(counterValue, out timeStamp))
+                            parsedValue = timeStamp;
+                        else
+                            parsedValue = counterValue;
+                    }
+                    row[i + 1] = parsedValue;
+                }
+                _toDisplayRows.Add(row);
+
+                // SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                ++RowCount;
+
+                if (_keepAtEnd) {
+                    Scroll -= MonitorControl_Scroll;
+                    FirstDisplayedScrollingRowIndex = RowCount - 1;
+                    Scroll += MonitorControl_Scroll;
+                }
+
+                if (currentCulture != null)
+                    Thread.CurrentThread.CurrentCulture = currentCulture;
+                //  }, null);
+
+                lock (_lock) {
+                    MonitorResultCache.Rows.Add(row);
+
+                    if (row.Length != MonitorResultCache.Headers.Length)
+                        Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, row);
+                }
+
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed adding monitor values.", ex);
             }
@@ -218,15 +242,15 @@ namespace vApus.Monitor {
         ///     Returns all monitor values.
         /// </summary>
         /// <returns></returns>
-        public Dictionary<DateTime, float[]> GetMonitorValues() {
-            var monitorValues = new Dictionary<DateTime, float[]>();
+        public Dictionary<DateTime, double[]> GetMonitorValues() {
+            var monitorValues = new Dictionary<DateTime, double[]>();
             lock (_lock)
                 foreach (var row in MonitorResultCache.Rows) {
                     if (row == null) continue;
                     if (RowContainsNull(row)) continue;
                     var timestamp = (DateTime)row[0];
-                    var values = new float[row.Length - 1];
-                    for (int i = 0; i != values.Length; i++) values[i] = (float)row[i + 1];
+                    var values = new double[row.Length - 1];
+                    for (int i = 0; i != values.Length; i++) values[i] = (double)row[i + 1];
 
                     if (!monitorValues.ContainsKey(timestamp)) monitorValues.Add(timestamp, values);
                 }
@@ -268,7 +292,14 @@ namespace vApus.Monitor {
                     var newRow = new string[row.Length];
                     for (int i = 0; i != row.Length; i++) {
                         object o = row[i];
-                        newRow[i] = (o is float) ? StringUtil.FloatToLongString((float)o) : ((DateTime)o).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                        string s = string.Empty;
+                        if (o is double)
+                            s = StringUtil.DoubleToLongString((double)o);
+                        else if (o is DateTime)
+                            s = ((DateTime)o).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                        else s = o.ToString();
+
+                        newRow[i] = s;
                     }
                     newCache.Add(newRow);
                 }

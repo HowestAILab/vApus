@@ -132,8 +132,9 @@ namespace vApus.SolutionTree {
                 if (dockState == -1) dockState = 8; //DockLeft
 
                 _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
-            } catch {
+            } catch (Exception ex) {
                 //Could fail for slaves
+                Loggers.Log(Level.Error, "Failed showing stresstesting solution explorer.", ex);
                 return false;
             }
             return true;
@@ -788,6 +789,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 } finally {
                     if (package != null) {
                         try { package.Close(); } catch {
+                            //Not important. Ignore.
                         }
                         package = null;
                     }
@@ -811,7 +813,9 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
             foreach (Form mdiChild in _registeredForCancelFormClosing)
                 if (mdiChild != null && !mdiChild.IsDisposed && !mdiChild.Disposing)
-                    try { mdiChild.Dispose(); } catch { }
+                    try { mdiChild.Dispose(); } catch {
+                        //Not important. Ignore.
+                    }
             _registeredForCancelFormClosing.Clear();
 
             SolutionComponentViewManager.DisposeViews();

@@ -1,4 +1,5 @@
 ﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -51,14 +52,16 @@ namespace vApus.Stresstest {
                                 _testWorkItem.TestConnection(state as Connection);
                                 if (Interlocked.Increment(ref testedConnections) == totalNumberOfConnections)
                                     _testAutoResetEvent.Set();
-                            } catch {
+                            } catch (Exception ex) {
+                                Loggers.Log(Level.Warning, "Failed testing connections.", ex, new object[] { state });
                             }
                         });
                         t.IsBackground = true;
                         t.Start(connection);
                     }
                     _testAutoResetEvent.WaitOne();
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed testing connections.", ex, new object[] { connections });
                 }
             });
         }

@@ -82,7 +82,11 @@ namespace vApus.Util {
         /// </summary>
         public void ReleaseConnection() {
             if (_connection != null) {
-                try { _connection.Dispose(); } catch { }
+                try {
+                    _connection.Dispose();
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed disposing the connection.", ex);
+                }
                 _connection = null;
             }
         }

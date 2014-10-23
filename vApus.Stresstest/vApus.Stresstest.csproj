@@ -192,7 +192,7 @@
     <Reference Include="RandomUtils.Log">
       <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
     </Reference>
-    <Reference Include="SpreadsheetLight, Version=0.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+    <Reference Include="SpreadsheetLight, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\SpreadsheetLight\SpreadsheetLight.dll</HintPath>
     </Reference>
@@ -226,10 +226,10 @@
       <DependentUpon>FindAndReplacePanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\TestConnections.cs" />
-    <Compile Include="Controls\ChartDialog.cs">
+    <Compile Include="Dialogs\ChartDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\ChartDialog.Designer.cs">
+    <Compile Include="Dialogs\ChartDialog.Designer.cs">
       <DependentUpon>ChartDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Controls\DetailedResultsControl.cs">
@@ -238,10 +238,10 @@
     <Compile Include="Controls\DetailedResultsControl.Designer.cs">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\ExportToExcelDialog.cs">
+    <Compile Include="Dialogs\ExportToExcelDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Controls\ExportToExcelDialog.Designer.cs">
+    <Compile Include="Dialogs\ExportToExcelDialog.Designer.cs">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Logs\Controls\EditLogPanel.cs">
@@ -484,7 +484,7 @@
     <EmbeddedResource Include="Connections\Proxies\Panels\ReferencesPanel.resx">
       <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ChartDialog.resx">
+    <EmbeddedResource Include="Dialogs\ChartDialog.resx">
       <DependentUpon>ChartDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\DetailedResultsControl.resx">
@@ -493,8 +493,9 @@
     <EmbeddedResource Include="Controls\FastResultsControl.resx">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\ExportToExcelDialog.resx">
+    <EmbeddedResource Include="Dialogs\ExportToExcelDialog.resx">
       <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
+      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\Controls\EditLogPanel.resx">
       <DependentUpon>EditLogPanel.cs</DependentUpon>

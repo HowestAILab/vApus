@@ -219,6 +219,7 @@ namespace vApus.Util {
                         if (_socket.Connected)
                             _socket.Disconnect(true);
                     } catch {
+                        //Ignore.
                     }
                     _socket = new Socket(_socket.AddressFamily, _socket.SocketType, _socket.ProtocolType);
 
@@ -235,7 +236,12 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="ar"></param>
         private void ConnectCallback(IAsyncResult ar) {
-            try { if (_socket.Connected)  _socket.EndConnect(ar); } catch { }
+            try {
+                if (_socket.Connected)
+                    _socket.EndConnect(ar);
+            } catch {
+                //Ignore. You will know if the socket is not connected.
+            }
             _connectWaitHandle.Set();
         }
 
@@ -248,9 +254,10 @@ namespace vApus.Util {
                         _socket.Disconnect(false);
                     _socket.Close();
                 } catch {
-                    //throw;
+                    //Ignore
                 } finally {
-                    try { _socket = null; } catch {   //throw; 
+                    try { _socket = null; } catch {
+                        //Ignore.
                     }
                 }
             }

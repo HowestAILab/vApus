@@ -123,6 +123,7 @@ namespace vApus.Stresstest {
                 if (connectionProxy != null)
                     connectionProxy.Dispose();
             } catch {
+                //Not important. Ignore.
             }
         }
 
@@ -235,7 +236,9 @@ namespace vApus.Stresstest {
                     try {
                         if (cp != null && !cp.IsDisposed)
                             cp.Dispose();
-                    } catch { }
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed disposing connection proxy.", ex, new object[] { _connectionProxies, cp });
+                    }
                 });
 
             //Dispose multi threaded.
@@ -246,7 +249,9 @@ namespace vApus.Stresstest {
                             try {
                                 if (pcp.ConnectionProxy != null && !pcp.ConnectionProxy.IsDisposed)
                                     pcp.ConnectionProxy.Dispose();
-                            } catch { }
+                            } catch (Exception ex) {
+                                Loggers.Log(Level.Error, "Failed disposing parallel connection proxy.", ex, new object[] { _parallelConnectionProxies, pcps, pcp });
+                            }
                 });
 
             _connectionProxies = null;

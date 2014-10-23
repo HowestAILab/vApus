@@ -1294,6 +1294,7 @@ namespace vApus.Util {
                     _activeControl = control;
                 }
             } catch {
+                //Ignore.
             }
         }
 
@@ -1319,6 +1320,7 @@ namespace vApus.Util {
                 _selection = GetRange(beginIndex, endIndex);
                 _activeControl = control;
             } catch {
+                //Ignore.
             }
         }
 

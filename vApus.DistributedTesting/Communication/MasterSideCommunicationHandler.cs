@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
  *  
@@ -144,17 +145,23 @@ namespace vApus.DistributedTesting {
                                 var masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
                                 masterSocketWrapper.Close();
                                 masterSocketWrapper = null;
-                            } catch { }
+                            } catch {
+                                //Don't care.
+                            }
 
                             try {
                                 slaveSocketWrapper.Close();
-                            } catch { }
+                            } catch {
+                                //Don't care.
+                            }
                         }
                         _connectedSlaves.Remove(slaveSocketWrapper);
                         slaveSocketWrapper = null;
                         break;
                     }
-            } catch { }
+            } catch {
+                //Don't care.
+            }
         }
         /// <summary>
         /// Gets the slave socket wrapper from the connected slaves. Returns null if not found.
@@ -379,7 +386,9 @@ namespace vApus.DistributedTesting {
                 socketWrapper.SetTag(masterSocketWrapper.Port);
                 BeginReceive(socketWrapper);
                 masterSocketWrapper.Socket.BeginAccept(new AsyncCallback(OnAccept), masterSocketWrapper);
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Warning, "Failed on accept. Maybe you cancelled the test?", ex, new object[] { ar });
+            }
         }
         private static void BeginReceive(SocketWrapper socketWrapper) {
             try {
@@ -436,7 +445,9 @@ namespace vApus.DistributedTesting {
 
                     if (ListeningError != null)
                         ListeningError.Invoke(null, new ListeningErrorEventArgs(slaveSocketWrapper.IP.ToString(), slaveSocketWrapper.Port, ex));
-                } catch { }
+                } catch {
+                    //If not handled later on, the gui was closed.
+                }
             }
         }
         private static void InvokeTestInitialized(TileStresstest tileStresstest, Exception ex) {
@@ -459,7 +470,7 @@ namespace vApus.DistributedTesting {
             _lock = null;
             GC.WaitForPendingFinalizers();
             GC.Collect();
-            
+
             _lock = new object();
 
             DisconnectSlaves();
@@ -504,11 +515,15 @@ namespace vApus.DistributedTesting {
                         var masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
                         masterSocketWrapper.Close();
                         masterSocketWrapper = null;
-                    } catch { }
+                    } catch {
+                        //Don't care.
+                    }
 
                     try {
                         slaveSocketWrapper.Close();
-                    } catch { }
+                    } catch {
+                        //Don't care.
+                    }
 
                 }
             _connectedSlaves.Clear();
@@ -583,8 +598,12 @@ namespace vApus.DistributedTesting {
                                 }
                             }
                             if (done >= count && waitHandle != null)
-                                try { waitHandle.Set(); } catch { }
-                        } catch { }
+                                try { waitHandle.Set(); } catch {
+                                    //Handled later on.
+                                }
+                        } catch {
+                            //Handled later on.
+                        }
                     });
                     t.IsBackground = true;
                     t.Priority = ThreadPriority.Highest;
@@ -674,8 +693,10 @@ namespace vApus.DistributedTesting {
 
                                         if (Interlocked.Increment(ref handled) == length && waitHandle != null)
                                             try { waitHandle.Set(); } catch {
+                                                //Ignore.
                                             }
-                                    } catch {
+                                    } catch (Exception ex) {
+                                        Loggers.Log(Level.Error, "Failed stopping test.", ex);
                                     } finally {
                                         _stopTestWorkItem = null;
                                     }

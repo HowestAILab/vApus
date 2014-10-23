@@ -135,6 +135,7 @@ namespace vApus.Gui {
                     _logErrorToolTip.Location = new Point(x, y);
                 }
             } catch {
+                //Not important. Ignore.
             }
         }
         #endregion
@@ -240,10 +241,17 @@ namespace vApus.Gui {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         try {
                             Enabled = true;
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed enabeling the GUI.", ex, new object[] { sender, e });
+                        }
+                        try {
                             _msgHandler.PostMessage();
-                        } catch { }
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed notifying update complete.", ex, new object[] { sender, e });
+                        }
                     }, null);
-            } catch {
+            } catch (Exception exc) {
+                Loggers.Log(Level.Error, "Failed notifying update complete.", exc, new object[] { sender, e });
             }
         }
 
@@ -504,18 +512,25 @@ namespace vApus.Gui {
         private void Main_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    //Show the error messages in a tooltip.
-                    _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
+                    try {
+                        if (e.Entry.Level > Level.Warning) {
+                            //Show the error messages in a tooltip.
+                            _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
 
-                    if (!_logErrorToolTip.Visible) {
-                        int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
-                        int y = statusStrip.Location.Y - 30;
+                            if (!_logErrorToolTip.Visible) {
+                                int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                                int y = statusStrip.Location.Y - 30;
 
-                        _logErrorToolTip.Show(this, x, y);
+                                _logErrorToolTip.Show(this, x, y);
+                            }
+                        }
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed displaying the error log tooltip.", ex, new object[] { sender, e });
                     }
                 }, null);
 
-            } catch {
+            } catch (Exception exc) {
+                Loggers.Log(Level.Error, "Failed displaying the error log tooltip.", exc, new object[] { sender, e });
             }
         }
 
@@ -524,15 +539,14 @@ namespace vApus.Gui {
                     reopenToolStripMenuItem.Enabled =
                         (Solution.ActiveSolution != null && Solution.ActiveSolution.FileName != null && !Solution.ActiveSolution.IsSaved);
                     SetStatusStrip();
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed setting the status strip.", ex, new object[] { sender, e });
                 }
         }
 
         private void SetStatusStrip() {
-            var attr =
-                typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
-                                            .GetCustomAttributes(typeof(DescriptionAttribute), false) as
-                DescriptionAttribute[];
+            var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
+                                            .GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
             lblUpdateNotifier.Text = attr[0].Description;
 
             if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.Disabled ||

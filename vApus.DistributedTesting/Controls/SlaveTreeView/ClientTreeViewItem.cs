@@ -185,7 +185,9 @@ namespace vApus.DistributedTesting {
                     hostname = Dns.GetHostEntry(ip).HostName;
                     hostname = (hostname == null) ? string.Empty : hostname.ToLower();
                     online = true;
-                } catch { }
+                } catch {
+                //Ignore resolve issues.
+                }
         }
 
         private void _activeObject_OnResult(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
@@ -205,6 +207,7 @@ namespace vApus.DistributedTesting {
                         if (_configureSlaves != null) _configureSlaves.SettingHostNameAndIP(true, online);
                         SettingHostNameAndIP(true, online);
                     } catch {
+                        //Only on gui closed.
                     }
             }, null);
         }

@@ -307,8 +307,10 @@ namespace vApus.Stresstest {
             dgvDetailedResults.AutoSizeColumnsMode = DataGridViewAutoSizeColumnsMode.AllCells;
             var cultureInfo = Thread.CurrentThread.CurrentCulture;
             try {
-                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => { return ExecuteQuery(codeTextBox.Text, cultureInfo); }, _cancellationTokenSource.Token);
-            } catch { }
+                dgvDetailedResults.DataSource = await Task.Run<DataTable>(() => { return ExecuteQuery(codeTextBox.Text, cultureInfo); });
+            } catch (Exception ex) {
+                Loggers.Log(Level.Warning, "Failed executing query.", ex, new object[] { sender, e });
+            }
 
             SizeColumns();
 
@@ -350,7 +352,8 @@ namespace vApus.Stresstest {
                     fctxtCellView.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                     splitData.Panel2Collapsed = true;
                 }
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Warning, "Failed filling cell view.", ex);
             }
         }
 

@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -108,7 +109,9 @@ namespace vApus.Stresstest {
 
                     cboRuleSet.SelectedIndexChanged += cboRuleSet_SelectedIndexChanged;
                 }
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed filling cbo rule set.", ex);
+            }
         }
 
         private void cboRuleSet_SelectedIndexChanged(object sender, EventArgs e) { btnApply.Enabled = true; }
@@ -237,7 +240,9 @@ namespace vApus.Stresstest {
             if (!IsDisposed && cboRuleSet.Items.Count != 0 && _logRuleSets != null)
                 try {
                     _log.LogRuleSet = _logRuleSets[cboRuleSet.SelectedIndex] as LogRuleSet;
-                } catch { }
+                } catch(Exception ex) {
+                    Loggers.Log(Level.Error, "Failed setting log rule set.", ex, new object[] { sender, e });
+                }
 
             UserAction currentUserAction = null;
             string userActionBegin = "<!--", userActionEnd = "-->";

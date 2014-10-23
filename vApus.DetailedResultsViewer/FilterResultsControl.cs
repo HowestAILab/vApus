@@ -32,7 +32,11 @@ namespace vApus.DetailedResultsViewer {
             ClearAvailableTags();
             _filterChangedDelayedTimer.Tick += _filterChangedDelayedTimer_Tick;
         }
-        ~FilterResultsControl() { try { _waitHandle.Dispose(); } catch { } }
+        ~FilterResultsControl() {
+            try { _waitHandle.Dispose(); } catch {
+                //Ignore.
+            }
+        }
 
         /// <summary>
         /// Duplicate tags are ignored.
@@ -72,7 +76,9 @@ namespace vApus.DetailedResultsViewer {
                                 try {
                                     lock (_lock) done = int.MaxValue;
                                     _waitHandle.Set();
-                                } catch { }
+                                } catch {
+                                    //Ignore.
+                                }
                             }
                         }
                     }, database);
@@ -80,7 +86,9 @@ namespace vApus.DetailedResultsViewer {
                 }
                 if (count != 0) _waitHandle.WaitOne();
                 SetAvailableTags(tags);
-            } catch { }
+            } catch {
+                //Ignore.
+            }
             try { if (!Disposing && !IsDisposed) Cursor = Cursors.Arrow; } catch { }
         }
         private void SetAvailableTags(List<string> tags) {
@@ -154,6 +162,7 @@ namespace vApus.DetailedResultsViewer {
                     if (++tried != 3)
                         goto Retry;
             } catch {
+                //Ignore.
             }
         }
     }

@@ -1,4 +1,5 @@
 ﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -151,7 +152,8 @@ namespace vApus.DistributedTesting {
 
                     BasicTileStresstest.Slaves = availableSlaves.Count == 0 ? new Slave[0] : new Slave[] { availableSlaves[0] };
                 }
-            } catch {
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed selecting next available slave.", ex);
             }
         }
 

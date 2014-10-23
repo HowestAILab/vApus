@@ -231,6 +231,7 @@ namespace vApus.DistributedTesting {
                             hostname = (hostname == null) ? string.Empty : hostname.ToLower();
                             online = true;
                         } catch {
+                            //Ignore resolve issues.
                         }
                     } else {
                         hostname = txtHostName.Text.ToLower();
@@ -238,6 +239,7 @@ namespace vApus.DistributedTesting {
                         try {
                             if (hostname.Length != 0) addresses = Dns.GetHostEntry(hostname.Split('.')[0]).AddressList;
                         } catch {
+                            //Ignore resolve issues.
                         }
 
                         if (addresses != null && addresses.Length != 0) {
@@ -246,6 +248,7 @@ namespace vApus.DistributedTesting {
                         }
                     }
                 } catch {
+                    //Ignore. If you did not type stuff right this obviously fails.
                 }
         }
 
@@ -272,6 +275,7 @@ namespace vApus.DistributedTesting {
                         _clientTreeViewItem.SettingHostNameAndIP(true, online);
                         SettingHostNameAndIP(true, online);
                     } catch {
+                        //Ignore.
                     }
             }, null);
         }

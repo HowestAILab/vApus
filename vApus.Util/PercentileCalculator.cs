@@ -21,7 +21,7 @@ namespace vApus.Util {
                 throw new ArgumentOutOfRangeException("percentile must be between 0 and 100.");
 
             double dNthPercentile = (100.0 - (double)nthPercentile) / 100.0;
-            int percentN = (int)(Math.Round(values.Count() * dNthPercentile, MidpointRounding.AwayFromZero)) + 1;
+            int percentN = (int)(Math.Round(values.Count() * dNthPercentile, MidpointRounding.AwayFromZero)) +1;
 
             T[] orderedUpperValues = values.OrderByDescending(x => x).Take(percentN).ToArray();
             return orderedUpperValues[orderedUpperValues.Length - 1];

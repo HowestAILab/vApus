@@ -96,7 +96,9 @@ namespace vApus.Stresstest {
                     Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
 
                     SetCodeChanged();
-                } catch { }
+                } catch {
+                    //Ignore. Can happen on mdi parent close.
+                }
         }
 
         private void codeTextBox_TextChanged(object sender, TextChangedEventArgs e) {

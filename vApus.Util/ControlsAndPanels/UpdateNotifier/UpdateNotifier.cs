@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -161,13 +162,19 @@ namespace vApus.Util {
                     if (Directory.Exists(tempFolder) &&
                     Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                         Directory.Delete(tempFolder, true);
-                } catch { }
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed deleting the temp dir.", ex);
+                }
 
                 Directory.CreateDirectory(tempFolder);
 
                 string tempVersion = Path.Combine(tempFolder, "version.ini");
 
-                try { if (File.Exists(tempVersion)) File.Delete(tempVersion); } catch { }
+                try {
+                    if (File.Exists(tempVersion)) File.Delete(tempVersion);
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed deleting the temp version.", ex);
+                }
 
                 string channelDir = channel == 0 ? "stable" : "nightly";
                 sftp.Get(channelDir + "/version.ini", tempVersion);

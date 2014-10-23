@@ -106,6 +106,7 @@ namespace vApus.Stresstest {
                 if (cbo.SelectedIndex != -1)
                     base.HandleValueChanged(cbo.SelectedItem);
             } catch {
+                //Ignore. Not important.
             }
         }
 

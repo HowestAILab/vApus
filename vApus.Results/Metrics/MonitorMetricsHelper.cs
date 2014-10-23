@@ -64,7 +64,7 @@ namespace vApus.Results {
             metrics.Headers = monitorResultCache.Headers;
 
             //Done this way to strip the monitor values during vApus think times between the runs.
-            var monitorValues = new Dictionary<DateTime, float[]>();
+            var monitorValues = new Dictionary<DateTime, double[]>();
             foreach (var runResult in result.RunResults) {
                 var part = GetMonitorValues(runResult.StartedAt, runResult.StoppedAt == DateTime.MinValue ? DateTime.MaxValue : runResult.StoppedAt, monitorResultCache);
                 foreach (var key in part.Keys) if (!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
@@ -90,7 +90,7 @@ namespace vApus.Results {
             metrics.Headers = monitorResultCache.Headers;
 
             //Done this way to strip the monitor values during vApus think times between the runs.
-            var monitorValues = new Dictionary<DateTime, float[]>();
+            var monitorValues = new Dictionary<DateTime, double[]>();
             foreach (var kvp in concurrencyMetrics.StartsAndStopsRuns) {
                 var part = GetMonitorValues(kvp.Key, kvp.Value == DateTime.MinValue ? DateTime.MaxValue : kvp.Value, monitorResultCache);
                 foreach (var key in part.Keys) if (!monitorValues.ContainsKey(key)) monitorValues.Add(key, part[key]);
@@ -141,14 +141,16 @@ namespace vApus.Results {
         /// <param name="from"></param>
         /// <param name="to"></param>
         /// <returns></returns>
-        private static Dictionary<DateTime, float[]> GetMonitorValues(DateTime from, DateTime to, MonitorResult monitorResultCache) {
-            var monitorValues = new Dictionary<DateTime, float[]>();
+        private static Dictionary<DateTime, double[]> GetMonitorValues(DateTime from, DateTime to, MonitorResult monitorResultCache) {
+            var monitorValues = new Dictionary<DateTime, double[]>();
             foreach (var row in monitorResultCache.Rows) {
                 var timestamp = (DateTime)row[0];
                 if (timestamp >= from && timestamp <= to) {
-                    var values = new float[row.Length - 1];
-                    for (int i = 0; i != values.Length; i++)
-                        values[i] = (float)row[i + 1];
+                    var values = new double[row.Length - 1];
+                    for (int i = 0; i != values.Length; i++) {
+                        object cellValue = row[i + 1];
+                        values[i] = cellValue is double ? (double)cellValue : -1;
+                    }
 
                     if (!monitorValues.ContainsKey(timestamp))
                         monitorValues.Add(timestamp, values);
@@ -156,21 +158,21 @@ namespace vApus.Results {
             }
             return monitorValues;
         }
-        private static void SetAverageMonitorResultsToMetrics(MonitorMetrics metrics, Dictionary<DateTime, float[]> monitorValues) {
-            metrics.AverageMonitorResults = new float[0];
+        private static void SetAverageMonitorResultsToMetrics(MonitorMetrics metrics, Dictionary<DateTime, double[]> monitorValues) {
+            metrics.AverageMonitorResults = new double[0];
             if (monitorValues.Count != 0) {
                 //Average divider
                 int valueCount = monitorValues.Count;
-                metrics.AverageMonitorResults = new float[valueCount];
+                metrics.AverageMonitorResults = new double[valueCount];
 
                 foreach (var key in monitorValues.Keys) {
-                    var floats = monitorValues[key];
+                    var doubles = monitorValues[key];
 
-                    // The averages length must be the same as the floats length.
-                    if (metrics.AverageMonitorResults.Length != floats.Length) metrics.AverageMonitorResults = new float[floats.Length];
+                    // The averages length must be the same as the doubles length.
+                    if (metrics.AverageMonitorResults.Length != doubles.Length) metrics.AverageMonitorResults = new double[doubles.Length];
 
-                    for (int i = 0; i != floats.Length; i++) {
-                        float value = floats[i], average = metrics.AverageMonitorResults[i];
+                    for (int i = 0; i != doubles.Length; i++) {
+                        double value = doubles[i], average = metrics.AverageMonitorResults[i];
 
                         if (value == -1) //Detect invalid values.
                             metrics.AverageMonitorResults[i] = -1;
@@ -193,7 +195,7 @@ namespace vApus.Results {
             row.Add(metrics.ConcurrentUsers);
 
             if (metrics.Run != 0) row.Add(metrics.Run);
-            foreach (float avg in metrics.AverageMonitorResults) row.Add(avg);
+            foreach (double avg in metrics.AverageMonitorResults) row.Add(avg);
 
             return row.ToArray();
         }
@@ -204,7 +206,7 @@ namespace vApus.Results {
             row.Add(metrics.ConcurrentUsers);
 
             if (metrics.Run != 0) row.Add(metrics.Run);
-            foreach (float avg in metrics.AverageMonitorResults) row.Add(avg);
+            foreach (double avg in metrics.AverageMonitorResults) row.Add(avg);
 
             return row.ToArray();
         }

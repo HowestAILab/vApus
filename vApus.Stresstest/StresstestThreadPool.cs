@@ -166,6 +166,7 @@ namespace vApus.Stresstest {
                         _doWorkWaitHandle.Reset();
                         _poolIdleWaitHandle.Set();
                     } catch {
+                        //Ignore. Happens if stuff becomes null.
                     }
                 }
             }
@@ -194,16 +195,30 @@ namespace vApus.Stresstest {
                     _size = 0;
 
                     //Abort
-                    Parallel.ForEach(_threads, delegate(Thread t) { try { if (t != null) t.Abort(); } catch { } });
+                    Parallel.ForEach(_threads, delegate(Thread t) {
+                        try { if (t != null) t.Abort(); } catch {
+                            //Ignore.
+                        }
+                    });
 
                     //Join
-                    Parallel.ForEach(_threads, delegate(Thread t) { try { if (t != null) t.Join(1000); } catch { } });
+                    Parallel.ForEach(_threads, delegate(Thread t) {
+                        try { if (t != null) t.Join(1000); } catch {
+                            //Ignore.
+                        }
+                    });
 
                     _poolIdleWaitHandle.Set();
                 }
-                try { if (_poolInitializedWaitHandle != null) _poolInitializedWaitHandle.Close(); } catch { }
-                try { if (_doWorkWaitHandle != null) _doWorkWaitHandle.Close(); } catch { }
-                try { if (_poolIdleWaitHandle != null) _poolIdleWaitHandle.Close(); } catch { }
+                try { if (_poolInitializedWaitHandle != null) _poolInitializedWaitHandle.Close(); } catch {
+                    //Ignore.
+                }
+                try { if (_doWorkWaitHandle != null) _doWorkWaitHandle.Close(); } catch {
+                    //Ignore.
+                }
+                try { if (_poolIdleWaitHandle != null) _poolIdleWaitHandle.Close(); } catch {
+                    //Ignore.
+                }
 
                 _poolInitializedWaitHandle = null;
                 _doWorkWaitHandle = null;

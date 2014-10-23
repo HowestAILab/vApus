@@ -69,7 +69,7 @@ namespace vApus.Stresstest {
                             }
                         }
                     } catch {
-                        //While loading.
+                        //While loading. Ignore.
                     }
 
                 if (lexicalResult == LexicalResult.OK)

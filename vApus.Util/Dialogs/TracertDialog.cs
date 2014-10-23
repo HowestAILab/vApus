@@ -14,6 +14,11 @@ namespace vApus.Util {
 
         public TracertDialog() { InitializeComponent(); }
 
+        public void SetStarted() {
+            btnCancelTraceRoute.Enabled = true;
+            lvw.Items.Clear();
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="ip"></param>
@@ -24,7 +29,7 @@ namespace vApus.Util {
             lvw.Items.Add(new ListViewItem(new[] { (lvw.Items.Count + 1).ToString(), ip, hostName, roundtripTime }));
         }
 
-        public void ClearHops() { lvw.Items.Clear(); }
+        public void SetCompleted() { btnCancelTraceRoute.Enabled = false; }
 
         private void btnCancelTraceRoute_Click(object sender, EventArgs e) {
             btnCancelTraceRoute.Enabled = false;

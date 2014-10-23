@@ -249,7 +249,9 @@ namespace vApus.Stresstest {
                 try {
                     if (package != null)
                         package.Close();
-                } catch { }
+                } catch {
+                    //Ignrore. Not important.
+                }
             }
         }
         private void EditPlainText_Click(object sender, EventArgs e) { SolutionComponentViewManager.Show(this, typeof(PlaintTextLogView)); }

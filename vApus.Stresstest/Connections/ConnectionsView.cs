@@ -1,4 +1,5 @@
 ﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -12,6 +13,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Text;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -82,7 +84,9 @@ namespace vApus.Stresstest {
                 else
                     try {
                         dgvConnections.Rows[_preferedRowToSelect].Selected = true;
-                    } catch { dgvConnections.Rows[0].Selected = true; }
+                    } catch {
+                        dgvConnections.Rows[0].Selected = true;
+                    }
 
                 foreach (DataGridViewColumn clm in dgvConnections.Columns) clm.SortMode = DataGridViewColumnSortMode.NotSortable;
             }
@@ -219,7 +223,8 @@ namespace vApus.Stresstest {
 
                         _connections.AddWithoutInvokingEvent(connection);
 
-                    } catch {
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed building connection.", ex, new object[] { sender, e });
                     }
 
                 _connections.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);

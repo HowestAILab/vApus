@@ -329,7 +329,9 @@ namespace vApus.Stresstest {
                                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                                         Stop(stresstestStatus, ex, stresstestStatus == StresstestStatus.Ok && _stresstest.MonitorAfter != 0);
                                     }, null);
-                                } catch { }
+                                } catch {
+                                    //Ignore. If the synchronization context is disposed / null. (Gui closed)
+                                }
                             }
                         }
                     });
@@ -389,6 +391,7 @@ namespace vApus.Stresstest {
                     monitorView.OnHandledException -= monitorView_OnHandledException;
                     monitorView.OnUnhandledException -= monitorView_OnUnhandledException;
                 } catch {
+                    //Should / can never happen. Ignore.
                 }
 
             foreach (Monitor.Monitor monitor in _stresstest.Monitors) {
@@ -472,7 +475,9 @@ namespace vApus.Stresstest {
                                 fastResultsControl.AddEvent(monitorView.Text + " is not started.");
 
                                 try { monitorView.Stop(); } catch { }
-                            } catch { }
+                            } catch {
+                                //On gui closed. Ignore.
+                            }
                         }
 
                 if (runningMonitors != 0 && _stresstest.MonitorBefore != 0) {
@@ -744,6 +749,7 @@ namespace vApus.Stresstest {
                             fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorAfterBogusRunResult, monitorResultCache));
                         }
                     } catch {
+                        Loggers.Log(Level.Error, "Failed updating fast monitor results.", ex, new object[] { stresstestStatus, ex, monitorAfter });
                     }
 
                     fastResultsControl.ExpandEventPanel();
@@ -761,7 +767,9 @@ namespace vApus.Stresstest {
         private void RemoveDatabase(bool confirm = true) {
             if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
                 if (!confirm || MessageBox.Show("Do you want to remove the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
-                    try { _resultsHelper.DeleteResults(); } catch { }
+                    try { _resultsHelper.DeleteResults(); } catch (Exception ex) {
+                        Loggers.Log(Level.Warning, "Failed deleting results.", ex, new object[] { confirm });
+                    }
                     detailedResultsControl.ClearResults();
                     detailedResultsControl.Enabled = false;
                 }
@@ -835,7 +843,9 @@ namespace vApus.Stresstest {
                 }
 
                 // Can only be cancelled once, calling multiple times is not a problem.
-                if (_stresstestCore != null && !_stresstestCore.IsDisposed) try { _stresstestCore.Cancel(); } catch { }
+                if (_stresstestCore != null && !_stresstestCore.IsDisposed) try { _stresstestCore.Cancel(); } catch {
+                        //Ignore. Should / can never happen.
+                    }
             }
 
             fastResultsControl.SetStresstestStopped();
@@ -848,11 +858,15 @@ namespace vApus.Stresstest {
         /// </summary>
         private void StopMonitorsAndUnlockGui(Exception exception, bool disposing) {
             if (_monitorBeforeCountDown != null) {
-                try { _monitorBeforeCountDown.Dispose(); } catch { }
+                try { _monitorBeforeCountDown.Dispose(); } catch {
+                    //Ignore.
+                }
                 _monitorBeforeCountDown = null;
             }
             if (_monitorAfterCountDown != null) {
-                try { _monitorAfterCountDown.Dispose(); } catch { }
+                try { _monitorAfterCountDown.Dispose(); } catch {
+                    //Ignore.
+                }
                 _monitorAfterCountDown = null;
             }
 
@@ -904,7 +918,9 @@ namespace vApus.Stresstest {
                 tmrProgressDelayCountDown.Stop();
                 if (fastResultsControl != null && !fastResultsControl.IsDisposed)
                     fastResultsControl.SetCountDownProgressDelay(-1);
-            } catch { }
+            } catch {
+            //Ignore.
+            }
         }
         #endregion
 

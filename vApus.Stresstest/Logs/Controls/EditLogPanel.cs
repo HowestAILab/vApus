@@ -46,7 +46,9 @@ namespace vApus.Stresstest {
             try {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
-            } catch { }
+            } catch {
+                //Should / can never happen.
+            }
         }
         #endregion
 
@@ -121,7 +123,9 @@ namespace vApus.Stresstest {
                     if (editted)
                         _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
-            } catch { }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed saving capture settings.", ex);
+            }
         }
         #endregion
 
@@ -142,7 +146,9 @@ namespace vApus.Stresstest {
                     bool logEntryContainsTokens;
                     _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
                     SetCodeStyle();
-                } catch { }
+                } catch(Exception ex) {
+                    Loggers.Log(Level.Error, "Failed getting parameter token delimiters + setting code style.", ex, new object[] { sender, e });
+                }
             }
         }
         private void SetCodeStyle() {
@@ -377,15 +383,22 @@ namespace vApus.Stresstest {
 
         #region Extra Tools
         private void btnExportToTextFile_Click(object sender, EventArgs e) {
+            saveFileDialog.FileName = _log.ToString().ReplaceInvalidWindowsFilenameChars('_').Replace(' ', '_');
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 var sb = new StringBuilder();
-                foreach (UserAction ua in _log) {
-                    sb.Append(_log.LogRuleSet.BeginCommentString);
-                    sb.Append(ua.Label);
-                    sb.AppendLine(_log.LogRuleSet.EndCommentString);
-                    foreach (LogEntry le in ua)
-                        sb.AppendLine(le.LogEntryString);
-                }
+                if (_log.LogRuleSet.BeginCommentString.Length != 0 && _log.LogRuleSet.EndCommentString.Length != 0)
+                    foreach (UserAction ua in _log) {
+                        sb.Append(_log.LogRuleSet.BeginCommentString);
+                        sb.Append(ua.Label);
+                        sb.AppendLine(_log.LogRuleSet.EndCommentString);
+                        foreach (LogEntry le in ua)
+                            sb.AppendLine(le.LogEntryString);
+                    } else
+                    foreach (UserAction ua in _log) {
+                        foreach (LogEntry le in ua)
+                            sb.AppendLine(le.LogEntryString);
+                    }
+
                 using (var sw = new StreamWriter(saveFileDialog.FileName))
                     sw.Write(sb.ToString().TrimEnd());
             }

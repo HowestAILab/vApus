@@ -130,7 +130,9 @@ namespace vApus.DistributedTesting {
                     if (_distributedTestMode == DistributedTestMode.Test)
                         largeList[0][0].Focus();
                 }, null);
-            } catch { }
+            } catch {
+                //Not important. Only on gui closed.
+            }
         }
 
         public void SetDistributedTest(DistributedTest distributedTest) {

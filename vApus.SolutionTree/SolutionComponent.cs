@@ -1,11 +1,12 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -390,7 +391,8 @@ namespace vApus.SolutionTree {
                                              thisType.Assembly);
                 try {
                     image = rm.GetObject(thisType.Name) as Image;
-                } catch {
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed getting image.", ex);
                 }
                 _noImage = (image == null);
             }
@@ -513,16 +515,32 @@ namespace vApus.SolutionTree {
         /// <param name="arg">true or false for added one or multiple; the removed solution component.</param>
         public void InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg = null) {
             //Fairly complicated setup to avoid gui freezes.
-            try { BackgroundWorkQueueWrapper.BackgroundWorkQueue.EnqueueWorkItem(_invokeSolutionComponentChangedEventDelegate, doneAction, arg); } catch { }
+            try {
+                BackgroundWorkQueueWrapper.BackgroundWorkQueue.EnqueueWorkItem(_invokeSolutionComponentChangedEventDelegate, doneAction, arg);
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { doneAction, arg });
+            }
         }
         private void InvokeSolutionComponentChangedEventCallback(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg) {
             try {
                 if (SolutionComponentChanged != null && Solution.ActiveSolution != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                        try { SolutionComponentChanged(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch {
+                        try {
+                            foreach (EventHandler<SolutionComponentChangedEventArgs> del in SolutionComponentChanged.GetInvocationList())
+                                if (del != null)
+                                    if (del.Target != null && del.Target is Control && !(del.Target as Control).IsDisposed)
+                                        del(this, new SolutionComponentChangedEventArgs(doneAction, arg));
+                                    else //If the target == null no issue, disposed => crash.
+                                        try { del(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch {
+                                            //Ignore in this case. Do not care.
+                                        }
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { doneAction, arg });
                         }
                     }, null);
-            } catch { }
+            } catch (Exception exc) {
+                Loggers.Log(Level.Error, "Failed invoking solution component changed.", exc, new object[] { doneAction, arg });
+            }
         }
         #endregion
 

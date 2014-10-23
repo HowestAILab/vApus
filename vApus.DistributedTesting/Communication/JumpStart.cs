@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections;
 using System.Collections.Concurrent;
@@ -290,7 +291,11 @@ namespace vApus.DistributedTesting {
                 }
 
                 if (socketWrapper != null) {
-                    try { if (socketWrapper.Connected)  socketWrapper.Close(); } catch { }
+                    try {
+                        if (socketWrapper.Connected) socketWrapper.Close();
+                    } catch {
+                        //Ignore.
+                    }
                     socketWrapper = null;
                 }
 
@@ -312,10 +317,16 @@ namespace vApus.DistributedTesting {
 
                     socketWrapper.Send(message, SendType.Binary);
                     message = (Message<JumpStartStructures.Key>)socketWrapper.Receive(SendType.Binary);
-                } catch { }
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Warning, "Failed killing slaves.", ex);
+                }
 
                 if (socketWrapper != null) {
-                    try { if (socketWrapper.Connected)  socketWrapper.Close(); } catch { }
+                    try {
+                        if (socketWrapper.Connected) socketWrapper.Close();
+                    } catch {
+                        //Ignore.
+                    }
                     socketWrapper = null;
                 }
             }
@@ -349,7 +360,9 @@ namespace vApus.DistributedTesting {
                     try {
                         if (socketWrapper.Connected)
                             socketWrapper.Close();
-                    } catch { }
+                    } catch {
+                        //Ignore.
+                    }
                     socketWrapper = null;
                 }
 

@@ -10,6 +10,7 @@ using RandomUtils.Log;
 using System;
 using System.CodeDom.Compiler;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.SolutionTree;
@@ -17,7 +18,7 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     /// <summary>
-    /// Editting a connection happens here. Gui is generated based on the connection rule set in the chosen connection proxy.
+    /// Editing a connection happens here. Gui is generated based on the connection rule set in the chosen connection proxy.
     /// </summary>
     public partial class ConnectionView : BaseSolutionComponentView {
 
@@ -36,7 +37,7 @@ namespace vApus.Stresstest {
         /// </summary>
         public ConnectionView() { InitializeComponent(); }
         /// <summary>
-        /// Editting a connection happens here. Gui is generated based on the connection rule set in the chosen connection proxy.
+        /// Editing a connection happens here. Gui is generated based on the connection rule set in the chosen connection proxy.
         /// </summary>
         /// <param name="solutionComponent"></param>
         public ConnectionView(SolutionComponent solutionComponent)

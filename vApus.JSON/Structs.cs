@@ -16,7 +16,7 @@ namespace vApus.JSON {
 
     public struct MonitorMetrics {
         public string[] Headers;
-        public Dictionary<DateTime, float[]> Values;
+        public Dictionary<DateTime, double[]> Values;
     }
 
     public struct TestConfig {
@@ -57,9 +57,9 @@ namespace vApus.JSON {
     public struct ClientMonitorMetrics {
         public int BusyThreadCount;
         public float CPUUsage;
-        public float ContextSwitchesPerSecond;
         public uint MemoryUsage;
         public uint TotalVisibleMemory;
+        public string Nic;
         public float NicsSent;
         public float NicsReceived;
     }

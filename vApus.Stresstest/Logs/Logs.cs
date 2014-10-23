@@ -173,7 +173,11 @@ namespace vApus.Stresstest {
                     //Finally import the log, complete the map and replace the parameter indices in the log entries.
                     Import(false, logPart.GetStream());
 
-                    try { package.Close(); } catch { }
+                    try {
+                        package.Close();
+                    } catch {
+                        //Ignore. Not important.
+                    }
 
                     var log = this[Count - 1] as Log;
 

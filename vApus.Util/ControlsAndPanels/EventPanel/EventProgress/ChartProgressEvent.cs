@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils.Log;
+/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -106,8 +107,12 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="g"></param>
         public void Draw(Graphics g) {
-            int x = X;
-            g.DrawLine(_entered ? _selectedPen : _pen, x, 0, x, _parent.Bounds.Height);
+            try {
+                int x = X; 
+                g.DrawLine(_entered ? _selectedPen : _pen, x, 0, x, _parent.Bounds.Height);
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed drawing line.", ex, new object[] { g, X, _parent.Bounds.Height });
+            }
         }
 
         /// <summary>
