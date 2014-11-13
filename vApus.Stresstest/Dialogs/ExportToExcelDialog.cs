@@ -181,6 +181,7 @@ namespace vApus.Stresstest {
 
                                 DataTable avgConcurrency = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, stresstestId);
                                 DataTable avgUserActions = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, stresstestId);
+                                DataTable avgLogEntries = _resultsHelper.GetAverageLogEntryResults(_cancellationTokenSource.Token, stresstestId);
                                 DataTable errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                                 DataTable userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
 
@@ -201,6 +202,8 @@ namespace vApus.Stresstest {
                                 MakeWorksheet(doc, avgUserActions, "Results per user action", out rangeWidth, out rangeOffset, out rangeHeight);
                                 doc.Filter(1, rangeOffset, 1 + rangeHeight, rangeOffset + rangeWidth - 1);
                                 doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
+                                MakeResultsPerLogEntrySheet(doc, avgLogEntries);
 
                                 MakeErrorsSheet(doc, errors);
                                 MakeUserActionCompositionSheet(doc, userActionComposition);
@@ -505,6 +508,24 @@ namespace vApus.Stresstest {
                 doc.InsertChart(chart);
             }
 
+            return worksheet;
+        }
+
+        private string MakeResultsPerLogEntrySheet(SLDocument doc, DataTable dt) {
+            var avgLogEntries = new DataTable("AvgLogEntries");
+            foreach (DataColumn column in dt.Columns)
+                avgLogEntries.Columns.Add(column.ColumnName);
+
+            foreach (DataRow row in dt.Rows) {
+                object[] arr = row.ItemArray;
+                arr[3] = (row[3] as string).Replace("<16 0C 02 12$>", "•");
+                avgLogEntries.Rows.Add(arr);
+            }
+
+            int rangeWidth, rangeOffset, rangeHeight;
+            string worksheet = MakeWorksheet(doc, avgLogEntries, "Results per log entry", out rangeWidth, out rangeOffset, out rangeHeight);
+            doc.Filter(1, rangeOffset, 1 + rangeHeight, rangeOffset + rangeWidth - 1);
+            doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
             return worksheet;
         }
 
