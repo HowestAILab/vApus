@@ -9,6 +9,7 @@ using System;
 using System.Collections.Generic;
 using System.Threading;
 using vApus.Util;
+using System.Linq;
 
 namespace vApus.Results {
     /// <summary>
@@ -16,7 +17,7 @@ namespace vApus.Results {
     /// </summary>
     internal static class DetailedStresstestMetricsHelper {
         /// <summary>
-        /// Metrics + 95th percentile
+        /// Metrics percentiles
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
@@ -35,7 +36,7 @@ namespace vApus.Results {
 
                 var timesToLastByteInTicks = new List<long>();
                 foreach (RunResult runResult in result.RunResults) {
-                    StresstestMetrics runResultMetrics = GetMetrics(runResult, cancellationToken);
+                    StresstestMetrics runResultMetrics = GetMetrics(runResult, cancellationToken, false);
                     if (cancellationToken.IsCancellationRequested) return new StresstestMetrics();
 
                     metrics.StartsAndStopsRuns.Add(new KeyValuePair<DateTime, DateTime>(runResult.StartedAt, runResult.StoppedAt));
@@ -52,7 +53,7 @@ namespace vApus.Results {
                     metrics.UserActionsPerSecond += runResultMetrics.UserActionsPerSecond;
                     metrics.Errors += runResultMetrics.Errors;
 
-                    //For the 95th percentile.
+                    //For the percentiles.
                     if (runResult.VirtualUserResults != null)
                         foreach (var vur in runResult.VirtualUserResults)
                             if (vur != null && vur.LogEntryResults != null)
@@ -75,21 +76,29 @@ namespace vApus.Results {
 
                 metrics.EstimatedTimeLeft = new TimeSpan(0L);
 
-                long percentile95thResponseTimes = 0L;
-                if (timesToLastByteInTicks.Count != 0) 
-                    percentile95thResponseTimes = PercentileCalculator<long>.Get(timesToLastByteInTicks, 95);
-                
+                long percentile95thResponseTimes = 0L, percentile99thResponseTimes = 0L, avgTop5ResponseTimes = 0L;
+                if (timesToLastByteInTicks.Count != 0) {
+                    IEnumerable<long> orderedValues;
+                    percentile95thResponseTimes = PercentileCalculator<long>.Get(timesToLastByteInTicks, 95, out orderedValues);
+                    percentile99thResponseTimes = PercentileCalculator<long>.Get(orderedValues, 99);
+
+                    int top5Count = Convert.ToInt32(orderedValues.Count() * 0.05);
+                    avgTop5ResponseTimes = (long)orderedValues.Take(top5Count).Average();
+                }
+
                 metrics.Percentile95thResponseTimes = new TimeSpan(percentile95thResponseTimes);
+                metrics.Percentile99thResponseTimes = new TimeSpan(percentile99thResponseTimes);
+                metrics.AverageTop5ResponseTimes = new TimeSpan(avgTop5ResponseTimes);
             }
             return metrics;
         }
 
         /// <summary>
-        /// Metrics + 95th percentile
+        /// Metrics + percentiles
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static StresstestMetrics GetMetrics(RunResult result, CancellationToken cancellationToken) {
+        public static StresstestMetrics GetMetrics(RunResult result, CancellationToken cancellationToken, bool includePercentiles = true) {
             var metrics = new StresstestMetrics();
             metrics.StartMeasuringTime = result.StartedAt;
             metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringTime;
@@ -119,10 +128,11 @@ namespace vApus.Results {
                     metrics.UserActionsPerSecond += virtualUserMetrics.UserActionsPerSecond;
                     metrics.Errors += virtualUserMetrics.Errors;
 
-                    //For the 95th percentile.
-                    foreach (var ler in virtualUserResult.LogEntryResults)
-                        if (ler != null && ler.VirtualUser != null)
-                            timesToLastByteInTicks.Add(ler.TimeToLastByteInTicks);
+                    //For the percentiles.
+                    if (includePercentiles)
+                        foreach (var ler in virtualUserResult.LogEntryResults)
+                            if (ler != null && ler.VirtualUser != null)
+                                timesToLastByteInTicks.Add(ler.TimeToLastByteInTicks);
                 }
 
             if (enteredUserResultsCount != 0) {
@@ -130,11 +140,19 @@ namespace vApus.Results {
                 metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / enteredUserResultsCount);
                 metrics.EstimatedTimeLeft = new TimeSpan(0L);
 
-                long percentile95thResponseTimes = 0L;
-                if (timesToLastByteInTicks.Count != 0)
-                    percentile95thResponseTimes = PercentileCalculator<long>.Get(timesToLastByteInTicks, 95);
+                long percentile95thResponseTimes = 0L, percentile99thResponseTimes = 0L, avgTop5ResponseTimes = 0L;
+                if (includePercentiles && timesToLastByteInTicks.Count != 0) {
+                    IEnumerable<long> orderedValues;
+                    percentile95thResponseTimes = PercentileCalculator<long>.Get(timesToLastByteInTicks, 95, out orderedValues);
+                    percentile99thResponseTimes = PercentileCalculator<long>.Get(orderedValues, 99);
+
+                    int top5Count = Convert.ToInt32(orderedValues.Count() * 0.05);
+                    avgTop5ResponseTimes = (long)orderedValues.Take(top5Count).Average();
+                }
 
                 metrics.Percentile95thResponseTimes = new TimeSpan(percentile95thResponseTimes);
+                metrics.Percentile99thResponseTimes = new TimeSpan(percentile99thResponseTimes);
+                metrics.AverageTop5ResponseTimes = new TimeSpan(avgTop5ResponseTimes);
             }
             return metrics;
         }

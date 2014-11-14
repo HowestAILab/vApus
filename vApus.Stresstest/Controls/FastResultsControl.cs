@@ -381,20 +381,29 @@ namespace vApus.Stresstest {
         }
         private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
-                if (lbtnStresstest.Active)
-                    e.Value = (cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows)[e.RowIndex][e.ColumnIndex];
-                else {
+                if (lbtnStresstest.Active) {
+                    List<object[]> rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows);
+                    if (rows.Count > e.RowIndex && rows[0].Length > e.ColumnIndex)
+                        e.Value = rows[e.RowIndex][e.ColumnIndex];
+                } else {
                     string monitorToString = null;
                     foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
                     if (monitorToString != null) {
-                        var row = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString][e.RowIndex];
-                        e.Value = (e.ColumnIndex < row.Length) ? row[e.ColumnIndex] : "--";
+                        List<object[]> rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString];
+                        if (rows.Count > e.RowIndex) {
+                            object[] row = rows[e.RowIndex];
+                            if (row.Length > e.ColumnIndex) {
+                                e.Value = (e.ColumnIndex < row.Length) ? row[e.ColumnIndex] : "--";
 
-                        string valueString = e.Value.ToString();
-                        if (valueString == "0" || valueString == "-1")
-                            e.Value = "--";
-                        else if (e.Value is float)
-                            e.Value = StringUtil.FloatToLongString((float)e.Value);
+                                string valueString = e.Value.ToString();
+                                if (valueString == "0" || valueString == "-1")
+                                    e.Value = "--";
+                                else if (e.Value is float)
+                                    e.Value = StringUtil.FloatToLongString((float)e.Value);
+                                else if (e.Value is double)
+                                    e.Value = StringUtil.DoubleToLongString((double)e.Value);
+                            }
+                        }
                     }
                 }
             } catch (Exception ex) {

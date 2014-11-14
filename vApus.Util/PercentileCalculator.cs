@@ -26,5 +26,14 @@ namespace vApus.Util {
             T[] orderedUpperValues = values.OrderByDescending(x => x).Take(percentN).ToArray();
             return orderedUpperValues[orderedUpperValues.Length - 1];
         }
+
+        public static T Get(IEnumerable<T> values, int nthPercentile, out IEnumerable<T> orderedValues) {
+            if (nthPercentile < 1 || nthPercentile > 99)
+                throw new ArgumentOutOfRangeException("percentile must be between 0 and 100.");
+            
+            orderedValues = values.OrderByDescending(x => x).AsEnumerable<T>();
+            
+            return Get(orderedValues, nthPercentile);
+        }
     }
 }
