@@ -76,7 +76,7 @@ namespace vApus.Results {
 
                 metrics.EstimatedTimeLeft = new TimeSpan(0L);
 
-                long percentile95thResponseTimes = 0L, percentile99thResponseTimes = 0L, avgTop5ResponseTimes = 0L;
+                long percentile95thResponseTimes = 0L, percentile99thResponseTimes = 0L, avgTop5ResponseTimes = 0L, standardDeviation = 0L;
                 if (timesToLastByteInTicks.Count != 0) {
                     IEnumerable<long> orderedValues;
                     percentile95thResponseTimes = PercentileCalculator<long>.Get(timesToLastByteInTicks, 95, out orderedValues);
@@ -84,11 +84,17 @@ namespace vApus.Results {
 
                     int top5Count = Convert.ToInt32(orderedValues.Count() * 0.05);
                     avgTop5ResponseTimes = (long)orderedValues.Take(top5Count).Average();
+
+                    long mean = metrics.AverageResponseTime.Ticks;
+                    double variance = orderedValues.Sum(number => Math.Pow(number - mean, 2.0)) / orderedValues.Count();
+
+                    standardDeviation = (long)Math.Sqrt(variance);
                 }
 
                 metrics.Percentile95thResponseTimes = new TimeSpan(percentile95thResponseTimes);
                 metrics.Percentile99thResponseTimes = new TimeSpan(percentile99thResponseTimes);
                 metrics.AverageTop5ResponseTimes = new TimeSpan(avgTop5ResponseTimes);
+                metrics.StandardDeviationResponseTimes = new TimeSpan(standardDeviation);
             }
             return metrics;
         }
@@ -140,7 +146,7 @@ namespace vApus.Results {
                 metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / enteredUserResultsCount);
                 metrics.EstimatedTimeLeft = new TimeSpan(0L);
 
-                long percentile95thResponseTimes = 0L, percentile99thResponseTimes = 0L, avgTop5ResponseTimes = 0L;
+                long percentile95thResponseTimes = 0L, percentile99thResponseTimes = 0L, avgTop5ResponseTimes = 0L, standardDeviation = 0L;
                 if (includePercentiles && timesToLastByteInTicks.Count != 0) {
                     IEnumerable<long> orderedValues;
                     percentile95thResponseTimes = PercentileCalculator<long>.Get(timesToLastByteInTicks, 95, out orderedValues);
@@ -148,11 +154,17 @@ namespace vApus.Results {
 
                     int top5Count = Convert.ToInt32(orderedValues.Count() * 0.05);
                     avgTop5ResponseTimes = (long)orderedValues.Take(top5Count).Average();
+
+                    long mean = metrics.AverageResponseTime.Ticks;
+                    double variance = orderedValues.Sum(number => Math.Pow(number - mean, 2.0)) / orderedValues.Count();
+
+                    standardDeviation = (long)Math.Sqrt(variance);
                 }
 
                 metrics.Percentile95thResponseTimes = new TimeSpan(percentile95thResponseTimes);
                 metrics.Percentile99thResponseTimes = new TimeSpan(percentile99thResponseTimes);
                 metrics.AverageTop5ResponseTimes = new TimeSpan(avgTop5ResponseTimes);
+                metrics.StandardDeviationResponseTimes = new TimeSpan(standardDeviation);
             }
             return metrics;
         }
