@@ -158,9 +158,44 @@ namespace vApus.Stresstest {
 
                     this.Enabled = true;
                 }
+
+                if (_currentSelectedIndex == 7) {
+                    pnlBorderMonitors.Visible = true;
+                    if (cboMonitors.Items.Count == 0) {
+                        object first = "All monitors";
+                        first.SetTag(0);
+                        cboMonitors.Items.Add(first);
+                        foreach (var kvp in _resultsHelper.GetMonitors(_stresstestIds)) {
+                            object item = kvp.Value;
+                            item.SetTag(kvp.Key);
+                            cboMonitors.Items.Add(item);
+                        }
+                        cboMonitors.SelectedIndex = 0;
+                    }
+                } else {
+                    foreach (object item in cboMonitors.Items)
+                        item.RemoveTag();
+
+                    cboMonitors.Items.Clear();
+                }
+
+                pnlBorderMonitors.Visible = _currentSelectedIndex == 7;
             }
         }
+        private void cboMonitors_SelectedIndexChanged(object sender, EventArgs e) {
+            int monitorId = (int)cboMonitors.SelectedItem.GetTag();
 
+            if (_currentSelectedIndex == 7) {
+                DataTable dt = null;
+                if (monitorId == 0)
+                    dt = _resultsHelper.GetAverageMonitorResults(_cancellationTokenSource.Token, _stresstestIds);
+                else
+                    dt = _resultsHelper.GetAverageMonitorResultsByMonitorId(_cancellationTokenSource.Token, monitorId);
+
+                if (OnResults != null)
+                    OnResults(this, new OnResultsEventArgs(dt));
+            }
+        }
         private void DetermineDataSource() {
             if (_cancellationTokenSource != null && !_cancellationTokenSource.IsCancellationRequested) {
                 _workerThread = new Thread(() => {
@@ -175,7 +210,6 @@ namespace vApus.Stresstest {
                             case 4: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stresstestIds); break;
                             case 5: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stresstestIds); break;
                             case 6: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 7: dt = _resultsHelper.GetAverageMonitorResults(_cancellationTokenSource.Token, _stresstestIds); break;
                             case 8: dt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out stub, _stresstestIds); break;
                         }
                         if (OnResults != null)
