@@ -176,7 +176,13 @@ namespace vApus.Stresstest {
                             if (general) {
                                 //For some strange reason the doubles are changed to string.
                                 DataTable overview = _resultsHelper.GetOverview(_cancellationTokenSource.Token, stresstestId);
+                                DataTable overviewWithUserActionsPerSec = overview.Copy();
+                                overviewWithUserActionsPerSec.Columns.Remove("Throughput");
+                                overview.Columns.Remove("User Actions / s");
+
                                 DataTable overview95thPercentile = _resultsHelper.GetOverview95thPercentile(_cancellationTokenSource.Token, stresstestId);
+                                overview95thPercentile.Columns.Remove("User Actions / s");
+
                                 DataTable overviewErrors = _resultsHelper.GetOverviewErrors(_cancellationTokenSource.Token, stresstestId);
 
                                 DataTable avgConcurrency = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, stresstestId);
@@ -186,6 +192,8 @@ namespace vApus.Stresstest {
                                 DataTable userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
 
                                 string firstWorksheet = MakeOverviewSheet(doc, overview);
+
+                                MakeOverviewSheet(doc, overviewWithUserActionsPerSec, "Response time vs user actions / s", "Cumulative response time vs user actions / s", "Cumulative response time", "User actions / s");
 
                                 MakeOverviewErrorsSheet(doc, overviewErrors);
 
@@ -305,7 +313,9 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="workSheetTitle"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeOverviewSheet(SLDocument doc, DataTable dt, string workSheetTitle = "Response time vs throughput", string chartTitle = "Cumulative response time vs throughput (average)", string primaryValueAxisTitle = "Cumulative response time (ms)") {
+        private string MakeOverviewSheet(SLDocument doc, DataTable dt, string workSheetTitle = "Response time vs throughput", string chartTitle = "Cumulative response time vs throughput", 
+            string primaryValueAxisTitle = "Cumulative response time (ms)", string throughputTitle = "Throughput (responses / s)") {
+
             int rangeWidth, rangeOffset, rangeHeight;
             string worksheet = MakeWorksheet(doc, dt, workSheetTitle, out rangeWidth, out rangeOffset, out rangeHeight);
             doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
@@ -329,7 +339,7 @@ namespace vApus.Stresstest {
             chart.PrimaryValueAxis.Title.SetTitle(primaryValueAxisTitle);
             chart.PrimaryValueAxis.ShowTitle = true;
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
-            chart.SecondaryValueAxis.Title.SetTitle("Throughput (responses / s)");
+            chart.SecondaryValueAxis.Title.SetTitle(throughputTitle);
             chart.SecondaryValueAxis.ShowTitle = true;
 
             SetDataSeriesColors(chart, rangeWidth - 2, _colorPalette);

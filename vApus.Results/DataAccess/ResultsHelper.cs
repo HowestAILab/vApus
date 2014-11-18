@@ -617,6 +617,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
                     }
                     overview.Columns.Add("Throughput", objectType);
+                    overview.Columns.Add("User Actions / s", objectType);
                     overview.Columns.Add("Errors", objectType);
 
                     for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
@@ -631,6 +632,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[4] : 0d);
                         }
                         row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["Throughput (responses / s)"]); //And the throughput
+                        row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["User Actions / s"]); //And the throughput
                         row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["Errors"]); //And the errors: Bonus
                         overview.Rows.Add(row.ToArray());
                     }
@@ -693,6 +695,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
                     }
                     overview95thPercentile.Columns.Add("Throughput", objectType);
+                    overview95thPercentile.Columns.Add("User Actions / s", objectType);
                     overview95thPercentile.Columns.Add("Errors", objectType);
 
                     for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
@@ -707,6 +710,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             row.Add(i < averageUserActions.Rows.Count ? Convert.ToDouble(averageUserActions.Rows[i].ItemArray[6]) : 0d);
                         }
                         row.Add(averageConcurrentUsers.Rows[overview95thPercentile.Rows.Count]["Throughput (responses / s)"]); //And the throughput
+                        row.Add(averageConcurrentUsers.Rows[overview95thPercentile.Rows.Count]["User Actions / s"]); //And the throughput
                         row.Add(averageConcurrentUsers.Rows[overview95thPercentile.Rows.Count]["Errors"]); //And the errors: Bonus
                         overview95thPercentile.Rows.Add(row.ToArray());
                     }
@@ -1176,47 +1180,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 machineConfigurations.Rows.Add(stresstest, monitorRow.ItemArray[0], monitorRow.ItemArray[1], monitorRow.ItemArray[2]);
                             }
                         }
-
-                        cacheEntry.ReturnValue = machineConfigurations;
-                    }
-                    return cacheEntry.ReturnValue as DataTable;
-                }
-                return null;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
-        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
-        /// <returns></returns>
-        public DataTable GetMachineConfiguration(CancellationToken cancellationToken, int monitorId) {
-            lock (_lock) {
-                if (_databaseActions != null) {
-                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), monitorId);
-                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
-                    if (cacheEntryDt == null) {
-                        cacheEntryDt = GetResultSet("MachineConfiguration" + monitorId);
-                        if (cacheEntryDt != null) {
-                            cacheEntry.ReturnValue = cacheEntryDt;
-                            return cacheEntryDt;
-                        }
-
-                        DataTable monitor = ReaderAndCombiner.GetMonitor(cancellationToken, _databaseActions, monitorId, "StresstestId", "Monitor", "MonitorSource", "MachineConfiguration");
-                        if (monitor == null || monitor.Rows.Count == 0)
-                            return null;
-                        DataRow monitorRow = monitor.Rows[0];
-                        int stresstestId = (int)monitorRow["StresstestId"];
-
-                        DataTable stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestId, "Id", "Stresstest", "Connection");
-                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
-                        DataRow stresstestsRow = stresstests.Rows[0];
-                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
-
-                        var machineConfigurations = CreateEmptyDataTable("MachineConfigurations", "Stresstest", "Monitor", "Monitor Source", "Machine Configuration");
-                        machineConfigurations.Rows.Add(stresstest, monitorRow.ItemArray[1], monitorRow.ItemArray[2], monitorRow.ItemArray[3]);
-
 
                         cacheEntry.ReturnValue = machineConfigurations;
                     }
