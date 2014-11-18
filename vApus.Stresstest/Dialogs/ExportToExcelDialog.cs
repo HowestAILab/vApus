@@ -185,9 +185,7 @@ namespace vApus.Stresstest {
                                 DataTable errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                                 DataTable userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
 
-
                                 string firstWorksheet = MakeOverviewSheet(doc, overview);
-                                MakeOverviewSheet(doc, overview95thPercentile, "Response time vs throughput_", "Cumulative response time vs throughput (95th percentile)", "Cumulative 95th percentile of the response times (ms)");
 
                                 MakeOverviewErrorsSheet(doc, overviewErrors);
 
