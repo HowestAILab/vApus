@@ -598,7 +598,8 @@ namespace vApus.Monitor {
             llblUncheckAllVisible.Enabled = HasCheckedNodes();
             llblCheckAllVisible.Enabled = HasUncheckedNodes();
 
-            GroupChecked = chkGroupChecked.Checked;
+            if (chkGroupChecked.Checked)
+                GroupChecked = true;
         }
 
         private void ExtractWIWForTreeViewAction(TreeNode counterNode) {
@@ -1081,6 +1082,8 @@ namespace vApus.Monitor {
             _monitor.Wiw.Clear();
             DefaultWIWs.Set(_monitor, _wdyh);
             PushSavedWiW();
+            if (GroupChecked)
+                GroupChecked = true;
         }
 
         /// <summary>

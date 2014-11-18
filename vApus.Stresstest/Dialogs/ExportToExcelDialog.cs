@@ -185,9 +185,7 @@ namespace vApus.Stresstest {
                                 DataTable errors = _resultsHelper.GetErrors(_cancellationTokenSource.Token, stresstestId);
                                 DataTable userActionComposition = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, stresstestId);
 
-
                                 string firstWorksheet = MakeOverviewSheet(doc, overview);
-                                MakeOverviewSheet(doc, overview95thPercentile, "Response time vs throughput_", "Cumulative response time vs throughput (95th percentile)", "Cumulative 95th percentile of the response times (ms)");
 
                                 MakeOverviewErrorsSheet(doc, overviewErrors);
 
@@ -659,7 +657,7 @@ namespace vApus.Stresstest {
             chart.PrimaryValueAxis.MajorUnit = 1;
             chart.PrimaryValueAxis.MinorUnit = 1.0d / 6;
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
-            chart.PrimaryValueAxis.Title.SetTitle("Concurrency.Run duration in minutes");
+            chart.PrimaryValueAxis.Title.SetTitle("Run duration in minutes");
             chart.PrimaryValueAxis.ShowTitle = true;
 
             chart.PrimaryTextAxis.InReverseOrder = true;
@@ -689,13 +687,12 @@ namespace vApus.Stresstest {
 
                         var dataLabelOptions = chart.CreateDataLabelOptions();
                         dataLabelOptions.ShowValue = dataLabelOptions.ShowPercentage = dataLabelOptions.ShowSeriesName = false;
-                        dataLabelOptions.SetLabelText(l[labelIndex] + "\n" + formattedValues[rowIndex][clmIndex - 1]);
                         chart.SetDataLabelOptions(clmIndex, rowIndex + 1, dataLabelOptions);
                     }
                 }
             }
 
-            chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
+            chart.SetChartPosition(rangeHeight + 2, 0, rangeHeight + 45, 21);
 
             doc.InsertChart(chart);
 

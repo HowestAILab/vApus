@@ -33,8 +33,8 @@ namespace vApus.Stresstest {
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DetailedResultsControl));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle6 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
@@ -48,6 +48,7 @@ namespace vApus.Stresstest {
             this.splitQueryData = new System.Windows.Forms.SplitContainer();
             this.pnlBorderExecute = new System.Windows.Forms.Panel();
             this.btnExecute = new System.Windows.Forms.Button();
+            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
             this.chkShowCellView = new System.Windows.Forms.CheckBox();
             this.splitData = new System.Windows.Forms.SplitContainer();
             this.dgvDetailedResults = new System.Windows.Forms.DataGridView();
@@ -66,7 +67,8 @@ namespace vApus.Stresstest {
             this.lblLoading = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
+            this.pnlBorderMonitors = new System.Windows.Forms.Panel();
+            this.cboMonitors = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -78,6 +80,7 @@ namespace vApus.Stresstest {
             this.splitQueryData.Panel2.SuspendLayout();
             this.splitQueryData.SuspendLayout();
             this.pnlBorderExecute.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitData)).BeginInit();
             this.splitData.Panel1.SuspendLayout();
             this.splitData.Panel2.SuspendLayout();
@@ -86,7 +89,7 @@ namespace vApus.Stresstest {
             ((System.ComponentModel.ISupportInitialize)(this.fctxtCellView)).BeginInit();
             this.flpDetailedMetrics.SuspendLayout();
             this.pnlBorderShow.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).BeginInit();
+            this.pnlBorderMonitors.SuspendLayout();
             this.SuspendLayout();
             // 
             // splitContainer
@@ -144,8 +147,8 @@ namespace vApus.Stresstest {
             // 
             // flpConfiguration
             // 
-            this.flpConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.flpConfiguration.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpConfiguration.AutoScroll = true;
             this.flpConfiguration.Controls.Add(this.label3);
@@ -289,8 +292,8 @@ namespace vApus.Stresstest {
             // 
             // splitQueryData
             // 
-            this.splitQueryData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.splitQueryData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.splitQueryData.BackColor = System.Drawing.SystemColors.Control;
             this.splitQueryData.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
@@ -316,7 +319,7 @@ namespace vApus.Stresstest {
             // 
             // pnlBorderExecute
             // 
-            this.pnlBorderExecute.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.pnlBorderExecute.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.pnlBorderExecute.BackColor = System.Drawing.Color.Silver;
             this.pnlBorderExecute.Controls.Add(this.btnExecute);
@@ -327,8 +330,8 @@ namespace vApus.Stresstest {
             // 
             // btnExecute
             // 
-            this.btnExecute.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.btnExecute.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnExecute.BackColor = System.Drawing.Color.White;
             this.btnExecute.FlatAppearance.BorderSize = 0;
@@ -345,6 +348,29 @@ namespace vApus.Stresstest {
             this.btnExecute.UseVisualStyleBackColor = false;
             this.btnExecute.Click += new System.EventHandler(this.btnExecute_Click);
             // 
+            // codeTextBox
+            // 
+            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.codeTextBox.BackBrush = null;
+            this.codeTextBox.CharHeight = 14;
+            this.codeTextBox.CharWidth = 8;
+            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.codeTextBox.IsReplaceMode = false;
+            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
+            this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
+            this.codeTextBox.PreferredLineWidth = 65536;
+            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
+            this.codeTextBox.TabIndex = 0;
+            this.codeTextBox.WordWrap = true;
+            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
+            this.codeTextBox.Zoom = 100;
+            // 
             // chkShowCellView
             // 
             this.chkShowCellView.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
@@ -360,8 +386,8 @@ namespace vApus.Stresstest {
             // 
             // splitData
             // 
-            this.splitData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.splitData.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.splitData.BackColor = System.Drawing.SystemColors.Control;
             this.splitData.Location = new System.Drawing.Point(-1, -2);
@@ -385,8 +411,8 @@ namespace vApus.Stresstest {
             // 
             this.dgvDetailedResults.AllowUserToAddRows = false;
             this.dgvDetailedResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle5.BackColor = System.Drawing.Color.White;
-            this.dgvDetailedResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle7.BackColor = System.Drawing.Color.White;
+            this.dgvDetailedResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle7;
             this.dgvDetailedResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvDetailedResults.BackgroundColor = System.Drawing.Color.White;
             this.dgvDetailedResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -401,8 +427,8 @@ namespace vApus.Stresstest {
             this.dgvDetailedResults.ReadOnly = true;
             this.dgvDetailedResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvDetailedResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle6.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvDetailedResults.RowsDefaultCellStyle = dataGridViewCellStyle6;
+            dataGridViewCellStyle8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvDetailedResults.RowsDefaultCellStyle = dataGridViewCellStyle8;
             this.dgvDetailedResults.Size = new System.Drawing.Size(899, 325);
             this.dgvDetailedResults.TabIndex = 0;
             this.dgvDetailedResults.VirtualMode = true;
@@ -431,12 +457,13 @@ namespace vApus.Stresstest {
             // 
             // flpDetailedMetrics
             // 
-            this.flpDetailedMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.flpDetailedMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpDetailedMetrics.Controls.Add(this.label2);
             this.flpDetailedMetrics.Controls.Add(this.pnlBorderShow);
             this.flpDetailedMetrics.Controls.Add(this.lblStarted);
             this.flpDetailedMetrics.Controls.Add(this.lblMeasuredRuntime);
+            this.flpDetailedMetrics.Controls.Add(this.pnlBorderMonitors);
             this.flpDetailedMetrics.Controls.Add(this.lblStopped);
             this.flpDetailedMetrics.Controls.Add(this.chkAdvanced);
             this.flpDetailedMetrics.Controls.Add(this.btnSaveDisplayedResults);
@@ -471,7 +498,7 @@ namespace vApus.Stresstest {
             // 
             // cboShow
             // 
-            this.cboShow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.cboShow.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cboShow.BackColor = System.Drawing.Color.White;
             this.cboShow.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -520,7 +547,7 @@ namespace vApus.Stresstest {
             this.lblStopped.AutoSize = true;
             this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
             this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStopped.Location = new System.Drawing.Point(460, 3);
+            this.lblStopped.Location = new System.Drawing.Point(768, 3);
             this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
             this.lblStopped.Name = "lblStopped";
             this.lblStopped.Size = new System.Drawing.Size(0, 20);
@@ -532,11 +559,11 @@ namespace vApus.Stresstest {
             this.chkAdvanced.Checked = true;
             this.chkAdvanced.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkAdvanced.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkAdvanced.Location = new System.Drawing.Point(469, 7);
+            this.chkAdvanced.Location = new System.Drawing.Point(777, 7);
             this.chkAdvanced.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
             this.chkAdvanced.Name = "chkAdvanced";
             this.chkAdvanced.Size = new System.Drawing.Size(72, 17);
-            this.chkAdvanced.TabIndex = 2;
+            this.chkAdvanced.TabIndex = 3;
             this.chkAdvanced.Text = "Advanced";
             this.toolTip.SetToolTip(this.chkAdvanced, "Check this if you want to execute your own SQL script on the database.");
             this.chkAdvanced.UseVisualStyleBackColor = true;
@@ -551,11 +578,11 @@ namespace vApus.Stresstest {
             this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(544, 3);
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(3, 33);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
-            this.btnSaveDisplayedResults.TabIndex = 3;
+            this.btnSaveDisplayedResults.TabIndex = 4;
             this.btnSaveDisplayedResults.Text = "Save Displayed Results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
@@ -569,11 +596,11 @@ namespace vApus.Stresstest {
             this.btnExportToExcel.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnExportToExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportToExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExportToExcel.Location = new System.Drawing.Point(715, 3);
+            this.btnExportToExcel.Location = new System.Drawing.Point(174, 33);
             this.btnExportToExcel.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnExportToExcel.Name = "btnExportToExcel";
             this.btnExportToExcel.Size = new System.Drawing.Size(117, 24);
-            this.btnExportToExcel.TabIndex = 4;
+            this.btnExportToExcel.TabIndex = 5;
             this.btnExportToExcel.Text = "Export to Excel...";
             this.btnExportToExcel.UseVisualStyleBackColor = false;
             this.btnExportToExcel.Click += new System.EventHandler(this.btnExportToExcel_Click);
@@ -587,11 +614,11 @@ namespace vApus.Stresstest {
             this.btnDeleteResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnDeleteResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDeleteResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDeleteResults.Location = new System.Drawing.Point(3, 33);
+            this.btnDeleteResults.Location = new System.Drawing.Point(297, 33);
             this.btnDeleteResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnDeleteResults.Name = "btnDeleteResults";
             this.btnDeleteResults.Size = new System.Drawing.Size(102, 24);
-            this.btnDeleteResults.TabIndex = 5;
+            this.btnDeleteResults.TabIndex = 6;
             this.btnDeleteResults.Text = "Delete Results";
             this.btnDeleteResults.UseVisualStyleBackColor = false;
             this.btnDeleteResults.Click += new System.EventHandler(this.btnDeleteResults_Click);
@@ -600,7 +627,7 @@ namespace vApus.Stresstest {
             // 
             this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoading.Location = new System.Drawing.Point(111, 37);
+            this.lblLoading.Location = new System.Drawing.Point(405, 37);
             this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
             this.lblLoading.Name = "lblLoading";
             this.lblLoading.Size = new System.Drawing.Size(170, 13);
@@ -622,28 +649,32 @@ namespace vApus.Stresstest {
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed Results";
             // 
-            // codeTextBox
+            // pnlBorderMonitors
             // 
-            this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.pnlBorderMonitors.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.pnlBorderMonitors.Controls.Add(this.cboMonitors);
+            this.pnlBorderMonitors.Location = new System.Drawing.Point(457, 2);
+            this.pnlBorderMonitors.Margin = new System.Windows.Forms.Padding(3, 2, 3, 3);
+            this.pnlBorderMonitors.Name = "pnlBorderMonitors";
+            this.pnlBorderMonitors.Size = new System.Drawing.Size(302, 25);
+            this.pnlBorderMonitors.TabIndex = 2;
+            this.pnlBorderMonitors.Visible = false;
+            // 
+            // cboMonitors
+            // 
+            this.cboMonitors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
-            this.codeTextBox.BackBrush = null;
-            this.codeTextBox.CharHeight = 14;
-            this.codeTextBox.CharWidth = 8;
-            this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
-            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
-            this.codeTextBox.IsReplaceMode = false;
-            this.codeTextBox.Location = new System.Drawing.Point(30, 0);
-            this.codeTextBox.Name = "codeTextBox";
-            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
-            this.codeTextBox.PreferredLineWidth = 65536;
-            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
-            this.codeTextBox.Size = new System.Drawing.Size(864, 100);
-            this.codeTextBox.TabIndex = 0;
-            this.codeTextBox.WordWrap = true;
-            this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
-            this.codeTextBox.Zoom = 100;
+            this.cboMonitors.BackColor = System.Drawing.Color.White;
+            this.cboMonitors.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMonitors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboMonitors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboMonitors.FormattingEnabled = true;
+            this.cboMonitors.Location = new System.Drawing.Point(2, 2);
+            this.cboMonitors.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboMonitors.Name = "cboMonitors";
+            this.cboMonitors.Size = new System.Drawing.Size(298, 21);
+            this.cboMonitors.TabIndex = 0;
+            this.cboMonitors.SelectedIndexChanged += new System.EventHandler(this.cboMonitors_SelectedIndexChanged);
             // 
             // DetailedResultsControl
             // 
@@ -667,6 +698,7 @@ namespace vApus.Stresstest {
             ((System.ComponentModel.ISupportInitialize)(this.splitQueryData)).EndInit();
             this.splitQueryData.ResumeLayout(false);
             this.pnlBorderExecute.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).EndInit();
             this.splitData.Panel1.ResumeLayout(false);
             this.splitData.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.splitData)).EndInit();
@@ -676,7 +708,7 @@ namespace vApus.Stresstest {
             this.flpDetailedMetrics.ResumeLayout(false);
             this.flpDetailedMetrics.PerformLayout();
             this.pnlBorderShow.ResumeLayout(false);
-            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).EndInit();
+            this.pnlBorderMonitors.ResumeLayout(false);
             this.ResumeLayout(false);
 
         }
@@ -715,5 +747,7 @@ namespace vApus.Stresstest {
         private System.Windows.Forms.SplitContainer splitData;
         private FastColoredTextBoxNS.FastColoredTextBox fctxtCellView;
         private System.Windows.Forms.CheckBox chkShowCellView;
+        private System.Windows.Forms.Panel pnlBorderMonitors;
+        private System.Windows.Forms.ComboBox cboMonitors;
     }
 }

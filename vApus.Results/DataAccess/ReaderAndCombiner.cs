@@ -493,6 +493,10 @@ namespace vApus.Results {
             return combined;
         }
 
+        public static DataTable GetMonitor(CancellationToken cancellationToken, DatabaseActions databaseActions, int monitorId, params string[] selectColumns) {
+            return databaseActions.GetDataTable(string.Format("Select {0} From monitors Where Id={1};", GetValidSelect(selectColumns), monitorId));
+        }
+
         public static DataTable GetMonitorResults(DatabaseActions databaseActions, int monitorId, params string[] selectColumns) { return GetMonitorResults(databaseActions, new int[] { monitorId }, selectColumns); }
         /// <summary>
         /// 

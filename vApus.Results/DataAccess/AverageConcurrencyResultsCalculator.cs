@@ -22,7 +22,7 @@ namespace vApus.Results {
         public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
             DataTable averageConcurrencyResults = CreateEmptyDataTable("AverageConcurrencyResults", "Stresstest", "Started At", "Measured Time", "Measured Time (ms)", "Concurrency",
 "Log Entries Processed", "Log Entries", "Errors", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
-"Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "99th Percentile of the Response Times (ms)", "Avg. Top 5 Response Times (ms)", "Avg. Delay (ms)");
+"Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "99th Percentile of the Response Times (ms)", "Avg. Top 5 Response Times (ms)", "Standard Deviation Response Times (ms)", "Avg. Delay (ms)");
 
             ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stresstestIds);
             if (cancellationToken.IsCancellationRequested) return null;
@@ -42,8 +42,8 @@ namespace vApus.Results {
                     metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero),
                     Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), 
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero),
-                    Math.Round(metrics.Percentile99thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageTop5ResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero), 
-                    Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero));
+                    Math.Round(metrics.Percentile99thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageTop5ResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero),
+                    Math.Round(metrics.StandardDeviationResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero));
             }
 
             DataView dv = averageConcurrencyResults.DefaultView;
