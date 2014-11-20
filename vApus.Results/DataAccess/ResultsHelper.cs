@@ -939,9 +939,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                         //format the output --> remove the column. Done this way because the calculation only needs to happen once.
                         var newAverageUserActionResults = CreateEmptyDataTable("AverageUserActionResults", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
-                            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "Avg. Delay (ms)", "Errors");
-                        foreach (DataRow row in averageUserActions.Rows) newAverageUserActionResults.Rows.Add(row.ItemArray[0], row.ItemArray[2], row.ItemArray[3], row.ItemArray[4],
-                            row.ItemArray[5], row.ItemArray[6], row.ItemArray[7], row.ItemArray[8]);
+                            "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "99th Percentile of the Response Times (ms)", "Avg. Top 5 Response Times (ms)", "Avg. Delay (ms)", "Errors");
+                        foreach (DataRow row in averageUserActions.Rows) newAverageUserActionResults.Rows.Add(row[0], row[2], row[3], row[4],
+                            row[5], row[6], row[7], row[8], row[9], row[10]);
                         cacheEntry.ReturnValue = newAverageUserActionResults;
 
                         GC.Collect();

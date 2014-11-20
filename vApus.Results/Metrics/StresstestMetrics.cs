@@ -55,7 +55,6 @@ namespace vApus.Results {
         public TimeSpan Percentile95thResponseTimes { get; set; }
         public TimeSpan Percentile99thResponseTimes { get; set; }
         public TimeSpan AverageTop5ResponseTimes { get; set; }
-        public TimeSpan StandardDeviationResponseTimes { get; set; }
         public TimeSpan AverageDelay { get; set; }
         public long Errors { get; set; }
         /// <summary>
@@ -97,7 +96,6 @@ namespace vApus.Results {
                 Percentile95thResponseTimes = sr.ReadTimeSpan();
                 Percentile99thResponseTimes = sr.ReadTimeSpan();
                 AverageTop5ResponseTimes = sr.ReadTimeSpan();
-                StandardDeviationResponseTimes = sr.ReadTimeSpan();
                 AverageDelay = sr.ReadTimeSpan();
                 Errors = sr.ReadInt64();
             }
@@ -125,7 +123,6 @@ namespace vApus.Results {
                 sw.Write(Percentile95thResponseTimes);
                 sw.Write(Percentile99thResponseTimes);
                 sw.Write(AverageTop5ResponseTimes);
-                sw.Write(StandardDeviationResponseTimes);
                 sw.Write(AverageDelay);
                 sw.Write(Errors);
                 sw.AddToInfo(info);
