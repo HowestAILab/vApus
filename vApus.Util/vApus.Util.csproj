@@ -443,6 +443,7 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="MultiThreadedQuickSort.cs" />
+    <Compile Include="DistributionCalculator.cs" />
     <Compile Include="PercentileCalculator.cs" />
     <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

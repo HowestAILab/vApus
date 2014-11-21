@@ -87,7 +87,7 @@ namespace vApus.Results {
                     logEntryResultsDataList.Add(data[key]);
             DataTable[] logEntryResultsData = logEntryResultsDataList.ToArray();
 
-            var averageLogEntryResults = CreateEmptyDataTable("AverageLogEntryResults", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
+            DataTable averageLogEntryResults = CreateEmptyDataTable("AverageLogEntryResults", "Stresstest", "Concurrency", "User Action", "Log Entry", "Avg. Response Time (ms)",
 "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "99th Percentile of the Response Times (ms)", "Avg. Top 5 Response Times (ms)", "Avg. Delay (ms)", "Errors");
 
             foreach (DataRow stresstestsRow in stresstests) {

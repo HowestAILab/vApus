@@ -39,6 +39,7 @@
             this.lblDescription = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.chkMonitorData = new System.Windows.Forms.CheckBox();
+            this.picResponseTimeDistributionPerConcurrency = new System.Windows.Forms.PictureBox();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorderStresstest = new System.Windows.Forms.Panel();
@@ -58,6 +59,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picUserActionComposition)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMonitor)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRunsOverTime)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picResponseTimeDistributionPerConcurrency)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.pnlBorderStresstest.SuspendLayout();
             this.flpMonitors.SuspendLayout();
@@ -222,7 +224,7 @@
             this.picRunsOverTime.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
             this.picRunsOverTime.Cursor = System.Windows.Forms.Cursors.Hand;
             this.picRunsOverTime.Image = ((System.Drawing.Image)(resources.GetObject("picRunsOverTime.Image")));
-            this.picRunsOverTime.Location = new System.Drawing.Point(6, 6);
+            this.picRunsOverTime.Location = new System.Drawing.Point(153, 6);
             this.picRunsOverTime.Name = "picRunsOverTime";
             this.picRunsOverTime.Size = new System.Drawing.Size(141, 89);
             this.picRunsOverTime.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
@@ -261,6 +263,19 @@
             this.toolTip.SetToolTip(this.chkMonitorData, "If any...");
             this.chkMonitorData.UseVisualStyleBackColor = true;
             this.chkMonitorData.CheckedChanged += new System.EventHandler(this.chkCharts_CheckedChanged);
+            // 
+            // picResponseTimeDistributionPerConcurrency
+            // 
+            this.picResponseTimeDistributionPerConcurrency.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.picResponseTimeDistributionPerConcurrency.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picResponseTimeDistributionPerConcurrency.Image = ((System.Drawing.Image)(resources.GetObject("picResponseTimeDistributionPerConcurrency.Image")));
+            this.picResponseTimeDistributionPerConcurrency.Location = new System.Drawing.Point(6, 6);
+            this.picResponseTimeDistributionPerConcurrency.Name = "picResponseTimeDistributionPerConcurrency";
+            this.picResponseTimeDistributionPerConcurrency.Size = new System.Drawing.Size(141, 89);
+            this.picResponseTimeDistributionPerConcurrency.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picResponseTimeDistributionPerConcurrency.TabIndex = 14;
+            this.picResponseTimeDistributionPerConcurrency.TabStop = false;
+            this.toolTip.SetToolTip(this.picResponseTimeDistributionPerConcurrency, "Response Time Distribution per Concurrency Example");
             // 
             // pictureBox2
             // 
@@ -329,6 +344,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpSpecialized.AutoScroll = true;
             this.flpSpecialized.BackColor = System.Drawing.SystemColors.Control;
+            this.flpSpecialized.Controls.Add(this.picResponseTimeDistributionPerConcurrency);
             this.flpSpecialized.Controls.Add(this.picRunsOverTime);
             this.flpSpecialized.Location = new System.Drawing.Point(28, 458);
             this.flpSpecialized.Name = "flpSpecialized";
@@ -408,6 +424,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.picUserActionComposition)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picMonitor)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picRunsOverTime)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picResponseTimeDistributionPerConcurrency)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.pnlBorderStresstest.ResumeLayout(false);
             this.flpMonitors.ResumeLayout(false);
@@ -442,5 +459,6 @@
         private System.Windows.Forms.PictureBox picErrorsVsThroughput;
         private System.Windows.Forms.PictureBox picAverageConcurrency;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
+        private System.Windows.Forms.PictureBox picResponseTimeDistributionPerConcurrency;
     }
 }

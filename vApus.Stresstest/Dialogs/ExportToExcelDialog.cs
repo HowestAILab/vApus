@@ -19,6 +19,8 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
+using System.Linq;
+using System.Collections.Concurrent;
 
 namespace vApus.Stresstest {
     /// <summary>
@@ -291,8 +293,59 @@ namespace vApus.Stresstest {
                             } catch {
                                 MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                             }
-                        }
 
+                            //----- Response time distribution per concurrency
+
+                            foreach (int stresstestId in stresstests.Keys) {
+                                doc = new SLDocument();
+
+                                string stresstest = stresstests[stresstestId];
+
+                                DataTable responseTimeDistributionPerConcurrency = _resultsHelper.GetResponseTimeDistributionForLogEntriesPerConcurrency(_cancellationTokenSource.Token, stresstestId);
+                                if (responseTimeDistributionPerConcurrency == null || responseTimeDistributionPerConcurrency.Rows.Count == 0) throw new Exception("Failed getting response time distribution per concurrency.");
+
+                                firstWorksheet = MakeResponseTimeDistributionPerConcurrencySheets(doc, responseTimeDistributionPerConcurrency);
+
+
+                                try { doc.SelectWorksheet(firstWorksheet); } catch { }
+                                try { doc.DeleteWorksheet("Sheet1"); } catch { }
+                                try {
+                                    string docPath = Path.Combine(directory, "ResponseTimeDistributionForLogEntriesPerConcurrency_" + stresstest +".xlsx");
+                                    doc.SaveAs(docPath);
+
+                                    AddFileToZip(zipPath, docPath);
+
+                                    File.Delete(docPath);
+                                } catch {
+                                    MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
+
+                            foreach (int stresstestId in stresstests.Keys) {
+                                doc = new SLDocument();
+
+                                string stresstest = stresstests[stresstestId];
+
+                                DataTable responseTimeDistributionPerConcurrency = _resultsHelper.GetResponseTimeDistributionForUserActionsPerConcurrency(_cancellationTokenSource.Token, stresstestId);
+                                if (responseTimeDistributionPerConcurrency == null || responseTimeDistributionPerConcurrency.Rows.Count == 0) throw new Exception("Failed getting response time distribution per concurrency.");
+
+                                firstWorksheet = MakeResponseTimeDistributionPerConcurrencySheets(doc, responseTimeDistributionPerConcurrency);
+
+
+                                try { doc.SelectWorksheet(firstWorksheet); } catch { }
+                                try { doc.DeleteWorksheet("Sheet1"); } catch { }
+                                try {
+                                    string docPath = Path.Combine(directory, "ResponseTimeDistributionForUserActionsPerConcurrency_" + stresstest + ".xlsx");
+                                    doc.SaveAs(docPath);
+
+                                    AddFileToZip(zipPath, docPath);
+
+                                    File.Delete(docPath);
+                                } catch {
+                                    MessageBox.Show("Failed to export.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                                }
+                            }
+                        }
                     } catch {
                         MessageBox.Show("Failed to get data from the database.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
@@ -313,7 +366,7 @@ namespace vApus.Stresstest {
         /// <param name="dt"></param>
         /// <param name="workSheetTitle"></param>
         /// <returns>the worksheet name</returns>
-        private string MakeOverviewSheet(SLDocument doc, DataTable dt, string workSheetTitle = "Response time vs throughput", string chartTitle = "Cumulative response time vs throughput", 
+        private string MakeOverviewSheet(SLDocument doc, DataTable dt, string workSheetTitle = "Response time vs throughput", string chartTitle = "Cumulative response time vs throughput",
             string primaryValueAxisTitle = "Cumulative response time (ms)", string throughputTitle = "Throughput (responses / s)") {
 
             int rangeWidth, rangeOffset, rangeHeight;
@@ -707,6 +760,66 @@ namespace vApus.Stresstest {
             doc.InsertChart(chart);
 
             return title;
+        }
+
+        private string MakeResponseTimeDistributionPerConcurrencySheets(SLDocument doc, DataTable dt) {
+            var rowsPerConcurrency = new Dictionary<int, List<DataRow>>();
+
+            foreach (DataRow row in dt.Rows) {
+                int concurrencyResultId = (int)row["ConcurrencyResultId"];
+                if (!rowsPerConcurrency.ContainsKey(concurrencyResultId))
+                    rowsPerConcurrency.Add(concurrencyResultId, new List<DataRow>());
+
+                rowsPerConcurrency[concurrencyResultId].Add(row);
+            }
+
+            Type objectType = typeof(object);
+
+            string firstWorkSheet = null;
+            int index = 0;
+            foreach (var rows in rowsPerConcurrency.Values) {
+                if (rows.Count == 0) continue;
+
+                var concurrency = rows[0]["Concurrency"];
+                string title = (++index) + " Concurrency " + concurrency;
+
+                DataTable part = new DataTable("Distribution");
+                part.Columns.Add("Concurrency");
+                part.Columns.Add("Time to last byte (s)", objectType);
+                part.Columns.Add("Count", objectType);
+                foreach (var row in rows)
+                    part.Rows.Add(row[2], row[3], row[4]);
+
+
+                DataView dv = part.DefaultView;
+                dv.Sort = "Time to last byte (s)";
+                part = dv.ToTable();
+
+                int rangeWidth, rangeOffset, rangeHeight;
+                string worksheet = MakeWorksheet(doc, part, title, out rangeWidth, out rangeOffset, out rangeHeight);
+                if (firstWorkSheet == null) firstWorkSheet = worksheet;
+
+                doc.AutoFitColumn(rangeOffset, rangeOffset + rangeWidth, 60d);
+
+                //Plot the response times
+                var chart = doc.CreateChart(rangeOffset, 1, rangeHeight + rangeOffset, rangeWidth, new SLCreateChartOptions() { RowsAsDataSeries = false, ShowHiddenData = false });
+                chart.SetChartType(SLColumnChartType.ClusteredColumn);
+                chart.HideChartLegend();
+                chart.SetChartPosition(0, rangeWidth + 2, 45, rangeWidth + 21);
+
+                //Set the titles
+                chart.Title.SetTitle("Response time distribution for concurrency " + concurrency);
+                chart.ShowChartTitle(false);
+                chart.PrimaryTextAxis.Title.SetTitle("Time to last byte (s)");
+                chart.PrimaryTextAxis.ShowTitle = true;
+                chart.PrimaryValueAxis.Title.SetTitle("Count");
+                chart.PrimaryValueAxis.ShowTitle = true;
+                chart.PrimaryValueAxis.ShowMinorGridlines = true;
+
+                doc.InsertChart(chart);
+            }
+
+            return firstWorkSheet;
         }
 
         /// <summary>

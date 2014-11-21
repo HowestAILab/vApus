@@ -128,7 +128,7 @@ namespace vApus.Results {
                         if (logEntryResults != null && logEntryResults.Length != 0) {
                             //Keeping reruns in mind (break on last)
                             int runs = ((int)rrRow.ItemArray[1]) + 1;
-                            var userActionsMap = new ConcurrentDictionary<string, string>(); //Map duplicate user actions to the original ones, if need be.
+                            var userActionsMap = new ConcurrentDictionary<string, string>(); //Map duplicate user actions to the original ones, if need be. Duplicate user names (Other names / indices for reruns) --> map to original names for correct avg calculation.
                             for (int reRun = 0; reRun != runs; reRun++) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 

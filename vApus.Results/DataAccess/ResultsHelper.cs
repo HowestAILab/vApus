@@ -2188,6 +2188,62 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             return average;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetResponseTimeDistributionForLogEntriesPerConcurrency(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions != null) {
+                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                    if (cacheEntryDt == null) {
+                        cacheEntryDt = GetResultSet("ResponseTimeDistributionForLogEntriesPerConcurrency", stresstestIds);
+                        if (cacheEntryDt != null) {
+                            cacheEntry.ReturnValue = cacheEntryDt;
+                            return cacheEntryDt;
+                        }
+
+                        cacheEntry.ReturnValue = ResponseTimeDistributionForLogEntriesPerConcurrencyCalculator.GetInstance().Get(_databaseActions, cancellationToken, stresstestIds);
+
+                        GC.Collect();
+                    }
+                    return cacheEntry.ReturnValue as DataTable;
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetResponseTimeDistributionForUserActionsPerConcurrency(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions != null) {
+                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                    if (cacheEntryDt == null) {
+                        cacheEntryDt = GetResultSet("ResponseTimeDistributionForUserActionsPerConcurrency", stresstestIds);
+                        if (cacheEntryDt != null) {
+                            cacheEntry.ReturnValue = cacheEntryDt;
+                            return cacheEntryDt;
+                        }
+
+                        cacheEntry.ReturnValue = ResponseTimeDistributionForUserActionsPerConcurrencyCalculator.GetInstance().Get(_databaseActions, cancellationToken, stresstestIds);
+
+                        GC.Collect();
+                    }
+                    return cacheEntry.ReturnValue as DataTable;
+                }
+                return null;
+            }
+        }
+
         private bool HasResultSetsTable() {
             DataTable tables = _databaseActions.GetDataTable("show tables;");
             if (tables.Columns.Count != 0)

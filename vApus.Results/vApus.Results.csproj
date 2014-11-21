@@ -113,6 +113,7 @@
     <Compile Include="DataAccess\AverageLogEntryResultsCalculator.cs" />
     <Compile Include="DataAccess\AverageUserActionResultsCalculator.cs" />
     <Compile Include="DataAccess\BaseResultSetCalculator.cs" />
+    <Compile Include="DataAccess\ResponseTimeDistributionPerConcurrencyCalculator.cs" />
     <Compile Include="DataAccess\ReaderAndCombiner.cs" />
     <Compile Include="DataAccess\Schema.cs" />
     <Compile Include="DescriptionAndTagsInputDialog.cs">
