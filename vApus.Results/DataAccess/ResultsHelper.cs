@@ -585,64 +585,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         return overview;
                     }
 
-                    DataTable averageUserActions = GetAverageUserActionResults(cancellationToken, true, stresstestIds);
-                    if (averageUserActions == null) return null;
-
-                    DataTable averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
-                    if (averageConcurrentUsers == null) return null;
-
-                    overview = CreateEmptyDataTable("Overview", "Stresstest", "Concurrency");
-                    int range = 0; //The range of values (avg response times) to place under the right user action
-                    char colon = ':';
-                    string sColon = ":";
-                    int userActionIndex = 1;
-                    int currentConcurrencyResultId = -1;
-                    var objectType = typeof(object);
-
-                    foreach (DataRow uaRow in averageUserActions.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        int concurrencyResultId = (int)uaRow.ItemArray[1];
-                        if (currentConcurrencyResultId != concurrencyResultId) {
-                            userActionIndex = 1; //Do not forget to reset this, otherwise we will only get one row.
-                            currentConcurrencyResultId = concurrencyResultId;
-                        }
-
-                        string userAction = uaRow.ItemArray[3] as string;
-                        string[] splittedUserAction = userAction.Split(colon);
-                        userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
-                        if (!overview.Columns.Contains(userAction)) {
-                            overview.Columns.Add(userAction, objectType);
-                            range++;
-                        }
-                    }
-                    overview.Columns.Add("Throughput", objectType);
-                    overview.Columns.Add("User Actions / s", objectType);
-                    overview.Columns.Add("Errors", objectType);
-
-                    for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        var row = new List<object>(range + 3);
-                        row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
-                        row.Add(averageUserActions.Rows[offset].ItemArray[2]); //Add concurrency
-                        for (int i = offset; i != offset + range; i++) { //Add the avg response times
-                            if (cancellationToken.IsCancellationRequested) return null;
-
-                            row.Add(i < averageUserActions.Rows.Count ? averageUserActions.Rows[i].ItemArray[4] : 0d);
-                        }
-                        row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["Throughput (responses / s)"]); //And the throughput
-                        row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["User Actions / s"]); //And the throughput
-                        row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["Errors"]); //And the errors: Bonus
-                        overview.Rows.Add(row.ToArray());
-                    }
-
-                    cacheEntry.ReturnValue = overview;
+                    cacheEntry.ReturnValue = GetOverview(cancellationToken, "Avg. Response Time (ms)", stresstestIds);
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
         public DataTable GetOverview95thPercentile(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
@@ -657,68 +610,151 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
                     }
 
-                    DataTable overview95thPercentile = GetResultSet("Overview95thPercentile", stresstestIds);
-                    if (overview95thPercentile != null) {
-                        cacheEntry.ReturnValue = overview95thPercentile;
-                        return overview95thPercentile;
+                    DataTable overview = GetResultSet("Overview95thPercentile", stresstestIds);
+                    if (overview != null) {
+                        cacheEntry.ReturnValue = overview;
+                        return overview;
                     }
 
-                    DataTable averageUserActions = GetAverageUserActionResults(cancellationToken, true, stresstestIds);
-                    if (averageUserActions == null) return null;
-
-                    DataTable averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
-                    if (averageConcurrentUsers == null) return null;
-
-                    overview95thPercentile = CreateEmptyDataTable("Overview95thPercentile", "Stresstest", "Concurrency");
-                    int range = 0; //The range of values (avg response times) to place under the right user action
-                    char colon = ':';
-                    string sColon = ":";
-                    int userActionIndex = 1;
-                    int currentConcurrencyResultId = -1;
-                    var objectType = typeof(object);
-
-                    foreach (DataRow uaRow in averageUserActions.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        int concurrencyResultId = (int)uaRow.ItemArray[1];
-                        if (currentConcurrencyResultId != concurrencyResultId) {
-                            userActionIndex = 1; //Do not forget to reset this, otherwise we will only get one row.
-                            currentConcurrencyResultId = concurrencyResultId;
-                        }
-
-                        string userAction = uaRow.ItemArray[3] as string;
-                        string[] splittedUserAction = userAction.Split(colon);
-                        userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
-                        if (!overview95thPercentile.Columns.Contains(userAction)) {
-                            overview95thPercentile.Columns.Add(userAction, objectType);
-                            range++;
-                        }
-                    }
-                    overview95thPercentile.Columns.Add("Throughput", objectType);
-                    overview95thPercentile.Columns.Add("User Actions / s", objectType);
-                    overview95thPercentile.Columns.Add("Errors", objectType);
-
-                    for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
-                        if (cancellationToken.IsCancellationRequested) return null;
-
-                        var row = new List<object>(range + 3);
-                        row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
-                        row.Add(averageUserActions.Rows[offset].ItemArray[2]); //Add concurrency
-                        for (int i = offset; i != offset + range; i++) { //Add the avg response times
-                            if (cancellationToken.IsCancellationRequested) return null;
-
-                            row.Add(i < averageUserActions.Rows.Count ? Convert.ToDouble(averageUserActions.Rows[i].ItemArray[6]) : 0d);
-                        }
-                        row.Add(averageConcurrentUsers.Rows[overview95thPercentile.Rows.Count]["Throughput (responses / s)"]); //And the throughput
-                        row.Add(averageConcurrentUsers.Rows[overview95thPercentile.Rows.Count]["User Actions / s"]); //And the throughput
-                        row.Add(averageConcurrentUsers.Rows[overview95thPercentile.Rows.Count]["Errors"]); //And the errors: Bonus
-                        overview95thPercentile.Rows.Add(row.ToArray());
-                    }
-
-                    cacheEntry.ReturnValue = overview95thPercentile;
+                    cacheEntry.ReturnValue = GetOverview(cancellationToken, "95th Percentile of the Response Times (ms)", stresstestIds);
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetOverview99thPercentile(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions == null) return null;
+
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null) {
+                    if (stresstestIds.Length == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                        stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
+                    }
+
+                    DataTable overview = GetResultSet("Overview99thPercentile", stresstestIds);
+                    if (overview != null) {
+                        cacheEntry.ReturnValue = overview;
+                        return overview;
+                    }
+
+                    cacheEntry.ReturnValue = GetOverview(cancellationToken, "99th Percentile of the Response Times (ms)", stresstestIds);
+                }
+                return cacheEntry.ReturnValue as DataTable;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetOverviewAverageTop5(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions == null) return null;
+
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null) {
+                    if (stresstestIds.Length == 0) {
+                        var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                        stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
+                    }
+
+                    DataTable overview = GetResultSet("OverviewAverageTop5", stresstestIds);
+                    if (overview != null) {
+                        cacheEntry.ReturnValue = overview;
+                        return overview;
+                    }
+
+                    cacheEntry.ReturnValue = GetOverview(cancellationToken, "Avg. Top 5 Response Times (ms)", stresstestIds);
+                }
+                return cacheEntry.ReturnValue as DataTable;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="responseTimeColumn">"Avg. Response Time (ms)", "95th Percentile of the Response Times (ms)", 
+        /// "99th Percentile of the Response Times (ms)", "Avg. Top 5 Response Times (ms)"</param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        private DataTable GetOverview(CancellationToken cancellationToken, string responseTimeColumn, params int[] stresstestIds) {
+            if (_databaseActions == null) return null;
+
+            if (stresstestIds.Length == 0) {
+                var stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
+            }
+
+
+            DataTable averageUserActions = GetAverageUserActionResults(cancellationToken, true, stresstestIds);
+            if (averageUserActions == null) return null;
+
+            DataTable averageConcurrentUsers = GetAverageConcurrencyResults(cancellationToken, stresstestIds);
+            if (averageConcurrentUsers == null) return null;
+
+            DataTable overview = CreateEmptyDataTable("Overview", "Stresstest", "Concurrency");
+            int range = 0; //The range of values (avg response times) to place under the right user action
+            char colon = ':';
+            string sColon = ":";
+            int userActionIndex = 1;
+            int currentConcurrencyResultId = -1;
+            var objectType = typeof(object);
+
+            foreach (DataRow uaRow in averageUserActions.Rows) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                int concurrencyResultId = (int)uaRow.ItemArray[1];
+                if (currentConcurrencyResultId != concurrencyResultId) {
+                    userActionIndex = 1; //Do not forget to reset this, otherwise we will only get one row.
+                    currentConcurrencyResultId = concurrencyResultId;
+                }
+
+                string userAction = uaRow.ItemArray[3] as string;
+                string[] splittedUserAction = userAction.Split(colon);
+                userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
+                if (!overview.Columns.Contains(userAction)) {
+                    overview.Columns.Add(userAction, objectType);
+                    range++;
+                }
+            }
+            overview.Columns.Add("Throughput", objectType);
+            overview.Columns.Add("User Actions / s", objectType);
+            overview.Columns.Add("Errors", objectType);
+
+            for (int offset = 0; offset < averageUserActions.Rows.Count; offset += range) {
+                if (cancellationToken.IsCancellationRequested) return null;
+
+                var row = new List<object>(range + 3);
+                row.Add(averageUserActions.Rows[offset].ItemArray[0]); //Add stresstest
+                row.Add(averageUserActions.Rows[offset].ItemArray[2]); //Add concurrency
+                for (int i = offset; i != offset + range; i++) { //Add the response times
+                    if (cancellationToken.IsCancellationRequested) return null;
+
+                    row.Add(i < averageUserActions.Rows.Count ? Convert.ToDouble(averageUserActions.Rows[i][responseTimeColumn]) : 0d);
+                }
+                row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["Throughput (responses / s)"]); //And the throughput
+                row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["User Actions / s"]); //And the throughput
+                row.Add(averageConcurrentUsers.Rows[overview.Rows.Count]["Errors"]); //And the errors: Bonus
+                overview.Rows.Add(row.ToArray());
+            }
+
+            return overview;
         }
 
         public DataTable GetOverviewErrors(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -745,6 +781,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return cacheEntryDt;
             }
         }
+
         /// <summary>
         /// 
         /// </summary>
@@ -764,53 +801,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         return cacheEntryDt;
                     }
 
-                    DataTable overview = GetOverview(cancellationToken, stresstestIds);
-
-                    //Find the row with the highest concurrency.
-                    DataRow heaviestRow = null;
-                    foreach (DataRow row in overview.Rows)
-                        if (heaviestRow == null || (int)heaviestRow["Concurrency"] < (int)row["Concurrency"])
-                            heaviestRow = row;
-
-                    //Get the response times in descending order.
-                    var heaviestResponseTimes = new Dictionary<string, double>();
-                    for (int i = 2; i != heaviestRow.ItemArray.Length - 2; i++)  //We do not want the first two and the last two columns.
-                        heaviestResponseTimes.Add(overview.Columns[i].ColumnName, double.Parse(heaviestRow[i].ToString()));
-
-                    var uselessDataStructureMakingStuffHard = heaviestResponseTimes.OrderByDescending(kvp => kvp.Value);
-                    heaviestResponseTimes = new Dictionary<string, double>();
-                    foreach (var kvp in uselessDataStructureMakingStuffHard)
-                        heaviestResponseTimes.Add(kvp.Key, kvp.Value);
-
-                    //Add the top 5 column names to a new datatable.
-                    cacheEntryDt = CreateEmptyDataTable("Top5HeaviestUserActions", "Stresstest", "Concurrency");
-                    var objectType = typeof(object);
-
-                    int top = 5;
-                    if (top > heaviestResponseTimes.Count)
-                        top = heaviestResponseTimes.Count;
-
-                    for (int i = 0; i != top; i++)
-                        cacheEntryDt.Columns.Add(heaviestResponseTimes.GetKeyAt(i), objectType);
-
-                    //Add all top 5 response times.
-                    foreach (DataRow row in overview.Rows) {
-                        var newRow = new List<object>();
-                        newRow.Add(row["Stresstest"]);
-                        newRow.Add(row["Concurrency"]);
-
-                        for (int i = 0; i != top; i++)
-                            newRow.Add(row[heaviestResponseTimes.GetKeyAt(i)]);
-
-                        cacheEntryDt.Rows.Add(newRow.ToArray());
-                    }
-
-                    cacheEntry.ReturnValue = cacheEntryDt;
+                    cacheEntry.ReturnValue = GetTop5HeaviestUserActions(cancellationToken, "Avg. Response Time (ms)", stresstestIds);
                 }
-                return cacheEntryDt;
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
         public DataTable GetTop5HeaviestUserActions95thPercentile(CancellationToken cancellationToken, params int[] stresstestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
@@ -824,53 +825,113 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         return cacheEntryDt;
                     }
 
-                    DataTable overview = GetOverview95thPercentile(cancellationToken, stresstestIds);
-
-                    //Find the row with the highest concurrency.
-                    DataRow heaviestRow = null;
-                    foreach (DataRow row in overview.Rows)
-                        if (heaviestRow == null || (int)heaviestRow["Concurrency"] < (int)row["Concurrency"])
-                            heaviestRow = row;
-
-                    //Get the response times in descending order.
-                    var heaviestResponseTimes = new Dictionary<string, double>();
-                    for (int i = 2; i != heaviestRow.ItemArray.Length - 2; i++)  //We do not want the first two and the last two columns.
-                        heaviestResponseTimes.Add(overview.Columns[i].ColumnName, double.Parse(heaviestRow[i].ToString()));
-
-                    var uselessDataStructureMakingStuffHard = heaviestResponseTimes.OrderByDescending(kvp => kvp.Value);
-                    heaviestResponseTimes = new Dictionary<string, double>();
-                    foreach (var kvp in uselessDataStructureMakingStuffHard)
-                        heaviestResponseTimes.Add(kvp.Key, kvp.Value);
-
-                    //Add the top 5 column names to a new datatable.
-                    cacheEntryDt = CreateEmptyDataTable("Top5HeaviestUserActions95thPercentile", "Stresstest", "Concurrency");
-                    var objectType = typeof(object);
-
-                    int top = 5;
-                    if (top > heaviestResponseTimes.Count)
-                        top = heaviestResponseTimes.Count;
-
-                    for (int i = 0; i != top; i++)
-                        cacheEntryDt.Columns.Add(heaviestResponseTimes.GetKeyAt(i), objectType);
-
-                    //Add all top 5 response times.
-                    foreach (DataRow row in overview.Rows) {
-                        var newRow = new List<object>();
-                        newRow.Add(row["Stresstest"]);
-                        newRow.Add(row["Concurrency"]);
-
-                        for (int i = 0; i != top; i++)
-                            newRow.Add(row[heaviestResponseTimes.GetKeyAt(i)]);
-
-                        cacheEntryDt.Rows.Add(newRow.ToArray());
-                    }
-
-                    cacheEntry.ReturnValue = cacheEntryDt;
+                    cacheEntry.ReturnValue = GetTop5HeaviestUserActions(cancellationToken, "95th Percentile of the Response Times (ms)", stresstestIds);
                 }
-                return cacheEntryDt;
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetTop5HeaviestUserActions99thPercentile(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions == null) return null;
 
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null) {
+                    cacheEntryDt = GetResultSet("Top5HeaviestUserActions99thPercentile", stresstestIds);
+                    if (cacheEntryDt != null) {
+                        cacheEntry.ReturnValue = cacheEntryDt;
+                        return cacheEntryDt;
+                    }
+
+                    cacheEntry.ReturnValue = GetTop5HeaviestUserActions(cancellationToken, "99th Percentile of the Response Times (ms)", stresstestIds);
+                }
+                return cacheEntry.ReturnValue as DataTable;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        public DataTable GetTop5HeaviestUserActionsAverageTop5(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions == null) return null;
+
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null) {
+                    cacheEntryDt = GetResultSet("Top5HeaviestUserActionsAverageTop5", stresstestIds);
+                    if (cacheEntryDt != null) {
+                        cacheEntry.ReturnValue = cacheEntryDt;
+                        return cacheEntryDt;
+                    }
+
+                    cacheEntry.ReturnValue = GetTop5HeaviestUserActions(cancellationToken, "Avg. Top 5 Response Times (ms)", stresstestIds);
+                }
+                return cacheEntry.ReturnValue as DataTable;
+            }
+        }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="throughputColumn">Throughput (responses / s), 95th Percentile of the Response Times (ms), 
+        /// 99th Percentile of the Response Times (ms), Avg. Top 5 Response Times (ms)</param>
+        /// <param name="stresstestIds"></param>
+        /// <returns></returns>
+        private DataTable GetTop5HeaviestUserActions(CancellationToken cancellationToken, string throughputColumn, params int[] stresstestIds) {
+            if (_databaseActions == null) return null;
+
+            DataTable overview = GetOverview(cancellationToken, throughputColumn, stresstestIds);
+
+            //Find the row with the highest concurrency.
+            DataRow heaviestRow = null;
+            foreach (DataRow row in overview.Rows)
+                if (heaviestRow == null || (int)heaviestRow["Concurrency"] < (int)row["Concurrency"])
+                    heaviestRow = row;
+
+            //Get the response times in descending order.
+            var heaviestResponseTimes = new Dictionary<string, double>();
+            for (int i = 2; i != heaviestRow.ItemArray.Length - 2; i++)  //We do not want the first two and the last two columns.
+                heaviestResponseTimes.Add(overview.Columns[i].ColumnName, double.Parse(heaviestRow[i].ToString()));
+
+            var uselessDataStructureMakingStuffHard = heaviestResponseTimes.OrderByDescending(kvp => kvp.Value);
+            heaviestResponseTimes = new Dictionary<string, double>();
+            foreach (var kvp in uselessDataStructureMakingStuffHard)
+                heaviestResponseTimes.Add(kvp.Key, kvp.Value);
+
+            //Add the top 5 column names to a new datatable.
+            DataTable top5 = CreateEmptyDataTable("Top5HeaviestUserActions", "Stresstest", "Concurrency");
+            var objectType = typeof(object);
+
+            int top = 5;
+            if (top > heaviestResponseTimes.Count)
+                top = heaviestResponseTimes.Count;
+
+            for (int i = 0; i != top; i++)
+                top5.Columns.Add(heaviestResponseTimes.GetKeyAt(i), objectType);
+
+            //Add all top 5 response times.
+            foreach (DataRow row in overview.Rows) {
+                var newRow = new List<object>();
+                newRow.Add(row["Stresstest"]);
+                newRow.Add(row["Concurrency"]);
+
+                for (int i = 0; i != top; i++)
+                    newRow.Add(row[heaviestResponseTimes.GetKeyAt(i)]);
+
+                top5.Rows.Add(newRow.ToArray());
+            }
+
+            return top5;
+        }
 
         /// <summary>
         /// 

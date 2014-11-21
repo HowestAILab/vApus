@@ -371,6 +371,8 @@
             // 
             this.chkSpecialized.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
             this.chkSpecialized.AutoSize = true;
+            this.chkSpecialized.Checked = true;
+            this.chkSpecialized.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkSpecialized.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkSpecialized.Location = new System.Drawing.Point(15, 438);
             this.chkSpecialized.Name = "chkSpecialized";

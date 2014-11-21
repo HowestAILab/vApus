@@ -185,6 +185,13 @@ namespace vApus.Stresstest {
                                 DataTable overview95thPercentile = _resultsHelper.GetOverview95thPercentile(_cancellationTokenSource.Token, stresstestId);
                                 overview95thPercentile.Columns.Remove("User Actions / s");
 
+                                DataTable overview99thPercentile = _resultsHelper.GetOverview99thPercentile(_cancellationTokenSource.Token, stresstestId);
+                                overview99thPercentile.Columns.Remove("User Actions / s");
+
+                                DataTable overviewAverageTop5 = _resultsHelper.GetOverviewAverageTop5(_cancellationTokenSource.Token, stresstestId);
+                                overviewAverageTop5.Columns.Remove("User Actions / s");
+
+
                                 DataTable overviewErrors = _resultsHelper.GetOverviewErrors(_cancellationTokenSource.Token, stresstestId);
 
                                 DataTable avgConcurrency = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, stresstestId);
@@ -201,6 +208,8 @@ namespace vApus.Stresstest {
 
                                 MakeTop5HeaviestUserActionsSheet(doc, overview);
                                 MakeTop5HeaviestUserActionsSheet(doc, overview95thPercentile, "Top 5 heaviest user actions_", "Top 5 heaviest user actions (95th percentile)", "95th percentile of the response times (ms)");
+                                MakeTop5HeaviestUserActionsSheet(doc, overview99thPercentile, "Top 5 heaviest user actions__", "Top 5 heaviest user actions (99th percentile)", "99th percentile of the response times (ms)");
+                                MakeTop5HeaviestUserActionsSheet(doc, overviewAverageTop5, "Top 5 heaviest user actions___", "Top 5 heaviest user actions (Avg. top 5)", "Avg. top 5 response times (ms)");
 
                                 int rangeWidth, rangeOffset, rangeHeight;
                                 MakeWorksheet(doc, avgConcurrency, "Results per concurrency", out rangeWidth, out rangeOffset, out rangeHeight);

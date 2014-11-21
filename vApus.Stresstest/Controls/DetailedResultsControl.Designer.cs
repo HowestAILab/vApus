@@ -33,8 +33,8 @@ namespace vApus.Stresstest {
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DetailedResultsControl));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
@@ -59,6 +59,8 @@ namespace vApus.Stresstest {
             this.cboShow = new System.Windows.Forms.ComboBox();
             this.lblStarted = new System.Windows.Forms.Label();
             this.lblMeasuredRuntime = new System.Windows.Forms.Label();
+            this.pnlBorderMonitors = new System.Windows.Forms.Panel();
+            this.cboMonitors = new System.Windows.Forms.ComboBox();
             this.lblStopped = new System.Windows.Forms.Label();
             this.chkAdvanced = new System.Windows.Forms.CheckBox();
             this.btnSaveDisplayedResults = new System.Windows.Forms.Button();
@@ -67,8 +69,6 @@ namespace vApus.Stresstest {
             this.lblLoading = new System.Windows.Forms.Label();
             this.label1 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.pnlBorderMonitors = new System.Windows.Forms.Panel();
-            this.cboMonitors = new System.Windows.Forms.ComboBox();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
             this.splitContainer.Panel2.SuspendLayout();
@@ -411,8 +411,8 @@ namespace vApus.Stresstest {
             // 
             this.dgvDetailedResults.AllowUserToAddRows = false;
             this.dgvDetailedResults.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle7.BackColor = System.Drawing.Color.White;
-            this.dgvDetailedResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle7;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dgvDetailedResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvDetailedResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvDetailedResults.BackgroundColor = System.Drawing.Color.White;
             this.dgvDetailedResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -427,8 +427,8 @@ namespace vApus.Stresstest {
             this.dgvDetailedResults.ReadOnly = true;
             this.dgvDetailedResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvDetailedResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle8.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvDetailedResults.RowsDefaultCellStyle = dataGridViewCellStyle8;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvDetailedResults.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvDetailedResults.Size = new System.Drawing.Size(899, 325);
             this.dgvDetailedResults.TabIndex = 0;
             this.dgvDetailedResults.VirtualMode = true;
@@ -506,15 +506,13 @@ namespace vApus.Stresstest {
             this.cboShow.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboShow.FormattingEnabled = true;
             this.cboShow.Items.AddRange(new object[] {
-            "Overview: Response Times, Throughput & Errors",
             "Average Concurrency Results",
             "Average User Actions",
             "Average Log Entries",
             "Errors",
             "User Action Composition",
             "Machine Configurations",
-            "Average Monitor Results",
-            "Runs over Time"});
+            "Average Monitor Results"});
             this.cboShow.Location = new System.Drawing.Point(2, 2);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboShow.Name = "cboShow";
@@ -541,6 +539,33 @@ namespace vApus.Stresstest {
             this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
             this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
             this.lblMeasuredRuntime.TabIndex = 0;
+            // 
+            // pnlBorderMonitors
+            // 
+            this.pnlBorderMonitors.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.pnlBorderMonitors.Controls.Add(this.cboMonitors);
+            this.pnlBorderMonitors.Location = new System.Drawing.Point(457, 2);
+            this.pnlBorderMonitors.Margin = new System.Windows.Forms.Padding(3, 2, 3, 3);
+            this.pnlBorderMonitors.Name = "pnlBorderMonitors";
+            this.pnlBorderMonitors.Size = new System.Drawing.Size(302, 25);
+            this.pnlBorderMonitors.TabIndex = 2;
+            this.pnlBorderMonitors.Visible = false;
+            // 
+            // cboMonitors
+            // 
+            this.cboMonitors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.cboMonitors.BackColor = System.Drawing.Color.White;
+            this.cboMonitors.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboMonitors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboMonitors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboMonitors.FormattingEnabled = true;
+            this.cboMonitors.Location = new System.Drawing.Point(2, 2);
+            this.cboMonitors.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboMonitors.Name = "cboMonitors";
+            this.cboMonitors.Size = new System.Drawing.Size(298, 21);
+            this.cboMonitors.TabIndex = 0;
+            this.cboMonitors.SelectedIndexChanged += new System.EventHandler(this.cboMonitors_SelectedIndexChanged);
             // 
             // lblStopped
             // 
@@ -648,33 +673,6 @@ namespace vApus.Stresstest {
             this.label1.Size = new System.Drawing.Size(126, 20);
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed Results";
-            // 
-            // pnlBorderMonitors
-            // 
-            this.pnlBorderMonitors.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.pnlBorderMonitors.Controls.Add(this.cboMonitors);
-            this.pnlBorderMonitors.Location = new System.Drawing.Point(457, 2);
-            this.pnlBorderMonitors.Margin = new System.Windows.Forms.Padding(3, 2, 3, 3);
-            this.pnlBorderMonitors.Name = "pnlBorderMonitors";
-            this.pnlBorderMonitors.Size = new System.Drawing.Size(302, 25);
-            this.pnlBorderMonitors.TabIndex = 2;
-            this.pnlBorderMonitors.Visible = false;
-            // 
-            // cboMonitors
-            // 
-            this.cboMonitors.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboMonitors.BackColor = System.Drawing.Color.White;
-            this.cboMonitors.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMonitors.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboMonitors.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboMonitors.FormattingEnabled = true;
-            this.cboMonitors.Location = new System.Drawing.Point(2, 2);
-            this.cboMonitors.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.cboMonitors.Name = "cboMonitors";
-            this.cboMonitors.Size = new System.Drawing.Size(298, 21);
-            this.cboMonitors.TabIndex = 0;
-            this.cboMonitors.SelectedIndexChanged += new System.EventHandler(this.cboMonitors_SelectedIndexChanged);
             // 
             // DetailedResultsControl
             // 
