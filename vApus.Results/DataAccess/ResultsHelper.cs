@@ -545,6 +545,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return l;
             }
         }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="stresstestIds"></param>
+        /// <returns>key = monitor id, value = monitor name</returns>
         public Dictionary<int, string> GetMonitors(int[] stresstestIds) {
             lock (_lock) {
                 var d = new Dictionary<int, string>();
@@ -1558,87 +1563,106 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
                 var cacheEntryDts = cacheEntry.ReturnValue as List<DataTable>;
                 if (cacheEntryDts == null || cacheEntryDts.Count == 0) {
-                    DataTable stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "Id", "Stresstest", "Connection");
-                    if (stresstests == null || stresstests.Rows.Count == 0) return null;
-
                     var dts = new List<DataTable>();
 
-                    foreach (DataRow stresstestsRow in stresstests.Rows) {
-                        if (cancellationToken.IsCancellationRequested) return null;
+                    Dictionary<int, string> monitorIdsAndNames = GetMonitors(stresstestIds);
 
-                        int stresstestId = (int)stresstestsRow.ItemArray[0];
-                        string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                    foreach (int monitorId in monitorIdsAndNames.Keys)
+                        dts.Add(GetMonitorResultsByMonitorId(cancellationToken, monitorId));
 
-                        DataTable stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, _databaseActions, stresstestId, "Id");
-
-                        if (stresstestResults.Rows.Count == 0) continue;
-                        object stresstestResultId = stresstestResults.Rows[0].ItemArray[0];
-
-                        //Get the monitors + values
-                        DataTable monitors = ReaderAndCombiner.GetMonitors(cancellationToken, _databaseActions, stresstestId, "Id", "Monitor", "ResultHeaders");
-
-                        if (monitors == null || monitors.Rows.Count == 0) continue;
-
-                        foreach (DataRow monitorRow in monitors.Rows) {
-                            int monitorId = (int)monitorRow.ItemArray[0];
-                            object monitor = monitorRow.ItemArray[1];
-                            string[] headers = (monitorRow.ItemArray[2] as string).Split(new string[] { "; " }, StringSplitOptions.None);
-
-                            var columns = new List<string>();
-                            columns.Add("Stresstest");
-                            columns.Add("Monitor");
-                            columns.Add("Timestamp");
-
-                            int headerIndex = 1;
-                            foreach (string header in headers)
-                                columns.Add((headerIndex++) + ") " + header);
-
-                            DataTable monitorResults = GetResultSet("AverageMonitorResults", stresstestIds);
-                            if (monitorResults == null) {
-                                monitorResults = CreateEmptyDataTable("MonitorResults" + monitorId, columns.ToArray());
-
-                                DataTable mrs = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
-
-                                //Store monitor values with a ',' for decimal seperator.
-                                CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
-                                Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("nl-BE");
-
-                                var monitorValues = new Dictionary<DateTime, double[]>(mrs.Rows.Count);
-                                foreach (DataRow monitorResultsRow in mrs.Rows) {
-                                    if (cancellationToken.IsCancellationRequested) return null;
-
-                                    string stringValueBlob = monitorResultsRow.ItemArray[1] as string;
-                                    //Workaround
-                                    if (stringValueBlob.Contains(".")) Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
-
-                                    string[] stringValues = stringValueBlob.Split(new string[] { "; " }, StringSplitOptions.None);
-                                    object[] values = new object[stringValues.LongLength];
-                                    for (long l = 0L; l != stringValues.LongLength; l++) {
-                                        string stringValue = stringValues[l];
-                                        double dou;
-                                        if (double.TryParse(stringValue, out dou))
-                                            values[l] = dou;
-                                        else
-                                            values[l] = stringValue;
-                                    }
-
-                                    var row = new List<object>();
-                                    row.Add(stresstest);
-                                    row.Add(monitor);
-                                    row.Add(monitorResultsRow.ItemArray[0]);
-                                    row.AddRange(values);
-
-                                    monitorResults.Rows.Add(row.ToArray());
-                                }
-
-                                Thread.CurrentThread.CurrentCulture = prevCulture;
-                            }
-                            dts.Add(monitorResults);
-                        }
-                    }
                     cacheEntry.ReturnValue = dts;
                 }
                 return cacheEntry.ReturnValue as List<DataTable>;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
+        /// <returns></returns>
+        public DataTable GetMonitorResultsByMonitorId(CancellationToken cancellationToken, int monitorId) {
+            lock (_lock) {
+                if (_databaseActions == null) return null;
+
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), monitorId);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null) {
+                    DataTable monitorResults = GetResultSet("MonitorResults" + monitorId, -1);
+                    if (monitorResults == null) {
+                        //Get the monitors + values
+                        DataTable monitors = ReaderAndCombiner.GetMonitor(cancellationToken, _databaseActions, monitorId, "Id", "StresstestId", "Monitor", "ResultHeaders");
+                        if (monitors == null || monitors.Rows.Count == 0) return null;
+
+                        DataRow monitorRow = monitors.Rows[0];
+                        int stresstestId = (int)monitorRow["StresstestId"];
+
+                        DataTable stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestId, "Id", "Stresstest", "Connection");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                        DataRow stresstestsRow = stresstests.Rows[0];
+
+                        if (cancellationToken.IsCancellationRequested) return null;
+
+                        string stresstest = string.Format("{0} {1}", stresstestsRow["Stresstest"], stresstestsRow["Connection"]);
+
+                        object monitor = monitorRow["Monitor"];
+                        string[] headers = (monitorRow["ResultHeaders"] as string).Split(new string[] { "; " }, StringSplitOptions.None);
+
+                        var columns = new List<string>();
+                        columns.Add("Stresstest");
+                        columns.Add("Monitor");
+                        columns.Add("Timestamp");
+
+                        int headerIndex = 1;
+                        foreach (string header in headers)
+                            columns.Add((headerIndex++) + ") " + header);
+
+                        monitorResults = CreateEmptyDataTable("MonitorResults" + monitorId, columns.ToArray());
+
+                        DataTable mrs = ReaderAndCombiner.GetMonitorResults(_databaseActions, monitorId, "TimeStamp", "Value");
+
+                        //Store monitor values with a ',' for decimal seperator.
+                        CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
+                        Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("nl-BE");
+
+                        var monitorValues = new Dictionary<DateTime, double[]>(mrs.Rows.Count);
+                        foreach (DataRow monitorResultsRow in mrs.Rows) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            string stringValueBlob = monitorResultsRow.ItemArray[1] as string;
+                            //Workaround
+                            if (stringValueBlob.Contains(".")) Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
+
+                            string[] stringValues = stringValueBlob.Split(new string[] { "; " }, StringSplitOptions.None);
+                            object[] values = new object[stringValues.LongLength];
+                            for (long l = 0L; l != stringValues.LongLength; l++) {
+                                string stringValue = stringValues[l];
+                                double dou;
+                                if (double.TryParse(stringValue, out dou))
+                                    values[l] = dou;
+                                else
+                                    values[l] = stringValue;
+                            }
+
+                            var row = new List<object>();
+                            row.Add(stresstest);
+                            row.Add(monitor);
+                            row.Add(monitorResultsRow.ItemArray[0]);
+                            row.AddRange(values);
+
+                            monitorResults.Rows.Add(row.ToArray());
+                        }
+
+                        Thread.CurrentThread.CurrentCulture = prevCulture;
+                    }
+
+
+
+                    cacheEntry.ReturnValue = monitorResults;
+                }
+                return cacheEntry.ReturnValue as DataTable;
             }
         }
 
@@ -2398,6 +2422,19 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             lock (_lock) {
                 if (_databaseActions != null)
                     return ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions, "Id", "Stresstest", "Connection");
+
+                return null;
+            }
+        }
+        /// <summary>
+        /// stresstest: ID, Stresstest, Connection
+        /// If the workload was divided over multiple slaves the datatable entries will be combined, in that case the first Id will be put in a row.
+        /// </summary>
+        /// <returns></returns>
+        public DataTable GetStresstests(int stresstestId) {
+            lock (_lock) {
+                if (_databaseActions != null)
+                    return ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions, stresstestId, "Id", "Stresstest", "Connection");
 
                 return null;
             }

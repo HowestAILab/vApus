@@ -240,6 +240,7 @@
     <Compile Include="Controls\DetailedResultsControl.Designer.cs">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </Compile>
+    <Compile Include="Dialogs\ExportToExcel.cs" />
     <Compile Include="Dialogs\ExportToExcelDialog.cs">
       <SubType>Form</SubType>
     </Compile>

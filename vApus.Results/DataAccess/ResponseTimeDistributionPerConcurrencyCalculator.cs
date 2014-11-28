@@ -32,8 +32,7 @@ namespace vApus.Results {
             if (cancellationToken.IsCancellationRequested) return null;
 
             DataView dv = results.DefaultView;
-            dv.Sort = "Time to last byte (s)";
-            dv.Sort = "Concurrency";
+            dv.Sort = "Concurrency, Time to last byte (s)";
             results = dv.ToTable();
 
             return results;
@@ -145,7 +144,8 @@ namespace vApus.Results {
                             }
                     }
 
-                    ConcurrentDictionary<double, long> responseTimeDistribution = DistributionCalculator<double>.GetEntriesAndCounts(ttlbInS);
+                    Dictionary<double, long> responseTimeDistribution = DistributionCalculator<double>.GetEntriesAndCounts(ttlbInS);
+                    responseTimeDistribution = DistributionCalculator<double>.EvenOutRanges(responseTimeDistribution, 0.1d);
                     lock (_lock)
                         foreach (var kvp in responseTimeDistribution)
                             responseTimeDistributionPerConcurrency.Rows.Add(stresstest, concurrencyResultId, concurrency, kvp.Key, kvp.Value);
@@ -317,7 +317,7 @@ namespace vApus.Results {
 
                     //Determine following for each user action "TimeToLastByteInTicks"
                     var userActionResultsList = new ConcurrentBag<long>();
-                    
+
                     for (int i = 0; i != userActions.Count; i++) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
@@ -359,7 +359,8 @@ namespace vApus.Results {
                     }
 
 
-                    ConcurrentDictionary<double, long> responseTimeDistribution = DistributionCalculator<double>.GetEntriesAndCounts(ttlbInS);
+                    Dictionary<double, long> responseTimeDistribution = DistributionCalculator<double>.GetEntriesAndCounts(ttlbInS);
+                    responseTimeDistribution = DistributionCalculator<double>.EvenOutRanges(responseTimeDistribution, 0.1d);
                     lock (_lock)
                         foreach (var kvp in responseTimeDistribution)
                             responseTimeDistributionPerConcurrency.Rows.Add(stresstest, concurrencyResultId, concurrency, kvp.Key, kvp.Value);
