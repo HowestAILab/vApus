@@ -195,18 +195,22 @@ namespace vApus.Stresstest {
             tvw.AfterCheck -= tvw_AfterCheck;
             ExportToExcel.HandleTreeNodeChecked(tvw, e.Node);
 
-            //Save settings.
+            ExtractToExport();
+
+            btnExportToExcel.Enabled = _toExport.Count() != 0;
+
+            tvw.AfterCheck += tvw_AfterCheck;
+        }
+        private void ExtractToExport() {
             _toExport = ExportToExcel.ExtractToExport(tvw.Nodes, tvw.PathSeparator);
+
+            //Save settings.
             Properties.Settings.Default.SelectedGoals = new StringCollection();
 
             foreach (string s in _toExport)
                 Properties.Settings.Default.SelectedGoals.Add(s);
 
             Properties.Settings.Default.Save();
-
-            btnExportToExcel.Enabled = _toExport.Count() != 0;
-
-            tvw.AfterCheck += tvw_AfterCheck;
         }
 
         async private void btnExportToExcel_Click(object sender, EventArgs e) {
@@ -229,6 +233,8 @@ namespace vApus.Stresstest {
                     stresstestIds[0] = cboStresstest.SelectedIndex + 1;
                 else
                     stresstestIds[0] = cboStresstest.SelectedIndex == 0 ? -1 : cboStresstest.SelectedIndex;
+
+                ExtractToExport();
 
                 var cultureInfo = Thread.CurrentThread.CurrentCulture;
                 await Task.Run(() => {
