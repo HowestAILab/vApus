@@ -148,13 +148,25 @@ namespace vApus.DistributedTesting {
         #region Event Handling
         private void InvokeMessage(string message, Level logLevel = Level.Info) { InvokeMessage(message, Color.Empty, logLevel); }
         private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
-            Loggers.Log(logLevel, message);
-            if (Message != null) {
+            try {
                 if (logLevel == Level.Error) {
                     string[] split = message.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
                     message = split[0] + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
                 }
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { Message(this, new MessageEventArgs(message, color, logLevel)); }, null);
+
+                if (Message != null)
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                        try {
+                            Message(this, new MessageEventArgs(message, color, logLevel));
+                        } catch (Exception ex) {
+                            Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
+                        }
+                    }, null);
+
+                Loggers.Log(logLevel, message);
+                _resultsHelper.AddLogEntry((int)logLevel, message);
+            } catch (Exception ex) {
+                Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }
         }
 

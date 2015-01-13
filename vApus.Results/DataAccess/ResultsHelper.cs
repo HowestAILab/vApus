@@ -423,6 +423,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
         #endregion
 
+        public void AddLogEntry(int level, string entry) {
+            lock (_lock) {
+                if (_vApusInstanceId != 0 && _databaseActions != null) {
+                    _databaseActions.ExecuteSQL(
+                        string.Format("INSERT INTO logs(vApusInstanceId, Timestamp, Level, Entry) VALUES('{0}', '{1}', '{2}', '{3}')",
+                        _vApusInstanceId, Parse(DateTime.Now), level, entry)
+                    );
+                }
+            }
+        }
+
         //For getting stuff fom the database ReaderAndCombiner is used: You can execute a many-to-one distributed test (a tests workload divided over multiple slaves);
         //Results for such test must be combined before processing: it must look like a single test.
         #region Get Configuration and Formatted Results
@@ -2354,6 +2365,36 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         }
 
         #endregion
+
+        public DataTable GetLogs(CancellationToken cancellationToken, params int[] stresstestIds) {
+            lock (_lock) {
+                if (_databaseActions == null) return null;
+
+                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
+                var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                if (cacheEntryDt == null) {
+                    if (stresstestIds.Length == 0) {
+                        DataTable stresstests = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, "Id");
+                        if (stresstests == null || stresstests.Rows.Count == 0) return null;
+
+                        stresstestIds = new int[] { (int)stresstests.Rows[0].ItemArray[0] };
+                    }
+
+                    DataTable vApusInstances = ReaderAndCombiner.GetStresstests(cancellationToken, _databaseActions, stresstestIds, "vApusInstanceId");
+                    if (vApusInstances == null || vApusInstances.Rows.Count == 0) return null;
+
+                    var vApusInstanceIds = new int[] { (int)vApusInstances.Rows[0].ItemArray[0] };
+
+                    DataTable logs = _databaseActions.GetDataTable(string.Format("Select Timestamp, Level, Entry from logs where vApusInstanceId IN({0});", vApusInstanceIds.Combine(",")));
+
+                    if (logs == null) return null;
+
+                    cacheEntry.ReturnValue = logs;
+                    return logs;
+                }
+                return cacheEntry.ReturnValue as DataTable;
+            }
+        }
 
         #endregion
 

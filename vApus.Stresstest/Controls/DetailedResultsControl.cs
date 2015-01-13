@@ -208,6 +208,7 @@ namespace vApus.Stresstest {
                             case 3: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stresstestIds); break;
                             case 4: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stresstestIds); break;
                             case 5: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 7: dt = _resultsHelper.GetLogs(_cancellationTokenSource.Token, _stresstestIds); break;
                         }
                         if (OnResults != null)
                             foreach (EventHandler<OnResultsEventArgs> del in OnResults.GetInvocationList())

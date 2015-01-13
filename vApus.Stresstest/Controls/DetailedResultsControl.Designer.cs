@@ -512,7 +512,8 @@ namespace vApus.Stresstest {
             "Errors",
             "User Action Composition",
             "Machine Configurations",
-            "Average Monitor Results"});
+            "Average Monitor Results",
+            "Logs"});
             this.cboShow.Location = new System.Drawing.Point(2, 2);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboShow.Name = "cboShow";

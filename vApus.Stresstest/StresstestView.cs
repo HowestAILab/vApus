@@ -260,7 +260,12 @@ namespace vApus.Stresstest {
         private void StartStresstest() {
             Cursor = Cursors.WaitCursor;
 
-            try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", Level.Error); }
+            try {
+                LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000);
+            } catch {
+                fastResultsControl.AddEvent(
+                    "Could not initialize the local monitor, something is wrong with your WMI.", Level.Error);
+            }
             tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
             tmrProgress.Start();
             try {
@@ -919,7 +924,7 @@ namespace vApus.Stresstest {
                 if (fastResultsControl != null && !fastResultsControl.IsDisposed)
                     fastResultsControl.SetCountDownProgressDelay(-1);
             } catch {
-            //Ignore.
+                //Ignore.
             }
         }
         #endregion

@@ -29,6 +29,7 @@ namespace vApus.Results {
             CreatevApusInstancesTable(databaseActions);
 
             CreateStresstestsTable(databaseActions);
+            CreateLogsTable(databaseActions);
             CreateStresstestResultsTable(databaseActions);
             CreateConcurrencyResultsTable(databaseActions);
             CreateRunResultsTable(databaseActions);
@@ -67,6 +68,14 @@ namespace vApus.Results {
                     @"Create Table vapusinstances(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id),
 HostName varchar(255) NOT NULL, IP varchar(255) NOT NULL, Port int NOT NULL, Version varchar(255) NOT NULL, Channel varchar(7) NOT NULL,
 IsMaster bool NOT NULL)");
+        }
+
+        private static void CreateLogsTable(DatabaseActions databaseActions) {
+            if (!TableExists("logs", databaseActions))
+                databaseActions.ExecuteSQL(
+                    @"Create Table logs(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(ID), vApusInstanceId int NOT NULL,
+FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), Timestamp datetime(6) NOT NULL, Level tinyint NOT NULL, Entry longtext NOT NULL)"
+                    );
         }
 
         private static void CreateStresstestsTable(DatabaseActions databaseActions) {

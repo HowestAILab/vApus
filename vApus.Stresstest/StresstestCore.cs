@@ -250,8 +250,12 @@ namespace vApus.Stresstest {
         /// <param name="logLevel"></param>
         private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
             try {
-                Loggers.Log(logLevel, message);
-                if (Message != null)
+                if (logLevel == Level.Error) {
+                    string[] split = message.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
+                    message = split[0] + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                }
+
+                if (Message != null) 
                     SynchronizationContextWrapper.SynchronizationContext.Send(
                         delegate {
                             try {
@@ -260,6 +264,9 @@ namespace vApus.Stresstest {
                                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
                             }
                         }, null);
+
+                Loggers.Log(logLevel, message);
+                _resultsHelper.AddLogEntry((int)logLevel, message);
             } catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }
