@@ -191,6 +191,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -210,6 +211,12 @@
     </Compile>
     <Compile Include="About\HistoryPart.cs" />
     <Compile Include="ArgumentsAnalyzer.cs" />
+    <Compile Include="FirstStepsView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FirstStepsView.Designer.cs">
+      <DependentUpon>FirstStepsView.cs</DependentUpon>
+    </Compile>
     <Compile Include="LocalizationPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -247,6 +254,9 @@
     <EmbeddedResource Include="About\AuthorGrid.resx">
       <DependentUpon>AuthorGrid.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FirstStepsView.resx">
+      <DependentUpon>FirstStepsView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LocalizationPanel.resx">
       <DependentUpon>LocalizationPanel.cs</DependentUpon>
