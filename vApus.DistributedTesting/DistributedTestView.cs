@@ -1138,7 +1138,13 @@ namespace vApus.DistributedTesting {
                 testTreeView.SetMonitoringBeforeAfter();
                 distributedStresstestControl.AppendMessages("Monitoring after the test is finished: " + (monitorAfterTime * 60) + " s.");
                 _monitorAfterCountDown.Start();
-            } else { StopMonitorsUpdateDetailedResultsAndSetMode(false); }
+            } else {
+                StopMonitorsUpdateDetailedResultsAndSetMode(false);
+
+                if (ExportingResultsManager.Enabled)
+                    detailedResultsControl.AutoExportToExcel(ExportingResultsManager.Folder);
+
+            }
 
             this.Focus();
         }
@@ -1443,7 +1449,13 @@ namespace vApus.DistributedTesting {
                 difference = stoppedAt - _monitorAfterBogusRunResult.StartedAt;
                 _monitorAfterBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
             }
-            SynchronizationContextWrapper.SynchronizationContext.Send(delegate { StopMonitorsUpdateDetailedResultsAndSetMode(false); }, null);
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                StopMonitorsUpdateDetailedResultsAndSetMode(false);
+
+                if (ExportingResultsManager.Enabled)
+                    detailedResultsControl.AutoExportToExcel(ExportingResultsManager.Folder);
+
+            }, null);
 
             //#warning Enabled REST
             //            WriteMonitorRestConfig();

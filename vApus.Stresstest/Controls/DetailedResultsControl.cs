@@ -331,6 +331,15 @@ namespace vApus.Stresstest {
             var dialog = new ExportToExcelDialog();
             dialog.Init(_resultsHelper);
             dialog.ShowDialog();
+            dialog = null;
+        }
+
+        public void AutoExportToExcel(string folder) {
+            if (Directory.Exists(folder)) {
+                var dialog = new ExportToExcelDialog();
+                dialog.Init(_resultsHelper);
+                dialog.AutoExportToExcel(folder);
+            }
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {

@@ -43,6 +43,7 @@ namespace vApus.Gui {
         //private ProcessorAffinityPanel _processorAffinityPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
         private SavingResultsPanel _savingResultsPanel;
+        private ExportingResultsPanel _exportingResultsPanel;
         private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
         private CleanTempDataPanel _cleanTempDataPanel;
         #endregion
@@ -113,6 +114,7 @@ namespace vApus.Gui {
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
+                _exportingResultsPanel = new ExportingResultsPanel();
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed initializing GUI.", ex);
             }
@@ -211,6 +213,7 @@ namespace vApus.Gui {
                 //_optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
                 _optionsDialog.AddOptionsPanel(_savingResultsPanel);
+                _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
             }

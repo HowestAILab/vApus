@@ -18,6 +18,7 @@ using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
 using System.Linq;
+using System.Diagnostics;
 
 namespace vApus.Stresstest {
     /// <summary>
@@ -35,6 +36,8 @@ namespace vApus.Stresstest {
         private List<Color> _colorPalette = new List<Color>(34);
 
         private IEnumerable<string> _toExport;
+
+        private string _autoExportFolder = string.Empty;
         #endregion
 
         #region Constructor
@@ -53,6 +56,13 @@ namespace vApus.Stresstest {
                 tvw.VisibleChanged -= tvw_VisibleChanged;
                 foreach (TreeNode node in tvw.Nodes)
                     RefreshTreeNode(node);
+
+                if (_autoExportFolder.Length != 0 && cboStresstest.SelectedIndex == 0) {
+                    foreach (TreeNode node in tvw.Nodes)
+                        node.Checked = true;
+
+                    Export(_autoExportFolder);
+                }
             }
         }
 
@@ -213,13 +223,18 @@ namespace vApus.Stresstest {
             Properties.Settings.Default.Save();
         }
 
-        async private void btnExportToExcel_Click(object sender, EventArgs e) {
-            saveFileDialog.FileName = _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_');
-            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+        private void btnExportToExcel_Click(object sender, EventArgs e) {
+            Export();
+        }
+
+        async private void Export(string autoExportFolder = "") {
+            saveFileDialog.FileName = Path.Combine(autoExportFolder, _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_'));
+            if (autoExportFolder.Length != 0 || saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = cboStresstest.Enabled = tvw.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
 
                 string zipPath = saveFileDialog.FileName;
+                if (!zipPath.EndsWith(".zip")) zipPath += ".zip";
 
                 if (File.Exists(zipPath))
                     try {
@@ -236,6 +251,7 @@ namespace vApus.Stresstest {
 
                 ExtractToExport();
 
+                bool exceptionThrown = false;
                 var cultureInfo = Thread.CurrentThread.CurrentCulture;
                 await Task.Run(() => {
                     try {
@@ -243,6 +259,7 @@ namespace vApus.Stresstest {
 
                         ExportToExcel.Do(zipPath, stresstestIds, _resultsHelper, _toExport, _cancellationTokenSource.Token);
                     } catch (Exception ex) {
+                        exceptionThrown = true;
                         Loggers.Log(Level.Error, "Failed to export results to Excel.", ex);
                         MessageBox.Show("Failed to export results to Excel.\nCheck the error log for details.");
                     }
@@ -253,6 +270,12 @@ namespace vApus.Stresstest {
 
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
+
+                if (_autoExportFolder.Length != 0 && !exceptionThrown) {
+                    if (MessageBox.Show("Results auto-exported to " + zipPath + ".\nDo you want to browse them?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                        Process.Start(zipPath);
+                    this.Close();
+                }
 
                 //Save specialized stuff
                 //----------
@@ -395,6 +418,13 @@ namespace vApus.Stresstest {
 
         private void ExportToExcelDialog_FormClosing(object sender, FormClosingEventArgs e) { _cancellationTokenSource.Cancel(); }
 
+        /// <summary>
+        /// Call Init(...) first.
+        /// </summary>
+        public void AutoExportToExcel(string folder) {
+            _autoExportFolder = folder;
+            this.ShowDialog();
+        }
         #endregion
 
     }

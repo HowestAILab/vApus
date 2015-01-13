@@ -425,7 +425,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
         public void AddLogEntry(int level, string entry) {
             lock (_lock) {
-                if (_vApusInstanceId != 0 && _databaseActions != null) {
+                if (_vApusInstanceId > 0 && _databaseActions != null) {
                     _databaseActions.ExecuteSQL(
                         string.Format("INSERT INTO logs(vApusInstanceId, Timestamp, Level, Entry) VALUES('{0}', '{1}', '{2}', '{3}')",
                         _vApusInstanceId, Parse(DateTime.Now), level, entry)

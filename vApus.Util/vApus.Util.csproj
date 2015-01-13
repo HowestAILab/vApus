@@ -223,6 +223,13 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\DataGridViewImageCellBlank.cs" />
+    <Compile Include="ControlsAndPanels\ExportingResultsPanel\ExportingResultsManager.cs" />
+    <Compile Include="ControlsAndPanels\ExportingResultsPanel\ExportingResultsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\ExportingResultsPanel\ExportingResultsPanel.Designer.cs">
+      <DependentUpon>ExportingResultsPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -493,6 +500,9 @@
     <EmbeddedResource Include="ControlsAndPanels\CleanTempDataPanel.resx">
       <DependentUpon>CleanTempDataPanel.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\ExportingResultsPanel\ExportingResultsPanel.resx">
+      <DependentUpon>ExportingResultsPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.resx">
       <DependentUpon>WindowsFirewallAutoUpdatePanel.cs</DependentUpon>
