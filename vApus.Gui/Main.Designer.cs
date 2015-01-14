@@ -141,7 +141,7 @@
             // 
             this.newFromTemplateToolStripMenuItem.Name = "newFromTemplateToolStripMenuItem";
             this.newFromTemplateToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.newFromTemplateToolStripMenuItem.Text = "New From Template...";
+            this.newFromTemplateToolStripMenuItem.Text = "New from template...";
             this.newFromTemplateToolStripMenuItem.Click += new System.EventHandler(this.newFromTemplateToolStripMenuItem_Click);
             // 
             // openToolStripMenuItem
@@ -171,7 +171,7 @@
             this.toolStripSeparator2});
             this.openRecentToolStripMenuItem.Name = "openRecentToolStripMenuItem";
             this.openRecentToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.openRecentToolStripMenuItem.Text = "Open Recent";
+            this.openRecentToolStripMenuItem.Text = "Open recent";
             this.openRecentToolStripMenuItem.DropDownOpening += new System.EventHandler(this.openRecentToolStripMenuItem_DropDownOpening);
             // 
             // clearToolStripMenuItem
@@ -208,7 +208,7 @@
             this.saveAsToolStripMenuItem.Enabled = false;
             this.saveAsToolStripMenuItem.Name = "saveAsToolStripMenuItem";
             this.saveAsToolStripMenuItem.Size = new System.Drawing.Size(191, 22);
-            this.saveAsToolStripMenuItem.Text = "Save &As";
+            this.saveAsToolStripMenuItem.Text = "Save &as";
             this.saveAsToolStripMenuItem.Click += new System.EventHandler(this.saveAsToolStripMenuItem_Click);
             // 
             // toolStripSeparator1
@@ -276,7 +276,7 @@
             // 
             this.singleTestToolStripMenuItem.Name = "singleTestToolStripMenuItem";
             this.singleTestToolStripMenuItem.Size = new System.Drawing.Size(132, 22);
-            this.singleTestToolStripMenuItem.Text = "Single Test";
+            this.singleTestToolStripMenuItem.Text = "Single test";
             this.singleTestToolStripMenuItem.Visible = false;
             // 
             // toolsToolStripMenuItem
@@ -348,7 +348,7 @@
             // 
             this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
             this.toolStripStatusLabel8.Size = new System.Drawing.Size(91, 17);
-            this.toolStripStatusLabel8.Text = "Update Notifier:";
+            this.toolStripStatusLabel8.Text = "Update notifier:";
             // 
             // lblUpdateNotifier
             // 
@@ -371,7 +371,7 @@
             // 
             this.toolStripStatusLabel7.Name = "toolStripStatusLabel7";
             this.toolStripStatusLabel7.Size = new System.Drawing.Size(60, 17);
-            this.toolStripStatusLabel7.Text = "Log Level:";
+            this.toolStripStatusLabel7.Text = "Log level:";
             // 
             // lblLogLevel
             // 
@@ -392,7 +392,7 @@
             // 
             this.toolStripStatusLabel4.Name = "toolStripStatusLabel4";
             this.toolStripStatusLabel4.Size = new System.Drawing.Size(94, 17);
-            this.toolStripStatusLabel4.Text = "Text Formatting:";
+            this.toolStripStatusLabel4.Text = "Text formatting:";
             // 
             // lblLocalization
             // 
@@ -437,7 +437,7 @@
             // 
             this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
             this.toolStripStatusLabel2.Size = new System.Drawing.Size(103, 17);
-            this.toolStripStatusLabel2.Text = "Processor Affinity:";
+            this.toolStripStatusLabel2.Text = "Processor affinity:";
             this.toolStripStatusLabel2.Visible = false;
             // 
             // lblProcessorAffinity
@@ -455,7 +455,7 @@
             // 
             this.lblCleanTempData.Name = "lblCleanTempData";
             this.lblCleanTempData.Size = new System.Drawing.Size(128, 17);
-            this.lblCleanTempData.Text = "Clean Temporary Data:";
+            this.lblCleanTempData.Text = "Clean temporary data:";
             this.lblCleanTempData.Visible = false;
             // 
             // lblTempDataSize
@@ -464,7 +464,7 @@
             this.lblTempDataSize.IsLink = true;
             this.lblTempDataSize.Name = "lblTempDataSize";
             this.lblTempDataSize.Size = new System.Drawing.Size(31, 17);
-            this.lblTempDataSize.Text = "?MB";
+            this.lblTempDataSize.Text = "? MB";
             this.lblTempDataSize.Visible = false;
             this.lblTempDataSize.VisitedLinkColor = System.Drawing.Color.Blue;
             this.lblTempDataSize.Click += new System.EventHandler(this.lblCleanTempData_Click);

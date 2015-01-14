@@ -574,7 +574,7 @@ namespace vApus.Gui {
 
             if (_cleanTempDataPanel != null) {
                 double tempDataSizeInMB = _cleanTempDataPanel.TempDataSizeInMB;
-                lblTempDataSize.Text = tempDataSizeInMB + "MB";
+                lblTempDataSize.Text = tempDataSizeInMB + " MB";
 
                 if (tempDataSizeInMB == 0)
                     lblCleanTempData.Visible =
@@ -601,15 +601,15 @@ namespace vApus.Gui {
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = false;
                     break;
                 case WindowsFirewallAutoUpdatePanel.Status.WindowsFirewallEnabled:
-                    lblWarning.Text = "Windows Firewall enabled!";
+                    lblWarning.Text = "Windows firewall enabled!";
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
                 case WindowsFirewallAutoUpdatePanel.Status.WindowsAutoUpdateEnabled:
-                    lblWarning.Text = "Windows Auto Update enabled!";
+                    lblWarning.Text = "Windows auto update enabled!";
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
                 case WindowsFirewallAutoUpdatePanel.Status.AllEnabled:
-                    lblWarning.Text = "Windows Firewall and Auto Update enabled!";
+                    lblWarning.Text = "Windows firewall and auto Update enabled!";
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
             }
