@@ -60,7 +60,7 @@
             this.toolStripSeparator1 = new System.Windows.Forms.ToolStripSeparator();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.welcomeToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.firstStepsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stresstestingSolutionExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.monitorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.stresstestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -226,19 +226,19 @@
             // viewToolStripMenuItem
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.welcomeToolStripMenuItem,
+            this.firstStepsToolStripMenuItem,
             this.stresstestingSolutionExplorerToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "&View";
             // 
-            // welcomeToolStripMenuItem
+            // firstStepsToolStripMenuItem
             // 
-            this.welcomeToolStripMenuItem.Image = global::vApus.Gui.Properties.Resources.Icon_32x32_vApus;
-            this.welcomeToolStripMenuItem.Name = "welcomeToolStripMenuItem";
-            this.welcomeToolStripMenuItem.Size = new System.Drawing.Size(232, 22);
-            this.welcomeToolStripMenuItem.Text = "Welcome";
-            this.welcomeToolStripMenuItem.Click += new System.EventHandler(this.welcomeToolStripMenuItem_Click);
+            this.firstStepsToolStripMenuItem.Image = global::vApus.Gui.Properties.Resources.Icon_32x32_vApus;
+            this.firstStepsToolStripMenuItem.Name = "firstStepsToolStripMenuItem";
+            this.firstStepsToolStripMenuItem.Size = new System.Drawing.Size(232, 22);
+            this.firstStepsToolStripMenuItem.Text = "First steps";
+            this.firstStepsToolStripMenuItem.Click += new System.EventHandler(this.firstStepsToolStripMenuItem_Click);
             // 
             // stresstestingSolutionExplorerToolStripMenuItem
             // 
@@ -611,7 +611,7 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
         private System.Windows.Forms.ToolStripStatusLabel lblLogLevel;
-        private System.Windows.Forms.ToolStripMenuItem welcomeToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem firstStepsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem detailedResultsViewerToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
         private System.Windows.Forms.ToolStripStatusLabel lblUpdateNotifier;

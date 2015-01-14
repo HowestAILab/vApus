@@ -8,7 +8,7 @@
 using System.IO;
 
 namespace vApus.Util {
-    public static class ExportingResultsManager {
+    public static class AutoExportResultsManager {
         public static bool Enabled {
             get { return Properties.Settings.Default.EREnabled; }
             internal set { Properties.Settings.Default.EREnabled = value;

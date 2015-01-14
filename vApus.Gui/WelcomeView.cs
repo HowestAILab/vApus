@@ -31,7 +31,7 @@ namespace vApus.Gui {
         private void Welcome_FormClosing(object sender, FormClosingEventArgs e) {
             if (_formClosingEventHandlingEnabled) {
                 //Do not show the next time if you don't want to
-                Settings.Default.GreetWithWelcomePage =
+                Settings.Default.GreetWithFirstStepsView =
                     MessageBox.Show("Would you like to hide the welcome page by default?", string.Empty,
                                     MessageBoxButtons.OKCancel, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) ==
                     DialogResult.Cancel;

@@ -210,7 +210,7 @@ namespace vApus.Util {
         }
 
         public override string ToString() {
-            return "Windows Firewall / Auto Update";
+            return "Windows firewall & update";
         }
         #endregion
     }

@@ -192,7 +192,7 @@ namespace vApus.Results {
         }
 
         public override string ToString() {
-            return "Saving Test Results";
+            return "Saving test results";
         }
 
         #endregion

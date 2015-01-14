@@ -206,7 +206,7 @@ namespace vApus.Util {
         }
 
         public override string ToString() {
-            return "Update Notifier";
+            return "Update notifier";
         }
         #endregion
     }

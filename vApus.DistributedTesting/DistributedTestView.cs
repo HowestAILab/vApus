@@ -1141,8 +1141,8 @@ namespace vApus.DistributedTesting {
             } else {
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
 
-                if (ExportingResultsManager.Enabled)
-                    detailedResultsControl.AutoExportToExcel(ExportingResultsManager.Folder);
+                if (AutoExportResultsManager.Enabled)
+                    detailedResultsControl.AutoExportToExcel(AutoExportResultsManager.Folder);
 
             }
 
@@ -1452,8 +1452,8 @@ namespace vApus.DistributedTesting {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
 
-                if (ExportingResultsManager.Enabled)
-                    detailedResultsControl.AutoExportToExcel(ExportingResultsManager.Folder);
+                if (AutoExportResultsManager.Enabled)
+                    detailedResultsControl.AutoExportToExcel(AutoExportResultsManager.Folder);
 
             }, null);
 

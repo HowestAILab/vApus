@@ -10,7 +10,7 @@ using RandomUtils.Log;
 namespace vApus.Util {
     public class LogPanel : FileLoggerPanel {
         public override string ToString() {
-            return "Application Logging";
+            return "Application logging";
         }
     }
 }

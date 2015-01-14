@@ -39,6 +39,7 @@
             // 
             this.tvw.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.tvw.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvw.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tvw.HideSelection = false;
             this.tvw.Location = new System.Drawing.Point(0, 0);
             this.tvw.Margin = new System.Windows.Forms.Padding(0);

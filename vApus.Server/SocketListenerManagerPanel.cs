@@ -148,7 +148,7 @@ namespace vApus.Server {
         }
 
         public override string ToString() {
-            return "Socket Listener Manager";
+            return "Socket listener manager";
         }
         #endregion
     }

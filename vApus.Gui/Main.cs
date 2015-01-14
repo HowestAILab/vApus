@@ -32,7 +32,7 @@ namespace vApus.Gui {
         private Win32WindowMessageHandler _msgHandler;
         private bool _saveAndCloseOnUpdate = false; // To set the buttons of the messagebox.
 
-        private readonly WelcomeView _welcomeView = new WelcomeView();
+        private readonly FirstStepsView _firstStepsView = new FirstStepsView();
         private readonly AboutDialog _aboutDialog = new AboutDialog();
         private LogErrorToolTip _logErrorToolTip;
 
@@ -43,7 +43,7 @@ namespace vApus.Gui {
         //private ProcessorAffinityPanel _processorAffinityPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
         private SavingResultsPanel _savingResultsPanel;
-        private ExportingResultsPanel _exportingResultsPanel;
+        private AutoExportResultsPanel _exportingResultsPanel;
         private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
         private CleanTempDataPanel _cleanTempDataPanel;
         #endregion
@@ -77,8 +77,8 @@ namespace vApus.Gui {
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
-                if (Solution.ShowStresstestingSolutionExplorer() && Settings.Default.GreetWithWelcomePage)
-                    _welcomeView.Show(dockPanel);
+                if (Solution.ShowStresstestingSolutionExplorer() && Settings.Default.GreetWithFirstStepsView)
+                    _firstStepsView.Show(dockPanel);
                 OnActiveSolutionChanged(null);
 
                 string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
@@ -114,7 +114,9 @@ namespace vApus.Gui {
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
-                _exportingResultsPanel = new ExportingResultsPanel();
+                _exportingResultsPanel = new AutoExportResultsPanel();
+
+                _firstStepsView.LinkClicked += _firstStepsView_LinkClicked;
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed initializing GUI.", ex);
             }
@@ -275,7 +277,7 @@ namespace vApus.Gui {
                 if (_optionsDialog != null && !_optionsDialog.IsDisposed)
                     _optionsDialog.Close();
 
-                _welcomeView.DisableFormClosingEventHandling();
+                _firstStepsView.DisableFormClosingEventHandling();
             }
 
             base.WndProc(ref m);
@@ -333,10 +335,10 @@ namespace vApus.Gui {
                         Solution.SaveActiveSolution();
                     tmrSetStatusStrip.Stop();
 
-                    _welcomeView.DisableFormClosingEventHandling();
+                    _firstStepsView.DisableFormClosingEventHandling();
                     //For the DockablePanels that are shown as dockstate document, otherwise the form won't close.
-                    _welcomeView.Hide();
-                    _welcomeView.Close();
+                    _firstStepsView.Hide();
+                    _firstStepsView.Close();
                     SolutionComponentViewManager.DisposeViews();
                     e.Cancel = false;
                 } else if (result == DialogResult.Cancel) {
@@ -345,10 +347,10 @@ namespace vApus.Gui {
             } else {
                 tmrSetStatusStrip.Stop();
 
-                _welcomeView.DisableFormClosingEventHandling();
+                _firstStepsView.DisableFormClosingEventHandling();
                 //For the DockablePanels that are shown as dockstate document, otherwise the form won't close.
-                _welcomeView.Hide();
-                _welcomeView.Close();
+                _firstStepsView.Hide();
+                _firstStepsView.Close();
                 SolutionComponentViewManager.DisposeViews();
                 e.Cancel = false;
             }
@@ -445,10 +447,10 @@ namespace vApus.Gui {
         #endregion
 
         #region View
-        private void welcomeToolStripMenuItem_Click(object sender, EventArgs e) {
-            _welcomeView.Show(dockPanel);
+        private void firstStepsToolStripMenuItem_Click(object sender, EventArgs e) {
+            _firstStepsView.Show(dockPanel);
             //Show it again the next time.
-            Settings.Default.GreetWithWelcomePage = true;
+            Settings.Default.GreetWithFirstStepsView = true;
             Settings.Default.Save();
         }
 
@@ -617,6 +619,8 @@ namespace vApus.Gui {
             //}
         }
 
+        private void _firstStepsView_LinkClicked(object sender, FirstStepsView.LinkClickedEventArgs e) { ShowOptionsDialog(e.OptionsIndex); }
+
         private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 
         private void lblLogLevel_Click(object sender, EventArgs e) { ShowOptionsDialog(1); }
@@ -627,9 +631,9 @@ namespace vApus.Gui {
 
         //private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
 
-        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
+        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
 
-        private void lblWarning_Click(object sender, EventArgs e) { if (lblWarning.Text.StartsWith("Windows")) ShowOptionsDialog(6); else ShowOptionsDialog(5); }
+        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
         #endregion
     }
 }

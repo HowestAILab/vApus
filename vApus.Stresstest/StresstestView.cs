@@ -905,8 +905,8 @@ namespace vApus.Stresstest {
                     detailedResultsControl.RefreshResults(_resultsHelper);
                     this.Enabled = true;
 
-                    if (ExportingResultsManager.Enabled && _stresstestStatus == StresstestStatus.Ok)
-                        detailedResultsControl.AutoExportToExcel(ExportingResultsManager.Folder);
+                    if (AutoExportResultsManager.Enabled && _stresstestStatus == StresstestStatus.Ok)
+                        detailedResultsControl.AutoExportToExcel(AutoExportResultsManager.Folder);
                 }
 
                 if (exception == null) {

@@ -1,6 +1,6 @@
 ﻿namespace vApus.Util
 {
-    partial class ExportingResultsPanel
+    partial class AutoExportResultsPanel
     {
         /// <summary>
         /// Required designer variable.

@@ -216,7 +216,7 @@ namespace vApus.Util {
             txtSmtp.TextChanged += txt_TextChanged;
         }
 
-        public override string ToString() { return "Test Progress Notifier"; }
+        public override string ToString() { return "Test progress notifier"; }
         #endregion
     }
 }

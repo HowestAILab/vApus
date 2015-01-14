@@ -38,12 +38,12 @@ namespace vApus.Gui.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("True")]
-        public bool GreetWithWelcomePage {
+        public bool GreetWithFirstStepsView {
             get {
-                return ((bool)(this["GreetWithWelcomePage"]));
+                return ((bool)(this["GreetWithFirstStepsView"]));
             }
             set {
-                this["GreetWithWelcomePage"] = value;
+                this["GreetWithFirstStepsView"] = value;
             }
         }
         

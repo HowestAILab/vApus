@@ -13,13 +13,13 @@ namespace vApus.Util {
     /// <summary>
     /// Used in vApus.Util.OptionsDialog.
     /// </summary>
-    public partial class ExportingResultsPanel : Panel {
+    public partial class AutoExportResultsPanel : Panel {
 
         #region Constructor
         /// <summary>
         /// Used in vApus.Util.OptionsDialog.
         /// </summary>
-        public ExportingResultsPanel() {
+        public AutoExportResultsPanel() {
             InitializeComponent();
             if (IsHandleCreated) SetGui();
             else HandleCreated += ExportingResultsPanel_HandleCreated;
@@ -34,8 +34,8 @@ namespace vApus.Util {
         }
 
         private void SetGui() {
-            if (ExportingResultsManager.Enabled) btnEnableDisable.PerformClick();
-            txtFolder.Text = ExportingResultsManager.Folder;
+            if (AutoExportResultsManager.Enabled) btnEnableDisable.PerformClick();
+            txtFolder.Text = AutoExportResultsManager.Folder;
         }
         private void btnBrowse_Click(object sender, EventArgs e) {
             if (fbd.ShowDialog() == DialogResult.OK)
@@ -43,23 +43,23 @@ namespace vApus.Util {
         }
 
         private void txtFolder_TextChanged(object sender, EventArgs e) {
-            ExportingResultsManager.Folder = txtFolder.Text;
+            AutoExportResultsManager.Folder = txtFolder.Text;
         }
 
         private void btnEnableDisable_Click(object sender, EventArgs e) {
             if (btnEnableDisable.Text == "Disable") {
                 btnEnableDisable.Text = "Enable";
-                grp.Enabled = ExportingResultsManager.Enabled = false;
+                grp.Enabled = AutoExportResultsManager.Enabled = false;
                 txtFolder.BackColor = SystemColors.Control;
             } else {
                 btnEnableDisable.Text = "Disable";
-                grp.Enabled = ExportingResultsManager.Enabled = true;
+                grp.Enabled = AutoExportResultsManager.Enabled = true;
                 txtFolder.BackColor = Color.White;
             }
         }
 
         public override string ToString() {
-            return "Exporting Test Results";
+            return "Auto-export test results";
         }
 
         #endregion
