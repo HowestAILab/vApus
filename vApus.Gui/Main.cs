@@ -576,7 +576,7 @@ namespace vApus.Gui {
                 double tempDataSizeInMB = _cleanTempDataPanel.TempDataSizeInMB;
                 lblTempDataSize.Text = tempDataSizeInMB + " MB";
 
-                if (tempDataSizeInMB == 0)
+                if (tempDataSizeInMB < 1.0)
                     lblCleanTempData.Visible =
                         lblTempDataSize.Visible = lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = false;
                 else
