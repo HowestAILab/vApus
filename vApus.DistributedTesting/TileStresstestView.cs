@@ -125,7 +125,7 @@ namespace vApus.DistributedTesting {
             try {
                 _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
             } catch {
-                throw new Exception("MAKE SURE THAT YOU DO NOT TARGET 'localhost', '127.0.0.1', '0:0:0:0:0:0:0:1' or '::1' IN 'Options' > 'Saving Test Results'!\nA connection to the results server could not be made!");
+                throw new Exception("MAKE SURE THAT YOU DO NOT TARGET 'localhost', '127.0.0.1', '0:0:0:0:0:0:0:1' or '::1' IN 'Options' > 'Saving Test Results' and that the connection limit (max_connections setting in my.ini) is set high enough!\nA connection to the results server could not be made!");
             }
         }
         /// <summary>
