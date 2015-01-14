@@ -205,7 +205,7 @@
             this.llblFirewall.TabIndex = 1;
             this.llblFirewall.TabStop = true;
             this.llblFirewall.Tag = "7";
-            this.llblFirewall.Text = "Disable the Windows firwall and Windows update to ensure that communication won\'t" +
+            this.llblFirewall.Text = "Disable the Windows firewall and Windows update to ensure that communication won\'t" +
     " be blocked\r\nand that the client will not restart automatically to install updat" +
     "es";
             this.llblFirewall.VisitedLinkColor = System.Drawing.Color.Black;
