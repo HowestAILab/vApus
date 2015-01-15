@@ -40,7 +40,7 @@ namespace vApus.Results {
 
         private FunctionOutputCache _functionOutputCache = new FunctionOutputCache(); //For caching the not so stored procedure data.
 
-        private List<string> _logs = new List<string>();
+        private ConcurrentBag<string> _logs = new ConcurrentBag<string>();
         #endregion
 
         #region Properties
@@ -243,7 +243,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             _stresstestResultId, Parse(stresstestResult.StoppedAt), status, statusMessage)
                         );
 
-                    ForceAddLogEntries();
+                    DoAddLogEntries();
                 }
             }
         }
@@ -381,7 +381,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
                     _databaseActions.ExecuteSQL(string.Format("UPDATE runresults SET TotalLogEntryCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalLogEntryCount, Parse(runResult.StoppedAt)));
 
-                    ForceAddLogEntries();
+                    DoAddLogEntries();
                 }
             }
         }
@@ -424,7 +424,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 }
                 Thread.CurrentThread.CurrentCulture = prevCulture;
 
-                ForceAddLogEntries();
+                DoAddLogEntries();
             }
         }
 
@@ -433,37 +433,22 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         #endregion
 
         /// <summary>
-        /// Kept in memory and added every 10 seconds.
+        /// Kept in memory and added every run and when the test ends.
         /// </summary>
         /// <param name="level"></param>
         /// <param name="entry"></param>
         public void AddLogEntry(int level, string entry) {
-            lock (_lock) 
-                if (_vApusInstanceId > 0 && _databaseActions != null) {
-                    _logs.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", _vApusInstanceId, Parse(DateTime.Now), level, entry));
-
-                    if (_logs.GetTag() == null)
-                        _logs.SetTag(new Timer(AddLogEntryCallback, null, 10000, Timeout.Infinite));
-                }
+            if (_vApusInstanceId > 0 && _databaseActions != null)
+                _logs.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", _vApusInstanceId, Parse(DateTime.Now), level, entry));
         }
-        private void ForceAddLogEntries() {
-            if (_logs.Count != 0) {
-                var logTimer = _logs.GetTag() as Timer;
-
-                if (logTimer != null) {
-                    logTimer.Dispose();
-                    _logs.RemoveTag();
-                }
-
-                if (_vApusInstanceId > 0 && _databaseActions != null)
-                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO logs(vApusInstanceId, Timestamp, Level, Entry) VALUES {0};", _logs.Combine(", ")));
-
-                _logs.Clear();
+        private void DoAddLogEntries() {
+            string[] logs = _logs.ToArray();
+            if (logs.Length != 0) {
+                if (_vApusInstanceId > 0 && _databaseActions != null) 
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO logs(vApusInstanceId, Timestamp, Level, Entry) VALUES {0};", logs.Combine(", ")));
+                _logs = new ConcurrentBag<string>();
             }
-        }
-        private void AddLogEntryCallback(object state) {
-            lock (_lock) ForceAddLogEntries();
-
+            logs = null;
         }
 
         //For getting stuff fom the database ReaderAndCombiner is used: You can execute a many-to-one distributed test (a tests workload divided over multiple slaves);
