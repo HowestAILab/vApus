@@ -1388,7 +1388,7 @@ namespace vApus.DistributedTesting {
             //            WriteMonitorRestConfig();
             //            WriteMonitorRestProgress();
 
-            MonitorBeforeDone();
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => MonitorBeforeDone(), null);
         }
         private void MonitorBeforeDone() {
             try {
