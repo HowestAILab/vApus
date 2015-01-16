@@ -475,7 +475,7 @@
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />
-    <Compile Include="ActiveObject\BackgroundWorkQueueWrapper.cs" />
+    <Compile Include="BackgroundWorkQueueWrapper.cs" />
     <Compile Include="ObjectService\ObjectRegistrar.cs" />
     <Compile Include="StringTree.cs" />
     <Compile Include="StringUtil.cs" />
