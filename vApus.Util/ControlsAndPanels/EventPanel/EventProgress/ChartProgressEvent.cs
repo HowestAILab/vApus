@@ -108,7 +108,7 @@ namespace vApus.Util {
         public void Draw(Graphics g) {
             try {
                 int x = X;
-                if (x > 1073741951) //Max value possible, Google it if you want
+                if (x < 1073741952) //Max value possible, Google it if you want
                     g.DrawLine(_entered ? _selectedPen : _pen, x, 0, x, _parent.Bounds.Height);
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed drawing line.", ex, new object[] { g, X, _parent.Bounds.Height });

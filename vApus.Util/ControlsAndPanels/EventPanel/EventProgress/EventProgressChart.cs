@@ -214,7 +214,7 @@ namespace vApus.Util {
                         entered = pe;
                     } else {
                         int x = pe.X;
-                        if (x <= 1073741951 && !Xs.Contains(x)) { //Max value possible, Google it if you want
+                        if (x < 1073741952 && !Xs.Contains(x)) { //Max value possible, Google it if you want
                             Xs.Add(x);
                             pe.Draw(g);
                         }
