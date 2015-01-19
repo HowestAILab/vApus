@@ -159,6 +159,8 @@ namespace vApus.Util {
                     if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
                         _versionChanged = false;
                         _refreshed = false;
+
+                        _canRefreshNamedMutex.ReleaseMutex();
                         return;
                     }
 
@@ -203,9 +205,12 @@ namespace vApus.Util {
                     _failedRefresh = true;
                     _refreshed = false;
                 } finally {
-                    if (Directory.Exists(tempFolder))
-                        Directory.Delete(tempFolder, true);
-                    _canRefreshNamedMutex.ReleaseMutex();
+                    try {
+                        if (Directory.Exists(tempFolder))
+                            Directory.Delete(tempFolder, true);
+                    } finally {
+                        _canRefreshNamedMutex.ReleaseMutex();
+                    }
                 }
         }
 
