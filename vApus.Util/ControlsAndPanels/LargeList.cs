@@ -350,6 +350,8 @@ namespace vApus.Util {
             if (_controlCount == MAXCAPACITY)
                 throw new OverflowException("The maximum capacity is 134 217 728.");
 
+            _drawHeight = scrollbar.Visible ? flpnl.Height : flpnl.Height - 18;
+
             if (_controls.Count == 0) {
                 _controls.Add(new List<Control>());
                 _scrollValues.Add(0);
@@ -859,6 +861,10 @@ namespace vApus.Util {
         }
 
         public void RefreshControls() {
+            if (this.Height == 0) return;
+
+            _drawHeight = scrollbar.Visible ? flpnl.Height : flpnl.Height - 18;
+
             Cursor = Cursors.WaitCursor;
             int previousScrollValue = scrollbar.Value;
             var copy = new List<List<Control>>(_controls);
@@ -1369,8 +1375,6 @@ namespace vApus.Util {
 
         #region EventHandling
 
-        #region This
-
         /// <summary>
         ///     For the selectionbox.
         /// </summary>
@@ -1427,7 +1431,9 @@ namespace vApus.Util {
         public void PerformResize(bool force = false) {
             if (Height != 0) {
                 int previousVSBValue = scrollbar.Value;
-                _drawHeight = flpnl.Height;
+
+                _drawHeight = scrollbar.Visible ? flpnl.Height : flpnl.Height - 18;
+
                 if (_controls.Count > 0 && _controls[0].Count > 0) {
                     Cursor = Cursors.WaitCursor;
 
@@ -1507,8 +1513,6 @@ namespace vApus.Util {
             return base.ProcessCmdKey(ref msg, keyData);
         }
 
-        #region scrollbar
-
         /// <summary>
         ///     Select the right view on valuechanged.
         /// </summary>
@@ -1560,10 +1564,6 @@ namespace vApus.Util {
             }
         }
 
-        #endregion
-
-        #region txt
-
         /// <summary>
         ///     Select the right view on keypress.
         /// </summary>
@@ -1611,10 +1611,6 @@ namespace vApus.Util {
             }
         }
 
-        #endregion
-
-        #region lblTotalViews
-
         /// <summary>
         ///     To resize the selection controls.
         /// </summary>
@@ -1628,10 +1624,6 @@ namespace vApus.Util {
             txtView.Width = lblTotalViews.Width;
             scrollbar.Width = txtView.Location.X - 1;
         }
-
-        #endregion
-
-        #endregion
 
         #endregion
 
