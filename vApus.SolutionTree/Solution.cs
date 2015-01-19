@@ -5,22 +5,22 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.IO.Packaging;
+using System.Reflection;
+using System.Runtime;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using WeifenLuo.WinFormsUI.Docking;
 using vApus.SolutionTree.Properties;
 using vApus.Util;
-using System.Runtime;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Threading;
-using RandomUtils.Log;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.SolutionTree {
     /// <summary>
@@ -37,6 +37,8 @@ namespace vApus.SolutionTree {
         public static event EventHandler<ActiveSolutionChangedEventArgs> ActiveSolutionChanged;
 
         #region Fields
+        private static readonly Mutex _canSaveSettingshNamedMutex = new Mutex(true, Assembly.GetExecutingAssembly().FullName + "_Solution");
+
 
         /// <summary>
         ///     Just the type is registered of a project group (Do this in the Link.Linker (Solution.RegisterProjectType(typeof(...))).
@@ -524,7 +526,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         #region Solution itself
 
         #region Fields
-
         private readonly List<BaseProject> _projects = new List<BaseProject>();
         private string _fileName;
 
@@ -594,14 +595,20 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             FileName = fileName;
         }
 
+
         private static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e) {
-            if (_stresstestingSolutionExplorer.DockState == DockState.Hidden) {
-                Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
-                Settings.Default.Save();
-            } else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown) {
-                Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
-                Settings.Default.Save();
-            }
+            if (_canSaveSettingshNamedMutex.WaitOne(0))
+                try {
+                    if (_stresstestingSolutionExplorer.DockState == DockState.Hidden) {
+                        Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
+                        Settings.Default.Save();
+                    } else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown) {
+                        Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
+                        Settings.Default.Save();
+                    }
+                } finally {
+                    _canSaveSettingshNamedMutex.ReleaseMutex();
+                }
         }
 
         #endregion

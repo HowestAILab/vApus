@@ -1,18 +1,21 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using Tamir.SharpSsh;
 using vApus.Util.Properties;
+using System.Linq;
+using System.Reflection;
 
 namespace vApus.Util {
     public enum UpdateNotifierState {
@@ -33,6 +36,8 @@ namespace vApus.Util {
     /// </summary>
     public static class UpdateNotifier {
         #region Fields
+        private static readonly Mutex _canRefreshNamedMutex = new Mutex(true, Assembly.GetExecutingAssembly().FullName + "_UpdateNotifier");
+
         private static bool _failedRefresh;
         private static bool _versionChanged;
         private static bool _refreshed;
@@ -138,67 +143,70 @@ namespace vApus.Util {
         public static void Refresh() {
             string tempFolder = Path.Combine(Application.StartupPath, "tempForUpdateNotifier");
 
-            try {
-                string currentVersionIni = Path.Combine(Application.StartupPath, "version.ini");
-                CurrentVersion = GetVersion(currentVersionIni);
-                CurrentChannel = GetChannel(currentVersionIni);
+            _refreshed = false;
+            if (_canRefreshNamedMutex.WaitOne(0))
+                try {
+                    string currentVersionIni = Path.Combine(Application.StartupPath, "version.ini");
+                    CurrentVersion = GetVersion(currentVersionIni);
+                    CurrentChannel = GetChannel(currentVersionIni);
 
-                string host, username, password;
-                int port, channel;
-                bool smartUpdate;
-                GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                    string host, username, password;
+                    int port, channel;
+                    bool smartUpdate;
+                    GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
 
-                _failedRefresh = false;
-                if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
-                    _versionChanged = false;
+                    _failedRefresh = false;
+                    if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
+                        _versionChanged = false;
+                        _refreshed = false;
+                        return;
+                    }
+
+                    var sftp = new Sftp(host, username, password);
+                    sftp.Connect(port);
+
+                    try {
+                        if (Directory.Exists(tempFolder) &&
+                        Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
+                            Directory.Delete(tempFolder, true);
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Warning, "Failed deleting the temp dir.", ex);
+                    }
+
+                    Directory.CreateDirectory(tempFolder);
+
+                    string tempVersion = Path.Combine(tempFolder, "version.ini");
+
+                    try {
+                        if (File.Exists(tempVersion)) File.Delete(tempVersion);
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Warning, "Failed deleting the temp version.", ex);
+                    }
+
+                    string channelDir = channel == 0 ? "stable" : "nightly";
+                    sftp.Get(channelDir + "/version.ini", tempVersion);
+
+                    try { sftp.Close(); } finally { sftp = null; }
+
+                    _newVersion = GetVersion(tempVersion);
+                    _newChannel = GetChannel(tempVersion);
+
+                    _newHistory = GetHistory(tempVersion);
+
+                    if (_newVersion.Length == 0 || _newChannel.Length == 0 || _newHistory.Length == 0)
+                        throw new Exception("Could not fetch the versioning data.");
+
+                    _versionChanged = (CurrentVersion != _newVersion) || (CurrentChannel != _newChannel);
+
+                    _refreshed = true;
+                } catch {
+                    _failedRefresh = true;
                     _refreshed = false;
-                    return;
-                }
-
-                var sftp = new Sftp(host, username, password);
-                sftp.Connect(port);
-
-                try {
-                    if (Directory.Exists(tempFolder) &&
-                    Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
+                } finally {
+                    if (Directory.Exists(tempFolder))
                         Directory.Delete(tempFolder, true);
-                } catch (Exception ex) {
-                    Loggers.Log(Level.Warning, "Failed deleting the temp dir.", ex);
+                    _canRefreshNamedMutex.ReleaseMutex();
                 }
-
-                Directory.CreateDirectory(tempFolder);
-
-                string tempVersion = Path.Combine(tempFolder, "version.ini");
-
-                try {
-                    if (File.Exists(tempVersion)) File.Delete(tempVersion);
-                } catch (Exception ex) {
-                    Loggers.Log(Level.Warning, "Failed deleting the temp version.", ex);
-                }
-
-                string channelDir = channel == 0 ? "stable" : "nightly";
-                sftp.Get(channelDir + "/version.ini", tempVersion);
-
-                try { sftp.Close(); } finally { sftp = null; }
-
-                _newVersion = GetVersion(tempVersion);
-                _newChannel = GetChannel(tempVersion);
-
-                _newHistory = GetHistory(tempVersion);
-
-                if (_newVersion.Length == 0 || _newChannel.Length == 0 || _newHistory.Length == 0)
-                    throw new Exception("Could not fetch the versioning data.");
-
-                _versionChanged = (CurrentVersion != _newVersion) || (CurrentChannel != _newChannel);
-
-                _refreshed = true;
-            } catch {
-                _failedRefresh = true;
-                _refreshed = false;
-            } finally {
-                if (Directory.Exists(tempFolder))
-                    Directory.Delete(tempFolder, true);
-            }
         }
 
         private static string GetVersion(string versionIniPath) {
