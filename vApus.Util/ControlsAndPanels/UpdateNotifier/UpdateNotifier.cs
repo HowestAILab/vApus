@@ -36,7 +36,6 @@ namespace vApus.Util {
     /// </summary>
     public static class UpdateNotifier {
         #region Fields
-        private static readonly Mutex _canRefreshNamedMutex = new Mutex(true, Assembly.GetExecutingAssembly().FullName + "_UpdateNotifier");
 
         private static bool _failedRefresh;
         private static bool _versionChanged;
@@ -144,7 +143,10 @@ namespace vApus.Util {
             string tempFolder = Path.Combine(Application.StartupPath, "tempForUpdateNotifier");
 
             _refreshed = false;
-            if (_canRefreshNamedMutex.WaitOne(0))
+
+            bool mutexCreated;
+            var canRefreshNamedMutex = new Mutex(true, "vApus_UpdateNotifier", out mutexCreated);
+            if (mutexCreated || canRefreshNamedMutex.WaitOne(0))
                 try {
                     string currentVersionIni = Path.Combine(Application.StartupPath, "version.ini");
                     CurrentVersion = GetVersion(currentVersionIni);
@@ -159,8 +161,6 @@ namespace vApus.Util {
                     if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
                         _versionChanged = false;
                         _refreshed = false;
-
-                        _canRefreshNamedMutex.ReleaseMutex();
                         return;
                     }
 
@@ -209,7 +209,7 @@ namespace vApus.Util {
                         if (Directory.Exists(tempFolder))
                             Directory.Delete(tempFolder, true);
                     } finally {
-                        _canRefreshNamedMutex.ReleaseMutex();
+                        canRefreshNamedMutex.ReleaseMutex();
                     }
                 }
         }

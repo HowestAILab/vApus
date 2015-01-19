@@ -37,8 +37,6 @@ namespace vApus.SolutionTree {
         public static event EventHandler<ActiveSolutionChangedEventArgs> ActiveSolutionChanged;
 
         #region Fields
-        private static readonly Mutex _canSaveSettingshNamedMutex = new Mutex(true, Assembly.GetExecutingAssembly().FullName + "_Solution");
-
 
         /// <summary>
         ///     Just the type is registered of a project group (Do this in the Link.Linker (Solution.RegisterProjectType(typeof(...))).
@@ -597,7 +595,10 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
 
         private static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e) {
-            if (_canSaveSettingshNamedMutex.WaitOne(0))
+            bool mutexCreated;
+            var canSaveSettingshNamedMutex = new Mutex(true, "vApus_SolutionTree", out mutexCreated);
+
+            if (mutexCreated || canSaveSettingshNamedMutex.WaitOne(0))
                 try {
                     if (_stresstestingSolutionExplorer.DockState == DockState.Hidden) {
                         Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
@@ -607,7 +608,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                         Settings.Default.Save();
                     }
                 } finally {
-                    _canSaveSettingshNamedMutex.ReleaseMutex();
+                    canSaveSettingshNamedMutex.ReleaseMutex();
                 }
         }
 
