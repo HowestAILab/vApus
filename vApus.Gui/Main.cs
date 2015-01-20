@@ -516,9 +516,9 @@ namespace vApus.Gui {
         #region Status Strip
         private void Main_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
             try {
-                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    try {
-                        if (e.Entry.Level > Level.Warning) {
+                if (e.Entry.Level > Level.Warning)
+                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                        try {
                             //Show the error messages in a tooltip.
                             _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
 
@@ -528,11 +528,11 @@ namespace vApus.Gui {
 
                                 _logErrorToolTip.Show(this, x, y);
                             }
+
+                        } catch (Exception ex) {
+                            Loggers.Log(Level.Error, "Failed displaying the error log tooltip.", ex, new object[] { sender, e });
                         }
-                    } catch (Exception ex) {
-                        Loggers.Log(Level.Error, "Failed displaying the error log tooltip.", ex, new object[] { sender, e });
-                    }
-                }, null);
+                    }, null);
 
             } catch (Exception exc) {
                 Loggers.Log(Level.Error, "Failed displaying the error log tooltip.", exc, new object[] { sender, e });
