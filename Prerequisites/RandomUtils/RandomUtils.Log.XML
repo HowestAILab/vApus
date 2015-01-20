@@ -287,7 +287,7 @@
             <para>Handy for instance when you want to read from a file that is being written to.</para>
             </summary>
         </member>
-        <member name="M:RandomUtils.Log.Logger.ContinueProcessingWriteLogEnriesWorkQueue">
+        <member name="M:RandomUtils.Log.Logger.ContinueProcessingWriteLogEntriesWorkQueue">
             <summary>
             Resumes the processing of the work queue.
             </summary>
@@ -364,6 +364,11 @@
             <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
             <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
             <returns>A new entry encapsulating the given json.</returns>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.Flush">
+            <summary>
+            Wait untill all log entries are written. Do this before the application exits (if need be).
+            </summary>
         </member>
         <member name="M:RandomUtils.Log.Logger.DeserializeLog(System.String)">
             <summary>
@@ -583,6 +588,11 @@
             <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
             <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
             <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.Flush">
+            <summary>
+            Wait untill all log entries are written. Do this before the application exits (if need be).
+            </summary>
         </member>
         <member name="P:RandomUtils.Log.Loggers.AvailableLoggers">
             <summary>
