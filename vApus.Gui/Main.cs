@@ -220,7 +220,8 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
-            _optionsDialog.ShowDialog(this);
+            if (!_optionsDialog.Visible)
+                _optionsDialog.ShowDialog(this);
             SetStatusStrip();
             Cursor = Cursors.Default;
         }
