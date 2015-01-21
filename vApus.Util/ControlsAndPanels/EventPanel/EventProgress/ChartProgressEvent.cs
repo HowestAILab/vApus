@@ -1,11 +1,11 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Drawing;
 using System.Windows.Forms;
@@ -68,9 +68,9 @@ namespace vApus.Util {
         /// <summary>
         ///     The location where it is drawn (only x changes).
         /// </summary>
-        public Point Location { get { return new Point(X, 0); } }
+      //  public Point Location { get { return new Point(X, 0); } }
 
-        private int X {
+        public int X {
             get {
                 //Rule of 3
                 double at = (_at - _parent.BeginOfTimeFrame).Ticks;
@@ -82,12 +82,11 @@ namespace vApus.Util {
                 //Correct out of bounds
                 if (x < 0)
                     x = 0;
-                else if (x + WIDTH > _parent.Width)
-                    //-1 for the border.
+                else if (x + WIDTH > _parent.Width) {
+                    x = _parent.Width - WIDTH;
                     if (_parent.BorderStyle == BorderStyle.None)
-                        x = _parent.Width - WIDTH;
-                    else
-                        x = _parent.Width - WIDTH - 1;
+                        x -= 1; //-1 for the border
+                }
 
                 return x;
             }
@@ -108,8 +107,9 @@ namespace vApus.Util {
         /// <param name="g"></param>
         public void Draw(Graphics g) {
             try {
-                int x = X; 
-                g.DrawLine(_entered ? _selectedPen : _pen, x, 0, x, _parent.Bounds.Height);
+                int x = X;
+                if (x < 1073741952) //Max value possible, Google it if you want
+                    g.DrawLine(_entered ? _selectedPen : _pen, x, 0, x, _parent.Bounds.Height);
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed drawing line.", ex, new object[] { g, X, _parent.Bounds.Height });
             }

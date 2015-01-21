@@ -206,16 +206,23 @@ namespace vApus.Util {
                 DrawBackground(g);
                 ChartProgressEvent entered = null;
 
-                //Do this in reversed order --> the most important are drawn last.
-                for (int i = _sortedProgressEvents.Count - 1; i != -1; i--) {
+                //Make sure the most important events are drawn, hidden events won't be drawn.
+                var Xs = new HashSet<int>();
+                for (int i = 0; i != _sortedProgressEvents.Count; i++) {
                     ChartProgressEvent pe = _sortedProgressEvents[i];
-                    if (pe.Entered)
+                    if (pe.Entered) {
                         entered = pe;
-                    else
-                        pe.Draw(g);
+                    } else {
+                        int x = pe.X;
+                        if (x < 1073741952 && !Xs.Contains(x)) { //Max value possible, Google it if you want
+                            Xs.Add(x);
+                            pe.Draw(g);
+                        }
+                    }
                 }
+                Xs = null;
                 if (entered != null)
-                    entered.Draw(g);
+                    entered.Draw(g); //Out of bounds check is also done in the fx
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed drawing the chart.", ex, new object[] { e });
             }
@@ -233,7 +240,7 @@ namespace vApus.Util {
             }
 
             if (_nowProgressEvent != null)
-                g.FillRectangle(_brush, 0, 0, _nowProgressEvent.Location.X + ChartProgressEvent.WIDTH, Bounds.Height);
+                g.FillRectangle(_brush, 0, 0, _nowProgressEvent.X + ChartProgressEvent.WIDTH, Bounds.Height);
         }
 
         protected override void OnMouseMove(MouseEventArgs e) {
@@ -290,7 +297,7 @@ namespace vApus.Util {
         private ChartProgressEvent GetHoveredProgressEvent() {
             Point p = PointToClient(Cursor.Position);
             foreach (ChartProgressEvent pe in _sortedProgressEvents) {
-                Point location = pe.Location;
+                Point location = new Point(pe.X, 0);
                 if (p.X >= location.X &&
                     p.X <= location.X + ChartProgressEvent.WIDTH)
                     return pe;
