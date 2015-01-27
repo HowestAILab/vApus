@@ -227,7 +227,9 @@ namespace vApus.DistributedTesting {
         public void SetEvents(List<EventPanelEvent> events) {
             ClearEvents();
             foreach (EventPanelEvent epe in events)
-                eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
+                eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+
+            eventProgressChart.Invalidate();
 
             EventPanelEvent lastEpe = new EventPanelEvent();
             lastEpe.Message = string.Empty;

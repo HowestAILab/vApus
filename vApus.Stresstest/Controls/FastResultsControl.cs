@@ -542,6 +542,7 @@ namespace vApus.Stresstest {
             }
         }
 
+        public void SetEventFilter(EventViewEventType filter) { epnlMessages.Filter = filter; }
         /// <summary>
         /// Append stresstest progress and error messages.
         /// </summary>
@@ -732,9 +733,9 @@ namespace vApus.Stresstest {
                 splitTop.BackColor = SystemColors.Control;
             }
         }
-        public void ExpandEventPanel() {
-            epnlMessages.Collapsed = false;
-        }
+        public void ExpandEventPanel() { epnlMessages.Collapsed = false; }
+        public void CollapseEventPanel() { epnlMessages.Collapsed = true; }
+
         /// <summary>
         /// Set the splitter distance of the splitcontainer if collapsed has changed.
         /// </summary>

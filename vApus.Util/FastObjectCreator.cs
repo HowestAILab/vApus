@@ -30,7 +30,7 @@ namespace vApus.Util {
             var cacheEntry = FunctionOutputCacheWrapper.FunctionOutputCache.GetOrAdd(MethodBase.GetCurrentMethod(), type);
 
             if (cacheEntry.ReturnValue == null) {
-                DynamicMethod method = new DynamicMethod(string.Empty, type, null);
+                var method = new DynamicMethod(string.Empty, type, null);
 
                 ILGenerator gen = method.GetILGenerator();
                 gen.Emit(OpCodes.Newobj, type.GetConstructor(Type.EmptyTypes));// new Ctor

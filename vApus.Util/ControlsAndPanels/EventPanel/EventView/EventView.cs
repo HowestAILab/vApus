@@ -33,6 +33,7 @@ namespace vApus.Util {
         private EventViewItem _userEntered;
         private int _previousHeight, _previousWidth;
 
+        private Size _sizeOfI;
 
         #region Properties
         public EventViewItem UserEntered { get { return _userEntered; } }
@@ -58,16 +59,15 @@ namespace vApus.Util {
             var item = new EventViewItem(largeList, eventType, message, at);
             item.Visible = visible;
 
-            //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
-            bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
-
-
-            SetPreferredSize(item);
+            SetSize(item);
 
             largeList.Add(item, refreshGui);
 
             if (visible) {
-                if (autoScroll)
+                //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
+                bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
+
+                if (refreshGui && autoScroll)
                     largeList.ScrollIntoView(item);
 
 
@@ -81,17 +81,17 @@ namespace vApus.Util {
             return item;
         }
 
-        private void SetPreferredSize(EventViewItem item) {
+        private void SetSize(EventViewItem item) {
             LockWindowUpdate(Handle);
 
             int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left -
                         item.Margin.Right - 21;
 
-            Size size = TextRenderer.MeasureText("I", item.Font);
-            int height = size.Height + item.Padding.Top + item.Padding.Bottom;
+            if (_sizeOfI == null)
+                _sizeOfI = TextRenderer.MeasureText("I", item.Font);
+            int height = _sizeOfI.Height + item.Padding.Top + item.Padding.Bottom;
 
             item.MinimumSize = item.MaximumSize = new Size(width, height);
-
 
             LockWindowUpdate(IntPtr.Zero);
         }
@@ -135,7 +135,7 @@ namespace vApus.Util {
             base.OnResize(e);
 
             foreach (EventViewItem item in largeList.AllControls)
-                SetPreferredSize(item);
+                SetSize(item);
 
             largeList.RefreshControls();
 

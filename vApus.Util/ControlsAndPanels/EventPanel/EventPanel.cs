@@ -1,12 +1,12 @@
-﻿using RandomUtils;
-using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -192,7 +192,7 @@ namespace vApus.Util {
             }
         }
         private void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at, bool refreshGui) {
-            ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
+            ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at, refreshGui);
             EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter, refreshGui);
 
             if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {
