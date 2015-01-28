@@ -87,7 +87,7 @@ namespace vApus.Util {
             int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left -
                         item.Margin.Right - 21;
 
-            if (_sizeOfI == null)
+            if (_sizeOfI.Height == 0)
                 _sizeOfI = TextRenderer.MeasureText("I", item.Font);
             int height = _sizeOfI.Height + item.Padding.Top + item.Padding.Bottom;
 
