@@ -246,20 +246,22 @@ namespace vApus.DistributedTesting {
 
         public void SetStresstestStatus(StresstestStatus stresstestStatus) {
             _stresstestStatus = stresstestStatus;
-            eventProgressChart.SetEndOfTimeFrameToNow();
 
             switch (_stresstestStatus) {
                 case StresstestStatus.Ok:
                     picStresstestStatus.Image = Resources.OK;
                     toolTip.SetToolTip(picStresstestStatus, "Finished");
+                    eventProgressChart.SetEndOfTimeFrameToNow();
                     break;
                 case StresstestStatus.Cancelled:
                     picStresstestStatus.Image = Resources.Cancelled;
                     toolTip.SetToolTip(picStresstestStatus, "Cancelled");
+                    eventProgressChart.SetEndOfTimeFrameToNow();
                     break;
                 case StresstestStatus.Error:
                     picStresstestStatus.Image = Resources.Error;
                     toolTip.SetToolTip(picStresstestStatus, "Failed");
+                    eventProgressChart.SetEndOfTimeFrameToNow();
                     break;
             }
         }
