@@ -125,10 +125,10 @@ return start.AddTicks(randomTicks);
             var cu = new CompilerUnit();
             CompilerResults results;
             Assembly assembly = cu.Compile(_code, false, out results);
+            Type t = assembly.GetType("vApus.Stresstest.CustomRandomParameter");
 
             if (assembly != null)
-                _customRandomParameter =
-                    assembly.CreateInstance("vApus.Stresstest.CustomRandomParameter") as ICustomRandomParameter;
+                _customRandomParameter = FastObjectCreator.CreateInstance(t) as ICustomRandomParameter;
 
             return results;
         }
