@@ -67,7 +67,7 @@ namespace vApus.Util {
                 //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
                 bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
 
-                if (refreshGui && autoScroll)
+                if (autoScroll)
                     largeList.ScrollIntoView(item);
 
 
