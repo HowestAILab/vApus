@@ -61,8 +61,8 @@ namespace vApus.DistributedTesting {
         private volatile string[] _runInitialized = new string[] { };
         private volatile ConcurrentDictionary<string, RerunCounter> _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
 
-        private TimeSpan _runSyncEstimateRuntimeLeft = TimeSpan.MinValue;
-        
+        private TimeSpan _runSyncEstimateRuntimeLeft = TimeSpan.MaxValue;
+
         private Stopwatch _sw = new Stopwatch();
 
         /// <summary>
@@ -431,6 +431,8 @@ namespace vApus.DistributedTesting {
                                     if (_runInitialized.Length == Running) {
                                         _runInitialized = new string[] { };
                                         MasterSideCommunicationHandler.SendContinue();
+
+                                        _runSyncEstimateRuntimeLeft = TimeSpan.MaxValue;
                                     }
                                 } else if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) {
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
@@ -438,15 +440,20 @@ namespace vApus.DistributedTesting {
                                         _runDoneOnce = new string[] { };
                                         //Increment the index here to be able to continue to the next run.
                                         MasterSideCommunicationHandler.SendContinue();
+
+                                        _runSyncEstimateRuntimeLeft = TimeSpan.MaxValue;
                                     } else if (_runDoneOnce.Length == 1) {
                                         //Break the tests that are still in the previous run
                                         MasterSideCommunicationHandler.SendBreak();
 
-                                        _runSyncEstimateRuntimeLeft = tpm.EstimatedRuntimeLeft;
+                                        _runSyncEstimateRuntimeLeft = new TimeSpan(0);
                                     }
                                 }
 
-                                if (_runSyncEstimateRuntimeLeft != TimeSpan.MinValue)
+                                if (tpm.EstimatedRuntimeLeft < _runSyncEstimateRuntimeLeft)
+                                    _runSyncEstimateRuntimeLeft = tpm.EstimatedRuntimeLeft;
+
+                                if (_runSyncEstimateRuntimeLeft != TimeSpan.MaxValue)
                                     tpm.EstimatedRuntimeLeft = _runSyncEstimateRuntimeLeft;
 
                                 break;
