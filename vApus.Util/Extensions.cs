@@ -24,7 +24,7 @@ using System.Windows.Forms;
 namespace vApus.Util {
     public static class AssemblyExtension {
         /// <summary>
-        /// Gets a type by its type name.
+        /// Gets a type by its non fully qualified name.
         /// </summary>
         /// <param name="assembly"></param>
         /// <param name="typeName"></param>
@@ -43,65 +43,78 @@ namespace vApus.Util {
         }
     }
     public static class TimeSpanExtension {
-        public static string ToLongFormattedString(this TimeSpan timeSpan) {
-            StringBuilder sb = new StringBuilder();
+        /// <summary>
+        /// Milliseconds are ommited if seconds > 0
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static string ToLongFormattedString(this TimeSpan timeSpan, string returnOnZero = "--") {
+            if (timeSpan.TotalMilliseconds == 0d) return returnOnZero;
+
+            if (timeSpan.Milliseconds > 499)
+                timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
+                    .Add(new TimeSpan(0, 0, 1));
+
+            var sb = new StringBuilder();
             if (timeSpan.Days != 0) {
                 sb.Append(timeSpan.Days);
                 sb.Append(" days");
             }
             if (timeSpan.Hours != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Hours);
                 sb.Append(" hours");
             }
             if (timeSpan.Minutes != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Minutes);
                 sb.Append(" minutes");
             }
+
             if (timeSpan.Seconds != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Seconds);
                 sb.Append(" seconds");
             }
-            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+            if (timeSpan.Milliseconds != 0) {
                 sb.Append(timeSpan.Milliseconds);
                 sb.Append(" milliseconds");
             }
             return sb.ToString();
         }
-        public static string ToShortFormattedString(this TimeSpan timeSpan) {
-            StringBuilder sb = new StringBuilder();
+        /// <summary>
+        /// Milliseconds are ommited if seconds > 0
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static string ToShortFormattedString(this TimeSpan timeSpan, string returnOnZero = "--") {
+            if (timeSpan.TotalMilliseconds == 0d) return returnOnZero;
+
+            if (timeSpan.Milliseconds > 499) 
+                timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
+                    .Add(new TimeSpan(0, 0, 1));
+
+            var sb = new StringBuilder();
             if (timeSpan.Days != 0) {
                 sb.Append(timeSpan.Days);
                 sb.Append(" d");
             }
             if (timeSpan.Hours != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Hours);
                 sb.Append(" h");
             }
             if (timeSpan.Minutes != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Minutes);
                 sb.Append(" m");
             }
             if (timeSpan.Seconds != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Seconds);
                 sb.Append(" s");
             }
-            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+            if (timeSpan.Milliseconds != 0) {
                 sb.Append(timeSpan.Milliseconds);
                 sb.Append(" ms");
             }

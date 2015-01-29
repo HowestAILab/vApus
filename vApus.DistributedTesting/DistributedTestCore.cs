@@ -60,6 +60,9 @@ namespace vApus.DistributedTesting {
         private volatile string[] _runDoneOnce = new string[] { };
         private volatile string[] _runInitialized = new string[] { };
         private volatile ConcurrentDictionary<string, RerunCounter> _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
+
+        private TimeSpan _runSyncEstimateRuntimeLeft = TimeSpan.MinValue;
+        
         private Stopwatch _sw = new Stopwatch();
 
         /// <summary>
@@ -438,6 +441,8 @@ namespace vApus.DistributedTesting {
                                     } else if (_runDoneOnce.Length == 1) {
                                         //Break the tests that are still in the previous run
                                         MasterSideCommunicationHandler.SendBreak();
+
+                                        _runSyncEstimateRuntimeLeft = tpm.EstimatedRuntimeLeft;
                                     }
                                 }
                                 break;
