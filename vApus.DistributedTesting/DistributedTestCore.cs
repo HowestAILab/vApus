@@ -445,6 +445,10 @@ namespace vApus.DistributedTesting {
                                         _runSyncEstimateRuntimeLeft = tpm.EstimatedRuntimeLeft;
                                     }
                                 }
+
+                                if (_runSyncEstimateRuntimeLeft != TimeSpan.MinValue)
+                                    tpm.EstimatedRuntimeLeft = _runSyncEstimateRuntimeLeft;
+
                                 break;
 
                             //Wait for all stopped, send continue, wait for all started, send continue
