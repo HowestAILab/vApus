@@ -54,6 +54,8 @@ namespace vApus.Util {
             if (timeSpan.Milliseconds > 499)
                 timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
                     .Add(new TimeSpan(0, 0, 1));
+            else timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds));
+
 
             var sb = new StringBuilder();
             if (timeSpan.Days != 0) {
@@ -90,9 +92,10 @@ namespace vApus.Util {
         public static string ToShortFormattedString(this TimeSpan timeSpan, string returnOnZero = "--") {
             if (timeSpan.TotalMilliseconds == 0d) return returnOnZero;
 
-            if (timeSpan.Milliseconds > 499) 
+            if (timeSpan.Milliseconds > 499)
                 timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
                     .Add(new TimeSpan(0, 0, 1));
+            else timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds));
 
             var sb = new StringBuilder();
             if (timeSpan.Days != 0) {
