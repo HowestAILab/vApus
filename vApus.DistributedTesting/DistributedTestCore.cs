@@ -61,8 +61,6 @@ namespace vApus.DistributedTesting {
         private volatile string[] _runInitialized = new string[] { };
         private volatile ConcurrentDictionary<string, RerunCounter> _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
 
-        private TimeSpan _runSyncEstimateRuntimeLeft = TimeSpan.MaxValue;
-
         private Stopwatch _sw = new Stopwatch();
 
         /// <summary>
@@ -431,8 +429,6 @@ namespace vApus.DistributedTesting {
                                     if (_runInitialized.Length == Running) {
                                         _runInitialized = new string[] { };
                                         MasterSideCommunicationHandler.SendContinue();
-
-                                        _runSyncEstimateRuntimeLeft = TimeSpan.MaxValue;
                                     }
                                 } else if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) {
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
@@ -440,22 +436,11 @@ namespace vApus.DistributedTesting {
                                         _runDoneOnce = new string[] { };
                                         //Increment the index here to be able to continue to the next run.
                                         MasterSideCommunicationHandler.SendContinue();
-
-                                        _runSyncEstimateRuntimeLeft = TimeSpan.MaxValue;
                                     } else if (_runDoneOnce.Length == 1) {
                                         //Break the tests that are still in the previous run
                                         MasterSideCommunicationHandler.SendBreak();
-
-                                        _runSyncEstimateRuntimeLeft = new TimeSpan(0);
                                     }
                                 }
-
-                                if (tpm.EstimatedRuntimeLeft < _runSyncEstimateRuntimeLeft)
-                                    _runSyncEstimateRuntimeLeft = tpm.EstimatedRuntimeLeft;
-
-                                if (_runSyncEstimateRuntimeLeft != TimeSpan.MaxValue)
-                                    tpm.EstimatedRuntimeLeft = _runSyncEstimateRuntimeLeft;
-
                                 break;
 
                             //Wait for all stopped, send continue, wait for all started, send continue
@@ -509,10 +494,47 @@ namespace vApus.DistributedTesting {
         public Dictionary<TileStresstest, TestProgressMessage> GetAllTestProgressMessages() {
             lock (_testProgressMessagesLock) {
                 var testProgressMessages = new Dictionary<TileStresstest, TestProgressMessage>(_testProgressMessages.Count);
+
+                bool sync = false;
+                TimeSpan runSyncEstimatedRuntimeLeft = TimeSpan.MinValue;
+                TimeSpan runSyncMeasuredRuntime = TimeSpan.MinValue;
+                DateTime runSyncStartedAt = DateTime.MinValue;
+                switch (_distributedTest.RunSynchronization) {
+                    case RunSynchronization.BreakOnFirstFinished:
+                        sync = true;
+                        runSyncEstimatedRuntimeLeft = TimeSpan.MaxValue;
+                        foreach (var ts in _testProgressMessages.Keys) {
+                            var tpm = GetTestProgressMessage(ts);
+                            if (tpm.TileStresstestIndex != null && tpm.EstimatedRuntimeLeft < runSyncEstimatedRuntimeLeft) {
+                                runSyncEstimatedRuntimeLeft = tpm.EstimatedRuntimeLeft;
+                                runSyncMeasuredRuntime = tpm.MeasuredRuntime;
+                                runSyncStartedAt = tpm.StartedAt;
+                            }
+                        }
+                        break;
+                    case RunSynchronization.BreakOnLastFinished:
+                        sync = true;
+                        runSyncEstimatedRuntimeLeft = TimeSpan.MinValue;
+                        foreach (var ts in _testProgressMessages.Keys) {
+                            var tpm = GetTestProgressMessage(ts);
+                            if (tpm.TileStresstestIndex != null && tpm.EstimatedRuntimeLeft > runSyncEstimatedRuntimeLeft) {
+                                runSyncEstimatedRuntimeLeft = tpm.EstimatedRuntimeLeft;
+                                runSyncMeasuredRuntime = tpm.MeasuredRuntime;
+                                runSyncStartedAt = tpm.StartedAt;
+                            }
+                        } break;
+                }
+
                 foreach (var ts in _testProgressMessages.Keys) {
                     var tpm = GetTestProgressMessage(ts);
-                    if (tpm.TileStresstestIndex != null)
+                    if (tpm.TileStresstestIndex != null) {
+                        if (sync) {
+                            tpm.EstimatedRuntimeLeft = runSyncEstimatedRuntimeLeft;
+                            tpm.MeasuredRuntime = runSyncMeasuredRuntime;
+                            tpm.StartedAt = runSyncStartedAt;
+                        }
                         testProgressMessages.Add(ts, tpm);
+                    }
                 }
                 return testProgressMessages;
             }

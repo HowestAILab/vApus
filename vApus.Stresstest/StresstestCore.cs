@@ -725,7 +725,7 @@ namespace vApus.Stresstest {
                     if (_cancel) break;
 
                     if (_runDoneOnce) {
-                        InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.White);
+                        InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.LightPink);
                     } else {
                         ++_continueCounter;
 
