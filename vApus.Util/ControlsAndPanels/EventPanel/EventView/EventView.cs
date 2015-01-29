@@ -55,7 +55,7 @@ namespace vApus.Util {
             return AddEvent(eventType, message, DateTime.Now);
         }
 
-        public EventViewItem AddEvent(EventViewEventType eventType, string message, DateTime at, bool visible = true, bool performMouseEnter = true, bool refreshGui = true) {
+        public EventViewItem AddEvent(EventViewEventType eventType, string message, DateTime at, bool visible = true, bool performMouseEnter = false, bool refreshGui = true) {
             var item = new EventViewItem(largeList, eventType, message, at);
             item.Visible = visible;
 
