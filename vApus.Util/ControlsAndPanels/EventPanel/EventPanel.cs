@@ -193,7 +193,8 @@ namespace vApus.Util {
         }
         private void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at, bool refreshGui) {
             ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at, refreshGui);
-            EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter, eventType == EventViewEventType.Error, refreshGui);
+            //EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter, refreshGui);
+            EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter, refreshGui);
 
             if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {
                 if (_expandOnErrorEvent)
