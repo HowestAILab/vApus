@@ -526,7 +526,7 @@ namespace vApus.Stresstest {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                fastResultsControl.AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString() + ".");
+                fastResultsControl.AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString("0 s") + ".");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null && _stresstest.Monitors.Length != 0)
@@ -788,7 +788,7 @@ namespace vApus.Stresstest {
                     }
 
                 var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
-                fastResultsControl.AddEvent("Monitoring after the test is finished: " + ts.ToShortFormattedString() + ".");
+                fastResultsControl.AddEvent("Monitoring after the test is finished: " + ts.ToShortFormattedString("0 s") + ".");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null)

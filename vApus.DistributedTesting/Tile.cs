@@ -5,7 +5,9 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using System.Collections.Generic;
 using vApus.SolutionTree;
+using vApus.Util;
 
 namespace vApus.DistributedTesting {
     /// <summary>
@@ -16,6 +18,10 @@ namespace vApus.DistributedTesting {
         #region Properties
         [SavableCloneable]
         public bool Use { get; set; }
+
+        [SavableCloneable]
+        public bool UseOverride { get; set; }
+
         #endregion
 
         #region Constructor

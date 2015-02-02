@@ -47,6 +47,9 @@ namespace vApus.Stresstest {
             }
         }
 
+        /// <summary>
+        /// Get or set the connection string.
+        /// </summary>
         [SavableCloneable(true)]
         [DisplayName("Connection String")]
         [ReadOnly(true), Browsable(false)]
@@ -153,6 +156,7 @@ namespace vApus.Stresstest {
 
         public Connection Clone() {
             var clone = new Connection();
+            clone.Label = Label;
             clone._connectionProxy = ConnectionProxy;
             clone._connectionString = ConnectionString;
             return clone;

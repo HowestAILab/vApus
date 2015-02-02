@@ -178,9 +178,28 @@ namespace vApus.Monitor {
             }
         }
 
-
         public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
 
+        public Monitor Clone() {
+            var clone = new Monitor();
+            clone.Label = Label;
+            clone._filter = _filter;
+            clone._monitorSourceClientIndex = _monitorSourceClientIndex;
+            clone._monitorSourceClientName = _monitorSourceClientName;
+            clone._wiw = _wiw.Clone();
+            clone._parameterValues = new object[_parameterValues.Length];
+            _parameterValues.CopyTo(clone._parameterValues, 0);
+            return clone;
+        }
+
+        /// <summary>
+        /// Index based override.
+        /// </summary>
+        /// <param name="entityNames"></param>
+        public void OverrideEntitiesInWIW(string[] entityNames) {
+            for (int i = 0; i != entityNames.Length && i != _wiw.Count; i++)
+                _wiw[i].name = entityNames[i];
+        }
         #endregion
     }
 }
