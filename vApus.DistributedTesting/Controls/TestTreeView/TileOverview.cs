@@ -5,8 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
-using System.Text;
+using System.Collections.Generic;
+using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.Util;
 
@@ -15,99 +17,82 @@ namespace vApus.DistributedTesting.Controls.TestTreeView {
 
         #region Fields
         private Tile _tile;
-        private bool _init;
-        private string _tileHostsOverrideState = string.Empty;
         #endregion
 
-        public TileOverview() { InitializeComponent(); }
+        public TileOverview() {
+            InitializeComponent();
+            tlvw.CanExpandGetter = delegate(object x) {
+                var item = x as TLVWItem;
+                return item.Children != null && item.Children.Count != 0;
+            };
+            tlvw.ChildrenGetter = delegate(object x) { return (x as TLVWItem).Children; };
+
+            SolutionTree.SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+        }
 
         #region Functions
-        public void Init(Tile tile) {
-            _init = true;
-            _tile = tile;
-            if (_tile.UseOverride)
-                lbtnOverride.PerformClick();
-            else
-                lbtnOverview.PerformClick();
-            btnApply.Enabled = false;
-            _tileHostsOverrideState = GetTileHostsOverride();
-            _init = false;
+        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
+        private static extern int LockWindowUpdate(IntPtr hWnd);
+
+        private void SolutionComponent_SolutionComponentChanged(object sender, SolutionTree.SolutionComponentChangedEventArgs e) {
+            try {
+                if (this.IsHandleCreated && SolutionTree.Solution.ActiveSolution != null && _tile != null && sender == _tile) {
+                    if (e.__DoneAction == SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Removed)
+                        _tile = null;
+                    Init(_tile);
+                }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed refreshing tile overview.", ex);
+            }
         }
 
-        private string GetTileHosts() {
-            var sb = new StringBuilder();
+        public void Init(Tile tile) {
+            try {
+                LockWindowUpdate(this.Handle);
+                _tile = tile;
+                tlvw.Roots = GetOverview();
+                tlvw.ExpandAll();
+                tlvw.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed initing tile overview.", ex);
+            } finally {
+                try { LockWindowUpdate(IntPtr.Zero); } catch { }
+            }
+        }
+
+        private List<TLVWItem> GetOverview() {
+            var items = new List<TLVWItem>();
+            if (_tile == null) return items;
 
             foreach (TileStresstest ts in _tile) {
-                string index = "*" + ts.Index;
-                sb.AppendLine(index);
-
                 var basic = ts.BasicTileStresstest;
-                string connectionString = basic.Connection.ConnectionString;
+                string connectionString = basic.Connection.ConnectionString.Replace("<16 0C 02 12$>", "•");
+                if (!chkShowConnectionStrings.Checked) connectionString = new string('•', connectionString.Length);
 
-                sb.AppendLine(connectionString);
+                var item = new TLVWItem() { Name = ts.Index.ToString() + ") " + basic.Connection, ConnectionString = connectionString, Children = new List<TLVWItem>() };
+                items.Add(item);
 
                 foreach (Monitor.Monitor monitor in basic.Monitors) {
-                    string monitorString = monitor.ParameterValues.Combine("<16 0C 02 12$>");
-                    sb.AppendLine(monitorString);
+                    string monitorString = monitor.ParameterValues.Combine("•");
+                    if (!chkShowConnectionStrings.Checked) monitorString = new string('•', monitorString.Length);
+
+                    item.Children.Add(new TLVWItem() { Name = monitor.ToString(), ConnectionString = monitorString });
                 }
             }
 
-            return sb.ToString().Trim();
+            return items;
         }
 
-        private string GetTileHostsOverride() {
-            var sb = new StringBuilder();
-            foreach (TileStresstest ts in _tile) {
-                string index = "*" + ts.Index;
-                sb.AppendLine(index);
-                sb.Append(ts.Override);
-            }
-            return sb.ToString().Trim();
-        }
-        private void SetTileHostsOverride() {
-            string[] perTs = _tileHostsOverrideState.Split(new string[] { "*" }, StringSplitOptions.RemoveEmptyEntries);
-            foreach (string block in perTs) {
-                string[] lines = block.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-                foreach (TileStresstest ts in _tile) {
-                    if (lines[0].Trim() == ts.Index.ToString()) {
-                        var sb = new StringBuilder();
-                        int i = 1;
-                        for (; i < lines.Length - 1; i++) sb.AppendLine(lines[i]);
-                        if (i < lines.Length) sb.Append(lines[i]);
-
-                        ts.Override = sb.ToString();
-                        break;
-                    }
-                }
-            }
-        }
-
-        private void lbtnOverview_ActiveChanged(object sender, EventArgs e) {
-            fctxt.Text = GetTileHosts();
-            fctxt.ReadOnly = true;
-            if (!_init) btnApply.Enabled = true;
-        }
-
-        private void lbtnOverride_ActiveChanged(object sender, EventArgs e) {
-            fctxt.Text = GetTileHostsOverride();
-            fctxt.ReadOnly = false;
-            if (!_init) btnApply.Enabled = !string.IsNullOrWhiteSpace(fctxt.Text);
-        }
-
-        private void fctxt_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
-        }
-        private void fctxt_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
-            if (!_init) {
-                if (lbtnOverride.Active) _tileHostsOverrideState = fctxt.Text;
-                btnApply.Enabled = true;
-            }
-        }
-        private void btnApply_Click(object sender, EventArgs e) {
-            btnApply.Enabled = false;
-            _tile.UseOverride = lbtnOverride.Active;
-            SetTileHostsOverride();
-            _tile.Parent.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited, true);
-        }
         #endregion
+
+        public class TLVWItem {
+            public string Name { get; set; }
+            public string ConnectionString { get; set; }
+            public List<TLVWItem> Children { get; set; }
+        }
+
+        private void chkShowConnectionStrings_CheckedChanged(object sender, EventArgs e) {
+            Init(_tile);
+        }
     }
 }

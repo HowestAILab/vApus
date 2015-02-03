@@ -414,13 +414,6 @@ namespace vApus.DistributedTesting {
             var l = new List<Connection>();
             foreach (var ts in _distributedTest.UsedTileStresstests) {
                 var connection = ts.BasicTileStresstest.Connection;
-                if (ts.UseOverride) {
-                    var clone = new Connection();
-                    clone.Label = connection.Label;
-                    clone.ConnectionProxy = connection.ConnectionProxy;
-                    clone.ConnectionString = ts.Override.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)[0];
-                    connection = clone;
-                }
                 if (!l.Contains(connection))
                     l.Add(connection);
             }
@@ -433,7 +426,7 @@ namespace vApus.DistributedTesting {
         private void testConnections_Message(object sender, TestConnections.TestWorkItem.MessageEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 if (!e.Succes)
-                    distributedStresstestControl.AppendMessages("The master cannot connect to " + e.Connection + " " + e.Connection.ConnectionString + ". It is likely that the slave won't be able to connect also!\nThe test will continue regardlessly.\nDetails: " + e.Message, Level.Warning);
+                    distributedStresstestControl.AppendMessages("The master cannot connect to " + e.Connection + ". It is likely that the slave won't be able to connect also!\nThe test will continue regardlessly.\nDetails: " + e.Message, Level.Warning);
             }, null);
         }
 
@@ -663,45 +656,9 @@ namespace vApus.DistributedTesting {
                     detailedResultsControl.ClearResults();
                     detailedResultsControl.Enabled = false;
 
-                    foreach (TileStresstest tileStresstest in _distributedTest.UsedTileStresstests) {
-                        //Error prone and not user-friendly override mechanic, because it was asked and it can be handy I suppose;
-                        bool useOverride = tileStresstest.UseOverride;
-                        Monitor.Monitor[] monitors = tileStresstest.BasicTileStresstest.Monitors;
-                        var parameters = new List<string>();
-                        var entities = new string[0];
-
-                        if (useOverride) {
-                            string[] lines = tileStresstest.Override.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
-                            var sb = new StringBuilder();
-                            int i = 1;
-                            for (; i < lines.Length; i++) parameters.Add(lines[i]);
-                        }
-
-                        for (int i = 0; i != monitors.Length && i != parameters.Count; i++) {
-                            Monitor.Monitor monitor = monitors[i];
-                            if (useOverride) {
-                                monitor = monitor.Clone();
-                                var parameterValues = new List<string>(parameters[i].Split(new string[] { "<16 0C 02 12$>" }, StringSplitOptions.None));
-
-                                //Override the entities, otherwise this will never work.
-                                if (parameterValues.Count != 0) {
-                                    string lastLine = parameterValues[parameterValues.Count - 1];
-                                    string key = "entities:";
-                                    if (lastLine.StartsWith(key, StringComparison.InvariantCultureIgnoreCase)) {
-                                        parameterValues.RemoveAt(parameterValues.Count - 1);
-                                        lastLine = lastLine.Substring(key.Length);
-                                        entities = lastLine.Split(';');
-                                    }
-
-                                    monitor.OverrideEntitiesInWIW(entities);
-                                }
-
-                                monitor.ParameterValues = parameterValues.ToArray();
-                            }
-
+                    foreach (TileStresstest tileStresstest in _distributedTest.UsedTileStresstests)
+                        foreach (var monitor in tileStresstest.BasicTileStresstest.Monitors)
                             ShowAndInitMonitorView(tileStresstest, monitor);
-                        }
-                    }
                 }, null);
 
                 if (_pendingMonitorViewInitializations != 0) _monitorViewsInitializedWaitHandle.WaitOne();

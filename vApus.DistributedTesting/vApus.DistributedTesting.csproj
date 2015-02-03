@@ -168,6 +168,9 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\Prerequisites\RandomUtils\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="ObjectListView">
+      <HintPath>..\packages\ObjectListView.Official.2.8.1\lib\net20\ObjectListView.dll</HintPath>
+    </Reference>
     <Reference Include="RandomUtils">
       <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
     </Reference>
@@ -435,6 +438,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

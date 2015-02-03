@@ -117,10 +117,4 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
-  <data name="label2.Text" xml:space="preserve">
-    <value>Below you can view the settings used in this tile.
-The first rule for each tile stresstest is the connection string, the following are the monitor parameters.
-You can override these if you want. (experimental!)
-You must specify the entities to monitor like so &lt;16 0C 02 12$&gt;enties:entity name 1;...;entity name n</value>
-  </data>
 </root>

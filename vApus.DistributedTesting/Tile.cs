@@ -19,9 +19,6 @@ namespace vApus.DistributedTesting {
         [SavableCloneable]
         public bool Use { get; set; }
 
-        [SavableCloneable]
-        public bool UseOverride { get; set; }
-
         #endregion
 
         #region Constructor

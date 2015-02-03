@@ -25,7 +25,6 @@ namespace vApus.DistributedTesting {
         private readonly object _lock = new object();
 
         private bool _use = true;
-        private string _override = string.Empty;
 
         /// <summary>
         ///     Only when the solution is fully loaded.
@@ -65,24 +64,6 @@ namespace vApus.DistributedTesting {
         public bool Use {
             get { return _use; }
             set { _use = value; }
-        }
-
-        /// <summary>
-        /// Ovverride connection string and monitor parameters.
-        /// </summary>
-        public bool UseOverride {
-            get {
-                if (_override == null || _override.Length == 0) return false;
-                var parent = this.Parent as Tile;
-                if (parent != null) return parent.UseOverride;
-                return false;
-            }
-        }
-
-        [SavableCloneable]
-        public string Override {
-            get { return _override; }
-            set { _override = value; }
         }
 
         [SavableCloneable]
@@ -215,9 +196,6 @@ namespace vApus.DistributedTesting {
                 connection.RemoveDescription();
                 connections.AddWithoutInvokingEvent(connection);
                 connection.ForceSettingChildsParent();
-
-                if (UseOverride)
-                    connection.ConnectionString = _override.Split(new string[] { Environment.NewLine }, StringSplitOptions.None)[0];
 
                 stresstest.Connection = connection;
 
