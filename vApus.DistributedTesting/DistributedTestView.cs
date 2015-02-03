@@ -251,16 +251,18 @@ namespace vApus.DistributedTesting {
 
                 SetOverallProgress();
             } else if (sender is DistributedTestTreeViewItem) {
-                tileOverview.SendToBack();
+                tileOverview.Init(_distributedTest);
+                tileOverview.BringToFront();
+
                 bool showDescriptions = false;
-                if (sender is DistributedTestTreeViewItem) {
-                    var dttvi = sender as DistributedTestTreeViewItem;
-                    foreach (Control ctrl in dttvi.Controls)
-                        if ((ctrl is CheckBox && ctrl.Focused) || (ctrl is Panel && ctrl.Controls.Count != 0 && ctrl.Controls[0].Focused)) {
-                            showDescriptions = true;
-                            break;
-                        }
-                }
+                //if (sender is DistributedTestTreeViewItem) {
+                //    var dttvi = sender as DistributedTestTreeViewItem;
+                //    foreach (Control ctrl in dttvi.Controls)
+                //        if ((ctrl is CheckBox && ctrl.Focused) || (ctrl is Panel && ctrl.Controls.Count != 0 && ctrl.Controls[0].Focused)) {
+                //            showDescriptions = true;
+                //            break;
+                //        }
+                //}
                 configureTileStresstest.ClearTileStresstest(showDescriptions);
 
                 fastResultsControl.Visible = false;

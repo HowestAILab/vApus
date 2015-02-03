@@ -222,11 +222,11 @@
     <Compile Include="Controls\SlaveTreeView\SlaveTile.Designer.cs">
       <DependentUpon>SlaveTile.cs</DependentUpon>
     </Compile>
-    <Compile Include="Controls\TestTreeView\TileOverview.cs">
+    <Compile Include="Controls\TestTreeView\DistributedTestOrTileOverview.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\TestTreeView\TileOverview.Designer.cs">
-      <DependentUpon>TileOverview.cs</DependentUpon>
+    <Compile Include="Controls\TestTreeView\DistributedTestOrTileOverview.Designer.cs">
+      <DependentUpon>DistributedTestOrTileOverview.cs</DependentUpon>
     </Compile>
     <Compile Include="DivideEtImpera.cs" />
     <Compile Include="Wizard.cs">
@@ -387,8 +387,8 @@
       <DependentUpon>SlaveTile.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\TestTreeView\TileOverview.resx">
-      <DependentUpon>TileOverview.cs</DependentUpon>
+    <EmbeddedResource Include="Controls\TestTreeView\DistributedTestOrTileOverview.resx">
+      <DependentUpon>DistributedTestOrTileOverview.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Wizard.resx">
       <DependentUpon>Wizard.cs</DependentUpon>

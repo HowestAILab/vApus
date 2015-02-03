@@ -59,7 +59,7 @@
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
             this.testTreeView = new vApus.DistributedTesting.TestTreeView();
             this.slaveTreeView = new vApus.DistributedTesting.SlaveTreeView();
-            this.tileOverview = new vApus.DistributedTesting.Controls.TestTreeView.TileOverview();
+            this.tileOverview = new vApus.DistributedTesting.Controls.TestTreeView.DistributedTestOrTileOverview();
             this.configureTileStresstest = new vApus.DistributedTesting.ConfigureTileStresstest();
             this.configureSlaves = new vApus.DistributedTesting.ConfigureSlaves();
             this.distributedStresstestControl = new vApus.DistributedTesting.OveralFastResultsControl();
@@ -404,6 +404,6 @@
         private System.Windows.Forms.ToolStripButton btnWizard;
         private System.Windows.Forms.TabPage tpDetailedResults;
         private Stresstest.DetailedResultsControl detailedResultsControl;
-        private Controls.TestTreeView.TileOverview tileOverview;
+        private Controls.TestTreeView.DistributedTestOrTileOverview tileOverview;
     }
 }
