@@ -45,7 +45,8 @@ namespace vApus.DetailedResultsViewer {
         public void SetAvailableTags(DatabaseActions databaseActions) {
             Cursor = Cursors.WaitCursor;
             try {
-                List<string> tags = new List<string>();
+                var tags = new SortedSet<string>();
+
                 DataTable dbs = new DataTable("dbs");
                 dbs.Columns.Add("db");
 
@@ -91,18 +92,19 @@ namespace vApus.DetailedResultsViewer {
             }
             try { if (!Disposing && !IsDisposed) Cursor = Cursors.Arrow; } catch { }
         }
-        private void SetAvailableTags(List<string> tags) {
+        private void SetAvailableTags(SortedSet<string> tags) {
+            flpTags.AutoScroll = false;
+            flpTags.SuspendLayout();
             ClearAvailableTags();
-            if (tags.Count != 0) {
-                tags.Sort();
-                foreach (string tag in tags) {
-                    var kvpTag = new KeyValuePairControl(tag, string.Empty) { BackColor = SystemColors.Control };
-                    kvpTag.Tooltip = "Click to add this tag to the filter.";
-                    kvpTag.Cursor = Cursors.Hand;
-                    kvpTag.MouseDown += kvpTag_MouseDown;
-                    flpTags.Controls.Add(kvpTag);
-                }
+            foreach (string tag in tags) {
+                var kvpTag = new KeyValuePairControl(tag, string.Empty) { BackColor = SystemColors.Control };
+                kvpTag.Tooltip = "Click to add this tag to the filter.";
+                kvpTag.Cursor = Cursors.Hand;
+                kvpTag.MouseDown += kvpTag_MouseDown;
+                flpTags.Controls.Add(kvpTag);
             }
+            flpTags.ResumeLayout();
+            flpTags.AutoScroll = true;
         }
         private void kvpTag_MouseDown(object sender, MouseEventArgs e) {
             var kvpTag = sender as KeyValuePairControl;
@@ -146,24 +148,11 @@ namespace vApus.DetailedResultsViewer {
         }
 
         private void FilterResults_Resize(object sender, EventArgs e) {
-            int tried = 0;
-        Retry:
-            try {
-                int width = pnlTagsContainer.Width - 21;
-                if (width > flpTags.MaximumSize.Width) {
-                    flpTags.MaximumSize = new Size(width, 9999);
-                    flpTags.MinimumSize = new Size(width, pnlTagsContainer.Height - 3);
-                } else {
-                    flpTags.MinimumSize = new Size(width, pnlTagsContainer.Height - 3);
-                    flpTags.MaximumSize = new Size(width, 9999);
-                }
+            flpTags.PerformLayout();
+        }
 
-                if (flpTags.HorizontalScroll.Visible || flpTags.VerticalScroll.Visible)
-                    if (++tried != 3)
-                        goto Retry;
-            } catch {
-                //Ignore.
-            }
+        private void flpTags_Scroll(object sender, ScrollEventArgs e) {
+            flpTags.PerformLayout();
         }
     }
 }
