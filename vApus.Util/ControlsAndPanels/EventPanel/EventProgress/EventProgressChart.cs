@@ -184,6 +184,7 @@ namespace vApus.Util {
                 ChartProgressEvent entered = null;
 
                 //Make sure the most important events are drawn, hidden events won't be drawn.
+                //Faster contains with a hash set then with a list.
                 var Xs = new HashSet<int>();
                 _sortedProgressEvents.Sort(ChartProgressEventComparer.GetInstance());
 

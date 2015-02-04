@@ -1,11 +1,11 @@
-﻿using BrightIdeasSoftware;
-/*
+﻿/*
  * Copyright 2015 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using BrightIdeasSoftware;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -22,6 +22,7 @@ namespace vApus.DistributedTesting.Controls.TestTreeView {
         private BaseItem _item;
         private Dictionary<string, int> _connectionStrings = new Dictionary<string, int>();
         private Dictionary<string, int> _monitorStrings = new Dictionary<string, int>();
+        private List<object> _connectionsAndMonitors = new List<object>();
         #endregion
 
         public DistributedTestOrTileOverview() {
@@ -41,7 +42,8 @@ namespace vApus.DistributedTesting.Controls.TestTreeView {
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionTree.SolutionComponentChangedEventArgs e) {
             try {
-                if (this.IsHandleCreated && SolutionTree.Solution.ActiveSolution != null && _item != null && sender == _item) {
+                if (this.IsHandleCreated && SolutionTree.Solution.ActiveSolution != null
+                    && (sender == _item || _connectionsAndMonitors.Contains(sender))) {
                     if (e.__DoneAction == SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Removed)
                         _item = null;
                     Init(_item);
@@ -73,6 +75,7 @@ namespace vApus.DistributedTesting.Controls.TestTreeView {
         private List<TLVWItem> GetOverview() {
             _connectionStrings = new Dictionary<string, int>();
             _monitorStrings = new Dictionary<string, int>();
+            _connectionsAndMonitors = new List<object>();
 
             var items = new List<TLVWItem>();
             if (_item == null) return items;
@@ -102,6 +105,8 @@ namespace vApus.DistributedTesting.Controls.TestTreeView {
                 bool use = ts.Use;
                 if (use || !chkShowOnlyChecked.Checked) {
                     var basic = ts.BasicTileStresstest;
+                    _connectionsAndMonitors.Add(basic.Connection);
+
                     string connectionString = basic.Connection.ConnectionString.Replace("<16 0C 02 12$>", "•");
                     if (chkShowConnectionStrings.Checked) {
                         if (_connectionStrings.ContainsKey(connectionString))
@@ -115,6 +120,8 @@ namespace vApus.DistributedTesting.Controls.TestTreeView {
                     items.Add(item);
 
                     foreach (Monitor.Monitor monitor in basic.Monitors) {
+                        _connectionsAndMonitors.Add(monitor);
+
                         string monitorString = monitor.ParameterValues.Combine("•");
                         if (chkShowConnectionStrings.Checked) {
                             if (_monitorStrings.ContainsKey(monitorString))
