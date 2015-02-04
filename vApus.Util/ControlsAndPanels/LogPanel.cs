@@ -32,16 +32,11 @@ namespace vApus.Util {
                 Form form = FindForm();
                 if (form != null) {
                     this.ParentChanged -= LogPanel_ParentChanged;
-                    form.FormClosing += LogPanel_FormClosing;
                     tmr.Start();
                 }
             }
         }
-
-        private void LogPanel_FormClosing(object sender, FormClosingEventArgs e) {
-            e.Cancel = _reporting != 0;
-        }
-
+        
         private void NewIssue_Done(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
             if (e.Exception == null) {
                 llblBug.Text = e.ReturnValue == null ? string.Empty : e.ReturnValue.ToString();
