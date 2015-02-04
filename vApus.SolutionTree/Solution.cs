@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -582,7 +583,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             _projects = new List<BaseProject>();
 
             foreach (Type projectType in _projectTypes) {
-                var project = FastObjectCreator.CreateInstance(projectType) as BaseProject;
+                var project = FastObjectCreator.CreateInstance<BaseProject>(projectType);
                 project.Parent = this;
                 _projects.Add(project);
             }

@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using MySql.Data.MySqlClient;
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Concurrent;

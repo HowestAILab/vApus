@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -66,7 +67,7 @@ namespace vApus.SolutionTree {
         /// <param name="parent">Required! Use Solution.ActiveSolution.GetSolutionComponent or .GetLabeledBaseItem to retrieve the right one.</param>
         /// <returns></returns>
         public static BaseItem GetEmpty(Type baseItemType, SolutionComponent parent) {
-            var emptyItem = FastObjectCreator.CreateInstance(baseItemType) as BaseItem;
+            var emptyItem = FastObjectCreator.CreateInstance<BaseItem>(baseItemType);
             emptyItem.Parent = parent;
             emptyItem.IsEmpty = true; //Default true;
 
@@ -219,7 +220,7 @@ namespace vApus.SolutionTree {
                     foreach (XmlNode elementNode in childNode.ChildNodes) {
                         if (cancellationToken.IsCancellationRequested) break;
                         try {
-                            var item = FastObjectCreator.CreateInstance(type.Assembly.GetTypeByName(elementNode.Name)) as BaseItem;
+                            var item = FastObjectCreator.CreateInstance<BaseItem>(type.Assembly.GetTypeByName(elementNode.Name));
                             string childErrorMessage;
                             item.LoadFromXml(elementNode, cancellationToken, out childErrorMessage);
                             if (cancellationToken.IsCancellationRequested) break;

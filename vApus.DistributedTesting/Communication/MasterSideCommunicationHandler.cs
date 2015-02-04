@@ -1,4 +1,5 @@
-﻿using RandomUtils.Log;
+﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2010 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG

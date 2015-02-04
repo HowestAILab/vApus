@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -116,7 +117,7 @@ namespace vApus.Stresstest {
             error = null;
             IConnectionProxy connectionProxy = null;
             try {
-                connectionProxy = FastObjectCreator.CreateInstance(_connectionProxyType) as IConnectionProxy;
+                connectionProxy = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                 connectionProxy.SetParent(this);
                 connectionProxy.TestConnection(out error);
             } catch (Exception ex) {
@@ -147,7 +148,7 @@ namespace vApus.Stresstest {
                 if (_isDisposed || _isShutdown)
                     return;
 
-                var connectionProxy = FastObjectCreator.CreateInstance(_connectionProxyType) as IConnectionProxy;
+                var connectionProxy = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                 connectionProxy.SetParent(this);
                 _connectionProxies[i] = connectionProxy;
 
@@ -161,7 +162,7 @@ namespace vApus.Stresstest {
                         if (_isDisposed || _isShutdown)
                             return;
 
-                        var cp = FastObjectCreator.CreateInstance(_connectionProxyType) as IConnectionProxy;
+                        var cp = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                         cp.SetParent(this);
 
                         var pcp = new ParallelConnectionProxy(cp);
@@ -201,7 +202,7 @@ namespace vApus.Stresstest {
             Loggers.Log(Level.Warning, "Connection for connection proxy #" + index +
                     " could not be opened, trying to make a new one. (Expensive operation!)", ex, new object[] { connectionProxy, index });
             try {
-                connectionProxy = FastObjectCreator.CreateInstance(_connectionProxyType) as IConnectionProxy;
+                connectionProxy = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                 connectionProxy.SetParent(this);
                 connectionProxy.OpenConnection();
                 if (!connectionProxy.IsConnectionOpen) {

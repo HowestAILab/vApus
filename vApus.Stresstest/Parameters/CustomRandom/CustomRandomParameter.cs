@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -128,7 +129,7 @@ return start.AddTicks(randomTicks);
             Type t = assembly.GetType("vApus.Stresstest.CustomRandomParameter");
 
             if (assembly != null)
-                _customRandomParameter = FastObjectCreator.CreateInstance(t) as ICustomRandomParameter;
+                _customRandomParameter = FastObjectCreator.CreateInstance<ICustomRandomParameter>(t);
 
             return results;
         }
