@@ -186,7 +186,7 @@
             this.label1.TabIndex = 19;
             this.label1.Text = "The Windows firewall can block vApus communication and can break a stresstest.\r\nW" +
     "indows auto update can restart the computer while a (scheduled) stresstest is ru" +
-    "nning.";
+    "nning.\r\nYou can only do this when running vApus as administrator!";
             // 
             // DisableFirewallAutoUpdatePanel
             // 

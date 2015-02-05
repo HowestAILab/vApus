@@ -688,15 +688,17 @@ namespace vApus.DistributedTesting {
                             foreach (MonitorView monitorView in _monitorViews[ts])
                                 if (monitorView != null && !monitorView.IsDisposed)
                                     try {
-                                        monitorView.Start();
+                                        if (monitorView.Start()) {
+                                            int dbId = _distributedTestCore.GetDbId(ts);
+                                            if (dbId != -1)
+                                                monitorView.GetMonitorResultCache().MonitorConfigurationId = _resultsHelper.SetMonitor(dbId, monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
+                                                monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
 
-                                        int dbId = _distributedTestCore.GetDbId(ts);
-                                        if (dbId != -1)
-                                            monitorView.GetMonitorResultCache().MonitorConfigurationId = _resultsHelper.SetMonitor(dbId, monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
-                                            monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
-
-                                        distributedStresstestControl.AppendMessages(monitorView.Text + " is started.");
-                                        ++runningMonitors;
+                                            distributedStresstestControl.AppendMessages(monitorView.Text + " is started.");
+                                            ++runningMonitors;
+                                        } else {
+                                            try { monitorView.Stop(); } catch { }
+                                        }
                                     } catch (Exception e) {
                                         Loggers.Log(Level.Error, monitorView.Text + " is not started.", e);
                                         distributedStresstestControl.AppendMessages(monitorView.Text + " is not started.");

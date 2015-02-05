@@ -1,11 +1,11 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -236,7 +236,10 @@ namespace vApus.Monitor {
                 }
 
             } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed adding monitor values.", ex);
+                if (Parent != null && Parent is MonitorView)
+                    Loggers.Log(Level.Error, "Failed adding monitor values.", ex, new object[] { (Parent as MonitorView).Monitor });
+                else
+                    Loggers.Log(Level.Error, "Failed adding monitor values.", ex);
             }
         }
         /// <summary>

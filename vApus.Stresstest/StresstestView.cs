@@ -466,14 +466,16 @@ namespace vApus.Stresstest {
                 foreach (MonitorView monitorView in _monitorViews)
                     if (monitorView != null && !monitorView.IsDisposed)
                         try {
-                            monitorView.Start();
+                            if (monitorView.Start()) {
+                                monitorView.GetMonitorResultCache().MonitorConfigurationId =
+                                    _resultsHelper.SetMonitor(monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
+                                    monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
 
-                            monitorView.GetMonitorResultCache().MonitorConfigurationId =
-                                _resultsHelper.SetMonitor(monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
-                                monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
-
-                            fastResultsControl.AddEvent(monitorView.Text + " is started.");
-                            ++runningMonitors;
+                                fastResultsControl.AddEvent(monitorView.Text + " is started.");
+                                ++runningMonitors;
+                            } else {
+                                try { monitorView.Stop(); } catch { }
+                            }
                         } catch (Exception e) {
                             try {
                                 Loggers.Log(Level.Error, monitorView.Text + " is not started.", e);

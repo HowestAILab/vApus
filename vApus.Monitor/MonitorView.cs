@@ -270,7 +270,7 @@ namespace vApus.Monitor {
                             Stop();
                     }
                 } catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex);
+                    Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex, new object[] { _monitor });
                 }
             }, null);
         }
@@ -1176,7 +1176,7 @@ namespace vApus.Monitor {
             ConnectAndGetCounters();
         }
 
-        public void Start() {
+        public bool Start() {
             split.Panel2.Enabled = false;
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
@@ -1191,7 +1191,8 @@ namespace vApus.Monitor {
             if (schedule != null && schedule.ScheduledAt > DateTime.Now)
                 ScheduleMonitor();
             else
-                StartMonitor();
+                return StartMonitor();
+            return true;
         }
 
         private void ScheduleMonitor() {
@@ -1223,7 +1224,7 @@ namespace vApus.Monitor {
             }
         }
 
-        private void StartMonitor() {
+        private bool StartMonitor() {
             Cursor = Cursors.WaitCursor;
 
             try {
@@ -1269,9 +1270,13 @@ namespace vApus.Monitor {
                     } else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                Loggers.Log(Level.Error, message, ex);
+                Loggers.Log(Level.Error, message, ex, new object[] { _monitor });
+
+                return false;
+            } finally {
+                Cursor = Cursors.Default;
             }
-            Cursor = Cursors.Default;
+            return true;
         }
 
         public void Stop() {
