@@ -270,7 +270,7 @@ namespace vApus.Monitor {
                             Stop();
                     }
                 } catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex, new object[] { _monitor });
+                    Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex, new object[] { _monitor.ToString() });
                 }
             }, null);
         }
@@ -1270,7 +1270,7 @@ namespace vApus.Monitor {
                     } else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                Loggers.Log(Level.Error, message, ex, new object[] { _monitor });
+                Loggers.Log(Level.Error, message, ex, new object[] { _monitor.ToString() });
 
                 return false;
             } finally {

@@ -237,10 +237,10 @@ namespace vApus.Monitor {
 
             } catch (Exception ex) {
                 var parent = FindForm() as MonitorView;
-                if (parent != null)
-                    Loggers.Log(Level.Error, "Failed adding monitor values.", ex, new object[] { (Parent as MonitorView).Monitor });
-                else
+                if (parent == null)
                     Loggers.Log(Level.Error, "Failed adding monitor values.", ex);
+                else
+                    Loggers.Log(Level.Error, "Failed adding monitor values.", ex, new object[] { (Parent as MonitorView).Monitor.ToString() });
             }
         }
         /// <summary>
