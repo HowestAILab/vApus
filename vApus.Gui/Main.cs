@@ -205,6 +205,7 @@ namespace vApus.Gui {
         /// <param name="panelIndex">The panel to show.</param>
         private void ShowOptionsDialog(int panelIndex = 0) {
             Cursor = Cursors.WaitCursor;
+
             if (_optionsDialog == null) {
                 _optionsDialog = new OptionsDialog();
                 _optionsDialog.FormClosed += _optionsDialog_FormClosed;
@@ -220,15 +221,20 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
-            if (!_optionsDialog.Visible)
-                _optionsDialog.ShowDialog(this);
+            _optionsDialog.Hide(); //Strange VB6 bug: Form that is already displayed modally cannot be displayed as a modal dialog box. work-around.
+            _optionsDialog.ShowDialog(this);
+
             SetStatusStrip();
             Cursor = Cursors.Default;
         }
 
         private void _optionsDialog_FormClosed(object sender, FormClosedEventArgs e) {
-            Settings.Default.LogLevel = (int)Loggers.GetLogger<FileLogger>().CurrentLevel;
-            Settings.Default.Save();
+            try {
+                Settings.Default.LogLevel = (int)Loggers.GetLogger<FileLogger>().CurrentLevel;
+                Settings.Default.Save();
+            } catch {
+                //Dont't care.
+            }
         }
 
         private void detailedResultsViewerToolStripMenuItem_Click(object sender, EventArgs e) {
