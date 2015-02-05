@@ -236,7 +236,8 @@ namespace vApus.Monitor {
                 }
 
             } catch (Exception ex) {
-                if (Parent != null && Parent is MonitorView)
+                var parent = FindForm() as MonitorView;
+                if (parent != null)
                     Loggers.Log(Level.Error, "Failed adding monitor values.", ex, new object[] { (Parent as MonitorView).Monitor });
                 else
                     Loggers.Log(Level.Error, "Failed adding monitor values.", ex);
