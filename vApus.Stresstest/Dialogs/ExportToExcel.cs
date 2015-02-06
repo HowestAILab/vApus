@@ -273,8 +273,8 @@ namespace vApus.Stresstest {
         public static void Do(string fullExportPath, int[] stresstestIds, ResultsHelper resultsHelper, IEnumerable<string> toExport, CancellationToken token) {
             string directory = Path.GetDirectoryName(fullExportPath);
 
-            if (stresstestIds.Length == 0)
-                stresstestIds = new int[] { -1 };
+            if (stresstestIds.Length == 0 || stresstestIds[0] == -1)
+                stresstestIds = resultsHelper.GetStresstestIds().ToArray();
 
             Dictionary<string, List<Del>> dataSetStructure = ParseToDataSetStructure(toExport);
 

@@ -2486,6 +2486,16 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return null;
             }
         }
+        public List<int> GetStresstestIds() {
+            lock (_lock) {
+                var l = new List<int>();
+                if (_databaseActions != null) {
+                    var dt = ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions, "Id");
+                    foreach (DataRow row in dt.Rows) l.Add((int)row.ItemArray[0]);
+                }
+                return l;
+            }
+        }
         /// <summary>
         /// stresstest: ID, Stresstest, Connection
         /// If the workload was divided over multiple slaves the datatable entries will be combined, in that case the first Id will be put in a row.
