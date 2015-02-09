@@ -146,7 +146,7 @@ namespace vApus.Stresstest {
             _resultsHelper = resultsHelper;
 
             var stresstests = _resultsHelper.GetStresstests();
-            if (stresstests.Rows.Count == 0) {
+            if (stresstests != null && stresstests.Rows.Count == 0) {
                 this.Enabled = false;
             } else {
                 if (stresstests.Rows.Count > 1)
@@ -161,9 +161,17 @@ namespace vApus.Stresstest {
         private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
             tvw.Nodes.Clear();
 
-            int selectedIndex = cboStresstest.SelectedIndex;
-            if (cboStresstest.Items.Count == 1) ++selectedIndex;
-            tvw.Nodes.AddRange(ExportToExcel.GetTreeNodes(tvw.Font, _resultsHelper, selectedIndex));
+            var stresstestIds = new int[1];
+            if (cboStresstest.Items.Count == 1)
+                stresstestIds[0] = cboStresstest.SelectedIndex + 1;
+            else
+                stresstestIds[0] = cboStresstest.SelectedIndex == 0 ? -1 : cboStresstest.SelectedIndex;
+
+            tvw.Nodes.AddRange(ExportToExcel.GetTreeNodes(tvw.Font, _resultsHelper, stresstestIds));
+
+            if (tvw.Visible)
+                foreach (TreeNode node in tvw.Nodes)
+                    RefreshTreeNode(node);
 
             //Load settings in gui.
             if (_toExport != null) {

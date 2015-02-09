@@ -137,6 +137,9 @@ namespace vApus.Stresstest {
 
         #region Generated UI
         public static TreeNode[] GetTreeNodes(Font prototype, ResultsHelper resultsHelper, params int[] stresstestIds) {
+            if (stresstestIds.Length == 0 || stresstestIds[0]< 1)
+                stresstestIds = resultsHelper.GetStresstestIds().ToArray();
+
             var root = new TreeNode();
 
             var toExport = new List<string>(_toExport.Count);
@@ -273,7 +276,7 @@ namespace vApus.Stresstest {
         public static void Do(string fullExportPath, int[] stresstestIds, ResultsHelper resultsHelper, IEnumerable<string> toExport, CancellationToken token) {
             string directory = Path.GetDirectoryName(fullExportPath);
 
-            if (stresstestIds.Length == 0 || stresstestIds[0] == -1)
+            if (stresstestIds.Length == 0 || stresstestIds[0] < 1)
                 stresstestIds = resultsHelper.GetStresstestIds().ToArray();
 
             Dictionary<string, List<Del>> dataSetStructure = ParseToDataSetStructure(toExport);
