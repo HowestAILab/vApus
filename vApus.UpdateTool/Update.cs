@@ -378,7 +378,7 @@ namespace vApus.UpdateTool {
 
                 if (!Directory.Exists(tempFolder)) {
                     if (_silent || MessageBox.Show("Do you want to start vApus now?", "Updated!", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                        if (string.IsNullOrWhiteSpace(_solution))
+                        if (string.IsNullOrWhiteSpace(_solution) || !File.Exists(_solution))
                             Process.Start(Path.Combine(_startupPath, "vApus.exe"));
                         else
                             Process.Start(Path.Combine(_startupPath, "vApus.exe"), _solution);
@@ -386,7 +386,7 @@ namespace vApus.UpdateTool {
                            Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0) {
                     Directory.Delete(tempFolder, true);
                     if (_silent || MessageBox.Show("Do you want to start vApus now?", "Updated!", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                        if (string.IsNullOrWhiteSpace(_solution))
+                        if (string.IsNullOrWhiteSpace(_solution) || !File.Exists(_solution))
                             Process.Start(Path.Combine(_startupPath, "vApus.exe"));
                         else
                             Process.Start(Path.Combine(_startupPath, "vApus.exe"), _solution);

@@ -174,7 +174,7 @@ namespace vApus.Gui {
                     Enabled = false;
                     var process = new Process();
                     process.EnableRaisingEvents = true;
-                    string solution = Solution.ActiveSolution == null ? string.Empty : " " + Solution.ActiveSolution.FileName;
+                    string solution = Solution.ActiveSolution == null ? string.Empty : " \"" + Solution.ActiveSolution.FileName + "\"";
                     string arguments = "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " +
                                                              port + " " + username + " " + password + " " + channel +
                                                              " " + false + " " + false + solution;
