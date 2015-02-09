@@ -214,8 +214,13 @@ namespace vApus.Stresstest {
 
             _concurrencyResult.RunResults.Add(_runResult);
 
-            if (!_cancel && RunInitializedFirstTime != null)
+            if (!_cancel && RunInitializedFirstTime != null) {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunInitializedFirstTime(this, new RunResultEventArgs(_runResult)); }, null);
+
+#if EnableBetaFeature
+                InvokeMessage("Set run initialized");
+#endif
+            }
         }
 
         /// <summary>
@@ -225,8 +230,13 @@ namespace vApus.Stresstest {
         private bool SetRunDoneOnce() {
             if (!_runDoneOnce) {
                 _runDoneOnce = true;
-                if (!_cancel && RunDoneOnce != null)
+                if (!_cancel && RunDoneOnce != null) {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, null); }, null);
+
+#if EnableBetaFeature
+                    InvokeMessage("Set run done once");
+#endif
+                }
                 return true;
             }
             return false;
@@ -835,8 +845,11 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="continueCounter">Every time the execution is paused the continue counter is incremented by one.</param>
         public void Continue(int continueCounter) {
-            InvokeMessage("Blaaaaa");
             if (_continueCounter == continueCounter && !(_completed | _cancel | _isFailed)) {
+
+#if EnableBetaFeature
+                InvokeMessage("Received Continue");
+#endif
                 _break = false;
                 _runSynchronizationContinueWaitHandle.Set();
             }

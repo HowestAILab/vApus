@@ -424,15 +424,15 @@ namespace vApus.DistributedTesting {
                             case RunSynchronization.BreakOnFirstFinished:
                                 if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime) {
                                     _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
-                                    InvokeMessage("Blaaa");
                                     if (_runInitialized.Length == Running) {
-                                        InvokeMessage("Bleeeu");
                                         _runInitialized = new string[] { };
                                         MasterSideCommunicationHandler.SendContinue();
                                     }
                                 } else if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) {
+                                    InvokeMessage("Blaaa");
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
                                     if (_runDoneOnce.Length == _totalTestCount) {
+                                        InvokeMessage("Bleeeu");
                                         _runDoneOnce = new string[] { };
                                         //Increment the index here to be able to continue to the next run.
                                         MasterSideCommunicationHandler.SendContinue();
