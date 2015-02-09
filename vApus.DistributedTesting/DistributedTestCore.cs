@@ -45,7 +45,7 @@ namespace vApus.DistributedTesting {
         private readonly object _lock = new object();
 
         private volatile string[] _cancelled = new string[] { };
-        private object _communicationLock = new object();
+        private readonly object _communicationLock = new object();
         private volatile string[] _failed = new string[] { };
 
         //Invoke only once
@@ -70,7 +70,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         private Dictionary<TileStresstest, List<string>> _dividedRunInitializedOrDoneOnce = new Dictionary<TileStresstest, List<string>>();
 
-        private object _testProgressMessagesLock = new object();
+        private readonly object _testProgressMessagesLock = new object();
         private Dictionary<TileStresstest, TileStresstest> _usedTileStresstests = new Dictionary<TileStresstest, TileStresstest>(); //the divided stresstests and the originals
         private int _totalTestCount = 0; //This way we do not need a lock to get the count.
 
@@ -580,9 +580,6 @@ namespace vApus.DistributedTesting {
                     MasterSideCommunicationHandler.ListeningError -= _masterCommunication_ListeningError;
                     MasterSideCommunicationHandler.TestInitialized -= MasterSideCommunicationHandler_TestInitialized;
                     MasterSideCommunicationHandler.OnTestProgressMessageReceived -= _masterCommunication_OnTestProgressMessageReceived;
-
-                    _communicationLock = null;
-                    _testProgressMessagesLock = null;
 
                     _hasResults = false;
                     _usedTileStresstests = null;

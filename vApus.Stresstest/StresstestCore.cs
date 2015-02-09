@@ -835,6 +835,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="continueCounter">Every time the execution is paused the continue counter is incremented by one.</param>
         public void Continue(int continueCounter) {
+            InvokeMessage("Blaaaaa");
             if (_continueCounter == continueCounter && !(_completed | _cancel | _isFailed)) {
                 _break = false;
                 _runSynchronizationContinueWaitHandle.Set();
