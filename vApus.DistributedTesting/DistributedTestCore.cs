@@ -424,7 +424,9 @@ namespace vApus.DistributedTesting {
                             case RunSynchronization.BreakOnFirstFinished:
                                 if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime) {
                                     _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
+                                    InvokeMessage("Blaaa");
                                     if (_runInitialized.Length == Running) {
+                                        InvokeMessage("Bleeeu");
                                         _runInitialized = new string[] { };
                                         MasterSideCommunicationHandler.SendContinue();
                                     }
