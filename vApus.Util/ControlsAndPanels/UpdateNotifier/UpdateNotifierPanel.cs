@@ -25,6 +25,8 @@ namespace vApus.Util {
         private Win32WindowMessageHandler _msgHandler;
         #endregion
 
+        public string CurrentSolutionFileName { get; set; }
+
         #region Constructor
         /// <summary>
         /// Use in OptionDialog.
@@ -151,8 +153,11 @@ namespace vApus.Util {
                 var process = new Process();
                 process.EnableRaisingEvents = true;
                 var port = (int)nudPort.Value;
-                process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " + port + " " +
-                    txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + forceUpdate + " " + false);
+
+                string solution = string.IsNullOrWhiteSpace(CurrentSolutionFileName) ? string.Empty : ""+ CurrentSolutionFileName;
+                string arguments = "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " + port + " " +
+                    txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + forceUpdate + " " + false + solution;
+                process.StartInfo = new ProcessStartInfo(path, arguments);
 
                 Enabled = false;
 

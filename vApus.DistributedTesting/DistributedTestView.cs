@@ -545,8 +545,10 @@ namespace vApus.DistributedTesting {
             if (File.Exists(path)) {
                 var process = new Process();
                 process.EnableRaisingEvents = true;
-                process.StartInfo = new ProcessStartInfo(path, "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " + port + " " +
-                    username + " " + password + " " + channel + " " + false + " " + false);
+                string solution = Solution.ActiveSolution == null ? string.Empty : " " + Solution.ActiveSolution.FileName;
+                string arguments = "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " + port + " " +
+                                    username + " " + password + " " + channel + " " + false + " " + false + solution;
+                process.StartInfo = new ProcessStartInfo(path, arguments);
 
                 Enabled = false;
 

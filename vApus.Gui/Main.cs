@@ -174,10 +174,11 @@ namespace vApus.Gui {
                     Enabled = false;
                     var process = new Process();
                     process.EnableRaisingEvents = true;
-                    process.StartInfo = new ProcessStartInfo(path,
-                                                             "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " +
+                    string solution = Solution.ActiveSolution == null ? string.Empty : " " + Solution.ActiveSolution.FileName;
+                    string arguments = "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " +
                                                              port + " " + username + " " + password + " " + channel +
-                                                             " " + false + " " + false);
+                                                             " " + false + " " + false + solution;
+                    process.StartInfo = new ProcessStartInfo(path, arguments);
 
                     launchedNewUpdater = process.Start();
                     if (launchedNewUpdater)
@@ -589,6 +590,8 @@ namespace vApus.Gui {
                 else
                     lblCleanTempData.Visible = lblTempDataSize.Visible = true;
             }
+
+            _updateNotifierPanel.CurrentSolutionFileName = Solution.ActiveSolution == null ? string.Empty : Solution.ActiveSolution.FileName;
         }
 
         private void SetProcessorAffinityLabel() {
