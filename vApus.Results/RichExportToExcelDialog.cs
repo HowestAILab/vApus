@@ -15,16 +15,15 @@ using System.IO;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using vApus.Results;
 using vApus.Util;
 using System.Linq;
 using System.Diagnostics;
 
-namespace vApus.Stresstest {
+namespace vApus.Results {
     /// <summary>
     /// Uses ResultsHelper to gather all results.
     /// </summary>
-    public partial class ExportToExcelDialog : Form {
+    public partial class RichExportToExcelDialog : Form {
 
         #region Fields
         private ResultsHelper _resultsHelper;
@@ -44,7 +43,7 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Uses ResultsHelper to gather all results.
         /// </summary>
-        public ExportToExcelDialog() {
+        public RichExportToExcelDialog() {
             InitializeComponent();
             FillColorPalette();
 
@@ -136,7 +135,7 @@ namespace vApus.Stresstest {
             _colorPalette.Add(Color.FromArgb(214, 208, 222));
         }
         public void Init(ResultsHelper resultsHelper) {
-            StringCollection selectedGoals = Properties.Settings.Default.SelectedGoals as StringCollection;
+            StringCollection selectedGoals = Properties.Settings.Default.ExportToExcelSelectedGoals as StringCollection;
             if (selectedGoals != null) {
                 string[] toExport = new string[selectedGoals.Count];
                 selectedGoals.CopyTo(toExport, 0);
@@ -167,7 +166,7 @@ namespace vApus.Stresstest {
             else
                 stresstestIds[0] = cboStresstest.SelectedIndex == 0 ? -1 : cboStresstest.SelectedIndex;
 
-            tvw.Nodes.AddRange(ExportToExcel.GetTreeNodes(tvw.Font, _resultsHelper, stresstestIds));
+            tvw.Nodes.AddRange(RichExportToExcel.GetTreeNodes(tvw.Font, _resultsHelper, stresstestIds));
 
             if (tvw.Visible)
                 foreach (TreeNode node in tvw.Nodes)
@@ -211,7 +210,7 @@ namespace vApus.Stresstest {
 
         private void tvw_AfterCheck(object sender, TreeViewEventArgs e) {
             tvw.AfterCheck -= tvw_AfterCheck;
-            ExportToExcel.HandleTreeNodeChecked(tvw, e.Node);
+            RichExportToExcel.HandleTreeNodeChecked(tvw, e.Node);
 
             ExtractToExport();
 
@@ -220,13 +219,13 @@ namespace vApus.Stresstest {
             tvw.AfterCheck += tvw_AfterCheck;
         }
         private void ExtractToExport() {
-            _toExport = ExportToExcel.ExtractToExport(tvw.Nodes, tvw.PathSeparator);
+            _toExport = RichExportToExcel.ExtractToExport(tvw.Nodes, tvw.PathSeparator);
 
             //Save settings.
-            Properties.Settings.Default.SelectedGoals = new StringCollection();
+            Properties.Settings.Default.ExportToExcelSelectedGoals = new StringCollection();
 
             foreach (string s in _toExport)
-                Properties.Settings.Default.SelectedGoals.Add(s);
+                Properties.Settings.Default.ExportToExcelSelectedGoals.Add(s);
 
             Properties.Settings.Default.Save();
         }
@@ -265,7 +264,7 @@ namespace vApus.Stresstest {
                     try {
                         Thread.CurrentThread.CurrentCulture = cultureInfo;
 
-                        ExportToExcel.Do(zipPath, stresstestIds, _resultsHelper, _toExport, _cancellationTokenSource.Token);
+                        RichExportToExcel.Do(zipPath, stresstestIds, _resultsHelper, _toExport, _cancellationTokenSource.Token);
                     } catch (Exception ex) {
                         exceptionThrown = true;
                         Loggers.Log(Level.Error, "Failed to export results to Excel.", ex);

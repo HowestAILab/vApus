@@ -772,7 +772,7 @@ namespace vApus.Stresstest {
                         e.Value = _cache.Rows[e.RowIndex][e.ColumnIndex];
                     }
                 }
-            } catch(Exception ex) {
+            } catch {
                 //Cell is probably deleted. Logged and tested this.
             }
         }

@@ -98,8 +98,9 @@
             this.lblDescription.Name = "lblDescription";
             this.lblDescription.Size = new System.Drawing.Size(443, 47);
             this.lblDescription.TabIndex = 10;
-            this.lblDescription.Text = "Test results can be auto-exported to Excel files after a test is SUCCESSFULLY finished.\r\n\r\nIf " +
-    "the given folder is not found the desktop folder will be chosen instead.";
+            this.lblDescription.Text = "Rich test results can be auto-exported to Excel files after a test is SUCCESSFULL" +
+    "Y finished.\r\n\r\nIf the given folder is not found the desktop folder will be chose" +
+    "n instead.";
             // 
             // btnEnableDisable
             // 
@@ -115,14 +116,14 @@
             this.btnEnableDisable.UseVisualStyleBackColor = false;
             this.btnEnableDisable.Click += new System.EventHandler(this.btnEnableDisable_Click);
             // 
-            // ExportingResultsPanel
+            // AutoExportResultsPanel
             // 
             this.ClientSize = new System.Drawing.Size(468, 379);
             this.Controls.Add(this.btnEnableDisable);
             this.Controls.Add(this.lblDescription);
             this.Controls.Add(this.grp);
-            this.Name = "ExportingResultsPanel";
-            this.Text = "ExportingResultsPanel";
+            this.Name = "AutoExportResultsPanel";
+            this.Text = "AutoExportResultsPanel";
             this.grp.ResumeLayout(false);
             this.grp.PerformLayout();
             this.ResumeLayout(false);

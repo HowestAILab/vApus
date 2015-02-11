@@ -1,5 +1,5 @@
-﻿namespace vApus.Stresstest {
-    partial class ExportToExcelDialog {
+﻿namespace vApus.Results {
+    partial class RichExportToExcelDialog {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -24,7 +24,7 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ExportToExcelDialog));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RichExportToExcelDialog));
             this.btnExportToExcel = new System.Windows.Forms.Button();
             this.lblDescription = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -62,7 +62,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblDescription.AutoSize = true;
             this.lblDescription.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblDescription.Location = new System.Drawing.Point(12, 13);
+            this.lblDescription.Location = new System.Drawing.Point(12, 9);
             this.lblDescription.Name = "lblDescription";
             this.lblDescription.Size = new System.Drawing.Size(503, 16);
             this.lblDescription.TabIndex = 8;
@@ -139,7 +139,7 @@
             this.tvw.TabIndex = 25;
             this.tvw.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvw_AfterCheck);
             // 
-            // ExportToExcelDialog
+            // RichExportToExcelDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -151,17 +151,17 @@
             this.Controls.Add(this.pnlBorderStresstest);
             this.Controls.Add(this.lblDescription);
             this.Controls.Add(this.btnExportToExcel);
-            this.DataBindings.Add(new System.Windows.Forms.Binding("Tag", global::vApus.Stresstest.Properties.Settings.Default, "SelectedGoals", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
+            this.DataBindings.Add(new System.Windows.Forms.Binding("Tag", global::vApus.Results.Properties.Settings.Default, "ExportToExcelSelectedGoals", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.MaximizeBox = false;
             this.MinimizeBox = false;
-            this.Name = "ExportToExcelDialog";
+            this.Name = "RichExportToExcelDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.SizeGripStyle = System.Windows.Forms.SizeGripStyle.Hide;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Tag = global::vApus.Stresstest.Properties.Settings.Default.SelectedGoals;
-            this.Text = "Export to Excel";
+            this.Tag = global::vApus.Results.Properties.Settings.Default.ExportToExcelSelectedGoals;
+            this.Text = "Rich export to Excel";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ExportToExcelDialog_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.pnlBorderStresstest.ResumeLayout(false);

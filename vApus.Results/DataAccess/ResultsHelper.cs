@@ -17,7 +17,6 @@ using System.Linq;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using vApus.Util;
 
 namespace vApus.Results {
@@ -597,7 +596,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// Only works for the first stresstest. This is a known issue and it will not be fixed: 1 datatable per stressstest only, otherwise the overview is worth nothing. Use a loop to enumerate multiple stresstest ids.
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, results for the first test will be returned.</param>
         /// <returns></returns>
         public DataTable GetOverview(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -971,7 +970,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetAverageConcurrencyResults(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -999,7 +998,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetAverageUserActionResults(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -1053,7 +1052,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetAverageLogEntryResults(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -1081,7 +1080,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetErrors(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -1152,7 +1151,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// Get the user actions and the log entries within, these are asked for the first user of the first run, so if you cancel a test it will not be correct.
         /// However, this is the fastest way to do this and there are no problems with a finished test.
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetUserActionComposition(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -1242,7 +1241,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetMachineConfigurations(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -1288,7 +1287,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetAverageMonitorResults(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -1313,7 +1312,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         private DataTable GetAverageMonitorResults(CancellationToken cancellationToken, int monitorId, params int[] stresstestIds) {
@@ -1547,7 +1546,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// From a 2 dimensional collection to an array of doubles.
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="monitorValues"></param>        /// <returns></returns>
         private double[] GetAverageMonitorResults(CancellationToken cancellationToken, List<KeyValuePair<DateTime, double[]>> monitorValues) {
             var averageMonitorResults = new double[0];
@@ -1583,7 +1582,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public List<DataTable> GetMonitorResults(CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -1609,7 +1608,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="cancellationToken">Used in await Tast.Run...</param>
+        /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
         public DataTable GetMonitorResultsByMonitorId(CancellationToken cancellationToken, int monitorId) {

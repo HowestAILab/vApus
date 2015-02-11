@@ -15,16 +15,15 @@ using System.IO;
 using System.IO.Packaging;
 using System.Threading;
 using System.Windows.Forms;
-using vApus.Results;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.Results {
     /// <summary>
     /// <para>An export to Excel enabler that can easily be expanded.</para>
     /// <para>Export to Excel includes worksheets over different Excel files as charts, made possible by SpreadsheetLight (Do(...)).</para>
     /// <para>An array of tree nodes can be generated for you from the available export goals (GetTreeNodes(...)).</para>
     /// </summary>
-    internal static class ExportToExcel {
+    public static class RichExportToExcel {
         /*
          * An export goal is defined as a '/' seperated path and must be added to _toExport in the InitToExport function.
          * Each goal represents at least one worksheet and chart if you like: this is defined in the attached function, see the code for an example (Datasets region).
@@ -55,7 +54,7 @@ namespace vApus.Stresstest {
         private static List<Color> _colorPalette = new List<Color>(34);
         #endregion
 
-        static ExportToExcel() {
+        static RichExportToExcel() {
             InitToExport();
             FillColorPalette();
         }

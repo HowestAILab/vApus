@@ -328,7 +328,7 @@ namespace vApus.Stresstest {
         }
 
         private void btnExportToExcel_Click(object sender, EventArgs e) {
-            var dialog = new ExportToExcelDialog();
+            var dialog = new RichExportToExcelDialog();
             dialog.Init(_resultsHelper);
             dialog.ShowDialog();
             dialog = null;
@@ -336,7 +336,7 @@ namespace vApus.Stresstest {
 
         public void AutoExportToExcel(string folder) {
             if (Directory.Exists(folder)) {
-                var dialog = new ExportToExcelDialog();
+                var dialog = new RichExportToExcelDialog();
                 dialog.Init(_resultsHelper);
                 dialog.AutoExportToExcel(folder);
             }

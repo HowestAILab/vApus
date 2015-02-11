@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -81,7 +82,7 @@ namespace vApus.DetailedResultsViewer {
             dgvDatabases.DataSource = null;
             cboStresstest.Items.Clear();
             cboStresstest.Enabled = false;
-            btnDeleteSelectedDbs.Enabled = false;
+            btnOverviewExportToExcel.Enabled = btnDeleteSelectedDbs.Enabled = false;
             if (databaseActions == null || setAvailableTags) filterResults.ClearAvailableTags();
             if (databaseActions == null) {
                 if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
@@ -89,16 +90,16 @@ namespace vApus.DetailedResultsViewer {
                 if (setAvailableTags) filterResults.SetAvailableTags(databaseActions);
                 FillDatabasesDataGridView(databaseActions);
                 cboStresstest.Enabled = true;
-                btnDeleteSelectedDbs.Enabled = _dataSource.Rows.Count != 0;
+                btnOverviewExportToExcel.Enabled = btnDeleteSelectedDbs.Enabled = _dataSource.Rows.Count != 0;
             }
         }
         private DatabaseActions SetServerConnectStateInGui() {
-            lblConnectToMySQL.Text = "Connect to a Results MySQL Server...";
+            lblConnectToMySQL.Text = "Connect to a results MySQL server...";
             toolTip.SetToolTip(lblConnectToMySQL, null);
 
             try {
                 if (_mySQLServerDialog.Connected) {
-                    lblConnectToMySQL.Text = "Results Server Connected!";
+                    lblConnectToMySQL.Text = "Results server Connected!";
                     toolTip.SetToolTip(lblConnectToMySQL, "Click to choose another MySQL server.");
 
                     return new DatabaseActions() { ConnectionString = _mySQLServerDialog.ConnectionString };
@@ -361,6 +362,25 @@ namespace vApus.DetailedResultsViewer {
 
                 _currentRow = null;
                 RefreshDatabases(true);
+                Cursor = Cursors.Default;
+            }
+        }
+
+        private void btnOverviewExportToExcel_Click(object sender, EventArgs e) {
+            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
+                Cursor = Cursors.WaitCursor;
+                this.Enabled = false;
+                try {
+                    var databaseNames = new HashSet<string>();
+                    foreach (DataGridViewRow row in dgvDatabases.SelectedRows)
+                        databaseNames.Add(row.Cells[3].Value as string);
+
+                    OverviewExportToExcel.Do(saveFileDialog.FileName, databaseNames, new CancellationToken());
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed exporting overview to Excel", ex);
+                    MessageBox.Show(string.Empty, "Failed exporting overview to Excel", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+                this.Enabled = true;
                 Cursor = Cursors.Default;
             }
         }

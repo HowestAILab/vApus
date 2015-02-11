@@ -32,6 +32,7 @@ namespace vApus.DetailedResultsViewer {
             ClearAvailableTags();
             _filterChangedDelayedTimer.Tick += _filterChangedDelayedTimer_Tick;
         }
+
         ~FilterResultsControl() {
             try { _waitHandle.Dispose(); } catch {
                 //Ignore.
@@ -122,12 +123,12 @@ namespace vApus.DetailedResultsViewer {
         private void txtFilter_KeyPress(object sender, KeyPressEventArgs e) { if (e.KeyChar == '\r') e.Handled = true; }
 
         private void txtFilter_TextChanged(object sender, EventArgs e) {
-            _filterChangedDelayedTimer.Stop();
-            _filterChangedDelayedTimer.Start();
+                _filterChangedDelayedTimer.Stop();
+                _filterChangedDelayedTimer.Start();
         }
         private void _filterChangedDelayedTimer_Tick(object sender, EventArgs e) {
-            _filterChangedDelayedTimer.Stop();
-            InvokeFilterChanged();
+                _filterChangedDelayedTimer.Stop();
+                InvokeFilterChanged();
         }
         private void InvokeFilterChanged() {
             if (FilterChanged != null) {
