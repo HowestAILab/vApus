@@ -502,12 +502,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return l;
             }
         }
-        public List<KeyValuePair<string, string>> GetStresstestConfigurations() {
+
+        public List<KeyValuePair<string, string>> GetStresstestConfigurations(params int[] stresstestIds) {
             lock (_lock) {
                 try {
                     var l = new List<KeyValuePair<string, string>>();
                     if (_databaseActions != null) {
-                        var dt = ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions);
+                        var dt = ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions, stresstestIds);
                         foreach (DataRow row in dt.Rows) {
                             l.Add(new KeyValuePair<string, string>(row.ItemArray[2] as string, string.Empty));
                             l.Add(new KeyValuePair<string, string>("Run Synchronization", row.ItemArray[3] as string));
@@ -531,7 +532,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 } catch { //backwards compatible
                     var l = new List<KeyValuePair<string, string>>();
                     if (_databaseActions != null) {
-                        var dt = ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions);
+                        var dt = ReaderAndCombiner.GetStresstests(new CancellationToken(), _databaseActions, stresstestIds);
                         foreach (DataRow row in dt.Rows) {
                             l.Add(new KeyValuePair<string, string>(row.ItemArray[2] as string, string.Empty));
                             l.Add(new KeyValuePair<string, string>("Run Synchronization", row.ItemArray[3] as string));

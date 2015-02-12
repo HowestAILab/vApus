@@ -36,8 +36,10 @@ namespace vApus.Stresstest {
             var ofd = new OpenFileDialog();
 
             string path = Path.Combine(Application.StartupPath, "ConnectionProxies");
-            if (Directory.Exists(path))
+            if (Directory.Exists(path)) {
                 ofd.InitialDirectory = path;
+                MoveConnectionProxyPrerequisistes(path);
+            }
 
             ofd.Multiselect = true;
             ofd.Filter = "Xml Files (*.xml) | *.xml";
@@ -74,6 +76,29 @@ namespace vApus.Stresstest {
                     Loggers.Log(Level.Error, s, null, new object[] { sender, e });
                     MessageBox.Show(s, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
+            }
+        }
+
+        /// <summary>
+        /// Only if in ConnectionProxies.
+        /// </summary>
+        /// <param name="sourceDir"></param>
+        private void MoveConnectionProxyPrerequisistes(string sourceDir) {
+            try {
+                string path = Path.Combine(Application.StartupPath, "ConnectionProxyPrerequisites");
+                if (!Directory.Exists(path))
+                    Directory.CreateDirectory(path);
+
+                if (!sourceDir.EndsWith("\\")) sourceDir += "\\";
+
+                foreach (string file in Directory.GetFiles(sourceDir))
+                    if (file.EndsWith(".dll") || file.EndsWith(".pdb")) {
+                        string destFile = Path.Combine(path, file.Substring(sourceDir.Length));
+                        File.Copy(file, destFile, true);
+                        File.Delete(file);
+                    }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed moving connection proxy prerequisites from the ConnectionProxies folder.", ex);
             }
         }
 

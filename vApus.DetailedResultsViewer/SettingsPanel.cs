@@ -39,6 +39,8 @@ namespace vApus.DetailedResultsViewer {
         private DataRow _currentRow = null; //RowEnter happens multiple times for some strange reason, use this to not execute the refresh code when not needed.
         private System.Timers.Timer _rowEnterTimer = new System.Timers.Timer(1000);
 
+        private CancellationTokenSource _cancellationTokenSource;
+
         public ResultsHelper ResultsHelper {
             get { return _resultsHelper; }
             set { _resultsHelper = value; }
@@ -366,23 +368,37 @@ namespace vApus.DetailedResultsViewer {
             }
         }
 
-        private void btnOverviewExportToExcel_Click(object sender, EventArgs e) {
-            if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                Cursor = Cursors.WaitCursor;
-                this.Enabled = false;
-                try {
-                    var databaseNames = new HashSet<string>();
-                    foreach (DataGridViewRow row in dgvDatabases.SelectedRows)
-                        databaseNames.Add(row.Cells[3].Value as string);
+        async private void btnOverviewExportToExcel_Click(object sender, EventArgs e) {
+            if (_resultsHelper != null && saveFileDialog.ShowDialog() == DialogResult.OK) {
+                Form parent = this.FindForm();
+                if (parent != null) {
+                    Cursor = Cursors.WaitCursor;
+                    this.Enabled = false;
 
-                    OverviewExportToExcel.Do(saveFileDialog.FileName, databaseNames, new CancellationToken());
-                } catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Failed exporting overview to Excel", ex);
-                    MessageBox.Show(string.Empty, "Failed exporting overview to Excel", MessageBoxButtons.OK, MessageBoxIcon.Error);
+
+                    try {
+                        var databaseNames = new SortedDictionary<int, string>();
+                        foreach (DataGridViewRow row in dgvDatabases.SelectedRows)
+                            databaseNames.Add(row.Index, row.Cells[3].Value as string);
+
+                        parent.FormClosing += parent_FormClosing;
+                        _cancellationTokenSource = new CancellationTokenSource();
+                        await Task.Run(() => OverviewExportToExcel.Do(saveFileDialog.FileName, databaseNames.Values, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed exporting overview to Excel", ex);
+                        MessageBox.Show(string.Empty, "Failed exporting overview to Excel", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    }
+                    _cancellationTokenSource = null;
+                    this.Enabled = true;
+                    Cursor = Cursors.Default;
                 }
-                this.Enabled = true;
-                Cursor = Cursors.Default;
             }
+        }
+
+        private void parent_FormClosing(object sender, FormClosingEventArgs e) {
+                Form parent = this.FindForm();
+                if (parent != null) parent.FormClosing -= parent_FormClosing;
+                _cancellationTokenSource.Cancel();
         }
     }
 }
