@@ -406,6 +406,8 @@ namespace vApus.DistributedTesting {
 
                     //Check if it is needed to do anything
                     if (Running != 0 && Cancelled == 0 && Failed == 0) {
+                        string ts = "[TS " + tpm.TileStresstestIndex + "]";
+
                         //Threat this as stopped.
                         if (okCancelError) _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
 
@@ -413,6 +415,9 @@ namespace vApus.DistributedTesting {
                             case RunSynchronization.None:
                                 if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime && _runInitialized != null) {//To definitely start them all at the same time.
                                     _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
+#if EnableBetaFeature
+                                    InvokeMessage("Received run initialized " + ts);
+#endif
                                     if (_runInitialized.Length == Running) {
                                         _runInitialized = null;
                                         MasterSideCommunicationHandler.SendContinue();
@@ -427,6 +432,9 @@ namespace vApus.DistributedTesting {
                             case RunSynchronization.BreakOnFirstFinished:
                                 if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime) {
                                     _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
+#if EnableBetaFeature
+                                    InvokeMessage("Received run initialized " + ts);
+#endif
                                     if (_runInitialized.Length == Running) {
                                         _runInitialized = new string[] { };
                                         MasterSideCommunicationHandler.SendContinue();
@@ -437,7 +445,7 @@ namespace vApus.DistributedTesting {
                                 } else if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) {
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
 #if EnableBetaFeature
-                                    InvokeMessage("Received run done once");
+                                    InvokeMessage("Received run done once " + ts);
 #endif
                                     if (_runDoneOnce.Length == _totalTestCount) {
                                         _runDoneOnce = new string[] { };
@@ -460,6 +468,9 @@ namespace vApus.DistributedTesting {
                             case RunSynchronization.BreakOnLastFinished:
                                 if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime) {
                                     _runInitialized = AddUniqueToStringArray(_runInitialized, tpm.TileStresstestIndex);
+#if EnableBetaFeature
+                                    InvokeMessage("Received run initialized " + ts);
+#endif
                                     if (_runInitialized.Length == Running) {
                                         _runInitialized = new string[] { };
                                         MasterSideCommunicationHandler.SendContinue();
@@ -469,6 +480,9 @@ namespace vApus.DistributedTesting {
                                     }
                                 } else if (tpm.RunStateChange == RunStateChange.ToRunDoneOnce) {
                                     _runDoneOnce = AddUniqueToStringArray(_runDoneOnce, tpm.TileStresstestIndex);
+#if EnableBetaFeature
+                                    InvokeMessage("Received run done once " + ts);
+#endif
                                     if (_runDoneOnce.Length == Running) {
                                         _runDoneOnce = new string[] { };
                                         _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
@@ -478,6 +492,9 @@ namespace vApus.DistributedTesting {
 #endif
                                     }
                                 } else if (tpm.RunStateChange == RunStateChange.ToRerunDone) {
+#if EnableBetaFeature
+                                    InvokeMessage("Received rerun done " + ts);
+#endif
                                     if (IncrementReruns(tpm.TileStresstestIndex) == _distributedTest.MaxRerunsBreakOnLast) {
                                         _runDoneOnce = new string[] { };
                                         _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
