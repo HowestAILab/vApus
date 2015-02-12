@@ -41,7 +41,6 @@
             this.btnDeleteSelectedDbs = new System.Windows.Forms.Button();
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.btnOverviewExportToExcel = new System.Windows.Forms.Button();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.filterResults = new vApus.DetailedResultsViewer.FilterResultsControl();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDatabases)).BeginInit();
@@ -269,12 +268,6 @@
             this.btnOverviewExportToExcel.UseVisualStyleBackColor = false;
             this.btnOverviewExportToExcel.Click += new System.EventHandler(this.btnOverviewExportToExcel_Click);
             // 
-            // saveFileDialog
-            // 
-            this.saveFileDialog.Filter = "Excel file|*.xlsx";
-            this.saveFileDialog.Title = "Export test and monitor results per concurrency for the selected results dat" +
-    "abases.";
-            // 
             // SettingsPanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -317,7 +310,6 @@
         private System.Windows.Forms.Button btnDeleteSelectedDbs;
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.Button btnOverviewExportToExcel;
-        private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private vApus.DetailedResultsViewer.FilterResultsControl filterResults;
     }
 }

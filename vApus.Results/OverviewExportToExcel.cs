@@ -20,18 +20,34 @@ using vApus.Util;
 
 namespace vApus.Results {
     public static class OverviewExportToExcel {
-        public static void Do(string fileName, IEnumerable<string> databaseNames, CancellationToken token) {
+        public static void Do(string fileName, IEnumerable<string> databaseNames, bool includeFullMonitorResults, CancellationToken token) {
             var doc = new SLDocument();
-            string worksheet = "Overview";
-            doc.AddWorksheet(worksheet);
+            string firstWorksheet = "Overview";
+            doc.AddWorksheet(firstWorksheet);
 
             int rowOffset = 0;
 
-            foreach (string databaseName in databaseNames)
-                if (!token.IsCancellationRequested)
-                    rowOffset = Do(doc, rowOffset, databaseName, token);
+            foreach (string databaseName in databaseNames) {
+                string connectionString = ConnectionStringManager.GetCurrentConnectionString(databaseName);
 
-            try { doc.SelectWorksheet(worksheet); } catch { }
+                using (var databaseActions = new DatabaseActions() { ConnectionString = connectionString }) {
+                    var resultsHelper = new ResultsHelper();
+                    resultsHelper.ConnectToExistingDatabase(databaseActions, databaseName);
+
+                    if (!token.IsCancellationRequested)
+                        rowOffset = MakeOverviewSheet(doc, rowOffset, resultsHelper, token);
+                    if (includeFullMonitorResults)
+                        if (!token.IsCancellationRequested)
+                            MakeMonitorSheets(doc, resultsHelper, token);
+
+                    resultsHelper.KillConnection();
+                    resultsHelper = null;
+                }
+            }
+
+
+
+            try { doc.SelectWorksheet(firstWorksheet); } catch { }
             try { doc.DeleteWorksheet("Sheet1"); } catch { }
 
             if (!token.IsCancellationRequested)
@@ -47,87 +63,130 @@ namespace vApus.Results {
         /// <param name="databaseName"></param>
         /// <param name="token"></param>
         /// <returns>The row offset</returns>
-        private static int Do(SLDocument doc, int rowOffset, string databaseName, CancellationToken token) {
+        private static int MakeOverviewSheet(SLDocument doc, int rowOffset, ResultsHelper resultsHelper, CancellationToken token) {
             int row = 1 + rowOffset;
             int column = 1;
-            string connectionString = ConnectionStringManager.GetCurrentConnectionString(databaseName);
 
-            using (var databaseActions = new DatabaseActions() { ConnectionString = connectionString }) {
-                var resultsHelper = new ResultsHelper();
-                resultsHelper.ConnectToExistingDatabase(databaseActions, databaseName);
+            SetCellValue(doc, row++, column, "Description:");
+            SetCellValue(doc, row++, column, resultsHelper.GetDescription());
+            ++row;
+            SetCellValue(doc, row++, column, "Tags:");
+            SetCellValue(doc, row++, column, resultsHelper.GetTags().Combine(" "));
+            ++row;
 
-                SetCellValue(doc, row++, column, "Description:");
-                SetCellValue(doc, row++, column, resultsHelper.GetDescription());
-                ++row;
-                SetCellValue(doc, row++, column, "Tags:");
-                SetCellValue(doc, row++, column, resultsHelper.GetTags().Combine(" "));
-                ++row;
+            List<int> stresstestIds = resultsHelper.GetStresstestIds();
+            foreach (int stresstestId in stresstestIds)
+                if (!token.IsCancellationRequested) {
+                    DataTable avgConcurrencyResults = resultsHelper.GetAverageConcurrencyResults(token, stresstestId);
 
-                List<int> stresstestIds = resultsHelper.GetStresstestIds();
-                foreach (int stresstestId in stresstestIds)
-                    if (!token.IsCancellationRequested) {
-                        DataTable avgConcurrencyResults = resultsHelper.GetAverageConcurrencyResults(token, stresstestId);
+                    if (avgConcurrencyResults.Rows.Count == 0) continue;
+                    avgConcurrencyResults.Columns.Remove("Stresstest");
 
-                        if (avgConcurrencyResults.Rows.Count == 0) continue;
-                        avgConcurrencyResults.Columns.Remove("Stresstest");
+                    List<KeyValuePair<string, string>> configuration = resultsHelper.GetStresstestConfigurations(stresstestId);
 
-                        List<KeyValuePair<string, string>> configuration = resultsHelper.GetStresstestConfigurations(stresstestId);
-
-                        var sb = new StringBuilder();
-                        for (int i = 0; i != configuration.Count; i++) {
-                            var kvp = configuration[i];
-                            sb.Append(kvp.Key);
-                            if (!string.IsNullOrWhiteSpace(kvp.Value)) {
-                                sb.Append(": ");
-                                sb.Append(kvp.Value);
-                            }
-                            if (i != configuration.Count - 1)
-                                sb.Append(", ");
+                    var sb = new StringBuilder();
+                    for (int i = 0; i != configuration.Count; i++) {
+                        var kvp = configuration[i];
+                        sb.Append(kvp.Key);
+                        if (!string.IsNullOrWhiteSpace(kvp.Value)) {
+                            sb.Append(": ");
+                            sb.Append(kvp.Value);
                         }
-
-                        SetCellValue(doc, row, column, sb.ToString().Trim());
-
-                        Dictionary<int, string> monitors = resultsHelper.GetMonitors(new int[] { stresstestId });
-
-                        if (monitors.Count != 0)
-                            foreach (var kvp in configuration)
-                                if (kvp.Key == "Monitor Before" && kvp.Value != "0 minutes")
-                                    avgConcurrencyResults.Rows.InsertAt(avgConcurrencyResults.NewRow(), 0);
-                                else if (kvp.Key == "Monitor After" && kvp.Value != "0 minutes")
-                                    avgConcurrencyResults.Rows.Add(avgConcurrencyResults.NewRow());
-
-
-
-                        SetCellValues(doc, ++row, column, avgConcurrencyResults);
-                        column += avgConcurrencyResults.Columns.Count + 1;
-
-                        foreach (int monitorId in monitors.Keys)
-                            if (!token.IsCancellationRequested) {
-                                DataTable avgMonitorResults = resultsHelper.GetAverageMonitorResultsByMonitorId(token, monitorId);
-                                if (avgMonitorResults.Rows.Count == 0) continue;
-
-                                avgMonitorResults.Columns.Remove("Stresstest");
-                                avgMonitorResults.Columns.Remove("Started At");
-                                avgMonitorResults.Columns.Remove("Measured Time");
-                                avgMonitorResults.Columns.Remove("Measured Time (ms)");
-                                avgMonitorResults.Columns.Remove("Concurrency");
-
-                                string monitor = avgMonitorResults.Rows[0].ItemArray[0] as string;
-                                SetCellValue(doc, row - 1, column, monitor);
-
-                                avgMonitorResults.Columns.Remove("Monitor");
-
-                                SetCellValues(doc, row, column, avgMonitorResults);
-                                column += avgMonitorResults.Columns.Count + 1;
-                            }
-                        row += avgConcurrencyResults.Rows.Count + 2;
-                        column = 1;
+                        if (i != configuration.Count - 1)
+                            sb.Append(", ");
                     }
 
-                resultsHelper.KillConnection();
-                resultsHelper = null;
-            }
+                    SetCellValue(doc, row, column, sb.ToString().Trim());
+
+                    Dictionary<int, string> monitors = resultsHelper.GetMonitors(new int[] { stresstestId });
+
+                    if (monitors.Count != 0)
+                        foreach (var kvp in configuration)
+                            if (kvp.Key == "Monitor Before" && kvp.Value != "0 minutes")
+                                avgConcurrencyResults.Rows.InsertAt(avgConcurrencyResults.NewRow(), 0);
+                            else if (kvp.Key == "Monitor After" && kvp.Value != "0 minutes")
+                                avgConcurrencyResults.Rows.Add(avgConcurrencyResults.NewRow());
+
+
+
+                    SetCellValues(doc, ++row, column, avgConcurrencyResults);
+                    column += avgConcurrencyResults.Columns.Count + 1;
+
+                    foreach (int monitorId in monitors.Keys)
+                        if (!token.IsCancellationRequested) {
+                            DataTable avgMonitorResults = resultsHelper.GetAverageMonitorResultsByMonitorId(token, monitorId);
+                            if (avgMonitorResults.Rows.Count == 0) continue;
+
+                            avgMonitorResults.Columns.Remove("Stresstest");
+                            avgMonitorResults.Columns.Remove("Started At");
+                            avgMonitorResults.Columns.Remove("Measured Time");
+                            avgMonitorResults.Columns.Remove("Measured Time (ms)");
+                            avgMonitorResults.Columns.Remove("Concurrency");
+
+                            string monitor = avgMonitorResults.Rows[0].ItemArray[0] as string;
+                            SetCellValue(doc, row - 1, column, monitor);
+
+                            avgMonitorResults.Columns.Remove("Monitor");
+
+                            SetCellValues(doc, row, column, avgMonitorResults);
+                            column += avgMonitorResults.Columns.Count + 1;
+                        }
+                    row += avgConcurrencyResults.Rows.Count + 2;
+                    column = 1;
+                }
+
             return ++row;
+        }
+        private static void MakeMonitorSheets(SLDocument doc, ResultsHelper resultsHelper, CancellationToken token) {
+            List<int> stresstestIds = resultsHelper.GetStresstestIds();
+            foreach (int stresstestId in stresstestIds)
+                if (!token.IsCancellationRequested) {
+                    Dictionary<int, string> monitorIdsAndNames = resultsHelper.GetMonitors(new int[] { stresstestId });
+                    foreach (int monitorId in monitorIdsAndNames.Keys)
+                        if (!token.IsCancellationRequested) {
+                            DataTable dt = Prep(resultsHelper.GetMonitorResultsByMonitorId(token, monitorId));
+                            dt.Columns.Remove("Monitor");
+
+                            string firstWorksheet = MakeWorksheet(doc, dt, (doc.GetSheetNames().Count - 1) + " " + monitorIdsAndNames[monitorId], false, true);
+                        }
+                }
+        }
+
+        private static string MakeWorksheet(SLDocument doc, DataTable dt, string name, bool autoFilter, bool autoFitColumns, bool includeHeaders = true) {
+            //max 31 chars
+            name = name.ReplaceInvalidWindowsFilenameChars(' ').Replace('/', ' ').Replace('[', ' ').Replace(']', ' ').Trim();
+            if (name.Length > 31) name = name.Substring(0, 31);
+            doc.AddWorksheet(name);
+
+            var boldStyle = new SLStyle();
+            boldStyle.Font.Bold = true;
+
+            //Add the headers
+            if (includeHeaders)
+                for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++) {
+                    SetCellValue(doc, 1, clmIndex + 1, dt.Columns[clmIndex].ColumnName);
+                    doc.SetCellStyle(1, clmIndex + 1, boldStyle);
+                }
+
+            int rowOffset = includeHeaders ? 2 : 1;
+            int columnOffset = 1;
+            for (int rowIndex = 0; rowIndex != dt.Rows.Count; rowIndex++) {
+                var row = dt.Rows[rowIndex].ItemArray;
+                for (int columnIndex = 0; columnIndex != row.Length; columnIndex++) {
+                    var value = row[columnIndex];
+
+                    int r = rowIndex + rowOffset;
+                    int c = columnIndex + columnOffset;
+                    SetCellValue(doc, r, c, value);
+
+                    if (c == 1) doc.SetCellStyle(r, c, boldStyle);
+                }
+            }
+
+            if (autoFilter) doc.Filter(1, 1, dt.Rows.Count, dt.Columns.Count);
+            if (autoFitColumns) doc.AutoFitColumn(1, dt.Columns.Count, 60d);
+
+            return name;
         }
 
         private static void SetCellValues(SLDocument doc, int rowOffset, int columnOffset, DataTable dt) {
@@ -170,6 +229,34 @@ namespace vApus.Results {
             } else {
                 doc.SetCellValue(row, column, value.ToString());
             }
+        }
+        /// <summary>
+        /// Makes a new data table without the 'Stresstest' column (if any) and "<16 0C 02 12$>" replaced by "•".
+        /// </summary>
+        /// <param name="dt"></param>
+        /// <returns></returns>
+        private static DataTable Prep(DataTable dt) {
+            DataTable copy = dt.Copy();
+
+            if (copy.Columns.Count != 0) {
+                if (copy.Columns[0].ColumnName == "Stresstest")
+                    copy.Columns.RemoveAt(0);
+
+                DataTable clone = copy.Clone();
+
+                foreach (DataRow row in copy.Rows) {
+                    object[] arr = row.ItemArray;
+                    for (int i = 0; i != arr.Length; i++)
+                        if (arr[i] is string)
+                            arr[i] = (arr[i] as string).Replace("<16 0C 02 12$>", "•");
+
+                    clone.Rows.Add(arr);
+                }
+
+                copy = clone;
+            }
+
+            return copy;
         }
     }
 }

@@ -39,8 +39,6 @@ namespace vApus.DetailedResultsViewer {
         private DataRow _currentRow = null; //RowEnter happens multiple times for some strange reason, use this to not execute the refresh code when not needed.
         private System.Timers.Timer _rowEnterTimer = new System.Timers.Timer(1000);
 
-        private CancellationTokenSource _cancellationTokenSource;
-
         public ResultsHelper ResultsHelper {
             get { return _resultsHelper; }
             set { _resultsHelper = value; }
@@ -351,15 +349,19 @@ namespace vApus.DetailedResultsViewer {
 
         async private void btnDeleteSelectedDbs_Click(object sender, EventArgs e) {
             if (_resultsHelper != null &&
-                MessageBox.Show("Are you sure you want to delete the selected results databases?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
+                MessageBox.Show("Are you sure you want to delete the selected results database(s)?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
                 Cursor = Cursors.WaitCursor;
 
-                var toDelete = new ConcurrentBag<string>();
-                foreach (DataGridViewRow row in dgvDatabases.SelectedRows) {
-                    string db = row.Cells[3].Value as string;
-                    await Task.Run(() => {
-                        try { _resultsHelper.DeleteResults(db); } catch { }
-                    });
+                try {
+                    foreach (DataGridViewRow row in dgvDatabases.SelectedRows) {
+                        string db = row.Cells[3].Value as string;
+                        await Task.Run(() => {
+                            if (!_resultsHelper.DeleteResults(db))
+                                throw new Exception();
+                        });
+                    }
+                } catch {
+                    MessageBox.Show(string.Empty, "Failed deleting selected database(s).", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 _currentRow = null;
@@ -368,37 +370,20 @@ namespace vApus.DetailedResultsViewer {
             }
         }
 
-        async private void btnOverviewExportToExcel_Click(object sender, EventArgs e) {
-            if (_resultsHelper != null && saveFileDialog.ShowDialog() == DialogResult.OK) {
-                Form parent = this.FindForm();
-                if (parent != null) {
-                    Cursor = Cursors.WaitCursor;
-                    this.Enabled = false;
+        private void btnOverviewExportToExcel_Click(object sender, EventArgs e) {
+            if (_resultsHelper != null)
+                try {
+                    var databaseNames = new SortedDictionary<int, string>();
+                    foreach (DataGridViewRow row in dgvDatabases.SelectedRows)
+                        databaseNames.Add(row.Index, row.Cells[3].Value as string);
 
-
-                    try {
-                        var databaseNames = new SortedDictionary<int, string>();
-                        foreach (DataGridViewRow row in dgvDatabases.SelectedRows)
-                            databaseNames.Add(row.Index, row.Cells[3].Value as string);
-
-                        parent.FormClosing += parent_FormClosing;
-                        _cancellationTokenSource = new CancellationTokenSource();
-                        await Task.Run(() => OverviewExportToExcel.Do(saveFileDialog.FileName, databaseNames.Values, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
-                    } catch (Exception ex) {
-                        Loggers.Log(Level.Error, "Failed exporting overview to Excel", ex);
-                        MessageBox.Show(string.Empty, "Failed exporting overview to Excel", MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    }
-                    _cancellationTokenSource = null;
-                    this.Enabled = true;
-                    Cursor = Cursors.Default;
+                    var overviewExportDialog = new OverviewExportToExcelDialog();
+                    overviewExportDialog.Init(_resultsHelper, databaseNames.Values);
+                    overviewExportDialog.ShowDialog();
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed exporting overview to Excel.", ex);
+                    MessageBox.Show(string.Empty, "Failed exporting overview to Excel.", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
-            }
-        }
-
-        private void parent_FormClosing(object sender, FormClosingEventArgs e) {
-                Form parent = this.FindForm();
-                if (parent != null) parent.FormClosing -= parent_FormClosing;
-                _cancellationTokenSource.Cancel();
         }
     }
 }

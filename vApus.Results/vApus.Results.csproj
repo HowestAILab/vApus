@@ -130,6 +130,12 @@
       <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="OverviewExportToExcel.cs" />
+    <Compile Include="OverviewExportToExcelDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="OverviewExportToExcelDialog.Designer.cs">
+      <DependentUpon>OverviewExportToExcelDialog.cs</DependentUpon>
+    </Compile>
     <Compile Include="RichExportToExcel.cs" />
     <Compile Include="RichExportToExcelDialog.cs">
       <SubType>Form</SubType>
@@ -181,6 +187,9 @@
   <ItemGroup>
     <EmbeddedResource Include="DescriptionAndTagsInputDialog.resx">
       <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="OverviewExportToExcelDialog.resx">
+      <DependentUpon>OverviewExportToExcelDialog.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="RichExportToExcelDialog.resx">
       <DependentUpon>RichExportToExcelDialog.cs</DependentUpon>

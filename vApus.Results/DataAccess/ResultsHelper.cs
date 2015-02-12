@@ -2524,15 +2524,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// Deletes the current database.
         /// </summary>
-        public void DeleteResults() { DeleteResults(_databaseName); }
-        public void DeleteResults(string databaseName) {
+        public bool DeleteResults() { return DeleteResults(_databaseName); }
+        public bool DeleteResults(string databaseName) {
             lock (_lock)
                 try {
                     Schema.Drop(databaseName, _databaseActions);
                     _databaseName = null;
+                    return true;
                 } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed deleting the results database.", ex);
                 }
+            return false;
         }
 
         private DataTable CreateEmptyDataTable(string name, params string[] columnNames) {

@@ -230,9 +230,7 @@ namespace vApus.Results {
             Properties.Settings.Default.Save();
         }
 
-        private void btnExportToExcel_Click(object sender, EventArgs e) {
-            Export();
-        }
+        private void btnExportToExcel_Click(object sender, EventArgs e) { Export(); }
 
         async private void Export(string autoExportFolder = "") {
             saveFileDialog.FileName = Path.Combine(autoExportFolder, _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_'));
