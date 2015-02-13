@@ -1,4 +1,3 @@
-using RandomUtils.Log;
 /*
  * Copyright 2007 (c) Blancke Karen, Cavaliere Leandro, Kets Brecht, Vandroemme Dieter
  * Technical University Kortrijk, department PIH
@@ -6,6 +5,7 @@ using RandomUtils.Log;
  * Author(s):
  *    Vandroemme Dieter
  */
+using RandomUtils.Log;
 using System;
 using System.IO;
 using System.Text;
@@ -26,6 +26,8 @@ namespace vApus.Monitor {
         public HardwareConfigurationDialog(string configuration) {
             InitializeComponent();
             LoadConfiguration(configuration);
+
+            rtxt.DefaultContextMenu(true);
         }
         #endregion
 

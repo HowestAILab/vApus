@@ -10,8 +10,12 @@ using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
 
-namespace vApus.Stresstest {
+namespace vApus.Util {
     public class CodeTextBox : FastColoredTextBox {
+        public CodeTextBox()
+            : base() {
+            this.DefaultContextMenu(true);
+        }
         public override string Text {
             get { return base.Text; }
             set {

@@ -48,7 +48,7 @@ namespace vApus.Stresstest {
             this.splitQueryData = new System.Windows.Forms.SplitContainer();
             this.pnlBorderExecute = new System.Windows.Forms.Panel();
             this.btnExecute = new System.Windows.Forms.Button();
-            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
+            this.codeTextBox = new vApus.Util.CodeTextBox();
             this.chkShowCellView = new System.Windows.Forms.CheckBox();
             this.splitData = new System.Windows.Forms.SplitContainer();
             this.dgvDetailedResults = new System.Windows.Forms.DataGridView();
@@ -734,7 +734,7 @@ namespace vApus.Stresstest {
         private System.Windows.Forms.CheckBox chkAdvanced;
         private System.Windows.Forms.Button btnSaveDisplayedResults;
         private System.Windows.Forms.SplitContainer splitQueryData;
-        private CodeTextBox codeTextBox;
+        private vApus.Util.CodeTextBox codeTextBox;
         private System.Windows.Forms.DataGridView dgvDetailedResults;
         private System.Windows.Forms.Button btnExecute;
         private System.Windows.Forms.Panel pnlBorderExecute;

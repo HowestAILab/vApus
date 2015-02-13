@@ -10,7 +10,6 @@ using System;
 using System.Collections;
 using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 
@@ -119,6 +118,8 @@ namespace vApus.Util {
         /// </summary>
         public BaseValueControl() {
             InitializeComponent();
+
+            rtxtDescription.DefaultContextMenu(true);
         }
 
         #endregion

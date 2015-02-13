@@ -64,6 +64,8 @@ namespace vApus.Stresstest {
             cboShow.HandleCreated += cboShow_HandleCreated;
 
             OnResults += DetailedResultsControl_OnResults;
+
+            fctxtCellView.DefaultContextMenu(true);
         }
         #endregion
 

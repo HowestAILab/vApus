@@ -46,6 +46,9 @@ namespace vApus.Stresstest {
             try {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+
+                fctxtxImport.DefaultContextMenu(true);
+
             } catch {
                 //Should / can never happen.
             }

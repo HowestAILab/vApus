@@ -162,6 +162,9 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FastColoredTextBox">
+      <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\Prerequisites\RandomUtils\Newtonsoft.Json.dll</HintPath>
     </Reference>

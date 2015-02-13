@@ -31,7 +31,7 @@ namespace vApus.Stresstest
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConnectionProxyCodeView));
             this.splitCode = new System.Windows.Forms.SplitContainer();
-            this.codeTextBox = new vApus.Stresstest.CodeTextBox();
+            this.codeTextBox = new vApus.Util.CodeTextBox();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
             this.tcTools = new System.Windows.Forms.TabControl();

@@ -1,4 +1,5 @@
-﻿namespace vApus.Stresstest {
+﻿using vApus.Util;
+namespace vApus.Stresstest {
     partial class CustomRandomParameterPanel {
         /// <summary>
         /// Required designer variable.
@@ -27,7 +28,7 @@
             this.chkUnique = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.compileCustomRandom = new vApus.Stresstest.TestCustomRandomPanel();
-            this.ctxtGenerate = new vApus.Stresstest.CodeTextBox();
+            this.ctxtGenerate = new vApus.Util.CodeTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ctxtGenerate)).BeginInit();
             this.SuspendLayout();
             // 
