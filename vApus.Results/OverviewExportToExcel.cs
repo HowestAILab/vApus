@@ -197,7 +197,7 @@ namespace vApus.Results {
                             DataTable dt = Prep(resultsHelper.GetMonitorResultsByMonitorId(token, monitorId));
                             dt.Columns.Remove("Monitor");
 
-                            string firstWorksheet = MakeWorksheet(doc, dt, (doc.GetSheetNames().Count - 1) + " " + monitorIdsAndNames[monitorId], false, true);
+                            string firstWorksheet = MakeWorksheet(doc, dt, (doc.GetSheetNames().Count - 2) + " " + monitorIdsAndNames[monitorId], false, true);
                         }
                 }
         }
@@ -314,47 +314,52 @@ namespace vApus.Results {
                     clone.Rows.Add(arr);
                 }
 
-                copy = clone;
-                clone = copy.Clone();
+                if (addExtraColumns.Count != 0) {
+                    copy = clone;
+                    clone = copy.Clone();
 
-                for (int i = addExtraColumns.Count - 1; i != -1; i--) {
-                    string prefix = copy.Columns[i - 1].ColumnName + "_";
-                    for (int j = 0; j != addExtraColumns[i]; j++) {
-                        DataColumn column = clone.Columns.Add(prefix + (j + 2));
-                        int atIndex = i + j;
-                        if (atIndex < clone.Columns.Count - 1)
-                            column.SetOrdinal(atIndex);
-                    }
-                }
-
-                foreach (DataRow row in copy.Rows) {
-                    object[] arr = row.ItemArray;
-                    var l = new List<object>();
-                    for (int i = 0; i != arr.Length; i++) {
-                        if (arr[i] is string) {
-                            int extraColumns = 0;
-                            if (addExtraColumns.ContainsKey(i)) extraColumns = addExtraColumns[i];
-
-                            string s = arr[i] as string;
-                            s = s.Replace("<16 0C 02 12$>", "•");
-                            while (s.Length > 32767) { //Excel cell limit.
-                                --extraColumns; //Correct this.
-                                l.Add(s.Substring(0, 32767));
-                                s = s.Substring(32767);
-                            }
-                            if (s.Length > 0) l.Add(s);
-
-                            for (int j = 0; j != extraColumns; j++)
-                                l.Add(string.Empty);
-                        } else {
-                            l.Add(arr[i]);
+                    int[] temp = new int[addExtraColumns.Count];
+                    addExtraColumns.Keys.CopyTo(temp, 0);
+                    var keys = temp.OrderByDescending(1);
+                    foreach (int key in keys) {
+                        string prefix = copy.Columns[key - 1].ColumnName + "_";
+                        for (int j = 0; j != addExtraColumns[key]; j++) {
+                            DataColumn column = clone.Columns.Add(prefix + (j + 2));
+                            int atIndex = key + j;
+                            if (atIndex < clone.Columns.Count - 1)
+                                column.SetOrdinal(atIndex);
                         }
                     }
 
-                    clone.Rows.Add(l.ToArray());
-                }
+                    foreach (DataRow row in copy.Rows) {
+                        object[] arr = row.ItemArray;
+                        var l = new List<object>();
+                        for (int i = 0; i != arr.Length; i++) {
+                            if (arr[i] is string) {
+                                int extraColumns = 0;
+                                int atIndex = i + 1;
+                                if (addExtraColumns.ContainsKey(atIndex)) extraColumns = addExtraColumns[atIndex];
 
-                copy = clone;
+                                string s = arr[i] as string;
+                                while (s.Length > 32767) { //Excel cell limit.
+                                    --extraColumns; //Correct this.
+                                    l.Add(s.Substring(0, 32767));
+                                    s = s.Substring(32767);
+                                }
+                                if (s.Length > 0) l.Add(s);
+
+                                for (int j = 0; j != extraColumns; j++)
+                                    l.Add(string.Empty);
+                            } else {
+                                l.Add(arr[i]);
+                            }
+                        }
+
+                        clone.Rows.Add(l.ToArray());
+                    }
+
+                    copy = clone;
+                }
             }
 
             return copy;
