@@ -24,8 +24,10 @@ namespace vApus.Results {
             var doc = new SLDocument();
             string firstWorksheet = "Overview";
             doc.AddWorksheet(firstWorksheet);
+            doc.AddWorksheet("Machine configurations");
 
-            int rowOffset = 0;
+            int rowOffset1 = 0;
+            int rowOffset2 = 0;
 
             foreach (string databaseName in databaseNames) {
                 string connectionString = ConnectionStringManager.GetCurrentConnectionString(databaseName);
@@ -35,7 +37,10 @@ namespace vApus.Results {
                     resultsHelper.ConnectToExistingDatabase(databaseActions, databaseName);
 
                     if (!token.IsCancellationRequested)
-                        rowOffset = MakeOverviewSheet(doc, rowOffset, resultsHelper, token);
+                        rowOffset1 = MakeOverviewSheet(doc, rowOffset1, resultsHelper, token);
+                    if (!token.IsCancellationRequested)
+                        rowOffset2 = MakeMachineConfigSheet(doc, rowOffset1, resultsHelper, token);
+
                     if (includeFullMonitorResults)
                         if (!token.IsCancellationRequested)
                             MakeMonitorSheets(doc, resultsHelper, token);
@@ -64,6 +69,8 @@ namespace vApus.Results {
         /// <param name="token"></param>
         /// <returns>The row offset</returns>
         private static int MakeOverviewSheet(SLDocument doc, int rowOffset, ResultsHelper resultsHelper, CancellationToken token) {
+            doc.SelectWorksheet("Overview");
+
             int row = 1 + rowOffset;
             int column = 1;
 
@@ -133,6 +140,49 @@ namespace vApus.Results {
                         }
                     row += avgConcurrencyResults.Rows.Count + 2;
                     column = 1;
+                }
+
+            return ++row;
+        }
+        private static int MakeMachineConfigSheet(SLDocument doc, int rowOffset, ResultsHelper resultsHelper, CancellationToken token) {
+            doc.SelectWorksheet("Machine configurations");
+            
+            int row = 1 + rowOffset;
+            int column = 1;
+
+            SetCellValue(doc, row++, column, "Description:");
+            SetCellValue(doc, row++, column, resultsHelper.GetDescription());
+            ++row;
+            SetCellValue(doc, row++, column, "Tags:");
+            SetCellValue(doc, row++, column, resultsHelper.GetTags().Combine(" "));
+            ++row;
+
+            List<int> stresstestIds = resultsHelper.GetStresstestIds();
+            foreach (int stresstestId in stresstestIds)
+                if (!token.IsCancellationRequested) {
+                    DataTable machineConfigs = resultsHelper.GetMachineConfigurations(token, stresstestId);
+
+                    if (machineConfigs.Rows.Count == 0) continue;
+                    machineConfigs.Columns.Remove("Stresstest");
+
+                    List<KeyValuePair<string, string>> configuration = resultsHelper.GetStresstestConfigurations(stresstestId);
+
+                    var sb = new StringBuilder();
+                    for (int i = 0; i != configuration.Count; i++) {
+                        var kvp = configuration[i];
+                        sb.Append(kvp.Key);
+                        if (!string.IsNullOrWhiteSpace(kvp.Value)) {
+                            sb.Append(": ");
+                            sb.Append(kvp.Value);
+                        }
+                        if (i != configuration.Count - 1)
+                            sb.Append(", ");
+                    }
+
+                    SetCellValue(doc, row, column, sb.ToString().Trim());
+                    SetCellValues(doc, ++row, column, machineConfigs);
+
+                    row += machineConfigs.Rows.Count + 2;
                 }
 
             return ++row;
