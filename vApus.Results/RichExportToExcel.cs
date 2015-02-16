@@ -561,22 +561,7 @@ namespace vApus.Results {
 
                     int r = rowIndex + rowOffset;
                     int c = columnIndex + columnOffset;
-                    if (value is string) {
-                        string s = value as string;
-                        if (s.IsNumeric()) doc.SetCellValue(r, c, double.Parse(s)); else doc.SetCellValue(r, c, s); //Overcoming wrong datatable conversions.
-                    } else if (value is int) {
-                        doc.SetCellValue(r, c, (int)value);
-                    } else if (value is long) {
-                        doc.SetCellValue(r, c, (long)value);
-                    } else if (value is float) {
-                        doc.SetCellValue(r, c, (double)(decimal)(float)value); //Ensures no formatting garbage when changing types.
-                    } else if (value is double) {
-                        doc.SetCellValue(r, c, (double)value);
-                    } else if (value is DateTime) {
-                        doc.SetCellValue(r, c, ((DateTime)value).ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff"));
-                    } else {
-                        doc.SetCellValue(r, c, value.ToString());
-                    }
+                    SetCellValue(doc, r, c, value);
 
                     if (c == 1) doc.SetCellStyle(r, c, boldStyle);
                 }
@@ -587,6 +572,26 @@ namespace vApus.Results {
 
             return name;
         }
+
+        private static void SetCellValue(SLDocument doc, int row, int column, object value) {
+            if (value is string) {
+                string s = value as string;
+                if (s.IsNumeric()) doc.SetCellValue(row, column, double.Parse(s)); else doc.SetCellValue(row, column, s); //Overcoming wrong datatable conversions.
+            } else if (value is int) {
+                doc.SetCellValue(row, column, (int)value);
+            } else if (value is long) {
+                doc.SetCellValue(row, column, (long)value);
+            } else if (value is float) {
+                doc.SetCellValue(row, column, (double)(decimal)(float)value); //Ensures no formatting garbage when changing types.
+            } else if (value is double) {
+                doc.SetCellValue(row, column, (double)value);
+            } else if (value is DateTime) {
+                doc.SetCellValue(row, column, ((DateTime)value).ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff"));
+            } else {
+                doc.SetCellValue(row, column, value.ToString());
+            }
+        }
+
         /// <summary>
         /// Makes a new data table without the 'Stresstest' column (if any) and "<16 0C 02 12$>" replaced by "•".
         /// </summary>

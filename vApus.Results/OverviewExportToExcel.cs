@@ -39,7 +39,7 @@ namespace vApus.Results {
                     if (!token.IsCancellationRequested)
                         rowOffset1 = MakeOverviewSheet(doc, rowOffset1, resultsHelper, token);
                     if (!token.IsCancellationRequested)
-                        rowOffset2 = MakeMachineConfigSheet(doc, rowOffset1, resultsHelper, token);
+                        rowOffset2 = MakeMachineConfigSheet(doc, rowOffset2, resultsHelper, token);
 
                     if (includeFullMonitorResults)
                         if (!token.IsCancellationRequested)
@@ -146,7 +146,7 @@ namespace vApus.Results {
         }
         private static int MakeMachineConfigSheet(SLDocument doc, int rowOffset, ResultsHelper resultsHelper, CancellationToken token) {
             doc.SelectWorksheet("Machine configurations");
-            
+
             int row = 1 + rowOffset;
             int column = 1;
 
@@ -163,7 +163,7 @@ namespace vApus.Results {
                     DataTable machineConfigs = resultsHelper.GetMachineConfigurations(token, stresstestId);
 
                     if (machineConfigs.Rows.Count == 0) continue;
-                    machineConfigs.Columns.Remove("Stresstest");
+                    machineConfigs = Prep(machineConfigs);
 
                     List<KeyValuePair<string, string>> configuration = resultsHelper.GetStresstestConfigurations(stresstestId);
 
@@ -292,15 +292,66 @@ namespace vApus.Results {
                 if (copy.Columns[0].ColumnName == "Stresstest")
                     copy.Columns.RemoveAt(0);
 
-                DataTable clone = copy.Clone();
+                var clone = copy.Clone();
 
+                //A whole lot of fuzz to overcome the 32 767 character limit for a cell value in an Excel spreadsheet.
+                var addExtraColumns = new Dictionary<int, int>(); //Index, number;
                 foreach (DataRow row in copy.Rows) {
                     object[] arr = row.ItemArray;
                     for (int i = 0; i != arr.Length; i++)
-                        if (arr[i] is string)
-                            arr[i] = (arr[i] as string).Replace("<16 0C 02 12$>", "•");
+                        if (arr[i] is string) {
+                            string s = arr[i] as string;
+                            s = s.Replace("<16 0C 02 12$>", "•");
+                            arr[i] = s;
 
+                            int extraColumns = s.Length / 32767; // Excel cell limit;
+                            if (extraColumns != 0) {
+                                int atIndex = i + 1;
+                                if (!addExtraColumns.ContainsKey(atIndex)) addExtraColumns.Add(atIndex, extraColumns);
+                                else if (addExtraColumns[atIndex] < extraColumns) addExtraColumns[atIndex] = extraColumns;
+                            }
+                        }
                     clone.Rows.Add(arr);
+                }
+
+                copy = clone;
+                clone = copy.Clone();
+
+                for (int i = addExtraColumns.Count - 1; i != -1; i--) {
+                    string prefix = copy.Columns[i - 1].ColumnName + "_";
+                    for (int j = 0; j != addExtraColumns[i]; j++) {
+                        DataColumn column = clone.Columns.Add(prefix + (j + 2));
+                        int atIndex = i + j;
+                        if (atIndex < clone.Columns.Count - 1)
+                            column.SetOrdinal(atIndex);
+                    }
+                }
+
+                foreach (DataRow row in copy.Rows) {
+                    object[] arr = row.ItemArray;
+                    var l = new List<object>();
+                    for (int i = 0; i != arr.Length; i++) {
+                        if (arr[i] is string) {
+                            int extraColumns = 0;
+                            if (addExtraColumns.ContainsKey(i)) extraColumns = addExtraColumns[i];
+
+                            string s = arr[i] as string;
+                            s = s.Replace("<16 0C 02 12$>", "•");
+                            while (s.Length > 32767) { //Excel cell limit.
+                                --extraColumns; //Correct this.
+                                l.Add(s.Substring(0, 32767));
+                                s = s.Substring(32767);
+                            }
+                            if (s.Length > 0) l.Add(s);
+
+                            for (int j = 0; j != extraColumns; j++)
+                                l.Add(string.Empty);
+                        } else {
+                            l.Add(arr[i]);
+                        }
+                    }
+
+                    clone.Rows.Add(l.ToArray());
                 }
 
                 copy = clone;
