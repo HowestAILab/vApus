@@ -115,7 +115,7 @@ namespace vApus.Util {
                 Entry entry = JsonConvert.DeserializeObject<Entry>(applicationLogEntry, _jsonSerializerSettings);
 
                 string host = "redmine.sizingservers.be";
-                string apiKey = "01bd5e9eb150a91e12641ba164014bc2c7245a64";
+                string apiKey = "a5a8cbd56a3e66e807b3c80009ca73ad81ebec6e";
 
                 var doc = new XmlDocument();
                 XmlElement escape = doc.CreateElement("escape");
