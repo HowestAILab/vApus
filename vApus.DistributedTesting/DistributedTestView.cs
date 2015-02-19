@@ -5,6 +5,9 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -12,16 +15,13 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using vApus.JSON;
 using vApus.Monitor;
 using vApus.Results;
 using vApus.Server.Shared;
 using vApus.SolutionTree;
 using vApus.Stresstest;
 using vApus.Util;
-using RandomUtils.Log;
-using RandomUtils;
-using vApus.JSON;
-using System.Text;
 
 namespace vApus.DistributedTesting {
     public partial class DistributedTestView : BaseSolutionComponentView {
@@ -502,7 +502,10 @@ namespace vApus.DistributedTesting {
                             MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
                             Update(host, port, username, password, channel);
 
-                        throw new Exception();
+                        //In both cases the test cannot go on.
+                        RemoveDatabase(false);
+                        Stop();
+                        return;
                     } else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.UpToDate) {
                         distributedStresstestControl.AppendMessages("Updating the slaves, this can take a while...");
                         var exceptions = await JumpStart.SmartUpdate(_distributedTest);
@@ -512,9 +515,10 @@ namespace vApus.DistributedTesting {
                             foreach (Exception ex in exceptions)
                                 message += ex.Message + "\n";
 
-                            distributedStresstestControl.AppendMessages(message.Trim(), Level.Error);
+                            message = message.Trim();
+                            distributedStresstestControl.AppendMessages(message, Level.Error);
 
-                            throw new Exception();
+                            throw new Exception(message);
                         }
                     }
                 }
