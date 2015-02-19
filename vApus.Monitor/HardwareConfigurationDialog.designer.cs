@@ -33,9 +33,11 @@ namespace vApus.Monitor {
             this.rtxt.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.rtxt.BackColor = System.Drawing.Color.White;
             this.rtxt.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.rtxt.Location = new System.Drawing.Point(0, 0);
             this.rtxt.Name = "rtxt";
+            this.rtxt.ReadOnly = true;
             this.rtxt.Size = new System.Drawing.Size(592, 443);
             this.rtxt.TabIndex = 0;
             this.rtxt.Text = "";
@@ -57,7 +59,7 @@ namespace vApus.Monitor {
             // 
             // sfd
             // 
-            this.sfd.Filter = "xml files(*.xml) |*.xml";
+            this.sfd.Filter = "txt files (*.txt) |*.txt";
             this.sfd.RestoreDirectory = true;
             this.sfd.ShowHelp = true;
             // 

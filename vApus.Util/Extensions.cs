@@ -652,10 +652,14 @@ namespace vApus.Util {
             Copy(rtxt);
             rtxt.SelectedText = string.Empty;
         }
-        private static void Copy(RichTextBox rtxt) { Clipboard.SetData(DataFormats.Rtf, rtxt.SelectedRtf); }
+        private static void Copy(RichTextBox rtxt) { 
+            Clipboard.SetData(DataFormats.UnicodeText, rtxt.SelectedText); 
+        }
         private static void Paste(RichTextBox rtxt) {
             if (Clipboard.ContainsText(TextDataFormat.Rtf))
                 rtxt.SelectedRtf = Clipboard.GetData(DataFormats.Rtf).ToString();
+            else if (Clipboard.ContainsText(TextDataFormat.UnicodeText))
+                rtxt.SelectedText = Clipboard.GetData(DataFormats.UnicodeText).ToString();
         }
 
     }
