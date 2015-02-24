@@ -1237,7 +1237,7 @@ namespace vApus.Monitor {
 
                     _monitorSourceClient.WIW = _monitor.Wiw;
 
-                    monitorControl.Init(_monitor);
+                    monitorControl.Init(_monitor, _wdyh);
                     btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
 
                     int refreshInS = _refreshTimeInMS / 1000;

@@ -1531,7 +1531,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         //Correct the formatting here.
                         string[] stringAverages = new string[averages.LongLength];
                         for (long l = 0L; l != averages.LongLength; l++) {
-                            double dou = averages[l];
+                            double dou = Math.Round(averages[l], 3, MidpointRounding.AwayFromZero);
                             stringAverages[l] = dou == -1d ? "--" : StringUtil.DoubleToLongString(dou);
                         }
 
@@ -1671,7 +1671,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 string stringValue = stringValues[l];
                                 double dou;
                                 if (double.TryParse(stringValue, out dou))
-                                    values[l] = dou;
+                                    values[l] = Math.Round(dou, 3, MidpointRounding.AwayFromZero);
                                 else
                                     values[l] = stringValue;
                             }
@@ -1687,8 +1687,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                         Thread.CurrentThread.CurrentCulture = prevCulture;
                     }
-
-
 
                     cacheEntry.ReturnValue = monitorResults;
                 }

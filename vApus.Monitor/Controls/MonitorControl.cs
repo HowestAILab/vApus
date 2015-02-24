@@ -69,25 +69,16 @@ namespace vApus.Monitor {
 
                 if (value == null)
                     if (e.ColumnIndex == 0) value = DateTime.Now;
-                    else value = -1f;
+                    else value = -1d;
 
                 if (value is double) {
                     var dou = (double)value;
-                    string s = (-1d).ToString();
-                    if (dou != -1d)
-                        if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou))
-                            dou = -1d;
-                        else
-                            try {
-                                s = StringUtil.DoubleToLongString(dou, false);
-                            } catch {
-                                dou = -1d;
-                            }
+                    string s = null;
 
-                    if (dou == -1d) {
-                        DataGridViewColumnHeaderCell headerCell = Columns[e.ColumnIndex].HeaderCell;
-                        if (headerCell.Style.BackColor != Color.Yellow) headerCell.Style.BackColor = Color.Yellow;
-                    }
+                    try { s = StringUtil.DoubleToLongString(dou, false); } catch { dou = -1d; }
+
+                    if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou)) dou = -1d;
+                    if (dou == -1d) Columns[e.ColumnIndex].HeaderCell.Style.BackColor = Color.Yellow;
 
                     value = s;
                 } else if (value is DateTime) {
@@ -103,7 +94,7 @@ namespace vApus.Monitor {
         ///     Must always happen before the first value was added.
         /// </summary>
         /// <param name="monitor">The Wiw and the to string is used.</param>
-        public void Init(Monitor monitor) {
+        public void Init(Monitor monitor, Entities wdyh) {
             Rows.Clear();
             Columns.Clear();
 
@@ -117,26 +108,28 @@ namespace vApus.Monitor {
             var lHeaders = new List<string>();
             lHeaders.Add(string.Empty);
 
-            foreach (Entity entity in monitor.Wiw)
-                foreach (CounterInfo counterInfo in entity.GetSubs())
-                    if (counterInfo.GetSubs().Count == 0) {
-                        var sb = new StringBuilder();
-                        sb.Append(entity.GetName());
-                        sb.Append("/");
-                        sb.Append(counterInfo.GetName());
+            if (wdyh.Count == 1) {
+                foreach (Entity entity in monitor.Wiw)
+                    foreach (CounterInfo counterInfo in entity.GetSubs()) {
+                        string counterInfoName = counterInfo.GetName();
+                        if (counterInfo.GetSubs().Count == 0 || (counterInfo.GetSubs().Count == 1 && wdyh.GetCounterInfo(1, counterInfoName).GetSubs().Count == 1)) //__Total__ for instance
+                            lHeaders.Add(counterInfoName);
+                        else
+                            foreach (CounterInfo instance in counterInfo.GetSubs())
+                                lHeaders.Add(counterInfoName + "/" + instance.GetName());
 
-                        lHeaders.Add(sb.ToString());
-                    } else
-                        foreach (CounterInfo instance in counterInfo.GetSubs()) {
-                            var sb = new StringBuilder();
-                            sb.Append(entity.GetName());
-                            sb.Append("/");
-                            sb.Append(counterInfo.GetName());
-                            sb.Append("/");
-                            sb.Append(instance.GetName());
-
-                            lHeaders.Add(sb.ToString());
-                        }
+                    }
+            } else {
+                foreach (Entity entity in monitor.Wiw)
+                    foreach (CounterInfo counterInfo in entity.GetSubs()) {
+                        string counterInfoName = counterInfo.GetName();
+                        if (counterInfo.GetSubs().Count == 0 || (counterInfo.GetSubs().Count == 1 && wdyh.GetCounterInfo(1, counterInfoName).GetSubs().Count == 1))
+                            lHeaders.Add(entity.GetName() + "/" + counterInfoName);
+                        else
+                            foreach (CounterInfo instance in counterInfo.GetSubs())
+                                lHeaders.Add(entity.GetName() + "/" + counterInfoName + "/" + instance.GetName());
+                    }
+            }
 
             MonitorResultCache.Headers = lHeaders.ToArray();
 
@@ -201,7 +194,7 @@ namespace vApus.Monitor {
                         double dou = double.Parse(counterValue);
                         if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou))
                             dou = -1d;
-                        parsedValue = dou;
+                        parsedValue = Math.Round(dou, 3, MidpointRounding.AwayFromZero);
                     } else if (bool.TryParse(counterValue, out boolValue)) {
                         parsedValue = boolValue ? 1d : 0d;
                     } else {

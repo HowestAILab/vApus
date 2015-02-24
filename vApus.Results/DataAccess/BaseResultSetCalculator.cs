@@ -45,6 +45,7 @@ namespace vApus.Results {
             //Adaptive parallelization.
             if (threads > Environment.ProcessorCount) threads = Environment.ProcessorCount;
             if (threads > runCount) threads = runCount;
+            if (threads < 1) threads = 1;
 
             int partRange = runCount / threads;
             int remainder = runCount % threads;

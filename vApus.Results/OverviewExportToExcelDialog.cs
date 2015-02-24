@@ -41,7 +41,7 @@ namespace vApus.Results {
                     await Task.Run(() => OverviewExportToExcel.Do(saveFileDialog.FileName, _databaseNames, chkIncludeFullMonitorResults.Checked, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
                 } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed exporting overview to Excel.", ex);
-                    MessageBox.Show(string.Empty, "Failed exporting overview to Excel.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    MessageBox.Show("Failed exporting overview to Excel.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
                 _cancellationTokenSource = new CancellationTokenSource();
 
