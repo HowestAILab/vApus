@@ -1586,32 +1586,6 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
-        public List<DataTable> GetMonitorResults(CancellationToken cancellationToken, params int[] stresstestIds) {
-            lock (_lock) {
-                if (_databaseActions == null) return null;
-
-                var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stresstestIds);
-                var cacheEntryDts = cacheEntry.ReturnValue as List<DataTable>;
-                if (cacheEntryDts == null || cacheEntryDts.Count == 0) {
-                    var dts = new List<DataTable>();
-
-                    Dictionary<int, string> monitorIdsAndNames = GetMonitors(stresstestIds);
-
-                    foreach (int monitorId in monitorIdsAndNames.Keys)
-                        dts.Add(GetMonitorResultsByMonitorId(cancellationToken, monitorId));
-
-                    cacheEntry.ReturnValue = dts;
-                }
-                return cacheEntry.ReturnValue as List<DataTable>;
-            }
-        }
-
-        /// <summary>
-        /// 
-        /// </summary>
-        /// <param name="cancellationToken">Used in await Task.Run...</param>
-        /// <param name="stresstestIds">If none, all the results for all tests will be returned.</param>
-        /// <returns></returns>
         public DataTable GetMonitorResultsByMonitorId(CancellationToken cancellationToken, int monitorId) {
             lock (_lock) {
                 if (_databaseActions == null) return null;

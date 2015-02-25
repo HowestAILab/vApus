@@ -13,10 +13,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using vApus.Monitor.Sources.Base;
 using vApus.Results;
 using vApus.SolutionTree;
@@ -334,6 +336,21 @@ namespace vApus.Monitor {
                     config = _monitorSourceClient.Config;
                     _decimalSeparator = _monitorSourceClient.DecimalSeparator;
                     _wdyh = _monitorSourceClient.WDYH;
+
+                    if (!string.IsNullOrEmpty(config) && config.StartsWith("<lines>") && config.EndsWith("</lines>") && config.Contains("<line>") && config.Contains("</line>")) {
+                        try {
+                            var sb = new StringBuilder();
+                            var doc = new XmlDocument();
+                            doc.LoadXml(config);
+
+                            foreach (XmlNode node in doc.FirstChild.ChildNodes)
+                                sb.AppendLine(node.InnerText);
+
+                            config = sb.ToString().Trim();
+                        } catch {
+                            //No xml after all.
+                        }
+                    }
                 } else {
                     exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".");
                 }
@@ -343,7 +360,7 @@ namespace vApus.Monitor {
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (_monitorSourceClient.IsConnected) {
-                    btnConfiguration.Enabled = (config != null);
+                    btnConfiguration.Enabled = !string.IsNullOrEmpty(config);
                     Configuration = config;
                     try { FillEntities(_wdyh); } catch (Exception ex) { exception = ex; }
                 }
