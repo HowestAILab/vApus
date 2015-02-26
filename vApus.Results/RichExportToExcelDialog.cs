@@ -291,7 +291,7 @@ namespace vApus.Results {
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
 
-                if (_autoExportFolder.Length != 0 && !exceptionThrown) {
+                if (!exceptionThrown) {
                     if (MessageBox.Show("Results auto-exported to " + zipPath + ".\nDo you want to browse them?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                         Process.Start(zipPath);
                     this.Close();

@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Data;
+using System.Diagnostics;
 using System.Drawing;
 using System.Linq;
 using System.Text;
@@ -54,10 +55,12 @@ namespace vApus.Results {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = btnRichExport.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
+                bool exceptionThrown = false;
 
                 try {
                     _cancellationTokenSource = new CancellationTokenSource();
                     await Task.Run(() => OverviewExportToExcel.Do(saveFileDialog.FileName, _databaseNames, chkIncludeFullMonitorResults.Checked, _cancellationTokenSource.Token), _cancellationTokenSource.Token);
+                    exceptionThrown = true;
                 } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed exporting overview to Excel.", ex);
                     MessageBox.Show("Failed exporting overview to Excel.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -69,6 +72,12 @@ namespace vApus.Results {
 
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
+
+                if (!exceptionThrown) {
+                    if (MessageBox.Show("Results auto-exported to " + saveFileDialog.FileName + ".\nDo you want to view them?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                        Process.Start(saveFileDialog.FileName);
+                    this.Close();
+                }
             }
         }
 
