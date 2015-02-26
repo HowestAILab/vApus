@@ -330,10 +330,16 @@ namespace vApus.Stresstest {
         }
 
         private void btnExportToExcel_Click(object sender, EventArgs e) {
-            var dialog = new RichExportToExcelDialog();
-            dialog.Init(_resultsHelper);
-            dialog.ShowDialog();
-            dialog = null;
+            if (_resultsHelper != null)
+                try {
+                    var dialog = new RichExportToExcelDialog();
+                    dialog.Init(_resultsHelper);
+                    dialog.ShowDialog();
+                    dialog = null;
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed exporting to Excel.", ex);
+                    MessageBox.Show(string.Empty, "Failed exporting to Excel.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
         }
 
         public void AutoExportToExcel(string folder) {

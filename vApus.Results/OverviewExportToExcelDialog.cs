@@ -20,20 +20,39 @@ using System.Windows.Forms;
 namespace vApus.Results {
     public partial class OverviewExportToExcelDialog : Form {
         private ResultsHelper _resultsHelper;
+        private Form _parentToClose;
         private IEnumerable<string> _databaseNames;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource();
 
         public OverviewExportToExcelDialog() {
             InitializeComponent();
         }
-        public void Init(ResultsHelper resultsHelper, IEnumerable<string> databaseNames) {
+
+        public void Init(ResultsHelper resultsHelper, IEnumerable<string> databaseNames, Form parentToClose) {
+            _parentToClose = parentToClose;
+            Init(resultsHelper, databaseNames, true);
+            this.VisibleChanged += OverviewExportToExcelDialog_VisibleChanged;
+        }
+
+        private void OverviewExportToExcelDialog_VisibleChanged(object sender, EventArgs e) {
+            if (this.Visible) {
+                this.VisibleChanged -= OverviewExportToExcelDialog_VisibleChanged;
+                _parentToClose.Hide();
+                _parentToClose.Close();
+            }
+        }
+        public void Init(ResultsHelper resultsHelper, IEnumerable<string> databaseNames, bool canSwitchToRichExport = false) {
             _resultsHelper = resultsHelper;
             _databaseNames = databaseNames;
+
+            btnRichExport.Visible = canSwitchToRichExport;
+
+            lblDescription.Text = "Export test and monitor results per concurrency for the " + _databaseNames.Count() + " selected results database(s).";
         }
         private void btnExportToExcel_Click(object sender, EventArgs e) { Export(); }
         async private void Export() {
             if (saveFileDialog.ShowDialog() == DialogResult.OK) {
-                btnExportToExcel.Enabled = false;
+                btnExportToExcel.Enabled = btnRichExport.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
 
                 try {
@@ -46,7 +65,7 @@ namespace vApus.Results {
                 _cancellationTokenSource = new CancellationTokenSource();
 
                 btnExportToExcel.Text = "Export to Excel...";
-                btnExportToExcel.Enabled = true;
+                btnExportToExcel.Enabled = btnRichExport.Enabled = true;
 
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
@@ -54,5 +73,17 @@ namespace vApus.Results {
         }
 
         private void OverviewExportToExcelDialog_FormClosing(object sender, FormClosingEventArgs e) { _cancellationTokenSource.Cancel(); }
+
+        private void btnRichExport_Click(object sender, EventArgs e) {
+            if (_resultsHelper != null)
+                try {
+                    var dialog = new RichExportToExcelDialog();
+                    dialog.Init(_resultsHelper, this);
+                    dialog.ShowDialog();
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed exporting to Excel.", ex);
+                    MessageBox.Show(string.Empty, "Failed exporting to Excel.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+        }
     }
 }

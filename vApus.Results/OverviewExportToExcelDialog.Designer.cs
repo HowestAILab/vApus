@@ -27,6 +27,7 @@
             this.btnExportToExcel = new System.Windows.Forms.Button();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.chkIncludeFullMonitorResults = new System.Windows.Forms.CheckBox();
+            this.btnRichExport = new System.Windows.Forms.Button();
             this.SuspendLayout();
             // 
             // lblDescription
@@ -51,11 +52,11 @@
             this.btnExportToExcel.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnExportToExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportToExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExportToExcel.Location = new System.Drawing.Point(380, 121);
+            this.btnExportToExcel.Location = new System.Drawing.Point(405, 121);
             this.btnExportToExcel.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnExportToExcel.Name = "btnExportToExcel";
             this.btnExportToExcel.Size = new System.Drawing.Size(117, 24);
-            this.btnExportToExcel.TabIndex = 10;
+            this.btnExportToExcel.TabIndex = 20;
             this.btnExportToExcel.Text = "Export to Excel...";
             this.btnExportToExcel.UseVisualStyleBackColor = false;
             this.btnExportToExcel.Click += new System.EventHandler(this.btnExportToExcel_Click);
@@ -79,12 +80,31 @@
             this.chkIncludeFullMonitorResults.Text = "Include full monitor results in extra work sheets.";
             this.chkIncludeFullMonitorResults.UseVisualStyleBackColor = true;
             // 
+            // btnRichExport
+            // 
+            this.btnRichExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnRichExport.AutoSize = true;
+            this.btnRichExport.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnRichExport.BackColor = System.Drawing.SystemColors.Control;
+            this.btnRichExport.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnRichExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRichExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRichExport.Location = new System.Drawing.Point(12, 121);
+            this.btnRichExport.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnRichExport.Name = "btnRichExport";
+            this.btnRichExport.Size = new System.Drawing.Size(148, 24);
+            this.btnRichExport.TabIndex = 12;
+            this.btnRichExport.Text = "Switch to rich export...";
+            this.btnRichExport.UseVisualStyleBackColor = false;
+            this.btnRichExport.Click += new System.EventHandler(this.btnRichExport_Click);
+            // 
             // OverviewExportToExcelDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.ClientSize = new System.Drawing.Size(509, 157);
+            this.ClientSize = new System.Drawing.Size(534, 157);
+            this.Controls.Add(this.btnRichExport);
             this.Controls.Add(this.chkIncludeFullMonitorResults);
             this.Controls.Add(this.btnExportToExcel);
             this.Controls.Add(this.lblDescription);
@@ -109,5 +129,6 @@
         private System.Windows.Forms.Button btnExportToExcel;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.CheckBox chkIncludeFullMonitorResults;
+        private System.Windows.Forms.Button btnRichExport;
     }
 }

@@ -34,6 +34,7 @@
             this.cboStresstest = new System.Windows.Forms.ComboBox();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.tvw = new System.Windows.Forms.TreeView();
+            this.btnOverviewExport = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             this.pnlBorderStresstest.SuspendLayout();
             this.SuspendLayout();
@@ -51,7 +52,7 @@
             this.btnExportToExcel.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnExportToExcel.Name = "btnExportToExcel";
             this.btnExportToExcel.Size = new System.Drawing.Size(117, 24);
-            this.btnExportToExcel.TabIndex = 1;
+            this.btnExportToExcel.TabIndex = 30;
             this.btnExportToExcel.Text = "Export to Excel...";
             this.btnExportToExcel.UseVisualStyleBackColor = false;
             this.btnExportToExcel.Click += new System.EventHandler(this.btnExportToExcel_Click);
@@ -99,7 +100,7 @@
             this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
             this.pnlBorderStresstest.Location = new System.Drawing.Point(162, 584);
             this.pnlBorderStresstest.Name = "pnlBorderStresstest";
-            this.pnlBorderStresstest.Size = new System.Drawing.Size(332, 23);
+            this.pnlBorderStresstest.Size = new System.Drawing.Size(203, 23);
             this.pnlBorderStresstest.TabIndex = 0;
             // 
             // cboStresstest
@@ -114,7 +115,7 @@
             this.cboStresstest.Location = new System.Drawing.Point(1, 1);
             this.cboStresstest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboStresstest.Name = "cboStresstest";
-            this.cboStresstest.Size = new System.Drawing.Size(330, 21);
+            this.cboStresstest.Size = new System.Drawing.Size(201, 21);
             this.cboStresstest.TabIndex = 0;
             this.cboStresstest.SelectedIndexChanged += new System.EventHandler(this.cboStresstest_SelectedIndexChanged);
             // 
@@ -139,12 +140,31 @@
             this.tvw.TabIndex = 25;
             this.tvw.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.tvw_AfterCheck);
             // 
+            // btnOverviewExport
+            // 
+            this.btnOverviewExport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
+            this.btnOverviewExport.AutoSize = true;
+            this.btnOverviewExport.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnOverviewExport.BackColor = System.Drawing.SystemColors.Control;
+            this.btnOverviewExport.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
+            this.btnOverviewExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnOverviewExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOverviewExport.Location = new System.Drawing.Point(371, 584);
+            this.btnOverviewExport.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnOverviewExport.Name = "btnOverviewExport";
+            this.btnOverviewExport.Size = new System.Drawing.Size(178, 24);
+            this.btnOverviewExport.TabIndex = 26;
+            this.btnOverviewExport.Text = "Switch to overview export...";
+            this.btnOverviewExport.UseVisualStyleBackColor = false;
+            this.btnOverviewExport.Click += new System.EventHandler(this.btnOverviewExport_Click);
+            // 
             // RichExportToExcelDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
             this.ClientSize = new System.Drawing.Size(684, 619);
+            this.Controls.Add(this.btnOverviewExport);
             this.Controls.Add(this.tvw);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label1);
@@ -181,5 +201,6 @@
         private System.Windows.Forms.ComboBox cboStresstest;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.TreeView tvw;
+        private System.Windows.Forms.Button btnOverviewExport;
     }
 }

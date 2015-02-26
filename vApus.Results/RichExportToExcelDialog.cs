@@ -27,6 +27,7 @@ namespace vApus.Results {
 
         #region Fields
         private ResultsHelper _resultsHelper;
+        private Form _parentToClose;
         private CancellationTokenSource _cancellationTokenSource = new CancellationTokenSource(); //To Cancel refreshing the report.
         /// <summary>
         /// A color pallete of 40 colors to be able to visualy match overiew and 5 heaviest user actions charts.
@@ -134,6 +135,20 @@ namespace vApus.Results {
             _colorPalette.Add(Color.FromArgb(220, 230, 207));
             _colorPalette.Add(Color.FromArgb(214, 208, 222));
         }
+
+        public void Init(ResultsHelper resultsHelper, Form parentToClose) {
+            _parentToClose = parentToClose;
+            Init(resultsHelper);
+            this.VisibleChanged += RichExportToExcelDialog_VisibleChanged;
+        }
+
+        private void RichExportToExcelDialog_VisibleChanged(object sender, EventArgs e) {
+            if (this.Visible) {
+                this.VisibleChanged -= RichExportToExcelDialog_VisibleChanged;
+                _parentToClose.Hide();
+                _parentToClose.Close();
+            }
+        }
         public void Init(ResultsHelper resultsHelper) {
             StringCollection selectedGoals = Properties.Settings.Default.ExportToExcelSelectedGoals as StringCollection;
             if (selectedGoals != null) {
@@ -235,7 +250,7 @@ namespace vApus.Results {
         async private void Export(string autoExportFolder = "") {
             saveFileDialog.FileName = Path.Combine(autoExportFolder, _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_'));
             if (autoExportFolder.Length != 0 || saveFileDialog.ShowDialog() == DialogResult.OK) {
-                btnExportToExcel.Enabled = cboStresstest.Enabled = tvw.Enabled = false;
+                btnExportToExcel.Enabled = btnOverviewExport.Enabled = cboStresstest.Enabled = tvw.Enabled = false;
                 btnExportToExcel.Text = "Saving, can take a while...";
 
                 string zipPath = saveFileDialog.FileName;
@@ -271,7 +286,7 @@ namespace vApus.Results {
                 }, _cancellationTokenSource.Token);
 
                 btnExportToExcel.Text = "Export to Excel...";
-                btnExportToExcel.Enabled = cboStresstest.Enabled = tvw.Enabled = true;
+                btnExportToExcel.Enabled = btnOverviewExport.Enabled = cboStresstest.Enabled = tvw.Enabled = true;
 
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
@@ -421,7 +436,7 @@ namespace vApus.Results {
         //    return title;
         //}
 
-        private void ExportToExcelDialog_FormClosing(object sender, FormClosingEventArgs e) { _cancellationTokenSource.Cancel(); }
+        private void ExportToExcelDialog_FormClosing(object sender, FormClosingEventArgs e) { try { _cancellationTokenSource.Cancel(); } catch { } }
 
         /// <summary>
         /// Call Init(...) first.
@@ -429,6 +444,18 @@ namespace vApus.Results {
         public void AutoExportToExcel(string folder) {
             _autoExportFolder = folder;
             this.ShowDialog();
+        }
+
+        private void btnOverviewExport_Click(object sender, EventArgs e) {
+            if (_resultsHelper != null)
+                try {
+                    var overviewExportDialog = new OverviewExportToExcelDialog();
+                    overviewExportDialog.Init(_resultsHelper, new List<string>(new string[] { _resultsHelper.DatabaseName }), this);
+                    overviewExportDialog.ShowDialog();
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed exporting overview to Excel.", ex);
+                    MessageBox.Show(string.Empty, "Failed exporting overview to Excel.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
         }
         #endregion
 
