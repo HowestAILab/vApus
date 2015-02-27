@@ -328,6 +328,7 @@ namespace vApus.Monitor {
             //Set the parameters and the values in the gui and in the proxy
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetValuesToParameters(); }, null);
 
+            bool isConnected = false;
             Exception exception = null;
             try {
                 if (_monitorSourceClient.Connect()) {
@@ -351,6 +352,7 @@ namespace vApus.Monitor {
                             //No xml after all.
                         }
                     }
+                    isConnected = true;
                 } else {
                     exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".");
                 }
@@ -359,7 +361,7 @@ namespace vApus.Monitor {
             }
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                if (_monitorSourceClient.IsConnected) {
+                if (isConnected) {
                     btnConfiguration.Enabled = !string.IsNullOrEmpty(config);
                     Configuration = config;
                     try { FillEntities(_wdyh); } catch (Exception ex) { exception = ex; }
@@ -1248,6 +1250,7 @@ namespace vApus.Monitor {
                 //Set the parameters and the values in the gui and in the proxy
                 SetValuesToParameters();
 
+                bool isConnected = false;
                 //Re-establish the connection.
                 if (_monitorSourceClient.Connect()) {
                     _monitorSourceClient.OnMonitor += _monitorSourceClient_OnMonitor;
@@ -1268,9 +1271,11 @@ namespace vApus.Monitor {
                     tmrProgressDelayCountDown.Start();
 
                     tc.SelectedIndex = 1;
+
+                    isConnected = true;
                 }
 
-                if (!_monitorSourceClient.IsConnected || !_monitorSourceClient.Start()) {
+                if (!isConnected || !_monitorSourceClient.Start()) {
                     Stop();
                     throw new Exception("The monitor did not start.");
                 }
