@@ -117,6 +117,8 @@ namespace vApus.Gui {
                 _exportingResultsPanel = new AutoExportResultsPanel();
 
                 _firstStepsView.LinkClicked += _firstStepsView_LinkClicked;
+
+                SetStatusStrip();
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed initializing GUI.", ex);
             }

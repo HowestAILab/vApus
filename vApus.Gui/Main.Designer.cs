@@ -489,7 +489,7 @@
             // tmrSetStatusStrip
             // 
             this.tmrSetStatusStrip.Enabled = true;
-            this.tmrSetStatusStrip.Interval = 2000;
+            this.tmrSetStatusStrip.Interval = 300000;
             this.tmrSetStatusStrip.Tick += new System.EventHandler(this.tmrSetStatusStrip_Tick);
             // 
             // dockPanel

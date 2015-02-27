@@ -417,13 +417,15 @@ namespace vApus.Stresstest {
             var monitorView = sender as MonitorView;
             monitorView.MonitorInitialized -= monitorView_MonitorInitialized;
 
-            if (e.ErrorMessage != null && e.ErrorMessage.Length != 0) Stop(StresstestStatus.Error, new Exception(e.ErrorMessage));
-            else {
+            if (e.ErrorMessage != null && e.ErrorMessage.Length != 0) {
+                fastResultsControl.AddEvent(e.ErrorMessage, Level.Warning);
+                fastResultsControl.ExpandEventPanel();
+            } else
                 fastResultsControl.AddEvent(monitorView.Text + " is initialized.");
-                if (++_monitorsInitialized == _stresstest.Monitors.Length) {
-                    btnStop.Enabled = true;
-                    Start();
-                }
+
+            if (++_monitorsInitialized == _stresstest.Monitors.Length) {
+                btnStop.Enabled = true;
+                Start();
             }
         }
         private void monitorView_OnHandledException(object sender, ErrorEventArgs e) {

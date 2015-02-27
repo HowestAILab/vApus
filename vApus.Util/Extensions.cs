@@ -189,6 +189,8 @@ namespace vApus.Util {
             Rijndael alg = Rijndael.Create();
             alg.Key = key;
             alg.IV = IV;
+            //alg.Padding = PaddingMode.None;
+            
             CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(toEncrypt, 0, toEncrypt.Length);
             cs.Close();
@@ -212,6 +214,8 @@ namespace vApus.Util {
             Rijndael alg = Rijndael.Create();
             alg.Key = Key;
             alg.IV = IV;
+            //alg.Padding = PaddingMode.None;
+
             CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
             cs.Write(toDecrypt, 0, toDecrypt.Length);
             try {
