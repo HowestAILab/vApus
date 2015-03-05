@@ -57,15 +57,19 @@ namespace vApus.UpdateToolLoader {
                         File.Copy(from[i], to[i], true);
 
                     string arguments = string.Empty;
-                    foreach (string arg in args)
+                    for (int i = 0; i != args.Length; i++) {
+                        string arg = args[i];
+                        if (arg.Contains(" ") || arg.Contains("\t")) arg = "\"" + arg + "\"";
                         arguments += arg + " ";
+                    }
+
                     arguments = arguments.Trim();
 
                     Process p = Process.Start(to[0], arguments);
                     p.WaitForExit();
-                }catch (FileNotFoundException ex){
+                } catch (FileNotFoundException ex) {
                     MessageBox.Show("Failed at copying files.\n" + ex.Message + " " + ex.StackTrace, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
-                
+
                 } catch {
                     MessageBox.Show("The update tool could not be started because the previously cached files where locked!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
