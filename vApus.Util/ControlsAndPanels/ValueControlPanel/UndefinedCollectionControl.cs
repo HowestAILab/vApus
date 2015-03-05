@@ -74,6 +74,7 @@ namespace vApus.Util {
             dataGridView.RowsRemoved -= dataGridView_RowsRemoved;
             dataGridView.Rows.Clear();
 
+            dataGridView.SuspendLayout();
             IEnumerator enumerator = value.GetEnumerator();
             while (enumerator.MoveNext())
                 if (enumerator.Current != null) {
@@ -81,6 +82,8 @@ namespace vApus.Util {
                     row.Cells.Add(CreateDataGridViewCell(enumerator.Current));
                     dataGridView.Rows.Add(row);
                 }
+            dataGridView.ResumeLayout();
+
             dataGridView.CellValueChanged += dataGridView_CellValueChanged;
             dataGridView.RowsRemoved += dataGridView_RowsRemoved;
         }

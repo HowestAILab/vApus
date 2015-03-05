@@ -918,6 +918,7 @@ namespace vApus.Stresstest {
                 } else {
                     //Loggers.Log(Level.Error, _stresstest.ToString() + " Failed.", exception);
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", _stresstestStatus, "."), exception);
+                    fastResultsControl.AddEvent(exception.ToString(), Level.Error);
                 }
             }
         }

@@ -265,7 +265,7 @@ namespace vApus.Stresstest {
                     message = split[0] + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
                 }
 
-                if (Message != null) 
+                if (Message != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(
                         delegate {
                             try {
@@ -1013,6 +1013,9 @@ namespace vApus.Stresstest {
                 if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
                 DisposeThreadPool();
                 if (_connectionProxyPool != null) _connectionProxyPool.Dispose();
+
+                _connectionProxyPool = null;
+
             }
         }
         private StresstestStatus Completed() {
@@ -1079,8 +1082,6 @@ namespace vApus.Stresstest {
                 try {
                     _isDisposed = true;
                     Cancel();
-                    _connectionProxyPool.Dispose();
-                    _connectionProxyPool = null;
 
                     _sleepWaitHandle.Close();
                     _sleepWaitHandle.Dispose();

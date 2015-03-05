@@ -78,7 +78,7 @@ namespace vApus.Stresstest {
                 if (lexicalResult == LexicalResult.OK)
                     _connectionString = value;
                 else
-                    throw new Exception(output.Error);
+                    throw new Exception("Failed parsing the connectionstring.\n" + output.Error);
             }
         }
 
