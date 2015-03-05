@@ -62,7 +62,7 @@ namespace vApus.UpdateTool {
             InitializeComponent();
             _startupPath = Directory.GetParent(Application.StartupPath).FullName;
 
-            if (args.Length == 8 || args.Length == 9) {
+            if (args.Length > 7) {
                 _host = args[1];
                 _port = int.Parse(args[2]);
                 _userName = args[3];
@@ -70,8 +70,12 @@ namespace vApus.UpdateTool {
                 _channel = int.Parse(args[5]);
                 _force = bool.Parse(args[6]);
                 _silent = bool.Parse(args[7]);
-                if (args.Length == 9)
-                    _solution = args[8];
+                
+                _solution = string.Empty;
+                for (int i = 8; i < args.Length; i++)
+                    _solution = args[i] + " ";
+
+                _solution = _solution.Trim();
             }
 
             HandleCreated += Update_HandleCreated;
