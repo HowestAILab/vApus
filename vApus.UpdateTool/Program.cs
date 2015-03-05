@@ -25,6 +25,7 @@ namespace vApus.UpdateTool {
                 Application.EnableVisualStyles();
                 Application.SetCompatibleTextRenderingDefault(false);
                 try {
+                    MessageBox.Show("");
                     Application.Run(new Update(args));
                 } catch (Exception ex) {
                     MessageBox.Show("Could not start the update tool.\n" + ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);

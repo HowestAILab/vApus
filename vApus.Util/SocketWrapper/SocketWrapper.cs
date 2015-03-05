@@ -489,7 +489,7 @@ namespace vApus.Util {
         ///     Receives bytes.
         /// </summary>
         /// <returns></returns>
-        private byte[] ReceiveBytes() {
+        public byte[] ReceiveBytes() {
             _buffer = new byte[_socket.ReceiveBufferSize];
             // Read data from the remote device.
             _socket.ReceiveFrom(_buffer, _receiveSocketFlags, ref _remoteEP);
