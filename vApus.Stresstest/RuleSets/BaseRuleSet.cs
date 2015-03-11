@@ -20,7 +20,7 @@ namespace vApus.Stresstest {
 
         #region Fields
         private readonly object _lock = new object();
-        private string _childDelimiter = "<16 0c 02 12$>", _description = string.Empty;
+        private string _childDelimiter = "<16 0C 02 12$>", _description = string.Empty;
         #endregion
 
         #region Properties
