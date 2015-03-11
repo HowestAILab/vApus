@@ -141,7 +141,7 @@ namespace vApus.Stresstest {
                     } else {
                         error = "The connection could not be made, please make sure everything is filled in correctly.";
 
-                        Loggers.Log(Level.Warning, "[" + _connection + "] " + error + "\n" + errorMessage, null, new object[] { allowMessageBox });
+                        Loggers.Log(Level.Warning, "[" + _connection + "] " + error, new Exception(errorMessage), new object[] { allowMessageBox });
                         if (allowMessageBox)
                             MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                     }

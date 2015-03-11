@@ -12,7 +12,7 @@ begin
     success := RegQueryDWordValue(HKLM, key, 'Install', install);
     success := success and RegQueryStringValue(HKLM, key, 'Version', version);
 
-    result := success and (install = 1) and (pos('4.5.509', version) = 1);
+    result := success and (install = 1) and (pos('4.5.51650', version) = 1);
 end;
 
 procedure DeinitializeSetup();
@@ -23,7 +23,7 @@ begin
 		Exec(ExpandConstant('{app}\vApus.JumpStart.exe'), '', '', SW_SHOW, ewNoWait, ResultCode);
 	end
     	else begin
-		if Exec(ExpandConstant('{app}\NDP451-KB2859818-Web.exe'), '', '', SW_SHOW,
+		if Exec(ExpandConstant('{app}\NDP452-KB2901954-Web.exe'), '', '', SW_SHOW,
 			ewWaitUntilTerminated, ResultCode) then begin
 			Exec(ExpandConstant('{app}\vApus.JumpStart.exe'), '', '', SW_SHOW, ewNoWait, ResultCode);
 		end;

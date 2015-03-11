@@ -46,6 +46,9 @@ namespace vApus.Stresstest {
             try {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+
+                fctxtxImport.DefaultContextMenu(true);
+
             } catch {
                 //Should / can never happen.
             }
@@ -80,7 +83,8 @@ namespace vApus.Stresstest {
         private void captureControl_StartClicked(object sender, EventArgs e) {
             if (chkClearLogBeforeCapture.Checked && _log.Count != 0)
                 if (MessageBox.Show("Are you sure you want to clear the log?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                    _log.ClearWithoutInvokingEvent();
+                    _log.Clear();
+                    if (LogImported != null) LogImported(this, null); //'Import' the empty log to correctly refresh the GUI.
                 } else {
                     captureControl.CancelStart();
                     return;
@@ -146,7 +150,7 @@ namespace vApus.Stresstest {
                     bool logEntryContainsTokens;
                     _log.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out logEntryContainsTokens, false);
                     SetCodeStyle();
-                } catch(Exception ex) {
+                } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed getting parameter token delimiters + setting code style.", ex, new object[] { sender, e });
                 }
             }
@@ -283,8 +287,7 @@ namespace vApus.Stresstest {
 
             _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 
-            if (LogImported != null)
-                LogImported(this, null);
+            if (LogImported != null) LogImported(this, null);
         }
         /// <summary>
         /// </summary>

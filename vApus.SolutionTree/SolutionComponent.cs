@@ -535,11 +535,11 @@ namespace vApus.SolutionTree {
                                             //Ignore in this case. Do not care.
                                         }
                         } catch (Exception ex) {
-                            Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { doneAction, arg });
+                            Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { this, doneAction, arg });
                         }
                     }, null);
             } catch (Exception exc) {
-                Loggers.Log(Level.Error, "Failed invoking solution component changed.", exc, new object[] { doneAction, arg });
+                Loggers.Log(Level.Error, "Failed invoking solution component changed.", exc, new object[] { this, doneAction, arg });
             }
         }
         #endregion

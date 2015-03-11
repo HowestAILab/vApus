@@ -1,4 +1,5 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -542,6 +543,7 @@ namespace vApus.Stresstest {
             }
         }
 
+        public void SetEventFilter(EventViewEventType filter) { epnlMessages.Filter = filter; }
         /// <summary>
         /// Append stresstest progress and error messages.
         /// </summary>
@@ -732,9 +734,9 @@ namespace vApus.Stresstest {
                 splitTop.BackColor = SystemColors.Control;
             }
         }
-        public void ExpandEventPanel() {
-            epnlMessages.Collapsed = false;
-        }
+        public void ExpandEventPanel() { epnlMessages.Collapsed = false; }
+        public void CollapseEventPanel() { epnlMessages.Collapsed = true; }
+
         /// <summary>
         /// Set the splitter distance of the splitcontainer if collapsed has changed.
         /// </summary>
@@ -744,9 +746,9 @@ namespace vApus.Stresstest {
             epnlMessages.Anchor = AnchorStyles.Left | AnchorStyles.Top | AnchorStyles.Right;
 
             try {
-                int distance = splitContainer.Panel2.Height - epnlMessages.Bottom;
-                if (splitContainer.SplitterDistance + distance > 0)
-                    splitContainer.SplitterDistance += distance;
+                int distance = splitContainer.SplitterDistance + splitContainer.Panel2.Height - epnlMessages.Bottom;
+                if (distance >= splitContainer.Panel1MinSize && distance <= splitContainer.Height - splitContainer.Panel2MinSize)
+                    splitContainer.SplitterDistance = distance;
 
                 splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
                 BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;

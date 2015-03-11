@@ -1,26 +1,27 @@
-﻿/*
+﻿using RandomUtils;
+/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.IO.Packaging;
+using System.Reflection;
+using System.Runtime;
 using System.Text;
+using System.Threading;
+using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
-using WeifenLuo.WinFormsUI.Docking;
 using vApus.SolutionTree.Properties;
 using vApus.Util;
-using System.Runtime;
-using System.Threading.Tasks;
-using System.Diagnostics;
-using System.Threading;
-using RandomUtils.Log;
+using WeifenLuo.WinFormsUI.Docking;
 
 namespace vApus.SolutionTree {
     /// <summary>
@@ -524,7 +525,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         #region Solution itself
 
         #region Fields
-
         private readonly List<BaseProject> _projects = new List<BaseProject>();
         private string _fileName;
 
@@ -583,7 +583,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             _projects = new List<BaseProject>();
 
             foreach (Type projectType in _projectTypes) {
-                var project = FastObjectCreator.CreateInstance(projectType) as BaseProject;
+                var project = FastObjectCreator.CreateInstance<BaseProject>(projectType);
                 project.Parent = this;
                 _projects.Add(project);
             }
@@ -594,14 +594,23 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             FileName = fileName;
         }
 
+
         private static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e) {
-            if (_stresstestingSolutionExplorer.DockState == DockState.Hidden) {
-                Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
-                Settings.Default.Save();
-            } else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown) {
-                Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
-                Settings.Default.Save();
-            }
+            bool mutexCreated;
+            var canSaveSettingshNamedMutex = new Mutex(true, "vApus_SolutionTree", out mutexCreated);
+
+            if (mutexCreated || canSaveSettingshNamedMutex.WaitOne(0))
+                try {
+                    if (_stresstestingSolutionExplorer.DockState == DockState.Hidden) {
+                        Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
+                        Settings.Default.Save();
+                    } else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown) {
+                        Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
+                        Settings.Default.Save();
+                    }
+                } finally {
+                    canSaveSettingshNamedMutex.ReleaseMutex();
+                }
         }
 
         #endregion

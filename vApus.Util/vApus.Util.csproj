@@ -223,6 +223,19 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="ControlsAndPanels\DataGridViewImageCellBlank.cs" />
+    <Compile Include="ControlsAndPanels\AutoExportResultsPanel\AutoExportResultsManager.cs" />
+    <Compile Include="ControlsAndPanels\AutoExportResultsPanel\AutoExportResultsPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\AutoExportResultsPanel\AutoExportResultsPanel.Designer.cs">
+      <DependentUpon>AutoExportResultsPanel.cs</DependentUpon>
+    </Compile>
+    <Compile Include="ControlsAndPanels\LogPanel.cs">
+      <SubType>Component</SubType>
+    </Compile>
+    <Compile Include="ControlsAndPanels\LogPanel.Designer.cs">
+      <DependentUpon>LogPanel.cs</DependentUpon>
+    </Compile>
     <Compile Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -434,15 +447,12 @@
     </Compile>
     <Compile Include="DictionaryUtil.cs" />
     <Compile Include="Extensions.cs" />
-    <Compile Include="FastObjectCreator.cs" />
     <Compile Include="FastSerializer.cs" />
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
     <Compile Include="JSONObjectTree.cs" />
-    <Compile Include="ControlsAndPanels\LogPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="MultiThreadedQuickSort.cs" />
+    <Compile Include="DistributionCalculator.cs" />
     <Compile Include="PercentileCalculator.cs" />
     <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
@@ -467,10 +477,9 @@
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />
-    <Compile Include="ActiveObject\BackgroundWorkQueueWrapper.cs" />
+    <Compile Include="BackgroundWorkQueueWrapper.cs" />
     <Compile Include="ObjectService\ObjectRegistrar.cs" />
     <Compile Include="StringTree.cs" />
-    <Compile Include="StringUtil.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifier.cs" />
     <Compile Include="ControlsAndPanels\Tracert\Tracert.cs" />
@@ -492,6 +501,12 @@
     <EmbeddedResource Include="ControlsAndPanels\CleanTempDataPanel.resx">
       <DependentUpon>CleanTempDataPanel.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\AutoExportResultsPanel\AutoExportResultsPanel.resx">
+      <DependentUpon>AutoExportResultsPanel.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ControlsAndPanels\LogPanel.resx">
+      <DependentUpon>LogPanel.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\WindowsFirewallAutoUpdatePanel.resx">
       <DependentUpon>WindowsFirewallAutoUpdatePanel.cs</DependentUpon>

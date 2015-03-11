@@ -25,7 +25,7 @@
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(CheatSheet));
-            this.fctxtScript = new vApus.Stresstest.CodeTextBox();
+            this.fctxtScript = new vApus.Util.CodeTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.fctxtScript)).BeginInit();
             this.SuspendLayout();
             // 
@@ -70,6 +70,6 @@
 
         #endregion
 
-        private vApus.Stresstest.CodeTextBox fctxtScript;
+        private vApus.Util.CodeTextBox fctxtScript;
     }
 }

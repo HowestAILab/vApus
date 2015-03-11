@@ -22,6 +22,13 @@ namespace vApus.Results {
             return dataTable;
         }
 
+        /// <summary>
+        /// All tables needed must be gattered here.
+        /// </summary>
+        /// <param name="databaseActions"></param>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stresstestIds"></param>
+        /// <returns>Label and data table</returns>
         protected abstract ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds);
         /// <summary>
         /// 
@@ -38,6 +45,7 @@ namespace vApus.Results {
             //Adaptive parallelization.
             if (threads > Environment.ProcessorCount) threads = Environment.ProcessorCount;
             if (threads > runCount) threads = runCount;
+            if (threads < 1) threads = 1;
 
             int partRange = runCount / threads;
             int remainder = runCount % threads;

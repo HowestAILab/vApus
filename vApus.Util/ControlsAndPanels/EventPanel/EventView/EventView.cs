@@ -31,6 +31,9 @@ namespace vApus.Util {
         #endregion
 
         private EventViewItem _userEntered;
+        private int _previousHeight, _previousWidth;
+
+        private Size _sizeOfI;
 
         #region Properties
         public EventViewItem UserEntered { get { return _userEntered; } }
@@ -52,26 +55,24 @@ namespace vApus.Util {
             return AddEvent(eventType, message, DateTime.Now);
         }
 
-        public EventViewItem AddEvent(EventViewEventType eventType, string message, DateTime at, bool visible = true, bool performMouseEnter = true, bool refreshGui = true) {
+        public EventViewItem AddEvent(EventViewEventType eventType, string message, DateTime at, bool visible = true, bool refreshGui = true) {
             var item = new EventViewItem(largeList, eventType, message, at);
             item.Visible = visible;
+
+            SetSize(item);
 
             //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
             bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
 
+            largeList.Add(item, refreshGui && visible);
 
-            SetSize(item);
-
-            largeList.Add(item, refreshGui);
-
-            if (visible) {
-                if (autoScroll)
+            if (visible)
+                if (eventType == EventViewEventType.Error && _userEntered == null) {
                     largeList.ScrollIntoView(item);
-
-
-                if (eventType == EventViewEventType.Error && _userEntered == null)
                     item.PerformMouseEnter();
-            }
+                } else if (autoScroll) {
+                    largeList.ScrollIntoView(item);
+                }
 
             item.MouseHover += item_MouseHover;
             item.MouseLeave += item_MouseLeave;
@@ -83,13 +84,13 @@ namespace vApus.Util {
             LockWindowUpdate(Handle);
 
             int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left -
-                        item.Margin.Right - 18;
+                        item.Margin.Right - 21;
 
-            Size size = TextRenderer.MeasureText("I", item.Font);
-            int height = size.Height + item.Padding.Top + item.Padding.Bottom;
+            if (_sizeOfI.Height == 0)
+                _sizeOfI = TextRenderer.MeasureText("I", item.Font);
+            int height = _sizeOfI.Height + item.Padding.Top + item.Padding.Bottom;
 
-            item.MinimumSize = new Size(width, height);
-            item.MaximumSize = new Size(width, height);
+            item.MinimumSize = item.MaximumSize = new Size(width, height);
 
             LockWindowUpdate(IntPtr.Zero);
         }
@@ -120,7 +121,12 @@ namespace vApus.Util {
         }
 
         protected override void OnResize(EventArgs e) {
+            if (this.Height == 0 || (this.Height == _previousHeight && this.Width == _previousWidth)) return;
+
             LockWindowUpdate(Handle);
+
+            _previousHeight = Height;
+            _previousWidth = this.Width;
 
             bool autoScroll = _userEntered == null &&
                               (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
@@ -138,10 +144,7 @@ namespace vApus.Util {
             LockWindowUpdate(IntPtr.Zero);
         }
 
-        public void PerformLargeListResize() {
-            largeList.PerformResize(true);
-        }
-
+        public void PerformLargeListResize() { largeList.PerformResize(true); }
         public void PerformMouseEnter(DateTime at) {
             EventViewItem item = null;
             foreach (EventViewItem evi in largeList.AllControls)

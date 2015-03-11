@@ -161,8 +161,15 @@
     <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FastColoredTextBox, Version=2.9.15.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\Prerequisites\RandomUtils\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="ObjectListView">
+      <HintPath>..\packages\ObjectListView.Official.2.8.1\lib\net20\ObjectListView.dll</HintPath>
     </Reference>
     <Reference Include="RandomUtils">
       <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
@@ -174,6 +181,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.XML" />
@@ -213,6 +221,12 @@
     </Compile>
     <Compile Include="Controls\SlaveTreeView\SlaveTile.Designer.cs">
       <DependentUpon>SlaveTile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\DistributedTestOrTileOverview.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\DistributedTestOrTileOverview.Designer.cs">
+      <DependentUpon>DistributedTestOrTileOverview.cs</DependentUpon>
     </Compile>
     <Compile Include="DivideEtImpera.cs" />
     <Compile Include="Wizard.cs">
@@ -373,6 +387,9 @@
       <DependentUpon>SlaveTile.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\DistributedTestOrTileOverview.resx">
+      <DependentUpon>DistributedTestOrTileOverview.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="Wizard.resx">
       <DependentUpon>Wizard.cs</DependentUpon>
     </EmbeddedResource>
@@ -421,6 +438,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

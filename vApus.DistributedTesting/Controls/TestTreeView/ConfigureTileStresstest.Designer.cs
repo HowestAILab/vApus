@@ -36,8 +36,8 @@
             this.lblUsage = new System.Windows.Forms.Label();
             this.lblUseRDP = new System.Windows.Forms.Label();
             this.lblRunSync = new System.Windows.Forms.Label();
-            this.defaultAdvancedSettingsToControl = new vApus.DistributedTesting.DefaultAdvancedSettingsToControl();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.defaultAdvancedSettingsToControl = new vApus.DistributedTesting.DefaultAdvancedSettingsToControl();
             this.SuspendLayout();
             // 
             // solutionComponentPropertyPanelBasic
@@ -102,11 +102,11 @@
             this.lblUseRDP.ForeColor = System.Drawing.Color.DimGray;
             this.lblUseRDP.Location = new System.Drawing.Point(0, 11);
             this.lblUseRDP.Name = "lblUseRDP";
-            this.lblUseRDP.Size = new System.Drawing.Size(553, 26);
+            this.lblUseRDP.Size = new System.Drawing.Size(591, 26);
             this.lblUseRDP.TabIndex = 4;
             this.lblUseRDP.Text = "Check \'Use RDP\' if you want vApus to open remote desktop connections to the used " +
-    "clients.\r\nRegardless if you check it or not, you need to be logged into the clie" +
-    "nts to be able to stresstest.";
+    "clients.\r\nRegardless whether you check it or not, you need to be logged into the" +
+    " clients to be able to stresstest.";
             this.lblUseRDP.Visible = false;
             // 
             // lblRunSync

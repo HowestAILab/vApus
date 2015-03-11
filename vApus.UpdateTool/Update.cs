@@ -25,6 +25,7 @@ namespace vApus.UpdateTool {
         private readonly int _channel;
         private readonly bool _force; //Update all files regardesly that they must or must not be updated
         private readonly bool _silent; //if no errors occur, For smart update
+        private readonly string _solution;
 
         /// <summary>
         ///     To auto connect.
@@ -61,7 +62,7 @@ namespace vApus.UpdateTool {
             InitializeComponent();
             _startupPath = Directory.GetParent(Application.StartupPath).FullName;
 
-            if (args.Length == 8) {
+            if (args.Length > 8) {
                 _host = args[1];
                 _port = int.Parse(args[2]);
                 _userName = args[3];
@@ -69,6 +70,9 @@ namespace vApus.UpdateTool {
                 _channel = int.Parse(args[5]);
                 _force = bool.Parse(args[6]);
                 _silent = bool.Parse(args[7]);
+
+                if (args.Length == 9)
+                    _solution = args[8].Trim();                   
             }
 
             HandleCreated += Update_HandleCreated;
@@ -375,12 +379,18 @@ namespace vApus.UpdateTool {
 
                 if (!Directory.Exists(tempFolder)) {
                     if (_silent || MessageBox.Show("Do you want to start vApus now?", "Updated!", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                        Process.Start(Path.Combine(_startupPath, "vApus.exe"));
+                        if (string.IsNullOrWhiteSpace(_solution) || !File.Exists(_solution))
+                            Process.Start(Path.Combine(_startupPath, "vApus.exe"));
+                        else
+                            Process.Start(Path.Combine(_startupPath, "vApus.exe"), "\"" + _solution + "\"");
                 } else if (Directory.Exists(tempFolder) &&
                            Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0) {
                     Directory.Delete(tempFolder, true);
                     if (_silent || MessageBox.Show("Do you want to start vApus now?", "Updated!", MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                        Process.Start(Path.Combine(_startupPath, "vApus.exe"));
+                        if (string.IsNullOrWhiteSpace(_solution) || !File.Exists(_solution))
+                            Process.Start(Path.Combine(_startupPath, "vApus.exe"));
+                        else
+                            Process.Start(Path.Combine(_startupPath, "vApus.exe"), "\"" + _solution + "\"");
                 } else {
                     MessageBox.Show(
                         "Not all files where updated due to access or authorization errors!\nThose files are stored in the 'UpdateTempFiles' folder located in the top directory of vApus, so you can put them at the right place manually.",

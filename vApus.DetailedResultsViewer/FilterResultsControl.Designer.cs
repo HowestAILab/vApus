@@ -30,9 +30,7 @@
             this.txtFilter = new System.Windows.Forms.TextBox();
             this.flpTags = new System.Windows.Forms.FlowLayoutPanel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.pnlTagsContainer = new System.Windows.Forms.Panel();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            this.pnlTagsContainer.SuspendLayout();
             this.SuspendLayout();
             // 
             // pictureBox2
@@ -65,41 +63,32 @@
             this.txtFilter.Name = "txtFilter";
             this.txtFilter.Size = new System.Drawing.Size(288, 50);
             this.txtFilter.TabIndex = 0;
-            this.toolTip.SetToolTip(this.txtFilter, "Filter on tags and description. Wild cards *(auto-complete) +: must have word -: cannot have word \"\": ommit spaces of a double-quoted piece of text. The filter is not case sensitive.");
+            this.toolTip.SetToolTip(this.txtFilter, "Filter on tags and description. Wild cards *(auto-complete) +: must have word -: " +
+        "cannot have word \"\": ommit spaces of a double-quoted piece of text. The filter i" +
+        "s not case sensitive.");
             this.txtFilter.TextChanged += new System.EventHandler(this.txtFilter_TextChanged);
             this.txtFilter.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtFilter_KeyDown);
             this.txtFilter.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtFilter_KeyPress);
             // 
             // flpTags
             // 
-            this.flpTags.AutoSize = true;
-            this.flpTags.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.flpTags.Location = new System.Drawing.Point(3, 3);
-            this.flpTags.Margin = new System.Windows.Forms.Padding(0);
-            this.flpTags.MaximumSize = new System.Drawing.Size(260, 9999);
-            this.flpTags.MinimumSize = new System.Drawing.Size(260, 0);
-            this.flpTags.Name = "flpTags";
-            this.flpTags.Size = new System.Drawing.Size(260, 0);
-            this.flpTags.TabIndex = 1;
-            // 
-            // pnlTagsContainer
-            // 
-            this.pnlTagsContainer.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.flpTags.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
             | System.Windows.Forms.AnchorStyles.Left)
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlTagsContainer.AutoScroll = true;
-            this.pnlTagsContainer.Controls.Add(this.flpTags);
-            this.pnlTagsContainer.Location = new System.Drawing.Point(23, 82);
-            this.pnlTagsContainer.Name = "pnlTagsContainer";
-            this.pnlTagsContainer.Size = new System.Drawing.Size(288, 65);
-            this.pnlTagsContainer.TabIndex = 8;
+            this.flpTags.AutoScroll = true;
+            this.flpTags.Location = new System.Drawing.Point(23, 82);
+            this.flpTags.Margin = new System.Windows.Forms.Padding(0);
+            this.flpTags.Name = "flpTags";
+            this.flpTags.Size = new System.Drawing.Size(288, 65);
+            this.flpTags.TabIndex = 1;
+            this.flpTags.Scroll += new System.Windows.Forms.ScrollEventHandler(this.flpTags_Scroll);
             // 
             // FilterResultsControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.White;
-            this.Controls.Add(this.pnlTagsContainer);
+            this.Controls.Add(this.flpTags);
             this.Controls.Add(this.txtFilter);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label2);
@@ -107,8 +96,6 @@
             this.Size = new System.Drawing.Size(314, 150);
             this.Resize += new System.EventHandler(this.FilterResults_Resize);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            this.pnlTagsContainer.ResumeLayout(false);
-            this.pnlTagsContainer.PerformLayout();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -121,7 +108,6 @@
         private System.Windows.Forms.TextBox txtFilter;
         private System.Windows.Forms.FlowLayoutPanel flpTags;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.Panel pnlTagsContainer;
 
 
     }

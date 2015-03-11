@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -81,7 +82,7 @@ namespace vApus.DetailedResultsViewer {
             dgvDatabases.DataSource = null;
             cboStresstest.Items.Clear();
             cboStresstest.Enabled = false;
-            btnDeleteSelectedDbs.Enabled = false;
+            btnOverviewExportToExcel.Enabled = btnDeleteSelectedDbs.Enabled = false;
             if (databaseActions == null || setAvailableTags) filterResults.ClearAvailableTags();
             if (databaseActions == null) {
                 if (ResultsSelected != null) ResultsSelected(this, new ResultsSelectedEventArgs(null, 0));
@@ -89,16 +90,16 @@ namespace vApus.DetailedResultsViewer {
                 if (setAvailableTags) filterResults.SetAvailableTags(databaseActions);
                 FillDatabasesDataGridView(databaseActions);
                 cboStresstest.Enabled = true;
-                btnDeleteSelectedDbs.Enabled = _dataSource.Rows.Count != 0;
+                btnOverviewExportToExcel.Enabled = btnDeleteSelectedDbs.Enabled = _dataSource.Rows.Count != 0;
             }
         }
         private DatabaseActions SetServerConnectStateInGui() {
-            lblConnectToMySQL.Text = "Connect to a Results MySQL Server...";
+            lblConnectToMySQL.Text = "Connect to a results MySQL server...";
             toolTip.SetToolTip(lblConnectToMySQL, null);
 
             try {
                 if (_mySQLServerDialog.Connected) {
-                    lblConnectToMySQL.Text = "Results Server Connected!";
+                    lblConnectToMySQL.Text = "Results server Connected!";
                     toolTip.SetToolTip(lblConnectToMySQL, "Click to choose another MySQL server.");
 
                     return new DatabaseActions() { ConnectionString = _mySQLServerDialog.ConnectionString };
@@ -348,21 +349,41 @@ namespace vApus.DetailedResultsViewer {
 
         async private void btnDeleteSelectedDbs_Click(object sender, EventArgs e) {
             if (_resultsHelper != null &&
-                MessageBox.Show("Are you sure you want to delete the selected results databases?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
+                MessageBox.Show("Are you sure you want to delete the selected results database(s)?\nThis CANNOT be reverted!", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
                 Cursor = Cursors.WaitCursor;
 
-                var toDelete = new ConcurrentBag<string>();
-                foreach (DataGridViewRow row in dgvDatabases.SelectedRows) {
-                    string db = row.Cells[3].Value as string;
-                    await Task.Run(() => {
-                        try { _resultsHelper.DeleteResults(db); } catch { }
-                    });
+                try {
+                    foreach (DataGridViewRow row in dgvDatabases.SelectedRows) {
+                        string db = row.Cells[3].Value as string;
+                        await Task.Run(() => {
+                            if (!_resultsHelper.DeleteResults(db))
+                                throw new Exception();
+                        });
+                    }
+                } catch {
+                    MessageBox.Show(string.Empty, "Failed deleting selected database(s).", MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
 
                 _currentRow = null;
                 RefreshDatabases(true);
                 Cursor = Cursors.Default;
             }
+        }
+
+        private void btnOverviewExportToExcel_Click(object sender, EventArgs e) {
+            if (_resultsHelper != null)
+                try {
+                    var databaseNames = new SortedDictionary<int, string>();
+                    foreach (DataGridViewRow row in dgvDatabases.SelectedRows)
+                        databaseNames.Add(row.Index, row.Cells[3].Value as string);
+
+                    var overviewExportDialog = new OverviewExportToExcelDialog();
+                    overviewExportDialog.Init(_resultsHelper, databaseNames.Values);
+                    overviewExportDialog.ShowDialog();
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed exporting overview to Excel.", ex);
+                    MessageBox.Show(string.Empty, "Failed exporting overview to Excel.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
         }
     }
 }

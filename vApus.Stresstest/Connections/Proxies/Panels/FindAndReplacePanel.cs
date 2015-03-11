@@ -10,6 +10,7 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Windows.Forms;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class FindAndReplacePanel : UserControl {

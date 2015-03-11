@@ -162,6 +162,7 @@
             // 
             // rtxtLicenses
             // 
+            this.rtxtLicenses.BackColor = System.Drawing.Color.White;
             this.rtxtLicenses.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.rtxtLicenses.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtxtLicenses.Location = new System.Drawing.Point(3, 3);
@@ -169,6 +170,7 @@
             this.rtxtLicenses.Size = new System.Drawing.Size(575, 285);
             this.rtxtLicenses.TabIndex = 0;
             this.rtxtLicenses.Text = "";
+            this.rtxtLicenses.ReadOnly = true;
             // 
             // txtCopyright
             // 

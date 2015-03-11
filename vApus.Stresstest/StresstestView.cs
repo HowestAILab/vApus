@@ -260,7 +260,12 @@ namespace vApus.Stresstest {
         private void StartStresstest() {
             Cursor = Cursors.WaitCursor;
 
-            try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", Level.Error); }
+            try {
+                LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000);
+            } catch {
+                fastResultsControl.AddEvent(
+                    "Could not initialize the local monitor, something is wrong with your WMI.", Level.Error);
+            }
             tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
             tmrProgress.Start();
             try {
@@ -412,13 +417,15 @@ namespace vApus.Stresstest {
             var monitorView = sender as MonitorView;
             monitorView.MonitorInitialized -= monitorView_MonitorInitialized;
 
-            if (e.ErrorMessage != null && e.ErrorMessage.Length != 0) Stop(StresstestStatus.Error, new Exception(e.ErrorMessage));
-            else {
+            if (e.ErrorMessage != null && e.ErrorMessage.Length != 0) {
+                fastResultsControl.AddEvent(e.ErrorMessage, Level.Warning);
+                fastResultsControl.ExpandEventPanel();
+            } else
                 fastResultsControl.AddEvent(monitorView.Text + " is initialized.");
-                if (++_monitorsInitialized == _stresstest.Monitors.Length) {
-                    btnStop.Enabled = true;
-                    Start();
-                }
+
+            if (++_monitorsInitialized == _stresstest.Monitors.Length) {
+                btnStop.Enabled = true;
+                Start();
             }
         }
         private void monitorView_OnHandledException(object sender, ErrorEventArgs e) {
@@ -461,14 +468,16 @@ namespace vApus.Stresstest {
                 foreach (MonitorView monitorView in _monitorViews)
                     if (monitorView != null && !monitorView.IsDisposed)
                         try {
-                            monitorView.Start();
+                            if (monitorView.Start()) {
+                                monitorView.GetMonitorResultCache().MonitorConfigurationId =
+                                    _resultsHelper.SetMonitor(monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
+                                    monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
 
-                            monitorView.GetMonitorResultCache().MonitorConfigurationId =
-                                _resultsHelper.SetMonitor(monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
-                                monitorView.GetConnectionString(), monitorView.Configuration, monitorView.GetMonitorResultCache().Headers);
-
-                            fastResultsControl.AddEvent(monitorView.Text + " is started.");
-                            ++runningMonitors;
+                                fastResultsControl.AddEvent(monitorView.Text + " is started.");
+                                ++runningMonitors;
+                            } else {
+                                try { monitorView.Stop(); } catch { }
+                            }
                         } catch (Exception e) {
                             try {
                                 Loggers.Log(Level.Error, monitorView.Text + " is not started.", e);
@@ -521,7 +530,7 @@ namespace vApus.Stresstest {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                fastResultsControl.AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString() + ".");
+                fastResultsControl.AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString("0 s") + ".");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null && _stresstest.Monitors.Length != 0)
@@ -783,7 +792,7 @@ namespace vApus.Stresstest {
                     }
 
                 var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
-                fastResultsControl.AddEvent("Monitoring after the test is finished: " + ts.ToShortFormattedString() + ".");
+                fastResultsControl.AddEvent("Monitoring after the test is finished: " + ts.ToShortFormattedString("0 s") + ".");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null)
@@ -899,6 +908,9 @@ namespace vApus.Stresstest {
                     this.Enabled = false;
                     detailedResultsControl.RefreshResults(_resultsHelper);
                     this.Enabled = true;
+
+                    if (AutoExportResultsManager.Enabled && _stresstestStatus == StresstestStatus.Ok)
+                        detailedResultsControl.AutoExportToExcel(AutoExportResultsManager.Folder);
                 }
 
                 if (exception == null) {
@@ -906,6 +918,7 @@ namespace vApus.Stresstest {
                 } else {
                     //Loggers.Log(Level.Error, _stresstest.ToString() + " Failed.", exception);
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stresstest.ToString(), " finished. Status: ", _stresstestStatus, "."), exception);
+                    fastResultsControl.AddEvent(exception.ToString(), Level.Error);
                 }
             }
         }
@@ -919,7 +932,7 @@ namespace vApus.Stresstest {
                 if (fastResultsControl != null && !fastResultsControl.IsDisposed)
                     fastResultsControl.SetCountDownProgressDelay(-1);
             } catch {
-            //Ignore.
+                //Ignore.
             }
         }
         #endregion

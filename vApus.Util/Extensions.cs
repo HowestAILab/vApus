@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using FastColoredTextBoxNS;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Converters;
 using System;
@@ -24,7 +25,7 @@ using System.Windows.Forms;
 namespace vApus.Util {
     public static class AssemblyExtension {
         /// <summary>
-        /// Gets a type by its type name.
+        /// Gets a type by its non fully qualified name.
         /// </summary>
         /// <param name="assembly"></param>
         /// <param name="typeName"></param>
@@ -43,65 +44,80 @@ namespace vApus.Util {
         }
     }
     public static class TimeSpanExtension {
-        public static string ToLongFormattedString(this TimeSpan timeSpan) {
-            StringBuilder sb = new StringBuilder();
+        /// <summary>
+        /// Milliseconds are ommited if seconds > 0
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static string ToLongFormattedString(this TimeSpan timeSpan, string returnOnZero = "--") {
+            if (timeSpan.Milliseconds > 499)
+                timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
+                    .Add(new TimeSpan(0, 0, 1));
+            else timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds));
+
+            if (timeSpan.TotalMilliseconds == 0d) return returnOnZero;
+
+            var sb = new StringBuilder();
             if (timeSpan.Days != 0) {
                 sb.Append(timeSpan.Days);
                 sb.Append(" days");
             }
             if (timeSpan.Hours != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Hours);
                 sb.Append(" hours");
             }
             if (timeSpan.Minutes != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Minutes);
                 sb.Append(" minutes");
             }
+
             if (timeSpan.Seconds != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Seconds);
                 sb.Append(" seconds");
             }
-            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+            if (timeSpan.Milliseconds != 0) {
                 sb.Append(timeSpan.Milliseconds);
                 sb.Append(" milliseconds");
             }
             return sb.ToString();
         }
-        public static string ToShortFormattedString(this TimeSpan timeSpan) {
-            StringBuilder sb = new StringBuilder();
+        /// <summary>
+        /// Milliseconds are ommited if seconds > 0
+        /// </summary>
+        /// <param name="timeSpan"></param>
+        /// <returns></returns>
+        public static string ToShortFormattedString(this TimeSpan timeSpan, string returnOnZero = "--") {
+            if (timeSpan.Milliseconds > 499)
+                timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
+                    .Add(new TimeSpan(0, 0, 1));
+            else timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds));
+
+            if (timeSpan.TotalMilliseconds == 0d) return returnOnZero;
+
+            var sb = new StringBuilder();
             if (timeSpan.Days != 0) {
                 sb.Append(timeSpan.Days);
                 sb.Append(" d");
             }
             if (timeSpan.Hours != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Hours);
                 sb.Append(" h");
             }
             if (timeSpan.Minutes != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Minutes);
                 sb.Append(" m");
             }
             if (timeSpan.Seconds != 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Seconds);
                 sb.Append(" s");
             }
-            if (timeSpan.Milliseconds != 0 || sb.ToString().Length == 0) {
-                if (sb.ToString().Length != 0)
-                    sb.Append(", ");
+            if (timeSpan.Milliseconds != 0) {
                 sb.Append(timeSpan.Milliseconds);
                 sb.Append(" ms");
             }
@@ -173,6 +189,8 @@ namespace vApus.Util {
             Rijndael alg = Rijndael.Create();
             alg.Key = key;
             alg.IV = IV;
+            //alg.Padding = PaddingMode.None;
+            
             CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(toEncrypt, 0, toEncrypt.Length);
             cs.Close();
@@ -196,6 +214,8 @@ namespace vApus.Util {
             Rijndael alg = Rijndael.Create();
             alg.Key = Key;
             alg.IV = IV;
+            //alg.Padding = PaddingMode.None;
+
             CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
             cs.Write(toDecrypt, 0, toDecrypt.Length);
             try {
@@ -583,5 +603,128 @@ namespace vApus.Util {
 
             return table;
         }
+    }
+    public static class RichTextBoxExtension {
+        /// <summary>
+        /// Select all, Cut, Copy, Paste
+        /// </summary>
+        /// <param name="rtxt"></param>
+        /// <param name="enable">Do enable only once</param>
+        public static void DefaultContextMenu(this RichTextBox rtxt, bool enable) {
+            if (enable) {
+                rtxt.MouseUp += rtxt_MouseUp;
+                rtxt.Disposed += rtxt_Disposed;
+            } else {
+                rtxt.MouseUp -= rtxt_MouseUp;
+                rtxt.Disposed -= rtxt_Disposed;
+            }
+        }
+
+        static void rtxt_Disposed(object sender, EventArgs e) {
+            var rtxt = sender as RichTextBox;
+            rtxt.MouseUp -= rtxt_MouseUp;
+        }
+
+        private static void rtxt_MouseUp(object sender, MouseEventArgs e) {
+            var rtxt = sender as RichTextBox;
+
+            var contextMenu = new ContextMenu();
+            var menuItem = new MenuItem("Select all");
+            menuItem.Click += new EventHandler((s, a) => SelectAll(rtxt));
+            contextMenu.MenuItems.Add(menuItem);
+
+            if (rtxt.Enabled && !rtxt.ReadOnly) {
+                menuItem = new MenuItem("Cut");
+                menuItem.Click += new EventHandler((s, a) => Cut(rtxt));
+                contextMenu.MenuItems.Add(menuItem);
+            }
+
+            menuItem = new MenuItem("Copy");
+            menuItem.Click += new EventHandler((s, a) => Copy(rtxt));
+            contextMenu.MenuItems.Add(menuItem);
+
+            if (rtxt.Enabled && !rtxt.ReadOnly) {
+                menuItem = new MenuItem("Paste");
+                menuItem.Click += new EventHandler((s, a) => Paste(rtxt));
+                contextMenu.MenuItems.Add(menuItem);
+            }
+
+            rtxt.ContextMenu = contextMenu;
+        }
+        private static void SelectAll(RichTextBox rtxt) { rtxt.SelectAll(); }
+        private static void Cut(RichTextBox rtxt) {
+            Copy(rtxt);
+            rtxt.SelectedText = string.Empty;
+        }
+        private static void Copy(RichTextBox rtxt) { 
+            Clipboard.SetData(DataFormats.UnicodeText, rtxt.SelectedText); 
+        }
+        private static void Paste(RichTextBox rtxt) {
+            if (Clipboard.ContainsText(TextDataFormat.Rtf))
+                rtxt.SelectedRtf = Clipboard.GetData(DataFormats.Rtf).ToString();
+            else if (Clipboard.ContainsText(TextDataFormat.UnicodeText))
+                rtxt.SelectedText = Clipboard.GetData(DataFormats.UnicodeText).ToString();
+        }
+
+    }
+
+    public static class FastColoredTextBoxExtension {
+        /// <summary>
+        /// Select all, Cut, Copy, Paste
+        /// </summary>
+        /// <param name="fctxt"></param>
+        /// <param name="enable">Do enable only once</param>
+        public static void DefaultContextMenu(this FastColoredTextBox fctxt, bool enable) {
+            if (enable) {
+                fctxt.MouseUp += fctxt_MouseUp;
+                fctxt.Disposed += fctxt_Disposed;
+            } else {
+                fctxt.MouseUp -= fctxt_MouseUp;
+                fctxt.Disposed -= fctxt_Disposed;
+            }
+        }
+
+        static void fctxt_Disposed(object sender, EventArgs e) {
+            var fctxt = sender as FastColoredTextBox;
+            fctxt.MouseUp -= fctxt_MouseUp;
+        }
+
+        private static void fctxt_MouseUp(object sender, MouseEventArgs e) {
+            var fctxt = sender as FastColoredTextBox;
+
+            var contextMenu = new ContextMenu();
+            var menuItem = new MenuItem("Select all");
+            menuItem.Click += new EventHandler((s, a) => SelectAll(fctxt));
+            contextMenu.MenuItems.Add(menuItem);
+
+            if (fctxt.Enabled && !fctxt.ReadOnly) {
+                menuItem = new MenuItem("Cut");
+                menuItem.Click += new EventHandler((s, a) => Cut(fctxt));
+                contextMenu.MenuItems.Add(menuItem);
+            }
+
+            menuItem = new MenuItem("Copy");
+            menuItem.Click += new EventHandler((s, a) => Copy(fctxt));
+            contextMenu.MenuItems.Add(menuItem);
+
+            if (fctxt.Enabled && !fctxt.ReadOnly) {
+                menuItem = new MenuItem("Paste");
+                menuItem.Click += new EventHandler((s, a) => Paste(fctxt));
+                contextMenu.MenuItems.Add(menuItem);
+            }
+
+            fctxt.ContextMenu = contextMenu;
+        }
+        private static void SelectAll(FastColoredTextBox fctxt) { fctxt.SelectAll(); }
+        private static void Cut(FastColoredTextBox fctxt) {
+            Copy(fctxt);
+            fctxt.SelectedText = string.Empty;
+        }
+        private static void Copy(FastColoredTextBox fctxt) { Clipboard.SetData(DataFormats.UnicodeText, fctxt.SelectedText); }
+        private static void Paste(FastColoredTextBox fctxt) {
+            if (Clipboard.ContainsText(TextDataFormat.Rtf))
+                fctxt.SelectedText = Clipboard.GetData(DataFormats.UnicodeText).ToString();
+        }
+
     }
 }

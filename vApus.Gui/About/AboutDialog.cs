@@ -16,6 +16,7 @@ using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.Gui.Properties;
+using vApus.Util;
 
 namespace vApus.Gui {
     public partial class AboutDialog : Form {
@@ -76,6 +77,9 @@ namespace vApus.Gui {
             ReadVersionIni();
 
             rtxtLicenses.Text = Licenses;
+
+            rtxtHistory.DefaultContextMenu(true);
+            rtxtLicenses.DefaultContextMenu(true);
         }
 
         #region Functions
@@ -132,7 +136,7 @@ namespace vApus.Gui {
         private void FillHistory(string historyOfChanges) {
             var parts = new List<HistoryPart>();
             var doc = new XmlDocument();
-            XmlNode node = doc.ReadNode(XmlReader.Create(new MemoryStream(Encoding.ASCII.GetBytes(historyOfChanges))));
+            XmlNode node = doc.ReadNode(XmlReader.Create(new MemoryStream(System.Text.Encoding.ASCII.GetBytes(historyOfChanges))));
 
             //First filling the rtxt and then applying the style
             int previousCaretPosition = 0;

@@ -1,11 +1,11 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -33,6 +33,7 @@ namespace vApus.Util {
         #region Fields
         private readonly SolidBrush _brush = new SolidBrush(Color.LightSteelBlue);
         private readonly List<ChartProgressEvent> _progressEvents = new List<ChartProgressEvent>();
+        private readonly List<KeyValuePair<Color, HashSet<ChartProgressEvent>>> _sortedProgressEvents = new List<KeyValuePair<Color, HashSet<ChartProgressEvent>>>();
 
         private readonly ToolTip toolTip = new ToolTip();
 
@@ -45,9 +46,6 @@ namespace vApus.Util {
         private ChartProgressEvent _nowProgressEvent;
 
         private ChartProgressEvent _previouslyHovered;
-
-        private List<ChartProgressEvent> _sortedProgressEvents = new List<ChartProgressEvent>();
-        //Sorted on importance, to draw the lines.
 
         private bool _toolTipThisShown;
 
@@ -123,70 +121,49 @@ namespace vApus.Util {
         #endregion
 
         #region Functions
-        private ChartProgressEvent GetEventAt(int index) { return _progressEvents[index]; }
-
         /// <summary>
         ///     Always thinks the events are chronlologically ordered.
         /// </summary>
         /// <param name="color"></param>
         /// <param name="message"></param>
         /// <param name="at"></param>
-        public ChartProgressEvent AddEvent(Color color, string message, DateTime at) {
+        public ChartProgressEvent AddEvent(Color color, string message, DateTime at, bool refreshGui) {
             var pe = new ChartProgressEvent(this, color, message, at);
             pe.MouseEnter += pe_MouseEnter;
             pe.MouseLeave += pe_MouseLeave;
             pe.Click += pe_Click;
+
             _progressEvents.Add(pe);
 
-            _sortedProgressEvents = Sort(_progressEvents);
+            //Keep categorized for faster sorting.
+            bool contains = false;
+            foreach (var kvp in _sortedProgressEvents)
+                if (kvp.Key == color) {
+                    kvp.Value.Add(pe);
 
-            Invalidate();
+                    contains = true;
+                    break;
+                }
+            if (!contains) {
+                var kvp = new KeyValuePair<Color, HashSet<ChartProgressEvent>>(color, new HashSet<ChartProgressEvent>());
+                kvp.Value.Add(pe);
+                _sortedProgressEvents.Add(kvp);
+            }
+
+            if (refreshGui) Invalidate();
+
 
             return pe;
         }
 
-        /// <summary>
-        ///     Sort on color, the smallest counts first
-        /// </summary>
-        /// <param name="progressEvents"></param>
-        /// <returns></returns>
-        private List<ChartProgressEvent> Sort(List<ChartProgressEvent> progressEvents) {
-            var pes = new List<ChartProgressEvent>(progressEvents.Count);
-            var sorter = new Dictionary<Color, List<ChartProgressEvent>>();
 
-            foreach (ChartProgressEvent pe in progressEvents)
-                if (sorter.ContainsKey(pe.Color)) {
-                    sorter[pe.Color].Add(pe);
-                } else {
-                    var value = new List<ChartProgressEvent>();
-                    value.Add(pe);
-                    sorter.Add(pe.Color, value);
-                }
-
-            var sorted = new Dictionary<Color, List<ChartProgressEvent>>(sorter.Count);
-
-            while (sorter.Count != 0) {
-                Color smallestCount = Color.Empty;
-                foreach (Color key in sorter.Keys)
-                    if (smallestCount == Color.Empty)
-                        smallestCount = key;
-                    else if (sorter[key].Count < sorter[smallestCount].Count)
-                        smallestCount = key;
-
-                sorted.Add(smallestCount, sorter[smallestCount]);
-                sorter.Remove(smallestCount);
-            }
-
-            foreach (Color key in sorted.Keys)
-                pes.AddRange(sorted[key]);
-
-            return pes;
+        public List<ChartProgressEvent> GetEvents() {
+            return _progressEvents;
         }
-
-        public List<ChartProgressEvent> GetEvents() { return _progressEvents; }
 
         public void ClearEvents() {
             _progressEvents.Clear();
+            _sortedProgressEvents.Clear();
             Invalidate();
         }
 
@@ -207,20 +184,23 @@ namespace vApus.Util {
                 ChartProgressEvent entered = null;
 
                 //Make sure the most important events are drawn, hidden events won't be drawn.
+		//Faster contains with a hash set then with a list.
                 var Xs = new HashSet<int>();
-                for (int i = 0; i != _sortedProgressEvents.Count; i++) {
-                    ChartProgressEvent pe = _sortedProgressEvents[i];
-                    if (pe.Entered) {
-                        entered = pe;
-                    } else {
-                        int x = pe.X;
-                        if (x < 1073741952 && !Xs.Contains(x)) { //Max value possible, Google it if you want
-                            Xs.Add(x);
-                            pe.Draw(g);
+                _sortedProgressEvents.Sort(ChartProgressEventComparer.GetInstance());
+
+                foreach (var kvp in _sortedProgressEvents)
+                    foreach (var pe in kvp.Value) {
+                        if (pe.Entered) {
+                            entered = pe;
+                        } else {
+                            int x = pe.X;
+                            if (x < 1073741952 && !Xs.Contains(x)) { //Max value possible, Google it if you want
+                                Xs.Add(x);
+                                pe.Draw(g);
+                            }
                         }
                     }
-                }
-                Xs = null;
+           	Xs = null;
                 if (entered != null)
                     entered.Draw(g); //Out of bounds check is also done in the fx
             } catch (Exception ex) {
@@ -233,8 +213,8 @@ namespace vApus.Util {
         /// <param name="g"></param>
         private void DrawBackground(Graphics g) {
             ChartProgressEvent pe = null;
-            if (_sortedProgressEvents.Count != 0) {
-                pe = _sortedProgressEvents[_sortedProgressEvents.Count - 1];
+            if (_progressEvents.Count != 0) {
+                pe = _progressEvents[_progressEvents.Count - 1];
                 if (_nowProgressEvent == null || _nowProgressEvent.At < pe.At)
                     _nowProgressEvent = pe;
             }
@@ -250,11 +230,12 @@ namespace vApus.Util {
         }
 
         public void PerformMouseEnter(DateTime at, bool showToolTip) {
-            foreach (ChartProgressEvent pe in _sortedProgressEvents)
-                if (pe.At == at) {
-                    PerformMouseEnter(pe, showToolTip);
-                    break;
-                }
+            foreach (var kvp in _sortedProgressEvents)
+                foreach (ChartProgressEvent pe in kvp.Value)
+                    if (pe.At == at) {
+                        PerformMouseEnter(pe, showToolTip);
+                        return;
+                    }
         }
 
         private void PerformMouseEnter(ChartProgressEvent pe, bool showToolTip) {
@@ -296,13 +277,14 @@ namespace vApus.Util {
 
         private ChartProgressEvent GetHoveredProgressEvent() {
             Point p = PointToClient(Cursor.Position);
-            foreach (ChartProgressEvent pe in _sortedProgressEvents) {
-                Point location = new Point(pe.X, 0);
-                if (p.X >= location.X &&
-                    p.X <= location.X + ChartProgressEvent.WIDTH)
-                    return pe;
-            }
-            return null;
+	    foreach (var kvp in _sortedProgressEvents)
+                foreach (ChartProgressEvent pe in kvp.Value) {
+                    Point location = new Point(pe.X, 0);
+                    if (p.X >= location.X &&
+                        p.X <= location.X + ChartProgressEvent.WIDTH)
+                        return pe;
+                }
+             return null;
         }
 
         public void PerformMouseLeave(bool invalidate = true) {
@@ -330,5 +312,20 @@ namespace vApus.Util {
             public readonly ChartProgressEvent ProgressEvent;
             public ProgressEventEventArgs(ChartProgressEvent progressEvent) { ProgressEvent = progressEvent; }
         }
+
+        /// <summary>
+        ///     Sort on color, the smallest counts first
+        /// </summary>
+        private class ChartProgressEventComparer : IComparer<KeyValuePair<Color, HashSet<ChartProgressEvent>>> {
+            private static ChartProgressEventComparer _instance = new ChartProgressEventComparer();
+
+            public static ChartProgressEventComparer GetInstance() { return _instance; }
+
+            private ChartProgressEventComparer() { }
+            public int Compare(KeyValuePair<Color, HashSet<ChartProgressEvent>> x, KeyValuePair<Color, HashSet<ChartProgressEvent>> y) {
+                return x.Value.Count.CompareTo(y.Value.Count);
+            }
+        }
+
     }
 }

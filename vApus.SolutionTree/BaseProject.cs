@@ -1,4 +1,5 @@
-﻿using RandomUtils.Log;
+﻿using RandomUtils;
+using RandomUtils.Log;
 /*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -152,7 +153,7 @@ namespace vApus.SolutionTree {
             foreach (XmlNode childNode in root.ChildNodes) {
                 if (cancellationToken.IsCancellationRequested) break;
                 try {
-                    var item = FastObjectCreator.CreateInstance(GetType().Assembly.GetTypeByName(childNode.Name)) as BaseItem;
+                    var item = FastObjectCreator.CreateInstance<BaseItem>(GetType().Assembly.GetTypeByName(childNode.Name));
                     item.SetParent(this);
                     string childErrorMessage;
                     item.LoadFromXml(childNode, cancellationToken, out childErrorMessage);

@@ -201,12 +201,14 @@
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Data" />
+    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Threading.Tasks.Dataflow, Version=4.5.14.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\packages\Microsoft.Tpl.Dataflow.4.5.14\lib\portable-net45+win8\System.Threading.Tasks.Dataflow.dll</HintPath>
     </Reference>
     <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.Windows.Forms.DataVisualization" />
     <Reference Include="System.Xml" />
     <Reference Include="WindowsBase" />
   </ItemGroup>
@@ -226,23 +228,11 @@
       <DependentUpon>FindAndReplacePanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\TestConnections.cs" />
-    <Compile Include="Dialogs\ChartDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\ChartDialog.Designer.cs">
-      <DependentUpon>ChartDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\DetailedResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
     <Compile Include="Controls\DetailedResultsControl.Designer.cs">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\ExportToExcelDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\ExportToExcelDialog.Designer.cs">
-      <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Logs\Controls\EditLogPanel.cs">
       <SubType>UserControl</SubType>
@@ -484,18 +474,11 @@
     <EmbeddedResource Include="Connections\Proxies\Panels\ReferencesPanel.resx">
       <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\ChartDialog.resx">
-      <DependentUpon>ChartDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Controls\DetailedResultsControl.resx">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Controls\FastResultsControl.resx">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\ExportToExcelDialog.resx">
-      <DependentUpon>ExportToExcelDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Logs\Controls\EditLogPanel.resx">
       <DependentUpon>EditLogPanel.cs</DependentUpon>

@@ -13,10 +13,12 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Runtime.InteropServices;
+using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using System.Xml;
 using vApus.Monitor.Sources.Base;
 using vApus.Results;
 using vApus.SolutionTree;
@@ -270,7 +272,7 @@ namespace vApus.Monitor {
                             Stop();
                     }
                 } catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex);
+                    Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex, new object[] { _monitor.ToString() });
                 }
             }, null);
         }
@@ -326,6 +328,7 @@ namespace vApus.Monitor {
             //Set the parameters and the values in the gui and in the proxy
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate { SetValuesToParameters(); }, null);
 
+            bool isConnected = false;
             Exception exception = null;
             try {
                 if (_monitorSourceClient.Connect()) {
@@ -334,6 +337,22 @@ namespace vApus.Monitor {
                     config = _monitorSourceClient.Config;
                     _decimalSeparator = _monitorSourceClient.DecimalSeparator;
                     _wdyh = _monitorSourceClient.WDYH;
+
+                    if (!string.IsNullOrEmpty(config) && config.StartsWith("<lines>") && config.EndsWith("</lines>") && config.Contains("<line>") && config.Contains("</line>")) {
+                        try {
+                            var sb = new StringBuilder();
+                            var doc = new XmlDocument();
+                            doc.LoadXml(config);
+
+                            foreach (XmlNode node in doc.FirstChild.ChildNodes)
+                                sb.AppendLine(node.InnerText);
+
+                            config = sb.ToString().Trim();
+                        } catch {
+                            //No xml after all.
+                        }
+                    }
+                    isConnected = true;
                 } else {
                     exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".");
                 }
@@ -342,8 +361,8 @@ namespace vApus.Monitor {
             }
 
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                if (_monitorSourceClient.IsConnected) {
-                    btnConfiguration.Enabled = (config != null);
+                if (isConnected) {
+                    btnConfiguration.Enabled = !string.IsNullOrEmpty(config);
                     Configuration = config;
                     try { FillEntities(_wdyh); } catch (Exception ex) { exception = ex; }
                 }
@@ -1176,7 +1195,7 @@ namespace vApus.Monitor {
             ConnectAndGetCounters();
         }
 
-        public void Start() {
+        public bool Start() {
             split.Panel2.Enabled = false;
             btnGetCounters.Enabled = false;
             propertyPanel.Lock();
@@ -1191,7 +1210,8 @@ namespace vApus.Monitor {
             if (schedule != null && schedule.ScheduledAt > DateTime.Now)
                 ScheduleMonitor();
             else
-                StartMonitor();
+                return StartMonitor();
+            return true;
         }
 
         private void ScheduleMonitor() {
@@ -1223,20 +1243,21 @@ namespace vApus.Monitor {
             }
         }
 
-        private void StartMonitor() {
+        private bool StartMonitor() {
             Cursor = Cursors.WaitCursor;
 
             try {
                 //Set the parameters and the values in the gui and in the proxy
                 SetValuesToParameters();
 
+                bool isConnected = false;
                 //Re-establish the connection.
                 if (_monitorSourceClient.Connect()) {
                     _monitorSourceClient.OnMonitor += _monitorSourceClient_OnMonitor;
 
                     _monitorSourceClient.WIW = _monitor.Wiw;
 
-                    monitorControl.Init(_monitor);
+                    monitorControl.Init(_monitor, _wdyh);
                     btnSaveAllMonitorCounters.Enabled = btnSaveFilteredMonitoredCounters.Enabled = false;
 
                     int refreshInS = _refreshTimeInMS / 1000;
@@ -1250,9 +1271,11 @@ namespace vApus.Monitor {
                     tmrProgressDelayCountDown.Start();
 
                     tc.SelectedIndex = 1;
+
+                    isConnected = true;
                 }
 
-                if (!_monitorSourceClient.IsConnected || !_monitorSourceClient.Start()) {
+                if (!isConnected || !_monitorSourceClient.Start()) {
                     Stop();
                     throw new Exception("The monitor did not start.");
                 }
@@ -1269,9 +1292,13 @@ namespace vApus.Monitor {
                     } else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
-                Loggers.Log(Level.Error, message, ex);
+                Loggers.Log(Level.Error, message, ex, new object[] { _monitor.ToString() });
+
+                return false;
+            } finally {
+                Cursor = Cursors.Default;
             }
-            Cursor = Cursors.Default;
+            return true;
         }
 
         public void Stop() {

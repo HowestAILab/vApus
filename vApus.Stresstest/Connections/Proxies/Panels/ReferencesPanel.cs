@@ -13,6 +13,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
+using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class ReferencesPanel : UserControl {

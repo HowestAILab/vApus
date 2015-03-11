@@ -70,19 +70,19 @@ namespace vApus.Util {
                 GetAndStoreSize(d);
 
             if (IsHandleCreated) {
-                btnOpenConnectionProxyTempFiles.Text = string.Format("     ConnectionProxyTempFiles... [{0}MB]",
+                btnOpenConnectionProxyTempFiles.Text = string.Format("     ConnectionProxyTempFiles... [{0} MB]",
                                                                      _d["CompilerUnitTempFiles"]);
                 btnOpenConnectionProxyTempFiles.Enabled =
                     btnDeleteConnectionProxyTempFiles.Enabled = (_d["CompilerUnitTempFiles"] != 0);
 
-                btnOpenLogs.Text = string.Format("     Logs... [{0}MB]", _d["Logs"]);
+                btnOpenLogs.Text = string.Format("     Logs... [{0} MB]", _d["Logs"]);
                 btnOpenLogs.Enabled = btnDeleteLogs.Enabled = (_d["Logs"] != 0);
 
-                btnOpenUpdateTempFiles.Text = string.Format("     UpdateTempFiles... [{0}MB]", _d["UpdateTempFiles"]);
+                btnOpenUpdateTempFiles.Text = string.Format("     UpdateTempFiles... [{0} MB]", _d["UpdateTempFiles"]);
                 btnOpenUpdateTempFiles.Enabled = btnDeleteUpdateTempFiles.Enabled = (_d["UpdateTempFiles"] != 0);
 
                 double tempDataSizeInMB = TempDataSizeInMB;
-                btnDeleteAll.Text = string.Format("Delete All [{0}MB]", tempDataSizeInMB);
+                btnDeleteAll.Text = string.Format("Delete all [{0} MB]", tempDataSizeInMB);
                 btnDeleteAll.Enabled = (tempDataSizeInMB != 0);
             }
         }
@@ -92,7 +92,7 @@ namespace vApus.Util {
         /// <param name="d"></param>
         private void GetAndStoreSize(string d) {
             string d2 = Path.Combine(Application.StartupPath, d);
-            double sizeInMB = 0;
+            double sizeInMB = 0.0;
 
             try {
                 sizeInMB = Directory.Exists(d2) ? DirSize(new DirectoryInfo(d2)) : 0;
@@ -101,7 +101,7 @@ namespace vApus.Util {
             }
 
             sizeInMB /= (1024 * 1024);
-            _d[d] = Math.Round(sizeInMB, 0);
+            _d[d] = Math.Round(sizeInMB, 1);
         }
 
         private double DirSize(DirectoryInfo d) {
@@ -154,7 +154,7 @@ namespace vApus.Util {
         }
 
         public override string ToString() {
-            return "Clean Temporary Data";
+            return "Clean temporary data";
         }
     }
 }

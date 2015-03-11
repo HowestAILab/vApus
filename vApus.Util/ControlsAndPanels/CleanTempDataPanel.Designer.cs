@@ -191,7 +191,7 @@
             this.btnDeleteAll.Name = "btnDeleteAll";
             this.btnDeleteAll.Size = new System.Drawing.Size(397, 25);
             this.btnDeleteAll.TabIndex = 2;
-            this.btnDeleteAll.Text = "Delete All [?MB]";
+            this.btnDeleteAll.Text = "Delete all [?MB]";
             this.btnDeleteAll.UseVisualStyleBackColor = false;
             this.btnDeleteAll.Click += new System.EventHandler(this.btnDeleteAll_Click);
             // 

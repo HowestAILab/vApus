@@ -227,7 +227,9 @@ namespace vApus.DistributedTesting {
         public void SetEvents(List<EventPanelEvent> events) {
             ClearEvents();
             foreach (EventPanelEvent epe in events)
-                eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
+                eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+
+            eventProgressChart.Invalidate();
 
             EventPanelEvent lastEpe = new EventPanelEvent();
             lastEpe.Message = string.Empty;
@@ -244,12 +246,12 @@ namespace vApus.DistributedTesting {
 
         public void SetStresstestStatus(StresstestStatus stresstestStatus) {
             _stresstestStatus = stresstestStatus;
-            eventProgressChart.SetEndOfTimeFrameToNow();
 
             switch (_stresstestStatus) {
                 case StresstestStatus.Ok:
                     picStresstestStatus.Image = Resources.OK;
                     toolTip.SetToolTip(picStresstestStatus, "Finished");
+                    eventProgressChart.SetEndOfTimeFrameToNow();
                     break;
                 case StresstestStatus.Cancelled:
                     picStresstestStatus.Image = Resources.Cancelled;

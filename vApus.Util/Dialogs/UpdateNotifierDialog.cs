@@ -17,7 +17,11 @@ namespace vApus.Util {
         private readonly string _currentChannel, _currentVersion, _history, _newChannel, _newVersion;
         private Font _dateFont, _itemFont, _titleFont;
 
-        public UpdateNotifierDialog() { InitializeComponent(); }
+        public UpdateNotifierDialog() {
+            InitializeComponent();
+
+            rtxtHistoryOfChanges.DefaultContextMenu(true);
+        }
 
         public UpdateNotifierDialog(string currentVersion, string newVersion, string currentChannel, string newChannel, string history)
             : this() {

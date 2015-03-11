@@ -214,8 +214,13 @@ namespace vApus.Stresstest {
 
             _concurrencyResult.RunResults.Add(_runResult);
 
-            if (!_cancel && RunInitializedFirstTime != null)
+            if (!_cancel && RunInitializedFirstTime != null) {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunInitializedFirstTime(this, new RunResultEventArgs(_runResult)); }, null);
+
+#if EnableBetaFeature
+                InvokeMessage("Set run initialized");
+#endif
+            }
         }
 
         /// <summary>
@@ -225,8 +230,13 @@ namespace vApus.Stresstest {
         private bool SetRunDoneOnce() {
             if (!_runDoneOnce) {
                 _runDoneOnce = true;
-                if (!_cancel && RunDoneOnce != null)
+                if (!_cancel && RunDoneOnce != null) {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, null); }, null);
+
+#if EnableBetaFeature
+                    InvokeMessage("Set run done once");
+#endif
+                }
                 return true;
             }
             return false;
@@ -250,7 +260,11 @@ namespace vApus.Stresstest {
         /// <param name="logLevel"></param>
         private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
             try {
-                Loggers.Log(logLevel, message);
+                if (logLevel == Level.Error) {
+                    string[] split = message.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
+                    message = split[0] + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
+                }
+
                 if (Message != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(
                         delegate {
@@ -260,6 +274,9 @@ namespace vApus.Stresstest {
                                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
                             }
                         }, null);
+
+                Loggers.Log(logLevel, message);
+                _resultsHelper.AddLogEntry((int)logLevel, message);
             } catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }
@@ -718,7 +735,7 @@ namespace vApus.Stresstest {
                     if (_cancel) break;
 
                     if (_runDoneOnce) {
-                        InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.White);
+                        InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.LightPink);
                     } else {
                         ++_continueCounter;
 
@@ -829,6 +846,10 @@ namespace vApus.Stresstest {
         /// <param name="continueCounter">Every time the execution is paused the continue counter is incremented by one.</param>
         public void Continue(int continueCounter) {
             if (_continueCounter == continueCounter && !(_completed | _cancel | _isFailed)) {
+
+#if EnableBetaFeature
+                InvokeMessage("Received Continue");
+#endif
                 _break = false;
                 _runSynchronizationContinueWaitHandle.Set();
             }
@@ -992,6 +1013,9 @@ namespace vApus.Stresstest {
                 if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
                 DisposeThreadPool();
                 if (_connectionProxyPool != null) _connectionProxyPool.Dispose();
+
+                _connectionProxyPool = null;
+
             }
         }
         private StresstestStatus Completed() {
@@ -1058,8 +1082,6 @@ namespace vApus.Stresstest {
                 try {
                     _isDisposed = true;
                     Cancel();
-                    _connectionProxyPool.Dispose();
-                    _connectionProxyPool = null;
 
                     _sleepWaitHandle.Close();
                     _sleepWaitHandle.Dispose();

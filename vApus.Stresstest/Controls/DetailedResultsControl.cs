@@ -64,6 +64,8 @@ namespace vApus.Stresstest {
             cboShow.HandleCreated += cboShow_HandleCreated;
 
             OnResults += DetailedResultsControl_OnResults;
+
+            fctxtCellView.DefaultContextMenu(true);
         }
         #endregion
 
@@ -159,7 +161,7 @@ namespace vApus.Stresstest {
                     this.Enabled = true;
                 }
 
-                if (_currentSelectedIndex == 7) {
+                if (_currentSelectedIndex == 6) {
                     pnlBorderMonitors.Visible = true;
                     if (cboMonitors.Items.Count == 0) {
                         object first = "All monitors";
@@ -179,13 +181,13 @@ namespace vApus.Stresstest {
                     cboMonitors.Items.Clear();
                 }
 
-                pnlBorderMonitors.Visible = _currentSelectedIndex == 7;
+                pnlBorderMonitors.Visible = _currentSelectedIndex == 6;
             }
         }
         private void cboMonitors_SelectedIndexChanged(object sender, EventArgs e) {
             int monitorId = (int)cboMonitors.SelectedItem.GetTag();
 
-            if (_currentSelectedIndex == 7) {
+            if (_currentSelectedIndex == 6) {
                 DataTable dt = null;
                 if (monitorId == 0)
                     dt = _resultsHelper.GetAverageMonitorResults(_cancellationTokenSource.Token, _stresstestIds);
@@ -201,16 +203,14 @@ namespace vApus.Stresstest {
                 _workerThread = new Thread(() => {
                     try {
                         DataTable dt = null;
-                        Dictionary<string, List<string>> stub;
                         switch (_currentSelectedIndex) {
-                            case 0: dt = _resultsHelper.GetOverview(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 1: dt = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 2: dt = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 3: dt = _resultsHelper.GetAverageLogEntryResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 4: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 5: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 6: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 8: dt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out stub, _stresstestIds); break;
+                            case 0: dt = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 1: dt = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 2: dt = _resultsHelper.GetAverageLogEntryResults(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 3: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 4: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 5: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 7: dt = _resultsHelper.GetLogs(_cancellationTokenSource.Token, _stresstestIds); break;
                         }
                         if (OnResults != null)
                             foreach (EventHandler<OnResultsEventArgs> del in OnResults.GetInvocationList())
@@ -330,9 +330,24 @@ namespace vApus.Stresstest {
         }
 
         private void btnExportToExcel_Click(object sender, EventArgs e) {
-            var dialog = new ExportToExcelDialog();
-            dialog.Init(_resultsHelper);
-            dialog.ShowDialog();
+            if (_resultsHelper != null)
+                try {
+                    var dialog = new RichExportToExcelDialog();
+                    dialog.Init(_resultsHelper);
+                    dialog.ShowDialog();
+                    dialog = null;
+                } catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed exporting to Excel.", ex);
+                    MessageBox.Show(string.Empty, "Failed exporting to Excel.", MessageBoxButtons.OK, MessageBoxIcon.Error);
+                }
+        }
+
+        public void AutoExportToExcel(string folder) {
+            if (Directory.Exists(folder)) {
+                var dialog = new RichExportToExcelDialog();
+                dialog.Init(_resultsHelper);
+                dialog.AutoExportToExcel(folder);
+            }
         }
 
         async private void btnExecute_Click(object sender, EventArgs e) {

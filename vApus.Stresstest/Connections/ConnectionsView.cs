@@ -1,12 +1,12 @@
-﻿using RandomUtils;
-using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -69,10 +69,12 @@ namespace vApus.Stresstest {
         public void FillConnectionsDatagrid() {
             dgvConnections.DataSource = null;
             _dataSource.Clear();
+            int connectionLength = "Connection ".Length;
+            int connectionProxyLength = "Connection Proxy ".Length;
             foreach (var item in _connections)
                 if (item is Connection) {
                     var connection = item as Connection;
-                    var row = _dataSource.Rows.Add(connection.ToString(), connection.ConnectionProxy.ToString(), connection.ConnectionString);
+                    var row = _dataSource.Rows.Add(connection.ToString().Substring(connectionLength), connection.ConnectionProxy.ToString().Substring(connectionProxyLength), connection.ConnectionString);
                     row.SetTag(connection);
                 }
             dgvConnections.DataSource = _dataSource;
@@ -141,40 +143,13 @@ namespace vApus.Stresstest {
 
         private void btnEdit_Click(object sender, EventArgs e) {
             var dialog = new FromTextDialog();
-            dialog.Height = 800;
+            dialog.Height = this.Height - 20;
             dialog.Width = 800;
             dialog.WarnForEndingWithNewLine = false;
 
+            dialog.Description = "Specify the label, the one-based connection proxy index and the connection string.\nThe delimiters are important. Invalid entries are discarded automatically.\n\nExample:\n\n\tMy connection;1;192.168.20.20<16 0C 02 12$>http<16 0C 02 12$>80";
+
             var sb = new StringBuilder();
-            int cpIndex = 0;
-            ConnectionProxies cps = null;
-            foreach (var item in _connections) {
-                if (item is ConnectionProxies) {
-                    cps = item as ConnectionProxies;
-                    foreach (ConnectionProxy cp in cps) {
-                        sb.Append("    My ");
-                        sb.Append(cp.Label);
-                        sb.Append(" Connection; ");
-                        sb.Append((++cpIndex));
-                        sb.Append(";");
-
-                        var ruleSet = cp.ConnectionProxyRuleSet;
-                        if (ruleSet.Count == 0) {
-                            sb.AppendLine("Text");
-                        } else {
-                            for (int i = 0; i != ruleSet.Count - 1; i++) {
-                                sb.Append((ruleSet[i] as SyntaxItem).Label);
-                                sb.Append(ruleSet.ChildDelimiter);
-                            }
-                            sb.AppendLine((ruleSet[ruleSet.Count - 1] as SyntaxItem).Label);
-                        }
-                    }
-                    break;
-                }
-            }
-            dialog.Description = "Specify the label, the one-based connection proxy index and the connection string.\nThe delimiters are important. Invalid entries are discarded automatically.\n\nExample(s):\n\n" + sb.ToString().TrimEnd();
-
-            sb = new StringBuilder();
 
             foreach (var item in _connections)
                 if (item is Connection) {
@@ -202,6 +177,13 @@ namespace vApus.Stresstest {
                 btnUndo.Tag = connectionsUndo;
                 btnUndo.Enabled = true;
 
+                ConnectionProxies cps = null;
+                foreach (var item in _connections)
+                    if (item is ConnectionProxies) {
+                        cps = item as ConnectionProxies;
+                        break;
+                    }
+
                 //Build new connections.
                 _connections.Clear();
                 foreach (string entry in dialog.Entries)
@@ -214,7 +196,7 @@ namespace vApus.Stresstest {
 
                         string cpIndexString = s.Substring(0, s.IndexOf(';'));
                         s = s.Substring(cpIndexString.Length + 1);
-                        cpIndex = int.Parse(cpIndexString.TrimStart()) - 1;
+                        int cpIndex = int.Parse(cpIndexString.TrimStart()) - 1;
 
                         var connection = new Connection();
                         connection.Label = label;

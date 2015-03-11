@@ -1,11 +1,11 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -53,6 +53,8 @@ namespace vApus.Stresstest {
             }
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+
+            fctxt.DefaultContextMenu(true);
         }
         #endregion
 

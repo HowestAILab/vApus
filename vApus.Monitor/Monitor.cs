@@ -178,7 +178,6 @@ namespace vApus.Monitor {
             }
         }
 
-
         public override BaseSolutionComponentView Activate() { return SolutionComponentViewManager.Show(this); }
 
         #endregion

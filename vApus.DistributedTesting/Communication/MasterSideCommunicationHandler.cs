@@ -1,17 +1,15 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2010 (c) Sizing Servers Lab
  * Technical University Kortrijk, Department GKG
  *  
  * Author(s):
  *    Vandroemme Dieter
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
-using System.IO;
-using System.IO.Compression;
-using System.IO.Packaging;
 using System.Net;
 using System.Net.NetworkInformation;
 using System.Net.Sockets;
@@ -386,9 +384,12 @@ namespace vApus.DistributedTesting {
                 socketWrapper.SetTag(masterSocketWrapper.Port);
                 BeginReceive(socketWrapper);
                 masterSocketWrapper.Socket.BeginAccept(new AsyncCallback(OnAccept), masterSocketWrapper);
-            } catch (Exception ex) {
-                Loggers.Log(Level.Warning, "Failed on accept. Maybe you cancelled the test?", ex, new object[] { ar });
+            } catch {
+                //Not important, happens when starting a new test after one was run.
             }
+            //(Exception ex) {
+            //    Loggers.Log(Level.Warning, "Failed on accept. Maybe you cancelled the test?", ex, new object[] { ar });
+            //}
         }
         private static void BeginReceive(SocketWrapper socketWrapper) {
             try {

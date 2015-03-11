@@ -78,7 +78,7 @@
             // 
             // btnClear
             // 
-            this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnClear.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnClear.AutoSize = true;
             this.btnClear.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnClear.BackColor = System.Drawing.Color.White;
@@ -325,7 +325,7 @@
             this.chkSmartUpdate.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.chkSmartUpdate.Size = new System.Drawing.Size(126, 23);
             this.chkSmartUpdate.TabIndex = 5;
-            this.chkSmartUpdate.Text = "Smart Update Slaves";
+            this.chkSmartUpdate.Text = "Smart update slaves";
             this.toolTip.SetToolTip(this.chkSmartUpdate, "Enabling this will update the master and the slaves when starting a distributed t" +
         "est, if the filled in credentials are correct.");
             this.chkSmartUpdate.UseVisualStyleBackColor = true;

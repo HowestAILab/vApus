@@ -5,7 +5,7 @@
     <Setting Name="Culture" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="GreetWithWelcomePage" Type="System.Boolean" Scope="User">
+    <Setting Name="GreetWithFirstStepsView" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="LogLevel" Type="System.Int32" Scope="User">

@@ -73,6 +73,10 @@ namespace vApus.Stresstest {
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
                 _tmr.Elapsed += _tmr_Elapsed;
                 SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
+
+                fctxteditView.DefaultContextMenu(true);
+                fctxtxPlainText.DefaultContextMenu(true);
+
             } catch {
                 //Should / can never happen.
             }
@@ -772,7 +776,7 @@ namespace vApus.Stresstest {
                         e.Value = _cache.Rows[e.RowIndex][e.ColumnIndex];
                     }
                 }
-            } catch(Exception ex) {
+            } catch {
                 //Cell is probably deleted. Logged and tested this.
             }
         }

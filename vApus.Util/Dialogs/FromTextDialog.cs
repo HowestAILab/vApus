@@ -45,6 +45,8 @@ namespace vApus.Util {
         public FromTextDialog() {
             InitializeComponent();
             WarnForEndingWithNewLine = true;
+
+            rtxt.DefaultContextMenu(true);
         }
 
         #endregion

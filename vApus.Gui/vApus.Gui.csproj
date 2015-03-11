@@ -175,6 +175,10 @@
     <StartupObject>vApus.Gui.Program</StartupObject>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="FastColoredTextBox, Version=2.9.15.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\RandomUtils\Newtonsoft.Json.dll</HintPath>
@@ -191,6 +195,7 @@
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
+    <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml" />
@@ -210,6 +215,12 @@
     </Compile>
     <Compile Include="About\HistoryPart.cs" />
     <Compile Include="ArgumentsAnalyzer.cs" />
+    <Compile Include="FirstStepsView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="FirstStepsView.Designer.cs">
+      <DependentUpon>FirstStepsView.cs</DependentUpon>
+    </Compile>
     <Compile Include="LocalizationPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -247,6 +258,9 @@
     <EmbeddedResource Include="About\AuthorGrid.resx">
       <DependentUpon>AuthorGrid.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="FirstStepsView.resx">
+      <DependentUpon>FirstStepsView.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="LocalizationPanel.resx">
       <DependentUpon>LocalizationPanel.cs</DependentUpon>
@@ -300,24 +314,12 @@
     <None Include="Resources\Liz_van_Dijk.png" />
     <None Include="Resources\Philip_Dubois.png" />
     <None Include="Resources\Dieter_Vandroemme.jpg" />
-    <Content Include="Welcome\images\Link1.PNG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Welcome\images\Link2.PNG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Welcome\images\Link3.PNG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Welcome\images\vApus.PNG">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Welcome\screen.css">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
-    <Content Include="Welcome\welcome.htm">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-    </Content>
+    <Content Include="Welcome\images\Link1.PNG" />
+    <Content Include="Welcome\images\Link2.PNG" />
+    <Content Include="Welcome\images\Link3.PNG" />
+    <Content Include="Welcome\images\vApus.PNG" />
+    <Content Include="Welcome\screen.css" />
+    <Content Include="Welcome\welcome.htm" />
     <None Include="Resources\linkedIn.png" />
     <None Include="Resources\Glenn_Desmadryl.png" />
     <None Include="Resources\Icon_16x16_Refresh.png" />

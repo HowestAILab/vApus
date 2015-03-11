@@ -73,7 +73,7 @@
             // kvpWindowsAutoUpdate
             // 
             this.kvpWindowsAutoUpdate.BackColor = System.Drawing.Color.Transparent;
-            this.kvpWindowsAutoUpdate.Key = "Windows Auto Update";
+            this.kvpWindowsAutoUpdate.Key = "Windows auto update";
             this.kvpWindowsAutoUpdate.Location = new System.Drawing.Point(0, 0);
             this.kvpWindowsAutoUpdate.Margin = new System.Windows.Forms.Padding(0);
             this.kvpWindowsAutoUpdate.Name = "kvpWindowsAutoUpdate";
@@ -124,7 +124,7 @@
             // kvpFirewall
             // 
             this.kvpFirewall.BackColor = System.Drawing.Color.Transparent;
-            this.kvpFirewall.Key = "Windows Firewall";
+            this.kvpFirewall.Key = "Windows firewall";
             this.kvpFirewall.Location = new System.Drawing.Point(0, 0);
             this.kvpFirewall.Margin = new System.Windows.Forms.Padding(0);
             this.kvpFirewall.Name = "kvpFirewall";
@@ -186,7 +186,7 @@
             this.label1.TabIndex = 19;
             this.label1.Text = "The Windows firewall can block vApus communication and can break a stresstest.\r\nW" +
     "indows auto update can restart the computer while a (scheduled) stresstest is ru" +
-    "nning.";
+    "nning.\r\nYou can only do this when running vApus as administrator!";
             // 
             // DisableFirewallAutoUpdatePanel
             // 

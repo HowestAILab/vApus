@@ -1,4 +1,4 @@
-﻿using RandomUtils.Log;
+﻿using RandomUtils;
 /*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
@@ -6,11 +6,11 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.CodeDom.Compiler;
 using System.IO;
 using System.Reflection;
-using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Util;
@@ -25,6 +25,7 @@ namespace vApus.Stresstest {
         #region Fields
         private CompilerUnit _compilerUnit = new CompilerUnit();
         private Assembly _connectionProxyAssembly;
+        private Type _connectionProxyType;
 
         private Connection _connection;
 
@@ -82,6 +83,7 @@ namespace vApus.Stresstest {
 
                 _connection = null;
                 _connectionProxyAssembly = null;
+                _connectionProxyType = null;
             }
         }
 
@@ -99,8 +101,10 @@ namespace vApus.Stresstest {
             if (deleteTempFiles)
                 _compilerUnit.DeleteTempFiles();
 
-            _connectionProxyAssembly = _compilerUnit.Compile(_connection.BuildConnectionProxyClass(), debug,
-                                                             out compilerResults);
+            _connectionProxyType = null;
+            _connectionProxyAssembly = _compilerUnit.Compile(_connection.BuildConnectionProxyClass(), debug, out compilerResults);
+            if (!compilerResults.Errors.HasErrors)
+                _connectionProxyType = _connectionProxyAssembly.GetType("vApus.Stresstest.ConnectionProxy");
             return compilerResults;
         }
 
@@ -113,7 +117,7 @@ namespace vApus.Stresstest {
             error = null;
             IConnectionProxy connectionProxy = null;
             try {
-                connectionProxy = _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                connectionProxy = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                 connectionProxy.SetParent(this);
                 connectionProxy.TestConnection(out error);
             } catch (Exception ex) {
@@ -144,7 +148,7 @@ namespace vApus.Stresstest {
                 if (_isDisposed || _isShutdown)
                     return;
 
-                var connectionProxy = _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                var connectionProxy = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                 connectionProxy.SetParent(this);
                 _connectionProxies[i] = connectionProxy;
 
@@ -158,9 +162,7 @@ namespace vApus.Stresstest {
                         if (_isDisposed || _isShutdown)
                             return;
 
-                        var cp =
-                            _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as
-                            IConnectionProxy;
+                        var cp = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                         cp.SetParent(this);
 
                         var pcp = new ParallelConnectionProxy(cp);
@@ -200,8 +202,7 @@ namespace vApus.Stresstest {
             Loggers.Log(Level.Warning, "Connection for connection proxy #" + index +
                     " could not be opened, trying to make a new one. (Expensive operation!)", ex, new object[] { connectionProxy, index });
             try {
-                connectionProxy =
-                    _connectionProxyAssembly.CreateInstance("vApus.Stresstest.ConnectionProxy") as IConnectionProxy;
+                connectionProxy = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                 connectionProxy.SetParent(this);
                 connectionProxy.OpenConnection();
                 if (!connectionProxy.IsConnectionOpen) {
