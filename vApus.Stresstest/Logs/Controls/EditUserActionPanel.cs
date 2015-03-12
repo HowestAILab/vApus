@@ -1065,7 +1065,7 @@ namespace vApus.Stresstest {
                     fctxteditView.TextChanged -= fctxteditView_TextChanged;
 
                     if (dgvLogEntries.SelectedCells.Count == 1) dgvLogEntries.CurrentCell = dgvLogEntries.SelectedCells[0];
-                    fctxteditView.Enabled = dgvLogEntries.CurrentCell != null && dgvLogEntries.CurrentCell.ColumnIndex != 0 && dgvLogEntries.SelectedCells.Count == 1;
+                    fctxteditView.Enabled = dgvLogEntries.CurrentCell != null && dgvLogEntries.CurrentCell.Value != null && dgvLogEntries.CurrentCell.ColumnIndex != 0 && dgvLogEntries.SelectedCells.Count == 1;
                     if (fctxteditView.Enabled) {
                         SetParameters();
                         SetCodeStyle();

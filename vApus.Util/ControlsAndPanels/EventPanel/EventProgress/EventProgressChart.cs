@@ -184,7 +184,7 @@ namespace vApus.Util {
                 ChartProgressEvent entered = null;
 
                 //Make sure the most important events are drawn, hidden events won't be drawn.
-                //Faster contains with a hash set then with a list.
+		//Faster contains with a hash set then with a list.
                 var Xs = new HashSet<int>();
                 _sortedProgressEvents.Sort(ChartProgressEventComparer.GetInstance());
 
@@ -200,7 +200,7 @@ namespace vApus.Util {
                             }
                         }
                     }
-                Xs = null;
+           	Xs = null;
                 if (entered != null)
                     entered.Draw(g); //Out of bounds check is also done in the fx
             } catch (Exception ex) {
@@ -277,14 +277,14 @@ namespace vApus.Util {
 
         private ChartProgressEvent GetHoveredProgressEvent() {
             Point p = PointToClient(Cursor.Position);
-            foreach (var kvp in _sortedProgressEvents)
+	    foreach (var kvp in _sortedProgressEvents)
                 foreach (ChartProgressEvent pe in kvp.Value) {
                     Point location = new Point(pe.X, 0);
                     if (p.X >= location.X &&
                         p.X <= location.X + ChartProgressEvent.WIDTH)
                         return pe;
                 }
-            return null;
+             return null;
         }
 
         public void PerformMouseLeave(bool invalidate = true) {
