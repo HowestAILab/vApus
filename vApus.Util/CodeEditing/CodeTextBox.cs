@@ -6,16 +6,41 @@
  *    Dieter Vandroemme
  */
 using FastColoredTextBoxNS;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace vApus.Util {
     public class CodeTextBox : FastColoredTextBox {
         public CodeTextBox()
             : base() {
-            this.DefaultContextMenu(true);
+            SetContextMenu();
         }
+        private void SetContextMenu() {
+            this.DefaultContextMenu(true);
+
+            this.MouseUp += CodeTextBox_MouseUp;
+        }
+
+        private void CodeTextBox_MouseUp(object sender, MouseEventArgs e) {
+            this.ContextMenu.MenuItems.Add("-");
+
+            var menuItem = new MenuItem("Collapse all");
+            menuItem.Click += new EventHandler((s, a) => this.CollapseAllFoldingBlocks());
+            this.ContextMenu.MenuItems.Add(menuItem);
+
+            menuItem = new MenuItem("Format code");
+            menuItem.Click += new EventHandler((s, a) => {
+                Place selectionStart = Selection.Start;
+                SelectAll();
+                DoAutoIndent();
+                Selection.Start = Selection.End = selectionStart;
+            });
+            this.ContextMenu.MenuItems.Add(menuItem);
+        }
+
         public override string Text {
             get { return base.Text; }
             set {

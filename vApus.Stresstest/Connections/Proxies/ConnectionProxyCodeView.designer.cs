@@ -29,9 +29,11 @@ namespace vApus.Stresstest
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConnectionProxyCodeView));
             this.splitCode = new System.Windows.Forms.SplitContainer();
             this.codeTextBox = new vApus.Util.CodeTextBox();
+            this.txtGoToLine = new vApus.Util.CueTextBox();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
             this.btnExport = new System.Windows.Forms.Button();
             this.tcTools = new System.Windows.Forms.TabControl();
@@ -42,10 +44,12 @@ namespace vApus.Stresstest
             this.tpCompile = new System.Windows.Forms.TabPage();
             this.compile = new vApus.Stresstest.CompilePanel();
             this.sfd = new System.Windows.Forms.SaveFileDialog();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitCode)).BeginInit();
             this.splitCode.Panel1.SuspendLayout();
             this.splitCode.Panel2.SuspendLayout();
             this.splitCode.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).BeginInit();
             this.tcTools.SuspendLayout();
             this.tpReferences.SuspendLayout();
             this.tpFind.SuspendLayout();
@@ -68,6 +72,7 @@ namespace vApus.Stresstest
             // splitCode.Panel2
             // 
             this.splitCode.Panel2.BackColor = System.Drawing.Color.LightSteelBlue;
+            this.splitCode.Panel2.Controls.Add(this.txtGoToLine);
             this.splitCode.Panel2.Controls.Add(this.btnCollapseExpand);
             this.splitCode.Panel2.Controls.Add(this.btnExport);
             this.splitCode.Panel2.Controls.Add(this.tcTools);
@@ -77,16 +82,39 @@ namespace vApus.Stresstest
             // 
             // codeTextBox
             // 
-            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 15);
+            this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
+            this.codeTextBox.BackBrush = null;
+            this.codeTextBox.CharHeight = 14;
+            this.codeTextBox.CharWidth = 8;
             this.codeTextBox.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.codeTextBox.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.codeTextBox.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.codeTextBox.IsReplaceMode = false;
             this.codeTextBox.Location = new System.Drawing.Point(3, 3);
             this.codeTextBox.Name = "codeTextBox";
+            this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
             this.codeTextBox.PreferredLineWidth = 65536;
+            this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
             this.codeTextBox.Size = new System.Drawing.Size(799, 344);
             this.codeTextBox.TabIndex = 1;
             this.codeTextBox.WordWrap = true;
             this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
+            this.codeTextBox.Zoom = 100;
+            // 
+            // txtGoToLine
+            // 
+            this.txtGoToLine.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtGoToLine.Cue = "Go to line...";
+            this.txtGoToLine.ForeColor = System.Drawing.Color.Black;
+            this.txtGoToLine.Location = new System.Drawing.Point(529, 3);
+            this.txtGoToLine.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.txtGoToLine.Name = "txtGoToLine";
+            this.txtGoToLine.Size = new System.Drawing.Size(100, 20);
+            this.txtGoToLine.TabIndex = 0;
+            this.toolTip.SetToolTip(this.txtGoToLine, "Go to line...");
+            this.txtGoToLine.KeyDown += new System.Windows.Forms.KeyEventHandler(this.txtGoToLine_KeyDown);
+            this.txtGoToLine.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.txtGoToLine_KeyPress);
+            this.txtGoToLine.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtGoToLine_KeyUp);
             // 
             // btnCollapseExpand
             // 
@@ -147,6 +175,7 @@ namespace vApus.Stresstest
             // 
             // references
             // 
+            this.references.CodeTextBox = null;
             this.references.Dock = System.Windows.Forms.DockStyle.Fill;
             this.references.Location = new System.Drawing.Point(3, 3);
             this.references.Name = "references";
@@ -214,8 +243,10 @@ namespace vApus.Stresstest
             this.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.ConnectionProxyCodeView_KeyPress);
             this.splitCode.Panel1.ResumeLayout(false);
             this.splitCode.Panel2.ResumeLayout(false);
+            this.splitCode.Panel2.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.splitCode)).EndInit();
             this.splitCode.ResumeLayout(false);
+            ((System.ComponentModel.ISupportInitialize)(this.codeTextBox)).EndInit();
             this.tcTools.ResumeLayout(false);
             this.tpReferences.ResumeLayout(false);
             this.tpFind.ResumeLayout(false);
@@ -238,6 +269,8 @@ namespace vApus.Stresstest
         private System.Windows.Forms.SaveFileDialog sfd;
         private System.Windows.Forms.Button btnCollapseExpand;
         private CodeTextBox codeTextBox;
+        private CueTextBox txtGoToLine;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }
 

@@ -14,17 +14,19 @@ using vApus.Util;
 
 namespace vApus.Stresstest {
     public partial class FindAndReplacePanel : UserControl {
-        public FindAndReplacePanel() {
-            InitializeComponent();
-        }
-
-        public event EventHandler<FoundReplacedButtonClickedEventArgs> FoundReplacedButtonClicked;
+                public event EventHandler<FoundReplacedButtonClickedEventArgs> FoundReplacedButtonClicked;
 
         #region Fields
 
         public CodeTextBox CodeTextBox;
 
         #endregion
+
+
+        public FindAndReplacePanel() {
+            InitializeComponent();
+        }
+
 
         #region Functions
 

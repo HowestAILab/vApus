@@ -722,7 +722,7 @@ namespace vApus.Util {
         }
         private static void Copy(FastColoredTextBox fctxt) { Clipboard.SetData(DataFormats.UnicodeText, fctxt.SelectedText); }
         private static void Paste(FastColoredTextBox fctxt) {
-            if (Clipboard.ContainsText(TextDataFormat.Rtf))
+            if (Clipboard.ContainsText(TextDataFormat.UnicodeText))
                 fctxt.SelectedText = Clipboard.GetData(DataFormats.UnicodeText).ToString();
         }
 
