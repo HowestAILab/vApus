@@ -36,7 +36,7 @@ namespace vApus.Util {
                 }
             }
         }
-        
+
         private void NewIssue_Done(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
             if (e.Exception == null) {
                 llblBug.Text = e.ReturnValue == null ? string.Empty : e.ReturnValue.ToString();
@@ -44,10 +44,12 @@ namespace vApus.Util {
                 llblBug.Text = string.Empty;
                 Loggers.Log(Level.Error, "Failed posting new issue.", e.Exception, new object[] { sender, e });
             }
-            btnReport.Width = 72;
-            btnReport.Text = "Report";
 
-            --_reporting;
+            if (_reporting > 0) --_reporting;
+            if (_reporting == 0) {
+                btnReport.Width = 72;
+                btnReport.Text = "Report";
+            }
         }
 
         private void btnReport_Click(object sender, EventArgs e) {
@@ -132,8 +134,8 @@ namespace vApus.Util {
                 httpWebRequest.Method = "POST";
                 httpWebRequest.ContentType = "text/xml";
 
-                string postData = "<?xml version=\"1.0\"? encoding=\"UTF-8\"?><issue><subject>" + subject + 
-                    "</subject><description>" + description + 
+                string postData = "<?xml version=\"1.0\"? encoding=\"UTF-8\"?><issue><subject>" + subject +
+                    "</subject><description>" + description +
                     "</description><custom_fields type=\"array\"><custom_field name=\"Software version\" id=\"2\"><value>N/A</value></custom_field></custom_fields><project_id>18</project_id><tracker_id>1</tracker_id></issue>";
 
                 ApplyPostData(httpWebRequest, postData);
