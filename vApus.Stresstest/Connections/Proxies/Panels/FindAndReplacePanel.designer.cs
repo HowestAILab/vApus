@@ -153,7 +153,7 @@
             this.chkReplaceAll.Location = new System.Drawing.Point(358, 143);
             this.chkReplaceAll.Name = "chkReplaceAll";
             this.chkReplaceAll.Size = new System.Drawing.Size(37, 17);
-            this.chkReplaceAll.TabIndex = 8;
+            this.chkReplaceAll.TabIndex = 7;
             this.chkReplaceAll.Text = "All";
             this.chkReplaceAll.UseVisualStyleBackColor = true;
             this.chkReplaceAll.CheckedChanged += new System.EventHandler(this.chkReplaceAll_CheckedChanged);
@@ -170,12 +170,12 @@
             this.btnSwitchValues.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnSwitchValues.Name = "btnSwitchValues";
             this.btnSwitchValues.Size = new System.Drawing.Size(99, 24);
-            this.btnSwitchValues.TabIndex = 7;
+            this.btnSwitchValues.TabIndex = 8;
             this.btnSwitchValues.Text = "Switch Values";
             this.btnSwitchValues.UseVisualStyleBackColor = false;
             this.btnSwitchValues.Click += new System.EventHandler(this.btnSwitchValues_Click);
             // 
-            // FindAndReplace
+            // FindAndReplacePanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -189,7 +189,7 @@
             this.Controls.Add(this.lblCount);
             this.Controls.Add(this.btnReplaceWith);
             this.Controls.Add(this.btnFind);
-            this.Name = "FindAndReplace";
+            this.Name = "FindAndReplacePanel";
             this.Padding = new System.Windows.Forms.Padding(9);
             this.Size = new System.Drawing.Size(558, 173);
             this.ResumeLayout(false);
