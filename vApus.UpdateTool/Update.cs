@@ -62,7 +62,7 @@ namespace vApus.UpdateTool {
             InitializeComponent();
             _startupPath = Directory.GetParent(Application.StartupPath).FullName;
 
-            if (args.Length > 8) {
+            if (args.Length > 7) {
                 _host = args[1];
                 _port = int.Parse(args[2]);
                 _userName = args[3];
