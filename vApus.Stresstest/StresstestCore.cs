@@ -81,7 +81,8 @@ namespace vApus.Stresstest {
 
         //Parallel execution / communication to the server app. Not used feature atm.
         /// <summary> The number of all parallel connections, they will be disposed along the road. </summary>
-        private int _parallelConnectionsModifier;
+        private int _parallelConnections;
+        private int _parallelThreads;
         #endregion
 
         #region Properties
@@ -359,17 +360,23 @@ namespace vApus.Stresstest {
                     if (_cancel) return;
 
                     //Parallel connections, check per user action
-                    _parallelConnectionsModifier = 0;
+                    _parallelConnections = 0;
                     var l = new List<LogEntry>();
-                    foreach (UserAction ua in log)
+                    foreach (UserAction ua in log) {
+                        int parallelConnections = 0;
                         foreach (LogEntry logEntry in ua) {
                             if (_cancel) return;
 
                             l.Add(logEntry);
 
                             if (logEntry.ExecuteInParallelWithPrevious)
-                                ++_parallelConnectionsModifier;
+                                ++parallelConnections;
                         }
+                        if (parallelConnections != 0) {
+                            _parallelConnections += parallelConnections;
+                            _parallelThreads += parallelConnections + 1; //Need one more.
+                        }
+                    }
 
                     var logEntryArr = l.ToArray();
                     l = null;
@@ -681,7 +688,7 @@ namespace vApus.Stresstest {
                 _threadPool = new StresstestThreadPool(Work);
                 _threadPool.ThreadWorkException += _threadPool_ThreadWorkException;
             }
-            _threadPool.SetThreads(concurrentUsers);
+            _threadPool.SetThreads(concurrentUsers, _parallelThreads);
             _sw.Stop();
             InvokeMessage(string.Format("       | ...Thread Pool Set in {0}.", _sw.Elapsed.ToLongFormattedString()));
             _sw.Reset();
@@ -692,7 +699,7 @@ namespace vApus.Stresstest {
             InvokeMessage(string.Format("       |Setting Connections for {0} Concurrent Users...", concurrentUsers));
             _sw.Start();
             try {
-                _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnectionsModifier);
+                _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections);
                 InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToLongFormattedString()));
             } catch {
                 throw;
@@ -937,39 +944,29 @@ namespace vApus.Stresstest {
                     //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
                     _syncAndAsyncWorkItem.ExecuteLogEntry(this, _sleepWaitHandle, _runResult, threadIndex, testableLogEntryIndex, testableLogEntry, connectionProxy, delays[testableLogEntryIndex]);
                 } else {
-                    //Get the connection proxies, this first one is not a parallel one but the connection proxy for the specific user, this way data (cookies for example) kan be saved for other log entries.
-                    ParallelConnectionProxy[] pcps = _connectionProxyPool.ParallelConnectionProxies[threadIndex];
-                    //Only use the ones that are needed, the first one is actually not parallel.
-                    var parallelConnectionProxies = new ParallelConnectionProxy[exclusiveEnd - testableLogEntryIndex];
-                    parallelConnectionProxies[0] = new ParallelConnectionProxy(connectionProxy);
+                    int parallelCount = exclusiveEnd - testableLogEntryIndex;
+                    //Get the connection proxies, this first one is not a parallel one but the connection proxy for the specific user, this way data (cookies for example) can be saved for other log entries.
+                    IConnectionProxy[] parallelConnectionProxies = new IConnectionProxy[parallelCount];
+                    parallelConnectionProxies[0] = connectionProxy;
 
-                    //Check if already used, if not then choose and flag it "used"
-                    int setAt = 1;
-                    for (int pi = 0; pi != pcps.Length; pi++) {
-                        ParallelConnectionProxy pcp = pcps[pi];
-                        if (!pcp.Used) {
-                            pcp.Used = true;
-                            parallelConnectionProxies[setAt] = pcp;
-                            if (++setAt == parallelConnectionProxies.Length)
-                                break;
-                        }
-                    }
-
-                    //#warning Making threads on the fly is maybe not a very good idea, maybe this must reside in the thread pool (like parallel connection proxies are in the connection proxy pool)
+                    for (int i = 1; i != parallelCount; i++)
+                        parallelConnectionProxies[i] = _connectionProxyPool.DequeueParallelConnectionProxy();
 
                     //Make a mini thread pool (Thread pools in thread pools, what it this madness?! :p)
-                    var pThreads = new Thread[parallelConnectionProxies.Length];
-                    //if(pcpIndex == parallelConnectionProxies.length) it is finished.
+
                     var pThreadsSignalStart = new ManualResetEvent(false);
                     var pThreadsSignalFinished = new AutoResetEvent(false);
 
-                    int pcpIndex = -1, pThreadIndex = 0;
+                    int pcpIndex = -1;
                     int finished = 0;
-                    string threadName = Thread.CurrentThread.Name + " [Parallel #";
-                    for (int pleIndex = testableLogEntryIndex; pleIndex != exclusiveEnd; pleIndex++) {
-                        //Anonymous delegate for the sake of simplicity, pleIndex in the state --> otherwise the wrong value can and will be picked
-                        var pThread = new Thread(delegate(object state) {
-                            var index = (int)state;
+
+                    Thread[] pThreads = new Thread[parallelCount];
+                    for (int i = 0; i != parallelCount; i++) {
+                        Thread t = _threadPool.DequeueParallelThread();
+                        pThreads[i] = t;
+                        
+                        t.Start(new object[]{ (StresstestThreadPool.WorkItemCallback)((int index) => {
+                              
                             if (_syncAndAsyncWorkItem == null)
                                 _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
 
@@ -977,22 +974,15 @@ namespace vApus.Stresstest {
 
                             try {
                                 //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                                _syncAndAsyncWorkItem.ExecuteLogEntry(this, _sleepWaitHandle, _runResult, threadIndex, index, testableLogEntries[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)].ConnectionProxy, delays[index]);
+                                _syncAndAsyncWorkItem.ExecuteLogEntry(this, _sleepWaitHandle, _runResult, threadIndex, index, testableLogEntries[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], delays[index]);
                             } catch {
                                 //when stopping a test...
                             }
 
-                            if (Interlocked.Increment(ref finished) == parallelConnectionProxies.Length) pThreadsSignalFinished.Set();
-                        });
-
-                        //Add it to the pool, just for making sure they are kept in memory 
-                        pThreads[pThreadIndex] = pThread;
-
-                        pThread.Name = threadName + (++pThreadIndex) + "]";
-                        pThread.IsBackground = true;
-                        pThread.Start(pleIndex);
+                            if (Interlocked.Increment(ref finished) == parallelCount) pThreadsSignalFinished.Set();
+                        }), testableLogEntryIndex + i});
                     }
-
+                        
                     //Start them all at the same time
                     pThreadsSignalStart.Set();
                     pThreadsSignalFinished.WaitOne();
@@ -1000,6 +990,7 @@ namespace vApus.Stresstest {
                     pThreadsSignalFinished.Dispose();
                     pThreadsSignalStart.Dispose();
                     pThreads = null;
+                    parallelConnectionProxies = null;
                 }
             }
         }

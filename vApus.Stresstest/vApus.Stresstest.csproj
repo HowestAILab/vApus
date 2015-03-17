@@ -220,7 +220,6 @@
     <Compile Include="Connections\ConnectionsView.Designer.cs">
       <DependentUpon>ConnectionsView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Connections\ParallelConnectionProxy.cs" />
     <Compile Include="Connections\Proxies\Panels\FindAndReplacePanel.cs">
       <SubType>UserControl</SubType>
     </Compile>

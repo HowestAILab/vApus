@@ -5,13 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
 using RandomUtils.Log;
 using System;
+using System.Collections.Concurrent;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
-using vApus.Util;
 
 namespace vApus.Stresstest {
     /// <summary>
@@ -40,6 +41,7 @@ namespace vApus.Stresstest {
 
         private readonly WorkItemCallback _workItemCallback;
         private int _busyThreadCount;
+        private int _waitingThreadCount;
 
         private ManualResetEvent _doWorkWaitHandle = new ManualResetEvent(false);
 
@@ -47,8 +49,10 @@ namespace vApus.Stresstest {
         private int _isDisposed;
         private AutoResetEvent _poolIdleWaitHandle = new AutoResetEvent(false), _poolInitializedWaitHandle = new AutoResetEvent(false);
         private Thread[] _threads;
-        private volatile int _size;
-        private int _waitingThreadCount;
+        private ConcurrentQueue<Thread> _parallelThreads;
+        private ConcurrentBag<Thread> _toDisposeParallelThreads;
+
+        private volatile int _count, _parallelThreadCount;
         #endregion
 
         #region Properties
@@ -57,21 +61,13 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     The number of threads that are actually doing something. This will become 0 if the work is finished.
         /// </summary>
-        public int BusyThreadCount { get { return _busyThreadCount; } }
+        public int BusyThreadCount { get { return _busyThreadCount + _parallelThreadCount; } }
 
         /// <summary>
         /// The number of threads in the pool.
         /// </summary>
-        public int Size { get { return _size; } }
-
-        public int IndexOf(Thread thread) {
-            if (_threads != null)
-                lock (_threads.SyncRoot)
-                    for (int i = 0; i != _threads.Length; i++)
-                        if (_threads[i] == thread)
-                            return i;
-
-            return -1;
+        public int PoolSize {
+            get { return _threads == null ? 0 : _count + _parallelThreadCount; }
         }
 
         #endregion
@@ -95,21 +91,34 @@ namespace vApus.Stresstest {
         ///     Set the number of threads (size), start them and let them wait for a continue. (DoWorkAndWaitForFinish)
         ///     Do this only when the pool is not doing any work.
         /// </summary>
-        /// <param name="size"></param>
-        public void SetThreads(int size) {
+        /// <param name="count"></param>
+        /// <param name="parallelThreads">To enable testing parallel requests, for instance fo web sites. Must be dequeued and started ad hoc.</param>
+        public void SetThreads(int count, int parallelThreadCount = 0) {
             Debug.WriteLine("Initializing Thread Pool...", ToString());
 
-            _size = size;
             //Already contained threads are ready to be garbage collected.
-            _threads = new Thread[_size];
+            _threads = new Thread[count];
+            _parallelThreads = new ConcurrentQueue<Thread>();
+            _toDisposeParallelThreads = new ConcurrentBag<Thread>();
 
-            for (int i = 0; i < _size; i++) {
+            for (int i = 0; i < count; i++) {
                 var t = new Thread(DoWork);
                 t.Name = "vApus Thread Pool Thread #" + (i + 1);
                 t.IsBackground = true;
                 _threads[i] = t;
-                t.Start();
+                t.Start(i);
             }
+
+            for (int i = 0; i < parallelThreadCount; i++) {
+                var t = new Thread(DoParallelWork);
+                t.Name = "vApus Thread Pool Thread #" + (count + i + 1) + " (Parallel)";
+                t.IsBackground = true;
+                _parallelThreads.Enqueue(t);
+            }
+
+            _count = count;
+            _parallelThreadCount = parallelThreadCount;
+
             _poolInitializedWaitHandle.WaitOne();
 
             Debug.WriteLine("Initialized!", ToString());
@@ -125,7 +134,7 @@ namespace vApus.Stresstest {
 
             Debug.WriteLine("Executing work items...", ToString());
             try {
-                _busyThreadCount = _size;
+                _busyThreadCount = _count;
                 //Let the threads start.
                 _doWorkWaitHandle.Set();
                 _poolIdleWaitHandle.WaitOne();
@@ -143,12 +152,11 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Each thread calls this method, it contains some boilerplate code to make sure that the WorkItemCallback is executed properly without threads interfering eachother.
         /// </summary>
-        private void DoWork() {
+        private void DoWork(object threadIndex) {
             try {
-                //The constructor will find the index of the thread, this is thread safe (this is still initialization so it does not influence the test).
-                if (_workItem == null) _workItem = new WorkItem(this, _workItemCallback);
+                if (_workItem == null) _workItem = new WorkItem(this, (int)threadIndex, _workItemCallback);
 
-                if (Interlocked.Increment(ref _waitingThreadCount) == _size) _poolInitializedWaitHandle.Set();
+                if (Interlocked.Increment(ref _waitingThreadCount) == _count) _poolInitializedWaitHandle.Set();
                 //Do not execute if disposed.
                 if (!IsDisposed) _doWorkWaitHandle.WaitOne();
                 Interlocked.Decrement(ref _waitingThreadCount);
@@ -157,10 +165,10 @@ namespace vApus.Stresstest {
                 _workItem.Execute();
             } catch (Exception ex) {
                 //Reports this to the gui.
-                if (!IsDisposed) WriteThreadWorkException("Exception for " + Thread.CurrentThread.Name + ":" + Environment.NewLine + ex);
+                if (!IsDisposed) WriteThreadWorkException("Exception for " + Thread.CurrentThread.Name + ":\n" + ex);
             } finally {
                 //Let only the used threads do this, the rest may sleep. When all threads are finished they will be purged.
-                if (_workItem.ThreadIndex < _size && Interlocked.Decrement(ref _busyThreadCount) <= 0 && !IsDisposed) {
+                if (_workItem.ThreadIndex < _count && Interlocked.Decrement(ref _busyThreadCount) <= 0 && !IsDisposed) {
                     try {
                         Interlocked.Exchange(ref _busyThreadCount, 0);
                         _doWorkWaitHandle.Reset();
@@ -170,6 +178,17 @@ namespace vApus.Stresstest {
                     }
                 }
             }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="parallelCallback">object[] { callback, log entry index }</param>
+        private void DoParallelWork(object parallelCallback) {
+            var arr = parallelCallback as object[];
+            var fx = arr[0] as WorkItemCallback;
+            if (IsDisposed) return;
+            fx((int)arr[1]);
         }
 
         /// <summary>
@@ -185,6 +204,17 @@ namespace vApus.Stresstest {
             }
         }
 
+        /// <summary>
+        /// Dequeue the threads you want. Start with a ParallelWorkItemCallback() as an argument.
+        /// </summary>
+        /// <returns></returns>
+        public Thread DequeueParallelThread() {
+            Thread t;
+            _parallelThreads.TryDequeue(out t);
+            _toDisposeParallelThreads.Add(t);
+            return t;
+        }
+
         public void Dispose() {
             if (!IsDisposed) {
                 Interlocked.Exchange(ref _isDisposed, 1);
@@ -192,7 +222,7 @@ namespace vApus.Stresstest {
                 _doWorkWaitHandle.Set();
                 _poolInitializedWaitHandle.Set();
                 if (_threads != null) {
-                    _size = 0;
+                    _count = 0;
 
                     //Abort
                     Parallel.ForEach(_threads, delegate(Thread t) {
@@ -203,6 +233,34 @@ namespace vApus.Stresstest {
 
                     //Join
                     Parallel.ForEach(_threads, delegate(Thread t) {
+                        try { if (t != null) t.Join(1000); } catch {
+                            //Ignore.
+                        }
+                    });
+
+                    //Abort
+                    Parallel.ForEach(_parallelThreads, delegate(Thread t) {
+                        try { if (t != null) t.Abort(); } catch {
+                            //Ignore.
+                        }
+                    });
+
+                    //Join
+                    Parallel.ForEach(_parallelThreads, delegate(Thread t) {
+                        try { if (t != null) t.Join(1000); } catch {
+                            //Ignore.
+                        }
+                    });
+
+                    //Abort
+                    Parallel.ForEach(_toDisposeParallelThreads, delegate(Thread t) {
+                        try { if (t != null) t.Abort(); } catch {
+                            //Ignore.
+                        }
+                    });
+
+                    //Join
+                    Parallel.ForEach(_toDisposeParallelThreads, delegate(Thread t) {
                         try { if (t != null) t.Join(1000); } catch {
                             //Ignore.
                         }
@@ -248,18 +306,18 @@ namespace vApus.Stresstest {
             #endregion
 
             #region Constructor
-            public WorkItem(StresstestThreadPool threadPool, WorkItemCallback callback) {
+            public WorkItem(StresstestThreadPool threadPool, int threadIndex, WorkItemCallback callback) {
                 _threadPool = threadPool;
                 _callback = callback;
 
-                if (!_threadPool.IsDisposed) _threadIndex = _threadPool.IndexOf(Thread.CurrentThread);
+                _threadIndex = threadIndex;
             }
             #endregion
 
             #region Functions
             public void Execute() {
                 // Make sure that only a used thread can execute this. (Extra check for rogue threads)
-                if (!_threadPool.IsDisposed && _threadIndex < _threadPool.Size) _callback(_threadIndex);
+                if (!_threadPool.IsDisposed && _threadIndex < _threadPool._count) _callback(_threadIndex);
             }
             #endregion
         }
