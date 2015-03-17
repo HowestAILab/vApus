@@ -934,7 +934,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
             //Get the response times in descending order.
             var heaviestResponseTimes = new Dictionary<string, double>();
-            for (int i = 2; i != heaviestRow.ItemArray.Length - 2; i++)  //We do not want the first two and the last two columns.
+            for (int i = 2; i != heaviestRow.ItemArray.Length - 3; i++)  //We do not want the first two and the last two columns.
                 heaviestResponseTimes.Add(overview.Columns[i].ColumnName, double.Parse(heaviestRow[i].ToString()));
 
             var uselessDataStructureMakingStuffHard = heaviestResponseTimes.OrderByDescending(kvp => kvp.Value);
