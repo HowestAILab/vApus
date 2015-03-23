@@ -369,7 +369,7 @@ namespace vApus.Stresstest {
 
                             l.Add(logEntry);
 
-                            if (logEntry.ExecuteInParallelWithPrevious)
+                            if (logEntry.ExecuteInParallel)
                                 ++parallelConnections;
                         }
                         if (parallelConnections != 0) {
@@ -473,7 +473,7 @@ namespace vApus.Stresstest {
             InvokeMessage("Initialize Connection Proxy Pool...");
             _sw.Start();
             _connectionProxyPool = new ConnectionProxyPool(_stresstest.Connection);
-            CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(false);
+            CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(true, false);
             if (compilerResults.Errors.HasErrors) {
                 var sb = new StringBuilder("Failed at compiling the connection proxy class:");
                 sb.AppendLine();
@@ -636,7 +636,7 @@ namespace vApus.Stresstest {
                                 string logEntryParent;
                                 logEntryParents.TryGetValue(logEntry, out logEntryParent);
 
-                                tle[i] = new TestableLogEntry(logEntryIndex, sameAsLogEntryIndex, parameterizedStructureArr[testPatternIndex], logEntryParent, logEntry.ExecuteInParallelWithPrevious, logEntry.ParallelOffsetInMs, _rerun);
+                                tle[i] = new TestableLogEntry(logEntryIndex, sameAsLogEntryIndex, parameterizedStructureArr[testPatternIndex], logEntryParent, logEntry.ExecuteInParallel, logEntry.ConnectedToSentRequestOffsetInMs, _rerun);
                             } catch (Exception ex2) {
                                 Loggers.Log(Level.Error, "Failed at determining test patterns.", ex2);
                                 loopState.Break();

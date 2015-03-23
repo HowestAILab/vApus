@@ -29,16 +29,15 @@ namespace vApus.Stresstest {
         #region Fields
         private bool _actionizeOnComment = true;
         private string _beginCommentString = "<!--";
-        private uint _beginTimestampIndex;
         private string _endCommentString = "-->";
-        private uint _endTimestampIndex;
         private string _singleLineCommentString = string.Empty;
+        private uint _clientConnectedTimestampIndex, _sentRequestTimestampIndex;
         #endregion
 
         #region Properties
         [SavableCloneable, PropertyControl(1)]
         [Description("If no delimiter is given, the log entry will not be splitted into parts (space = valid). Please use <16 0C 02 12$> as it is the default for the log recorder."),
-        DisplayName("Child Delimiter")]
+        DisplayName("Child delimiter")]
         public override string ChildDelimiter {
             get { return base.ChildDelimiter; }
             set { base.ChildDelimiter = value; }
@@ -46,7 +45,7 @@ namespace vApus.Stresstest {
 
         [SavableCloneable, PropertyControl(3)]
         [Description("A string that specifies single line comments, for example: \"//\"."),
-         DisplayName("Single Line Comment String")]
+         DisplayName("Single line comment string")]
         public string SingleLineCommentString {
             get { return _singleLineCommentString; }
             set { _singleLineCommentString = value; }
@@ -54,7 +53,7 @@ namespace vApus.Stresstest {
 
         [SavableCloneable, PropertyControl(4)]
         [Description("The begin delimiter of comments, will be ignored if an end delimiter is not supplied."),
-         DisplayName("Begin Comment String")]
+         DisplayName("Begin comment string")]
         public string BeginCommentString {
             get { return _beginCommentString; }
             set { _beginCommentString = value; }
@@ -62,7 +61,7 @@ namespace vApus.Stresstest {
 
         [SavableCloneable, PropertyControl(5)]
         [Description("The end delimiter of comments, will be ignored if a begin delimiter is not supplied."),
-         DisplayName("End Comment String")]
+         DisplayName("End comment string")]
         public string EndCommentString {
             get { return _endCommentString; }
             set { _endCommentString = value; }
@@ -70,26 +69,26 @@ namespace vApus.Stresstest {
 
         [SavableCloneable, PropertyControl(6)]
         [Description("The entries of a log between a comment can be grouped into a user action."),
-         DisplayName("Actionize On Comment")]
+         DisplayName("Actionize on comment")]
         public bool ActionizeOnComment {
             get { return _actionizeOnComment; }
             set { _actionizeOnComment = value; }
         }
 
         [SavableCloneable, PropertyControl(7)]
-        [Description("The index of the syntax item defining the logged timestamp for when a request was send."),
-         DisplayName("Begin Timestamp Index")]
-        public uint BeginTimestampIndex {
-            get { return Count < _beginTimestampIndex ? 0 : _beginTimestampIndex; }
-            set { _beginTimestampIndex = value; }
+        [Description("The ONE-BASED index of the syntax item defining the logged timestamp for when a client (browser) was connected. Set to 0 if you do not want to use it."),
+         DisplayName("Client connected timestamp index")]
+        public uint ClientConnectedTimestampIndex {
+            get { return Count < _clientConnectedTimestampIndex ? 0 : _clientConnectedTimestampIndex; }
+            set { _clientConnectedTimestampIndex = value; }
         }
 
         [SavableCloneable, PropertyControl(8)]
-        [Description("The index of the syntax item defining the logged timestamp for a request was answered."),
-         DisplayName("End Timestamp Index")]
-        public uint EndTimestampIndex {
-            get { return Count < _endTimestampIndex ? 0 : _endTimestampIndex; }
-            set { _endTimestampIndex = value; }
+        [Description("The ONE-BASED index of the syntax item defining the logged timestamp for when a request was sent. Set to 0 if you do not want to use it."),
+         DisplayName("Sent request timestamp index")]
+        public uint SentRequestTimestampIndex {
+            get { return Count < _sentRequestTimestampIndex ? 0 : _sentRequestTimestampIndex; }
+            set { _sentRequestTimestampIndex = value; }
         }
         #endregion
 
@@ -111,8 +110,7 @@ namespace vApus.Stresstest {
                 ShowInGui = false;
                 Label = sr.ReadString();
                 ChildDelimiter = sr.ReadString();
-                _beginTimestampIndex = sr.ReadUInt32();
-                _endTimestampIndex = sr.ReadUInt32();
+                _sentRequestTimestampIndex = sr.ReadUInt32();
 
                 AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
@@ -131,8 +129,7 @@ namespace vApus.Stresstest {
             using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(Label);
                 sw.Write(ChildDelimiter);
-                sw.Write(_beginTimestampIndex);
-                sw.Write(_endTimestampIndex);
+                sw.Write(_sentRequestTimestampIndex);
 
                 sw.Write(this);
                 sw.AddToInfo(info);

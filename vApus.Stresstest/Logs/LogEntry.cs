@@ -29,8 +29,8 @@ namespace vApus.Stresstest {
 
         private bool _useDelay = false;
 
-        private bool _executeInParallelWithPrevious; //For a special not yet used feature.
-        private int _parallelOffsetInMs;
+        private bool _executeInParallel;
+        private int _firstEntryConnectedToThisConnectedInMs, _connectedToSentRequestOffsetInMs;
 
         private LogEntry _sameAs;
 
@@ -77,18 +77,30 @@ namespace vApus.Stresstest {
         /// </summary>
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description("You can parallel execute this with an immediate previous or next log entry where this is enabled too. For the first one in a group the connection proxy for the executing thread (user) is used, therefore only that one is able to make data available for the rest of a stresstest for a certain user (eg login data)."), DisplayName("Execute in Parallel with Previous")]
-        public bool ExecuteInParallelWithPrevious {
-            get { return _executeInParallelWithPrevious; }
-            set { _executeInParallelWithPrevious = value; }
+        [Description("You can parallel execute this with the other entries in the user action. For the first entry in the user action the connection proxy for the executing thread (user) is used, therefore only that one is able to make data available for the rest of a stresstest for a certain user (eg login data)."), DisplayName("Execute in Parallel with Previous")]
+        public bool ExecuteInParallel {
+            get { return _executeInParallel; }
+            set { _executeInParallel = value; }
         }
 
+        /// <summary>
+        /// For parallel executions.
+        /// </summary>
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description("The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do)."), DisplayName("Parallel Offset")]
-        public int ParallelOffsetInMs {
-            get { return _parallelOffsetInMs; }
-            set { _parallelOffsetInMs = value; }
+        public int FirstEntryConnectedToThisConnectedInMs {
+            get { return _firstEntryConnectedToThisConnectedInMs; }
+            set { _firstEntryConnectedToThisConnectedInMs = value; }
+        }
+
+        /// <summary>
+        /// For parallel executions.
+        /// </summary>
+        [ReadOnly(true)]
+        [SavableCloneable]
+        public int ConnectedToSentRequestOffsetInMs {
+            get { return _connectedToSentRequestOffsetInMs; }
+            set { _connectedToSentRequestOffsetInMs = value; }
         }
 
         /// <summary>
@@ -136,8 +148,9 @@ namespace vApus.Stresstest {
                 Label = sr.ReadString();
                 _logEntryString = sr.ReadString();
                 _useDelay = sr.ReadBoolean();
-                _executeInParallelWithPrevious = sr.ReadBoolean();
-                _parallelOffsetInMs = sr.ReadInt32();
+                _executeInParallel = sr.ReadBoolean();
+                _firstEntryConnectedToThisConnectedInMs = sr.ReadInt32();
+                _connectedToSentRequestOffsetInMs = sr.ReadInt32();
             }
             sr = null;
         }
@@ -270,8 +283,9 @@ namespace vApus.Stresstest {
                 sw.Write(Label);
                 sw.Write(_logEntryString);
                 sw.Write(_useDelay);
-                sw.Write(_executeInParallelWithPrevious);
-                sw.Write(_parallelOffsetInMs);
+                sw.Write(_executeInParallel);
+                sw.Write(_firstEntryConnectedToThisConnectedInMs);
+                sw.Write(_connectedToSentRequestOffsetInMs);
                 sw.AddToInfo(info);
             }
             sw = null;

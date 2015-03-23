@@ -271,52 +271,9 @@ namespace vApus.Stresstest {
 
             RemoveEmptyUserActions();
 
-#if EnableBetaFeature
-            bool successfullyParallized = SetParallelExecutions();
-#else
-            //#warning Parallel executions temp not available
-            bool successfullyParallized = true;
-#endif
-            //SetIgnoreDelays();
-            // FillLargeList();
-
-            if (!successfullyParallized) {
-                string message = Text + ": Could not determine the begin- and end timestamps for one or more log entries in the different user actions, are they correctly formatted?";
-                Loggers.Log(Level.Error, message, null, new object[] { text, clearLog });
-            }
-
             _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 
             if (LogImported != null) LogImported(this, null);
-        }
-        private bool SetParallelExecutions() {
-            int beginIndex = (int)_log.LogRuleSet.BeginTimestampIndex;
-            int endIndex = (int)_log.LogRuleSet.EndTimestampIndex;
-            if (beginIndex == 0 || endIndex == 0 || beginIndex == endIndex)
-                return true;
-
-            _log.ApplyLogRuleSet();
-            if (_log.LexicalResult == LexicalResult.Error)
-                return false;
-
-            foreach (UserAction ua in _log) {
-                DateTime prevBegin = DateTime.MinValue, prevEnd = DateTime.MinValue;
-                foreach (LogEntry le in ua) {
-                    DateTime begin, end;
-                    if (!DateTime.TryParse(le.LexedLogEntry[beginIndex].Value, out begin)) return false;
-                    if (!DateTime.TryParse(le.LexedLogEntry[endIndex].Value, out end)) return false;
-
-                    if (begin < prevEnd) {
-                        le.ExecuteInParallelWithPrevious = true;
-                        le.ParallelOffsetInMs = (int)(begin - prevBegin).TotalMilliseconds;
-                    }
-
-                    prevBegin = begin;
-                    prevEnd = end;
-                }
-            }
-
-            return true;
         }
         /// <summary>
         /// </summary>
