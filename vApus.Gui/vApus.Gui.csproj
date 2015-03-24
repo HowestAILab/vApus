@@ -302,12 +302,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="BCMakeCert.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="CertMaker.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Icon.32x32.vApus.ico" />
     <Content Include="makecert.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
