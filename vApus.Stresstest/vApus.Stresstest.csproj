@@ -177,9 +177,8 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="FiddlerCore4, Version=4.4.9.8, Culture=neutral, PublicKeyToken=67cb91587178ac5a, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\lupus-fiddler\FiddlerCoreAPI\FiddlerCore4.dll</HintPath>
+    <Reference Include="FiddlerCore4">
+      <HintPath>..\Prerequisites\Lupus Fiddler\FiddlerCore4.dll</HintPath>
     </Reference>
     <Reference Include="Lupus-Fiddler">
       <HintPath>..\Prerequisites\Lupus Fiddler\Lupus-Fiddler.dll</HintPath>
