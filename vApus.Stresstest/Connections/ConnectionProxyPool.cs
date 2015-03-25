@@ -1,14 +1,16 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.CodeDom.Compiler;
+using System.Collections.Concurrent;
 using System.IO;
 using System.Reflection;
 using System.Threading.Tasks;
@@ -30,28 +32,22 @@ namespace vApus.Stresstest {
         private Connection _connection;
 
         private IConnectionProxy[] _connectionProxies;
-        private ParallelConnectionProxy[][] _parallelConnectionProxies;
-        private int _usedConnectionProxies;
+        private ConcurrentQueue<IConnectionProxy> _parallelConnectionProxies;
+        private ConcurrentBag<IConnectionProxy> _toDisposeParallelConnectionProxies;
 
         private bool _isShutdown, _isDisposed;
+
+        private volatile int _poolSize;
         #endregion
 
         #region Properties
         public IConnectionProxy this[int index] { get { return _connectionProxies[index]; } }
         /// <summary>
-        ///     The connection proxies for parallely executed log entries are kept in this array.
-        ///     The index of the connection proxy for the log entry that is on the start of the parallel executed range
-        ///     is used to get (and set) the right connection proxies
-        /// </summary>
-        public ParallelConnectionProxy[][] ParallelConnectionProxies {
-            get { return _parallelConnectionProxies; }
-            set { _parallelConnectionProxies = value; }
-        }
-
-        /// <summary>
         /// Sometimes needed in connection proxy code, MaxConnectionLimit for HttpWebRequests for instance.
         /// </summary>
-        public int PoolSize { get { return (_connectionProxies == null) ? 0 : _connectionProxies.Length; } }
+        public int PoolSize {
+            get { return _connectionProxies == null ? 0 : _poolSize; }
+        }
 
         public bool IsDisposed {
             get { return _isDisposed; }
@@ -73,19 +69,6 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Functions
-
-        public void Dispose() {
-            if (!_isDisposed) {
-                _isDisposed = true;
-                ShutDown();
-                _compilerUnit.DeleteTempFiles();
-                _compilerUnit = null;
-
-                _connection = null;
-                _connectionProxyAssembly = null;
-                _connectionProxyType = null;
-            }
-        }
 
         /// <summary>
         ///     Use this before using everything else.
@@ -135,16 +118,16 @@ namespace vApus.Stresstest {
         ///     Will dispose the current connection proxies and open new ones.
         /// </summary>
         /// <param name="count"></param>
-        /// <param name="parallelConnectionsCount">The count of how many log entries are executed in parallel and need a unique connection proxy</param>
-        public void SetAndConnectConnectionProxies(int count, int parallelConnectionsCount = 0) {
+        /// <param name="parallelConnectionCount">The count of how many log entries are executed in parallel and need a unique connection proxy (e.g. web sited). Must be dequeued ad hoc.</param>
+        public void SetAndConnectConnectionProxies(int count, int parallelConnectionCount = 0) {
             DisposeConnectionProxies();
 
-            _usedConnectionProxies = count;
-            _connectionProxies = new IConnectionProxy[_usedConnectionProxies];
-            _parallelConnectionProxies = new ParallelConnectionProxy[_usedConnectionProxies][];
+            _connectionProxies = new IConnectionProxy[count];
+            _parallelConnectionProxies = new ConcurrentQueue<IConnectionProxy>();
+            _toDisposeParallelConnectionProxies = new ConcurrentBag<IConnectionProxy>();
 
             Exception exception;
-            for (int i = 0; i != _usedConnectionProxies; i++) {
+            for (int i = 0; i != count; i++) {
                 if (_isDisposed || _isShutdown)
                     return;
 
@@ -155,26 +138,22 @@ namespace vApus.Stresstest {
                 exception = Connect(connectionProxy, i);
                 if (exception != null)
                     throw (exception);
-
-                if (parallelConnectionsCount != 0) {
-                    var pcps = new ParallelConnectionProxy[parallelConnectionsCount];
-                    for (int pi = 0; pi != parallelConnectionsCount; pi++) {
-                        if (_isDisposed || _isShutdown)
-                            return;
-
-                        var cp = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
-                        cp.SetParent(this);
-
-                        var pcp = new ParallelConnectionProxy(cp);
-                        pcps[pi] = pcp;
-
-                        exception = Connect(cp, i);
-                        if (exception != null)
-                            throw (exception);
-                    }
-                    _parallelConnectionProxies[i] = pcps;
-                }
             }
+
+            for (int pi = 0; pi != parallelConnectionCount; pi++) {
+                if (_isDisposed || _isShutdown)
+                    return;
+
+                var connectionProxy = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
+                connectionProxy.SetParent(this);
+                _parallelConnectionProxies.Enqueue(connectionProxy);
+
+                exception = Connect(connectionProxy, count + pi);
+                if (exception != null)
+                    throw (exception);
+            }
+
+            _poolSize = count + parallelConnectionCount;
         }
 
         /// <summary>
@@ -217,6 +196,13 @@ namespace vApus.Stresstest {
             return null;
         }
 
+        public IConnectionProxy DequeueParallelConnectionProxy() {
+            IConnectionProxy cp;
+            _parallelConnectionProxies.TryDequeue(out cp);
+            _toDisposeParallelConnectionProxies.Add(cp);
+            return cp;
+        }
+
         /// <summary>
         ///     Dispose all connection proxies and clears the pool.
         /// </summary>
@@ -244,19 +230,42 @@ namespace vApus.Stresstest {
 
             //Dispose multi threaded.
             if (_parallelConnectionProxies != null)
-                Parallel.ForEach(_parallelConnectionProxies, (pcps) => {
-                    if (pcps != null)
-                        foreach (var pcp in pcps)
-                            try {
-                                if (pcp.ConnectionProxy != null && !pcp.ConnectionProxy.IsDisposed)
-                                    pcp.ConnectionProxy.Dispose();
-                            } catch (Exception ex) {
-                                Loggers.Log(Level.Error, "Failed disposing parallel connection proxy.", ex, new object[] { _parallelConnectionProxies, pcps, pcp });
-                            }
+                Parallel.ForEach(_parallelConnectionProxies, (cp) => {
+                    try {
+                        if (cp != null && !cp.IsDisposed)
+                            cp.Dispose();
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed disposing parallel connection proxy.", ex, new object[] { _parallelConnectionProxies, cp });
+                    }
+                });
+
+            //Dispose multi threaded.
+            if (_toDisposeParallelConnectionProxies != null)
+                Parallel.ForEach(_toDisposeParallelConnectionProxies, (cp) => {
+                    try {
+                        if (cp != null && !cp.IsDisposed)
+                            cp.Dispose();
+                    } catch (Exception ex) {
+                        Loggers.Log(Level.Error, "Failed disposing parallel connection proxy.", ex, new object[] { _toDisposeParallelConnectionProxies, cp });
+                    }
                 });
 
             _connectionProxies = null;
             _parallelConnectionProxies = null;
+            _toDisposeParallelConnectionProxies = null;
+        }
+
+        public void Dispose() {
+            if (!_isDisposed) {
+                _isDisposed = true;
+                ShutDown();
+                _compilerUnit.DeleteTempFiles();
+                _compilerUnit = null;
+
+                _connection = null;
+                _connectionProxyAssembly = null;
+                _connectionProxyType = null;
+            }
         }
         #endregion
     }

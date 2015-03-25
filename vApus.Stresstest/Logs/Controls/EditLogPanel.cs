@@ -271,20 +271,6 @@ namespace vApus.Stresstest {
 
             RemoveEmptyUserActions();
 
-            //#if EnableBetaFeature
-            //            bool successfullyParallized = SetParallelExecutions();
-            //#else
-            //#warning Parallel executions temp not available
-            bool successfullyParallized = true;
-            //#endif
-            //SetIgnoreDelays();
-            // FillLargeList();
-
-            if (!successfullyParallized) {
-                string message = Text + ": Could not determine the begin- and end timestamps for one or more log entries in the different user actions, are they correctly formatted?";
-                Loggers.Log(Level.Error, message, null, new object[] { text, clearLog });
-            }
-
             _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
 
             if (LogImported != null) LogImported(this, null);

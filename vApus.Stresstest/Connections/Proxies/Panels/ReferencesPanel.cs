@@ -30,6 +30,7 @@ namespace vApus.Stresstest {
         public CodeTextBox CodeTextBox {
             get { return _codeTextBox; }
             set {
+                if (value == null) return;
                 _codeTextBox = value;
                 SetGui();
                 _codeTextBox.DelayedTextChangedInterval = 200;
@@ -137,12 +138,19 @@ namespace vApus.Stresstest {
 
         private void btnBrowse_Click(object sender, EventArgs e) {
             if (openFileDialog.ShowDialog() == DialogResult.OK) {
+                string connectionProxyPrerequisitesDir = Path.Combine(Application.StartupPath, "ConnectionProxyPrerequisites");
+
                 List<string> filenames = Filenames;
                 foreach (string filename in openFileDialog.FileNames) {
                     string shortFilename = Path.GetFileName(filename);
+                    if (!filenames.Contains(shortFilename)) filenames.Add(shortFilename);
 
-                    if (!filenames.Contains(shortFilename))
-                        filenames.Add(shortFilename);
+                    string dest2 = Path.Combine(Application.StartupPath, shortFilename);
+                    if (dest2 == filename) continue;
+
+                    string dest1 = Path.Combine(connectionProxyPrerequisitesDir, shortFilename);
+                    if (dest1 == filename) continue;
+
                     try {
                         /*
                           <runtime>
@@ -151,22 +159,15 @@ namespace vApus.Stresstest {
                             </assemblyBinding>
                           </runtime>
                              
-                         in the app.config for reference resolving.
-                         */
-                        string connectionProxyPrerequisitesDir = Path.Combine(Application.StartupPath,
-                                                                              "ConnectionProxyPrerequisites");
-                        string dest1 = Path.Combine(connectionProxyPrerequisitesDir, shortFilename);
-                        string dest2 = Path.Combine(Application.StartupPath, shortFilename);
-                        if (dest1 != filename || dest2 != filename) {
-                            if (!Directory.Exists(connectionProxyPrerequisitesDir))
-                                Directory.CreateDirectory(connectionProxyPrerequisitesDir);
+                        in the app.config for reference resolving.
+                        */
 
-                            File.Copy(filename, dest1, true);
-                        }
+                        if (!Directory.Exists(connectionProxyPrerequisitesDir))
+                            Directory.CreateDirectory(connectionProxyPrerequisitesDir);
+
+                        File.Copy(filename, dest1, true);
                     } catch (Exception ex) {
-                        MessageBox.Show(
-                            "Could not copy '" + filename + "' to '" +
-                            Path.Combine(Application.StartupPath, shortFilename) + "'.\n" + ex, string.Empty,
+                        MessageBox.Show("Could not copy '" + filename + "' to '" + dest1 + "'.\n" + ex, string.Empty,
                             MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 }

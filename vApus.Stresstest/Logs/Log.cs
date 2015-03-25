@@ -1,19 +1,18 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+
+using RandomUtils.Log;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.IO.Packaging;
 using System.Runtime.Serialization;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -273,11 +272,58 @@ namespace vApus.Stresstest {
             }
 
             _lexicalResult = (logEntriesWithErrors.Count == 0) ? LexicalResult.OK : LexicalResult.Error;
-
             var logEntriesWithErrorsArr = logEntriesWithErrors.ToArray();
+
+            if (_lexicalResult == LexicalResult.OK) {
+#if EnableBetaFeature
+                bool successfullyParallized = SetParallelExecutions();
+#else
+            //#warning Parallel executions temp not available
+            bool successfullyParallized = true;
+#endif
+
+                if (!successfullyParallized) {
+                    string message = this + ": Could not determine the begin- and end timestamps for one or more log entries in the different user actions, are they correctly formatted?";
+                    Loggers.Log(Level.Error, message);
+                }
+            }
+
             if (LexicalResultChanged != null)
                 LexicalResultChanged(this, new LexicalResultsChangedEventArgs(logEntriesWithErrorsArr));
         }
+
+        /// <summary>
+        /// Webpage --> all statics in parrallel after analyzing the dom. Offset based on  the begin request time. In the acual test this will be the connect time. --> needs to be fixed in the connection proxy.
+        /// </summary>
+        /// <returns></returns>
+        private bool SetParallelExecutions() {
+            int connectedIndex = (int)LogRuleSet.ClientConnectedTimestampIndex - 1;//One-based
+            if (connectedIndex == -1) return true;
+
+            int sentIndex = (int)LogRuleSet.SentRequestTimestampIndex - 1;//One-based
+            if (sentIndex == -1) return true;
+
+            foreach (UserAction ua in this) {
+                DateTime firstConnected = DateTime.MinValue;
+                foreach (LogEntry le in ua) {
+                    DateTime connected, sent;
+                    if (!DateTime.TryParse(le.LexedLogEntry[connectedIndex].Value, out connected)) return false;
+                    if (!DateTime.TryParse(le.LexedLogEntry[sentIndex].Value, out sent)) return false;
+
+                    if (firstConnected == DateTime.MinValue) {
+                        firstConnected = connected;
+                    } else {
+                        le.ExecuteInParallel = true;
+
+                        le.FirstEntryConnectedToThisConnectedInMs = (int)(connected - firstConnected).TotalMilliseconds;
+                        le.ConnectedToSentRequestOffsetInMs = (int)(sent - connected).TotalMilliseconds;
+                    }
+                }
+            }
+
+            return true;
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="beginTokenDelimiter"></param>

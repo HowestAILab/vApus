@@ -13,6 +13,15 @@ using System.Windows.Forms;
 
 namespace vApus.Stresstest {
     public partial class CompilePanel : UserControl {
+        public event EventHandler CompileError;
+        public event EventHandler<CompileErrorButtonClickedEventArgs> CompileErrorButtonClicked;
+
+        #region Fields
+
+        public ConnectionProxyCode ConnectionProxyCode;
+
+        #endregion
+
         public CompilePanel() {
             InitializeComponent();
         }
@@ -143,15 +152,6 @@ namespace vApus.Stresstest {
             foreach (Control control in flpCompileLog.Controls)
                 control.Width = flpCompileLog.ClientSize.Width - 18;
         }
-
-        #endregion
-
-        public event EventHandler CompileError;
-        public event EventHandler<CompileErrorButtonClickedEventArgs> CompileErrorButtonClicked;
-
-        #region Fields
-
-        public ConnectionProxyCode ConnectionProxyCode;
 
         #endregion
 

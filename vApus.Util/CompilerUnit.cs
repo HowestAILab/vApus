@@ -157,8 +157,21 @@ namespace vApus.Util {
                 if (line.StartsWith("// dllreferences:")) {
                     string[] dllReferences = line.Split(':')[1].Split(new[] { ";" }, StringSplitOptions.RemoveEmptyEntries);
                     foreach (string dllReference in dllReferences) {
-                        List<string> matches = GetMatches(dllReference);
-                        if (matches.Count != 0) {
+
+                        string[] matches = null;
+                        Exception matchException = null;
+                        for (int t = 1; t != 11; t++) //Retry 9 times if necessary. IO exception possible.
+                            try {
+                                matches = Directory.GetFiles(Application.StartupPath, dllReference, SearchOption.AllDirectories);
+                                break;
+                            } catch (Exception ex) {
+                                matchException = ex;
+                                Thread.Sleep(100 *t);
+                            }
+
+                        if (matchException == null) throw matchException;
+
+                        if (matches.Length != 0) {
                             bool matchFound = false;
                             foreach (string match in matches) {
                                 string[] splitMatch = match.Split('\\');
@@ -178,12 +191,6 @@ namespace vApus.Util {
                 } else if (found) {
                     break;
                 }
-        }
-
-        private List<string> GetMatches(string dllReference) {
-            var matches =
-                new List<string>(Directory.GetFiles(Application.StartupPath, dllReference, SearchOption.AllDirectories));
-            return matches;
         }
 
         /// <summary>

@@ -193,6 +193,33 @@ namespace vApus.Stresstest {
             if (e.KeyChar == (char)6) tcTools.SelectedIndex = 1;
         }
 
+        private bool _handledTxtKeyDown = false;
+        private void txtGoToLine_KeyDown(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Back ||
+                e.KeyCode == Keys.Delete ||
+                e.KeyCode == Keys.Escape ||
+                e.KeyCode == Keys.Enter) {
+                _handledTxtKeyDown = false;
+            } else {
+                _handledTxtKeyDown = true;
+            }
+        }
+
+        private void txtGoToLine_KeyPress(object sender, KeyPressEventArgs e) {
+            e.Handled = _handledTxtKeyDown && !char.IsDigit(e.KeyChar);
+        }
+        private void txtGoToLine_KeyUp(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Enter && codeTextBox != null && txtGoToLine.Text.IsNumeric()) {
+                int line = int.Parse(txtGoToLine.Text) - 1;
+                if (line < 0) line = 0;
+                if (line >= codeTextBox.LinesCount) line = codeTextBox.LinesCount - 1;
+
+                txtGoToLine.Text = (line + 1).ToString();
+
+                codeTextBox.ClearSelection();
+                codeTextBox.SelectLine(line);
+            }
+        }
         #endregion
 
         #endregion

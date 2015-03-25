@@ -6,26 +6,54 @@
  *    Dieter Vandroemme
  */
 using FastColoredTextBoxNS;
+using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace vApus.Util {
     public class CodeTextBox : FastColoredTextBox {
-        public CodeTextBox()
-            : base() {
-            this.DefaultContextMenu(true);
-        }
         public override string Text {
             get { return base.Text; }
             set {
                 if (base.Text != value) {
                     base.Text = value;
                     SelectAll();
-                    DoAutoIndent();
+                    base.DoAutoIndent();
                     Selection.Start = Selection.End = Place.Empty;
+
+                    DoSelectionVisible();
+                    Focus();
                 }
             }
+        }
+
+        public CodeTextBox()
+            : base() {
+            this.DefaultContextMenu(true);
+
+            this.MouseUp += CodeTextBox_MouseUp;
+        }
+
+        public override void Paste() {
+            base.Paste();
+            this.DoAutoIndent();
+        }
+
+        private void CodeTextBox_MouseUp(object sender, MouseEventArgs e) {
+            this.ContextMenu.MenuItems.Add("-");
+
+            var menuItem = new MenuItem("Format code");
+            menuItem.Click += new EventHandler((s, a) => this.DoAutoIndent());
+            this.ContextMenu.MenuItems.Add(menuItem);
+        }
+
+        public new void DoAutoIndent() {
+            Place selectionStart = Selection.Start;
+            SelectAll();
+            base.DoAutoIndent();
+            Selection.Start = Selection.End = selectionStart;
         }
 
         public void ClearSelection() {
@@ -106,7 +134,7 @@ namespace vApus.Util {
 
             bool didReplace = false;
             var sb = new StringBuilder();
-            string[] arr = Text.Split('\n');
+            string[] arr = Text.Split(new string[] { Environment.NewLine }, StringSplitOptions.None);
             for (int i = 0; i != arr.Length; i++) {
                 string line = arr[i];
                 if (found.ContainsKey(i)) {
@@ -118,8 +146,7 @@ namespace vApus.Util {
                         else
                             sb.AppendLine(newLine);
 
-                        line = line.Trim();
-                        line += " > " + newLine;
+                        line = line.Trim() + " > " + newLine.Trim();
                         didReplace = true;
                     } else {
                         if (i == arr.Length - 1)
@@ -137,6 +164,8 @@ namespace vApus.Util {
             }
             if (didReplace)
                 Text = sb.ToString();
+
+            DoAutoIndent();
 
             return replacedOrFound;
         }

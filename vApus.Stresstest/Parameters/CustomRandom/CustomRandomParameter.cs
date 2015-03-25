@@ -1,11 +1,12 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2011 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+
+using RandomUtils;
 using System;
 using System.CodeDom.Compiler;
 using System.ComponentModel;
@@ -125,7 +126,7 @@ return start.AddTicks(randomTicks);
         internal CompilerResults CreateInstance() {
             var cu = new CompilerUnit();
             CompilerResults results;
-            Assembly assembly = cu.Compile(_code, false, out results);
+            Assembly assembly = cu.Compile(_code, true, out results);
             Type t = assembly.GetType("vApus.Stresstest.CustomRandomParameter");
 
             if (assembly != null)

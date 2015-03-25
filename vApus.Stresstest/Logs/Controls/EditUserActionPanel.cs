@@ -759,8 +759,14 @@ namespace vApus.Stresstest {
                     if (e.ColumnIndex == 0) {
                         var logEntry = userAction[e.RowIndex] as LogEntry;
                         if (logEntry.LexicalResult == LexicalResult.OK) {
-                            e.Value = null;
-                            dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = null;
+                            if (logEntry.ExecuteInParallel) {
+                                e.Value = global::vApus.Stresstest.Properties.Resources.LogEntryInParallelWithFirstEntry;
+                                dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = "In parallel with first entry. Offset first entry connected to this connected: " 
+                                    + logEntry.FirstEntryConnectedToThisConnectedInMs + " ms. Offset this connected to request sent: " + logEntry.ConnectedToSentRequestOffsetInMs + " ms.";
+                            } else {
+                                e.Value = logEntry.ExecuteInParallel ? global::vApus.Stresstest.Properties.Resources.LogEntryInParallelWithFirstEntry : null;
+                                dgvLogEntries.Rows[e.RowIndex].Cells[0].ToolTipText = null;
+                            }
                         } else {
                             if (logEntry.LexedLogEntry == null) {
                                 e.Value = null;
@@ -1082,7 +1088,7 @@ namespace vApus.Stresstest {
                     fctxteditView.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                     splitStructured.Panel2Collapsed = true;
                 }
-            } catch(Exception ex) {
+            } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed filling edit view.", ex);
             }
         }
