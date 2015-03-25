@@ -126,7 +126,7 @@ return start.AddTicks(randomTicks);
         internal CompilerResults CreateInstance() {
             var cu = new CompilerUnit();
             CompilerResults results;
-            Assembly assembly = cu.Compile(_code, false, out results);
+            Assembly assembly = cu.Compile(_code, true, out results);
             Type t = assembly.GetType("vApus.Stresstest.CustomRandomParameter");
 
             if (assembly != null)

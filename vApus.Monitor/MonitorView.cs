@@ -1268,6 +1268,8 @@ namespace vApus.Monitor {
                     lblCountDown.BackColor = Color.Transparent;
                     lblCountDown.Visible = true;
 
+                    monitorControl.RefreshTimeInS = refreshInS;
+
                     tmrProgressDelayCountDown.Start();
 
                     tc.SelectedIndex = 1;

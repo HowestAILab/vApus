@@ -12,7 +12,6 @@ using System.Collections.Generic;
 using System.Drawing;
 using System.Globalization;
 using System.IO;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Windows.Forms;
@@ -29,10 +28,17 @@ namespace vApus.Monitor {
         private readonly List<int> _filteredColumnIndices = new List<int>();
         private string[] _filter = new string[0];
         private bool _keepAtEnd = true;
+
+        private DateTime _firstDateTime;
+        private int _refreshTimeInS = 1;
         #endregion
 
         #region Properties
         public MonitorResult MonitorResultCache { get; private set; }
+        public int RefreshTimeInS {
+            get { return _refreshTimeInS; }
+            set { _refreshTimeInS = value; }
+        }
         public new bool AllowUserToAddRows { get { return base.AllowUserToAddRows; } set { base.AllowUserToAddRows = false; } }
         public new bool AllowUserToDeleteRows { get { return base.AllowUserToDeleteRows; } set { base.AllowUserToDeleteRows = false; } }
         public new bool AllowUserToResizeRows { get { return base.AllowUserToResizeRows; } set { base.AllowUserToResizeRows = false; } }
@@ -68,7 +74,7 @@ namespace vApus.Monitor {
                 }
 
                 if (value == null)
-                    if (e.ColumnIndex == 0) value = DateTime.Now;
+                    if (e.ColumnIndex == 0) value = GetTimestamp(e.RowIndex, e.RowIndex == 0);
                     else value = -1d;
 
                 if (value is double) {
@@ -82,7 +88,7 @@ namespace vApus.Monitor {
 
                     value = s;
                 } else if (value is DateTime) {
-                    value = ((DateTime)value).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                    value = ((DateTime)value).ToString("yyyy'-'MM'-'dd HH':'mm':'ss");
                 }
 
                 e.Value = value;
@@ -165,6 +171,7 @@ namespace vApus.Monitor {
 
             Filter(_filter);
         }
+
         /// <summary>
         ///     This will add values to the collection and will update the Gui.
         /// </summary>
@@ -183,7 +190,8 @@ namespace vApus.Monitor {
 
                 List<string> counterValues = counters.GetCountersAtLastLevel();
                 object[] row = new object[ColumnCount];
-                row[0] = DateTime.Now;
+
+                row[0] = GetTimestamp(RowCount, RowCount == 0);
                 for (int i = 0; i != counterValues.Count; i++) {
                     if (i >= ColumnCount) break;
 
@@ -294,7 +302,7 @@ namespace vApus.Monitor {
                         if (o is double)
                             s = StringUtil.DoubleToLongString((double)o);
                         else if (o is DateTime)
-                            s = ((DateTime)o).ToString("dd/MM/yyyy HH:mm:ss.fff");
+                            s = ((DateTime)o).ToString("yyyy'-'MM'-'dd HH':'mm':'ss");
                         else s = o.ToString();
 
                         newRow[i] = s;
@@ -349,6 +357,20 @@ namespace vApus.Monitor {
             RegexOptions options = RegexOptions.Singleline | RegexOptions.IgnoreCase;
 
             foreach (DataGridViewColumn clm in Columns) if (Regex.IsMatch(clm.HeaderText, text, options)) yield return clm;
+        }
+
+        /// <summary>
+        /// Network latency independant timestamp.
+        /// </summary>
+        /// <param name="rowIndex"></param>
+        /// <param name="determineFirstTimestamp">Must happen once to be able to determine the other timestamps</param>
+        /// <returns></returns>
+        private DateTime GetTimestamp(int rowIndex, bool determineFirstTimestamp) {
+            if (determineFirstTimestamp) {
+                _firstDateTime = DateTime.Now;
+                _firstDateTime = _firstDateTime.Subtract(new TimeSpan(0, 0, 0, 0, _firstDateTime.Millisecond));
+            }
+            return _firstDateTime.AddSeconds(rowIndex * _refreshTimeInS);
         }
         #endregion
     }
