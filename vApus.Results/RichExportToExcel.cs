@@ -136,7 +136,7 @@ namespace vApus.Results {
 
         #region Generated UI
         public static TreeNode[] GetTreeNodes(Font prototype, ResultsHelper resultsHelper, params int[] stresstestIds) {
-            if (stresstestIds.Length == 0 || stresstestIds[0]< 1)
+            if (stresstestIds.Length == 0 || stresstestIds[0] < 1)
                 stresstestIds = resultsHelper.GetStresstestIds().ToArray();
 
             var root = new TreeNode();
@@ -395,6 +395,7 @@ namespace vApus.Results {
         private static string GeneralTop5HeaviestUserActions(SLDocument doc, DataTable dt, int stresstestId, ResultsHelper resultsHelper, CancellationToken token, string worksheetSuffix, string chartTitleSuffix) {
             dt = Prep(dt);
             string title = "Top 5 heaviest user actions";
+
             string workSheet = MakeWorksheet(doc, dt, title + worksheetSuffix, false, true);
 
             List<Color> colorPalette = GetGeneralTop5HeaviestUserActionsColors(dt, stresstestId, resultsHelper, token);
@@ -413,14 +414,15 @@ namespace vApus.Results {
         /// <param name="resultsHelper"></param>
         /// <param name="token"></param>
         private static List<Color> GetGeneralTop5HeaviestUserActionsColors(DataTable top5Heaviest, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            top5Heaviest.Columns.Remove("Concurrency");
+            var clone = top5Heaviest.Copy();
+            clone.Columns.Remove("Concurrency");
 
             DataTable overview = Prep(resultsHelper.GetOverview(token, stresstestId));
             overview.Columns.Remove("Concurrency");
 
             var colorPalette = new List<Color>(5);
 
-            foreach (DataColumn column in top5Heaviest.Columns) {
+            foreach (DataColumn column in clone.Columns) {
                 int index = overview.Columns.IndexOf(column.ColumnName);
                 while (index >= _colorPalette.Count) index -= _colorPalette.Count;
                 colorPalette.Add(_colorPalette[index]);
