@@ -169,7 +169,7 @@ namespace vApus.Util {
                                 Thread.Sleep(100 *t);
                             }
 
-                        if (matchException == null) throw matchException;
+                        if (matchException != null) throw matchException;
 
                         if (matches.Length != 0) {
                             bool matchFound = false;
