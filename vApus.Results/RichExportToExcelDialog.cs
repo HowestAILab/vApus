@@ -251,7 +251,7 @@ namespace vApus.Results {
             saveFileDialog.FileName = Path.Combine(autoExportFolder, _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_'));
             if (autoExportFolder.Length != 0 || saveFileDialog.ShowDialog() == DialogResult.OK) {
                 btnExportToExcel.Enabled = btnOverviewExport.Enabled = cboStresstest.Enabled = tvw.Enabled = false;
-                btnExportToExcel.Text = "Saving, can take a while...";
+                btnExportToExcel.Text = "Exporting...";
 
                 string zipPath = saveFileDialog.FileName;
                 if (!zipPath.EndsWith(".zip")) zipPath += ".zip";
