@@ -82,13 +82,73 @@ namespace vApus.Stresstest {
             SendMessageWrapper.SetComboboxCueBar(cboShow.Handle, "Please, select a result set...");
         }
 
-        private void lbtnDescription_ActiveChanged(object sender, EventArgs e) { if (lbtnDescription.Active) SetConfig(_resultsHelper.GetDescription().Replace('\r', ' ').Replace('\n', ' ')); }
-        private void lbtnTags_ActiveChanged(object sender, EventArgs e) { if (lbtnTags.Active)  SetConfig(_resultsHelper.GetTags()); }
+        private void lbtnDescription_ActiveChanged(object sender, EventArgs e) {
+            if (lbtnDescription.Active) SetDescriptionConfig();
+        }
+        private void SetDescriptionConfig() {
+            string description = _resultsHelper.GetDescription();
+
+            SetConfig(description.Replace('\r', ' ').Replace('\n', ' '));
+
+            var btnEditDescription = new Button();
+            btnEditDescription.Text = "Edit...";
+            btnEditDescription.Tag = description;
+            btnEditDescription.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnEditDescription.AutoSize = true;
+            btnEditDescription.Click += btnEditDescription_Click;
+
+            flpConfiguration.Controls.Add(btnEditDescription);
+        }
+        private void btnEditDescription_Click(object sender, EventArgs e) {
+            var fromTextDialog = new FromTextDialog();
+            fromTextDialog.Text = "Please enter a description";
+            fromTextDialog.SetText((sender as Button).Tag.ToString());
+            if (fromTextDialog.ShowDialog() == DialogResult.OK) {
+                _resultsHelper.SetDescriptionAndTags(fromTextDialog.GetText(), _resultsHelper.GetTags().ToArray());
+
+                SetDescriptionConfig();
+            }
+        }
+
+        private void lbtnTags_ActiveChanged(object sender, EventArgs e) { if (lbtnTags.Active)  SetTagsConfig(); }
+        private void SetTagsConfig() {
+            List<string> tags = _resultsHelper.GetTags();
+
+            SetConfig(tags);
+
+            var btnEditTags = new Button();
+            btnEditTags.Text = "Edit...";
+            btnEditTags.Tag = tags;
+            btnEditTags.AutoSizeMode = AutoSizeMode.GrowAndShrink;
+            btnEditTags.AutoSize = true;
+            btnEditTags.Click += btnEditTags_Click;
+
+            flpConfiguration.Controls.Add(btnEditTags);
+        }
+        private void btnEditTags_Click(object sender, EventArgs e) {
+            var inputDialog = new InputDialog("Please enter comma-seperated tags:", string.Empty, ((sender as Button).Tag as List<string>).Combine(", "));
+            if (inputDialog.ShowDialog() == DialogResult.OK) {
+                string[] arr = inputDialog.Input.Split(new char[] { ',' }, StringSplitOptions.RemoveEmptyEntries);
+                for (int i = 0; i != arr.Length; i++)
+                    arr[i] = arr[i].Trim();
+
+                _resultsHelper.SetDescriptionAndTags(_resultsHelper.GetDescription(), arr);
+
+                SetTagsConfig();
+            }
+        }
+
         private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) { if (lbtnvApusInstance.Active)  SetConfig(_resultsHelper.GetvApusInstances()); }
         private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) { if (lbtnStresstest.Active)  SetConfig(_resultsHelper.GetStresstestConfigurations()); }
         private void lbtnMonitors_ActiveChanged(object sender, EventArgs e) { if (lbtnMonitors.Active)  SetConfig(_resultsHelper.GetMonitors()); }
 
         private void SetConfig(string value) {
+            foreach (Control ctrl in flpConfiguration.Controls)
+                if (ctrl is Button) {
+                    flpConfiguration.Controls.Remove(ctrl);
+                    break;
+                }
+
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[] { new KeyValuePairControl(value, string.Empty) { BackColor = SystemColors.Control } };
             flpConfiguration.Controls.AddRange(_config);
@@ -104,6 +164,12 @@ namespace vApus.Stresstest {
             }
         }
         private void SetConfig(List<string> values) {
+            foreach (Control ctrl in flpConfiguration.Controls)
+                if (ctrl is Button) {
+                    flpConfiguration.Controls.Remove(ctrl);
+                    break;
+                }
+
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[values.Count];
             for (int i = 0; i != _config.Length; i++) _config[i] = new KeyValuePairControl(values[i], string.Empty) { BackColor = SystemColors.Control };
