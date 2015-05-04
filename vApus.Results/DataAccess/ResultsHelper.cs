@@ -90,6 +90,9 @@ namespace vApus.Results {
         public void SetDescriptionAndTags(string description, string[] tags) {
             lock (_lock) {
                 if (_databaseActions != null) {
+                    _databaseActions.ExecuteSQL("DELETE FROM description");
+                    _databaseActions.ExecuteSQL("DELETE FROM tags");
+
                     _databaseActions.ExecuteSQL("INSERT INTO description(Description) VALUES('" + description + "')");
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
 
