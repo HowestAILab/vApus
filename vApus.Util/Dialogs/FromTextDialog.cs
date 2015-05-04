@@ -59,6 +59,9 @@ namespace vApus.Util {
             rtxt.Select();
             rtxt.Select(rtxt.Text.Length, 0);
         }
+        public string GetText() {
+            return rtxt.Text.Trim();
+        }
 
         private void btnOK_Click(object sender, EventArgs e) {
             if (WarnForEndingWithNewLine &&
