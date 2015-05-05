@@ -188,31 +188,38 @@ namespace vApus.Monitor {
                     Thread.CurrentThread.CurrentCulture = tempCulture;
                 }
 
-                List<string> counterValues = counters.GetCountersAtLastLevel();
                 object[] row = new object[ColumnCount];
-
                 row[0] = GetTimestamp(RowCount, RowCount == 0);
-                for (int i = 0; i != counterValues.Count; i++) {
-                    if (i >= ColumnCount) break;
 
-                    string counterValue = counterValues[i];
-                    object parsedValue = null;
-                    bool boolValue = false;
-                    if (counterValue.IsNumeric()) {
-                        double dou = double.Parse(counterValue);
-                        if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou))
-                            dou = -1d;
-                        parsedValue = Math.Round(dou, 3, MidpointRounding.AwayFromZero);
-                    } else if (bool.TryParse(counterValue, out boolValue)) {
-                        parsedValue = boolValue ? 1d : 0d;
-                    } else {
-                        DateTime timeStamp;
-                        if (DateTime.TryParse(counterValue, out timeStamp))
-                            parsedValue = timeStamp;
-                        else
-                            parsedValue = counterValue;
+                //Null is given back for dropped counters. We need to be able to make correct averages.
+                if (counters == null) {
+                    for (int i = 1; i != row.Length; i++) 
+                        row[i] = 0d;
+                } else {
+                    List<string> counterValues = counters.GetCountersAtLastLevel();
+
+                    for (int i = 0; i != counterValues.Count; i++) {
+                        if (i >= ColumnCount) break;
+
+                        string counterValue = counterValues[i];
+                        object parsedValue = null;
+                        bool boolValue = false;
+                        if (counterValue.IsNumeric()) {
+                            double dou = double.Parse(counterValue);
+                            if (Double.IsNaN(dou) || Double.IsPositiveInfinity(dou) || Double.IsNegativeInfinity(dou))
+                                dou = -1d;
+                            parsedValue = Math.Round(dou, 3, MidpointRounding.AwayFromZero);
+                        } else if (bool.TryParse(counterValue, out boolValue)) {
+                            parsedValue = boolValue ? 1d : 0d;
+                        } else {
+                            DateTime timeStamp;
+                            if (DateTime.TryParse(counterValue, out timeStamp))
+                                parsedValue = timeStamp;
+                            else
+                                parsedValue = counterValue;
+                        }
+                        row[i + 1] = parsedValue;
                     }
-                    row[i + 1] = parsedValue;
                 }
                 _toDisplayRows.Add(row);
 
