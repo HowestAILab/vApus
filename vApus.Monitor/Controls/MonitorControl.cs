@@ -356,8 +356,7 @@ namespace vApus.Monitor {
                     }
                 }
             }
-        }
-		
+        }		
         private IEnumerable<DataGridViewColumn> Find(string text) {
             text = Regex.Escape(text);
             text = text.Replace("\\*", ".*");
