@@ -206,6 +206,19 @@ namespace vApus.Results {
                     if (paths.Contains(node.FullPath))
                         node.Checked = true;
 
+				//Double check for dynamic added nodes if they can be checked (is at least one child node checked?)
+                foreach (TreeNode node in GetAllNodes(tvw.Nodes))
+                    if (node.Checked && node.Nodes.Count != 0) {
+                        bool canBeChecked = false;
+                        foreach (TreeNode child in node.Nodes)
+                            if (child.Checked) {
+                                canBeChecked = true;
+                                break;
+                            }
+
+                        if (!canBeChecked) node.Checked = false;
+                    }
+
                 tvw.AfterCheck += tvw_AfterCheck;
             }
         }
