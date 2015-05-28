@@ -256,7 +256,7 @@ namespace vApus.DistributedTesting {
                 throw ex;
             }
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString()));
+            InvokeMessage(string.Format(" ...Connected slaves in {0}", _sw.Elapsed.ToLongFormattedString("0 ms")));
             _sw.Reset();
         }
 
@@ -297,7 +297,7 @@ namespace vApus.DistributedTesting {
             }
 
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Test initialized in {0}", _sw.Elapsed.ToLongFormattedString()));
+            InvokeMessage(string.Format(" ...Test initialized in {0}", _sw.Elapsed.ToLongFormattedString("0 ms")));
             _sw.Reset();
         }
         private void MasterSideCommunicationHandler_TestInitialized(object sender, TestInitializedEventArgs e) {
