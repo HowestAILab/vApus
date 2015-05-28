@@ -563,6 +563,27 @@
             Holds all entities with their counter infos.
             </summary>
         </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.SetTimestamp">
+            <summary>
+            Do not forget to call this. Stores seconds since epoch.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetTimestamp">
+            <summary>
+            Returns the seconds since epoch (1970/1/1).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetSubs">
+            <summary>
+            Initiates the internal List if it is null.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.#ctor">
+            <summary>
+            For serialization only.
+            </summary>
+        </member>
         <member name="M:vApus.Monitor.Sources.Base.Entities.Match(vApus.Monitor.Sources.Base.Entities,System.Boolean)">
             <summary>
             Match the name and the Entities if any with the given Entities. The order
@@ -670,6 +691,16 @@
             
             </summary>
             <returns></returns>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entities.timestamp">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entities.subs">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
         </member>
         <member name="T:vApus.Monitor.Sources.Base.Entity">
             <summary>

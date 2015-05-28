@@ -194,7 +194,7 @@ namespace vApus.Monitor {
                     split.Panel2.Enabled = btnSetDefaultWiw.Enabled = true;
                     lblMonitorSourceMismatch.Visible = false;
 
-                    btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+                    btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.GetSubs().Count != 0;
                 } else {
                     split.Panel2.Enabled = btnSetDefaultWiw.Enabled = false;
                     lblMonitorSourceMismatch.Visible = true;
@@ -287,7 +287,7 @@ namespace vApus.Monitor {
             if (_monitor.PreviousMonitorSourceIndexForCounters != _monitor.MonitorSourceIndex) {
                 _monitor.PreviousMonitorSourceIndexForCounters = _monitor.MonitorSourceIndex;
                 //Clear this when a new is selected.
-                _monitor.Wiw.Clear();
+                _monitor.Wiw.GetSubs().Clear();
             }
             lblMonitorSourceMismatch.Visible = false;
 
@@ -424,7 +424,7 @@ namespace vApus.Monitor {
         }
 
         private void FillEntities(Entities entitiesAndCounters) {
-            foreach (Entity entity in entitiesAndCounters) {
+            foreach (Entity entity in entitiesAndCounters.GetSubs()) {
                 var lvwi = new ListViewItem(string.Empty);
 
                 lvwi.SubItems.Add(entity.GetName());
@@ -490,12 +490,12 @@ namespace vApus.Monitor {
                 }
                 if (!selectedChecked) {
                     Entity entity = _monitor.Wiw.GetEntity(selected.SubItems[1].Text);
-                    _monitor.Wiw.Remove(entity);
+                    _monitor.Wiw.GetSubs().Remove(entity);
                 }
                 tvwCounters.AfterCheck += tvwCounter_AfterCheck;
 
                 SetChosenCountersInListViewItems();
-                btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+                btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.GetSubs().Count != 0;
 
                 InvokeChanged();
             } catch {
@@ -510,7 +510,7 @@ namespace vApus.Monitor {
             foreach (ListViewItem lvwi in lvwEntities.Items)
                 applyCountTo.Add(lvwi);
 
-            foreach (Entity entity in _monitor.Wiw) {
+            foreach (Entity entity in _monitor.Wiw.GetSubs()) {
                 List<CounterInfo> l = entity.GetSubs();
                 int count = GetTotalCountOfCounters(l);
                 foreach (ListViewItem lvwi in lvwEntities.Items)
@@ -554,7 +554,7 @@ namespace vApus.Monitor {
                 tvwCounters.AfterCheck += tvwCounter_AfterCheck;
                 SetChosenCountersInListViewItems();
 
-                btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+                btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.GetSubs().Count != 0;
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
@@ -583,7 +583,7 @@ namespace vApus.Monitor {
                 tvwCounters.AfterCheck += tvwCounter_AfterCheck;
                 SetChosenCountersInListViewItems();
 
-                btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+                btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.GetSubs().Count != 0;
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
@@ -648,7 +648,7 @@ namespace vApus.Monitor {
 
             SetChosenCountersInListViewItems();
 
-            btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.Count != 0;
+            btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.GetSubs().Count != 0;
 
             LockWindowUpdate(IntPtr.Zero);
 
@@ -678,7 +678,7 @@ namespace vApus.Monitor {
             Entity entity = _monitor.Wiw.GetEntity(entityName);
             if (entity == null) {
                 entity = new Entity(entityName, true);
-                _monitor.Wiw.Add(entity);
+                _monitor.Wiw.GetSubs().Add(entity);
             }
 
             lvwiEntity.Checked = false;
@@ -690,7 +690,7 @@ namespace vApus.Monitor {
                 }
 
             if (lvwiEntity.Checked) {
-                if (_monitor.Wiw.Contains(entity)) {
+                if (_monitor.Wiw.GetSubs().Contains(entity)) {
                     foreach (CounterInfo info in entity.GetSubs())
                         if (info.GetName() == counterNode.Text) {
                             entity.GetSubs().Remove(info);
@@ -729,10 +729,10 @@ namespace vApus.Monitor {
 
                     //Random powerstate, doesn't matter
                     entity = new Entity(entityName, true);
-                    _monitor.Wiw.Add(entity);
+                    _monitor.Wiw.GetSubs().Add(entity);
                 }
             } else {
-                _monitor.Wiw.Remove(entity);
+                _monitor.Wiw.GetSubs().Remove(entity);
             }
 
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
@@ -1006,7 +1006,7 @@ namespace vApus.Monitor {
                 if (lvwi.Checked) {
                     ParseTag(lvwi);
                     newEntity = new Entity(entity.GetName(), entity.IsAvailable());
-                    newWIW.Add(newEntity);
+                    newWIW.GetSubs().Add(newEntity);
                 }
 
                 var nodes = lvwi.Tag as TreeNode[];
@@ -1070,7 +1070,7 @@ namespace vApus.Monitor {
                 btnSchedule.Enabled =
                 (_monitor.MonitorSourceIndex == _monitor.PreviousMonitorSourceIndexForCounters ||
                  lvwEntities.Items.Count == 0)
-                    ? _monitor.Wiw.Count != 0
+                    ? _monitor.Wiw.GetSubs().Count != 0
                     : false;
 
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
@@ -1098,7 +1098,7 @@ namespace vApus.Monitor {
             tmr.Start();
         }
         private void btnSetDefaultWiw_Click(object sender, EventArgs e) {
-            _monitor.Wiw.Clear();
+            _monitor.Wiw.GetSubs().Clear();
             DefaultWIWs.Set(_monitor, _wdyh);
             PushSavedWiW();
             if (GroupChecked)
@@ -1267,8 +1267,6 @@ namespace vApus.Monitor {
                     lblCountDown.ForeColor = Color.SteelBlue;
                     lblCountDown.BackColor = Color.Transparent;
                     lblCountDown.Visible = true;
-
-                    monitorControl.RefreshTimeInS = refreshInS;
 
                     tmrProgressDelayCountDown.Start();
 
