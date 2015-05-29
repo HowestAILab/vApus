@@ -371,12 +371,12 @@ namespace vApus.Monitor {
         /// <returns></returns>
         private DateTime GetTimestamp(long timestamp, bool determineFirstTimestamp) {
             if (determineFirstTimestamp) {
-                long now = (long)(DateTime.Now.ToUniversalTime() - _epoch).TotalSeconds;
+                long now = (long)(DateTime.UtcNow - _epoch).TotalMilliseconds;
                 _deltaTimestamp = now - timestamp;
             }
             timestamp += _deltaTimestamp;
 
-            return _epoch.AddSeconds(timestamp).ToLocalTime();
+            return _epoch.AddMilliseconds(timestamp).ToLocalTime();
         }
         #endregion
     }

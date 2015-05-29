@@ -565,12 +565,12 @@
         </member>
         <member name="M:vApus.Monitor.Sources.Base.Entities.SetTimestamp">
             <summary>
-            Do not forget to call this. Stores seconds since epoch.
+            Do not forget to call this. Stores milliseconds since epoch (utc).
             </summary>
         </member>
         <member name="M:vApus.Monitor.Sources.Base.Entities.GetTimestamp">
             <summary>
-            Returns the seconds since epoch (1970/1/1).
+            Returns the milliseconds since epoch (1970/1/1).
             </summary>
             <returns></returns>
         </member>
