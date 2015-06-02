@@ -401,7 +401,7 @@ namespace vApus.Stresstest {
             GC.Collect();
 
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Log(s) Initialized in {0}.", _sw.Elapsed.ToLongFormattedString("0 ms")));
+            InvokeMessage(string.Format(" ...Log(s) Initialized in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             _sw.Reset();
         }
         /// <summary>
@@ -503,7 +503,7 @@ namespace vApus.Stresstest {
                 throw ex;
             }
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Connection Proxy Pool Inititialized in {0}.", _sw.Elapsed.ToLongFormattedString("0 ms")));
+            InvokeMessage(string.Format(" ...Connection Proxy Pool Initialized in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             _sw.Reset();
         }
 
@@ -672,7 +672,7 @@ namespace vApus.Stresstest {
                 GC.Collect();
 
                 _sw.Stop();
-                InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToLongFormattedString("0 ms")));
+                InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
                 _sw.Reset();
             } catch {
                 if (!_cancel)
@@ -690,7 +690,7 @@ namespace vApus.Stresstest {
             }
             _threadPool.SetThreads(concurrentUsers, _parallelThreads);
             _sw.Stop();
-            InvokeMessage(string.Format("       | ...Thread Pool Set in {0}.", _sw.Elapsed.ToLongFormattedString("0 ms")));
+            InvokeMessage(string.Format("       | ...Thread Pool Set in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             _sw.Reset();
         }
         private void SetConnectionProxyPool(int concurrentUsers) {
@@ -700,7 +700,7 @@ namespace vApus.Stresstest {
             _sw.Start();
             try {
                 _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections);
-                InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToLongFormattedString("0 ms")));
+                InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             } catch {
                 throw;
             } finally {
