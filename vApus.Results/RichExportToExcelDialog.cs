@@ -305,7 +305,7 @@ namespace vApus.Results {
                 GC.Collect();
 
                 if (!exceptionThrown) {
-                    if (MessageBox.Show("Results auto-exported to " + zipPath + ".\nDo you want to browse them?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                    if (MessageBox.Show("Results where exported to " + zipPath + ".\nDo you want to browse them?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
                         Process.Start(zipPath);
                     this.Close();
                 }
