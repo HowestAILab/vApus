@@ -79,7 +79,7 @@ namespace vApus.Stresstest {
         [SavableCloneable]
         [Description("You can parallel execute this with the other entries in the user action. For the first entry in the user action the connection proxy for the executing thread (user) is used, therefore only that one is able to make data available for the rest of a stresstest for a certain user (eg login data)."), DisplayName("Execute in Parallel with Previous")]
         public bool ExecuteInParallel {
-            get { return _executeInParallel; }
+            get { return false;/* _executeInParallel; */ }
             set { _executeInParallel = value; }
         }
 

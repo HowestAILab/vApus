@@ -276,7 +276,7 @@ namespace vApus.Stresstest {
 
             if (_lexicalResult == LexicalResult.OK) {
 #if EnableBetaFeature
-                bool successfullyParallized = SetParallelExecutions();
+                bool successfullyParallized = true; // SetParallelExecutions();
 #else
             //#warning Parallel executions temp not available
             bool successfullyParallized = true;
