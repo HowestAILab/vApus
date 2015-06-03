@@ -101,6 +101,9 @@ namespace vApus.Stresstest {
             _parallelThreads = new ConcurrentQueue<Thread>();
             _toDisposeParallelThreads = new ConcurrentBag<Thread>();
 
+            _count = count;
+            _parallelThreadCount = parallelThreadCount;
+
             for (int i = 0; i < count; i++) {
                 var t = new Thread(DoWork);
                 t.Name = "vApus Thread Pool Thread #" + (i + 1);
@@ -115,9 +118,6 @@ namespace vApus.Stresstest {
                 t.IsBackground = true;
                 _parallelThreads.Enqueue(t);
             }
-
-            _count = count;
-            _parallelThreadCount = parallelThreadCount;
 
             _poolInitializedWaitHandle.WaitOne();
 
