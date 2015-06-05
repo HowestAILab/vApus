@@ -192,7 +192,6 @@ namespace vApus.Monitor {
                         row[i] = 0d;
                 } else {
                     row[0] = GetTimestamp(counters.GetTimestamp(), RowCount == 0);
-
                     List<string> counterValues = counters.GetCountersAtLastLevel();
 
                     for (int i = 0; i != counterValues.Count; i++) {
@@ -353,7 +352,7 @@ namespace vApus.Monitor {
                     }
                 }
             }
-        }
+        }		
         private IEnumerable<DataGridViewColumn> Find(string text) {
             text = Regex.Escape(text);
             text = text.Replace("\\*", ".*");
