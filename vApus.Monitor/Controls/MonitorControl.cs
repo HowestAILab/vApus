@@ -29,16 +29,12 @@ namespace vApus.Monitor {
         private string[] _filter = new string[0];
         private bool _keepAtEnd = true;
 
-        private DateTime _firstDateTime;
-        private int _refreshTimeInS = 1;
+        private readonly DateTime _epoch = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
+        private long _deltaTimestamp = 0L;
         #endregion
 
         #region Properties
         public MonitorResult MonitorResultCache { get; private set; }
-        public int RefreshTimeInS {
-            get { return _refreshTimeInS; }
-            set { _refreshTimeInS = value; }
-        }
         public new bool AllowUserToAddRows { get { return base.AllowUserToAddRows; } set { base.AllowUserToAddRows = false; } }
         public new bool AllowUserToDeleteRows { get { return base.AllowUserToDeleteRows; } set { base.AllowUserToDeleteRows = false; } }
         public new bool AllowUserToResizeRows { get { return base.AllowUserToResizeRows; } set { base.AllowUserToResizeRows = false; } }
@@ -74,8 +70,7 @@ namespace vApus.Monitor {
                 }
 
                 if (value == null)
-                    if (e.ColumnIndex == 0) value = GetTimestamp(e.RowIndex, e.RowIndex == 0);
-                    else value = -1d;
+                    value = -1d;
 
                 if (value is double) {
                     var dou = (double)value;
@@ -114,8 +109,8 @@ namespace vApus.Monitor {
             var lHeaders = new List<string>();
             lHeaders.Add(string.Empty);
 
-            if (wdyh.Count == 1) {
-                foreach (Entity entity in monitor.Wiw)
+            if (wdyh.GetSubs().Count == 1) {
+                foreach (Entity entity in monitor.Wiw.GetSubs())
                     foreach (CounterInfo counterInfo in entity.GetSubs()) {
                         string counterInfoName = counterInfo.GetName();
                         if (counterInfo.GetSubs().Count == 0 || (counterInfo.GetSubs().Count == 1 && wdyh.GetCounterInfo(1, counterInfoName).GetSubs().Count == 1)) //__Total__ for instance
@@ -126,7 +121,7 @@ namespace vApus.Monitor {
 
                     }
             } else {
-                foreach (Entity entity in monitor.Wiw)
+                foreach (Entity entity in monitor.Wiw.GetSubs())
                     foreach (CounterInfo counterInfo in entity.GetSubs()) {
                         string counterInfoName = counterInfo.GetName();
                         if (counterInfo.GetSubs().Count == 0 || (counterInfo.GetSubs().Count == 1 && wdyh.GetCounterInfo(1, counterInfoName).GetSubs().Count == 1))
@@ -189,13 +184,14 @@ namespace vApus.Monitor {
                 }
 
                 object[] row = new object[ColumnCount];
-                row[0] = GetTimestamp(RowCount, RowCount == 0);
 
                 //Null is given back for dropped counters. We need to be able to make correct averages.
                 if (counters == null) {
-                    for (int i = 1; i != row.Length; i++) 
+                    row[0] = DateTime.Now.ToLocalTime();
+                    for (int i = 1; i != row.Length; i++)
                         row[i] = 0d;
                 } else {
+                    row[0] = GetTimestamp(counters.GetTimestamp(), RowCount == 0);
                     List<string> counterValues = counters.GetCountersAtLastLevel();
 
                     for (int i = 0; i != counterValues.Count; i++) {
@@ -372,12 +368,14 @@ namespace vApus.Monitor {
         /// <param name="rowIndex"></param>
         /// <param name="determineFirstTimestamp">Must happen once to be able to determine the other timestamps</param>
         /// <returns></returns>
-        private DateTime GetTimestamp(int rowIndex, bool determineFirstTimestamp) {
+        private DateTime GetTimestamp(long timestamp, bool determineFirstTimestamp) {
             if (determineFirstTimestamp) {
-                _firstDateTime = DateTime.Now;
-                _firstDateTime = _firstDateTime.Subtract(new TimeSpan(0, 0, 0, 0, _firstDateTime.Millisecond));
+                long now = (long)(DateTime.UtcNow - _epoch).TotalMilliseconds;
+                _deltaTimestamp = now - timestamp;
             }
-            return _firstDateTime.AddSeconds(rowIndex * _refreshTimeInS);
+            timestamp += _deltaTimestamp;
+
+            return _epoch.AddMilliseconds(timestamp).ToLocalTime();
         }
         #endregion
     }

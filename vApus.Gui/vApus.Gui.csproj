@@ -302,7 +302,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="FiddlerCore.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+    <Content Include="FiddlerCoreAPILicense.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="Icon.32x32.vApus.ico" />
+    <Content Include="Ionic.Zip.dll">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Content Include="makecert.exe">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

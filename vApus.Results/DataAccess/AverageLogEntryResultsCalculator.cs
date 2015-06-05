@@ -67,7 +67,7 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetLogEntryResultsThreaded(databaseActions, cancellationToken, runResults, 4, "SameAsLogEntryIndex", "LogEntryIndex", "UserAction", "LogEntry", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "RunResultId");
+            DataTable[] parts = GetLogEntryResultsThreaded(databaseActions, cancellationToken, runResults, 4, "SameAsLogEntryIndex", "LogEntryIndex", "UserAction", "LogEntry", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
                 data.TryAdd("logentryresults" + i, parts[i]);
@@ -172,7 +172,7 @@ namespace vApus.Results {
                                 string logEntry = lerRow["LogEntry"] as string;
                                 long ttlb = (long)lerRow["TimeToLastByteInTicks"];
                                 double delay = Convert.ToDouble((int)lerRow["DelayInMilliseconds"]);
-                                string error = lerRow["Error"] as string;
+                                string error = (long)lerRow["Error"] == 0 ? null : "-";
 
                                 int uniqueLogEntryCount = uniqueLogEntryCounts[logEntryIndex];
 

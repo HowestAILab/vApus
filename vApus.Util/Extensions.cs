@@ -82,6 +82,9 @@ namespace vApus.Util {
                 sb.Append(timeSpan.Milliseconds);
                 sb.Append(" milliseconds");
             }
+			if (sb.ToString().Length == 0)
+				return returnOnZero;
+			
             return sb.ToString();
         }
         /// <summary>
@@ -121,6 +124,9 @@ namespace vApus.Util {
                 sb.Append(timeSpan.Milliseconds);
                 sb.Append(" ms");
             }
+			if (sb.ToString().Length == 0)
+                return returnOnZero;
+			
             return sb.ToString();
         }
     }
