@@ -10,9 +10,9 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Activate_Click", "Add_Click", "Export_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
-        new[] { "Edit", "Add Syntax Item", "Export", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
+        new[] { "Edit", "Add syntax item", "Export", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
     [Hotkeys(new[] { "Activate_Click", "Add_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
         new[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
     [Serializable]
@@ -26,7 +26,7 @@ namespace vApus.Stresstest {
         #region Properties
         [SavableCloneable, PropertyControl(1)]
         [Description("If no delimiter is given, the string will not be splitted into parts (space = valid)."),
-         DisplayName("Child Delimiter")]
+         DisplayName("Child delimiter")]
         public virtual string ChildDelimiter {
             get { return _childDelimiter; }
             set { _childDelimiter = value; }
@@ -51,8 +51,7 @@ namespace vApus.Stresstest {
         /// <param name="output"></param>
         /// <returns></returns>
         internal LexicalResult TryLexicalAnalysis(string input, Parameters parameters, out ASTNode output) {
-            ASTNode.Parameters = parameters;
-            output = new ASTNode(this, _childDelimiter);
+            output = new ASTNode(_childDelimiter);
             if (input.Length == 0) {
                 output.Error = "No input has been provided!";
                 return LexicalResult.Error;

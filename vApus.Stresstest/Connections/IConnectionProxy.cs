@@ -9,9 +9,9 @@
 using System;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
-    /// The connection proxy code class implements this interface. This for easy function access in the ConnectionProxyPool and StresstestCore.
+    /// The connection proxy code class implements this interface. This for easy function access in the ConnectionProxyPool and StressTestCore.
     /// </summary>
     public interface IConnectionProxy : IDisposable {
         bool IsConnectionOpen { get; }
@@ -20,6 +20,6 @@ namespace vApus.Stresstest {
         void OpenConnection();
         void CloseConnection();
 
-        void SendAndReceive(StringTree lexedLogEntry, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception);
+        void SendAndReceive(StringTree parameterizedRequest, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception);
     }
 }

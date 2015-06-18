@@ -144,7 +144,7 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <Prefer32Bit>false</Prefer32Bit>
@@ -253,12 +253,6 @@
     </Compile>
     <Compile Include="ControlsAndPanels\LinkButton.cs">
       <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.cs">
-      <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\ProcessorAffinityPanel.designer.cs">
-      <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifier.cs" />
     <Compile Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.cs">
@@ -408,12 +402,6 @@
     <Compile Include="CookieDecoder.cs" />
     <Compile Include="Countdown.cs" />
     <Compile Include="DatabaseActions.cs" />
-    <Compile Include="Dialogs\LogMessageDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\LogMessageDialog.Designer.cs">
-      <DependentUpon>LogMessageDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Dialogs\ExtendedScheduleDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -454,7 +442,6 @@
     <Compile Include="MultiThreadedQuickSort.cs" />
     <Compile Include="DistributionCalculator.cs" />
     <Compile Include="PercentileCalculator.cs" />
-    <Compile Include="ProcessorAffinityHelper.cs" />
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -466,13 +453,8 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="ProxyHelper.cs" />
-    <Compile Include="ControlsAndPanels\RemoteDesktopClient.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\RemoteDesktopClient.Designer.cs">
-      <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
-    </Compile>
     <Compile Include="ObjectService\NamedObjectRegistrar.cs" />
+    <Compile Include="RemoteDesktop.cs" />
     <Compile Include="SendMessage.cs" />
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
@@ -528,9 +510,6 @@
       <DependentUpon>LargeList.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\ProcessorAffinityPanel.resx">
-      <DependentUpon>ProcessorAffinityPanel.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.resx">
       <DependentUpon>TestProgressNotifierPanel.cs</DependentUpon>
     </EmbeddedResource>
@@ -560,9 +539,6 @@
     <EmbeddedResource Include="ControlsAndPanels\ValueControlPanel\UndefinedCollectionControl.resx">
       <DependentUpon>UndefinedCollectionControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\LogMessageDialog.resx">
-      <DependentUpon>LogMessageDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\ExtendedScheduleDialog.resx">
       <DependentUpon>ExtendedScheduleDialog.cs</DependentUpon>
     </EmbeddedResource>
@@ -583,9 +559,6 @@
       <Generator>ResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\RemoteDesktopClient.resx">
-      <DependentUpon>RemoteDesktopClient.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\Tracert\TracertControl.resx">
       <DependentUpon>TracertControl.cs</DependentUpon>
@@ -622,25 +595,6 @@
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
-  </ItemGroup>
-  <ItemGroup>
-    <COMReference Include="AxMSTSCLib">
-      <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>aximp</WrapperTool>
-      <Isolated>False</Isolated>
-    </COMReference>
-    <COMReference Include="MSTSCLib">
-      <Guid>{8C11EFA1-92C3-11D1-BC1E-00C04FA31489}</Guid>
-      <VersionMajor>1</VersionMajor>
-      <VersionMinor>0</VersionMinor>
-      <Lcid>0</Lcid>
-      <WrapperTool>tlbimp</WrapperTool>
-      <Isolated>False</Isolated>
-      <EmbedInteropTypes>True</EmbedInteropTypes>
-    </COMReference>
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Warning.png" />

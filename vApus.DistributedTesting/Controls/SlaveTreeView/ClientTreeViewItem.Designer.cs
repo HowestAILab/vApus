@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class ClientTreeViewItem
     {
@@ -74,7 +74,7 @@
             this.picDuplicate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picDuplicate.TabIndex = 17;
             this.picDuplicate.TabStop = false;
-            this.toolTip.SetToolTip(this.picDuplicate, "Duplicate <ctrl+d>");
+            this.toolTip.SetToolTip(this.picDuplicate, "Duplicate <ctrl+d>.");
             this.picDuplicate.Visible = false;
             this.picDuplicate.Click += new System.EventHandler(this.picDuplicate_Click);
             // 
@@ -89,7 +89,7 @@
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picDelete.TabIndex = 15;
             this.picDelete.TabStop = false;
-            this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>");
+            this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>.");
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
@@ -104,7 +104,7 @@
             this.picRemoteDesktop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picRemoteDesktop.TabIndex = 21;
             this.picRemoteDesktop.TabStop = false;
-            this.toolTip.SetToolTip(this.picRemoteDesktop, "Show Remote Desktop...");
+            this.toolTip.SetToolTip(this.picRemoteDesktop, "Show remote desktop...");
             this.picRemoteDesktop.Click += new System.EventHandler(this.picRemoteDesktop_Click);
             // 
             // lblClient

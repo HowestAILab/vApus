@@ -38,7 +38,6 @@
             this.btnOpenConnectionProxyTempFiles = new System.Windows.Forms.Button();
             this.btnDeleteAll = new System.Windows.Forms.Button();
             this.label1 = new System.Windows.Forms.Label();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.groupBox1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -230,7 +229,6 @@
         private System.Windows.Forms.Button btnOpenConnectionProxyTempFiles;
         private System.Windows.Forms.Button btnDeleteAll;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.ToolTip toolTip;
 
     }
 }

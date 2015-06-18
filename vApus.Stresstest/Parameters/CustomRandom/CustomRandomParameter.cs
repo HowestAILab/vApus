@@ -15,18 +15,18 @@ using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// You can use your own piece of code as a parameter, an example is included as the default value.
     /// </summary>
-    [DisplayName("Custom Random Parameter"), Serializable]
+    [DisplayName("Custom random parameter"), Serializable]
     public class CustomRandomParameter : BaseParameter, ISerializable {
 
         #region Fields
         private ICustomRandomParameter _customRandomParameter;
-        private string _code = @"// dllreferences:System.dll;vApus.Stresstest.dll
+        private string _code = @"// dllreferences:System.dll;vApus.StressTest.dll
 using System;
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
 public class CustomRandomParameter : ICustomRandomParameter {
 public string Generate() {
 // Example:
@@ -126,8 +126,8 @@ return start.AddTicks(randomTicks);
         internal CompilerResults CreateInstance() {
             var cu = new CompilerUnit();
             CompilerResults results;
-            Assembly assembly = cu.Compile(_code, false, out results);
-            Type t = assembly.GetType("vApus.Stresstest.CustomRandomParameter");
+            Assembly assembly = cu.Compile(_code, true, out results);
+            Type t = assembly.GetType("vApus.StressTest.CustomRandomParameter");
 
             if (assembly != null)
                 _customRandomParameter = FastObjectCreator.CreateInstance<ICustomRandomParameter>(t);

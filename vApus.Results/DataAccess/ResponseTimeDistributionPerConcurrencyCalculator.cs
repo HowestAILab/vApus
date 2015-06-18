@@ -15,16 +15,16 @@ using vApus.Util;
 using System.Linq;
 
 namespace vApus.Results {
-    internal sealed class ResponseTimeDistributionForLogEntriesPerConcurrencyCalculator : BaseResultSetCalculator {
-        private static ResponseTimeDistributionForLogEntriesPerConcurrencyCalculator _instance = new ResponseTimeDistributionForLogEntriesPerConcurrencyCalculator();
-        public static ResponseTimeDistributionForLogEntriesPerConcurrencyCalculator GetInstance() { return _instance; }
+    internal sealed class ResponseTimeDistributionForRequestsPerConcurrencyCalculator : BaseResultSetCalculator {
+        private static ResponseTimeDistributionForRequestsPerConcurrencyCalculator _instance = new ResponseTimeDistributionForRequestsPerConcurrencyCalculator();
+        public static ResponseTimeDistributionForRequestsPerConcurrencyCalculator GetInstance() { return _instance; }
 
         private readonly object _lock = new object();
 
-        private ResponseTimeDistributionForLogEntriesPerConcurrencyCalculator() { }
+        private ResponseTimeDistributionForRequestsPerConcurrencyCalculator() { }
 
-        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
-            ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stresstestIds);
+        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
+            ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stressTestIds);
             if (cancellationToken.IsCancellationRequested) return null;
 
             DataTable results = GetResults(data, cancellationToken);
@@ -38,22 +38,22 @@ namespace vApus.Results {
             return results;
         }
 
-        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
+        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
             var data = new ConcurrentDictionary<string, DataTable>();
 
-            data.TryAdd("stresstests", ReaderAndCombiner.GetStresstests(cancellationToken, databaseActions, stresstestIds, "Id", "Stresstest", "Connection"));
+            data.TryAdd("stresstests", ReaderAndCombiner.GetStressTests(cancellationToken, databaseActions, stressTestIds, "Id", "StressTest", "Connection"));
             if (cancellationToken.IsCancellationRequested) return null;
 
-            DataTable stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, databaseActions, stresstestIds, "Id", "StresstestId");
+            DataTable stressTestResults = ReaderAndCombiner.GetStressTestResults(cancellationToken, databaseActions, stressTestIds, "Id", "StressTestId");
             if (cancellationToken.IsCancellationRequested) return null;
 
-            data.TryAdd("stresstestresults", stresstestResults);
+            data.TryAdd("stresstestresults", stressTestResults);
 
-            int[] stresstestResultIds = new int[stresstestResults.Rows.Count];
-            for (int i = 0; i != stresstestResultIds.Length; i++)
-                stresstestResultIds[i] = (int)stresstestResults.Rows[i][0];
+            int[] stressTestResultIds = new int[stressTestResults.Rows.Count];
+            for (int i = 0; i != stressTestResultIds.Length; i++)
+                stressTestResultIds[i] = (int)stressTestResults.Rows[i][0];
 
-            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, databaseActions, stresstestResultIds, new string[] { "Id", "Concurrency", "StresstestResultId" });
+            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, databaseActions, stressTestResultIds, new string[] { "Id", "Concurrency", "StressTestResultId" });
             if (cancellationToken.IsCancellationRequested) return null;
 
             data.TryAdd("concurrencyresults", concurrencyResults);
@@ -67,40 +67,40 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetLogEntryResultsThreaded(databaseActions, cancellationToken, runResults, 4, "TimeToLastByteInTicks", "RunResultId");
+            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "TimeToLastByteInTicks", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
-                data.TryAdd("logentryresults" + i, parts[i]);
+                data.TryAdd("requestresults" + i, parts[i]);
             parts = null;
 
             return data;
         }
 
         private DataTable GetResults(ConcurrentDictionary<string, DataTable> data, CancellationToken cancellationToken) {
-            DataRow[] stresstests = data["stresstests"].Select();
-            if (stresstests == null || stresstests.Length == 0) return null;
+            DataRow[] stressTests = data["stresstests"].Select();
+            if (stressTests == null || stressTests.Length == 0) return null;
 
-            //Get all the log entry result datatables.
-            var logEntryResultsDataList = new List<DataTable>();
+            //Get all the request result datatables.
+            var requestResultsDataList = new List<DataTable>();
             foreach (string key in data.Keys)
-                if (key.StartsWith("logentryresults"))
-                    logEntryResultsDataList.Add(data[key]);
-            DataTable[] logEntryResultsData = logEntryResultsDataList.ToArray();
+                if (key.StartsWith("requestresults"))
+                    requestResultsDataList.Add(data[key]);
+            DataTable[] requestResultsData = requestResultsDataList.ToArray();
 
-            DataTable responseTimeDistributionPerConcurrency = CreateEmptyDataTable("DistributionPerConcurrency", "Stresstest", "ConcurrencyResultId", "Concurrency", "Time to last byte (s)", "Count");
+            DataTable responseTimeDistributionPerConcurrency = CreateEmptyDataTable("DistributionPerConcurrency", "Stress test", "ConcurrencyResultId", "Concurrency", "Time to last byte (s)", "Count");
 
-            foreach (DataRow stresstestsRow in stresstests) {
+            foreach (DataRow stressTestsRow in stressTests) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                int stresstestId = (int)stresstestsRow.ItemArray[0];
+                int stressTestId = (int)stressTestsRow.ItemArray[0];
 
-                DataRow[] stresstestResults = data["stresstestresults"].Select(string.Format("StresstestId={0}", stresstestId));
-                if (stresstestResults == null || stresstestResults.Length == 0) continue;
-                int stresstestResultId = (int)stresstestResults[0].ItemArray[0];
+                DataRow[] stressTestResults = data["stresstestresults"].Select(string.Format("StressTestId={0}", stressTestId));
+                if (stressTestResults == null || stressTestResults.Length == 0) continue;
+                int stressTestResultId = (int)stressTestResults[0].ItemArray[0];
 
-                string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                string stressTest = string.Format("{0} {1}", stressTestsRow.ItemArray[1], stressTestsRow.ItemArray[2]);
 
-                DataRow[] concurrencyResults = data["concurrencyresults"].Select(string.Format("StresstestResultId={0}", stresstestResultId));
+                DataRow[] concurrencyResults = data["concurrencyresults"].Select(string.Format("StressTestResultId={0}", stressTestResultId));
                 if (concurrencyResults == null || concurrencyResults.Length == 0) continue;
 
                 Parallel.ForEach(concurrencyResults, (crRow, loopState) => {
@@ -120,19 +120,19 @@ namespace vApus.Results {
                             runResultIds[rrRowIndex] = ((int)runResults[rrRowIndex].ItemArray[0]);
                         }
 
-                        //Get the log entry results containing log entries with the given run result id.
-                        var logEntryResults = new DataRow[0];
-                        for (int lerDataIndex = 0; lerDataIndex != logEntryResultsData.Length; lerDataIndex++) {
-                            logEntryResults = logEntryResultsData[lerDataIndex].Select(string.Format("RunResultId In({0})", runResultIds.Combine(", ")));
-                            if (logEntryResults.Length != 0)
+                        //Get the request results containing requests with the given run result id.
+                        var requestResults = new DataRow[0];
+                        for (int rerDataIndex = 0; rerDataIndex != requestResultsData.Length; rerDataIndex++) {
+                            requestResults = requestResultsData[rerDataIndex].Select(string.Format("RunResultId In({0})", runResultIds.Combine(", ")));
+                            if (requestResults.Length != 0)
                                 break;
                         }
 
-                        if (logEntryResults != null)
-                            foreach (DataRow lerRow in logEntryResults) {
+                        if (requestResults != null)
+                            foreach (DataRow rerRow in requestResults) {
                                 if (cancellationToken.IsCancellationRequested) loopState.Break();
 
-                                double ttlb = Convert.ToDouble((long)lerRow["TimeToLastByteInTicks"]) / (TimeSpan.TicksPerSecond);
+                                double ttlb = Convert.ToDouble((long)rerRow["TimeToLastByteInTicks"]) / (TimeSpan.TicksPerSecond);
                                 ttlb = Math.Round(ttlb, 1, MidpointRounding.AwayFromZero);
 
                                 //Round to 500 ms.
@@ -148,7 +148,7 @@ namespace vApus.Results {
                     responseTimeDistribution = DistributionCalculator<double>.EvenOutRanges(responseTimeDistribution, 0.1d);
                     lock (_lock)
                         foreach (var kvp in responseTimeDistribution)
-                            responseTimeDistributionPerConcurrency.Rows.Add(stresstest, concurrencyResultId, concurrency, kvp.Key, kvp.Value);
+                            responseTimeDistributionPerConcurrency.Rows.Add(stressTest, concurrencyResultId, concurrency, kvp.Key, kvp.Value);
                 });
             }
 
@@ -164,8 +164,8 @@ namespace vApus.Results {
 
         private ResponseTimeDistributionForUserActionsPerConcurrencyCalculator() { }
 
-        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
-            ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stresstestIds);
+        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
+            ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stressTestIds);
             if (cancellationToken.IsCancellationRequested) return null;
 
             DataTable results = GetResults(data, cancellationToken);
@@ -180,22 +180,22 @@ namespace vApus.Results {
             return results;
         }
 
-        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
+        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
             var data = new ConcurrentDictionary<string, DataTable>();
 
-            data.TryAdd("stresstests", ReaderAndCombiner.GetStresstests(cancellationToken, databaseActions, stresstestIds, "Id", "Stresstest", "Connection"));
+            data.TryAdd("stresstests", ReaderAndCombiner.GetStressTests(cancellationToken, databaseActions, stressTestIds, "Id", "StressTest", "Connection"));
             if (cancellationToken.IsCancellationRequested) return null;
 
-            DataTable stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, databaseActions, stresstestIds, "Id", "StresstestId");
+            DataTable stressTestResults = ReaderAndCombiner.GetStressTestResults(cancellationToken, databaseActions, stressTestIds, "Id", "StressTestId");
             if (cancellationToken.IsCancellationRequested) return null;
 
-            data.TryAdd("stresstestresults", stresstestResults);
+            data.TryAdd("stresstestresults", stressTestResults);
 
-            int[] stresstestResultIds = new int[stresstestResults.Rows.Count];
-            for (int i = 0; i != stresstestResultIds.Length; i++)
-                stresstestResultIds[i] = (int)stresstestResults.Rows[i][0];
+            int[] stressTestResultIds = new int[stressTestResults.Rows.Count];
+            for (int i = 0; i != stressTestResultIds.Length; i++)
+                stressTestResultIds[i] = (int)stressTestResults.Rows[i][0];
 
-            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, databaseActions, stresstestResultIds, new string[] { "Id", "Concurrency", "StresstestResultId" });
+            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, databaseActions, stressTestResultIds, new string[] { "Id", "Concurrency", "StressTestResultId" });
             if (cancellationToken.IsCancellationRequested) return null;
 
             data.TryAdd("concurrencyresults", concurrencyResults);
@@ -209,40 +209,40 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetLogEntryResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "TimeToLastByteInTicks", "DelayInMilliseconds", "RunResultId");
+            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "TimeToLastByteInTicks", "DelayInMilliseconds", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
-                data.TryAdd("logentryresults" + i, parts[i]);
+                data.TryAdd("requestresults" + i, parts[i]);
             parts = null;
 
             return data;
         }
 
         private DataTable GetResults(ConcurrentDictionary<string, DataTable> data, CancellationToken cancellationToken) {
-            DataRow[] stresstests = data["stresstests"].Select();
-            if (stresstests == null || stresstests.Length == 0) return null;
+            DataRow[] stressTests = data["stresstests"].Select();
+            if (stressTests == null || stressTests.Length == 0) return null;
 
-            //Get all the log entry result datatables.
-            var logEntryResultsDataList = new List<DataTable>();
+            //Get all the request result datatables.
+            var requestResultsDataList = new List<DataTable>();
             foreach (string key in data.Keys)
-                if (key.StartsWith("logentryresults"))
-                    logEntryResultsDataList.Add(data[key]);
-            DataTable[] logEntryResultsData = logEntryResultsDataList.ToArray();
+                if (key.StartsWith("requestresults"))
+                    requestResultsDataList.Add(data[key]);
+            DataTable[] requestResultsData = requestResultsDataList.ToArray();
 
-            DataTable responseTimeDistributionPerConcurrency = CreateEmptyDataTable("DistributionPerConcurrency", "Stresstest", "ConcurrencyResultId", "Concurrency", "Time to last byte (s)", "Count");
+            DataTable responseTimeDistributionPerConcurrency = CreateEmptyDataTable("DistributionPerConcurrency", "Stress test", "ConcurrencyResultId", "Concurrency", "Time to last byte (s)", "Count");
 
-            foreach (DataRow stresstestsRow in stresstests) {
+            foreach (DataRow stressTestsRow in stressTests) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                int stresstestId = (int)stresstestsRow.ItemArray[0];
+                int stressTestId = (int)stressTestsRow.ItemArray[0];
 
-                DataRow[] stresstestResults = data["stresstestresults"].Select(string.Format("StresstestId={0}", stresstestId));
-                if (stresstestResults == null || stresstestResults.Length == 0) continue;
-                int stresstestResultId = (int)stresstestResults[0].ItemArray[0];
+                DataRow[] stressTestResults = data["stresstestresults"].Select(string.Format("StressTestId={0}", stressTestId));
+                if (stressTestResults == null || stressTestResults.Length == 0) continue;
+                int stressTestResultId = (int)stressTestResults[0].ItemArray[0];
 
-                string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                string stressTest = string.Format("{0} {1}", stressTestsRow.ItemArray[1], stressTestsRow.ItemArray[2]);
 
-                DataRow[] concurrencyResults = data["concurrencyresults"].Select(string.Format("StresstestResultId={0}", stresstestResultId));
+                DataRow[] concurrencyResults = data["concurrencyresults"].Select(string.Format("StressTestResultId={0}", stressTestResultId));
                 if (concurrencyResults == null || concurrencyResults.Length == 0) continue;
 
                 foreach (DataRow crRow in concurrencyResults) {
@@ -253,8 +253,8 @@ namespace vApus.Results {
 
                     var ttlbInS = new List<double>();
 
-                    //Place the log entry results under the right virtual user and the right user action
-                    var userActions = new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>>>(); // <VirtualUser,<UserAction, LogEntryResult
+                    //Place the request results under the right virtual user and the right user action
+                    var userActions = new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<RequestResult>>>>>(); // <VirtualUser,<UserAction, RequestResult
 
                     DataRow[] runResults = data["runresults"].Select(string.Format("ConcurrencyResultId={0}", concurrencyResultId));
                     if (runResults == null || runResults.Length == 0) continue;
@@ -263,38 +263,38 @@ namespace vApus.Results {
 
                         int runResultId = (int)rrRow.ItemArray[0];
 
-                        //Get the log entry results containing log entries with the given run result id.
-                        var logEntryResults = new DataRow[0];
-                        for (int lerDataIndex = 0; lerDataIndex != logEntryResultsData.Length; lerDataIndex++) {
-                            logEntryResults = logEntryResultsData[lerDataIndex].Select(string.Format("RunResultId={0}", runResultId));
-                            if (logEntryResults.Length != 0)
+                        //Get the request results containing requests with the given run result id.
+                        var requestResults = new DataRow[0];
+                        for (int rerDataIndex = 0; rerDataIndex != requestResultsData.Length; rerDataIndex++) {
+                            requestResults = requestResultsData[rerDataIndex].Select(string.Format("RunResultId={0}", runResultId));
+                            if (requestResults.Length != 0)
                                 break;
                         }
 
-                        if (logEntryResults != null && logEntryResults.Length != 0) {
+                        if (requestResults != null && requestResults.Length != 0) {
                             //Keeping reruns in mind (break on last)
                             int runs = ((int)rrRow.ItemArray[1]) + 1;
                             //var userActionsMap = new ConcurrentDictionary<string, string>(); //Map duplicate user actions to the original ones, if need be.
                             for (int reRun = 0; reRun != runs; reRun++) {
 
-                                var uas = new ConcurrentDictionary<string, ConcurrentDictionary<string, SynchronizedCollection<LogEntryResult>>>(); // <VirtualUser,<UserAction, LogEntryResult
+                                var uas = new ConcurrentDictionary<string, ConcurrentDictionary<string, SynchronizedCollection<RequestResult>>>(); // <VirtualUser,<UserAction, RequestResult
 
-                                Parallel.ForEach(logEntryResults.AsEnumerable(), (lerRow, loopState2) => {
-                                    //foreach (DataRow lerRow in logEntryResults) {
+                                Parallel.ForEach(requestResults.AsEnumerable(), (rerRow, loopState2) => {
+                                    //foreach (DataRow rerRow in requestyResults) {
                                     if (cancellationToken.IsCancellationRequested) loopState2.Break();
                                     //if (cancellationToken.IsCancellationRequested) return null;
-                                    if ((int)lerRow["Rerun"] == reRun) {
-                                        string virtualUser = lerRow["VirtualUser"] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct calculation doing it like this.
-                                        string userAction = lerRow["UserAction"] as string;
+                                    if ((int)rerRow["Rerun"] == reRun) {
+                                        string virtualUser = rerRow["VirtualUser"] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct calculation doing it like this.
+                                        string userAction = rerRow["UserAction"] as string;
 
-                                        var logEntryResult = new LogEntryResult() {
-                                            TimeToLastByteInTicks = (long)lerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)lerRow["DelayInMilliseconds"]
+                                        var requestResult = new RequestResult() {
+                                            TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"]
                                         };
 
-                                        if (!uas.ContainsKey(virtualUser)) uas.TryAdd(virtualUser, new ConcurrentDictionary<string, SynchronizedCollection<LogEntryResult>>());
-                                        if (!uas[virtualUser].ContainsKey(virtualUser)) uas[virtualUser].TryAdd(userAction, new SynchronizedCollection<LogEntryResult>());
+                                        if (!uas.ContainsKey(virtualUser)) uas.TryAdd(virtualUser, new ConcurrentDictionary<string, SynchronizedCollection<RequestResult>>());
+                                        if (!uas[virtualUser].ContainsKey(virtualUser)) uas[virtualUser].TryAdd(userAction, new SynchronizedCollection<RequestResult>());
 
-                                        uas[virtualUser][userAction].Add(logEntryResult);
+                                        uas[virtualUser][userAction].Add(requestResult);
                                     }
                                 }
                                 );
@@ -303,10 +303,10 @@ namespace vApus.Results {
                                 foreach (var item in uas) {
                                     if (cancellationToken.IsCancellationRequested) return null;
 
-                                    var kvp = new KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>>(item.Key, new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>());
+                                    var kvp = new KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<RequestResult>>>>(item.Key, new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<RequestResult>>>());
                                     foreach (string userAction in uas[item.Key].Keys) {
-                                        var lers = uas[item.Key][userAction];
-                                        kvp.Value.Add(new KeyValuePair<string, SynchronizedCollection<LogEntryResult>>(userAction, lers));
+                                        var rers = uas[item.Key][userAction];
+                                        kvp.Value.Add(new KeyValuePair<string, SynchronizedCollection<RequestResult>>(userAction, rers));
                                     }
                                     userActions.Add(kvp);
                                 }
@@ -327,17 +327,17 @@ namespace vApus.Results {
                             long ttlb = 0;
                             int delay = -1;
 
-                            var lers = kvp.Value;
+                            var rers = kvp.Value;
 
-                            for (int j = lers.Count - 1; j != -1; j--) {
+                            for (int j = rers.Count - 1; j != -1; j--) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                var ler = lers[j];
+                                var rer = rers[j];
                                 if (delay == -1) {
-                                    delay = ler.DelayInMilliseconds;
-                                    ttlb = ler.TimeToLastByteInTicks;
+                                    delay = rer.DelayInMilliseconds;
+                                    ttlb = rer.TimeToLastByteInTicks;
                                 } else {
-                                    ttlb += ler.TimeToLastByteInTicks + ler.DelayInMilliseconds;
+                                    ttlb += rer.TimeToLastByteInTicks + rer.DelayInMilliseconds;
                                 }
                             }
                             userActionResultsList.Add(ttlb);
@@ -363,7 +363,7 @@ namespace vApus.Results {
                     responseTimeDistribution = DistributionCalculator<double>.EvenOutRanges(responseTimeDistribution, 0.1d);
                     lock (_lock)
                         foreach (var kvp in responseTimeDistribution)
-                            responseTimeDistributionPerConcurrency.Rows.Add(stresstest, concurrencyResultId, concurrency, kvp.Key, kvp.Value);
+                            responseTimeDistributionPerConcurrency.Rows.Add(stressTest, concurrencyResultId, concurrency, kvp.Key, kvp.Value);
                 }
             }
 

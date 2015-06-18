@@ -11,30 +11,30 @@ using System.ComponentModel;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
-        new[] { "Add Stresstest", "Sort", "Clear", "Paste" })]
+        new[] { "Add stress test", "Sort", "Clear", "Paste" })]
     [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Insert, (Keys.Control | Keys.V) })]
-    [DisplayName("Stresstests")]
-    public class StresstestProject : BaseProject {
+    [DisplayName("Stress tests")]
+    public class StressTestProject : BaseProject {
 
         #region Constructor
-        public StresstestProject() {
+        public StressTestProject() {
             AddAsDefaultItem(new Parameters());
             AddAsDefaultItem(new Connections());
-            AddAsDefaultItem(new Logs());
+            AddAsDefaultItem(new Scenarios());
         }
         #endregion
 
         #region Functions
-        private void Add_Click(object sender, EventArgs e) { Add(new Stresstest()); }
+        private void Add_Click(object sender, EventArgs e) { Add(new StressTest()); }
         /// <summary>
-        /// Remove all stresstests, other items will not be removed.
+        /// Remove all stress tests, other items will not be removed.
         /// </summary>
         public override void Clear() {
             var itemsCopy = new List<BaseItem>();
             foreach (BaseItem item in this)
-                if (!(item is Stresstest))
+                if (!(item is StressTest))
                     itemsCopy.Add(item);
             base.Clear();
             AddRange(itemsCopy);

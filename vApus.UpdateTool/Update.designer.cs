@@ -61,12 +61,12 @@
             // 
             // clmLocalMD5Checksum
             // 
-            this.clmLocalMD5Checksum.Text = "Local MD5 Checksum";
+            this.clmLocalMD5Checksum.Text = "Local MD5 checksum";
             this.clmLocalMD5Checksum.Width = 117;
             // 
             // clmRemoteMD5Checksum
             // 
-            this.clmRemoteMD5Checksum.Text = "Remote MD5 Checksum";
+            this.clmRemoteMD5Checksum.Text = "Remote MD5 checksum";
             this.clmRemoteMD5Checksum.Width = 128;
             // 
             // clmDownloadProgress

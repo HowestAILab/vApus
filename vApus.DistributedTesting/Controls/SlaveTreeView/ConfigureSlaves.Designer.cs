@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class ConfigureSlaves
     {
@@ -98,7 +98,7 @@
             this.picSort.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picSort.TabIndex = 21;
             this.picSort.TabStop = false;
-            this.toolTip.SetToolTip(this.picSort, "Sort on Port");
+            this.toolTip.SetToolTip(this.picSort, "Sort on port.");
             this.picSort.Click += new System.EventHandler(this.picSort_Click);
             // 
             // picStatus
@@ -111,7 +111,7 @@
             this.picStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picStatus.TabIndex = 25;
             this.picStatus.TabStop = false;
-            this.toolTip.SetToolTip(this.picStatus, "Client Offline");
+            this.toolTip.SetToolTip(this.picStatus, "Client offline.");
             this.picStatus.Click += new System.EventHandler(this.picStatus_Click);
             // 
             // picClearSlaves
@@ -125,7 +125,7 @@
             this.picClearSlaves.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picClearSlaves.TabIndex = 34;
             this.picClearSlaves.TabStop = false;
-            this.toolTip.SetToolTip(this.picClearSlaves, "Clear Slaves");
+            this.toolTip.SetToolTip(this.picClearSlaves, "Clear slaves.");
             this.picClearSlaves.Click += new System.EventHandler(this.picClearSlaves_Click);
             // 
             // picShowRD
@@ -139,7 +139,7 @@
             this.picShowRD.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picShowRD.TabIndex = 35;
             this.picShowRD.TabStop = false;
-            this.toolTip.SetToolTip(this.picShowRD, "Show Remote Desktop...");
+            this.toolTip.SetToolTip(this.picShowRD, "Show remote desktop...");
             this.picShowRD.Click += new System.EventHandler(this.picShowRD_Click);
             // 
             // picAddSlave
@@ -153,7 +153,7 @@
             this.picAddSlave.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picAddSlave.TabIndex = 36;
             this.picAddSlave.TabStop = false;
-            this.toolTip.SetToolTip(this.picAddSlave, "Add Slave");
+            this.toolTip.SetToolTip(this.picAddSlave, "Add slave.");
             this.picAddSlave.Click += new System.EventHandler(this.picAddSlave_Click);
             // 
             // txtIP
@@ -172,7 +172,7 @@
             this.lblHostName.Name = "lblHostName";
             this.lblHostName.Size = new System.Drawing.Size(63, 13);
             this.lblHostName.TabIndex = 24;
-            this.lblHostName.Text = "Host Name:";
+            this.lblHostName.Text = "Host name:";
             // 
             // lblIP
             // 
@@ -199,7 +199,7 @@
             this.lblRDCredentials.Name = "lblRDCredentials";
             this.lblRDCredentials.Size = new System.Drawing.Size(168, 13);
             this.lblRDCredentials.TabIndex = 28;
-            this.lblRDCredentials.Text = "Remote Desktop Credentials";
+            this.lblRDCredentials.Text = "Remote desktop credentials";
             // 
             // lblConnection
             // 
@@ -227,7 +227,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(63, 13);
             this.label1.TabIndex = 24;
-            this.label1.Text = "User Name:";
+            this.label1.Text = "User name:";
             // 
             // txtPassword
             // 

@@ -15,7 +15,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting.Controls.TestTreeView {
+namespace vApus.DistributedTest.Controls.TestTreeView {
     public partial class DistributedTestOrTileOverview : UserControl {
 
         #region Fields
@@ -101,10 +101,10 @@ namespace vApus.DistributedTesting.Controls.TestTreeView {
             var items = new List<TLVWItem>();
             if (tile == null) return items;
 
-            foreach (TileStresstest ts in tile) {
+            foreach (TileStressTest ts in tile) {
                 bool use = ts.Use;
                 if (use || !chkShowOnlyChecked.Checked) {
-                    var basic = ts.BasicTileStresstest;
+                    var basic = ts.BasicTileStressTest;
                     _connectionsAndMonitors.Add(basic.Connection);
 
                     string connectionString = basic.Connection.ConnectionString.Replace("<16 0C 02 12$>", "•");

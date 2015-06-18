@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// Brings connection string, proxy and parameters together in one config file.
     /// </summary>
@@ -32,7 +32,7 @@ namespace vApus.Stresstest {
 
         #region Properties
         [SavableCloneable, PropertyControl(1)]
-        [Description("To be able to connect to the application-to-test."), DisplayName("Connection Proxy")]
+        [Description("To be able to connect to the application-to-test."), DisplayName("Connection proxy")]
         public ConnectionProxy ConnectionProxy {
             get {
                 if (Solution.ActiveSolution != null && (_connectionProxy.IsEmpty || _connectionProxy.Parent == null))
@@ -51,7 +51,7 @@ namespace vApus.Stresstest {
         /// Get or set the connection string.
         /// </summary>
         [SavableCloneable(true)]
-        [DisplayName("Connection String")]
+        [DisplayName("Connection string")]
         [ReadOnly(true), Browsable(false)]
         public string ConnectionString {
             get { return _connectionString; }
@@ -149,7 +149,7 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Build and returns a new connection proxy class as string.
         ///     This is further used in vApus.Util.CompilerUnit to compile. 
-        ///     Each simulated user in StresstestCore has an instance of this class (in ConnectionProxyPool) to be able to connect to a server app and communicate with it.
+        ///     Each simulated user in StressTestCore has an instance of this class (in ConnectionProxyPool) to be able to connect to a server app and communicate with it.
         /// </summary>
         /// <returns></returns>
         public string BuildConnectionProxyClass() { return ConnectionProxy.BuildConnectionProxyClass(ConnectionString); }

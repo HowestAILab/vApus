@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest
+﻿namespace vApus.StressTest
 {
     partial class ReferencesPanel
     {
@@ -115,7 +115,7 @@
             this.btnAdd.Size = new System.Drawing.Size(75, 24);
             this.btnAdd.TabIndex = 1;
             this.btnAdd.Text = "Add...";
-            this.toolTip.SetToolTip(this.btnAdd, "From Gac");
+            this.toolTip.SetToolTip(this.btnAdd, "From GAC.");
             this.btnAdd.UseVisualStyleBackColor = false;
             this.btnAdd.Click += new System.EventHandler(this.btnAdd_Click);
             // 

@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
     /// Holds Tiles and Clients.
     /// </summary>
@@ -19,7 +19,7 @@ namespace vApus.DistributedTesting {
         new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
-    [DisplayName("Distributed Test")]
+    [DisplayName("Distributed test")]
     public class DistributedTest : LabeledBaseItem {
 
         #region Fields
@@ -34,7 +34,7 @@ namespace vApus.DistributedTesting {
         #region Properties
         /// <summary>
         ///     True if you want vApus to open remote desktop connections to the used clients.
-        ///     Regardless if you check it or not, you need to be logged into the clients to be able to stresstest.
+        ///     Regardless if you check it or not, you need to be logged into the clients to be able to stress test.
         /// </summary>
         [SavableCloneable]
         [DisplayName("Use RDP")]
@@ -48,7 +48,7 @@ namespace vApus.DistributedTesting {
         ///     Note that the vApus think time is included in the test duration of a run.
         /// </summary>
         [SavableCloneable]
-        [DisplayName("Run Synchronization")]
+        [DisplayName("Run synchronization")]
         public RunSynchronization RunSynchronization {
             get { return _runSynchronization; }
             set { _runSynchronization = value; }
@@ -83,15 +83,15 @@ namespace vApus.DistributedTesting {
         public Clients Clients { get { return this[1] as Clients; } }
 
         /// <summary>
-        /// Yield returns the used (checked in GUI) tile stresstests.
+        /// Yield returns the used (checked in GUI) tile stress tests.
         /// </summary>
-        public IEnumerable<TileStresstest> UsedTileStresstests {
+        public IEnumerable<TileStressTest> UsedTileStressTests {
             get {
                 foreach (Tile tile in Tiles)
                     if (tile.Use)
-                        foreach (TileStresstest tileStresstest in tile)
-                            if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
-                                yield return tileStresstest;
+                        foreach (TileStressTest tileStressTest in tile)
+                            if (tileStressTest.Use && tileStressTest.BasicTileStressTest.SlaveIndices.Length != 0)
+                                yield return tileStressTest;
             }
         }
         #endregion

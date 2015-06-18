@@ -345,7 +345,7 @@
             this.btnForceUpdate.Name = "btnForceUpdate";
             this.btnForceUpdate.Size = new System.Drawing.Size(96, 24);
             this.btnForceUpdate.TabIndex = 2;
-            this.btnForceUpdate.Text = "Force Update";
+            this.btnForceUpdate.Text = "Force update";
             this.toolTip.SetToolTip(this.btnForceUpdate, "Update all files regardless if they need to be updated.");
             this.btnForceUpdate.UseVisualStyleBackColor = false;
             this.btnForceUpdate.Click += new System.EventHandler(this.btnUpdateManually_Click);

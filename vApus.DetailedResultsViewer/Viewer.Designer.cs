@@ -117,7 +117,7 @@
             this.IsMdiContainer = true;
             this.MinimumSize = new System.Drawing.Size(800, 600);
             this.Name = "NewViewer";
-            this.Text = "Detailed Results Viewer";
+            this.Text = "Detailed results viewer";
             this.WindowState = System.Windows.Forms.FormWindowState.Maximized;
             this.ResumeLayout(false);
 

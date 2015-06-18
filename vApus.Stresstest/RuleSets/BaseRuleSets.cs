@@ -9,7 +9,7 @@
 using System;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public abstract class BaseRuleSets : BaseItem {
     }
 }

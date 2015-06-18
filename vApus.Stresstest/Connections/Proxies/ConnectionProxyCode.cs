@@ -15,10 +15,10 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Activate_Click" }, new[] { "Edit" })]
     [Hotkeys(new[] { "Activate_Click" }, new[] { Keys.Enter })]
-    [DisplayName("Connection Proxy Code"), Serializable]
+    [DisplayName("Connection proxy code"), Serializable]
     public class ConnectionProxyCode : BaseItem, ISerializable {
 
         #region Fields
@@ -29,11 +29,11 @@ namespace vApus.Stresstest {
     vApus is Copyrighted by Sizing Servers Lab
     University College of West-Flanders, Department GKG
     
-    Note: If you want to edit this connection proxy code you need to know what you are doing. You might break your stresstest.
+    Note: If you want to edit this connection proxy code you need to know what you are doing. You might break your stress test.
 */
 
 // The following line is used to add references when compiling, you can edit this here or in the references tab page. Please use the 'Browse...' button for dlls that are not in the GAC.
-// dllreferences:System.dll;System.Data.dll;vApus.Util.dll;vApus.Stresstest.dll;
+// dllreferences:System.dll;System.Data.dll;vApus.Util.dll;vApus.StressTest.dll;
 
 #region Preprocessors
     //
@@ -57,7 +57,7 @@ namespace vApus.Stresstest {
     //
 #endregion // Usings
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public class ConnectionProxy : IConnectionProxy {
         
         #region Fields
@@ -121,12 +121,12 @@ namespace vApus.Stresstest {
                     //
                 }
             }
-            public void SendAndReceive(StringTree parameterizedLogEntry, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {
+            public void SendAndReceive(StringTree parameterizedRequest, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {
                 exception = null;
                 
                 //
-                // parameterizedLogEntry is the log entry parsed to a String Tree using the Log Rule Set.
-                // String Tree is a simple class: it can have either a value (string Value { get; }) or childs who are also String Trees (e.g. StringTree foo = parameterizedLogEntry[n] where n is an integer value).
+                // parameterizedRequest is the request parsed to a String Tree using the Scenario Rule Set.
+                // String Tree is a simple class: it can have either a value (string Value { get; }) or childs who are also String Trees (e.g. StringTree foo = parameterizedRequest[n] where n is an integer value).
                 // You can get the combined value of the childs using the function CombineValues() (not shallow, returns a string), this uses the child delimiters in the rule set to glue these values together. 
                 //
                 
@@ -189,7 +189,7 @@ namespace vApus.Stresstest {
             //
         #endregion // Free Coding
     } // ConnectionProxy
-} // vApus.Stresstest";
+} // vApus.StressTest";
 
         private string _code = DEFAULTCODE;
 

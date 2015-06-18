@@ -19,27 +19,27 @@ namespace vApus.Results {
         private static AverageConcurrencyResultsCalculator _instance = new AverageConcurrencyResultsCalculator();
         public static AverageConcurrencyResultsCalculator GetInstance() { return _instance; }
         private AverageConcurrencyResultsCalculator() { }
-        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
-            DataTable averageConcurrencyResults = CreateEmptyDataTable("AverageConcurrencyResults", "Stresstest", "Started At", "Measured Time", "Measured Time (ms)", "Concurrency",
-"Log Entries Processed", "Log Entries", "Errors", "Throughput (responses / s)", "User Actions / s", "Avg. Response Time (ms)",
-"Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "99th Percentile of the Response Times (ms)", "Avg. Top 5 Response Times (ms)", "Avg. Delay (ms)");
+        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
+            DataTable averageConcurrencyResults = CreateEmptyDataTable("AverageConcurrencyResults", "Stress test", "Started at", "Measured time", "Measured time (ms)", "Concurrency",
+"Requests processed", "Requests", "Errors", "Throughput (responses / s)", "User actions / s", "Avg. response time (ms)",
+"Max. response time (ms)", "95th percentile of the response times (ms)", "99th percentile of the response times (ms)", "Avg. top 5 response Times (ms)", "Avg. relay (ms)");
 
-            ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stresstestIds);
+            ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stressTestIds);
             if (cancellationToken.IsCancellationRequested) return null;
 
             ConcurrentDictionary<ConcurrencyResult, string> results = GetResults(data, cancellationToken);
             data = null;
             if (cancellationToken.IsCancellationRequested) return null;
 
-            ConcurrentDictionary<StresstestMetrics, string> metricsDic = GetMetrics(results, cancellationToken);
+            ConcurrentDictionary<StressTestMetrics, string> metricsDic = GetMetrics(results, cancellationToken);
             results = null;
             if (cancellationToken.IsCancellationRequested) return null;
 
-            foreach (StresstestMetrics metrics in metricsDic.Keys) {
+            foreach (StressTestMetrics metrics in metricsDic.Keys) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
                 averageConcurrencyResults.Rows.Add(metricsDic[metrics], metrics.StartMeasuringTime, metrics.MeasuredTime.ToString("hh':'mm':'ss'.'fff"), Math.Round(metrics.MeasuredTime.TotalMilliseconds, MidpointRounding.AwayFromZero),
-                    metrics.Concurrency, metrics.LogEntriesProcessed, metrics.LogEntries, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero),
+                    metrics.Concurrency, metrics.RequestsProcessed, metrics.Requests, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero),
                     Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), 
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero),
                     Math.Round(metrics.Percentile99thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageTop5ResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero),
@@ -53,22 +53,22 @@ namespace vApus.Results {
         }
 
         //Get all data from the database to be processed later.
-        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
+        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
             var data = new ConcurrentDictionary<string, DataTable>();
 
-            data.TryAdd("stresstests", ReaderAndCombiner.GetStresstests(cancellationToken, databaseActions, stresstestIds, "Id", "Stresstest", "Connection", "Runs"));
+            data.TryAdd("stresstests", ReaderAndCombiner.GetStressTests(cancellationToken, databaseActions, stressTestIds, "Id", "StressTest", "Connection", "Runs"));
             if (cancellationToken.IsCancellationRequested) return null;
 
-            DataTable stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, databaseActions, stresstestIds, "Id", "StresstestId");
+            DataTable stressTestResults = ReaderAndCombiner.GetStressTestResults(cancellationToken, databaseActions, stressTestIds, "Id", "StressTestId");
             if (cancellationToken.IsCancellationRequested) return null;
 
-            data.TryAdd("stresstestresults", stresstestResults);
+            data.TryAdd("stresstestresults", stressTestResults);
 
-            int[] stresstestResultIds = new int[stresstestResults.Rows.Count];
-            for (int i = 0; i != stresstestResultIds.Length; i++)
-                stresstestResultIds[i] = (int)stresstestResults.Rows[i][0];
+            int[] stressTestResultIds = new int[stressTestResults.Rows.Count];
+            for (int i = 0; i != stressTestResultIds.Length; i++)
+                stressTestResultIds[i] = (int)stressTestResults.Rows[i][0];
 
-            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, databaseActions, stresstestResultIds, new string[] { "Id", "StartedAt", "StoppedAt", "Concurrency", "StresstestResultId" });
+            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, databaseActions, stressTestResultIds, new string[] { "Id", "StartedAt", "StoppedAt", "Concurrency", "StressTestResultId" });
             if (cancellationToken.IsCancellationRequested) return null;
 
             data.TryAdd("concurrencyresults", concurrencyResults);
@@ -77,57 +77,57 @@ namespace vApus.Results {
             for (int i = 0; i != concurrencyResultIds.Length; i++)
                 concurrencyResultIds[i] = (int)concurrencyResults.Rows[i][0];
 
-            DataTable runResults = ReaderAndCombiner.GetRunResults(cancellationToken, databaseActions, concurrencyResultIds, "Id", "Run", "TotalLogEntryCount", "ConcurrencyResultId");
+            DataTable runResults = ReaderAndCombiner.GetRunResults(cancellationToken, databaseActions, concurrencyResultIds, "Id", "Run", "TotalRequestCount", "ConcurrencyResultId");
             if (cancellationToken.IsCancellationRequested) return null;
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetLogEntryResultsThreaded(databaseActions, cancellationToken, runResults, 4, "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
+            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "VirtualUser", "UserAction", "RequestIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
-                data.TryAdd("logentryresults" + i, parts[i]);
+                data.TryAdd("requestresults" + i, parts[i]);
             parts = null;
 
             //int[] runResultIds = new int[runResults.Rows.Count];
             //for (int i = 0; i != runResultIds.Length; i++)
             //    runResultIds[i] = (int)runResults.Rows[i][0];
 
-            //DataTable logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, databaseActions, runResultIds, "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "RunResultId");
+            //DataTable requestResults = ReaderAndCombiner.GetRequestResults(cancellationToken, databaseActions, runResultIds, "VirtualUser", "UserAction", "RequestIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "RunResultId");
             //if (cancellationToken.IsCancellationRequested) return null;
 
-            //data.Add("logentryresults", logEntryResults);
+            //data.Add("requestresults", requestResults);
 
             return data;
         }
 
         private ConcurrentDictionary<ConcurrencyResult, string> GetResults(ConcurrentDictionary<string, DataTable> data, CancellationToken cancellationToken) {
-            DataRow[] stresstests = data["stresstests"].Select();
-            if (stresstests == null || stresstests.Length == 0) return null;
+            DataRow[] stressTests = data["stresstests"].Select();
+            if (stressTests == null || stressTests.Length == 0) return null;
 
             var concurrencyResultsDic = new ConcurrentDictionary<ConcurrencyResult, string>();
 
-            //Get all the log entry result datatables.
-            var logEntryResultsDataList = new List<DataTable>();
+            //Get all the request result datatables.
+            var requestResultsDataList = new List<DataTable>();
             foreach (string key in data.Keys)
-                if (key.StartsWith("logentryresults"))
-                    logEntryResultsDataList.Add(data[key]);
-            DataTable[] logEntryResultsData = logEntryResultsDataList.ToArray();
+                if (key.StartsWith("requestresults"))
+                    requestResultsDataList.Add(data[key]);
+            DataTable[] requestResultsData = requestResultsDataList.ToArray();
 
-            for (int stresstestRowIndex = 0; stresstestRowIndex != stresstests.Length; stresstestRowIndex++) {
-                DataRow stresstestsRow = stresstests[stresstestRowIndex];
+            for (int stressTestRowIndex = 0; stressTestRowIndex != stressTests.Length; stressTestRowIndex++) {
+                DataRow stressTestsRow = stressTests[stressTestRowIndex];
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                int stresstestId = (int)stresstestsRow.ItemArray[0];
-                string stresstest = stresstestsRow.ItemArray[1] as string;
+                int stressTestId = (int)stressTestsRow.ItemArray[0];
+                string stressTest = stressTestsRow.ItemArray[1] as string;
 
-                DataRow[] stresstestResults = data["stresstestresults"].Select(string.Format("StresstestId={0}", stresstestId));
-                if (stresstestResults != null && stresstestResults.Length != 0) {
-                    int stresstestResultId = (int)stresstestResults[0].ItemArray[0];
+                DataRow[] stressTestResults = data["stresstestresults"].Select(string.Format("StressTestId={0}", stressTestId));
+                if (stressTestResults != null && stressTestResults.Length != 0) {
+                    int stressTestResultId = (int)stressTestResults[0].ItemArray[0];
 
-                    int runs = (int)stresstestsRow.ItemArray[3];
+                    int runs = (int)stressTestsRow.ItemArray[3];
 
-                    //Extract all concurrency results for the given stresstest result id and put them in the dictionary.
-                    DataRow[] concurrencyResults = data["concurrencyresults"].Select(string.Format("StresstestResultId={0}", stresstestResultId));
+                    //Extract all concurrency results for the given stress test result id and put them in the dictionary.
+                    DataRow[] concurrencyResults = data["concurrencyresults"].Select(string.Format("StressTestResultId={0}", stressTestResultId));
                     if (concurrencyResults != null && concurrencyResults.Length != 0) {
                         for (int crRowIndex = 0; crRowIndex != concurrencyResults.Length; crRowIndex++) {
                             DataRow crRow = concurrencyResults[crRowIndex];
@@ -136,7 +136,7 @@ namespace vApus.Results {
                             int concurrencyResultId = (int)crRow.ItemArray[0];
                             int concurrency = (int)crRow.ItemArray[3];
                             ConcurrencyResult concurrencyResult = new ConcurrencyResult(concurrency, runs);
-                            concurrencyResultsDic.TryAdd(concurrencyResult, stresstest);
+                            concurrencyResultsDic.TryAdd(concurrencyResult, stressTest);
                             concurrencyResult.StartedAt = (DateTime)crRow.ItemArray[1];
                             concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
 
@@ -145,7 +145,7 @@ namespace vApus.Results {
                             if (runResults == null || runResults.Length == 0) continue;
 
                             var runResultIds = new int[runResults.Length];
-                            var totalLogEntryCountsPerUser = new ulong[runResults.Length];
+                            var totalRequestCountsPerUser = new ulong[runResults.Length];
 
                             var runResultsArr = new RunResult[runResults.Length];
                             Parallel.For(0, runResults.Length, (rrRowIndex, loopState3) => {
@@ -156,69 +156,69 @@ namespace vApus.Results {
                                 runResultIds[rrRowIndex] = runResultId;
                                 runResultsArr[rrRowIndex] = new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency);
 
-                                totalLogEntryCountsPerUser[rrRowIndex] = (ulong)rrRow.ItemArray[2] / (ulong)concurrencyResult.Concurrency; //Used for adding ampty log entry results. Needed for correct calcullating metrics for a cancelled or broken test.
+                                totalRequestCountsPerUser[rrRowIndex] = (ulong)rrRow.ItemArray[2] / (ulong)concurrencyResult.Concurrency; //Used for adding ampty request results. Needed for correct calcullating metrics for a cancelled or broken test.
                             }
                             );
                             runResults = null; //Making it easy for the GC by cleaning up ourselves.
                             concurrencyResult.RunResults.AddRange(runResultsArr);
 
-                            //Extract and add virtual user results and log entry results and add those to the runs in the array runResultsArr.
+                            //Extract and add virtual user results and request results and add those to the runs in the array runResultsArr.
                             Parallel.For(0, runResultsArr.Length, (i, loopState) => {
                                 if (cancellationToken.IsCancellationRequested) loopState.Break();
 
                                 var runResult = runResultsArr[i];
                                 int runResultId = runResultIds[i];
 
-                                //Get the log entry results containing log entries with the given run result id.
-                                var ler = new DataRow[0];
-                                for (int lerDataIndex = 0; lerDataIndex != logEntryResultsData.Length; lerDataIndex++) {
-                                    ler = logEntryResultsData[lerDataIndex].Select(string.Format("RunResultId={0}", runResultId));
-                                    if (ler.Length != 0)
+                                //Get the request results containing requests with the given run result id.
+                                var rer = new DataRow[0];
+                                for (int rerDataIndex = 0; rerDataIndex != requestResultsData.Length; rerDataIndex++) {
+                                    rer = requestResultsData[rerDataIndex].Select(string.Format("RunResultId={0}", runResultId));
+                                    if (rer.Length != 0)
                                         break;
                                 }
 
-                                if (ler != null && ler.Length != 0) {
-                                    var logEntryResults = new ConcurrentDictionary<string, SynchronizedCollection<LogEntryResult>>(); //Key == virtual user.
+                                if (rer != null && rer.Length != 0) {
+                                    var requestResults = new ConcurrentDictionary<string, SynchronizedCollection<RequestResult>>(); //Key == virtual user.
 
-                                    //foreach (var lerRow in ler) {
-                                    Parallel.ForEach(ler, (lerRow, loopState2) => {
+                                    //foreach (var rerRow in rer) {
+                                    Parallel.ForEach(rer, (rerRow, loopState2) => {
                                         if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
-                                        string virtualUser = lerRow["VirtualUser"] as string;
-                                        logEntryResults.TryAdd(virtualUser, new SynchronizedCollection<LogEntryResult>());
+                                        string virtualUser = rerRow["VirtualUser"] as string;
+                                        requestResults.TryAdd(virtualUser, new SynchronizedCollection<RequestResult>());
 
-                                        logEntryResults[virtualUser].Add(new LogEntryResult() {
-                                            VirtualUser = virtualUser, UserAction = lerRow["UserAction"] as string, LogEntryIndex = lerRow["LogEntryIndex"] as string,
-                                            TimeToLastByteInTicks = (long)lerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)lerRow["DelayInMilliseconds"], Error = (long)lerRow["Error"] == 0 ? null : "-" 
+                                        requestResults[virtualUser].Add(new RequestResult() {
+                                            VirtualUser = virtualUser, UserAction = rerRow["UserAction"] as string, RequestIndex = rerRow["RequestIndex"] as string,
+                                            TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"], Error = (long)rerRow["Error"] == 0 ? null : "-" 
                                         });
                                     }
                                     );
-                                    ler = null;
+                                    rer = null;
 
                                     var virtualUserResults = new ConcurrentDictionary<string, VirtualUserResult>();
 
                                     //Add empty ones for broken runs.
-                                    //foreach (var item in logEntryResults) { 
-                                    Parallel.ForEach(logEntryResults, (item, loopState2) => {
+                                    //foreach (var item in requestResults) { 
+                                    Parallel.ForEach(requestResults, (item, loopState2) => {
                                         if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
-                                        while ((ulong)item.Value.Count < totalLogEntryCountsPerUser[i])
-                                            item.Value.Add(new LogEntryResult());
+                                        while ((ulong)item.Value.Count < totalRequestCountsPerUser[i])
+                                            item.Value.Add(new RequestResult());
 
                                         if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
-                                        virtualUserResults.TryAdd(item.Key, new VirtualUserResult(logEntryResults[item.Key].Count) { VirtualUser = item.Key });
+                                        virtualUserResults.TryAdd(item.Key, new VirtualUserResult(requestResults[item.Key].Count) { VirtualUser = item.Key });
                                         VirtualUserResult virtualUserResult = virtualUserResults[item.Key];
 
                                         for (int k = 0; k != item.Value.Count; k++) {
                                             if (cancellationToken.IsCancellationRequested) loopState2.Break();
-                                            virtualUserResult.LogEntryResults[k] = item.Value[k];
+                                            virtualUserResult.RequestResults[k] = item.Value[k];
                                         }
                                     }
                                     );
                                     runResult.VirtualUserResults = virtualUserResults.Values.ToArray();
 
-                                    logEntryResults = null;
+                                    requestResults = null;
                                     virtualUserResults = null;
                                 }
                             }
@@ -229,18 +229,18 @@ namespace vApus.Results {
                         concurrencyResults = null;
                     }
                 }
-                stresstestResults = null;
+                stressTestResults = null;
             }
-            stresstests = null;
+            stressTests = null;
 
             return concurrencyResultsDic;
         }
 
-        private ConcurrentDictionary<StresstestMetrics, string> GetMetrics(ConcurrentDictionary<ConcurrencyResult, string> results, CancellationToken cancellationToken) {
-            var metricsDic = new ConcurrentDictionary<StresstestMetrics, string>();
+        private ConcurrentDictionary<StressTestMetrics, string> GetMetrics(ConcurrentDictionary<ConcurrencyResult, string> results, CancellationToken cancellationToken) {
+            var metricsDic = new ConcurrentDictionary<StressTestMetrics, string>();
             Parallel.ForEach(results, (item, loopState) => {
                 if (cancellationToken.IsCancellationRequested) loopState.Break();
-                metricsDic.TryAdd(DetailedStresstestMetricsHelper.GetMetrics(item.Key, cancellationToken), item.Value);
+                metricsDic.TryAdd(DetailedStressTestMetricsHelper.GetMetrics(item.Key, cancellationToken), item.Value);
             });
             if (cancellationToken.IsCancellationRequested) return null;
             return metricsDic;

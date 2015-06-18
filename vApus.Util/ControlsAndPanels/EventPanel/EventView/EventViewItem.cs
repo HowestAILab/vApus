@@ -26,7 +26,6 @@ namespace vApus.Util {
         private int _defaultHeight;
         private bool _entered;
         private EventViewEventType _eventType;
-        private List<int> _lineBreaks = new List<int>();
         private string _message;
         #endregion
 

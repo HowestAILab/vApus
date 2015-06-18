@@ -11,7 +11,7 @@ using System.Runtime;
 
 namespace vApus.Results {
     /// <summary>
-    ///     Serves at caching monitor metrics so they do not need to be calcullated from the monitor results every time if metrics are asked.
+    ///     Serves at caching monitor metrics so they do not need to be calculated from the monitor results every time if metrics are asked.
     ///     Should be kept where the results are visualized (rows in a datagridview) and used together with MonitorMetricsHelper.
     /// </summary>
     public class MonitorMetricsCache {

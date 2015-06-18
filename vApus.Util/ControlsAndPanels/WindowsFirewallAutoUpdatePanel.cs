@@ -183,7 +183,7 @@ namespace vApus.Util {
 
         private void _activeObject_OnResult(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                btnDisableAll.Text = "Disable All";
+                btnDisableAll.Text = "Disable all";
                 groupBox.Enabled = true;
                 CheckStatus();
             }, null);

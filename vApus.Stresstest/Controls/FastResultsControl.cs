@@ -16,17 +16,17 @@ using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using vApus.Results;
-using vApus.Stresstest.Properties;
+using vApus.StressTest.Properties;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class FastResultsControl : UserControl {
 
         #region Fields
-        private List<StresstestMetrics> _concurrencyStresstestMetrics = new List<StresstestMetrics>();
-        private List<object[]> _concurrencyStresstestMetricsRows = new List<object[]>();
-        private List<StresstestMetrics> _runStresstestMetrics = new List<StresstestMetrics>();
-        private List<object[]> _runStresstestMetricsRows = new List<object[]>();
+        private List<StressTestMetrics> _concurrencyStressTestMetrics = new List<StressTestMetrics>();
+        private List<object[]> _concurrencyStressTestMetricsRows = new List<object[]>();
+        private List<StressTestMetrics> _runStressTestMetrics = new List<StressTestMetrics>();
+        private List<object[]> _runStressTestMetricsRows = new List<object[]>();
 
         private Dictionary<string, List<MonitorMetrics>> _concurrencyMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
         private Dictionary<string, List<object[]>> _concurrencyMonitorMetricsRows = new Dictionary<string, List<object[]>>();
@@ -34,7 +34,7 @@ namespace vApus.Stresstest {
         private Dictionary<string, List<object[]>> _runMonitorMetricsRows = new Dictionary<string, List<object[]>>();
 
         /// <summary>
-        /// To switch the stresstest fast results to monitor fast results.
+        /// To switch the stress test fast results to monitor fast results.
         /// </summary>
         private List<LinkButton> _monitorLinkButtons = new List<LinkButton>();
 
@@ -52,14 +52,14 @@ namespace vApus.Stresstest {
         private bool _trySettingDataGridViewColumnsOnNextMonitorUpdate;
 
         //For distributed test
-        private DateTime _stresstestStartedAt = DateTime.Now;
+        private DateTime _stressTestStartedAt = DateTime.Now;
         private TimeSpan _measuredRuntime = new TimeSpan();
 
         private bool _simplifiedMetricsReturned = false; //Only send a warning to the user once.
         #endregion
 
         #region Properties
-        public bool HasResults { get { return _concurrencyStresstestMetricsRows.Count != 0; } }
+        public bool HasResults { get { return _concurrencyStressTestMetricsRows.Count != 0; } }
 
         /// <summary>
         /// Should be false for a slave in a distributed test.
@@ -72,8 +72,8 @@ namespace vApus.Stresstest {
             }
         }
 
-        public DateTime StresstestStartedAt {
-            get { return _stresstestStartedAt; }
+        public DateTime StressTestStartedAt {
+            get { return _stressTestStartedAt; }
         }
         /// <summary>
         /// For distributed test
@@ -85,7 +85,7 @@ namespace vApus.Stresstest {
 
         #region Constructor
         /// <summary>
-        /// Used for displaying the fast results: stresstest progress; Progress messages and local hardware monitoring.
+        /// Used for displaying the fast results: stress test progress; Progress messages and local hardware monitoring.
         /// </summary>
         public FastResultsControl() {
             InitializeComponent();
@@ -103,9 +103,9 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     Resets everything to the initial state.
         /// </summary>
-        public void SetStresstestInitialized() {
+        public void SetStressTestInitialized() {
             _measuredRuntime = new TimeSpan();
-            _stresstestStartedAt = DateTime.Now;
+            _stressTestStartedAt = DateTime.Now;
 
             epnlMessages.ClearEvents();
 
@@ -117,38 +117,38 @@ namespace vApus.Stresstest {
             ClearFastResults();
         }
 
-        public void SetConfigurationControls(Stresstest stresstest) {
-            SetConfigurationControlsAndMonitorLinkButtons(stresstest.ToString(), stresstest.Connection, stresstest.ConnectionProxy,
-                                     stresstest.Logs, stresstest.LogRuleSet,
-                                     stresstest.Monitors, stresstest.Concurrencies, stresstest.Runs,
-                                     stresstest.MinimumDelay, stresstest.MaximumDelay, stresstest.Shuffle,
-                                     stresstest.ActionDistribution, stresstest.MaximumNumberOfUserActions,
-                                     stresstest.MonitorBefore, stresstest.MonitorAfter);
+        public void SetConfigurationControls(StressTest stressTest) {
+            SetConfigurationControlsAndMonitorLinkButtons(stressTest.ToString(), stressTest.Connection, stressTest.ConnectionProxy,
+                                     stressTest.Scenarios, stressTest.ScenarioRuleSet,
+                                     stressTest.Monitors, stressTest.Concurrencies, stressTest.Runs,
+                                     stressTest.MinimumDelay, stressTest.MaximumDelay, stressTest.Shuffle,
+                                     stressTest.ActionDistribution, stressTest.MaximumNumberOfUserActions,
+                                     stressTest.MonitorBefore, stressTest.MonitorAfter);
         }
-        public void SetConfigurationControlsAndMonitorLinkButtons(string stresstest, Connection connection, string connectionProxy, KeyValuePair<Log, uint>[] logs, string logRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
+        public void SetConfigurationControlsAndMonitorLinkButtons(string stressTest, Connection connection, string connectionProxy, KeyValuePair<Scenario, uint>[] scenarios, string scenarioRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
                                              int runs, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter) {
-            kvpStresstest.Key = stresstest;
+            kvpStressTest.Key = stressTest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
 
-            var logKeys = new List<Log>(logs.Length);
-            foreach (var kvp in logs)
-                logKeys.Add(kvp.Key);
+            var scenarioKeys = new List<Scenario>(scenarios.Length);
+            foreach (var kvp in scenarios)
+                scenarioKeys.Add(kvp.Key);
 
-            kvpLog.Key = logKeys.Combine(", ");
-            kvpLogRuleSet.Key = logRuleSet;
+            kvpScenario.Key = scenarioKeys.Combine(", ");
+            kvpScenarioRuleSet.Key = scenarioRuleSet;
 
-            lbtnStresstest.Visible = false;
-            lbtnStresstest.Active = true;
+            lbtnStressTest.Visible = false;
+            lbtnStressTest.Active = true;
             foreach (var lbtnMonitor in _monitorLinkButtons) flpFastResultsHeader.Controls.Remove(lbtnMonitor);
             _monitorLinkButtons.Clear();
 
             if (_monitorConfigurationControlAndKeyValuePairControlVisible) {
                 if (monitors == null || monitors.Length == 0) {
-                    kvpMonitor.Key = "No Monitor(s)";
+                    kvpMonitor.Key = "No monitor(s)";
                     kvpMonitor.BackColor = Color.Orange;
                 } else {
-                    lbtnStresstest.Visible = true;
+                    lbtnStressTest.Visible = true;
                     kvpMonitor.Key = monitors.Combine(", ");
                     kvpMonitor.BackColor = Color.LightBlue;
 
@@ -187,8 +187,8 @@ namespace vApus.Stresstest {
         ///     Sets the label.
         /// </summary>
         /// <param name="start"></param>
-        public void SetStresstestStarted(DateTime at) {
-            _stresstestStartedAt = at;
+        public void SetStressTestStarted(DateTime at) {
+            _stressTestStartedAt = at;
             lblStarted.Text = "Test started at " + at.ToString("yyyy'-'MM'-'dd HH':'mm':'ss");
             epnlMessages.BeginOfTimeFrame = at;
         }
@@ -202,10 +202,10 @@ namespace vApus.Stresstest {
 
             dgvFastResults.RowCount = 0;
 
-            _concurrencyStresstestMetrics = new List<StresstestMetrics>();
-            _concurrencyStresstestMetricsRows = new List<object[]>();
-            _runStresstestMetrics = new List<StresstestMetrics>();
-            _runStresstestMetricsRows = new List<object[]>();
+            _concurrencyStressTestMetrics = new List<StressTestMetrics>();
+            _concurrencyStressTestMetricsRows = new List<object[]>();
+            _runStressTestMetrics = new List<StressTestMetrics>();
+            _runStressTestMetricsRows = new List<object[]>();
 
             _concurrencyMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
             _concurrencyMonitorMetricsRows = new Dictionary<string, List<object[]>>();
@@ -300,12 +300,12 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateFastConcurrencyResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
-            _concurrencyStresstestMetrics = metrics;
+        public void UpdateFastConcurrencyResults(List<StressTestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
+            _concurrencyStressTestMetrics = metrics;
             _simplifiedMetricsReturned = simplified;
-            _concurrencyStresstestMetricsRows = FastStresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
-            if (cboDrillDown.SelectedIndex == 0 && lbtnStresstest.Active) {
-                int count = _concurrencyStresstestMetricsRows.Count;
+            _concurrencyStressTestMetricsRows = FastStressTestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
+            if (cboDrillDown.SelectedIndex == 0 && lbtnStressTest.Active) {
+                int count = _concurrencyStressTestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
                 dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
@@ -343,12 +343,12 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateFastRunResults(List<StresstestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
-            _runStresstestMetrics = metrics;
+        public void UpdateFastRunResults(List<StressTestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
+            _runStressTestMetrics = metrics;
             _simplifiedMetricsReturned = simplified;
-            _runStresstestMetricsRows = FastStresstestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
+            _runStressTestMetricsRows = FastStressTestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
             if (cboDrillDown.SelectedIndex == 1) {
-                int count = _runStresstestMetricsRows.Count;
+                int count = _runStressTestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
                 dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
@@ -382,8 +382,8 @@ namespace vApus.Stresstest {
         }
         private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
-                if (lbtnStresstest.Active) {
-                    List<object[]> rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows);
+                if (lbtnStressTest.Active) {
+                    List<object[]> rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows);
                     if (rows.Count > e.RowIndex && rows[0].Length > e.ColumnIndex)
                         e.Value = rows[e.RowIndex][e.ColumnIndex];
                 } else {
@@ -458,7 +458,7 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     label updates in visibility
         /// </summary>
-        public void SetStresstestStopped() {
+        public void SetStressTestStopped() {
             lblUpdatesIn.Text = string.Empty;
             btnRerunning.Visible = false;
         }
@@ -466,29 +466,29 @@ namespace vApus.Stresstest {
         /// <summary>
         ///     label updates in visibility + label stopped forecolor and text.
         /// </summary>
-        /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
+        /// <param name="stressTestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        public void SetStresstestStopped(StresstestStatus stresstestResult, TimeSpan measuredRuntime, Exception exception = null) {
+        public void SetStressTestStopped(StressTestStatus stressTestResult, TimeSpan measuredRuntime) {
             SetMeasuredRuntime(measuredRuntime);
-            __SetStresstestStopped(stresstestResult);
+            __SetStressTestStopped(stressTestResult);
         }
 
         /// <summary>
         ///     label updates in visibility + label stopped forecolor and text.
         /// </summary>
-        /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
+        /// <param name="stressTestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        public void SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null) {
+        public void SetStressTestStopped(StressTestStatus stressTestResult) {
             SetMeasuredRuntime();
-            __SetStresstestStopped(stresstestResult);
+            __SetStressTestStopped(stressTestResult);
         }
 
         /// <summary>
         ///     label updates in visibility + label stopped forecolor and text.
         /// </summary>
-        /// <param name="stresstestResult">If == busy, the label text will be cleared.</param>
+        /// <param name="stressTestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        private void __SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null) {
+        private void __SetStressTestStopped(StressTestStatus stressTestResult, Exception exception = null) {
             try {
                 string message = null;
                 if (exception != null) {
@@ -498,8 +498,8 @@ namespace vApus.Stresstest {
                     AddEvent(message, Color.Red);
                 }
                 string lblStoppedText = null;
-                switch (stresstestResult) {
-                    case StresstestStatus.Ok:
+                switch (stressTestResult) {
+                    case StressTestStatus.Ok:
                         lblStoppedText = "and finished at " + epnlMessages.EndOfTimeFrame;
                         if (lblStopped.Text != lblStoppedText) {
                             lblStopped.ForeColor = Color.Green;
@@ -509,29 +509,29 @@ namespace vApus.Stresstest {
                             Loggers.Log(message);
                             AddEvent(message, Color.GreenYellow);
 
-                            SetStresstestStopped();
+                            SetStressTestStopped();
                         }
                         break;
-                    case StresstestStatus.Error:
+                    case StressTestStatus.Error:
                         lblStoppedText = "failed at " + epnlMessages.EndOfTimeFrame;
                         if (lblStopped.Text != lblStoppedText) {
                             lblStopped.ForeColor = Color.Red;
                             lblStopped.Text = lblStoppedText;
 
-                            SetStresstestStopped();
+                            SetStressTestStopped();
                         }
                         break;
-                    case StresstestStatus.Cancelled:
+                    case StressTestStatus.Cancelled:
                         lblStoppedText = "and cancelled at " + epnlMessages.EndOfTimeFrame;
                         if (lblStopped.Text != lblStoppedText) {
                             lblStopped.ForeColor = Color.Orange;
                             lblStopped.Text = lblStoppedText;
 
-                            message = "The stresstest was cancelled.";
+                            message = "The stress test was cancelled.";
                             Loggers.Log(message);
                             AddEvent(message, Color.Orange);
 
-                            SetStresstestStopped();
+                            SetStressTestStopped();
                         }
                         break;
                     default:
@@ -539,13 +539,13 @@ namespace vApus.Stresstest {
                         break;
                 }
             } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed setting stresstest stopped.", ex, new object[] { stresstestResult, exception });
+                Loggers.Log(Level.Error, "Failed setting stress test stopped.", ex, new object[] { stressTestResult, exception });
             }
         }
 
         public void SetEventFilter(EventViewEventType filter) { epnlMessages.Filter = filter; }
         /// <summary>
-        /// Append stresstest progress and error messages.
+        /// Append stress test progress and error messages.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="logLevel"></param>
@@ -554,7 +554,7 @@ namespace vApus.Stresstest {
             AddEvent(message, c[(int)logLevel], logLevel);
         }
         /// <summary>
-        /// Append stresstest progress and error messages.
+        /// Append stress test progress and error messages.
         /// </summary>
         /// <param name="message"></param>
         /// <param name="eventColor">a custom color if you need one</param>
@@ -600,8 +600,8 @@ namespace vApus.Stresstest {
         /// <param name="at"></param>
         public void ShowEvent(DateTime at) { epnlMessages.ShowEvent(at); }
 
-        private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) {
-            if (lbtnStresstest.Active) RefreshFastResults();
+        private void lbtnStressTest_ActiveChanged(object sender, EventArgs e) {
+            if (lbtnStressTest.Active) RefreshFastResults();
         }
         private void lbtnMonitor_ActiveChanged(object sender, EventArgs e) {
             if ((sender as LinkButton).Active) RefreshFastResults();
@@ -624,8 +624,8 @@ namespace vApus.Stresstest {
 
             string monitorToString = null;
             string[] columnHeaders = null;
-            if (lbtnStresstest.Active)
-                columnHeaders = cboDrillDown.SelectedIndex == 0 ? FastStresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked) : FastStresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
+            if (lbtnStressTest.Active)
+                columnHeaders = cboDrillDown.SelectedIndex == 0 ? FastStressTestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked) : FastStressTestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
             else {
                 foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
                 if (monitorToString != null)
@@ -659,11 +659,11 @@ namespace vApus.Stresstest {
             dgvFastResults.Columns.AddRange(clms);
 
             //Set the rows.
-            if (lbtnStresstest.Active)
+            if (lbtnStressTest.Active)
                 if (cboDrillDown.SelectedIndex == 0)
-                    UpdateFastConcurrencyResults(_concurrencyStresstestMetrics, false, _simplifiedMetricsReturned);
+                    UpdateFastConcurrencyResults(_concurrencyStressTestMetrics, false, _simplifiedMetricsReturned);
                 else
-                    UpdateFastRunResults(_runStresstestMetrics, false, _simplifiedMetricsReturned);
+                    UpdateFastRunResults(_runStressTestMetrics, false, _simplifiedMetricsReturned);
             else if (monitorToString != null)
                 if (cboDrillDown.SelectedIndex == 0)
                     UpdateFastConcurrencyResults(monitorToString, _concurrencyMonitorMetrics[monitorToString]);
@@ -674,7 +674,7 @@ namespace vApus.Stresstest {
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
             var sfd = new SaveFileDialog();
             sfd.Title = "Where do you want to save the displayed results?";
-            sfd.FileName = kvpStresstest.Key.ReplaceInvalidWindowsFilenameChars('_');
+            sfd.FileName = kvpStressTest.Key.ReplaceInvalidWindowsFilenameChars('_');
             sfd.Filter = "TXT|*.txt";
             if (sfd.ShowDialog() == DialogResult.OK)
                 try {
@@ -702,8 +702,8 @@ namespace vApus.Stresstest {
 
             //Select and write rows.
             List<object[]> rows = new List<object[]>();
-            if (lbtnStresstest.Active)
-                rows = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows;
+            if (lbtnStressTest.Active)
+                rows = cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows;
             else {
                 string monitorToString = null;
                 foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
@@ -763,7 +763,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void StresstestControl_SizeChanged(object sender, EventArgs e) {
+        private void FastResultsControl_SizeChanged(object sender, EventArgs e) {
             //SendMessageWrapper.SetWindowRedraw(Handle, false);
 
             epnlMessages.Collapsed = !epnlMessages.Collapsed;

@@ -60,7 +60,7 @@ namespace vApus.Server {
         }
 
         private void btnSet_Click(object sender, EventArgs e) {
-            StatusStopped(false);
+            StatusStopped();
             btnStart.Enabled = false;
             try {
                 _socketListener.SetPort((int)nudPort.Value, chkPreferred.Checked);
@@ -81,7 +81,7 @@ namespace vApus.Server {
                 _socketListener.Start();
                 CheckRunning();
             } catch (Exception ex) {
-                StatusStopped(true);
+                StatusStopped();
                 MessageBox.Show(ex.Message);
             }
             Cursor = Cursors.Default;
@@ -90,7 +90,7 @@ namespace vApus.Server {
         private void btnRestart_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
             try {
-                StatusStopped(true);
+                StatusStopped();
                 btnStart.Enabled = false;
                 _socketListener.Restart();
                 CheckRunning();
@@ -102,7 +102,7 @@ namespace vApus.Server {
 
         private void btnStop_Click(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-            StatusStopped(true);
+            StatusStopped();
             _socketListener.Stop();
             Cursor = Cursors.Default;
         }
@@ -111,7 +111,7 @@ namespace vApus.Server {
             chkPreferred.Text = "Preferred (now -> " + _socketListener.PreferredPort + ")";
             if (_socketListener.IsRunning) {
                 Cursor = Cursors.WaitCursor;
-                lblStatus.Text = "Status: Started";
+                lblStatus.Text = "Status: started";
 
                 txtHost.Text = Dns.GetHostName();
 
@@ -127,13 +127,13 @@ namespace vApus.Server {
                 chkPreferred.Enabled = _socketListener.Port != _socketListener.PreferredPort;
                 Cursor = Cursors.Default;
             } else {
-                StatusStopped(true);
+                StatusStopped();
             }
         }
 
-        private void StatusStopped(bool clearCBO) {
+        private void StatusStopped() {
             Cursor = Cursors.WaitCursor;
-            lblStatus.Text = "Status: Stopped";
+            lblStatus.Text = "Status: stopped";
 
             txtHost.Text = string.Empty;
 

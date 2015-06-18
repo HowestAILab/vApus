@@ -118,8 +118,8 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="Stresstest" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\stresstest.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="StressTest" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\stressTest.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="TextParameters" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\textparameters.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -145,8 +145,8 @@
   <data name="CustomRandomParameters" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\CustomRandomParameters.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="LogEntryError" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\logentryerror.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="RequestError" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\requesterror.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="NumericParameter" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\numericparameter.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -172,8 +172,8 @@
   <data name="PinGreyedOut" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\PinGreyedOut.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="LogEntryOK" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\logentryok.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="RequestOK" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\requestok.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="OK" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\ok.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -196,8 +196,8 @@
   <data name="IgnoreDelay" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\IgnoreDelay.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="LogRuleSet" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\LogRuleSet.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ScenarioRuleSet" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ScenarioRuleSet.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="UserAction" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\useraction.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -205,8 +205,8 @@
   <data name="Breakpoint" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Breakpoint.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Log" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\log.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Scenario" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\scenario.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="ConnectionProxyRuleSet" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\resources\connectionruleset.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -220,32 +220,29 @@
   <data name="ConnectionProxyCode" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Icon.16x16.Terminal.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="LogSyntaxItem" type="System.Resources.ResXFileRef, System.Windows.Forms">
+  <data name="ScenarioSyntaxItem" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\ConnectionSyntaxitem.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="StresstestProject" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\StresstestProject.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="StressTestProject" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\StressTestProject.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="RedetermineTokens" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\RedetermineTokens.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="LogEntryWarning" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\logentrywarning.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="RequestWarning" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\requestwarning.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="LogRuleSets" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\LogRuleSets.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="ScenarioRuleSets" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\ScenarioRuleSets.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Logs" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\logs.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Scenarios" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\scenarios.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Delay" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Delay.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Actionize" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Actionize.png;System.Drawing.Bitmap, System.Drawing, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="RedetermineTokens1" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\RedetermineTokens1.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="NotParallel" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\notparallel.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -271,7 +268,7 @@
   <data name="MoveUpGreyedOut" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\picMoveUpGreyedOut.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="LogEntryInParallelWithFirstEntry" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\logentryinparallelwithprevious.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="RequestInParallelWithFirstEntry" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\requestinparallelwithprevious.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>

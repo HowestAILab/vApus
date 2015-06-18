@@ -18,7 +18,7 @@ namespace vApus.Results {
         /// </summary>
         public ulong MonitorConfigurationId { get; set; }
         /// <summary>
-        ///     Set this when stresstesting.
+        ///     Set this when stress testing.
         /// </summary>
         public List<object[]> Rows { get; private set; }
         public string[] Headers { get; set; }

@@ -9,7 +9,7 @@ using System;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class CustomRandomParameterView : BaseSolutionComponentView {
 
         #region Constructors

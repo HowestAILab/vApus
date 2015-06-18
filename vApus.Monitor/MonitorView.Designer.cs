@@ -434,7 +434,7 @@
             // 
             // clmChosenCounters
             // 
-            this.clmChosenCounters.Text = "Chosen Counters";
+            this.clmChosenCounters.Text = "Chosen counters";
             this.clmChosenCounters.Width = 105;
             // 
             // imgListEntityState
@@ -546,7 +546,7 @@
             this.btnSaveFilteredMonitoredCounters.Name = "btnSaveFilteredMonitoredCounters";
             this.btnSaveFilteredMonitoredCounters.Size = new System.Drawing.Size(106, 24);
             this.btnSaveFilteredMonitoredCounters.TabIndex = 1;
-            this.btnSaveFilteredMonitoredCounters.Text = "Save Filtered...";
+            this.btnSaveFilteredMonitoredCounters.Text = "Save filtered...";
             this.toolTip.SetToolTip(this.btnSaveFilteredMonitoredCounters, "To filter the counters in a (large) counter collection. Wild card * can be used. " +
         "Not case sensitive. All entries are in OR-relation with each other.");
             this.btnSaveFilteredMonitoredCounters.UseVisualStyleBackColor = false;
@@ -565,7 +565,7 @@
             this.btnSaveAllMonitorCounters.Name = "btnSaveAllMonitorCounters";
             this.btnSaveAllMonitorCounters.Size = new System.Drawing.Size(78, 24);
             this.btnSaveAllMonitorCounters.TabIndex = 2;
-            this.btnSaveAllMonitorCounters.Text = "Save All...";
+            this.btnSaveAllMonitorCounters.Text = "Save all...";
             this.toolTip.SetToolTip(this.btnSaveAllMonitorCounters, "To filter the counters in a (large) counter collection. Wild card * can be used. " +
         "Not case sensitive. All entries are in OR-relation with each other.");
             this.btnSaveAllMonitorCounters.UseVisualStyleBackColor = false;

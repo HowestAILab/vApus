@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class SlaveTile
     {
@@ -32,9 +32,7 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(SlaveTile));
             this.label1 = new System.Windows.Forms.Label();
             this.nudPort = new vApus.Util.FixedNumericUpDown();
-            this.llblPA = new System.Windows.Forms.LinkLabel();
             this.llblTest = new System.Windows.Forms.LinkLabel();
-            this.label2 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.picDuplicate = new System.Windows.Forms.PictureBox();
@@ -52,7 +50,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(77, 13);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Slave on Port: ";
+            this.label1.Text = "Slave on port: ";
             // 
             // nudPort
             // 
@@ -78,19 +76,6 @@
             0});
             this.nudPort.ValueChanged += new System.EventHandler(this.nudPort_ValueChanged);
             // 
-            // llblPA
-            // 
-            this.llblPA.AutoEllipsis = true;
-            this.llblPA.Location = new System.Drawing.Point(95, 36);
-            this.llblPA.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
-            this.llblPA.Name = "llblPA";
-            this.llblPA.Size = new System.Drawing.Size(252, 13);
-            this.llblPA.TabIndex = 8;
-            this.llblPA.TabStop = true;
-            this.llblPA.Text = "...";
-            this.llblPA.Visible = false;
-            this.llblPA.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblPA_LinkClicked);
-            // 
             // llblTest
             // 
             this.llblTest.AutoEllipsis = true;
@@ -103,17 +88,6 @@
             this.llblTest.Text = "...";
             this.llblTest.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblTest_LinkClicked);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(3, 36);
-            this.label2.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(91, 13);
-            this.label2.TabIndex = 10;
-            this.label2.Text = "Processor Affinity:";
-            this.label2.Visible = false;
-            // 
             // label3
             // 
             this.label3.AutoSize = true;
@@ -122,7 +96,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(77, 13);
             this.label3.TabIndex = 11;
-            this.label3.Text = "Assigned Test:";
+            this.label3.Text = "Assigned test:";
             // 
             // toolTip
             // 
@@ -142,7 +116,7 @@
             this.picDuplicate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picDuplicate.TabIndex = 19;
             this.picDuplicate.TabStop = false;
-            this.toolTip.SetToolTip(this.picDuplicate, "Duplicate <ctrl+d>");
+            this.toolTip.SetToolTip(this.picDuplicate, "Duplicate <ctrl+d>.");
             this.picDuplicate.Click += new System.EventHandler(this.picDuplicate_Click);
             // 
             // picDelete
@@ -156,7 +130,7 @@
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picDelete.TabIndex = 18;
             this.picDelete.TabStop = false;
-            this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>");
+            this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>.");
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
             // SlaveTile
@@ -167,9 +141,7 @@
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.picDelete);
             this.Controls.Add(this.label3);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.llblTest);
-            this.Controls.Add(this.llblPA);
             this.Controls.Add(this.nudPort);
             this.Controls.Add(this.label1);
             this.Name = "SlaveTile";
@@ -186,9 +158,7 @@
 
         private System.Windows.Forms.Label label1;
         private Util.FixedNumericUpDown nudPort;
-        private System.Windows.Forms.LinkLabel llblPA;
         private System.Windows.Forms.LinkLabel llblTest;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picDuplicate;

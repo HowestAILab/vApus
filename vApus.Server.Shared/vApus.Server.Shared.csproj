@@ -28,6 +28,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
@@ -51,9 +52,9 @@
       <Project>{4a7f1649-6909-4fbc-b4e2-18cecfe5a144}</Project>
       <Name>vApus.SolutionTree</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Stresstest\vApus.Stresstest.csproj">
+    <ProjectReference Include="..\vApus.Stresstest\vApus.StressTest.csproj">
       <Project>{790522ab-42d5-4c39-83be-14244d8c3f22}</Project>
-      <Name>vApus.Stresstest</Name>
+      <Name>vApus.StressTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
       <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>

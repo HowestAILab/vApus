@@ -12,7 +12,7 @@ using vApus.SolutionTree;
 
 namespace vApus.Monitor {
     [ContextMenu(new[] { "Add_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
-        new[] { "Add Monitor", "Sort", "Clear", "Paste" })]
+        new[] { "Add monitor", "Sort", "Clear", "Paste" })]
     [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Insert, (Keys.Control | Keys.V) })]
     [DisplayName("Monitors")]
     public class MonitorProject : BaseProject {

@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest
+﻿namespace vApus.StressTest
 {
     partial class AddReferencesDialog
     {
@@ -61,7 +61,7 @@
             // 
             // clmAssemblyName
             // 
-            this.clmAssemblyName.Text = "Assembly Name";
+            this.clmAssemblyName.Text = "Assembly name";
             this.clmAssemblyName.Width = 87;
             // 
             // clmVersion
@@ -76,7 +76,7 @@
             // 
             // clmPublicKeyToken
             // 
-            this.clmPublicKeyToken.Text = "Public Key Token";
+            this.clmPublicKeyToken.Text = "Public key token";
             this.clmPublicKeyToken.Width = 96;
             // 
             // btnOK
@@ -149,7 +149,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Add References from Gac";
+            this.Text = "Add references from Gac";
             this.ResumeLayout(false);
             this.PerformLayout();
 

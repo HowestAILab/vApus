@@ -10,10 +10,10 @@
 using System;
 using System.ComponentModel;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary></summary>
     [Serializable]
-    public enum StresstestStatus {
+    public enum StressTestStatus {
         Busy = 0,
         Ok = 1,
         Cancelled = 2,

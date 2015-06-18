@@ -7,7 +7,7 @@
 //using System.Threading.Tasks;
 //using System.Threading.Tasks.Dataflow;
 
-//namespace vApus.Stresstest {
+//namespace vApus.StressTest {
 //    public class ActorPool : IDisposable {
 
 //        #region Events
@@ -65,7 +65,7 @@
 
 //        #region Con-/Destructor
 //        /// <summary>
-//        /// This is a single purpose actorpool, it is specifically designed to be able to execute one type of workload: An actor must communicate to a server app through the means of a connection proxy; time to last byte and delay must be added to (vApus,Results.)StresstestResult.
+//        /// This is a single purpose actorpool, it is specifically designed to be able to execute one type of workload: An actor must communicate to a server app through the means of a connection proxy; time to last byte and delay must be added to (vApus.Results.)StressTestResult.
 //        /// The CLR threadpool did not suffice due to the lack of control.
 //        /// </summary>
 //        /// <param name="workItemCallback">The delegate to the function each thread will execute. The index of the thread in the threadpool will be given with.</param>
@@ -103,9 +103,9 @@
 //        //}
 
 //        ///// <summary>
-//        /////  After SetThreads is called, execute this to do the actual stresstest. When this returns SetThreads must be called again to fill the threadpool with threads that are alive.
+//        /////  After SetThreads is called, execute this to do the actual stress test. When this returns SetThreads must be called again to fill the threadpool with threads that are alive.
 //        ///// </summary>
-//        ///// <param name="patternIndices">The patterns for delays and randomized log entries.</param>
+//        ///// <param name="patternIndices">The patterns for delays and randomized requests.</param>
 //        //public void DoWorkAndWaitForIdle() {
 //        //    if (IsDisposed)
 //        //        throw new Exception("Disposed");

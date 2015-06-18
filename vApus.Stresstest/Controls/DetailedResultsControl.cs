@@ -22,7 +22,7 @@ using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class DetailedResultsControl : UserControl {
         public event EventHandler ResultsDeleted;
 
@@ -36,7 +36,7 @@ namespace vApus.Stresstest {
         private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
 
-        private int[] _stresstestIds = new int[0];
+        private int[] _stressTestIds = new int[0];
 
         private int _currentSelectedIndex = -1; //The event is raised even when the index stays the same, this is used to avoid it;
 
@@ -139,7 +139,7 @@ namespace vApus.Stresstest {
         }
 
         private void lbtnvApusInstance_ActiveChanged(object sender, EventArgs e) { if (lbtnvApusInstance.Active)  SetConfig(_resultsHelper.GetvApusInstances()); }
-        private void lbtnStresstest_ActiveChanged(object sender, EventArgs e) { if (lbtnStresstest.Active)  SetConfig(_resultsHelper.GetStresstestConfigurations()); }
+        private void lbtnStressTest_ActiveChanged(object sender, EventArgs e) { if (lbtnStressTest.Active)  SetConfig(_resultsHelper.GetStressTestConfigurations()); }
         private void lbtnMonitors_ActiveChanged(object sender, EventArgs e) { if (lbtnMonitors.Active)  SetConfig(_resultsHelper.GetMonitors()); }
 
         private void SetConfig(string value) {
@@ -233,7 +233,7 @@ namespace vApus.Stresstest {
                         object first = "All monitors";
                         first.SetTag(0);
                         cboMonitors.Items.Add(first);
-                        foreach (var kvp in _resultsHelper.GetMonitors(_stresstestIds)) {
+                        foreach (var kvp in _resultsHelper.GetMonitors(_stressTestIds)) {
                             object item = kvp.Value;
                             item.SetTag(kvp.Key);
                             cboMonitors.Items.Add(item);
@@ -256,7 +256,7 @@ namespace vApus.Stresstest {
             if (_currentSelectedIndex == 6) {
                 DataTable dt = null;
                 if (monitorId == 0)
-                    dt = _resultsHelper.GetAverageMonitorResults(_cancellationTokenSource.Token, _stresstestIds);
+                    dt = _resultsHelper.GetAverageMonitorResults(_cancellationTokenSource.Token, _stressTestIds);
                 else
                     dt = _resultsHelper.GetAverageMonitorResultsByMonitorId(_cancellationTokenSource.Token, monitorId);
 
@@ -270,13 +270,13 @@ namespace vApus.Stresstest {
                     try {
                         DataTable dt = null;
                         switch (_currentSelectedIndex) {
-                            case 0: dt = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 1: dt = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 2: dt = _resultsHelper.GetAverageLogEntryResults(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 3: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 4: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 5: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stresstestIds); break;
-                            case 7: dt = _resultsHelper.GetLogs(_cancellationTokenSource.Token, _stresstestIds); break;
+                            case 0: dt = _resultsHelper.GetAverageConcurrencyResults(_cancellationTokenSource.Token, _stressTestIds); break;
+                            case 1: dt = _resultsHelper.GetAverageUserActionResults(_cancellationTokenSource.Token, _stressTestIds); break;
+                            case 2: dt = _resultsHelper.GetAverageRequestResults(_cancellationTokenSource.Token, _stressTestIds); break;
+                            case 3: dt = _resultsHelper.GetErrors(_cancellationTokenSource.Token, _stressTestIds); break;
+                            case 4: dt = _resultsHelper.GetUserActionComposition(_cancellationTokenSource.Token, _stressTestIds); break;
+                            case 5: dt = _resultsHelper.GetMachineConfigurations(_cancellationTokenSource.Token, _stressTestIds); break;
+                            case 7: dt = _resultsHelper.GetLogs(_cancellationTokenSource.Token, _stressTestIds); break;
                         }
                         if (OnResults != null)
                             foreach (EventHandler<OnResultsEventArgs> del in OnResults.GetInvocationList())
@@ -354,7 +354,7 @@ namespace vApus.Stresstest {
 
             var sfd = new SaveFileDialog();
             sfd.Title = "Where do you want to save the displayed results?";
-            //sfd.FileName = kvpStresstest.Key.ReplaceInvalidWindowsFilenameChars('_');
+            //sfd.FileName = kvpStressTest.Key.ReplaceInvalidWindowsFilenameChars('_');
             sfd.Filter = "TXT|*.txt";
 
             if (_resultsHelper.DatabaseName != null)
@@ -489,15 +489,15 @@ namespace vApus.Stresstest {
         /// Refresh after testing.
         /// </summary>
         /// <param name="resultsHelper">Give hte helper that made the db</param>
-        /// <param name="stresstestIds">Filter on one or more stresstests, if this is empty no filter is applied.</param>
-        public void RefreshResults(ResultsHelper resultsHelper, params int[] stresstestIds) {
+        /// <param name="stressTestIds">Filter on one or more stress tests, if this is empty no filter is applied.</param>
+        public void RefreshResults(ResultsHelper resultsHelper, params int[] stressTestIds) {
             if (_cancellationTokenSource != null) _cancellationTokenSource.Cancel();
 
             this.Enabled = false;
 
             _resultsHelper = resultsHelper;
             if (_resultsHelper != null) _resultsHelper.ClearCache(); //Keeping the cache as clean as possible.
-            _stresstestIds = stresstestIds;
+            _stressTestIds = stressTestIds;
             foreach (var ctrl in flpConfiguration.Controls)
                 if (ctrl is LinkButton) {
                     var lbtn = ctrl as LinkButton;

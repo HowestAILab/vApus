@@ -14,7 +14,7 @@ using vApus.Util;
 
 namespace vApus.Results {
     internal abstract class BaseResultSetCalculator {
-        public abstract DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds);
+        public abstract DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds);
         protected DataTable CreateEmptyDataTable(string name, params string[] columnNames) {
             var objectType = typeof(object);
             var dataTable = new DataTable(name);
@@ -27,9 +27,9 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="databaseActions"></param>
         /// <param name="cancellationToken"></param>
-        /// <param name="stresstestIds"></param>
+        /// <param name="stressTestIds"></param>
         /// <returns>Label and data table</returns>
-        protected abstract ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds);
+        protected abstract ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds);
         /// <summary>
         /// 
         /// </summary>
@@ -39,7 +39,7 @@ namespace vApus.Results {
         /// <param name="threads"></param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        protected DataTable[] GetLogEntryResultsThreaded(DatabaseActions databaseActions, CancellationToken cancellationToken, DataTable runResults, int threads, params string[] columns) {
+        protected DataTable[] GetRequestResultsThreaded(DatabaseActions databaseActions, CancellationToken cancellationToken, DataTable runResults, int threads, params string[] columns) {
             int runCount = runResults.Rows.Count;
 
             //Adaptive parallelization.
@@ -72,7 +72,7 @@ namespace vApus.Results {
                 using (var dba = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString, CommandTimeout = 600 }) {
                     if (cancellationToken.IsCancellationRequested) loopState.Break();
                     try {
-                        parts[i] = ReaderAndCombiner.GetLogEntryResults(cancellationToken, dba, runResultIds[i], columns);
+                        parts[i] = ReaderAndCombiner.GetRequestyResults(cancellationToken, dba, runResultIds[i], columns);
                     } catch { 
                     }
                 }

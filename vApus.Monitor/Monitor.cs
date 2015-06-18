@@ -61,7 +61,7 @@ namespace vApus.Monitor {
             set { _monitorSourceClientName = value; }
         }
 
-        [DisplayName("Monitor Source"), PropertyControl(1)]
+        [DisplayName("Monitor source"), PropertyControl(1)]
         public MonitorSourceClient MonitorSource {
             get {
                 _monitorSourceClient.SetParent(_monitorSourceClients);

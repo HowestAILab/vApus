@@ -14,7 +14,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class ConnectionProxyCodeView : BaseSolutionComponentView {
 
         #region Fields

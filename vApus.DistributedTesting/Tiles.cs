@@ -7,7 +7,7 @@
  */
 using vApus.SolutionTree;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public class Tiles : BaseItem {
         public Tiles() { ShowInGui = false; }
     }

@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class WizardConnectionUsage
     {
@@ -137,7 +137,7 @@
             this.lblDefaultTo.Name = "lblDefaultTo";
             this.lblDefaultTo.Size = new System.Drawing.Size(405, 50);
             this.lblDefaultTo.TabIndex = 1;
-            this.lblDefaultTo.Text = "The used connection defines the name of the tile stresstest.\r\nOther settings are " +
+            this.lblDefaultTo.Text = "The used connection defines the name of the tile stress test.\r\nOther settings are " +
                 "defaulted to ";
             // 
             // toolTip

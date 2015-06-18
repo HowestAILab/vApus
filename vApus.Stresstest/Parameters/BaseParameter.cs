@@ -13,9 +13,9 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
-    /// Values in log entries can be parameterized when stresstesting by the means of adding parameter tokens. This class is the base for all parameters.
+    /// Values in requests can be parameterized when stress testing by the means of adding parameter tokens. This class is the base for all parameters.
     /// </summary>
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit", "Remove", "Export", "Copy", "Cut", "Duplicate" })]
@@ -32,7 +32,6 @@ namespace vApus.Stresstest {
 
         #region Fields
         internal HashSet<object> _chosenValues = new HashSet<object>();
-        internal string _description = string.Empty;
 
         protected object _lock = new object();
         protected int _tokenNumericIdentifier = -1;
@@ -42,7 +41,7 @@ namespace vApus.Stresstest {
         public string Value { get; internal set; }
 
         /// <summary>
-        ///     To synchronize the numeric portion of the parameter token in the log entries when a parameter is added or removed.
+        ///     To synchronize the numeric portion of the parameter token in the requests when a parameter is added or removed.
         ///     (One-based)
         /// </summary>
         public int TokenNumericIdentifier {
@@ -57,8 +56,8 @@ namespace vApus.Stresstest {
             set { Interlocked.Exchange(ref _tokenNumericIdentifier, value); }
         }
 
-        [PropertyControl(int.MaxValue), DisplayName("Read Me")]
-        public string ReadMe { get { return "All parameter values are determined before the stresstest starts."; } }
+        [PropertyControl(int.MaxValue), DisplayName("Read me")]
+        public string ReadMe { get { return "All parameter values are determined before the stress test starts."; } }
 
         private void DetermineTokenNumericIdentifier() {
             _tokenNumericIdentifier = 0;

@@ -282,7 +282,7 @@ namespace vApus.RPCServer {
                         Console.Write("In: " + message);
 
                         BeginReceive(socketWrapper);
-                        message = CommunicationHandler.HandleMessage(socketWrapper, message);
+                        message = CommunicationHandler.HandleMessage(message);
                         Console.WriteLine(" Out: " + message);
 
                         message = message.Encrypt(vApus.RPCServer.Properties.Settings.Default.apikey.ToString(), Salt);

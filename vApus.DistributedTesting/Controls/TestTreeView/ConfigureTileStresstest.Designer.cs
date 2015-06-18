@@ -1,6 +1,6 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
-    partial class ConfigureTileStresstest
+    partial class ConfigureTileStressTest
     {
         /// <summary> 
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigureTileStresstest));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigureTileStressTest));
             this.solutionComponentPropertyPanelBasic = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.solutionComponentPropertyPanelAdvanced = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.llblShowHideAdvancedSettings = new System.Windows.Forms.LinkLabel();
@@ -37,7 +37,7 @@
             this.lblUseRDP = new System.Windows.Forms.Label();
             this.lblRunSync = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.defaultAdvancedSettingsToControl = new vApus.DistributedTesting.DefaultAdvancedSettingsToControl();
+            this.defaultAdvancedSettingsToControl = new vApus.DistributedTest.DefaultAdvancedSettingsToControl();
             this.SuspendLayout();
             // 
             // solutionComponentPropertyPanelBasic
@@ -90,8 +90,8 @@
             this.lblUsage.Name = "lblUsage";
             this.lblUsage.Size = new System.Drawing.Size(489, 26);
             this.lblUsage.TabIndex = 3;
-            this.lblUsage.Text = "Add Tiles to the Distributed Test and Tile Stresstests to a Tile clicking the \'+ " +
-    "button\'.\r\nSelect a Tile Stresstest to configure it.";
+            this.lblUsage.Text = "Add Tiles to the Distributed Test and Tile Stress Tests to a Tile clicking the \'+ " +
+    "button\'.\r\nSelect a Tile Stress Test to configure it.";
             this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             // 
             // lblUseRDP
@@ -105,8 +105,8 @@
             this.lblUseRDP.Size = new System.Drawing.Size(591, 26);
             this.lblUseRDP.TabIndex = 4;
             this.lblUseRDP.Text = "Check \'Use RDP\' if you want vApus to open remote desktop connections to the used " +
-    "clients.\r\nRegardless whether you check it or not, you need to be logged into the" +
-    " clients to be able to stresstest.";
+    "clients.\r\nRegardless whether you check this or not, you need to be logged into the" +
+    " clients to be able to stress test.";
             this.lblUseRDP.Visible = false;
             // 
             // lblRunSync
@@ -134,7 +134,7 @@
             this.defaultAdvancedSettingsToControl.Visible = false;
             this.defaultAdvancedSettingsToControl.CheckChanged += new System.EventHandler(this.defaultAdvancedSettingsToControl_CheckChanged);
             // 
-            // ConfigureTileStresstest
+            // ConfigureTileStressTest
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -147,7 +147,7 @@
             this.Controls.Add(this.solutionComponentPropertyPanelBasic);
             this.Controls.Add(this.llblShowHideAdvancedSettings);
             this.Controls.Add(this.defaultAdvancedSettingsToControl);
-            this.Name = "ConfigureTileStresstest";
+            this.Name = "ConfigureTileStressTest";
             this.Size = new System.Drawing.Size(740, 483);
             this.ResumeLayout(false);
             this.PerformLayout();

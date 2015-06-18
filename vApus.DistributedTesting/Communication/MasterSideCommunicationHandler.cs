@@ -17,10 +17,10 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using vApus.Server.Shared;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
     /// Handles sending to and receiving from slaves / jumpstart service.
     /// </summary>
@@ -29,8 +29,6 @@ namespace vApus.DistributedTesting {
         #region Events
         public static event EventHandler<ListeningErrorEventArgs> ListeningError;
         public static event EventHandler<TestProgressMessageReceivedEventArgs> OnTestProgressMessageReceived;
-
-        public static event EventHandler<TestInitializedEventArgs> TestInitialized;
         #endregion
 
         #region Fields
@@ -40,7 +38,6 @@ namespace vApus.DistributedTesting {
         //A slave side and a master side socket wrappers for full duplex communication.
         private static Dictionary<SocketWrapper, SocketWrapper> _connectedSlaves = new Dictionary<SocketWrapper, SocketWrapper>();
         private static AsyncCallback _onReceiveCallBack;
-        private static IAsyncResult _asyncResult;
 
         //When sending a continue --> continue to the right run.
         private static int _continueCounter = -1;
@@ -280,19 +277,7 @@ namespace vApus.DistributedTesting {
             socketWrapper.ReceiveTimeout = -1;
             return message;
         }
-        /// <summary>
-        /// Thread safe
-        /// </summary>
-        /// <param name="socketWrapper"></param>
-        /// <param name="message"></param>
-        /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
-        /// <returns></returns>
-        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Message<Key> message, int tempSendReceiveTimeout = -1) {
-            lock (_lock) {
-                Send(socketWrapper, message, tempSendReceiveTimeout);
-                return Receive(socketWrapper, tempSendReceiveTimeout);
-            }
-        }
+
         /// <summary>
         /// Thread safe
         /// </summary>
@@ -405,7 +390,6 @@ namespace vApus.DistributedTesting {
             }
         }
         private static void OnReceive(IAsyncResult result) {
-            _asyncResult = result;
             SocketWrapper socketWrapper = (SocketWrapper)result.AsyncState;
             try {
                 socketWrapper.Socket.EndReceive(result);
@@ -451,16 +435,6 @@ namespace vApus.DistributedTesting {
                 }
             }
         }
-        private static void InvokeTestInitialized(TileStresstest tileStresstest, Exception ex) {
-            lock (_lock) {
-                if (TestInitialized != null) {
-                    var invocationList = TestInitialized.GetInvocationList();
-                    Parallel.For(0, invocationList.Length, (i) => {
-                        (invocationList[i] as EventHandler<TestInitializedEventArgs>).Invoke(null, new TestInitializedEventArgs(tileStresstest, ex));
-                    });
-                }
-            }
-        }
         #endregion
 
         #region Public
@@ -476,7 +450,6 @@ namespace vApus.DistributedTesting {
 
             DisconnectSlaves();
             _onReceiveCallBack = null;
-            _asyncResult = null;
 
             _continueCounter = -1;
         }
@@ -542,18 +515,14 @@ namespace vApus.DistributedTesting {
         /// 
         /// No timeouts (except for the synchronization of the buffers (30 seconds)), this can take a while.
         /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <param name="tileStresstest"></param>
-        /// <param name="exception"></param>
-        public static Exception InitializeTests(Dictionary<TileStresstest, TileStresstest> dividedAndOriginalTileStresstests, List<int> stresstestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public static Exception InitializeTests(Dictionary<TileStressTest, TileStressTest> dividedAndOriginalTileStressTests, List<int> stressTestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             Exception exception = null;
-            var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStresstests.Count];
+            var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStressTests.Count];
             var functionOutputCache = new FunctionOutputCache();
 
-            int tileStresstestIndex = 0;
-            foreach (var tileStresstest in dividedAndOriginalTileStresstests.Keys) {
-                var slave = tileStresstest.BasicTileStresstest.Slaves[0];
+            int tileStressTestIndex = 0;
+            foreach (var tileStressTest in dividedAndOriginalTileStressTests.Keys) {
+                var slave = tileStressTest.BasicTileStressTest.Slaves[0];
                 Exception ex;
                 var socketWrapper = Get(slave.IP, slave.Port, out ex);
                 if (ex != null) {
@@ -568,12 +537,12 @@ namespace vApus.DistributedTesting {
                         pushIPs.Add(ipAddress.ToString());
                 }
                 var initializeTestMessage = new InitializeTestMessage() {
-                    StresstestWrapper = tileStresstest.GetStresstestWrapper(functionOutputCache, stresstestIdsInDb[tileStresstestIndex], databaseName, runSynchronization, maxRerunsBreakOnLast),
+                    StressTestWrapper = tileStressTest.GetStressTestWrapper(functionOutputCache, stressTestIdsInDb[tileStressTestIndex], databaseName, runSynchronization, maxRerunsBreakOnLast),
                     PushIPs = pushIPs.ToArray(), PushPort = masterSocketWrapper.Port
                 };
 
-                initializeTestData[tileStresstestIndex] = new InitializeTestWorkItem.InitializeTestData() { SocketWrapper = socketWrapper, InitializeTestMessage = initializeTestMessage };
-                ++tileStresstestIndex;
+                initializeTestData[tileStressTestIndex] = new InitializeTestWorkItem.InitializeTestData() { SocketWrapper = socketWrapper, InitializeTestMessage = initializeTestMessage };
+                ++tileStressTestIndex;
             }
             functionOutputCache.Dispose();
             functionOutputCache = null;
@@ -665,8 +634,6 @@ namespace vApus.DistributedTesting {
         /// <summary>
         /// The retry count is 3 with a send and a receive timeout of 30 seconds.
         /// </summary>
-        /// <param name="tileStresstest"></param>
-        /// <param name="exception"></param>
         public static Exception[] StopTest() {
             lock (_stopLock) {
                 var exceptions = new ConcurrentBag<Exception>();
@@ -731,9 +698,6 @@ namespace vApus.DistributedTesting {
             /// <summary>
             /// 
             /// </summary>
-            /// <param name="tileStresstest"></param>
-            /// <param name="stresstestIdInDb">-1 for none.</param>
-            /// <param name="runSynchronization"></param>
             /// <returns></returns>
             public Exception InitializeTest(InitializeTestWorkItem.InitializeTestData initializeTestData) {
                 Exception exception = null;
@@ -761,7 +725,7 @@ namespace vApus.DistributedTesting {
                 } catch (Exception ex) {
                     exception = ex;
                 }
-                // InvokeTestInitialized(tileStresstest, exception);
+                // InvokeTestInitialized(tileStressTest, exception);
 
                 return exception;
             }

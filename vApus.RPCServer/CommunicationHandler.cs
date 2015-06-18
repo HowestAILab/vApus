@@ -19,7 +19,7 @@ using System.Windows.Forms;
 using vApus.Util;
 
 namespace vApus.RPCServer {
-    internal class CommunicationHandler {
+    internal static class CommunicationHandler {
         private delegate string HandleMessageDelegate(string message);
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace vApus.RPCServer {
             //The rest that starts with "/" is communicated to vApus.
         }
 
-        internal static string HandleMessage(vApus.Util.SocketWrapper socketWrapper, string message) {
+        internal static string HandleMessage(string message) {
             foreach (string path in _delegates.Keys) {
                 if (Match(message, path))
                     try {

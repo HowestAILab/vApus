@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class Wizard
     {
@@ -58,7 +58,6 @@
             this.rdbStartFromScratch = new System.Windows.Forms.RadioButton();
             this.rdbAppendTiles = new System.Windows.Forms.RadioButton();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.clmIPorHostName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmUserName = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.clmDomain = new System.Windows.Forms.DataGridViewTextBoxColumn();
@@ -116,7 +115,7 @@
             this.chkReview.Name = "chkReview";
             this.chkReview.Size = new System.Drawing.Size(261, 17);
             this.chkReview.TabIndex = 27;
-            this.chkReview.Text = "Review Connection Usage before Closing";
+            this.chkReview.Text = "Review connection usage before closing";
             this.chkReview.UseVisualStyleBackColor = true;
             // 
             // btnRefresh
@@ -185,7 +184,7 @@
             this.btnOK.Size = new System.Drawing.Size(75, 23);
             this.btnOK.TabIndex = 21;
             this.btnOK.Text = "OK";
-            this.toolTip.SetToolTip(this.btnOK, "Connections will be redistributed over existing tile stresstests if needed.");
+            this.toolTip.SetToolTip(this.btnOK, "Connections will be redistributed over existing tile stress tests if needed.");
             this.btnOK.UseVisualStyleBackColor = true;
             this.btnOK.Click += new System.EventHandler(this.btnOK_Click);
             // 
@@ -197,7 +196,7 @@
             this.lblNotAssignedTests.Name = "lblNotAssignedTests";
             this.lblNotAssignedTests.Size = new System.Drawing.Size(175, 13);
             this.lblNotAssignedTests.TabIndex = 20;
-            this.lblNotAssignedTests.Text = "0 Tests are not assigned to a slave.";
+            this.lblNotAssignedTests.Text = "0 tests are not assigned to a slave.";
             // 
             // nudTests
             // 
@@ -210,7 +209,7 @@
             this.nudTests.Name = "nudTests";
             this.nudTests.Size = new System.Drawing.Size(50, 20);
             this.nudTests.TabIndex = 14;
-            this.toolTip.SetToolTip(this.nudTests, "Default value is based on the number of stresstests in the solution.");
+            this.toolTip.SetToolTip(this.nudTests, "Default value is based on the number of stress tests in the solution.");
             this.nudTests.Value = new decimal(new int[] {
             1,
             0,
@@ -241,7 +240,7 @@
             this.label8.Name = "label8";
             this.label8.Size = new System.Drawing.Size(126, 13);
             this.label8.TabIndex = 12;
-            this.label8.Text = "Number of Tests per Tile:";
+            this.label8.Text = "Number of tests per tile:";
             // 
             // label7
             // 
@@ -250,7 +249,7 @@
             this.label7.Name = "label7";
             this.label7.Size = new System.Drawing.Size(84, 13);
             this.label7.TabIndex = 11;
-            this.label7.Text = "Number of Tiles:";
+            this.label7.Text = "Number of tiles:";
             // 
             // label6
             // 
@@ -259,7 +258,7 @@
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(108, 13);
             this.label6.TabIndex = 7;
-            this.label6.Text = "Run Synchronization:";
+            this.label6.Text = "Run synchronization:";
             // 
             // pnlRunSync
             // 
@@ -297,10 +296,10 @@
             this.chkUseRDP.Name = "chkUseRDP";
             this.chkUseRDP.Size = new System.Drawing.Size(205, 17);
             this.chkUseRDP.TabIndex = 5;
-            this.chkUseRDP.Text = "Use the vApus Remote Desktop Client";
+            this.chkUseRDP.Text = "Use remote desktop";
             this.toolTip.SetToolTip(this.chkUseRDP, "Check this if you want vApus to open remote desktop connections to the used clien" +
         "ts.\r\nRegardless if you check it or not, you need to be logged into the clients t" +
-        "o be able to stresstest.");
+        "o be able to stress test.");
             this.chkUseRDP.UseVisualStyleBackColor = true;
             this.chkUseRDP.CheckedChanged += new System.EventHandler(this.chkUseRDP_CheckedChanged);
             // 
@@ -313,7 +312,7 @@
             this.label3.Name = "label3";
             this.label3.Size = new System.Drawing.Size(138, 13);
             this.label3.TabIndex = 2;
-            this.label3.Text = "Add Clients and Slaves";
+            this.label3.Text = "Add clients and slaves";
             // 
             // label2
             // 
@@ -324,7 +323,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(141, 13);
             this.label2.TabIndex = 1;
-            this.label2.Text = "Generate and Add Tiles";
+            this.label2.Text = "Generate and add tiles";
             // 
             // label1
             // 
@@ -335,7 +334,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(127, 13);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Default Test Settings";
+            this.label1.Text = "Default test settings";
             // 
             // nudSlavesPerClient
             // 
@@ -349,7 +348,7 @@
             this.nudSlavesPerClient.Name = "nudSlavesPerClient";
             this.nudSlavesPerClient.Size = new System.Drawing.Size(50, 20);
             this.nudSlavesPerClient.TabIndex = 19;
-            this.toolTip.SetToolTip(this.nudSlavesPerClient, "Default value is based on the number of stresstests in the solution.");
+            this.toolTip.SetToolTip(this.nudSlavesPerClient, "Default value is based on the number of stress tests in the solution.");
             this.nudSlavesPerClient.Value = new decimal(new int[] {
             1,
             0,
@@ -374,9 +373,9 @@
             this.rdbDoNotAddTiles.Name = "rdbDoNotAddTiles";
             this.rdbDoNotAddTiles.Size = new System.Drawing.Size(230, 17);
             this.rdbDoNotAddTiles.TabIndex = 2;
-            this.rdbDoNotAddTiles.Text = "Only Reassign the Stresstests to the Slaves";
-            this.toolTip.SetToolTip(this.rdbDoNotAddTiles, "No Tiles are added to the distributed test if you choose this.\r\nConnections will " +
-        "be redistributed over existing tile stresstests if needed.");
+            this.rdbDoNotAddTiles.Text = "Only reassign the stress tests to the slaves";
+            this.toolTip.SetToolTip(this.rdbDoNotAddTiles, "No tiles are added to the distributed test if you choose this.\r\nConnections will " +
+        "be redistributed over existing tile stress tests if needed.");
             this.rdbDoNotAddTiles.UseVisualStyleBackColor = true;
             this.rdbDoNotAddTiles.CheckedChanged += new System.EventHandler(this.rdbsGenerateAndtAddTiles_CheckedChanged);
             // 
@@ -387,7 +386,7 @@
             this.rdbStartFromScratch.Name = "rdbStartFromScratch";
             this.rdbStartFromScratch.Size = new System.Drawing.Size(110, 17);
             this.rdbStartFromScratch.TabIndex = 1;
-            this.rdbStartFromScratch.Text = "Start from Scratch";
+            this.rdbStartFromScratch.Text = "Start from scratch";
             this.toolTip.SetToolTip(this.rdbStartFromScratch, "Remove the existing tiles and add new ones.");
             this.rdbStartFromScratch.UseVisualStyleBackColor = true;
             this.rdbStartFromScratch.CheckedChanged += new System.EventHandler(this.rdbsGenerateAndtAddTiles_CheckedChanged);
@@ -401,8 +400,8 @@
             this.rdbAppendTiles.Size = new System.Drawing.Size(87, 17);
             this.rdbAppendTiles.TabIndex = 0;
             this.rdbAppendTiles.TabStop = true;
-            this.rdbAppendTiles.Text = "Append Tiles";
-            this.toolTip.SetToolTip(this.rdbAppendTiles, "Connections will be redistributed over existing tile stresstests if needed.");
+            this.rdbAppendTiles.Text = "Append tiles";
+            this.toolTip.SetToolTip(this.rdbAppendTiles, "Connections will be redistributed over existing tile stress tests if needed.");
             this.rdbAppendTiles.UseVisualStyleBackColor = true;
             this.rdbAppendTiles.CheckedChanged += new System.EventHandler(this.rdbsGenerateAndtAddTiles_CheckedChanged);
             // 
@@ -514,7 +513,6 @@
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Label lblNotAssignedTests;
         private System.Windows.Forms.DataGridView dgvClients;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.Button btnRefresh;
         private System.Windows.Forms.Panel pnlGenerateAndAddTiles;
         private System.Windows.Forms.RadioButton rdbStartFromScratch;

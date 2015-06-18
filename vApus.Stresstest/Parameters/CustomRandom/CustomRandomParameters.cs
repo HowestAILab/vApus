@@ -13,11 +13,11 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Add_Click", "Import_Click", "Clear_Click", "Paste_Click" },
-        new[] { "Add Custom Parameter", "Import Parameter(s)", "Clear", "Paste" })]
+        new[] { "Add custom parameter", "Import parameter(s)", "Clear", "Paste" })]
     [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Insert, (Keys.Control | Keys.V) })]
-    [DisplayName("Custom Random Parameters")]
+    [DisplayName("Custom random parameters")]
     [Serializable]
     public class CustomRandomParameters : BaseItem, ISerializable {
     

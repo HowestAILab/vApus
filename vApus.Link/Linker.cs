@@ -5,10 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using vApus.DistributedTesting;
+using vApus.DistributedTest;
 using vApus.Monitor;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 
 namespace vApus.Link {
     /// <summary>
@@ -17,9 +17,9 @@ namespace vApus.Link {
     /// </summary>
     public static class Linker {
         public static void Link() {
-            Solution.RegisterProjectType(typeof(DistributedTestingProject));
+            Solution.RegisterProjectType(typeof(DistributedTestProject));
             Solution.RegisterProjectType(typeof(MonitorProject));
-            Solution.RegisterProjectType(typeof(StresstestProject));
+            Solution.RegisterProjectType(typeof(StressTestProject));
         }
     }
 }

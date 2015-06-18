@@ -47,7 +47,7 @@
     <DebugType>pdbonly</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
     <DebugSymbols>true</DebugSymbols>
@@ -117,7 +117,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="DataAccess\AverageConcurrencyResultsCalculator.cs" />
-    <Compile Include="DataAccess\AverageLogEntryResultsCalculator.cs" />
+    <Compile Include="DataAccess\AverageRequestResultsCalculator.cs" />
     <Compile Include="DataAccess\AverageUserActionResultsCalculator.cs" />
     <Compile Include="DataAccess\BaseResultSetCalculator.cs" />
     <Compile Include="DataAccess\ResponseTimeDistributionPerConcurrencyCalculator.cs" />
@@ -143,13 +143,13 @@
     <Compile Include="RichExportToExcelDialog.Designer.cs">
       <DependentUpon>RichExportToExcelDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Metrics\DetailedStresstestMetricsHelper.cs" />
+    <Compile Include="Metrics\DetailedStressTestMetricsHelper.cs" />
     <Compile Include="Metrics\MonitorMetrics.cs" />
     <Compile Include="Metrics\MonitorMetricsCache.cs" />
     <Compile Include="Metrics\MonitorMetricsHelper.cs" />
-    <Compile Include="Metrics\StresstestMetrics.cs" />
-    <Compile Include="Metrics\FastStresstestMetricsCache.cs" />
-    <Compile Include="Metrics\FastStresstestMetricsHelper.cs" />
+    <Compile Include="Metrics\StressTestMetrics.cs" />
+    <Compile Include="Metrics\FastStressTestMetricsCache.cs" />
+    <Compile Include="Metrics\FastStressTestMetricsHelper.cs" />
     <Compile Include="Results\MonitorResult.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
@@ -165,7 +165,7 @@
     </Compile>
     <Compile Include="ConnectionStringManager.cs" />
     <Compile Include="Results\ConcurrencyResult.cs" />
-    <Compile Include="Results\LogEntryResult.cs" />
+    <Compile Include="Results\RequestResult.cs" />
     <Compile Include="Results\RunResult.cs" />
     <Compile Include="Results\StresstestResult.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

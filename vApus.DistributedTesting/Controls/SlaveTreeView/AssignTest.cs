@@ -9,18 +9,18 @@
 using System;
 using System.Windows.Forms;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public partial class AssignTest : Form {
-        private TileStresstest _assignedTest;
+        private TileStressTest _assignedTest;
         private bool _goToAssignedTest;
 
         public AssignTest() {
             InitializeComponent();
         }
 
-        public AssignTest(DistributedTest distributedTest, TileStresstest currentTileStresstest)
+        public AssignTest(DistributedTest distributedTest, TileStressTest currentTileStressTest)
             : this() {
-            _assignedTest = currentTileStresstest;
+            _assignedTest = currentTileStressTest;
             foreach (Tile t in distributedTest.Tiles) {
                 var node = new TreeNode(t.ToString());
                 node.Tag = t;
@@ -37,38 +37,38 @@ namespace vApus.DistributedTesting {
             get { return _goToAssignedTest; }
         }
 
-        public TileStresstest AssignedTest {
+        public TileStressTest AssignedTest {
             get { return _assignedTest; }
         }
 
         private void tvwTiles_AfterSelect(object sender, TreeViewEventArgs e) {
             btnClear.Enabled = btnAssign.Enabled = btnAssignAndGoTo.Enabled = false;
-            tvwTileStresstests.Nodes.Clear();
+            tvwTileStressTests.Nodes.Clear();
 
             var t = tvwTiles.SelectedNode.Tag as Tile;
-            foreach (TileStresstest ts in t) {
+            foreach (TileStressTest ts in t) {
                 string label = ts.Index + ") " +
-                               ((ts.BasicTileStresstest.Connection == null || ts.BasicTileStresstest.Connection.IsEmpty)
+                               ((ts.BasicTileStressTest.Connection == null || ts.BasicTileStressTest.Connection.IsEmpty)
                                     ? string.Empty
-                                    : ts.BasicTileStresstest.Connection.ToString());
+                                    : ts.BasicTileStressTest.Connection.ToString());
 
                 var node = new TreeNode(label);
                 node.ToolTipText = ts.ToString();
                 node.Tag = ts;
-                tvwTileStresstests.Nodes.Add(node);
+                tvwTileStressTests.Nodes.Add(node);
             }
 
             if (_assignedTest != null && t.Contains(_assignedTest)) {
                 Focus();
-                tvwTileStresstests.SelectedNode = tvwTileStresstests.Nodes[_assignedTest.Index - 1];
-            } else if (tvwTileStresstests.Nodes.Count != 0) {
+                tvwTileStressTests.SelectedNode = tvwTileStressTests.Nodes[_assignedTest.Index - 1];
+            } else if (tvwTileStressTests.Nodes.Count != 0) {
                 Focus();
-                tvwTileStresstests.SelectedNode = tvwTileStresstests.Nodes[0];
+                tvwTileStressTests.SelectedNode = tvwTileStressTests.Nodes[0];
             }
         }
 
-        private void tvwTileStresstests_AfterSelect(object sender, TreeViewEventArgs e) {
-            _assignedTest = tvwTileStresstests.SelectedNode.Tag as TileStresstest;
+        private void tvwTileStressTests_AfterSelect(object sender, TreeViewEventArgs e) {
+            _assignedTest = tvwTileStressTests.SelectedNode.Tag as TileStressTest;
             btnClear.Enabled = btnAssign.Enabled = btnAssignAndGoTo.Enabled = true;
         }
 

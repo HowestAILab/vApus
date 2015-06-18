@@ -1,13 +1,11 @@
 ﻿<?xml version='1.0' encoding='utf-8'?>
-
-<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)"
-              GeneratedClassNamespace="vApus.SolutionTree.Properties" GeneratedClassName="Settings">
+<SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="vApus.SolutionTree.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
     <Setting Name="RecentSolutions" Type="System.Collections.Specialized.StringCollection" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="StresstestingSolutionExplorerDockState" Type="System.Int32" Scope="User">
+    <Setting Name="StressTestingSolutionExplorerDockState" Type="System.Int32" Scope="User">
       <Value Profile="(Default)">-1</Value>
     </Setting>
   </Settings>

@@ -12,31 +12,31 @@ using System.Drawing;
 using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
-    public partial class ConfigureTileStresstest : UserControl {
+namespace vApus.DistributedTest {
+    public partial class ConfigureTileStressTest : UserControl {
         #region Fields
         private LinkButton _selectNextAvailableSlave;
         private int _currentSlaveIndex = -1;
 
         private DistributedTestMode _distributedTestMode;
-        private TileStresstest _tileStresstest;
+        private TileStressTest _tileStressTest;
 
         #endregion
 
         #region Properties
 
-        public TileStresstest TileStresstest {
-            get { return _tileStresstest; }
+        public TileStressTest TileStressTest {
+            get { return _tileStressTest; }
         }
 
         #endregion
 
         #region Constructor
 
-        public ConfigureTileStresstest() {
+        public ConfigureTileStressTest() {
             InitializeComponent();
 
 
@@ -48,17 +48,17 @@ namespace vApus.DistributedTesting {
 
         #region Functions
 
-        public void SetTileStresstest(TileStresstest tileStresstest) {
+        public void SetTileStressTest(TileStressTest tileStressTest) {
             lblRunSync.Visible = lblUseRDP.Visible = lblUsage.Visible = false;
 
             defaultAdvancedSettingsToControl.Visible = solutionComponentPropertyPanelBasic.Visible = llblShowHideAdvancedSettings.Visible = true;
 
-            if (_tileStresstest != tileStresstest) {
-                _tileStresstest = tileStresstest;
-                defaultAdvancedSettingsToControl.Init(tileStresstest);
-                solutionComponentPropertyPanelBasic.SolutionComponent = _tileStresstest.BasicTileStresstest;
+            if (_tileStressTest != tileStressTest) {
+                _tileStressTest = tileStressTest;
+                defaultAdvancedSettingsToControl.Init(tileStressTest);
+                solutionComponentPropertyPanelBasic.SolutionComponent = _tileStressTest.BasicTileStressTest;
                 AddSelectNextAvailableSlaveButtonIfNeeded();
-                solutionComponentPropertyPanelAdvanced.SolutionComponent = _tileStresstest.AdvancedTileStresstest;
+                solutionComponentPropertyPanelAdvanced.SolutionComponent = _tileStressTest.AdvancedTileStressTest;
 
                 Handle_DefaultToChecked();
             }
@@ -67,7 +67,7 @@ namespace vApus.DistributedTesting {
         /// <summary>
         /// </summary>
         /// <param name="showDescriptions">Should only be shown if the run sync cbo is focused</param>
-        public void ClearTileStresstest(bool showDescriptions) {
+        public void ClearTileStressTest(bool showDescriptions) {
             defaultAdvancedSettingsToControl.Visible =
                 solutionComponentPropertyPanelBasic.Visible =
                 solutionComponentPropertyPanelAdvanced.Visible =
@@ -87,10 +87,10 @@ namespace vApus.DistributedTesting {
             else
                 solutionComponentPropertyPanelAdvanced.Unlock();
 
-            if (_tileStresstest.AutomaticDefaultAdvancedSettings != defaultAdvancedSettingsToControl.DefaultToChecked) {
+            if (_tileStressTest.AutomaticDefaultAdvancedSettings != defaultAdvancedSettingsToControl.DefaultToChecked) {
                 solutionComponentPropertyPanelAdvanced.Visible = true;
-                _tileStresstest.AutomaticDefaultAdvancedSettings = defaultAdvancedSettingsToControl.DefaultToChecked;
-                _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                _tileStressTest.AutomaticDefaultAdvancedSettings = defaultAdvancedSettingsToControl.DefaultToChecked;
+                _tileStressTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             }
         }
 
@@ -99,16 +99,16 @@ namespace vApus.DistributedTesting {
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
-            if (sender is TileStresstest || sender is Stresstest.Stresstest || sender is StresstestProject) {
-                if (_tileStresstest != null) {
-                    if (sender is StresstestProject || sender == _tileStresstest.DefaultAdvancedSettingsTo) {
-                        defaultAdvancedSettingsToControl.Init(_tileStresstest);
+            if (sender is TileStressTest || sender is StressTest.StressTest || sender is StressTestProject) {
+                if (_tileStressTest != null) {
+                    if (sender is StressTestProject || sender == _tileStressTest.DefaultAdvancedSettingsTo) {
+                        defaultAdvancedSettingsToControl.Init(_tileStressTest);
                     }
-                    if (sender is StresstestProject || sender == _tileStresstest || sender == _tileStresstest.DefaultAdvancedSettingsTo) {
+                    if (sender is StressTestProject || sender == _tileStressTest || sender == _tileStressTest.DefaultAdvancedSettingsTo) {
                         solutionComponentPropertyPanelBasic.Refresh();
                         AddSelectNextAvailableSlaveButtonIfNeeded();
                         solutionComponentPropertyPanelAdvanced.Refresh();
-                    } else if (sender is AdvancedTileStresstest) {
+                    } else if (sender is AdvancedTileStressTest) {
                         solutionComponentPropertyPanelAdvanced.Refresh();
                     }
                 }
@@ -149,13 +149,13 @@ namespace vApus.DistributedTesting {
                     }
 
                 _selectNextAvailableSlave = new LinkButton();
-                _selectNextAvailableSlave.Text = "Select Next Available Slave";
+                _selectNextAvailableSlave.Text = "Select next available slave";
                 _selectNextAvailableSlave.LinkColor = _selectNextAvailableSlave.ActiveLinkColor = _selectNextAvailableSlave.VisitedLinkColor = _selectNextAvailableSlave.ForeColor = Color.DimGray;
                 _selectNextAvailableSlave.LinkBehavior = LinkBehavior.AlwaysUnderline;
                 _selectNextAvailableSlave.TextAlign = ContentAlignment.TopCenter;
                 _selectNextAvailableSlave.Padding = new Padding(3, 4, 3, 3);
                 _selectNextAvailableSlave.AutoSize = true;
-                toolTip.SetToolTip(_selectNextAvailableSlave, "Slaves in unused tile stresstests can also be selected.");
+                toolTip.SetToolTip(_selectNextAvailableSlave, "Slaves in unused tile stress tests can also be selected.");
                 _selectNextAvailableSlave.Click += _selectNextAvailableSlave_Click;
                 solutionComponentPropertyPanelBasic.Controls.Add(_selectNextAvailableSlave);
             } catch {
@@ -168,7 +168,7 @@ namespace vApus.DistributedTesting {
                 //Get the ones that are available
                 var availableSlaves = new List<Slave>();
 
-                var distributedTest = _tileStresstest.Parent.GetParent().GetParent() as DistributedTest;
+                var distributedTest = _tileStressTest.Parent.GetParent().GetParent() as DistributedTest;
                 if (distributedTest != null) {
                     foreach (Client client in distributedTest.Clients)
                         foreach (Slave slave in client)
@@ -176,16 +176,16 @@ namespace vApus.DistributedTesting {
 
                     foreach (Tile tile in distributedTest.Tiles)
                         if (tile.Use)
-                            foreach (TileStresstest tileStresstest in tile)
-                                if (tileStresstest.Use)
-                                    foreach (var slave in tileStresstest.BasicTileStresstest.Slaves)
+                            foreach (TileStressTest tileStressTest in tile)
+                                if (tileStressTest.Use)
+                                    foreach (var slave in tileStressTest.BasicTileStressTest.Slaves)
                                         availableSlaves.Remove(slave);
 
                     if (availableSlaves.Count != 0) {
                         if (++_currentSlaveIndex >= availableSlaves.Count) _currentSlaveIndex = 0;
-                        _tileStresstest.BasicTileStresstest.Slaves = new Slave[] { availableSlaves[_currentSlaveIndex] };
-                        _tileStresstest.Use = true;
-                        _tileStresstest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
+                        _tileStressTest.BasicTileStressTest.Slaves = new Slave[] { availableSlaves[_currentSlaveIndex] };
+                        _tileStressTest.Use = true;
+                        _tileStressTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                     }
                 }
             } catch {

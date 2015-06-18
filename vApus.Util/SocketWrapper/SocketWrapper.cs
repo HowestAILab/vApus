@@ -29,7 +29,6 @@ namespace vApus.Util {
         /// </summary>
         public const int DEFAULTBUFFERSIZE = 8912;
 
-        private static object _lock = new object();
         public readonly IPAddress IP;
         public readonly int Port;
 
@@ -324,16 +323,6 @@ namespace vApus.Util {
             }
             return buffer;
         }
-
-        /// <summary>
-        ///     Convert an object to a byte[] using deflate or gzip compression. Use gzip only for text, deflate for everything else.
-        /// </summary>
-        /// <param name="obj"></param>
-        /// <param name="deflate">false for gzip compression.</param>
-        /// <returns></returns>
-        ////public byte[] ObjectToByteArray(object obj, bool deflate = true) {
-        ////    return deflate ? ObjectToByteArrayDeflate(obj) : ObjectToByteArrayGZip(obj);
-        ////}
         public byte[] ObjectToByteArrayDeflate(object obj) {
             byte[] buffer = null;
 
@@ -502,7 +491,7 @@ namespace vApus.Util {
 
         #region Binary
 
-        public object ByteArrayToObject(byte[] buffer, bool deflate = true) {
+        public object ByteArrayToObject(byte[] buffer) {
             object obj = null;
 
             using (var ms = new MemoryStream(buffer)) {
@@ -513,17 +502,7 @@ namespace vApus.Util {
             }
             return obj;
         }
-
-        /// <summary>
-        ///     Converts a byte[] to an object using deflate of gzip compression. Use gzip only for text, deflate for everything else.
-        /// </summary>
-        /// <param name="buffer"></param>
-        /// <param name="deflate">false for gzip compression.</param>
-        /// <returns></returns>
-        //public object ByteArrayToObject(byte[] buffer, bool deflate = true) {
-        //    return deflate ? ByteArrayToObjectDeflate(buffer) : ByteArrayToObjectGzip(buffer);
-        //}
-        private object ByteArrayToObjectDeflate(byte[] buffer) {
+        public object ByteArrayToObjectDeflate(byte[] buffer) {
             object obj = null;
 
             using (var ms = new MemoryStream(buffer)) {
@@ -535,7 +514,7 @@ namespace vApus.Util {
             }
             return obj;
         }
-        private object ByteArrayToObjectGzip(byte[] buffer) {
+        public object ByteArrayToObjectGzip(byte[] buffer) {
             object obj = null;
 
             using (var ms = new MemoryStream(buffer)) {

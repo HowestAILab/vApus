@@ -7,7 +7,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Gui", "vApus.Gui\vApu
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.SolutionTree", "vApus.SolutionTree\vApus.SolutionTree.csproj", "{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Stresstest", "vApus.Stresstest\vApus.Stresstest.csproj", "{790522AB-42D5-4C39-83BE-14244D8C3F22}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.StressTest", "vApus.Stresstest\vApus.StressTest.csproj", "{790522AB-42D5-4C39-83BE-14244D8C3F22}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Monitor", "vApus.Monitor\vApus.Monitor.csproj", "{D9306CDF-415E-4037-B9AF-707EE208A510}"
 EndProject
@@ -21,7 +21,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.UpdateTool", "vApus.U
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WeifenLuo.WinFormsUI", "WeifenLuo.WinFormsUI\WeifenLuo.WinFormsUI.csproj", "{C75532C4-765B-418E-B09B-46D36B2ABDB1}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.DistributedTesting", "vApus.DistributedTesting\vApus.DistributedTesting.csproj", "{A766CB72-67C0-4F24-85B5-70B8EB76882A}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.DistributedTest", "vApus.DistributedTesting\vApus.DistributedTest.csproj", "{A766CB72-67C0-4F24-85B5-70B8EB76882A}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.JumpStartStructures", "vApus.JumpStartStructures\vApus.JumpStartStructures.csproj", "{0B87A110-73F8-496A-B656-9050272CFE7B}"
 EndProject

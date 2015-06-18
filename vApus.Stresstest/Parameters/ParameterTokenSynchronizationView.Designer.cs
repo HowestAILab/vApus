@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest
+﻿namespace vApus.StressTest
 {
     partial class ParameterTokenSynchronizationView
     {
@@ -44,8 +44,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(636, 32);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Because one or more parameters where added or removed, tokens used in the log ent" +
-    "ries where updated.\r\nThe numeric parts of those tokens where synchronized with t" +
+            this.label1.Text = "Because one or more parameters where added or removed, tokens used in the requests where updated.\r\nThe numeric parts of those tokens where synchronized with t" +
     "he indices of the parameters.";
             // 
             // lvw
@@ -95,7 +94,7 @@
             this.label2.Padding = new System.Windows.Forms.Padding(3);
             this.label2.Size = new System.Drawing.Size(432, 32);
             this.label2.TabIndex = 4;
-            this.label2.Text = "Please double-check the log entries that contain parameter tokens.";
+            this.label2.Text = "Please double-check the requests that contain parameter tokens.";
             // 
             // ParameterTokenSynchronization
             // 

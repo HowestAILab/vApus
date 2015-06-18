@@ -26,8 +26,8 @@ namespace vApus.JSON {
         public static JSONObjectTree RunningTestMessages { get; set; }
         public static JSONObjectTree RunningMonitorHardwareConfig { get; set; }
 
-        public static void ApplyToRunningDistributedTestConfig(JSONObjectTree testConfigCache, string runSynchronization, string tileStresstest, string connection, string connectionProxy,
-                                         string[] monitors, string[] slaves, string[] logs, string logRuleSet, int[] concurrency, int run, int minimumDelay,
+        public static void ApplyToRunningDistributedTestConfig(JSONObjectTree testConfigCache, string runSynchronization, string tileStressTest, string connection, string connectionProxy,
+                                         string[] monitors, string[] slaves, string[] scenarios, string scenarioRuleSet, int[] concurrency, int run, int minimumDelay,
                                          int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserAction, int monitorBefore, int monitorAfter) {
             if (testConfigCache.Count == 0)
                 testConfigCache.Add("RunSynchronization", runSynchronization);
@@ -37,8 +37,8 @@ namespace vApus.JSON {
                 ConnectionProxy = connectionProxy,
                 Monitors = monitors,
                 Slaves = slaves,
-                Logs = logs,
-                LogRuleSet = logRuleSet,
+                Scenarios = scenarios,
+                ScenarioRuleSet = scenarioRuleSet,
                 Concurrency = concurrency,
                 Run = run,
                 MinimumDelayInMS = minimumDelay,
@@ -49,18 +49,18 @@ namespace vApus.JSON {
                 MonitorBeforeInMinutes = monitorBefore,
                 MonitorAfterInMinutes = monitorAfter
             };
-            testConfigCache.Add(tileStresstest, testConfig);
+            testConfigCache.Add(tileStressTest, testConfig);
         }
 
-        public static void ApplyToRunningStresstestConfig(JSONObjectTree testConfigCache, string stresstest, string connection, string connectionProxy,
-                                 string[] monitors, string[] logs, string logRuleSet, int[] concurrency, int run, int minimumDelay,
+        public static void ApplyToRunningStressTestConfig(JSONObjectTree testConfigCache, string stressTest, string connection, string connectionProxy,
+                                 string[] monitors, string[] scenarios, string scenarioRuleSet, int[] concurrency, int run, int minimumDelay,
                                  int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserAction, int monitorBefore, int monitorAfter) {
             var testConfig = new TestConfig {
                 Connection = connection,
                 ConnectionProxy = connectionProxy,
                 Monitors = monitors,
-                Logs = logs,
-                LogRuleSet = logRuleSet,
+                Scenarios = scenarios,
+                ScenarioRuleSet = scenarioRuleSet,
                 Concurrency = concurrency,
                 Run = run,
                 MinimumDelayInMS = minimumDelay,
@@ -71,10 +71,10 @@ namespace vApus.JSON {
                 MonitorBeforeInMinutes = monitorBefore,
                 MonitorAfterInMinutes = monitorAfter
             };
-            testConfigCache.Add(stresstest, testConfig);
+            testConfigCache.Add(stressTest, testConfig);
         }
 
-        public static void ApplyToRunningTestFastConcurrencyResults(JSONObjectTree testProgressCache, StresstestMetrics metrics, string runStateChange, string stresstestStatus) {
+        public static void ApplyToRunningTestFastConcurrencyResults(JSONObjectTree testProgressCache, StressTestMetrics metrics, string runStateChange, string stressTestStatus) {
             var concurrencyCache = AddSubCache(metrics.Concurrency, testProgressCache);
             var testProgress = new TestFastConcurrencyResults {
                 StartMeasuringTime = metrics.StartMeasuringTime,
@@ -83,13 +83,13 @@ namespace vApus.JSON {
                 AverageResponseTime = metrics.AverageResponseTime,
                 MaxResponseTime = metrics.MaxResponseTime,
                 AverageDelay = metrics.AverageDelay,
-                LogEntries = metrics.LogEntries,
-                LogEntriesProcessed = metrics.LogEntriesProcessed,
+                Requests = metrics.Requests,
+                RequestsProcessed = metrics.RequestsProcessed,
                 ResponsesPerSecond = metrics.ResponsesPerSecond,
                 UserActionsPerSecond = metrics.UserActionsPerSecond,
                 Errors = metrics.Errors,
                 RunStateChange = runStateChange,
-                StresstestResult = stresstestStatus
+                StressTestResult = stressTestStatus
             };
 
             int run = metrics.Run + 1;
@@ -174,7 +174,7 @@ namespace vApus.JSON {
         /// 
         /// </summary>
         /// <param name="clientMonitorCache"></param>
-        /// <param name="stresstest">or tile stresstest</param>
+        /// <param name="stressTest">or tile stress test</param>
         /// <param name="threadsInUse"></param>
         /// <param name="cpuUsage"></param>
         /// <param name="contextSwitchesPerSecond"></param>
@@ -182,7 +182,7 @@ namespace vApus.JSON {
         /// <param name="totalVisibleMemory"></param>
         /// <param name="nicsSent"></param>
         /// <param name="nicsReceived"></param>
-        public static void ApplyToRunningTestClientMonitorMetrics(JSONObjectTree clientMonitorCache, string stresstest, int threadsInUse, float cpuUsage,
+        public static void ApplyToRunningTestClientMonitorMetrics(JSONObjectTree clientMonitorCache, string stressTest, int threadsInUse, float cpuUsage,
             uint memoryUsage, uint totalVisibleMemory, string nic, float nicsSent, float nicsReceived) {
             var clientMonitorMetrics = new ClientMonitorMetrics() {
                 BusyThreadCount = threadsInUse,
@@ -193,12 +193,12 @@ namespace vApus.JSON {
                 NicsSent = nicsSent,
                 NicsReceived = nicsReceived
             };
-            clientMonitorCache.Add(stresstest.ToString(), clientMonitorMetrics);
+            clientMonitorCache.Add(stressTest.ToString(), clientMonitorMetrics);
         }
 
-        public static void ApplyToRunningTestMessages(JSONObjectTree messagesCache, string stresstest, string[] messages) {
+        public static void ApplyToRunningTestMessages(JSONObjectTree messagesCache, string stressTest, string[] messages) {
             var m = new ClientMessages() { Messages = messages };
-            messagesCache.Add(stresstest.ToString(), m);
+            messagesCache.Add(stressTest.ToString(), m);
         }
 
         public static JSONObjectTree AddSubCache(object key, JSONObjectTree parent) {

@@ -190,7 +190,7 @@ namespace vApus.JumpStart {
 
 
                     BeginReceive(socketWrapper);
-                    message = CommunicationHandler.HandleMessage(socketWrapper, message);
+                    message = CommunicationHandler.HandleMessage(message);
 
                     socketWrapper.Send(message, SendType.Binary);
                 } catch {

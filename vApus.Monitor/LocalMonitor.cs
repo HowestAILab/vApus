@@ -167,7 +167,7 @@ namespace vApus.Monitor {
                 }
 
             } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed getting wmi stuff.", ex);
+                Loggers.Log(Level.Error, "Failed getting WMI counters.", ex);
             }
         }
         #endregion

@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public partial class SlaveTile : UserControl {
         #region Events
 
@@ -77,22 +77,18 @@ namespace vApus.DistributedTesting {
                 nudPort.ValueChanged += nudPort_ValueChanged;
             }
 
-            string pa = _slave.ProcessorAffinity.Combine(", ");
-            if (llblPA.Text != pa)
-                llblPA.Text = pa.Length == 0 ? "..." : pa;
-
-            string ts = _slave.TileStresstest == null ? "..." : _slave.TileStresstest.ToString();
+            string ts = _slave.TileStressTest == null ? "..." : _slave.TileStressTest.ToString();
             if (llblTest.Text != ts) {
                 llblTest.Text = ts;
                 if (ts == "...") {
                     toolTip.SetToolTip(llblTest, null);
                 } else //Show the full name in the tooltip
                 {
-                    string label = _slave.TileStresstest.Parent + " -> " + _slave.TileStresstest.Index + ") " +
-                                   ((_slave.TileStresstest.BasicTileStresstest.Connection == null ||
-                                     _slave.TileStresstest.BasicTileStresstest.Connection.IsEmpty)
+                    string label = _slave.TileStressTest.Parent + " -> " + _slave.TileStressTest.Index + ") " +
+                                   ((_slave.TileStressTest.BasicTileStressTest.Connection == null ||
+                                     _slave.TileStressTest.BasicTileStressTest.Connection.IsEmpty)
                                         ? string.Empty
-                                        : _slave.TileStresstest.BasicTileStresstest.Connection.ToString());
+                                        : _slave.TileStressTest.BasicTileStressTest.Connection.ToString());
 
 
                     toolTip.SetToolTip(llblTest, label);
@@ -118,53 +114,24 @@ namespace vApus.DistributedTesting {
             _slave.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
 
-        private void llblPA_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            var ftd = new FromTextDialog();
-            ftd.Text = "The one-based indices of the CPU cores, each on a new line.";
-            ftd.SetText(_slave.ProcessorAffinity.Combine("\n"));
-
-            if (ftd.ShowDialog() == DialogResult.OK) {
-                string paToString = ftd.Entries.Combine(", ");
-                if (llblPA.Text != paToString) {
-                    var pa = new int[paToString.Length == 0 ? 0 : ftd.Entries.Length];
-                    if (paToString.Length != 0)
-                        for (int i = 0; i != pa.Length; i++) {
-                            int index;
-                            if (!int.TryParse(ftd.Entries[i], out index))
-                                return;
-
-                            if (index == 0)
-                                return;
-
-                            pa[i] = index;
-                        }
-
-                    llblPA.Text = paToString.Length == 0 ? "..." : paToString;
-
-                    _slave.ProcessorAffinity = pa;
-                    _slave.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                }
-            }
-        }
-
         private void llblTest_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            var assignTest = new AssignTest(_distributedTest, _slave.TileStresstest);
+            var assignTest = new AssignTest(_distributedTest, _slave.TileStressTest);
             if (assignTest.ShowDialog() == DialogResult.OK) {
                 try {
-                    _slave.AssignTileStresstest(assignTest.AssignedTest);
+                    _slave.AssignTileStressTest(assignTest.AssignedTest);
 
-                    string ts = _slave.TileStresstest == null ? "..." : _slave.TileStresstest.ToString();
+                    string ts = _slave.TileStressTest == null ? "..." : _slave.TileStressTest.ToString();
                     if (llblTest.Text != ts) {
                         llblTest.Text = ts;
                         if (ts == "...") {
                             toolTip.SetToolTip(llblTest, null);
                         } else //Show the full name in the tooltip
                         {
-                            string label = _slave.TileStresstest.Parent + " -> " + _slave.TileStresstest.Index + ") " +
-                                           ((_slave.TileStresstest.BasicTileStresstest.Connection == null ||
-                                             _slave.TileStresstest.BasicTileStresstest.Connection.IsEmpty)
+                            string label = _slave.TileStressTest.Parent + " -> " + _slave.TileStressTest.Index + ") " +
+                                           ((_slave.TileStressTest.BasicTileStressTest.Connection == null ||
+                                             _slave.TileStressTest.BasicTileStressTest.Connection.IsEmpty)
                                                 ? string.Empty
-                                                : _slave.TileStresstest.BasicTileStresstest.Connection.ToString());
+                                                : _slave.TileStressTest.BasicTileStressTest.Connection.ToString());
 
 
                             toolTip.SetToolTip(llblTest, label);
@@ -195,21 +162,19 @@ namespace vApus.DistributedTesting {
             if (_distributedTestMode != distributedTestMode) {
                 _distributedTestMode = distributedTestMode;
                 if (_distributedTestMode == DistributedTestMode.Edit)
-                    if (_slave.TileStresstest == null) {
+                    if (_slave.TileStressTest == null) {
                         Visible = true;
                     } else {
                         picDuplicate.Visible =
                             picDelete.Visible =
                             nudPort.Enabled =
-                            llblPA.Enabled =
                             llblTest.Enabled = true;
-                    } else if (_slave.TileStresstest == null) {
+                    } else if (_slave.TileStressTest == null) {
                     Visible = false;
                 } else {
                     picDuplicate.Visible =
                         picDelete.Visible =
                         nudPort.Enabled =
-                        llblPA.Enabled =
                         llblTest.Enabled = false;
                 }
             }

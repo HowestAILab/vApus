@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class ClientsAndSlavesTreeViewItem
     {
@@ -60,7 +60,7 @@
             this.picAddClient.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picAddClient.TabIndex = 20;
             this.picAddClient.TabStop = false;
-            this.toolTip.SetToolTip(this.picAddClient, "Add Client <ctrl+i>");
+            this.toolTip.SetToolTip(this.picAddClient, "Add client <ctrl+i>.");
             this.picAddClient.Click += new System.EventHandler(this.picAddClient_Click);
             // 
             // picRefresh
@@ -74,7 +74,7 @@
             this.picRefresh.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picRefresh.TabIndex = 24;
             this.picRefresh.TabStop = false;
-            this.toolTip.SetToolTip(this.picRefresh, "Refresh <f5>");
+            this.toolTip.SetToolTip(this.picRefresh, "Refresh <f5>.");
             this.picRefresh.Click += new System.EventHandler(this.picRefresh_Click);
             // 
             // picRemoteDesktop
@@ -88,7 +88,7 @@
             this.picRemoteDesktop.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picRemoteDesktop.TabIndex = 26;
             this.picRemoteDesktop.TabStop = false;
-            this.toolTip.SetToolTip(this.picRemoteDesktop, "Show Remote Desktop for all Clients...");
+            this.toolTip.SetToolTip(this.picRemoteDesktop, "Show remote desktop for all clients...");
             this.picRemoteDesktop.Click += new System.EventHandler(this.picRemoteDesktop_Click);
             // 
             // lblRunSync
@@ -121,7 +121,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(438, 13);
             this.label1.TabIndex = 19;
-            this.label1.Text = "Clients and Slaves";
+            this.label1.Text = "Clients and slaves";
             this.label1.Click += new System.EventHandler(this._Enter);
             // 
             // ClientsAndSlavesTreeViewItem

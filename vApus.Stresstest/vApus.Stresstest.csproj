@@ -8,8 +8,8 @@
     <ProjectGuid>{790522AB-42D5-4C39-83BE-14244D8C3F22}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>vApus.Stresstest</RootNamespace>
-    <AssemblyName>vApus.Stresstest</AssemblyName>
+    <RootNamespace>vApus.StressTest</RootNamespace>
+    <AssemblyName>vApus.StressTest</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
@@ -145,7 +145,7 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -230,53 +230,58 @@
     <Compile Include="Controls\DetailedResultsControl.Designer.cs">
       <DependentUpon>DetailedResultsControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\EditLogPanel.cs">
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="Scenarios\Controls\EditScenarioPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\EditLogPanel.Designer.cs">
-      <DependentUpon>EditLogPanel.cs</DependentUpon>
+    <Compile Include="Scenarios\Controls\EditScenarioPanel.Designer.cs">
+      <DependentUpon>EditScenarioPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\EditUserActionPanel.cs">
+    <Compile Include="Scenarios\Controls\EditUserActionPanel.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\EditUserActionPanel.Designer.cs">
+    <Compile Include="Scenarios\Controls\EditUserActionPanel.Designer.cs">
       <DependentUpon>EditUserActionPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\PlainTextLogView.cs">
+    <Compile Include="Scenarios\PlainTextScenarioView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Logs\PlainTextLogView.Designer.cs">
-      <DependentUpon>PlainTextLogView.cs</DependentUpon>
+    <Compile Include="Scenarios\PlainTextScenarioView.Designer.cs">
+      <DependentUpon>PlainTextScenarioView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\FindAndReplaceDialog.cs">
+    <Compile Include="Scenarios\FindAndReplaceDialog.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Logs\FindAndReplaceDialog.Designer.cs">
+    <Compile Include="Scenarios\FindAndReplaceDialog.Designer.cs">
       <DependentUpon>FindAndReplaceDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\UserActionTreeViewItem.cs">
+    <Compile Include="Scenarios\Controls\UserActionTreeViewItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\UserActionTreeViewItem.Designer.cs">
+    <Compile Include="Scenarios\Controls\UserActionTreeViewItem.Designer.cs">
       <DependentUpon>UserActionTreeViewItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\LogTreeViewItem.cs">
+    <Compile Include="Scenarios\Controls\ScenarioTreeViewItem.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\LogTreeViewItem.Designer.cs">
-      <DependentUpon>LogTreeViewItem.cs</DependentUpon>
+    <Compile Include="Scenarios\Controls\ScenarioTreeViewItem.Designer.cs">
+      <DependentUpon>ScenarioTreeViewItem.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\Controls\LogTreeView.cs">
+    <Compile Include="Scenarios\Controls\ScenarioTreeView.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Logs\Controls\LogTreeView.Designer.cs">
-      <DependentUpon>LogTreeView.cs</DependentUpon>
+    <Compile Include="Scenarios\Controls\ScenarioTreeView.Designer.cs">
+      <DependentUpon>ScenarioTreeView.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\LogView.cs">
+    <Compile Include="Scenarios\ScenarioView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Logs\LogView.Designer.cs">
-      <DependentUpon>LogView.cs</DependentUpon>
+    <Compile Include="Scenarios\ScenarioView.Designer.cs">
+      <DependentUpon>ScenarioView.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\CustomList\LinkToCustomListParameterControl.cs">
       <SubType>UserControl</SubType>
@@ -285,7 +290,7 @@
       <DependentUpon>LinkToCustomListParameterControl.cs</DependentUpon>
     </Compile>
     <Compile Include="TestPatternsAndDelaysGenerator.cs" />
-    <Compile Include="Logs\ParameterTokenTextStyle.cs" />
+    <Compile Include="Scenarios\ParameterTokenTextStyle.cs" />
     <Compile Include="Parameters\CustomRandom\CustomRandomParameterView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -298,11 +303,11 @@
     <Compile Include="RuleSets\RuleSetSyntaxItemPanel.Designer.cs">
       <DependentUpon>RuleSetSyntaxItemPanel.cs</DependentUpon>
     </Compile>
-    <Compile Include="StresstestThreadPool.cs" />
-    <Compile Include="Logs\RedetermineTokens.cs">
+    <Compile Include="StressTestThreadPool.cs" />
+    <Compile Include="Scenarios\RedetermineTokens.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="Logs\RedetermineTokens.Designer.cs">
+    <Compile Include="Scenarios\RedetermineTokens.Designer.cs">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </Compile>
     <Compile Include="Parameters\CustomList\CustomListGeneratorDialog.cs">
@@ -371,13 +376,13 @@
     <Compile Include="Controls\FastResultsControl.Designer.cs">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </Compile>
-    <Compile Include="Logs\RuleSets\LogSyntaxItem.cs" />
+    <Compile Include="Scenarios\RuleSets\ScenarioSyntaxItem.cs" />
     <Compile Include="Properties\Settings.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="StresstestCore.cs" />
+    <Compile Include="StressTestCore.cs" />
     <Compile Include="Enums.cs" />
     <Compile Include="EventArgs.cs" />
     <Compile Include="Parameters\CustomList\CustomListParameters.cs" />
@@ -400,30 +405,25 @@
     <Compile Include="Connections\RuleSets\ConnectionProxySyntaxItem.cs" />
     <Compile Include="Connections\Connection.cs" />
     <Compile Include="Connections\Connections.cs" />
-    <Compile Include="Logs\Log.cs" />
-    <Compile Include="Logs\LogEntry.cs" />
-    <Compile Include="Logs\Logs.cs" />
-    <Compile Include="Logs\RuleSets\LogRuleSets.cs" />
-    <Compile Include="Logs\UserAction.cs" />
-    <Compile Include="Properties\Resources.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTime>True</DesignTime>
-      <DependentUpon>Resources.resx</DependentUpon>
-    </Compile>
-    <Compile Include="Logs\RuleSets\LogRuleSet.cs" />
+    <Compile Include="Scenarios\Scenario.cs" />
+    <Compile Include="Scenarios\Request.cs" />
+    <Compile Include="Scenarios\Scenarios.cs" />
+    <Compile Include="Scenarios\RuleSets\ScenarioRuleSets.cs" />
+    <Compile Include="Scenarios\UserAction.cs" />
+    <Compile Include="Scenarios\RuleSets\ScenarioRuleSet.cs" />
     <Compile Include="RuleSets\BaseRuleSet.cs" />
     <Compile Include="RuleSets\LexicalResult.cs" />
     <Compile Include="RuleSets\SyntaxItem.cs" />
     <Compile Include="RuleSets\BaseRuleSets.cs" />
     <Compile Include="RuleSets\Rule.cs" />
-    <Compile Include="Stresstest.cs" />
-    <Compile Include="StresstestProject.cs" />
+    <Compile Include="StressTest.cs" />
+    <Compile Include="StressTestProject.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="StresstestView.cs">
+    <Compile Include="StressTestView.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StresstestView.Designer.cs">
-      <DependentUpon>StresstestView.cs</DependentUpon>
+    <Compile Include="StressTestView.Designer.cs">
+      <DependentUpon>StressTestView.cs</DependentUpon>
     </Compile>
   </ItemGroup>
   <ItemGroup>
@@ -476,31 +476,31 @@
     <EmbeddedResource Include="Controls\FastResultsControl.resx">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\EditLogPanel.resx">
-      <DependentUpon>EditLogPanel.cs</DependentUpon>
+    <EmbeddedResource Include="Scenarios\Controls\EditScenarioPanel.resx">
+      <DependentUpon>EditScenarioPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\EditUserActionPanel.resx">
+    <EmbeddedResource Include="Scenarios\Controls\EditUserActionPanel.resx">
       <DependentUpon>EditUserActionPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\PlainTextLogView.resx">
-      <DependentUpon>PlainTextLogView.cs</DependentUpon>
+    <EmbeddedResource Include="Scenarios\PlainTextScenarioView.resx">
+      <DependentUpon>PlainTextScenarioView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\FindAndReplaceDialog.resx">
+    <EmbeddedResource Include="Scenarios\FindAndReplaceDialog.resx">
       <DependentUpon>FindAndReplaceDialog.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\UserActionTreeViewItem.resx">
+    <EmbeddedResource Include="Scenarios\Controls\UserActionTreeViewItem.resx">
       <DependentUpon>UserActionTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\LogTreeViewItem.resx">
-      <DependentUpon>LogTreeViewItem.cs</DependentUpon>
+    <EmbeddedResource Include="Scenarios\Controls\ScenarioTreeViewItem.resx">
+      <DependentUpon>ScenarioTreeViewItem.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\Controls\LogTreeView.resx">
-      <DependentUpon>LogTreeView.cs</DependentUpon>
+    <EmbeddedResource Include="Scenarios\Controls\ScenarioTreeView.resx">
+      <DependentUpon>ScenarioTreeView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\LogView.resx">
-      <DependentUpon>LogView.cs</DependentUpon>
+    <EmbeddedResource Include="Scenarios\ScenarioView.resx">
+      <DependentUpon>ScenarioView.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Logs\RedetermineTokens.resx">
+    <EmbeddedResource Include="Scenarios\RedetermineTokens.resx">
       <DependentUpon>RedetermineTokens.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Parameters\CustomList\CustomListGeneratorDialog.resx">
@@ -523,18 +523,20 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
       <Generator>ResXFileCodeGenerator</Generator>
-      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
     </EmbeddedResource>
-    <EmbeddedResource Include="StresstestView.resx">
-      <DependentUpon>StresstestView.cs</DependentUpon>
+    <EmbeddedResource Include="StressTestView.resx">
+      <DependentUpon>StressTestView.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
-    <None Include="RuleSets\app.config" />
+    <None Include="RuleSets\app.config">
+      <SubType>Designer</SubType>
+    </None>
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
@@ -545,19 +547,19 @@
     <None Include="Resources\Stresstest.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Log.png" />
+    <None Include="Resources\Scenario.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\Logs.png" />
+    <None Include="Resources\Scenarios.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\connection.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\LogRuleSets.png" />
+    <None Include="Resources\ScenarioRuleSets.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\LogRuleSet.png" />
+    <None Include="Resources\ScenarioRuleSet.png" />
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\SyntaxItem.png" />
@@ -575,13 +577,13 @@
     <None Include="Resources\Actionize.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\LogEntryOK.png" />
+    <None Include="Resources\RequestOK.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\LogEntryWarning.png" />
+    <None Include="Resources\RequestWarning.png" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="Resources\LogEntryError.png" />
+    <None Include="Resources\RequestError.png" />
   </ItemGroup>
   <ItemGroup>
     <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
@@ -661,7 +663,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="Resources\Wait.gif" />
-    <None Include="Resources\LogSyntaxItem.png" />
+    <None Include="Resources\ScenarioSyntaxItem.png" />
     <None Include="Resources\Breakpoint.png" />
     <None Include="Resources\play.png" />
     <None Include="Resources\stop.png" />
@@ -682,7 +684,7 @@
     <None Include="Resources\picMoveDown.Image.png" />
     <None Include="Resources\picMoveUp.Image.png" />
     <None Include="Resources\Image1.bmp" />
-    <Content Include="Resources\LogEntryInParallelWithPrevious.png" />
+    <Content Include="Resources\RequestInParallelWithPrevious.png" />
     <Content Include="Resources\UserAction.png" />
   </ItemGroup>
   <ItemGroup />

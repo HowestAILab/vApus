@@ -1,12 +1,13 @@
-﻿using RandomUtils;
-using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -20,25 +21,25 @@ namespace vApus.SolutionTree {
     /// <summary>
     /// Contains a treeview and displays all solution components where ShowInGui == true. Adds images, context menu's and hotkeys.
     /// </summary>
-    public partial class StresstestingSolutionExplorer : DockablePanel {
+    public partial class StressTestingSolutionExplorer : DockablePanel {
 
         #region Fields
         private Keys _hotkey = Keys.None;
         #endregion
 
         #region Constructor
-        public StresstestingSolutionExplorer() {
+        public StressTestingSolutionExplorer() {
             InitializeComponent();
             if (IsHandleCreated)
                 Init();
             else
-                HandleCreated += StresstestingSolutionExplorer_HandleCreated;
+                HandleCreated += StressTestingSolutionExplorer_HandleCreated;
         }
         #endregion
 
         #region Functions
-        private void StresstestingSolutionExplorer_HandleCreated(object sender, EventArgs e) {
-            HandleCreated -= StresstestingSolutionExplorer_HandleCreated;
+        private void StressTestingSolutionExplorer_HandleCreated(object sender, EventArgs e) {
+            HandleCreated -= StressTestingSolutionExplorer_HandleCreated;
             Init();
         }
         private void Init() {

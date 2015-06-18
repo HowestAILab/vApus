@@ -12,7 +12,7 @@ using System.IO;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class AddReferencesDialog : Form {
         public AddReferencesDialog() {
             InitializeComponent();

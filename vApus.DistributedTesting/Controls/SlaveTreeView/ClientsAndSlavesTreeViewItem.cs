@@ -9,11 +9,14 @@
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Diagnostics;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
+using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     [ToolboxItem(false)]
     public partial class ClientsAndSlavesTreeViewItem : UserControl, ITreeViewItem {
         #region Events
@@ -119,11 +122,12 @@ namespace vApus.DistributedTesting {
         }
 
         private void picRemoteDesktop_Click(object sender, EventArgs e) {
-            var rdc =
-                SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
-            rdc.Text = "Remote Desktop Client";
-            foreach (Client client in _distributedTest.Clients)
-                rdc.ShowRemoteDesktop(client.HostName, client.IP, client.UserName, client.Password, client.Domain);
+            foreach (Client client in _distributedTest.Clients) {
+                RemoteDesktop.Show(client.IP, client.UserName, client.Password, client.Domain);
+                Thread.Sleep(1000);
+                RemoteDesktop.RemoveCredentials(client.IP);
+            }
+
         }
 
         private void _KeyDown(object sender, KeyEventArgs e) {

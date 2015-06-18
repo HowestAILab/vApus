@@ -11,11 +11,11 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Runtime.InteropServices;
 using System.Windows.Forms;
-using vApus.DistributedTesting.Properties;
+using vApus.DistributedTest.Properties;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     [ToolboxItem(false)]
     public partial class TileTreeViewItem : UserControl, ITreeViewItem {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
@@ -28,7 +28,7 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public event EventHandler AfterSelect;
 
-        public event EventHandler AddTileStresstestClicked;
+        public event EventHandler AddTileStressTestClicked;
         public event EventHandler DuplicateClicked;
         public event EventHandler DeleteClicked;
 
@@ -90,12 +90,11 @@ namespace vApus.DistributedTesting {
             get { return _childControls; }
         }
 
-        private int UsedTileStresstestCount {
+        private int UsedTileStressTestCount {
             get {
                 int count = 0;
-                foreach (TileStresstest ts in _tile)
-                    if (ts.Use)
-                        ++count;
+                foreach (TileStressTest ts in _tile)
+                    if (ts.Use) ++count;
                 return count;
             }
         }
@@ -129,7 +128,7 @@ namespace vApus.DistributedTesting {
 
         public void SetVisibleControls(bool visible) {
             if (_distributedTestMode == DistributedTestMode.Edit)
-                picAddTileStresstest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
+                picAddTileStressTest.Visible = picDuplicate.Visible = picDelete.Visible = visible;
         }
 
         public void SetVisibleControls() {
@@ -142,12 +141,12 @@ namespace vApus.DistributedTesting {
         }
 
         public void RefreshGui() {
-            string label = _tile + " (" + UsedTileStresstestCount + "/" + _tile.Count + ")";
+            string label = _tile + " (" + UsedTileStressTestCount + "/" + _tile.Count + ")";
 
             if (lblTile.Text != label)
                 lblTile.Text = label;
 
-            _tile.Use = UsedTileStresstestCount != 0;
+            _tile.Use = UsedTileStressTestCount != 0;
             if (_tile.Use != chk.Checked) {
                 chk.CheckedChanged -= chk_CheckedChanged;
                 chk.Checked = _tile.Use;
@@ -161,7 +160,7 @@ namespace vApus.DistributedTesting {
                 if (_tile.Use) chk.Visible = true; else Visible = true;
             } else {
                 if (_tile.Use)
-                    chk.Visible = picAddTileStresstest.Visible = picDelete.Visible = picDuplicate.Visible = false;
+                    chk.Visible = picAddTileStressTest.Visible = picDelete.Visible = picDuplicate.Visible = false;
                 else
                     Visible = false;
             }
@@ -169,11 +168,11 @@ namespace vApus.DistributedTesting {
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             //To set if the tile is used or not.
-            if (sender is TileStresstest) {
-                var tileStresstest = sender as TileStresstest;
-                if (_tile.Contains(tileStresstest)) {
+            if (sender is TileStressTest) {
+                var tileStressTest = sender as TileStressTest;
+                if (_tile.Contains(tileStressTest)) {
                     _tile.Use = false;
-                    foreach (TileStresstest ts in _tile)
+                    foreach (TileStressTest ts in _tile)
                         if (ts.Use) {
                             _tile.Use = true;
                             break;
@@ -212,8 +211,8 @@ namespace vApus.DistributedTesting {
             if (e.KeyCode == Keys.ControlKey)
                 _ctrl = false;
             else if (_ctrl)
-                if (e.KeyCode == Keys.I && AddTileStresstestClicked != null)
-                    AddTileStresstestClicked(this, null);
+                if (e.KeyCode == Keys.I && AddTileStressTestClicked != null)
+                    AddTileStressTestClicked(this, null);
                 else if (e.KeyCode == Keys.R && DeleteClicked != null)
                     DeleteClicked(this, null);
                 else if (e.KeyCode == Keys.D && DuplicateClicked != null)
@@ -230,10 +229,10 @@ namespace vApus.DistributedTesting {
                 _ctrl = true;
         }
 
-        private void picAddTileStresstest_Click(object sender, EventArgs e) {
+        private void picAddTileStressTest_Click(object sender, EventArgs e) {
             Focus();
-            if (AddTileStresstestClicked != null)
-                AddTileStresstestClicked(this, null);
+            if (AddTileStressTestClicked != null)
+                AddTileStressTestClicked(this, null);
         }
 
         private void picDuplicate_Click(object sender, EventArgs e) {
@@ -254,7 +253,7 @@ namespace vApus.DistributedTesting {
         private void chk_CheckedChanged(object sender, EventArgs e) {
             if (_tile.Use != chk.Checked) {
                 _tile.Use = chk.Checked;
-                foreach (TileStresstest ts in _tile)
+                foreach (TileStressTest ts in _tile)
                     ts.Use = _tile.Use;
 
                 _tile.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);

@@ -70,12 +70,12 @@
             // 
             // clmHostName
             // 
-            this.clmHostName.Text = "Host Name";
+            this.clmHostName.Text = "Host name";
             this.clmHostName.Width = 141;
             // 
             // clmRoundtripTime
             // 
-            this.clmRoundtripTime.Text = "Roundtrip Time";
+            this.clmRoundtripTime.Text = "Roundtrip time";
             this.clmRoundtripTime.Width = 87;
             // 
             // btnClose
@@ -113,7 +113,7 @@
             this.btnCancelTraceRoute.Name = "btnCancelTraceRoute";
             this.btnCancelTraceRoute.Size = new System.Drawing.Size(133, 24);
             this.btnCancelTraceRoute.TabIndex = 3;
-            this.btnCancelTraceRoute.Text = "Cancel Trace Route";
+            this.btnCancelTraceRoute.Text = "Cancel trace route";
             this.btnCancelTraceRoute.UseVisualStyleBackColor = false;
             this.btnCancelTraceRoute.Click += new System.EventHandler(this.btnCancelTraceRoute_Click);
             // 

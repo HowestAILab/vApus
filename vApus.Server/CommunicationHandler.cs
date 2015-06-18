@@ -11,17 +11,17 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Threading;
-using vApus.DistributedTesting;
+using vApus.DistributedTest;
 using vApus.Monitor;
 using vApus.Results;
 using vApus.Server.Shared;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
 namespace vApus.Server {
     public static class CommunicationHandler {
-        private static AutoResetEvent _jobWaitHandle = new AutoResetEvent(false);
+        //private static AutoResetEvent _jobWaitHandle = new AutoResetEvent(false);
 
         private delegate Message<Key> HandleMessageDelegate(string message);
         /// <summary>
@@ -62,13 +62,13 @@ namespace vApus.Server {
             //_delegates.Add("/runningtest/fastmonitorresults/#", RunningTestFastMonitorResults);//
 
 
-            //// For a tile stresstest            
-            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/config", TileStresstestConfig);
-            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/fastresults", TileStresstestFastResults);
-            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", TileStresstestClientMonitor);
-            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/info", TilestresstestMessages);
-            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/warning", TilestresstestMessages);
-            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/error", TilestresstestMessages);
+            //// For a tile stress test            
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/config", TileStressTestConfig);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/fastresults", TileStressTestFastResults);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/clientmonitor", TileStressTestClientMonitor);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/info", TilestressTestMessages);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/warning", TilestressTestMessages);
+            //_delegates.Add("/runningtest/tile/#/tilestresstest/#/messages/error", TilestressTestMessages);
             //_delegates.Add("/runningtest/tile/#/tilestresstest/#/fastmonitorresults/#", TileFastMonitorResults);//
 
             //_delegates.Add("/runningmonitor/#/config", RunningMonitorConfig);
@@ -76,20 +76,13 @@ namespace vApus.Server {
             //_delegates.Add("/runningmonitor/#/metrics", RunningMonitorMetrics);
         }
 
-        public static Message<Key> HandleMessage(SocketWrapper receiver, Message<Key> message) {
+        public static Message<Key> HandleMessage(Message<Key> message) {
             if (message.Key == Key.Other) {
                 string msg = message.Content as string;
-                //foreach (string path in _delegates.Keys) {
-                //    if (Match(msg, path))
-                //        try {
-                //            return _delegates[path].Invoke(msg);
-                //        } catch (Exception ex) {
-                //            return new Message<Key>(Key.Other, SerializeFailed("500 Internal Server Error. " + msg + " Details: " + ex.Message));
-                //        }
-                //}
+
                 return new Message<Key>(Key.Other, SerializeFailed("404 Not Found. " + msg));
             }
-            return SlaveSideCommunicationHandler.HandleMessage(receiver, message);
+            return SlaveSideCommunicationHandler.HandleMessage(message);
         }
         private static bool Match(string message, string path) {
             if (message.StartsWith(path)) return true;
@@ -127,9 +120,9 @@ namespace vApus.Server {
         //    return new Message<Key>(Key.Other, SerializeSucces(message));
         //}
         //private static Message<Key> StartDistributedTest(string message) {
-        //    var distributedTestingProject = Solution.ActiveSolution.GetProject("DistributedTestingProject");
+        //    var distributedTestProject = Solution.ActiveSolution.GetProject("DistributedTestProject");
         //    int index = int.Parse(message.Split('/')[2]) - 1;
-        //    var distributedTest = distributedTestingProject[index] as DistributedTest;
+        //    var distributedTest = distributedTestProject[index] as DistributedTest;
 
         //    DistributedTestView view = null;
         //    string error = string.Empty;
@@ -150,18 +143,18 @@ namespace vApus.Server {
         //    return new Message<Key>(Key.Other, SerializeSucces(message));
         //}
         //private static Message<Key> StartSingleTest(string message) {
-        //    var stresstestProject = Solution.ActiveSolution.GetProject("StresstestProject");
+        //    var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject");
         //    int index = int.Parse(message.Split('/')[2]) + 2;
-        //    var stresstest = stresstestProject[index] as Stresstest.Stresstest;
+        //    var stressTest = stressTestProject[index] as StressTest.StressTest;
 
-        //    StresstestView view = null;
+        //    StressTestView view = null;
         //    string error = string.Empty;
         //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-        //        view = stresstest.Activate() as StresstestView;
-        //        view.StartStresstest(false);
+        //        view = stressTest.Activate() as StressTestView;
+        //        view.StartStressTest(false);
         //    }, null);
 
-        //    while (view.StresstestStatus == StresstestStatus.Busy)
+        //    while (view.StressTestStatus == StressTestStatus.Busy)
         //        Thread.Sleep(1);
 
         //    if (error.Length != 0)
@@ -181,7 +174,7 @@ namespace vApus.Server {
         //    string error = string.Empty;
         //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
         //        view = monitor.Activate() as MonitorView;
-        //        view.InitializeForStresstest();
+        //        view.InitializeForStressTest();
         //        view.MonitorInitialized += (object sender, MonitorView.MonitorInitializedEventArgs e) => { _jobWaitHandle.Set(); };
         //    }, null);
 
@@ -206,9 +199,9 @@ namespace vApus.Server {
         //            if (view is DistributedTestView) {
         //                var dtv = view as DistributedTestView;
         //                dtv.StopDistributedTest();
-        //            } else if (view is StresstestView) {
-        //                var stv = view as StresstestView;
-        //                stv.StopStresstest();
+        //            } else if (view is StressTestView) {
+        //                var stv = view as StressTestView;
+        //                stv.StopStressTest();
         //            } else if (view is MonitorView) {
         //                var mv = view as MonitorView;
         //                mv.Stop();
@@ -270,36 +263,36 @@ namespace vApus.Server {
         //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(JSONObjectTreeHelper.RunningTestMessages));
         //}
 
-        //private static Message<Key> TileStresstestConfig(string message) {
+        //private static Message<Key> TileStressTestConfig(string message) {
         //    var runningTestConfig = JSONObjectTreeHelper.RunningTestConfig;
-        //    if ((runningTestConfig.Cache[0].Key as string).StartsWith("Distributed Test")) {
+        //    if ((runningTestConfig.Cache[0].Key as string).StartsWith("Distributed test")) {
         //        string[] split = message.Split('/');
         //        int tileIndex = int.Parse(split[3]);
         //        int testIndex = int.Parse(split[5]);
 
-        //        string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
-        //        List<KeyValuePair<object, object>> tileStresstests = (runningTestConfig.Cache[0].Value as JSONObjectTree).Cache;
+        //        string tileStressTest = "Tile " + tileIndex + " StressTest " + testIndex;
+        //        List<KeyValuePair<object, object>> tileStressTests = (runningTestConfig.Cache[0].Value as JSONObjectTree).Cache;
 
-        //        foreach (var kvp in tileStresstests)
-        //            if ((kvp.Key as string).StartsWith(tileStresstest))
+        //        foreach (var kvp in tileStressTests)
+        //            if ((kvp.Key as string).StartsWith(tileStressTest))
         //                return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
         //    }
 
         //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(null));
         //}
-        //private static Message<Key> TileStresstestFastResults(string message) {
+        //private static Message<Key> TileStressTestFastResults(string message) {
         //    JSONObjectTree part = null;
         //    var runningTestFastConcurrencyResults = JSONObjectTreeHelper.RunningTestFastConcurrencyResults;
-        //    if ((runningTestFastConcurrencyResults.Cache[0].Key as string).StartsWith("Distributed Test")) {
+        //    if ((runningTestFastConcurrencyResults.Cache[0].Key as string).StartsWith("Distributed test")) {
         //        string[] split = message.Split('/');
         //        int tileIndex = int.Parse(split[3]);
         //        int testIndex = int.Parse(split[5]);
 
-        //        string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
-        //        List<KeyValuePair<object, object>> tileStresstests = (runningTestFastConcurrencyResults.Cache[0].Value as JSONObjectTree).Cache;
+        //        string tileStressTest = "Tile " + tileIndex + " StressTest " + testIndex;
+        //        List<KeyValuePair<object, object>> tileStressTests = (runningTestFastConcurrencyResults.Cache[0].Value as JSONObjectTree).Cache;
 
-        //        foreach (var kvp in tileStresstests)
-        //            if ((kvp.Key as string).StartsWith(tileStresstest)) {
+        //        foreach (var kvp in tileStressTests)
+        //            if ((kvp.Key as string).StartsWith(tileStressTest)) {
         //                part = kvp.Value as JSONObjectTree;
         //                break;
         //            }
@@ -307,31 +300,31 @@ namespace vApus.Server {
 
         //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(part));
         //}
-        //private static Message<Key> TileStresstestClientMonitor(string message) {
+        //private static Message<Key> TileStressTestClientMonitor(string message) {
         //    var runningTestClientMonitor = JSONObjectTreeHelper.RunningTestClientMonitorMetrics;
-        //    if ((runningTestClientMonitor.Cache[0].Key as string).StartsWith("Distributed Test")) {
+        //    if ((runningTestClientMonitor.Cache[0].Key as string).StartsWith("Distributed test")) {
         //        string[] split = message.Split('/');
         //        int tileIndex = int.Parse(split[3]);
         //        int testIndex = int.Parse(split[5]);
 
-        //        string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+        //        string tileStressTest = "Tile " + tileIndex + " StressTest " + testIndex;
         //        foreach (var kvp in runningTestClientMonitor.Cache)
-        //            if ((kvp.Key as string).StartsWith(tileStresstest))
+        //            if ((kvp.Key as string).StartsWith(tileStressTest))
         //                return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
         //    }
 
         //    return new Message<Key>(Key.Other, JsonConvert.SerializeObject(null));
         //}
-        //private static Message<Key> TilestresstestMessages(string message) {
+        //private static Message<Key> TilestressTestMessages(string message) {
         //    var runningTestMessages = JSONObjectTreeHelper.RunningTestMessages;
-        //    if ((runningTestMessages.Cache[0].Key as string).StartsWith("Distributed Test")) {
+        //    if ((runningTestMessages.Cache[0].Key as string).StartsWith("Distributed test")) {
         //        string[] split = message.Split('/');
         //        int tileIndex = int.Parse(split[3]);
         //        int testIndex = int.Parse(split[5]);
 
-        //        string tileStresstest = "Tile " + tileIndex + " Stresstest " + testIndex;
+        //        string tileStressTest = "Tile " + tileIndex + " StressTest " + testIndex;
         //        foreach (var kvp in runningTestMessages.Cache)
-        //            if ((kvp.Key as string).StartsWith(tileStresstest))
+        //            if ((kvp.Key as string).StartsWith(tileStressTest))
         //                return new Message<Key>(Key.Other, JsonConvert.SerializeObject(kvp.Value));
         //    }
 
@@ -371,7 +364,7 @@ namespace vApus.Server {
         //    return null;
         //}
 
-        private static string SerializeSucces(string message) { return SerializeStatusMessage("succes", message); }
+        private static string SerializeSucces(string message) { return SerializeStatusMessage("success", message); }
         private static string SerializeFailed(string message) { return SerializeStatusMessage("failed", message); }
         private static string SerializeStatusMessage(string status, string message) { return JsonConvert.SerializeObject(new statusmessage() { status = status, message = message }); }
 

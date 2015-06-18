@@ -12,11 +12,11 @@ using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// To generate a text parameter, can be pre- or suffixed, have lenght boundaries or generated using a pattern.
     /// </summary>
-    [DisplayName("Text Parameter"), Serializable]
+    [DisplayName("Text parameter"), Serializable]
     public class TextParameter : BaseParameter, ISerializable {
 
         #region Fields
@@ -27,7 +27,7 @@ namespace vApus.Stresstest {
 
         #region Properties
         [PropertyControl(0), SavableCloneable]
-        [DisplayName("Minimum Length"), Description("Only applicable if no pattern is given.")]
+        [DisplayName("Minimum length"), Description("Only applicable if no pattern is given.")]
         public int MinLength {
             get { return _minLength; }
             set {
@@ -42,7 +42,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(1), SavableCloneable]
-        [DisplayName("Maximum Length"), Description("Only applicable if no pattern is given.")]
+        [DisplayName("Maximum length"), Description("Only applicable if no pattern is given.")]
         public int MaxLength {
             get { return _maxLength; }
             set {

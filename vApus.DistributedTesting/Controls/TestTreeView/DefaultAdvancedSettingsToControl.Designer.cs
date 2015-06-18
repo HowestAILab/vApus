@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class DefaultAdvancedSettingsToControl
     {
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.chkDefaultTo = new System.Windows.Forms.CheckBox();
-            this.cboStresstests = new System.Windows.Forms.ComboBox();
+            this.cboStressTests = new System.Windows.Forms.ComboBox();
             this.SuspendLayout();
             // 
             // chkDefaultTo
@@ -43,32 +43,32 @@
             this.chkDefaultTo.Location = new System.Drawing.Point(4, 1);
             this.chkDefaultTo.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.chkDefaultTo.Name = "chkDefaultTo";
-            this.chkDefaultTo.Size = new System.Drawing.Size(253, 20);
+            this.chkDefaultTo.Size = new System.Drawing.Size(257, 20);
             this.chkDefaultTo.TabIndex = 2;
-            this.chkDefaultTo.Text = "Default advanced stresstest settings to";
+            this.chkDefaultTo.Text = "Default advanced stress test settings to";
             this.chkDefaultTo.UseVisualStyleBackColor = true;
             this.chkDefaultTo.CheckedChanged += new System.EventHandler(this.chkDefaultTo_CheckedChanged);
             // 
-            // cboStresstests
+            // cboStressTests
             // 
-            this.cboStresstests.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.cboStressTests.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
                         | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboStresstests.BackColor = System.Drawing.Color.White;
-            this.cboStresstests.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboStresstests.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboStresstests.FormattingEnabled = true;
-            this.cboStresstests.Location = new System.Drawing.Point(22, 20);
-            this.cboStresstests.Name = "cboStresstests";
-            this.cboStresstests.Size = new System.Drawing.Size(325, 21);
-            this.cboStresstests.TabIndex = 3;
-            this.cboStresstests.SelectedIndexChanged += new System.EventHandler(this.cboStresstests_SelectedIndexChanged);
+            this.cboStressTests.BackColor = System.Drawing.Color.White;
+            this.cboStressTests.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboStressTests.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboStressTests.FormattingEnabled = true;
+            this.cboStressTests.Location = new System.Drawing.Point(22, 20);
+            this.cboStressTests.Name = "cboStressTests";
+            this.cboStressTests.Size = new System.Drawing.Size(325, 21);
+            this.cboStressTests.TabIndex = 3;
+            this.cboStressTests.SelectedIndexChanged += new System.EventHandler(this.cboStressTests_SelectedIndexChanged);
             // 
             // DefaultAdvancedSettingsToControl
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.Controls.Add(this.cboStresstests);
+            this.Controls.Add(this.cboStressTests);
             this.Controls.Add(this.chkDefaultTo);
             this.MaximumSize = new System.Drawing.Size(350, 46);
             this.MinimumSize = new System.Drawing.Size(350, 46);
@@ -82,7 +82,7 @@
         #endregion
 
         private System.Windows.Forms.CheckBox chkDefaultTo;
-        private System.Windows.Forms.ComboBox cboStresstests;
+        private System.Windows.Forms.ComboBox cboStressTests;
 
     }
 }

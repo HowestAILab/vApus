@@ -156,7 +156,7 @@ Wait 10
 /runningtest/messages[/info][/warning][/error]
 
 
-# For a tile stresstest
+# For a tile stress test
 /runningtest/tile/{index}/tilestresstest/{index}/fastmonitorresults/{index}
 
 /runningtest/tile/{index}/tilestresstest/{index}/config

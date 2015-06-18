@@ -10,14 +10,14 @@ using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
-    /// Basic section of a TileStresstest.
+    /// Basic section of a TileStressTest.
     /// </summary>
-    public class BasicTileStresstest : BaseItem {
+    public class BasicTileStressTest : BaseItem {
 
         #region Fields
         protected internal Connection _connection;
@@ -40,7 +40,7 @@ namespace vApus.DistributedTesting {
             get {
                 if (_connection != null) {
                     if (Solution.ActiveSolution != null && (_connection.IsEmpty || _connection.Parent == null))
-                        _connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
+                        _connection = SolutionComponent.GetNextOrEmptyChild(typeof(StressTest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(StressTest.Connections))) as StressTest.Connection;
 
                     _connection.SetDescription("The connection to the application to test. [" + ConnectionProxy + "]");
                 }
@@ -51,11 +51,11 @@ namespace vApus.DistributedTesting {
             }
         }
         [ReadOnly(true)]
-        [DisplayName("Connection Proxy")]
+        [DisplayName("Connection proxy")]
         public string ConnectionProxy {
             get {
                 if (_connection == null || _connection.IsEmpty || _connection.ConnectionProxy.IsEmpty)
-                    return "Connection Proxy: <none>";
+                    return "Connection proxy: <none>";
                 return _connection.ConnectionProxy.ToString();
             }
         }
@@ -183,9 +183,9 @@ namespace vApus.DistributedTesting {
 
         #region Constructor
         /// <summary>
-        /// Basic section of a TileStresstest.
+        /// Basic section of a TileStressTest.
         /// </summary>
-        public BasicTileStresstest() {
+        public BasicTileStressTest() {
             ShowInGui = false;
             if (Solution.ActiveSolution != null)
                 Init();
@@ -200,7 +200,7 @@ namespace vApus.DistributedTesting {
             Init();
         }
         private void Init() {
-            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(Stresstest.Connections))) as Stresstest.Connection;
+            Connection = SolutionComponent.GetNextOrEmptyChild(typeof(StressTest.Connection), Solution.ActiveSolution.GetSolutionComponent(typeof(StressTest.Connections))) as StressTest.Connection;
             _monitorProject = Solution.ActiveSolution.GetSolutionComponent(typeof(Monitor.MonitorProject)) as Monitor.MonitorProject;
 
             _monitors = new Monitor.Monitor[0];
@@ -217,7 +217,7 @@ namespace vApus.DistributedTesting {
                         l.Add(monitor);
 
                 Monitors = l.ToArray();
-            } else if (sender is Clients || sender is Client || sender is Slave || sender is BasicTileStresstest || sender is Tile || sender is DistributedTest) //Cleanup slaves
+            } else if (sender is Clients || sender is Client || sender is Slave || sender is BasicTileStressTest || sender is Tile || sender is DistributedTest) //Cleanup slaves
             {
                 FillAndGetSlavesParent();
                 if (_cachedSlavesParent.Count != 0 && (sender == _cachedSlavesParent || sender is Client || sender is Slave)) {
@@ -235,8 +235,8 @@ namespace vApus.DistributedTesting {
         /// Create clone of this.f
         /// </summary>
         /// <returns></returns>
-        public BasicTileStresstest Clone() {
-            var clone = new BasicTileStresstest();
+        public BasicTileStressTest Clone() {
+            var clone = new BasicTileStressTest();
             clone.Connection = Connection;
             clone.MonitorIndices = new int[_monitorIndices.Length];
             _monitorIndices.CopyTo(clone.MonitorIndices, 0);

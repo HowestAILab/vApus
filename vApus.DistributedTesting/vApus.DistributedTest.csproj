@@ -1,0 +1,517 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
+  <PropertyGroup>
+    <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
+    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
+    <ProductVersion>9.0.21022</ProductVersion>
+    <SchemaVersion>2.0</SchemaVersion>
+    <ProjectGuid>{A766CB72-67C0-4F24-85B5-70B8EB76882A}</ProjectGuid>
+    <OutputType>Library</OutputType>
+    <AppDesignerFolder>Properties</AppDesignerFolder>
+    <RootNamespace>vApus.DistributedTest</RootNamespace>
+    <AssemblyName>vApus.DistributedTest</AssemblyName>
+    <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
+    <FileAlignment>512</FileAlignment>
+    <FileUpgradeFlags>
+    </FileUpgradeFlags>
+    <UpgradeBackupLocation>
+    </UpgradeBackupLocation>
+    <OldToolsVersion>3.5</OldToolsVersion>
+    <PublishUrl>publish\</PublishUrl>
+    <Install>true</Install>
+    <InstallFrom>Disk</InstallFrom>
+    <UpdateEnabled>false</UpdateEnabled>
+    <UpdateMode>Foreground</UpdateMode>
+    <UpdateInterval>7</UpdateInterval>
+    <UpdateIntervalUnits>Days</UpdateIntervalUnits>
+    <UpdatePeriodically>false</UpdatePeriodically>
+    <UpdateRequired>false</UpdateRequired>
+    <MapFileExtensions>true</MapFileExtensions>
+    <ApplicationRevision>0</ApplicationRevision>
+    <ApplicationVersion>1.0.0.%2a</ApplicationVersion>
+    <IsWebBootstrapper>false</IsWebBootstrapper>
+    <UseApplicationTrust>false</UseApplicationTrust>
+    <BootstrapperEnabled>true</BootstrapperEnabled>
+    <TargetFrameworkProfile />
+    <SccProjectName>
+    </SccProjectName>
+    <SccLocalPath>
+    </SccLocalPath>
+    <SccAuxPath>
+    </SccAuxPath>
+    <SccProvider>
+    </SccProvider>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+    <DebugSymbols>true</DebugSymbols>
+    <DebugType>full</DebugType>
+    <Optimize>false</Optimize>
+    <OutputPath>bin\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
+    <DebugType>pdbonly</DebugType>
+    <Optimize>true</Optimize>
+    <OutputPath>..\..\Build\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <ErrorReport>prompt</ErrorReport>
+    <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\Debug\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.DistributedTesting.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
+    <OutputPath>bin\x64\Release\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <Optimize>true</Optimize>
+    <DebugType>pdbonly</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>..\..\Build\vApus.DistributedTesting.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DevelopmentBuild\</OutputPath>
+    <DefineConstants>TRACE;EnableBetaFeature</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.DistributedTesting.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Optimize>false</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\x64\DevelopmentBuild\</OutputPath>
+    <DefineConstants>TRACE;DEBUG;EnableBetaFeature</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.DistributedTesting.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\TestingBuild\</OutputPath>
+    <DefineConstants>TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.DistributedTesting.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <Prefer32Bit>false</Prefer32Bit>
+    <Optimize>true</Optimize>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|x64'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>..\Build\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>x64</PlatformTarget>
+    <CodeAnalysisLogFile>bin\Debug\vApus.DistributedTesting.dll.CodeAnalysisLog.xml</CodeAnalysisLogFile>
+    <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
+    <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>AllRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
+    <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
+    <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
+    <Prefer32Bit>false</Prefer32Bit>
+  </PropertyGroup>
+  <ItemGroup>
+    <Reference Include="FastColoredTextBox, Version=2.9.15.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\Prerequisites\RandomUtils\Newtonsoft.Json.dll</HintPath>
+    </Reference>
+    <Reference Include="ObjectListView">
+      <HintPath>..\packages\ObjectListView.Official.2.8.1\lib\net20\ObjectListView.dll</HintPath>
+    </Reference>
+    <Reference Include="RandomUtils">
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="RandomUtils.Log">
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
+    </Reference>
+    <Reference Include="System" />
+    <Reference Include="System.Core">
+      <RequiredTargetFramework>3.5</RequiredTargetFramework>
+    </Reference>
+    <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
+    <Reference Include="System.Windows.Forms" />
+    <Reference Include="System.XML" />
+    <Reference Include="WindowsBase" />
+  </ItemGroup>
+  <ItemGroup>
+    <Compile Include="AdvancedTileStressTest.cs" />
+    <Compile Include="BasicTileStressTest.cs" />
+    <Compile Include="Client.cs" />
+    <Compile Include="Communication\SlaveSideCommunicationHandler.cs" />
+    <Compile Include="Controls\TestTreeView\DefaultAdvancedSettingsToControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\DefaultAdvancedSettingsToControl.Designer.cs">
+      <DependentUpon>DefaultAdvancedSettingsToControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\AssignTest.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\AssignTest.Designer.cs">
+      <DependentUpon>AssignTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\ConfigureSlaves.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\ConfigureSlaves.Designer.cs">
+      <DependentUpon>ConfigureSlaves.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveTile.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveTile.Designer.cs">
+      <DependentUpon>SlaveTile.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\DistributedTestOrTileOverview.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\DistributedTestOrTileOverview.Designer.cs">
+      <DependentUpon>DistributedTestOrTileOverview.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DivideEtImpera.cs" />
+    <Compile Include="Wizard.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="Wizard.Designer.cs">
+      <DependentUpon>Wizard.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\ConfigureTileStressTest.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\ConfigureTileStressTest.Designer.cs">
+      <DependentUpon>ConfigureTileStressTest.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\OveralFastResultsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\OveralFastResultsControl.Designer.cs">
+      <DependentUpon>OveralFastResultsControl.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\ClientsAndSlavesTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\ClientsAndSlavesTreeViewItem.Designer.cs">
+      <DependentUpon>ClientsAndSlavesTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\SlaveTreeView.Designer.cs">
+      <DependentUpon>SlaveTreeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\Enums.cs" />
+    <Compile Include="Controls\ITreeViewItem.cs" />
+    <Compile Include="Controls\SlaveTreeView\ClientTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\SlaveTreeView\ClientTreeViewItem.Designer.cs">
+      <DependentUpon>ClientTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\TileStressTestTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\TileStressTestTreeViewItem.Designer.cs">
+      <DependentUpon>TileStressTestTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\DistributedTestTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\DistributedTestTreeViewItem.Designer.cs">
+      <DependentUpon>DistributedTestTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\TestTreeView.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\TestTreeView.Designer.cs">
+      <DependentUpon>TestTreeView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\TileTreeViewItem.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="Controls\TestTreeView\TileTreeViewItem.Designer.cs">
+      <DependentUpon>TileTreeViewItem.cs</DependentUpon>
+    </Compile>
+    <Compile Include="DistributedTestView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DistributedTestView.Designer.cs">
+      <DependentUpon>DistributedTestView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Communication\JumpStart.cs" />
+    <Compile Include="EventArgs.cs" />
+    <Compile Include="Communication\MasterSideCommunicationHandler.cs" />
+    <Compile Include="DistributedTestCore.cs" />
+    <Compile Include="Slave.cs" />
+    <Compile Include="TileStressTest.cs" />
+    <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
+    <Compile Include="DistributedTest.cs" />
+    <Compile Include="DistributedTestProject.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="Clients.cs" />
+    <Compile Include="Tiles.cs" />
+    <Compile Include="TileStressTestView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="TileStressTestView.Designer.cs">
+      <DependentUpon>TileStressTestView.cs</DependentUpon>
+    </Compile>
+    <Compile Include="Tile.cs" />
+    <Compile Include="WizardConnectionUsage.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="WizardConnectionUsage.Designer.cs">
+      <DependentUpon>WizardConnectionUsage.cs</DependentUpon>
+    </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\vApus.JSON\vApus.JSON.csproj">
+      <Project>{9e3d2623-0e60-4883-81a9-73ee8e974439}</Project>
+      <Name>vApus.JSON</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.JumpStartStructures\vApus.JumpStartStructures.csproj">
+      <Project>{0B87A110-73F8-496A-B656-9050272CFE7B}</Project>
+      <Name>vApus.JumpStartStructures</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Monitor\vApus.Monitor.csproj">
+      <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
+      <Name>vApus.Monitor</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
+      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
+      <Name>vApus.Results</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Server.Shared\vApus.Server.Shared.csproj">
+      <Project>{37420528-6c41-452c-9776-0fb147f67915}</Project>
+      <Name>vApus.Server.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
+      <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>
+      <Name>vApus.SolutionTree</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Stresstest\vApus.StressTest.csproj">
+      <Project>{790522AB-42D5-4C39-83BE-14244D8C3F22}</Project>
+      <Name>vApus.StressTest</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
+      <Project>{EAFDF189-4D7D-4784-96BC-662D746DEBF8}</Project>
+      <Name>vApus.Util</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WeifenLuo.WinFormsUI\WeifenLuo.WinFormsUI.csproj">
+      <Project>{C75532C4-765B-418E-B09B-46D36B2ABDB1}</Project>
+      <Name>WeifenLuo.WinFormsUI</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Controls\TestTreeView\DefaultAdvancedSettingsToControl.resx">
+      <DependentUpon>DefaultAdvancedSettingsToControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\AssignTest.resx">
+      <DependentUpon>AssignTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\ConfigureSlaves.resx">
+      <DependentUpon>ConfigureSlaves.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveTile.resx">
+      <DependentUpon>SlaveTile.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\DistributedTestOrTileOverview.resx">
+      <DependentUpon>DistributedTestOrTileOverview.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Wizard.resx">
+      <DependentUpon>Wizard.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\ConfigureTileStressTest.resx">
+      <DependentUpon>ConfigureTileStressTest.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\OveralFastResultsControl.resx">
+      <DependentUpon>OveralFastResultsControl.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\ClientsAndSlavesTreeViewItem.resx">
+      <DependentUpon>ClientsAndSlavesTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\SlaveTreeView.resx">
+      <DependentUpon>SlaveTreeView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\SlaveTreeView\ClientTreeViewItem.resx">
+      <DependentUpon>ClientTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\TileStressTestTreeViewItem.resx">
+      <DependentUpon>TileStressTestTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\DistributedTestTreeViewItem.resx">
+      <DependentUpon>DistributedTestTreeViewItem.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\TestTreeView.resx">
+      <DependentUpon>TestTreeView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Controls\TestTreeView\TileTreeViewItem.resx">
+      <DependentUpon>TileTreeViewItem.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="DistributedTestView.resx">
+      <DependentUpon>DistributedTestView.cs</DependentUpon>
+    </EmbeddedResource>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="TileStressTestView.resx">
+      <DependentUpon>TileStressTestView.cs</DependentUpon>
+      <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="WizardConnectionUsage.resx">
+      <DependentUpon>WizardConnectionUsage.cs</DependentUpon>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="packages.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>SettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
+  </ItemGroup>
+  <ItemGroup>
+    <BootstrapperPackage Include="Microsoft.Net.Client.3.5">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1 Client Profile</ProductName>
+      <Install>false</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Net.Framework.3.5.SP1">
+      <Visible>False</Visible>
+      <ProductName>.NET Framework 3.5 SP1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.VisualBasic.PowerPacks.10.0">
+      <Visible>False</Visible>
+      <ProductName>Microsoft Visual Basic PowerPacks 10.0</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+    <BootstrapperPackage Include="Microsoft.Windows.Installer.3.1">
+      <Visible>False</Visible>
+      <ProductName>Windows Installer 3.1</ProductName>
+      <Install>true</Install>
+    </BootstrapperPackage>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OnlineSlave.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OnlineComputer.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Offline.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Tile.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\TileStresstest.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\DistributedTest.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\OK.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Cancelled.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Error.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\RefreshNeeded.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Kill.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\DistributedTestingProject.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\wait.gif" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Collapse_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Expand_small.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Resources\Busy.gif" />
+  </ItemGroup>
+  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
+       Other similar extension points exist, see Microsoft.Common.targets.
+  <Target Name="BeforeBuild">
+  </Target>
+  <Target Name="AfterBuild">
+  </Target>
+  -->
+</Project>

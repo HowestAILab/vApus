@@ -16,24 +16,19 @@ using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public partial class OveralFastResultsControl : UserControl {
 
         #region Fields
         private DistributedTest _distributedTest;
 
         //Caching the progress here.
-        Dictionary<TileStresstest, FastStresstestMetricsCache> _progress = new Dictionary<TileStresstest, FastStresstestMetricsCache>();
-        private List<object[]> _concurrencyStresstestMetricsRows = new List<object[]>();
-        private List<object[]> _runStresstestMetricsRows = new List<object[]>();
+        Dictionary<TileStressTest, FastStressTestMetricsCache> _progress = new Dictionary<TileStressTest, FastStressTestMetricsCache>();
+        private List<object[]> _concurrencyStressTestMetricsRows = new List<object[]>();
+        private List<object[]> _runStressTestMetricsRows = new List<object[]>();
 
         private List<int> _invalidateConcurrencyRows = new List<int>();
         private List<int> _invalidateRunRows = new List<int>();
-
-        /// <summary>
-        ///     Enables Auto scroll to end of fast results when appropriate.
-        /// </summary>
-        private bool _keepFastResultsAtEnd = true;
         #endregion
 
         #region Properties
@@ -56,18 +51,16 @@ namespace vApus.DistributedTesting {
         public void ClearFastResults() {
             dgvFastResults.RowCount = 0;
 
-            _progress = new Dictionary<TileStresstest, FastStresstestMetricsCache>();
+            _progress = new Dictionary<TileStressTest, FastStressTestMetricsCache>();
 
-            _concurrencyStresstestMetricsRows = new List<object[]>();
-            _runStresstestMetricsRows = new List<object[]>();
+            _concurrencyStressTestMetricsRows = new List<object[]>();
+            _runStressTestMetricsRows = new List<object[]>();
 
             _invalidateConcurrencyRows = new List<int>();
             _invalidateRunRows = new List<int>();
             eventView.ClearEvents();
 
             kvpOK.Visible = kvpCancelled.Visible = kvpFailed.Visible = false;
-
-            _keepFastResultsAtEnd = true;
         }
 
         /// <summary>
@@ -161,39 +154,39 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <param name="title">Distributed test or the tostring of the tile</param>
         /// <param name="progress"></param>
-        public void SetOverallFastResults(Dictionary<TileStresstest, FastStresstestMetricsCache> progress) {
+        public void SetOverallFastResults(Dictionary<TileStressTest, FastStressTestMetricsCache> progress) {
             _progress = progress;
 
             RefreshRows();
             if (cboDrillDown.SelectedIndex == 0) SetOverallFastConcurrencyResults(); else SetOverallFastRunResults();
         }
         private void RefreshRows() {
-            _concurrencyStresstestMetricsRows.Clear();
-            _runStresstestMetricsRows.Clear();
+            _concurrencyStressTestMetricsRows.Clear();
+            _runStressTestMetricsRows.Clear();
 
             _invalidateConcurrencyRows.Clear();
             _invalidateRunRows.Clear();
 
-            foreach (TileStresstest ts in _progress.Keys) {
+            foreach (TileStressTest ts in _progress.Keys) {
                 var metricsCache = _progress[ts];
-                _concurrencyStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStresstestMetricsHelper.MetricsToRows(metricsCache.GetConcurrencyMetrics(), chkReadable.Checked, metricsCache.SimplifiedMetrics)));
-                _runStresstestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStresstestMetricsHelper.MetricsToRows(metricsCache.GetRunMetrics(), chkReadable.Checked, metricsCache.SimplifiedMetrics)));
+                _concurrencyStressTestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStressTestMetricsHelper.MetricsToRows(metricsCache.GetConcurrencyMetrics(), chkReadable.Checked, metricsCache.SimplifiedMetrics)));
+                _runStressTestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStressTestMetricsHelper.MetricsToRows(metricsCache.GetRunMetrics(), chkReadable.Checked, metricsCache.SimplifiedMetrics)));
             }
-            for (int i = 0; i != _concurrencyStresstestMetricsRows.Count; i++)
+            for (int i = 0; i != _concurrencyStressTestMetricsRows.Count; i++)
                 _invalidateConcurrencyRows.Add(i);
-            for (int i = 0; i != _runStresstestMetricsRows.Count; i++)
+            for (int i = 0; i != _runStressTestMetricsRows.Count; i++)
                 _invalidateRunRows.Add(i);
         }
         /// <summary>
-        /// Puts the tile stresstest tostring in front of the rows.
+        /// Puts the tile stress test tostring in front of the rows.
         /// </summary>
-        /// <param name="tileStresstest"></param>
+        /// <param name="tileStressTest"></param>
         /// <param name="rows"></param>
-        private List<object[]> GetUsableRows(string tileStresstest, List<object[]> rows) {
+        private List<object[]> GetUsableRows(string tileStressTest, List<object[]> rows) {
             var usableRows = new List<object[]>();
             foreach (var row in rows) {
                 var newRow = new object[row.LongLength + 1];
-                newRow[0] = tileStresstest;
+                newRow[0] = tileStressTest;
                 row.CopyTo(newRow, 1);
                 usableRows.Add(newRow);
             }
@@ -202,7 +195,7 @@ namespace vApus.DistributedTesting {
         private void SetOverallFastConcurrencyResults() {
             try {
                 if (!IsDisposed) {
-                    int count = _concurrencyStresstestMetricsRows.Count;
+                    int count = _concurrencyStressTestMetricsRows.Count;
                     if (dgvFastResults.RowCount == count && count != 0)
                         foreach (int i in _invalidateConcurrencyRows)
                             dgvFastResults.InvalidateRow(i);
@@ -216,7 +209,7 @@ namespace vApus.DistributedTesting {
         private void SetOverallFastRunResults() {
             try {
                 if (!IsDisposed) {
-                    int count = _runStresstestMetricsRows.Count;
+                    int count = _runStressTestMetricsRows.Count;
                     if (dgvFastResults.RowCount == count && count != 0)
                         foreach (int i in _invalidateRunRows)
                             dgvFastResults.InvalidateRow(i);
@@ -238,13 +231,13 @@ namespace vApus.DistributedTesting {
             //Set the headers.
             dgvFastResults.Columns.Clear();
             string[] columnHeaders = null;
-            columnHeaders = cboDrillDown.SelectedIndex == 0 ? FastStresstestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked)
-                : FastStresstestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
+            columnHeaders = cboDrillDown.SelectedIndex == 0 ? FastStressTestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked)
+                : FastStressTestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
 
             if (readableChanged) RefreshRows();
 
             string[] newColumnHeaders = new string[columnHeaders.LongLength + 1];
-            newColumnHeaders[0] = "Tile Stresstest";
+            newColumnHeaders[0] = "Tile stress test";
             columnHeaders.CopyTo(newColumnHeaders, 1);
 
             var clms = new DataGridViewColumn[newColumnHeaders.Length];
@@ -269,7 +262,7 @@ namespace vApus.DistributedTesting {
 
         private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
-                var metrics = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows;
+                var metrics = cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows;
                 if (e.RowIndex < metrics.Count) {
                     var row = metrics[e.RowIndex];
                     if (e.ColumnIndex < row.Length)
@@ -283,17 +276,6 @@ namespace vApus.DistributedTesting {
         private void dgvFastResults_Scroll(object sender, ScrollEventArgs e) {
             var verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
                                                         .GetValue(dgvFastResults) as ScrollBar;
-            _keepFastResultsAtEnd = (verticalScrollBar.Value + verticalScrollBar.LargeChange + 1) >= verticalScrollBar.Maximum;
-        }
-        /// <summary>
-        ///     When the row count changes.
-        /// </summary>
-        private void KeepFastResultsAtEnd() {
-            if (_keepFastResultsAtEnd && dgvFastResults.RowCount != 0) {
-                dgvFastResults.Scroll -= dgvFastResults_Scroll;
-                dgvFastResults.FirstDisplayedScrollingRowIndex = dgvFastResults.RowCount - 1;
-                dgvFastResults.Scroll += dgvFastResults_Scroll;
-            }
         }
 
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
@@ -315,8 +297,6 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     Get the displayed results.
         /// </summary>
-        /// <param name="appendHeaders"></param>
-        /// <param name="addStresstestColumn"></param>
         /// <returns></returns>
         private string GetDisplayedResults() {
             var sb = new StringBuilder();
@@ -329,8 +309,8 @@ namespace vApus.DistributedTesting {
 
             //Select and write rows.
             List<object[]> rows = new List<object[]>();
-            //if (lbtnStresstest.Active)
-            rows = cboDrillDown.SelectedIndex == 0 ? _concurrencyStresstestMetricsRows : _runStresstestMetricsRows;
+            //if (lbtnStressTest.Active)
+            rows = cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows;
             //else {
             //    string monitorToString = null;
             //    foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }

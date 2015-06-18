@@ -20,12 +20,12 @@ using System.Threading.Tasks;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.Stresstest {
-    public class StresstestCore : IDisposable {
+namespace vApus.StressTest {
+    public class StressTestCore : IDisposable {
 
         #region Events
         public event EventHandler<TestInitializedEventArgs> TestInitialized;
-        public event EventHandler<StresstestResultEventArgs> StresstestStarted;
+        public event EventHandler<StressTestResultEventArgs> StressTestStarted;
         public event EventHandler<ConcurrencyResultEventArgs> ConcurrencyStarted, ConcurrencyStopped;
         public event EventHandler<RunResultEventArgs> RunInitializedFirstTime, RunStarted, RunStopped;
         public event EventHandler RunDoneOnce, RerunDone;
@@ -34,21 +34,21 @@ namespace vApus.Stresstest {
 
         #region Fields
         /// <summary>
-        ///     To be able to execute log entries parallel. This feature is not used at the time.
+        ///     To be able to execute requests parallel.
         /// </summary>
         [ThreadStatic]
         private static SyncAndAsyncWorkItem _syncAndAsyncWorkItem;
 
-        private readonly Stresstest _stresstest;
+        private readonly StressTest _stressTest;
 
         /// <summary>
-        /// Multiple logs can occur in one test, the (incremental) percentage division is kept here also.
+        /// Multiple scenarios can occur in one test, the (incremental) percentage division is kept here also.
         /// </summary>
-        private KeyValuePair<Log, KeyValuePair<LogEntry[], float>>[] _logEntries;
-        private TestableLogEntry[][] _testableLogEntries;
+        private KeyValuePair<Scenario, KeyValuePair<Request[], float>>[] _requests;
+        private TestableRequest[][] _testableRequests;
 
         private ResultsHelper _resultsHelper = new ResultsHelper();
-        private StresstestResult _stresstestResult;
+        private StressTestResult _stressTestResult;
         /// <summary>
         /// The result of the current executing concurrency.
         /// </summary>
@@ -58,11 +58,11 @@ namespace vApus.Stresstest {
         /// </summary>
         private ConcurrencyResult _concurrencyResult;
 
-        private Dictionary<Log, TestPatternsAndDelaysGenerator> _testPatternsAndDelaysGenerators;
+        private Dictionary<Scenario, TestPatternsAndDelaysGenerator> _testPatternsAndDelaysGenerators;
         private int[][] _delays;
         private AutoResetEvent _sleepWaitHandle = new AutoResetEvent(false); //Better than Thread.Sleep to wait a delay after sending to / receiving from the server app.
 
-        private StresstestThreadPool _threadPool;
+        private StressTestThreadPool _threadPool;
         private ConnectionProxyPool _connectionProxyPool;
 
         /// <summary> Needed for break on last. </summary>
@@ -91,7 +91,7 @@ namespace vApus.Stresstest {
             set { _resultsHelper = value; }
         }
 
-        public StresstestResult StresstestResult { get { return _stresstestResult; } }
+        public StressTestResult StressTestResult { get { return _stressTestResult; } }
 
         public RunSynchronization RunSynchronization { get; set; }
 
@@ -111,18 +111,17 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Don't forget to set the resultshelper if need be
         /// </summary>
-        /// <param name="stresstest"></param>
-        /// <param name="limitSimultaniousRunningToOne">Allow only one stresstest to run at a time.</param>
-        public StresstestCore(Stresstest stresstest) {
+        /// <param name="stressTest"></param>
+        public StressTestCore(StressTest stressTest) {
             ObjectRegistrar.MaxRegistered = 1;
             ObjectRegistrar.Register(this);
 
-            _stresstest = stresstest;
+            _stressTest = stressTest;
 
             //#warning Enable REST
             // WriteRestConfig();
         }
-        ~StresstestCore() {
+        ~StressTestCore() {
             Dispose();
         }
         #endregion
@@ -130,20 +129,20 @@ namespace vApus.Stresstest {
         #region Functions
 
         #region Eventing
-        private void SetStresstestStarted() {
-            _stresstestResult = new StresstestResult();
-            _resultsHelper.SetStresstestStarted(_stresstestResult);
-            InvokeMessage("Starting the stresstest...");
+        private void SetStressTestStarted() {
+            _stressTestResult = new StressTestResult();
+            _resultsHelper.SetStressTestStarted(_stressTestResult);
+            InvokeMessage("Starting the stress test...");
 
-            if (!_cancel && StresstestStarted != null)
+            if (!_cancel && StressTestStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
-                    delegate { StresstestStarted(this, new StresstestResultEventArgs(_stresstestResult)); }, null);
+                    delegate { StressTestStarted(this, new StressTestResultEventArgs(_stressTestResult)); }, null);
         }
 
         private void SetConcurrencyStarted(int concurrentUsersIndex) {
-            int concurrentUsers = _stresstest.Concurrencies[concurrentUsersIndex];
-            _concurrencyResult = new ConcurrencyResult(concurrentUsers, _stresstest.Runs);
-            _stresstestResult.ConcurrencyResults.Add(_concurrencyResult);
+            int concurrentUsers = _stressTest.Concurrencies[concurrentUsersIndex];
+            _concurrencyResult = new ConcurrencyResult(concurrentUsers, _stressTest.Runs);
+            _stressTestResult.ConcurrencyResults.Add(_concurrencyResult);
             _resultsHelper.SetConcurrencyStarted(_concurrencyResult);
             InvokeMessage(
                 string.Format("|-> {0} Concurrent Users... (Initializing the first run, please be patient)", concurrentUsers),
@@ -194,23 +193,23 @@ namespace vApus.Stresstest {
         private void SetRunInitializedFirstTime(int concurrentUsersIndex, int run) {
             InvokeMessage(string.Format("|----> |Run {0}...", run), Color.MediumPurple);
 
-            int concurrentUsers = _stresstest.Concurrencies[concurrentUsersIndex];
+            int concurrentUsers = _stressTest.Concurrencies[concurrentUsersIndex];
 
             _runResult = new RunResult(run, concurrentUsers);
             for (int user = 0; user != concurrentUsers; user++) {
-                //Find the right log based on the weight given in the stresstest view config.
+                //Find the right scenario based on the weight given in the stress test view config.
                 float percentage = ((float)(user + 1)) / concurrentUsers;
 
-                Log log = null;
+                Scenario scenario = null;
                 float previousValue = 0f;
-                foreach (var kvp in _logEntries) {
-                    Log candidate = kvp.Key;
+                foreach (var kvp in _requests) {
+                    Scenario candidate = kvp.Key;
                     if (percentage > previousValue && percentage <= kvp.Value.Value)
-                        log = candidate;
+                        scenario = candidate;
                     previousValue = kvp.Value.Value;
                 }
 
-                _runResult.VirtualUserResults[user] = new VirtualUserResult(_testPatternsAndDelaysGenerators[log].PatternLength);
+                _runResult.VirtualUserResults[user] = new VirtualUserResult(_testPatternsAndDelaysGenerators[scenario].PatternLength);
             }
 
             _concurrencyResult.RunResults.Add(_runResult);
@@ -277,7 +276,7 @@ namespace vApus.Stresstest {
                         }, null);
 
                 Loggers.Log(logLevel, message);
-                _resultsHelper.AddLogEntry((int)logLevel, message);
+                _resultsHelper.AddLogEntryInMemory((int)logLevel, message);
             } catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }
@@ -292,7 +291,7 @@ namespace vApus.Stresstest {
             Exception ex = null;
             try {
                 InvokeMessage("Initializing the Test.");
-                InitializeLogs();
+                InitializeScenarios();
                 if (_cancel) return;
                 InitializeConnectionProxyPool();
                 if (_cancel) return;
@@ -304,72 +303,72 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Will apply the log rule set.
+        ///     Will apply the scenario rule set.
         ///     Parallel connections will be determined here also.
         /// </summary>
-        private void InitializeLogs() {
+        private void InitializeScenarios() {
             if (_cancel) return;
 
-            InvokeMessage("Initializing Log(s)...");
+            InvokeMessage("Initializing Scenario(s)...");
             _sw.Start();
-            if (_stresstest.Logs[0].Key.LogRuleSet.IsEmpty) {
-                var ex = new Exception("No rule set has been assigned to the selected log(s).");
+            if (_stressTest.Scenarios[0].Key.ScenarioRuleSet.IsEmpty) {
+                var ex = new Exception("No rule set has been assigned to the selected scenario(s).");
                 Loggers.Log(Level.Error, ex.ToString());
                 throw ex;
             }
-            foreach (var kvp in _stresstest.Logs) {
+            foreach (var kvp in _stressTest.Scenarios) {
                 if (_cancel) return;
 
                 if (kvp.Value != 0 && kvp.Key.Count == 0) {
-                    var ex = new Exception("There are no user actions in a selected log.");
+                    var ex = new Exception("There are no user actions in a selected scenario.");
                     Loggers.Log(Level.Error, ex.ToString());
                     throw ex;
                 }
             }
 
-            float totalLogWeight = 0; //To calcullate the percentage distribution
-            var logsSortedByWeight = new List<KeyValuePair<Log, uint>>(); //for easy determining incremental percentages
-            foreach (var kvp in _stresstest.Logs) {
+            float totalScenarioWeight = 0; //To calculate the percentage distribution
+            var scenariosSortedByWeight = new List<KeyValuePair<Scenario, uint>>(); //for easy determining incremental percentages
+            foreach (var kvp in _stressTest.Scenarios) {
                 if (_cancel) return;
 
-                totalLogWeight += Convert.ToSingle(kvp.Value);
+                totalScenarioWeight += Convert.ToSingle(kvp.Value);
 
                 bool added = false;
-                for (int i = 0; i != logsSortedByWeight.Count; i++) {
+                for (int i = 0; i != scenariosSortedByWeight.Count; i++) {
                     if (_cancel) return;
 
-                    if (logsSortedByWeight[i].Value > kvp.Value) {
-                        logsSortedByWeight.Insert(i, kvp);
+                    if (scenariosSortedByWeight[i].Value > kvp.Value) {
+                        scenariosSortedByWeight.Insert(i, kvp);
                         added = true;
                         break;
                     }
                 }
                 if (!added)
-                    logsSortedByWeight.Add(kvp);
+                    scenariosSortedByWeight.Add(kvp);
             }
 
             uint incrementedWeight = 0;
-            var logEntries = new List<KeyValuePair<Log, KeyValuePair<LogEntry[], float>>>();
-            _testPatternsAndDelaysGenerators = new Dictionary<Log, TestPatternsAndDelaysGenerator>();
-            foreach (var kvp in logsSortedByWeight) {
+            var scenarios = new List<KeyValuePair<Scenario, KeyValuePair<Request[], float>>>();
+            _testPatternsAndDelaysGenerators = new Dictionary<Scenario, TestPatternsAndDelaysGenerator>();
+            foreach (var kvp in scenariosSortedByWeight) {
                 if (_cancel) return;
 
                 if (kvp.Value != 0) {
-                    Log log = LogTimesOccurancies(kvp.Key);
+                    Scenario scenario = ScenarioTimesOccurancies(kvp.Key);
 
                     if (_cancel) return;
 
                     //Parallel connections, check per user action
                     _parallelConnections = 0;
-                    var l = new List<LogEntry>();
-                    foreach (UserAction ua in log) {
+                    var l = new List<Request>();
+                    foreach (UserAction ua in scenario) {
                         int parallelConnections = 0;
-                        foreach (LogEntry logEntry in ua) {
+                        foreach (Request request in ua) {
                             if (_cancel) return;
 
-                            l.Add(logEntry);
+                            l.Add(request);
 
-                            if (logEntry.ExecuteInParallel)
+                            if (request.ExecuteInParallel)
                                 ++parallelConnections;
                         }
                         if (parallelConnections != 0) {
@@ -378,23 +377,23 @@ namespace vApus.Stresstest {
                         }
                     }
 
-                    var logEntryArr = l.ToArray();
+                    var requestArr = l.ToArray();
                     l = null;
 
                     incrementedWeight += kvp.Value;
 
-                    logEntries.Add(new KeyValuePair<Log, KeyValuePair<LogEntry[], float>>(log, new KeyValuePair<LogEntry[], float>(logEntryArr, Convert.ToSingle(incrementedWeight) / totalLogWeight)));
+                    scenarios.Add(new KeyValuePair<Scenario, KeyValuePair<Request[], float>>(scenario, new KeyValuePair<Request[], float>(requestArr, Convert.ToSingle(incrementedWeight) / totalScenarioWeight)));
 
-                    int actionCount = _stresstest.MaximumNumberOfUserActions == 0 ? log.Count : _stresstest.MaximumNumberOfUserActions;
-                    var testPatternsAndDelaysGenerators = new TestPatternsAndDelaysGenerator(logEntryArr, actionCount, _stresstest.Shuffle, _stresstest.MinimumDelay, _stresstest.MaximumDelay);
-                    _testPatternsAndDelaysGenerators.Add(log, testPatternsAndDelaysGenerators);
+                    int actionCount = _stressTest.MaximumNumberOfUserActions == 0 ? scenario.Count : _stressTest.MaximumNumberOfUserActions;
+                    var testPatternsAndDelaysGenerators = new TestPatternsAndDelaysGenerator(requestArr, actionCount, _stressTest.Shuffle, _stressTest.MinimumDelay, _stressTest.MaximumDelay);
+                    _testPatternsAndDelaysGenerators.Add(scenario, testPatternsAndDelaysGenerators);
                 }
             }
 
-            _logEntries = logEntries.ToArray();
+            _requests = scenarios.ToArray();
 
-            logEntries = null;
-            logsSortedByWeight = null;
+            scenarios = null;
+            scenariosSortedByWeight = null;
 
             GC.WaitForPendingFinalizers();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
@@ -405,31 +404,31 @@ namespace vApus.Stresstest {
             _sw.Reset();
         }
         /// <summary>
-        ///     Expands the log (into a new one) times the occurance.
-        ///     This also applies the log ruleset.
+        ///     Expands the scenario (into a new one) times the occurance.
+        ///     This also applies the scenario rule set.
         /// </summary>
         /// <returns></returns>
-        private Log LogTimesOccurancies(Log log) {
+        private Scenario ScenarioTimesOccurancies(Scenario scenario) {
             //Check if following logic is needed, if not return immediatly.
-            bool doLogTimesOccurancies = false;
-            if (_stresstest.ActionDistribution)
-                foreach (UserAction action in log)
+            bool doScenarioTimesOccurancies = false;
+            if (_stressTest.ActionDistribution)
+                foreach (UserAction action in scenario)
                     if (action.Occurance != 1) {
-                        doLogTimesOccurancies = true;
+                        doScenarioTimesOccurancies = true;
                         break;
                     }
 
-            if (!doLogTimesOccurancies) {
-                log.ApplyLogRuleSet();
-                return log;
+            if (!doScenarioTimesOccurancies) {
+                scenario.ApplyScenarioRuleSet();
+                return scenario;
             }
 
-            var newLog = log.Clone(false, false, false, false);
+            var newScenario = scenario.Clone(false, false, false, false);
             var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
-            foreach (UserAction action in log) {
+            foreach (UserAction action in scenario) {
                 if (_cancel) return null;
 
-                var firstEntryClones = new List<LogEntry>(); //This is a complicated structure to be able to get averages when using action distribution.
+                var firstRequestClones = new List<Request>(); //This is a complicated structure to be able to get averages when using action distribution.
                 for (int i = 0; i != action.Occurance; i++) {
                     if (_cancel) return null;
 
@@ -437,34 +436,34 @@ namespace vApus.Stresstest {
                     actionClone.Occurance = 1; //Must be one now, this value doesn't matter anymore.
                     actionClone.Pinned = action.Pinned;
 
-                    bool canAddClones = firstEntryClones.Count == 0;
-                    int logEntryIndex = 0;
-                    foreach (LogEntry child in action) {
+                    bool canAddClones = firstRequestClones.Count == 0;
+                    int requestIndex = 0;
+                    foreach (Request child in action) {
                         if (_cancel) return null;
 
-                        LogEntry childClone = child.Clone(log.LogRuleSet, true, false);
+                        Request childClone = child.Clone(scenario.ScenarioRuleSet, true, false);
 
                         if (canAddClones)
-                            firstEntryClones.Add(childClone);
+                            firstRequestClones.Add(childClone);
                         else
-                            childClone.SameAs = firstEntryClones[logEntryIndex];
+                            childClone.SameAs = firstRequestClones[requestIndex];
 
                         actionClone.AddWithoutInvokingEvent(childClone);
-                        ++logEntryIndex;
+                        ++requestIndex;
                     }
 
-                    newLog.AddWithoutInvokingEvent(actionClone);
+                    newScenario.AddWithoutInvokingEvent(actionClone);
 
                     if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
                         linkCloned.Add(action, actionClone);
                     } else if (linkCloned.Count != 0) { //We can avoid the looping logic until a linkUserAction is found.
                         UserAction linkUserAction;
-                        if (action.IsLinked(log, out linkUserAction) && linkCloned.ContainsKey(linkUserAction))
-                            linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newLog.Count);
+                        if (action.IsLinked(scenario, out linkUserAction) && linkCloned.ContainsKey(linkUserAction))
+                            linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newScenario.Count);
                     }
                 }
             }
-            return newLog;
+            return newScenario;
         }
 
         private void InitializeConnectionProxyPool() {
@@ -472,8 +471,8 @@ namespace vApus.Stresstest {
 
             InvokeMessage("Initialize Connection Proxy Pool...");
             _sw.Start();
-            _connectionProxyPool = new ConnectionProxyPool(_stresstest.Connection);
-            CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(false);
+            _connectionProxyPool = new ConnectionProxyPool(_stressTest.Connection);
+            CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(true, false);
             if (compilerResults.Errors.HasErrors) {
                 var sb = new StringBuilder("Failed at compiling the connection proxy class:");
                 sb.AppendLine();
@@ -507,88 +506,88 @@ namespace vApus.Stresstest {
             _sw.Reset();
         }
 
-        //Following init functions happen right before a run starts (ExecuteStresstest).
-        private void DetermineTestableLogEntriessAndDelays(int concurrentUsers) {
+        //Following init functions happen right before a run starts (ExecuteStressTest).
+        private void DetermineTestableRequestsAndDelays(int concurrentUsers) {
             try {
                 InvokeMessage(string.Format("       |Determining Test Patterns and Delays for {0} Concurrent Users...", concurrentUsers));
                 _sw.Start();
 
-                var testableLogEntries = new ConcurrentDictionary<int, TestableLogEntry[]>(); //Keep the user to preserve the order.
+                var testableRequests = new ConcurrentDictionary<int, TestableRequest[]>(); //Keep the user to preserve the order.
                 var delays = new List<int[]>();
 
                 //Get parameterized structures and patterns first sync first.
                 var parameterizedStructures = new ConcurrentDictionary<int, StringTree[]>();
                 var testPatterns = new ConcurrentDictionary<int, int[]>();
-                var parameterLessStructures = new Dictionary<Log, StringTree[]>();
+                var parameterLessStructures = new Dictionary<Scenario, StringTree[]>();
                 for (int user = 0; user != concurrentUsers; user++) {
                     if (_cancel) return;
 
-                    //Find the right log based on the weight given in the stresstest view config.
+                    //Find the right scenario based on the weight given in the stress test view config.
                     float percentage = ((float)(user + 1)) / concurrentUsers;
 
-                    Log log = null;
+                    Scenario scenario = null;
                     float previousValue = 0f;
-                    foreach (var kvp in _logEntries) {
-                        Log candidate = kvp.Key;
+                    foreach (var kvp in _requests) {
+                        Scenario candidate = kvp.Key;
                         if (percentage > previousValue && percentage <= kvp.Value.Value)
-                            log = candidate;
+                            scenario = candidate;
                         previousValue = kvp.Value.Value;
                     }
 
                     StringTree[] structure = null;
-                    if (parameterLessStructures.ContainsKey(log)) {
-                        structure = parameterLessStructures[log];
+                    if (parameterLessStructures.ContainsKey(scenario)) {
+                        structure = parameterLessStructures[scenario];
                     } else {
                         bool hasParameters;
-                        structure = log.GetParameterizedStructure(out hasParameters);
-                        if (!hasParameters) parameterLessStructures.Add(log, structure);
+                        structure = scenario.GetParameterizedStructure(out hasParameters);
+                        if (!hasParameters) parameterLessStructures.Add(scenario, structure);
                     }
                     parameterizedStructures.TryAdd(user, structure);
 
                     int[] testPattern, delayPattern;
-                    _testPatternsAndDelaysGenerators[log].GetPatterns(out testPattern, out delayPattern);
+                    _testPatternsAndDelaysGenerators[scenario].GetPatterns(out testPattern, out delayPattern);
                     testPatterns.TryAdd(user, testPattern);
                     delays.Add(delayPattern);
 
-                    testableLogEntries.TryAdd(user, null);
+                    testableRequests.TryAdd(user, null);
                 }
 
                 //Get all this stuff here, otherwise locking will slow down all following code.
-                var logEntryIndices = new ConcurrentDictionary<LogEntry, string>();
-                var logEntryParents = new ConcurrentDictionary<LogEntry, string>();
+                var requestIndices = new ConcurrentDictionary<Request, string>();
+                var requestParents = new ConcurrentDictionary<Request, string>();
                 string dot = ".", empty = " ", colon = ": ";
 
-                foreach (var kvp in _logEntries) {
-                    Log log = kvp.Key;
-                    int logIndex = log.Index;
-                    string logString = string.Join(empty, "Log", logIndex);
-                    if (log.Label != string.Empty)
-                        logString = string.Join(colon, logString, log.Label);
+                foreach (var kvp in _requests) {
+                    Scenario scenario = kvp.Key;
+                    int scenarioIndex = scenario.Index;
+                    string scenarioString = string.Join(empty, "Scenario", scenarioIndex);
+                    if (scenario.Label != string.Empty)
+                        scenarioString = string.Join(colon, scenarioString, scenario.Label);
 
-                    Parallel.For(0, log.Count, (userActionIndex, loopState) => {
+                    Parallel.For(0, scenario.Count, (userActionIndex, loopState) => {
                         if (_cancel) loopState.Break();
 
-                        var userAction = log[userActionIndex] as UserAction;
+                        var userAction = scenario[userActionIndex] as UserAction;
                         if (!userAction.IsEmpty) {
                             int oneBasedUserActionIndex = userActionIndex + 1;
-                            string userActionString = string.Join(empty, logString, userAction.Name, oneBasedUserActionIndex);
+                            string userActionString = string.Join(empty, scenarioString, userAction.Name, oneBasedUserActionIndex);
                             if (userAction.Label != string.Empty)
                                 userActionString = string.Join(colon, userActionString, userAction.Label);
 
-                            Parallel.For(0, userAction.Count, (logEntryIndex, loopState2) => {
+                            Parallel.For(0, userAction.Count, (requestIndex, loopState2) => {
                                 if (_cancel) loopState2.Break();
 
-                                var logEntry = userAction[logEntryIndex] as LogEntry;
+                                var request = userAction[requestIndex] as Request;
 
-                                logEntryIndices.TryAdd(logEntry, string.Join(dot, logIndex, oneBasedUserActionIndex, logEntryIndex + 1));
-                                logEntryParents.TryAdd(logEntry, userActionString);
+                                requestIndices.TryAdd(request, string.Join(dot, scenarioIndex, oneBasedUserActionIndex, requestIndex + 1));
+                                requestParents.TryAdd(request, userActionString);
                             });
                         }
                     });
                 }
                 if (_cancel) return;
 
-                //Get testable log entries  async.
+                //Get testable requests async.
                 Parallel.For(0, concurrentUsers, (user, loopState) => {
                     try {
                         if (_cancel) loopState.Break();
@@ -600,50 +599,48 @@ namespace vApus.Stresstest {
                         testPatterns.TryGetValue(user, out testPattern);
 
 
-                        //Find the right log based on the weight given in the stresstest view config.
+                        //Find the right scenario based on the weight given in the stress test view config.
                         float percentage = ((float)(user + 1)) / concurrentUsers;
 
-                        Log log = null;
-                        LogEntry[] logEntriesPart = null;
+                        Request[] requestsPart = null;
                         float previousValue = 0f;
-                        for (int kvp = 0; kvp != _logEntries.Length; kvp++) {
-                            Log candidate = _logEntries[kvp].Key;
-                            var candidateValue = _logEntries[kvp].Value;
+                        for (int kvp = 0; kvp != _requests.Length; kvp++) {
+                            Scenario candidate = _requests[kvp].Key;
+                            var candidateValue = _requests[kvp].Value;
                             if (percentage > previousValue && percentage <= candidateValue.Value) {
-                                log = candidate;
-                                logEntriesPart = candidateValue.Key;
+                                requestsPart = candidateValue.Key;
                             }
                             previousValue = candidateValue.Value;
                         }
 
-                        var tle = new TestableLogEntry[testPattern.Length];
+                        var tle = new TestableRequest[testPattern.Length];
 
-                        //Get the log entries/parameterized structures using the test pattern indices (can be shuffled)
+                        //Get the requests/parameterized structures using the test pattern indices (can be shuffled)
                         Parallel.For(0, testPattern.Length, (i, loopState2) => {
                             try {
                                 if (_cancel) loopState2.Break();
 
                                 int testPatternIndex = testPattern[i];
-                                var logEntry = logEntriesPart[testPatternIndex];
+                                var request = requestsPart[testPatternIndex];
 
-                                string logEntryIndex;
-                                logEntryIndices.TryGetValue(logEntry, out logEntryIndex);
+                                string requestIndex;
+                                requestIndices.TryGetValue(request, out requestIndex);
 
-                                string sameAsLogEntryIndex = string.Empty;
-                                if (logEntry.SameAs != null)
-                                    logEntryIndices.TryGetValue(logEntry.SameAs, out sameAsLogEntryIndex);
+                                string sameAsRequestIndex = string.Empty;
+                                if (request.SameAs != null)
+                                    requestIndices.TryGetValue(request.SameAs, out sameAsRequestIndex);
 
-                                string logEntryParent;
-                                logEntryParents.TryGetValue(logEntry, out logEntryParent);
+                                string requestyParent;
+                                requestParents.TryGetValue(request, out requestyParent);
 
-                                tle[i] = new TestableLogEntry(logEntryIndex, sameAsLogEntryIndex, parameterizedStructureArr[testPatternIndex], logEntryParent, logEntry.ExecuteInParallel, logEntry.ConnectedToSentRequestOffsetInMs, _rerun);
+                                tle[i] = new TestableRequest(requestIndex, sameAsRequestIndex, parameterizedStructureArr[testPatternIndex], requestyParent, request.ExecuteInParallel, request.ConnectedToSentRequestOffsetInMs, _rerun);
                             } catch (Exception ex2) {
                                 Loggers.Log(Level.Error, "Failed at determining test patterns.", ex2);
                                 loopState.Break();
                             }
                         });
 
-                        testableLogEntries.TryUpdate(user, tle, null);
+                        testableRequests.TryUpdate(user, tle, null);
                     } catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed at determining test patterns.", ex);
                         loopState.Break();
@@ -652,21 +649,21 @@ namespace vApus.Stresstest {
                 if (_cancel) return;
 
                 //Box to list.
-                var tleList = new List<TestableLogEntry[]>(testableLogEntries.Count);
-                foreach (var tle in testableLogEntries.Values)
+                var tleList = new List<TestableRequest[]>(testableRequests.Count);
+                foreach (var tle in testableRequests.Values)
                     tleList.Add(tle);
 
-                _testableLogEntries = tleList.ToArray();
+                _testableRequests = tleList.ToArray();
                 _delays = delays.ToArray();
 
-                testableLogEntries = null;
+                testableRequests = null;
                 delays = null;
 
                 parameterizedStructures = null;
                 testPatterns = null;
 
-                logEntryIndices = null;
-                logEntryParents = null;
+                requestIndices = null;
+                requestParents = null;
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
@@ -685,7 +682,7 @@ namespace vApus.Stresstest {
             InvokeMessage(string.Format("       |Setting Thread Pool for {0} Concurrent Users...", concurrentUsers));
             _sw.Start();
             if (_threadPool == null) {
-                _threadPool = new StresstestThreadPool(Work);
+                _threadPool = new StressTestThreadPool(Work);
                 _threadPool.ThreadWorkException += _threadPool_ThreadWorkException;
             }
             _threadPool.SetThreads(concurrentUsers, _parallelThreads);
@@ -711,20 +708,20 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Work
-        public StresstestStatus ExecuteStresstest() {
+        public StressTestStatus ExecuteStressTest() {
             //No run started yet.
             _continueCounter = -1;
-            SetStresstestStarted();
+            SetStressTestStarted();
             //Loop all concurrent users
             for (int concurrentUsersIndex = 0;
-                 concurrentUsersIndex != _stresstest.Concurrencies.Length;
+                 concurrentUsersIndex != _stressTest.Concurrencies.Length;
                  concurrentUsersIndex++) {
-                int concurrentUsers = _stresstest.Concurrencies[concurrentUsersIndex];
+                int concurrentUsers = _stressTest.Concurrencies[concurrentUsersIndex];
                 if (_cancel) break;
 
                 SetConcurrencyStarted(concurrentUsersIndex);
                 //Loop 'run' times for the concurrent users.
-                for (int run = 0; run != _stresstest.Runs; run++) {
+                for (int run = 0; run != _stressTest.Runs; run++) {
                     if (_cancel) break;
                     _runDoneOnce = false;
                     _rerun = 0;
@@ -732,8 +729,8 @@ namespace vApus.Stresstest {
                 Rerun:
                     //Initialize all for a new test.
                     if (_cancel) break;
-                    //Initialize the log entries and delays (every time so the tests for different runs are not the same)
-                    DetermineTestableLogEntriessAndDelays(concurrentUsers);
+                    //Initialize the requests and delays (every time so the tests for different runs are not the same)
+                    DetermineTestableRequestsAndDelays(concurrentUsers);
                     if (_cancel) break;
                     SetThreadPool(concurrentUsers);
                     if (_cancel) break;
@@ -746,9 +743,9 @@ namespace vApus.Stresstest {
                     } else {
                         ++_continueCounter;
 
-                        //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
+                        //For many-to-one testing, keeping the run shared by divided tile stress test in sync.
                         SetRunInitializedFirstTime(concurrentUsersIndex, run + 1);
-                        if (_stresstest.IsDividedStresstest && !_cancel) {
+                        if (_stressTest.IsDividedStressTest && !_cancel) {
                             InvokeMessage("[Many to One Waithandle before run] Waiting for Continue Message from Master...");
                             _manyToOneWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
@@ -775,9 +772,9 @@ namespace vApus.Stresstest {
                             InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, Level.Error);
                     }
 
-                    //For many-to-one testing, keeping the run shared by divided tile stresstest in sync.
+                    //For many-to-one testing, keeping the run shared by divided tile stress test in sync.
                     if (RunSynchronization == RunSynchronization.None) {
-                        if (_stresstest.IsDividedStresstest) {
+                        if (_stressTest.IsDividedStressTest) {
                             SetRunDoneOnce();
                             SetRunStopped();
 
@@ -794,7 +791,7 @@ namespace vApus.Stresstest {
                         SetRunDoneOnce();
                         SetRunStopped();
 
-                        if (_stresstest.IsDividedStresstest) {
+                        if (_stressTest.IsDividedStressTest) {
                             InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
                             _manyToOneWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
@@ -820,7 +817,7 @@ namespace vApus.Stresstest {
                             goto Rerun;
                         } else {
                             SetRunStopped();
-                            if (_stresstest.IsDividedStresstest) {
+                            if (_stressTest.IsDividedStressTest) {
                                 InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
                                 _manyToOneWaitHandle.WaitOne();
                                 InvokeMessage("Continuing...");
@@ -863,7 +860,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        /// Keeping the shared run for a divided tile stresstest in sync.
+        /// Keeping the shared run for a divided tile stress test in sync.
         /// </summary>
         public void ContinueDivided() {
             if (!(_completed | _cancel | _isFailed))
@@ -871,7 +868,7 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        /// WorkItemCallback in StresstestCore, executes all log entries for the current running thread. Has some exception handling.
+        /// WorkItemCallback in StressTestCore, executes all requests for the current running thread. Has some exception handling.
         /// </summary>
         /// <param name="threadIndex"></param>
         public void Work(int threadIndex) {
@@ -879,19 +876,19 @@ namespace vApus.Stresstest {
                 IConnectionProxy connectionProxy = _connectionProxyPool[threadIndex];
                 if (!connectionProxy.IsConnectionOpen) connectionProxy.OpenConnection();
 
-                TestableLogEntry[] testableLogEntries = _testableLogEntries[threadIndex];
+                TestableRequest[] testableRequests = _testableRequests[threadIndex];
                 int[] delays = _delays[threadIndex];
 
-                int testableLogEntryIndex = 0;
-                while (testableLogEntryIndex != testableLogEntries.Length) {
+                int testableRequestIndex = 0;
+                while (testableRequestIndex != testableRequests.Length) {
                     if (_cancel || _break) {
                         _sleepWaitHandle.Set();
                         return;
                     }
 
                     int incrementIndex;
-                    ExecuteLogEntry(threadIndex, testableLogEntryIndex, connectionProxy, testableLogEntries, delays, out incrementIndex);
-                    testableLogEntryIndex += incrementIndex;
+                    ExecuteRequest(threadIndex, testableRequestIndex, connectionProxy, testableRequests, delays, out incrementIndex);
+                    testableRequestIndex += incrementIndex;
                 }
             } catch (Exception e) {
                 if (!_cancel && !_break) InvokeMessage("Work failed for " + Thread.CurrentThread.Name + ".\n" + e, Color.Red, Level.Error);
@@ -899,12 +896,12 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Decides if the log entry must be executed in parallel with others or not.
+        ///     Decides if the request must be executed in parallel with others or not.
         /// </summary>
         /// <param name="threadIndex"></param>
-        /// <param name="testableLogEntryIndex"></param>
+        /// <param name="testableRequestIndex"></param>
         /// <param name="incrementIndex">Can be greater than 1 if some are parallel executed.</param>
-        private void ExecuteLogEntry(int threadIndex, int testableLogEntryIndex, IConnectionProxy connectionProxy, TestableLogEntry[] testableLogEntries, int[] delays, out int incrementIndex) {
+        private void ExecuteRequest(int threadIndex, int testableRequestIndex, IConnectionProxy connectionProxy, TestableRequest[] testableRequests, int[] delays, out int incrementIndex) {
             incrementIndex = 1;
 
             if (_cancel || _break) {
@@ -912,26 +909,26 @@ namespace vApus.Stresstest {
                 return;
             }
 
-            TestableLogEntry testableLogEntry = testableLogEntries[testableLogEntryIndex];
+            TestableRequest testableRequest = testableRequests[testableRequestIndex];
 
-            //Check if this log entry could be the first of a parallel executed range of entries
+            //Check if this request could be the first of a parallel executed range of entries
             //If so the range will be executed multi threaded
-            if (!testableLogEntry.ExecuteInParallelWithPrevious || !_stresstest.UseParallelExecutionOfLogEntries) {
-                int testableLogEntriesLength = 0, exclusiveEnd = 0;
-                List<TestableLogEntry> parallelTestableLogEntries = null;
+            if (!testableRequest.ExecuteInParallelWithPrevious || !_stressTest.UseParallelExecutionOfRequests) {
+                int testableRequestsLength = 0, exclusiveEnd = 0;
+                List<TestableRequest> parallelTestableRequests = null;
 
                 // Make the range if following is true.
-                if (_stresstest.UseParallelExecutionOfLogEntries) {
-                    testableLogEntriesLength = testableLogEntries.Length;
-                    exclusiveEnd = testableLogEntryIndex + 1;
-                    parallelTestableLogEntries = new List<TestableLogEntry>();
+                if (_stressTest.UseParallelExecutionOfRequests) {
+                    testableRequestsLength = testableRequests.Length;
+                    exclusiveEnd = testableRequestIndex + 1;
+                    parallelTestableRequests = new List<TestableRequest>();
                     //Do not go out of bounds
-                    if (exclusiveEnd != testableLogEntriesLength)
-                        while (testableLogEntries[exclusiveEnd].ExecuteInParallelWithPrevious) {
-                            parallelTestableLogEntries.Add(testableLogEntries[exclusiveEnd]);
+                    if (exclusiveEnd != testableRequestsLength)
+                        while (testableRequests[exclusiveEnd].ExecuteInParallelWithPrevious) {
+                            parallelTestableRequests.Add(testableRequests[exclusiveEnd]);
                             ++exclusiveEnd;
                             ++incrementIndex;
-                            if (exclusiveEnd == testableLogEntriesLength)
+                            if (exclusiveEnd == testableRequestsLength)
                                 break;
                         }
                 }
@@ -942,10 +939,10 @@ namespace vApus.Stresstest {
                         _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
 
                     //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                    _syncAndAsyncWorkItem.ExecuteLogEntry(this, _sleepWaitHandle, _runResult, threadIndex, testableLogEntryIndex, testableLogEntry, connectionProxy, delays[testableLogEntryIndex]);
+                    _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, testableRequestIndex, testableRequest, connectionProxy, delays[testableRequestIndex]);
                 } else {
-                    int parallelCount = exclusiveEnd - testableLogEntryIndex;
-                    //Get the connection proxies, this first one is not a parallel one but the connection proxy for the specific user, this way data (cookies for example) can be saved for other log entries.
+                    int parallelCount = exclusiveEnd - testableRequestIndex;
+                    //Get the connection proxies, this first one is not a parallel one but the connection proxy for the specific user, this way data (cookies for example) can be saved for other requests.
                     IConnectionProxy[] parallelConnectionProxies = new IConnectionProxy[parallelCount];
                     parallelConnectionProxies[0] = connectionProxy;
 
@@ -965,7 +962,7 @@ namespace vApus.Stresstest {
                         Thread t = _threadPool.DequeueParallelThread();
                         pThreads[i] = t;
                         
-                        t.Start(new object[]{ (StresstestThreadPool.WorkItemCallback)((int index) => {
+                        t.Start(new object[]{ (StressTestThreadPool.WorkItemCallback)((int index) => {
                               
                             if (_syncAndAsyncWorkItem == null)
                                 _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
@@ -974,13 +971,13 @@ namespace vApus.Stresstest {
 
                             try {
                                 //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                                _syncAndAsyncWorkItem.ExecuteLogEntry(this, _sleepWaitHandle, _runResult, threadIndex, index, testableLogEntries[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], delays[index]);
+                                _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], delays[index]);
                             } catch {
                                 //when stopping a test...
                             }
 
                             if (Interlocked.Increment(ref finished) == parallelCount) pThreadsSignalFinished.Set();
-                        }), testableLogEntryIndex + i});
+                        }), testableRequestIndex + i});
                     }
                         
                     //Start them all at the same time
@@ -1009,22 +1006,22 @@ namespace vApus.Stresstest {
 
             }
         }
-        private StresstestStatus Completed() {
+        private StressTestStatus Completed() {
             _completed = true;
             if (_connectionProxyPool != null) _connectionProxyPool.ShutDown();
             DisposeThreadPool();
             if (_connectionProxyPool != null) _connectionProxyPool.Dispose();
 
             if (_cancel) {
-                _resultsHelper.SetStresstestStopped(_stresstestResult, "Cancelled");
-                return StresstestStatus.Cancelled;
+                _resultsHelper.SetStressTestStopped(_stressTestResult, "Cancelled");
+                return StressTestStatus.Cancelled;
             }
             if (_isFailed) {
-                _resultsHelper.SetStresstestStopped(_stresstestResult, "Failed");
-                return StresstestStatus.Error;
+                _resultsHelper.SetStressTestStopped(_stressTestResult, "Failed");
+                return StressTestStatus.Error;
             }
-            _resultsHelper.SetStresstestStopped(_stresstestResult);
-            return StresstestStatus.Ok;
+            _resultsHelper.SetStressTestStopped(_stressTestResult);
+            return StressTestStatus.Ok;
         }
         private void DisposeThreadPool() {
             if (_threadPool != null) try { _threadPool.Dispose(); } catch { }
@@ -1036,32 +1033,32 @@ namespace vApus.Stresstest {
         //    try {
         //        var testConfigCache = new JSONObjectTree();
 
-        //        var monitors = _stresstest.Monitors;
+        //        var monitors = _stressTest.Monitors;
         //        var newMonitors = new string[monitors.Length];
         //        for (int i = 0; i != monitors.Length; i++)
         //            newMonitors[i] = monitors[i].ToString();
 
-        //        var logs = _stresstest.Logs;
-        //        var newLogs = new string[logs.Length];
-        //        for (int i = 0; i != logs.Length; i++)
-        //            newLogs[i] = logs[i].Key.ToString();
+        //        var scenarios = _stressTest.Scenarios;
+        //        var newScenarios = new string[scenarios.Length];
+        //        for (int i = 0; i != scenarios.Length; i++)
+        //            newScenarios[i] = scenarios[i].Key.ToString();
 
-        //        JSONObjectTreeHelper.ApplyToRunningStresstestConfig(testConfigCache,
-        //                                _stresstest.ToString(),
-        //                                _stresstest.Connection.ToString(),
-        //                                _stresstest.ConnectionProxy.ToString(),
+        //        JSONObjectTreeHelper.ApplyToRunningStressTestConfig(testConfigCache,
+        //                                _stressTest.ToString(),
+        //                                _stressTest.Connection.ToString(),
+        //                                _stressTest.ConnectionProxy.ToString(),
         //                                newMonitors,
-        //                                newLogs,
-        //                                _stresstest.LogRuleSet,
-        //                                _stresstest.Concurrencies,
-        //                                _stresstest.Runs,
-        //                                _stresstest.MinimumDelay,
-        //                                _stresstest.MaximumDelay,
-        //                                _stresstest.Shuffle,
-        //                                _stresstest.ActionDistribution,
-        //                                _stresstest.MaximumNumberOfUserActions,
-        //                                _stresstest.MonitorBefore,
-        //                                _stresstest.MonitorAfter);
+        //                                newScenarios,
+        //                                _stressTest.ScenarioRuleSet,
+        //                                _stressTest.Concurrencies,
+        //                                _stressTest.Runs,
+        //                                _stressTest.MinimumDelay,
+        //                                _stressTest.MaximumDelay,
+        //                                _stressTest.Shuffle,
+        //                                _stressTest.ActionDistribution,
+        //                                _stressTest.MaximumNumberOfUserActions,
+        //                                _stressTest.MonitorBefore,
+        //                                _stressTest.MonitorAfter);
 
         //        JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
         //    } catch {
@@ -1086,8 +1083,8 @@ namespace vApus.Stresstest {
                     _manyToOneWaitHandle.Dispose();
                     _manyToOneWaitHandle = null;
 
-                    _logEntries = null;
-                    _testableLogEntries = null;
+                    _requests = null;
+                    _testableRequests = null;
 
                     if (_testPatternsAndDelaysGenerators != null) {
                         foreach (var gen in _testPatternsAndDelaysGenerators.Values)
@@ -1095,10 +1092,10 @@ namespace vApus.Stresstest {
                         _testPatternsAndDelaysGenerators = null;
                     }
 
-                    _stresstestResult = null;
+                    _stressTestResult = null;
                     _sw = null;
                 } catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Failed disposing the stresstest core.", ex);
+                    Loggers.Log(Level.Error, "Failed disposing the stress test core.", ex);
                 }
             }
             ObjectRegistrar.Unregister(this);
@@ -1109,30 +1106,30 @@ namespace vApus.Stresstest {
         #endregion
 
         /// <summary>
-        ///     Log entry with metadata.
+        ///     Request with metadata.
         /// </summary>
-        private class TestableLogEntry {
+        private class TestableRequest {
 
             #region Fields
             /// <summary>
-            ///     Should be log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry); this must be unique.
+            ///     Should be scenario.IndexOf(UserAction) + "." + UserAction.IndexOf(Request); this must be unique.
             /// </summary>
-            public readonly string LogEntryIndex;
+            public readonly string RequestIndex;
 
             /// <summary>
-            /// To be able to calcullate averages when using distribute. Cannot be null, string.empty is allowed.
+            /// To be able to calculate averages when using distribute. Cannot be null, string.empty is allowed.
             /// </summary>
-            public readonly string SameAsLogEntryIndex;
+            public readonly string SameAsRequestIndex;
 
             /// <summary>
             /// Used in IConnectionProxy.SendAndReceive.
             /// </summary>
-            public readonly StringTree ParameterizedLogEntry;
+            public readonly StringTree ParameterizedRequest;
 
             /// <summary>
-            ///     Should be log.IndexOf(LogEntry) or log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry), this must be unique.
+            ///     Should be scenario.IndexOf(Request) or scenario.IndexOf(UserAction) + "." + UserAction.IndexOf(Request), this must be unique.
             /// </summary>
-            public readonly string ParameterizedLogEntryString;
+            public readonly string ParameterizedRequestString;
 
             /// <summary>
             ///     Cannot be null, string.empty is not allowed.
@@ -1145,7 +1142,7 @@ namespace vApus.Stresstest {
             public readonly bool ExecuteInParallelWithPrevious;
 
             /// <summary>
-            ///     The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do).
+            ///     The offset in ms before this 'parallel request' is executed (this simulates what browsers do).
             /// </summary>
             public readonly int ParallelOffsetInMs;
 
@@ -1157,24 +1154,24 @@ namespace vApus.Stresstest {
 
             #region Constructor
             /// <summary>
-            ///     Log entry with metadata.
+            ///     Request with metadata.
             /// </summary>
-            /// <param name="logEntryIndex"> Should be log.IndexOf(UserAction) + "." + UserAction.IndexOf(LogEntry); this must be unique.</param>
-            /// <param name="sameAsLogEntryString">To be able to calcullate averages when using distribute. Cannot be null, string.empty is allowed.</param>
-            /// <param name="parameterizedLogEntry">Used in IConnectionProxy.SendAndReceive.</param>
+            /// <param name="requestIndex"> Should be scenario.IndexOf(UserAction) + "." + UserAction.IndexOf(Request); this must be unique.</param>
+            /// <param name="sameAsRequestString">To be able to calculate averages when using distribute. Cannot be null, string.empty is allowed.</param>
+            /// <param name="parameterizedRequest">Used in IConnectionProxy.SendAndReceive.</param>
             /// <param name="userAction">Cannot be null, string.empty is not allowed.</param>
             /// <param name="executeInParallelWithPrevious">Execute parallel with immediate previous sibling. Not used feature atm.</param>
-            /// <param name="parallelOffsetInMs">The offset in ms before this 'parallel log entry' is executed (this simulates what browsers do).</param>
+            /// <param name="parallelOffsetInMs">The offset in ms before this 'parallel request' is executed (this simulates what browsers do).</param>
             /// <param name="rerun">0 for all but Break on last runs (Distributed Testing).</param>
-            public TestableLogEntry(string logEntryIndex, string sameAsLogEntryString, StringTree parameterizedLogEntry, string userAction, bool executeInParallelWithPrevious, int parallelOffsetInMs, int rerun) {
+            public TestableRequest(string requestIndex, string sameAsRequestString, StringTree parameterizedRequest, string userAction, bool executeInParallelWithPrevious, int parallelOffsetInMs, int rerun) {
                 if (userAction == null)
                     throw new ArgumentNullException("userAction");
 
-                LogEntryIndex = logEntryIndex;
-                SameAsLogEntryIndex = sameAsLogEntryString;
+                RequestIndex = requestIndex;
+                SameAsRequestIndex = sameAsRequestString;
 
-                ParameterizedLogEntry = parameterizedLogEntry;
-                ParameterizedLogEntryString = ParameterizedLogEntry.CombineValues();
+                ParameterizedRequest = parameterizedRequest;
+                ParameterizedRequestString = ParameterizedRequest.CombineValues();
                 UserAction = userAction;
                 ExecuteInParallelWithPrevious = executeInParallelWithPrevious;
                 ParallelOffsetInMs = parallelOffsetInMs;
@@ -1185,30 +1182,30 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        /// An extra work item class (ThreadStatic) for executing log entries in parallel. (Not used feature atm)
+        /// An extra work item class (ThreadStatic) for executing requests in parallel.
         /// </summary>
         private class SyncAndAsyncWorkItem {
-            public void ExecuteLogEntry(StresstestCore stresstestCore, AutoResetEvent sleepWaitHandle, RunResult runResult, int threadIndex, int testableLogEntryIndex, TestableLogEntry testableLogEntry, IConnectionProxy connectionProxy, int delayInMilliseconds) {
+            public void ExecuteRequest(StressTestCore stressTestCore, AutoResetEvent sleepWaitHandle, RunResult runResult, int threadIndex, int testableRequestIndex, TestableRequest testableRequest, IConnectionProxy connectionProxy, int delayInMilliseconds) {
                 DateTime sentAt = DateTime.Now;
                 var timeToLastByte = new TimeSpan();
                 Exception exception = null;
 
-                if (stresstestCore._cancel || stresstestCore._break) {
+                if (stressTestCore._cancel || stressTestCore._break) {
                     sleepWaitHandle.Set();
                     return;
                 }
 
-                //Sleep the offset of parallel log entries.
-                if (testableLogEntry.ExecuteInParallelWithPrevious) Thread.Sleep(testableLogEntry.ParallelOffsetInMs);
+                //Sleep the offset of parallel requests.
+                if (testableRequest.ExecuteInParallelWithPrevious) Thread.Sleep(testableRequest.ParallelOffsetInMs);
 
                 bool retried = false;
             RetryOnce:
                 try {
                     if (connectionProxy == null || connectionProxy.IsDisposed) {
-                        exception = new Exception("Connectionproxy is disposed. Metrics for this log entry (" + testableLogEntry.ParameterizedLogEntryString + ") are not correct.");
+                        exception = new Exception("Connectionproxy is disposed. Metrics for this request (" + testableRequest.ParameterizedRequestString + ") are not correct.");
                     } else {
-                        StringTree parameterizedLogEntry = testableLogEntry.ParameterizedLogEntry;
-                        connectionProxy.SendAndReceive(parameterizedLogEntry, out sentAt, out timeToLastByte, out exception);
+                        StringTree parameterizedRequest = testableRequest.ParameterizedRequest;
+                        connectionProxy.SendAndReceive(parameterizedRequest, out sentAt, out timeToLastByte, out exception);
                     }
                 } catch (Exception ex) {
                     if (!retried && connectionProxy != null && !connectionProxy.IsDisposed) {
@@ -1217,8 +1214,8 @@ namespace vApus.Stresstest {
                             connectionProxy.OpenConnection();
                             goto RetryOnce;
                         } catch (Exception e) {
-                            exception = new Exception("An error in the connection proxy has occured and is now disposed due to for instance a time out or a bug in the connection proxy code; I tried to reopen the connection so testing could continue for this simulated user including a retry (once) for the current log entry, but it failed; Metrics for this log entry (" +
-                                    testableLogEntry.ParameterizedLogEntryString + ") are not correct:\n" + ex + "\n\nReconnect failure:\n" + e);
+                            exception = new Exception("An error in the connection proxy has occured and is now disposed due to for instance a time out or a bug in the connection proxy code; I tried to reopen the connection so testing could continue for this simulated user including a retry (once) for the current request, but it failed; Metrics for this request (" +
+                                    testableRequest.ParameterizedRequestString + ") are not correct:\n" + ex + "\n\nReconnect failure:\n" + e);
                         }
                     } else {
                         try {
@@ -1227,32 +1224,32 @@ namespace vApus.Stresstest {
                             Loggers.Log(Level.Warning, "Failed disposing connection proxy.", exc);
                         }
                         connectionProxy = null;
-                        exception = new Exception("An error in the connection proxy has occured, after the second try, (and is now disposed) due to for instance a time out or a bug in the connection proxy code; Metrics for this log entry (" +
-                                testableLogEntry.ParameterizedLogEntryString + ") are not correct:\n" + ex);
+                        exception = new Exception("An error in the connection proxy has occured, after the second try, (and is now disposed) due to for instance a time out or a bug in the connection proxy code; Metrics for this request (" +
+                                testableRequest.ParameterizedRequestString + ") are not correct:\n" + ex);
                     }
                     throw (exception);
                 } finally {
                     VirtualUserResult result = runResult.VirtualUserResults[threadIndex];
                     result.VirtualUser = Thread.CurrentThread.Name;
 
-                    var logEntryResult = new LogEntryResult {
+                    var requestResult = new RequestResult {
                         VirtualUser = result.VirtualUser,
-                        LogEntryIndex = testableLogEntry.LogEntryIndex,
-                        SameAsLogEntryIndex = testableLogEntry.SameAsLogEntryIndex,
-                        LogEntry = testableLogEntry.ParameterizedLogEntryString,
-                        UserAction = testableLogEntry.UserAction,
+                        RequestIndex = testableRequest.RequestIndex,
+                        SameAsRequestIndex = testableRequest.SameAsRequestIndex,
+                        Request = testableRequest.ParameterizedRequestString,
+                        UserAction = testableRequest.UserAction,
                         SentAt = sentAt,
                         TimeToLastByteInTicks = timeToLastByte.Ticks,
                         DelayInMilliseconds = delayInMilliseconds,
                         Error = (exception == null) ? string.Empty : exception.ToString(),
-                        Rerun = testableLogEntry.Rerun
+                        Rerun = testableRequest.Rerun
                     };
-                    result.SetLogEntryResultAt(testableLogEntryIndex, logEntryResult);
+                    result.SetRequestResultAt(testableRequestIndex, requestResult);
 
                     runResult.VirtualUserResults[threadIndex] = result;
 
 
-                    if (delayInMilliseconds != 0 && !(stresstestCore._cancel || stresstestCore._break)) sleepWaitHandle.WaitOne(delayInMilliseconds);
+                    if (delayInMilliseconds != 0 && !(stressTestCore._cancel || stressTestCore._break)) sleepWaitHandle.WaitOne(delayInMilliseconds);
                 }
             }
         }

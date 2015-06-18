@@ -92,7 +92,7 @@
             // kvpHops
             // 
             this.kvpHops.BackColor = System.Drawing.Color.LightBlue;
-            this.kvpHops.Key = "? Hops";
+            this.kvpHops.Key = "? hops";
             this.kvpHops.Location = new System.Drawing.Point(99, 6);
             this.kvpHops.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpHops.Name = "kvpHops";
@@ -105,7 +105,7 @@
             // kvpRoundtripTime
             // 
             this.kvpRoundtripTime.BackColor = System.Drawing.Color.LightBlue;
-            this.kvpRoundtripTime.Key = "? Roundtrip Time";
+            this.kvpRoundtripTime.Key = "? Roundtrip time";
             this.kvpRoundtripTime.Location = new System.Drawing.Point(155, 6);
             this.kvpRoundtripTime.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpRoundtripTime.Name = "kvpRoundtripTime";

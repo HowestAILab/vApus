@@ -16,16 +16,16 @@ using vApus.Monitor;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
-    /// Is mainly a configuration file that bring all the pieces of a stresstest together split into basic and advanced properties
+    /// Is mainly a configuration file that bring all the pieces of a stress test together split into basic and advanced properties
     /// </summary>
-    [Serializable]
+    [Serializable, DisplayName("Stress test")]
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
-    public class Stresstest : LabeledBaseItem, ISerializable {
+    public class StressTest : LabeledBaseItem, ISerializable {
 
         #region Fields
         private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
@@ -36,13 +36,13 @@ namespace vApus.Stresstest {
         private Connection _connection;
 
         [NonSerialized]
-        private Logs _allLogs;
+        private Scenarios _allScenarios;
         [NonSerialized]
-        private int[] _logIndices = { };
+        private int[] _scenarioIndices = { };
         [NonSerialized]
-        private uint[] _logWeights = { };
+        private uint[] _scenarioWeights = { };
 
-        private KeyValuePair<Log, uint>[] _logs = { };
+        private KeyValuePair<Scenario, uint>[] _scenarios = { };
 
         //This will be saved, I don't want to extend the save logic so I hack around it.
         [NonSerialized]
@@ -52,7 +52,7 @@ namespace vApus.Stresstest {
         [NonSerialized]
         private Monitor.Monitor[] _monitors = { };
 
-        //private bool _useParallelExecutionOfLogEntries;
+        //private bool _useParallelExecutionOfRequests;
 
         //For in the results database
         private string _description = string.Empty;
@@ -63,7 +63,7 @@ namespace vApus.Stresstest {
         /// </summary>
         private bool _forDistributedTest;
 
-        private bool _useParallelExecutionOfLogEntries;
+        private bool _useParallelExecutionOfRequests;
 
         private Parameters _parameters; //Kept here for a distributed test
         #endregion
@@ -89,84 +89,84 @@ namespace vApus.Stresstest {
         }
 
         [ReadOnly(true)]
-        [DisplayName("Connection Proxy")]
+        [DisplayName("Connection proxy")]
         public string ConnectionProxy {
             get {
                 if (_connection == null || _connection.IsEmpty || _connection.ConnectionProxy.IsEmpty)
-                    return "Connection Proxy: <none>";
+                    return "Connection proxy: <none>";
                 return _connection.ConnectionProxy.ToString();
             }
         }
 
         [SavableCloneable]
-        public uint[] LogWeights {
-            get { return _logWeights; }
+        public uint[] ScenarioWeights {
+            get { return _scenarioWeights; }
             set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
-                _logWeights = value;
+                _scenarioWeights = value;
             }
         }
         [SavableCloneable]
-        public int[] LogIndices {
-            get { return _logIndices; }
+        public int[] ScenarioIndices {
+            get { return _scenarioIndices; }
             set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
-                _logIndices = value;
+                _scenarioIndices = value;
 
-                if (_allLogs != null) {
-                    if (_logIndices.Length == 0 && _allLogs.Count > 1) {
-                        _logWeights = new uint[] { 1 };
-                        _logIndices = new int[] { 1 };
+                if (_allScenarios != null) {
+                    if (_scenarioIndices.Length == 0 && _allScenarios.Count > 1) {
+                        _scenarioWeights = new uint[] { 1 };
+                        _scenarioIndices = new int[] { 1 };
                     }
-                    var l = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
+                    var l = new List<KeyValuePair<Scenario, uint>>(_scenarioIndices.Length);
                     int weightIndex = 0;
-                    foreach (int index in _logIndices) {
-                        if (index < _allLogs.Count) {
-                            var log = _allLogs[index] as Log;
+                    foreach (int index in _scenarioIndices) {
+                        if (index < _allScenarios.Count) {
+                            var scenario = _allScenarios[index] as Scenario;
 
                             bool added = false;
                             foreach (var addedKvp in l)
-                                if (addedKvp.Key == log) {
+                                if (addedKvp.Key == scenario) {
                                     added = true;
                                     break;
                                 }
                             if (!added) {
-                                uint weight = weightIndex < _logWeights.Length ? _logWeights[weightIndex] : 0;
-                                l.Add(new KeyValuePair<Log, uint>(log, weight));
+                                uint weight = weightIndex < _scenarioWeights.Length ? _scenarioWeights[weightIndex] : 0;
+                                l.Add(new KeyValuePair<Scenario, uint>(scenario, weight));
                             }
                         }
                         ++weightIndex;
                     }
-                    _logs = l.ToArray();
-                    _logs.SetParent(_allLogs);
+                    _scenarios = l.ToArray();
+                    _scenarios.SetParent(_allScenarios);
                 }
             }
         }
-        [Description("The logs used to test the application. They must have the same log rule set. Change the weights to define the percentage distribution of users using a certain log.")]
+        [Description("The scenarios used to test the application. They must have the same scenario rule set. Change the weights to define the percentage distribution of users using a certain scenario.")]
         [PropertyControl(1)]
-        public KeyValuePair<Log, uint>[] Logs {
-            get { return _logs; }
+        public KeyValuePair<Scenario, uint>[] Scenarios {
+            get { return _scenarios; }
             set {
                 if (value == null)
                     throw new ArgumentNullException("Can be empty but not null.");
 
-                if (_allLogs != null && _allLogs.Count > 1 && value.Length == 0) {
-                    _logWeights = new uint[] { 1 };
-                    LogIndices = new int[] { 1 };
+                if (_allScenarios != null && _allScenarios.Count > 1 && value.Length == 0) {
+                    _scenarioWeights = new uint[] { 1 };
+                    ScenarioIndices = new int[] { 1 };
                     return;
                 }
 
                 if (value.Length != 0) {
-                    var logRuleSet = value[0].Key.LogRuleSet;
+                    var scenarioRuleSet = value[0].Key.ScenarioRuleSet;
                     for (int i = 1; i < value.Length; i++)
-                        if (value[i].Key.LogRuleSet != logRuleSet)
-                            throw new Exception("Only logs having the same log rule set are allowed.");
+                        if (value[i].Key.ScenarioRuleSet != scenarioRuleSet)
+                            throw new Exception("Only scenarios having the same scenario rule set are allowed.");
 
-                    //New entries should have a weight of 1.
-                    for (int i = _logs.Length; i < value.Length; i++)
-                        value[i] = new KeyValuePair<vApus.Stresstest.Log, uint>(value[i].Key, 1);
+                    //New requests should have a weight of 1.
+                    for (int i = _scenarios.Length; i < value.Length; i++)
+                        value[i] = new KeyValuePair<vApus.StressTest.Scenario, uint>(value[i].Key, 1);
 
                     //1 should not be 0 :).
                     bool allZeros = true;
@@ -175,32 +175,32 @@ namespace vApus.Stresstest {
                             allZeros = false;
                             break;
                         }
-                    if (allZeros) value[0] = new KeyValuePair<vApus.Stresstest.Log, uint>(value[0].Key, 1);
+                    if (allZeros) value[0] = new KeyValuePair<vApus.StressTest.Scenario, uint>(value[0].Key, 1);
                 }
 
-                _logs = value;
+                _scenarios = value;
 
-                if (_allLogs != null) {
-                    _logs.SetParent(_allLogs);
+                if (_allScenarios != null) {
+                    _scenarios.SetParent(_allScenarios);
 
-                    var logIndices = new List<int>(_logs.Length);
-                    var logWeights = new List<uint>(_logs.Length);
-                    for (int allLogsIndex = 1; allLogsIndex < _allLogs.Count; allLogsIndex++) {
-                        KeyValuePair<Log, uint> kvp = new KeyValuePair<Log, uint>();
-                        for (int logIndex = 0; logIndex != _logs.Length; logIndex++)
-                            if (_logs[logIndex].Key == _allLogs[allLogsIndex]) {
-                                kvp = _logs[logIndex];
+                    var scenarioIndices = new List<int>(_scenarios.Length);
+                    var scenarioWeights = new List<uint>(_scenarios.Length);
+                    for (int allScenariosIndex = 1; allScenariosIndex < _allScenarios.Count; allScenariosIndex++) {
+                        KeyValuePair<Scenario, uint> kvp = new KeyValuePair<Scenario, uint>();
+                        for (int scenarioIndex = 0; scenarioIndex != _scenarios.Length; scenarioIndex++)
+                            if (_scenarios[scenarioIndex].Key == _allScenarios[allScenariosIndex]) {
+                                kvp = _scenarios[scenarioIndex];
                                 break;
                             }
 
                         if (kvp.Key != null) {
-                            logIndices.Add(allLogsIndex);
-                            logWeights.Add(kvp.Value);
+                            scenarioIndices.Add(allScenariosIndex);
+                            scenarioWeights.Add(kvp.Value);
                         }
                     }
 
-                    _logIndices = logIndices.ToArray();
-                    _logWeights = logWeights.ToArray();
+                    _scenarioIndices = scenarioIndices.ToArray();
+                    _scenarioWeights = scenarioWeights.ToArray();
                 }
             }
         }
@@ -208,18 +208,18 @@ namespace vApus.Stresstest {
         /// <summary>
         /// Does not validate and does not set the parent.
         /// </summary>
-        public KeyValuePair<Log, uint>[] LogsOverride { set { _logs = value; } }
+        public KeyValuePair<Scenario, uint>[] ScenariosOverride { set { _scenarios = value; } }
 
         [ReadOnly(true)]
-        [DisplayName("Log Rule Set")]
-        public string LogRuleSet {
+        [DisplayName("Scenario rule set")]
+        public string ScenarioRuleSet {
             get {
-                if (_logs.Length == 0)
-                    return "Log Rule Set: <none>";
-                var log = _logs[0].Key;
-                if (log == null || log.IsEmpty || log.LogRuleSet.IsEmpty)
-                    return "Log Rule Set: <none>";
-                return log.LogRuleSet.ToString();
+                if (_scenarios.Length == 0)
+                    return "Scenario rule set: <none>";
+                var scenario = _scenarios[0].Key;
+                if (scenario == null || scenario.IsEmpty || scenario.ScenarioRuleSet.IsEmpty)
+                    return "Scenario rule set: <none>";
+                return scenario.ScenarioRuleSet.ToString();
             }
         }
 
@@ -244,7 +244,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        [Description("The monitors used to link stresstest results to performance counters.")]
+        [Description("The monitors used to link stress test results to performance counters.")]
         [PropertyControl(2)]
         public Monitor.Monitor[] Monitors {
             get { return _monitors; }
@@ -292,7 +292,7 @@ namespace vApus.Stresstest {
             }
         }
 
-        [Description("The minimum delay in milliseconds between the execution of log entries per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum Delay")]
+        [Description("The minimum delay in milliseconds between the execution of requests per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum delay")]
         [PropertyControl(5, true, 0)]
         public int MinimumDelay {
             get { return _minimumDelay; }
@@ -314,7 +314,7 @@ namespace vApus.Stresstest {
             set { _minimumDelay = value; }
         }
 
-        [Description("The maximum delay in milliseconds between the execution of log entries per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum Delay")]
+        [Description("The maximum delay in milliseconds between the execution of requests per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum delay")]
         [PropertyControl(6, true, 0)]
         public int MaximumDelay {
             get { return _maximumDelay; }
@@ -344,7 +344,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("When this is used, user actions are executed X times its occurance. You can use 'Shuffle' and 'Maximum Number of User Actions' in combination with this to define unique test patterns for each user."),
-        DisplayName("Action Distribution")]
+        DisplayName("Action distribution")]
         [SavableCloneable, PropertyControl(8, true)]
         public bool ActionDistribution {
             get { return _actionDistribution; }
@@ -352,7 +352,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("The maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
-        DisplayName("Maximum Number of User Actions")]
+        DisplayName("Maximum number of user actions")]
         [SavableCloneable, PropertyControl(9, true, 0)]
         public int MaximumNumberOfUserActions {
             get { return _maximumNumberOfUserActions; }
@@ -364,7 +364,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."),
-         DisplayName("Monitor Before")]
+         DisplayName("Monitor before")]
         [SavableCloneable, PropertyControl(10, true, 0)]
         public int MonitorBefore {
             get { return _monitorBefore; }
@@ -378,7 +378,7 @@ namespace vApus.Stresstest {
         }
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."),
-         DisplayName("Monitor After")]
+         DisplayName("Monitor after")]
         [SavableCloneable, PropertyControl(11, true, 0)]
         public int MonitorAfter {
             get { return _monitorAfter; }
@@ -404,18 +404,18 @@ namespace vApus.Stresstest {
         }
 
 #if EnableBetaFeature
-        [Description("If this equals false then the parallel switch for log entries is ignored."),
-         DisplayName("Use Parallel Execution of Log Entries")]
+        [Description("If this equals false then the parallel switch for requests is ignored."),
+         DisplayName("Use parallel execution of requests")]
         [SavableCloneable, PropertyControl(int.MaxValue, true)]
-        public bool UseParallelExecutionOfLogEntries {
-            get { return _useParallelExecutionOfLogEntries; }
-            set { _useParallelExecutionOfLogEntries = value; }
+        public bool UseParallelExecutionOfRequests {
+            get { return _useParallelExecutionOfRequests; }
+            set { _useParallelExecutionOfRequests = value; }
         }
 #else
 #warning Parallel executions temp not available
-        public bool UseParallelExecutionOfLogEntries {
+        public bool UseParallelExecutionOfRequests {
             get { return false; }
-            set { //_useParallelExecutionOfLogEntries = false; 
+            set { //_useParallelExecutionOfRequests = false; 
             }
         }
 #endif
@@ -427,13 +427,13 @@ namespace vApus.Stresstest {
             set { _forDistributedTest = value; }
         }
         /// <summary>
-        /// Is this a part of a stresstest divided over multiple slaves?
+        /// Is this a part of a stress test divided over multiple slaves?
         /// </summary>
-        public bool IsDividedStresstest { get; set; }
+        public bool IsDividedStressTest { get; set; }
         #endregion
 
         #region Constructors
-        public Stresstest() {
+        public StressTest() {
             if (SolutionTree.Solution.ActiveSolution != null)
                 Init();
             else
@@ -444,7 +444,7 @@ namespace vApus.Stresstest {
         /// </summary>
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
-        public Stresstest(SerializationInfo info, StreamingContext ctxt) {
+        public StressTest(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
                 ShowInGui = false;
@@ -459,15 +459,15 @@ namespace vApus.Stresstest {
                 _actionDistribution = sr.ReadBoolean();
                 _maximumNumberOfUserActions = sr.ReadInt32();
                 _connection = sr.ReadObject() as Connection;
-                _logs = sr.ReadObject() as KeyValuePair<Log, uint>[];
+                _scenarios = sr.ReadObject() as KeyValuePair<Scenario, uint>[];
                 _forDistributedTest = sr.ReadBoolean();
-                _useParallelExecutionOfLogEntries = sr.ReadBoolean();
+                _useParallelExecutionOfRequests = sr.ReadBoolean();
 
                 _parameters = sr.ReadObject() as Parameters;
                 _parameters.ForceSettingChildsParent();
                 
                 Connection.Parameters = _parameters;
-                Log.Parameters = _parameters;
+                Scenario.Parameters = _parameters;
             }
             sr = null;
 
@@ -483,26 +483,26 @@ namespace vApus.Stresstest {
             Init();
         }
         private void Init() {
-            _allLogs = SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Logs)) as Logs;
+            _allScenarios = SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Scenarios)) as Scenarios;
 
-            var logs = new List<KeyValuePair<Log, uint>>(_logIndices.Length);
+            var scenarios = new List<KeyValuePair<Scenario, uint>>(_scenarioIndices.Length);
             int weightIndex = 0;
-            foreach (int index in _logIndices) {
-                if (index < _allLogs.Count) {
-                    var log = _allLogs[index] as Log;
-                    uint weight = weightIndex < _logWeights.Length ? _logWeights[weightIndex] : 0;
+            foreach (int index in _scenarioIndices) {
+                if (index < _allScenarios.Count) {
+                    var scenario = _allScenarios[index] as Scenario;
+                    uint weight = weightIndex < _scenarioWeights.Length ? _scenarioWeights[weightIndex] : 0;
 
-                    logs.Add(new KeyValuePair<Log, uint>(log, weight));
+                    scenarios.Add(new KeyValuePair<Scenario, uint>(scenario, weight));
                 }
                 ++weightIndex;
             }
 
-            _logs = logs.ToArray();
-            _logs.SetParent(_allLogs);
+            _scenarios = scenarios.ToArray();
+            _scenarios.SetParent(_allScenarios);
 
-            if (_allLogs != null && _allLogs.Count > 1 && _logIndices.Length == 0) {
-                _logWeights = new uint[] { 1 };
-                LogIndices = new int[] { 1 };
+            if (_allScenarios != null && _allScenarios.Count > 1 && _scenarioIndices.Length == 0) {
+                _scenarioWeights = new uint[] { 1 };
+                ScenarioIndices = new int[] { 1 };
             }
 
             Connection = GetNextOrEmptyChild(typeof(Connection), SolutionTree.Solution.ActiveSolution.GetSolutionComponent(typeof(Connections))) as Connection;
@@ -520,7 +520,7 @@ namespace vApus.Stresstest {
         }
 
         private void SolutionComponentChanged_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
-            //Cleanup _monitors/_logs if _monitorProject Changed
+            //Cleanup _monitors/_scenarios if _monitorProject Changed
             if (sender == _monitorProject || sender is Monitor.Monitor) {
                 var l = new List<Monitor.Monitor>(_monitorProject.Count);
                 foreach (Monitor.Monitor monitor in _monitors)
@@ -530,9 +530,9 @@ namespace vApus.Stresstest {
                 Monitors = l.ToArray();
             }
 
-            if (sender == _allLogs || sender is Log) {
-                var l = new List<KeyValuePair<Log, uint>>(_allLogs.Count);
-                foreach (var kvp in _logs) {
+            if (sender == _allScenarios || sender is Scenario) {
+                var l = new List<KeyValuePair<Scenario, uint>>(_allScenarios.Count);
+                foreach (var kvp in _scenarios) {
                     bool added = false;
                     foreach (var addedKvp in l)
                         if (addedKvp.Key == kvp.Key) {
@@ -540,13 +540,13 @@ namespace vApus.Stresstest {
                             break;
                         }
 
-                    if (!added && _allLogs.Contains(kvp.Key)) {
-                        var newKvp = new KeyValuePair<Log, uint>(kvp.Key, kvp.Value);
+                    if (!added && _allScenarios.Contains(kvp.Key)) {
+                        var newKvp = new KeyValuePair<Scenario, uint>(kvp.Key, kvp.Value);
                         l.Add(newKvp);
                     }
                 }
 
-                Logs = l.ToArray();
+                Scenarios = l.ToArray();
             }
         }
 
@@ -571,11 +571,11 @@ namespace vApus.Stresstest {
                 sw.Write(_actionDistribution);
                 sw.Write(_maximumNumberOfUserActions);
                 sw.WriteObject(Connection);
-                sw.WriteObject(_logs);
+                sw.WriteObject(_scenarios);
                 sw.Write(_forDistributedTest);
-                sw.Write(_useParallelExecutionOfLogEntries);
+                sw.Write(_useParallelExecutionOfRequests);
 
-                //Parameters will be pushed in the child objects when deserializing, this is faster and way less memory consuming then serializing this for each object (each log entry has a reference to this object)
+                //Parameters will be pushed in the child objects when deserializing, this is faster and way less memory consuming then serializing this for each object (each request has a reference to this object)
 
                 GC.WaitForPendingFinalizers();
                 sw.WriteObject(Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters);

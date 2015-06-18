@@ -16,12 +16,12 @@ using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.Results;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
-    public partial class TileStresstestView : BaseSolutionComponentView {
-        public event EventHandler<vApus.Stresstest.TestInitializedEventArgs> TestInitialized;
+namespace vApus.DistributedTest {
+    public partial class TileStressTestView : BaseSolutionComponentView {
+        public event EventHandler<vApus.StressTest.TestInitializedEventArgs> TestInitialized;
 
         #region Fields
         /// <summary>
@@ -29,11 +29,11 @@ namespace vApus.DistributedTesting {
         /// </summary>
         private readonly object _lock = new object();
 
-        private readonly Stresstest.Stresstest _stresstest;
-        private string _tileStresstestIndex;
+        private readonly StressTest.StressTest _stressTest;
+        private string _tileStressTestIndex;
 
         /// <summary>
-        ///     In seconds how fast the stresstest progress will be updated.
+        ///     In seconds how fast the stress test progress will be updated.
         /// </summary>
         private const int PROGRESSUPDATEDELAY = 5;
         /// <summary>
@@ -44,13 +44,13 @@ namespace vApus.DistributedTesting {
         private bool _canUpdateMetrics = false; //Can only be updated when a run is busy.
         private bool _simplifiedMetricsReturned = false; //Only send a warning to the user once.
 
-        private StresstestCore _stresstestCore;
-        private StresstestResult _stresstestResult;
+        private StressTestCore _stressTestCore;
+        private StressTestResult _stressTestResult;
         /// <summary>
-        ///     Caching the results to visualize in the stresstestcontrol.
+        ///     Caching the results to visualize in the fastResultsControl.
         /// </summary>
-        private FastStresstestMetricsCache _stresstestMetricsCache;
-        private StresstestStatus _stresstestStatus;
+        private FastStressTestMetricsCache _stressTestMetricsCache;
+        private StressTestStatus _stressTestStatus;
 
         private ResultsHelper _resultsHelper = new ResultsHelper();
 
@@ -62,25 +62,25 @@ namespace vApus.DistributedTesting {
 
         #region Properties
         /// <summary>
-        ///     Store to identify the right stresstest.
+        ///     Store to identify the right stress test.
         /// </summary>
-        public string TileStresstestIndex {
-            get { return _tileStresstestIndex; }
-            set { _tileStresstestIndex = value; }
+        public string TileStressTestIndex {
+            get { return _tileStressTestIndex; }
+            set { _tileStressTestIndex = value; }
         }
 
         public RunSynchronization RunSynchronization { get; set; }
         public int MaxRerunsBreakOnLast { get; set; }
-        public StresstestResult StresstestResult {
-            get { return _stresstestResult; }
+        public StressTestResult StressTestResult {
+            get { return _stressTestResult; }
         }
 
         /// <summary>
         /// For adding results to the database.
         /// </summary>
-        public int StresstestIdInDb {
-            get { return _resultsHelper.StresstestId; }
-            set { _resultsHelper.StresstestId = value; }
+        public int StressTestIdInDb {
+            get { return _resultsHelper.StressTestId; }
+            set { _resultsHelper.StressTestId = value; }
         }
         #endregion
 
@@ -88,24 +88,24 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     Designer time constructor
         /// </summary>
-        public TileStresstestView() { InitializeComponent(); }
-        public TileStresstestView(SolutionComponent solutionComponent)
+        public TileStressTestView() { InitializeComponent(); }
+        public TileStressTestView(SolutionComponent solutionComponent)
             : base(solutionComponent) {
             Solution.RegisterForCancelFormClosing(this);
-            _stresstest = SolutionComponent as Stresstest.Stresstest;
+            _stressTest = SolutionComponent as StressTest.StressTest;
 
             InitializeComponent();
             if (IsHandleCreated)
                 SetGui();
             else
-                HandleCreated += StresstestProjectView_HandleCreated;
+                HandleCreated += StressTestProjectView_HandleCreated;
         }
         #endregion
 
         #region Functions
 
         #region Set the Gui
-        private void StresstestProjectView_HandleCreated(object sender, EventArgs e) {
+        private void StressTestProjectView_HandleCreated(object sender, EventArgs e) {
             SetGui();
         }
 
@@ -139,44 +139,44 @@ namespace vApus.DistributedTesting {
                 tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
                 tmrProgress.Start();
 
-                fastResultsControl.SetStresstestInitialized();
-                _stresstestResult = null;
-                _stresstestMetricsCache = new FastStresstestMetricsCache();
-                fastResultsControl.SetConfigurationControls(_stresstest);
+                fastResultsControl.SetStressTestInitialized();
+                _stressTestResult = null;
+                _stressTestMetricsCache = new FastStressTestMetricsCache();
+                fastResultsControl.SetConfigurationControls(_stressTest);
 
                 _progressCountDown = PROGRESSUPDATEDELAY - 1;
                 try {
-                    _stresstestCore = new StresstestCore(_stresstest);
-                    _stresstestCore.WaitWhenInitializedTheFirstRun = true;
-                    _stresstestCore.ResultsHelper = _resultsHelper;
-                    _stresstestCore.RunSynchronization = RunSynchronization;
-                    _stresstestCore.MaxRerunsBreakOnLast = MaxRerunsBreakOnLast;
-                    _stresstestCore.StresstestStarted += _stresstestCore_StresstestStarted;
-                    _stresstestCore.ConcurrencyStarted += _stresstestCore_ConcurrentUsersStarted;
-                    _stresstestCore.ConcurrencyStopped += _stresstestCore_ConcurrencyStopped;
-                    _stresstestCore.RunInitializedFirstTime += _stresstestCore_RunInitializedFirstTime;
-                    _stresstestCore.RunStarted += _stresstestCore_RunStarted;
-                    _stresstestCore.RunDoneOnce += _stresstestCore_RunDoneOnce;
-                    _stresstestCore.RerunDone += _stresstestCore_RerunDone;
-                    _stresstestCore.RunStopped += _stresstestCore_RunStopped;
-                    _stresstestCore.Message += _stresstestCore_Message;
+                    _stressTestCore = new StressTestCore(_stressTest);
+                    _stressTestCore.WaitWhenInitializedTheFirstRun = true;
+                    _stressTestCore.ResultsHelper = _resultsHelper;
+                    _stressTestCore.RunSynchronization = RunSynchronization;
+                    _stressTestCore.MaxRerunsBreakOnLast = MaxRerunsBreakOnLast;
+                    _stressTestCore.StressTestStarted += _stressTestCore_StressTestStarted;
+                    _stressTestCore.ConcurrencyStarted += _stressTestCore_ConcurrentUsersStarted;
+                    _stressTestCore.ConcurrencyStopped += _stressTestCore_ConcurrencyStopped;
+                    _stressTestCore.RunInitializedFirstTime += _stressTestCore_RunInitializedFirstTime;
+                    _stressTestCore.RunStarted += _stressTestCore_RunStarted;
+                    _stressTestCore.RunDoneOnce += _stressTestCore_RunDoneOnce;
+                    _stressTestCore.RerunDone += _stressTestCore_RerunDone;
+                    _stressTestCore.RunStopped += _stressTestCore_RunStopped;
+                    _stressTestCore.Message += _stressTestCore_Message;
 
-                    _stresstestCore.TestInitialized += _stresstestCore_TestInitialized;
-                    ThreadPool.QueueUserWorkItem((state) => { _stresstestCore.InitializeTest(); }, null);
+                    _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
+                    ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
                 } catch (Exception ex) {
                     Stop(ex);
 
-                    if (TestInitialized != null) TestInitialized(this, new Stresstest.TestInitializedEventArgs(ex));
+                    if (TestInitialized != null) TestInitialized(this, new StressTest.TestInitializedEventArgs(ex));
                 }
             }, null);
         }
 
-        private void _stresstestCore_TestInitialized(object sender, Stresstest.TestInitializedEventArgs e) {
-            _stresstestCore.TestInitialized -= _stresstestCore_TestInitialized;
+        private void _stressTestCore_TestInitialized(object sender, StressTest.TestInitializedEventArgs e) {
+            _stressTestCore.TestInitialized -= _stressTestCore_TestInitialized;
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 if (e.Exception == null) {
                     try {
-                        fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
+                        fastResultsControl.SetClientMonitoring(_stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage,
                                                               (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
                                                               LocalMonitor.Nic, LocalMonitor.NicBandwidth,
                                                               LocalMonitor.NicSent, LocalMonitor.NicReceived);
@@ -195,27 +195,27 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public void StartTest() {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                if (_stresstestCore == null) return;
+                if (_stressTestCore == null) return;
 
-                _stresstestStatus = StresstestStatus.Busy;
+                _stressTestStatus = StressTestStatus.Busy;
 
-                //The stresstest threadpool is blocking so we run this on another thread.
-                var stresstestThread = new Thread(() => {
+                //The stress test threadpool is blocking so we run this on another thread.
+                var stressTestThread = new Thread(() => {
                     Exception ex = null;
                     try {
-                        _stresstestStatus = _stresstestCore.ExecuteStresstest();
-                        _stresstestResult = _stresstestCore.StresstestResult;
+                        _stressTestStatus = _stressTestCore.ExecuteStressTest();
+                        _stressTestResult = _stressTestCore.StressTestResult;
                     } catch (Exception e) { ex = e; } finally {
-                        if (_stresstestCore != null && !_stresstestCore.IsDisposed)
+                        if (_stressTestCore != null && !_stressTestCore.IsDisposed)
                             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                                 Stop(ex);
                             }, null);
                     }
                 });
 
-                stresstestThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
-                stresstestThread.IsBackground = true;
-                stresstestThread.Start();
+                stressTestThread.CurrentCulture = Thread.CurrentThread.CurrentCulture;
+                stressTestThread.IsBackground = true;
+                stressTestThread.Start();
             }, null);
         }
         #endregion
@@ -225,8 +225,8 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public void Break() {
             lock (_lock)
-                if (_stresstestStatus == StresstestStatus.Busy)
-                    _stresstestCore.Break();
+                if (_stressTestStatus == StressTestStatus.Busy)
+                    _stressTestCore.Break();
 
         }
 
@@ -236,17 +236,17 @@ namespace vApus.DistributedTesting {
         /// <param name="continueCounter">Every time the execution is paused the continue counter is incremented by one.</param>
         public void Continue(int continueCounter) {
             lock (_lock)
-                if (_stresstestStatus == StresstestStatus.Busy)
-                    _stresstestCore.Continue(continueCounter);
+                if (_stressTestStatus == StressTestStatus.Busy)
+                    _stressTestCore.Continue(continueCounter);
         }
 
         /// <summary>
-        ///     Thread safe, Keeping the shared run for a divided tile stresstest in sync.
+        ///     Thread safe, Keeping the shared run for a divided tile stress test in sync.
         /// </summary>
         public void ContinueDivided() {
             lock (_lock)
-                if (_stresstestStatus == StresstestStatus.Busy)
-                    _stresstestCore.ContinueDivided();
+                if (_stressTestStatus == StressTestStatus.Busy)
+                    _stressTestCore.ContinueDivided();
         }
 
         #region Progress
@@ -254,19 +254,19 @@ namespace vApus.DistributedTesting {
         private void tmrProgress_Tick(object sender, ElapsedEventArgs e) {
             try {
                 fastResultsControl.SetClientMonitoring(
-                    _stresstestCore == null ? 0 : _stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage,
+                    _stressTestCore == null ? 0 : _stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage,
                     (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent, LocalMonitor.NicReceived);
             } catch { } //Exception on false WMI. 
 
             if (_canUpdateMetrics) {
-                fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.SimplifiedMetrics);
-                List<StresstestMetrics> runMetrics = _stresstestMetricsCache.GetRunMetrics();
-                fastResultsControl.UpdateFastRunResults(runMetrics, false, _stresstestMetricsCache.SimplifiedMetrics);
+                fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(), true, _stressTestMetricsCache.SimplifiedMetrics);
+                List<StressTestMetrics> runMetrics = _stressTestMetricsCache.GetRunMetrics();
+                fastResultsControl.UpdateFastRunResults(runMetrics, false, _stressTestMetricsCache.SimplifiedMetrics);
 
                 //Set rerunning
                 fastResultsControl.SetRerunning(runMetrics.Count == 0 ? false : runMetrics[runMetrics.Count - 1].RerunCount != 0);
 
-                if (_stresstestMetricsCache.SimplifiedMetrics && !_simplifiedMetricsReturned) {
+                if (_stressTestMetricsCache.SimplifiedMetrics && !_simplifiedMetricsReturned) {
                     _simplifiedMetricsReturned = true;
                     fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
                 }
@@ -277,26 +277,26 @@ namespace vApus.DistributedTesting {
             SendPushMessage(RunStateChange.None, false, false);
         }
 
-        private void _stresstestCore_StresstestStarted(object sender, StresstestResultEventArgs e) {
+        private void _stressTestCore_StressTestStarted(object sender, StressTestResultEventArgs e) {
             _simplifiedMetricsReturned = false;
-            _stresstestResult = e.StresstestResult;
-            fastResultsControl.SetStresstestStarted(e.StresstestResult.StartedAt);
+            _stressTestResult = e.StressTestResult;
+            fastResultsControl.SetStressTestStarted(e.StressTestResult.StartedAt);
         }
 
-        private void _stresstestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e) {
+        private void _stressTestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e) {
             _progressCountDown = PROGRESSUPDATEDELAY;
             StopProgressDelayCountDown();
             //Update the metrics.
-            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.AddOrUpdate(e.Result), true, _stresstestMetricsCache.SimplifiedMetrics);
+            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result), true, _stressTestMetricsCache.SimplifiedMetrics);
             fastResultsControl.SetRerunning(false);
         }
-        private void _stresstestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) { SendPushMessage(RunStateChange.None, false, true); }
+        private void _stressTestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) { SendPushMessage(RunStateChange.None, false, true); }
 
-        private void _stresstestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
+        private void _stressTestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             StopProgressDelayCountDown();
 
-            fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.AddOrUpdate(e.Result), true, _stresstestMetricsCache.SimplifiedMetrics);
-            fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), false, _stresstestMetricsCache.SimplifiedMetrics);
+            fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.AddOrUpdate(e.Result), true, _stressTestMetricsCache.SimplifiedMetrics);
+            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(), false, _stressTestMetricsCache.SimplifiedMetrics);
 
             SendPushMessage(RunStateChange.ToRunInitializedFirstTime, false, false);
 
@@ -309,10 +309,10 @@ namespace vApus.DistributedTesting {
             tmrProgress.Start();
         }
 
-        private void _stresstestCore_RunStarted(object sender, RunResultEventArgs e) { _canUpdateMetrics = true; }
-        private void _stresstestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce, false, false); }
-        private void _stresstestCore_RerunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRerunDone, false, false); }
-        private void _stresstestCore_RunStopped(object sender, RunResultEventArgs e) {
+        private void _stressTestCore_RunStarted(object sender, RunResultEventArgs e) { _canUpdateMetrics = true; }
+        private void _stressTestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce, false, false); }
+        private void _stressTestCore_RerunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRerunDone, false, false); }
+        private void _stressTestCore_RunStopped(object sender, RunResultEventArgs e) {
             _canUpdateMetrics = false;
             SendPushMessage(RunStateChange.None, true, false);
         }
@@ -322,38 +322,38 @@ namespace vApus.DistributedTesting {
         /// <param name="runStateChange"></param>
         private void SendPushMessage(RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (!_finishedSent) {
-                var estimatedRuntimeLeft = FastStresstestMetricsHelper.GetEstimatedRuntimeLeft(_stresstestResult, _stresstest.Concurrencies.Length, _stresstest.Runs);
+                var estimatedRuntimeLeft = FastStressTestMetricsHelper.GetEstimatedRuntimeLeft(_stressTestResult, _stressTest.Concurrencies.Length, _stressTest.Runs);
                 var events = new List<EventPanelEvent>();
                 try { events = fastResultsControl.GetEvents(); } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed getting events.", ex);
                 }
-                SlaveSideCommunicationHandler.SendPushMessage(_tileStresstestIndex, _stresstestMetricsCache, _stresstestStatus, fastResultsControl.StresstestStartedAt,
-                    fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stresstestCore, events, runStateChange, runFinished, concurrencyFinished);
-                if (_stresstestStatus != StresstestStatus.Busy) _finishedSent = true;
+                SlaveSideCommunicationHandler.SendPushMessage(_tileStressTestIndex, _stressTestMetricsCache, _stressTestStatus, fastResultsControl.StressTestStartedAt,
+                    fastResultsControl.MeasuredRuntime, estimatedRuntimeLeft, _stressTestCore, events, runStateChange, runFinished, concurrencyFinished);
+                if (_stressTestStatus != StressTestStatus.Busy) _finishedSent = true;
             }
         }
 
         /// <summary>
-        ///     Refreshes the messages from the StresstestCore for a selected node and refreshes the listed results.
+        ///     Refreshes the messages from the StressTestCore for a selected node and refreshes the listed results.
         /// </summary>
-        private void _stresstestCore_Message(object sender, MessageEventArgs e) {
+        private void _stressTestCore_Message(object sender, MessageEventArgs e) {
             if (e.Color == Color.Empty) fastResultsControl.AddEvent(e.Message, e.LogLevel);
             else fastResultsControl.AddEvent(e.Message, e.Color, e.LogLevel);
         }
         #endregion
 
         #region Stop
-        private void TileStresstestView_FormClosing(object sender, FormClosingEventArgs e) {
+        private void TileStressTestView_FormClosing(object sender, FormClosingEventArgs e) {
             if (!btnStop.Enabled || MessageBox.Show("Are you sure you want to close a running test?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                StopStresstest();
+                StopStressTest();
 
                 tmrProgress.Stop();
                 StopProgressDelayCountDown();
 
 
-                if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
-                    _stresstestCore.Dispose();
-                    _stresstestCore = null;
+                if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
+                    _stressTestCore.Dispose();
+                    _stressTestCore = null;
                 }
 
                 SendPushMessage(RunStateChange.None, false, false);
@@ -373,18 +373,18 @@ namespace vApus.DistributedTesting {
         public void PerformStopClick() {
             if (btnStop.Enabled) {
                 int busyThreadCount = -1;
-                if (_stresstestCore != null) {
-                    busyThreadCount = _stresstestCore.BusyThreadCount;
-                    _stresstestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
+                if (_stressTestCore != null) {
+                    busyThreadCount = _stressTestCore.BusyThreadCount;
+                    _stressTestCore.Cancel(); // Can only be cancelled once, calling multiple times is not a problem.
                 }
 
                 //Nasty, but last resort.
                 ThreadPool.QueueUserWorkItem((state) => {
                     for (int i = 0; i != 10001; i++) {
-                        if (_stresstestCore == null) break;
+                        if (_stressTestCore == null) break;
                         Thread.Sleep(1);
                     }
-                    if (_stresstestCore != null || busyThreadCount == 0)
+                    if (_stressTestCore != null || busyThreadCount == 0)
                         SynchronizationContextWrapper.SynchronizationContext.Send((x) => {
                             Stop();
                         }, null);
@@ -398,22 +398,22 @@ namespace vApus.DistributedTesting {
         private void Stop(Exception ex = null) {
             Cursor = Cursors.WaitCursor;
             try {
-                StopStresstest();
+                StopStressTest();
 
                 tmrProgress.Stop();
                 StopProgressDelayCountDown();
 
                 btnStop.Enabled = false;
                 if (ex == null)
-                    fastResultsControl.SetStresstestStopped(_stresstestStatus);
+                    fastResultsControl.SetStressTestStopped(_stressTestStatus);
                 else {
-                    _stresstestStatus = StresstestStatus.Error;
-                    fastResultsControl.SetStresstestStopped(_stresstestStatus, ex);
+                    _stressTestStatus = StressTestStatus.Error;
+                    fastResultsControl.SetStressTestStopped(_stressTestStatus);
                 }
 
-                if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
-                    _stresstestCore.Dispose();
-                    _stresstestCore = null;
+                if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
+                    _stressTestCore.Dispose();
+                    _stressTestCore = null;
                 }
 
                 SendPushMessage(RunStateChange.None, false, false);
@@ -427,32 +427,32 @@ namespace vApus.DistributedTesting {
         /// <summary>
         ///     Only used in stop
         /// </summary>
-        private void StopStresstest() {
-            if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
+        private void StopStressTest() {
+            if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
                 try {
-                    fastResultsControl.SetClientMonitoring(_stresstestCore.BusyThreadCount, LocalMonitor.CPUUsage,
+                    fastResultsControl.SetClientMonitoring(_stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage,
                                                           (int)LocalMonitor.MemoryUsage,
                                                           (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth,
                                                           LocalMonitor.NicSent, LocalMonitor.NicReceived);
                 } catch { } //Exception on false WMI. 
 
-                _stresstestMetricsCache.AllowSimplifiedMetrics = false;
-                fastResultsControl.UpdateFastConcurrencyResults(_stresstestMetricsCache.GetConcurrencyMetrics(), true, _stresstestMetricsCache.SimplifiedMetrics);
-                fastResultsControl.UpdateFastRunResults(_stresstestMetricsCache.GetRunMetrics(), false, _stresstestMetricsCache.SimplifiedMetrics);
+                _stressTestMetricsCache.AllowSimplifiedMetrics = false;
+                fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(), true, _stressTestMetricsCache.SimplifiedMetrics);
+                fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.GetRunMetrics(), false, _stressTestMetricsCache.SimplifiedMetrics);
 
                 fastResultsControl.SetRerunning(false);
 
                 // Can only be cancelled once, calling multiple times is not a problem.
-                if (_stresstestCore != null && !_stresstestCore.IsDisposed)
+                if (_stressTestCore != null && !_stressTestCore.IsDisposed)
                     try {
-                        _stresstestCore.Cancel();
+                        _stressTestCore.Cancel();
                     } catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed cancelling the test.", ex);
                     }
             }
 
-            fastResultsControl.SetStresstestStopped();
-            _stresstestResult = null;
+            fastResultsControl.SetStressTestStopped();
+            _stressTestResult = null;
             _canUpdateMetrics = false;
         }
 

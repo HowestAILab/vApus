@@ -14,12 +14,12 @@ using System.Drawing;
 using System.Threading;
 using System.Threading.Tasks;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
-    /// This is a single purpose threadpool, it is specifically designed to be able to execute one type of workload: A thread must communicate to a server app through the means of a connection proxy; time to last byte and delay must be added to (vApus,Results.)StresstestResult.
+    /// This is a single purpose threadpool, it is specifically designed to be able to execute one type of workload: A thread must communicate to a server app through the means of a connection proxy; time to last byte and delay must be added to (vApus,Results.)StressTestResult.
     /// The CLR threadpool did not suffice due to the lack of control.
     /// </summary>
-    internal class StresstestThreadPool : IDisposable {
+    internal class StressTestThreadPool : IDisposable {
 
         #region Events
         /// <summary>
@@ -74,16 +74,16 @@ namespace vApus.Stresstest {
 
         #region Con-/Destructor
         /// <summary>
-        /// This is a single purpose threadpool, it is specifically designed to be able to execute one type of workload: A thread must communicate to a server app through the means of a connection proxy; time to last byte and delay must be added to (vApus,Results.)StresstestResult.
+        /// This is a single purpose threadpool, it is specifically designed to be able to execute one type of workload: A thread must communicate to a server app through the means of a connection proxy; time to last byte and delay must be added to (vApus,Results.)StressTestResult.
         /// The CLR threadpool did not suffice due to the lack of control.
         /// </summary>
         /// <param name="workItemCallback">The delegate to the function each thread will execute. The index of the thread in the threadpool will be given with.</param>
-        public StresstestThreadPool(WorkItemCallback workItemCallback) {
+        public StressTestThreadPool(WorkItemCallback workItemCallback) {
             if (workItemCallback == null)
                 throw new ArgumentNullException("workItemCallback");
             _workItemCallback = workItemCallback;
         }
-        ~StresstestThreadPool() { Dispose(); }
+        ~StressTestThreadPool() { Dispose(); }
         #endregion
 
         #region Functions
@@ -125,9 +125,9 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///  After SetThreads is called, execute this to do the actual stresstest. When this returns SetThreads must be called again to fill the threadpool with threads that are alive.
+        ///  After SetThreads is called, execute this to do the actual stress test. When this returns SetThreads must be called again to fill the threadpool with threads that are alive.
         /// </summary>
-        /// <param name="patternIndices">The patterns for delays and randomized log entries.</param>
+        /// <param name="patternIndices">The patterns for delays and randomized requests.</param>
         public void DoWorkAndWaitForIdle() {
             if (IsDisposed)
                 throw new Exception("Disposed");
@@ -183,7 +183,7 @@ namespace vApus.Stresstest {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="parallelCallback">object[] { callback, log entry index }</param>
+        /// <param name="parallelCallback">object[] { callback, request index }</param>
         private void DoParallelWork(object parallelCallback) {
             var arr = parallelCallback as object[];
             var fx = arr[0] as WorkItemCallback;
@@ -293,7 +293,7 @@ namespace vApus.Stresstest {
 
             #region Fields
             private readonly WorkItemCallback _callback;
-            private readonly StresstestThreadPool _threadPool;
+            private readonly StressTestThreadPool _threadPool;
 
             private volatile int _threadIndex;
             #endregion
@@ -306,7 +306,7 @@ namespace vApus.Stresstest {
             #endregion
 
             #region Constructor
-            public WorkItem(StresstestThreadPool threadPool, int threadIndex, WorkItemCallback callback) {
+            public WorkItem(StressTestThreadPool threadPool, int threadIndex, WorkItemCallback callback) {
                 _threadPool = threadPool;
                 _callback = callback;
 

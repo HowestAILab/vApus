@@ -20,8 +20,8 @@ namespace vApus.Results {
         public static AverageUserActionResultsCalculator GetInstance() { return _instance; }
         private AverageUserActionResultsCalculator() { }
 
-        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
-            ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stresstestIds);
+        public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
+            ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stressTestIds);
             if (cancellationToken.IsCancellationRequested) return null;
 
             DataTable results = GetResults(data, cancellationToken);
@@ -34,22 +34,22 @@ namespace vApus.Results {
 
             return results;
         }
-        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
+        protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
             var data = new ConcurrentDictionary<string, DataTable>();
 
-            data.TryAdd("stresstests", ReaderAndCombiner.GetStresstests(cancellationToken, databaseActions, stresstestIds, "Id", "Stresstest", "Connection"));
+            data.TryAdd("stresstests", ReaderAndCombiner.GetStressTests(cancellationToken, databaseActions, stressTestIds, "Id", "StressTest", "Connection"));
             if (cancellationToken.IsCancellationRequested) return null;
 
-            DataTable stresstestResults = ReaderAndCombiner.GetStresstestResults(cancellationToken, databaseActions, stresstestIds, "Id", "StresstestId");
+            DataTable stressTestResults = ReaderAndCombiner.GetStressTestResults(cancellationToken, databaseActions, stressTestIds, "Id", "StressTestId");
             if (cancellationToken.IsCancellationRequested) return null;
 
-            data.TryAdd("stresstestresults", stresstestResults);
+            data.TryAdd("stresstestresults", stressTestResults);
 
-            int[] stresstestResultIds = new int[stresstestResults.Rows.Count];
-            for (int i = 0; i != stresstestResultIds.Length; i++)
-                stresstestResultIds[i] = (int)stresstestResults.Rows[i][0];
+            int[] stressTestResultIds = new int[stressTestResults.Rows.Count];
+            for (int i = 0; i != stressTestResultIds.Length; i++)
+                stressTestResultIds[i] = (int)stressTestResults.Rows[i][0];
 
-            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, databaseActions, stresstestResultIds, new string[] { "Id", "Concurrency", "StresstestResultId" });
+            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, databaseActions, stressTestResultIds, new string[] { "Id", "Concurrency", "StressTestResultId" });
             if (cancellationToken.IsCancellationRequested) return null;
 
             data.TryAdd("concurrencyresults", concurrencyResults);
@@ -63,41 +63,41 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetLogEntryResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "SameAsLogEntryIndex", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
+            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "SameAsRequestIndex", "RequestIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
-                data.TryAdd("logentryresults" + i, parts[i]);
+                data.TryAdd("requestresults" + i, parts[i]);
             parts = null;
 
             return data;
         }
 
         private DataTable GetResults(ConcurrentDictionary<string, DataTable> data, CancellationToken cancellationToken) {
-            DataRow[] stresstests = data["stresstests"].Select();
-            if (stresstests == null || stresstests.Length == 0) return null;
+            DataRow[] stressTests = data["stresstests"].Select();
+            if (stressTests == null || stressTests.Length == 0) return null;
 
-            //Get all the log entry result datatables.
-            var logEntryResultsDataList = new List<DataTable>();
+            //Get all the request result datatables.
+            var requestResultsDataList = new List<DataTable>();
             foreach (string key in data.Keys)
-                if (key.StartsWith("logentryresults"))
-                    logEntryResultsDataList.Add(data[key]);
-            DataTable[] logEntryResultsData = logEntryResultsDataList.ToArray();
+                if (key.StartsWith("requestresults"))
+                    requestResultsDataList.Add(data[key]);
+            DataTable[] requestResultsData = requestResultsDataList.ToArray();
 
-            var averageUserActionResults = CreateEmptyDataTable("AverageUserActionResults", "Stresstest", "ConcurrencyId", "Concurrency", "User Action", "Avg. Response Time (ms)",
-                           "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "99th Percentile of the Response Times (ms)", "Avg. Top 5 Response Times (ms)", "Avg. Delay (ms)", "Errors");
+            var averageUserActionResults = CreateEmptyDataTable("AverageUserActionResults", "Stress test", "ConcurrencyId", "Concurrency", "User action", "Avg. response time (ms)",
+                           "Max. response time (ms)", "95th percentile of the response times (ms)", "99th percentile of the response times (ms)", "Avg. top 5 response times (ms)", "Avg. delay (ms)", "Errors");
 
-            foreach (DataRow stresstestsRow in stresstests) {
+            foreach (DataRow stressTestsRow in stressTests) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
-                int stresstestId = (int)stresstestsRow.ItemArray[0];
+                int stressTestId = (int)stressTestsRow.ItemArray[0];
 
-                DataRow[] stresstestResults = data["stresstestresults"].Select(string.Format("StresstestId={0}", stresstestId));
-                if (stresstestResults == null || stresstestResults.Length == 0) continue;
-                int stresstestResultId = (int)stresstestResults[0].ItemArray[0];
+                DataRow[] stressTestResults = data["stresstestresults"].Select(string.Format("StressTestId={0}", stressTestId));
+                if (stressTestResults == null || stressTestResults.Length == 0) continue;
+                int stressTestResultId = (int)stressTestResults[0].ItemArray[0];
 
-                string stresstest = string.Format("{0} {1}", stresstestsRow.ItemArray[1], stresstestsRow.ItemArray[2]);
+                string stressTest = string.Format("{0} {1}", stressTestsRow.ItemArray[1], stressTestsRow.ItemArray[2]);
 
-                DataRow[] concurrencyResults = data["concurrencyresults"].Select(string.Format("StresstestResultId={0}", stresstestResultId));
+                DataRow[] concurrencyResults = data["concurrencyresults"].Select(string.Format("StressTestResultId={0}", stressTestResultId));
                 if (concurrencyResults == null || concurrencyResults.Length == 0) continue;
 
                 foreach (DataRow crRow in concurrencyResults) {
@@ -109,57 +109,57 @@ namespace vApus.Results {
                     DataRow[] runResults = data["runresults"].Select(string.Format("ConcurrencyResultId={0}", concurrencyResultId));
                     if (runResults == null || runResults.Length == 0) continue;
 
-                    //Place the log entry results under the right virtual user and the right user action
-                    var userActions = new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>>>(); // <VirtualUser,<UserAction, LogEntryResult
+                    //Place the request results under the right virtual user and the right user action
+                    var userActions = new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<RequestResult>>>>>(); // <VirtualUser,<UserAction, RequestResult
                     //Parallel.ForEach(runResults, (rrRow, loopState) => {
                     foreach (DataRow rrRow in runResults) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
                         int runResultId = (int)rrRow.ItemArray[0];
 
-                        //Get the log entry results containing log entries with the given run result id.
-                        var logEntryResults = new DataRow[0];
-                        for (int lerDataIndex = 0; lerDataIndex != logEntryResultsData.Length; lerDataIndex++) {
-                            logEntryResults = logEntryResultsData[lerDataIndex].Select(string.Format("RunResultId={0}", runResultId));
-                            if (logEntryResults.Length != 0)
+                        //Get the request results containing requests with the given run result id.
+                        var requestResults = new DataRow[0];
+                        for (int rerDataIndex = 0; rerDataIndex != requestResultsData.Length; rerDataIndex++) {
+                            requestResults = requestResultsData[rerDataIndex].Select(string.Format("RunResultId={0}", runResultId));
+                            if (requestResults.Length != 0)
                                 break;
                         }
 
-                        if (logEntryResults != null && logEntryResults.Length != 0) {
+                        if (requestResults != null && requestResults.Length != 0) {
                             //Keeping reruns in mind (break on last)
                             int runs = ((int)rrRow.ItemArray[1]) + 1;
                             var userActionsMap = new ConcurrentDictionary<string, string>(); //Map duplicate user actions to the original ones, if need be. Duplicate user names (Other names / indices for reruns) --> map to original names for correct avg calculation.
                             for (int reRun = 0; reRun != runs; reRun++) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                var uas = new ConcurrentDictionary<string, ConcurrentDictionary<string, SynchronizedCollection<LogEntryResult>>>(); // <VirtualUser,<UserAction, LogEntryResult
+                                var uas = new ConcurrentDictionary<string, ConcurrentDictionary<string, SynchronizedCollection<RequestResult>>>(); // <VirtualUser,<UserAction, RequestResult
 
-                                Parallel.ForEach(logEntryResults.AsEnumerable(), (lerRow, loopState2) => {
-                                    //foreach (DataRow lerRow in logEntryResults) {
+                                Parallel.ForEach(requestResults.AsEnumerable(), (rerRow, loopState2) => {
+                                    //foreach (DataRow rerRow in requestResults) {
                                     if (cancellationToken.IsCancellationRequested) loopState2.Break();
                                     //if (cancellationToken.IsCancellationRequested) return null;
-                                    if ((int)lerRow["Rerun"] == reRun) {
-                                        string virtualUser = lerRow["VirtualUser"] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct average doing it like this.
-                                        string userAction = lerRow["UserAction"] as string;
+                                    if ((int)rerRow["Rerun"] == reRun) {
+                                        string virtualUser = rerRow["VirtualUser"] + "-" + reRun; //Make "virtual" virtual users :), handy way to make a correct average doing it like this.
+                                        string userAction = rerRow["UserAction"] as string;
 
-                                        string logEntryIndex = lerRow["SameAsLogEntryIndex"] as string; //Combine results when using distribe like this.
-                                        if (logEntryIndex == string.Empty) {
-                                            logEntryIndex = lerRow["LogEntryIndex"] as string;
+                                        string requestIndex = rerRow["SameAsRequestIndex"] as string; //Combine results when using distribe like this.
+                                        if (requestIndex == string.Empty) {
+                                            requestIndex = rerRow["RequestIndex"] as string;
 
-                                            //Make sure we have all the user actions before averages are calcullated, otherwise the duplicated user action names can be used.
-                                            //Map using the log entry index
-                                            userActionsMap.TryAdd(logEntryIndex, userAction);
+                                            //Make sure we have all the user actions before averages are calculated, otherwise the duplicated user action names can be used.
+                                            //Map using the request index
+                                            userActionsMap.TryAdd(requestIndex, userAction);
                                         }
 
-                                        var logEntryResult = new LogEntryResult() {
-                                            LogEntryIndex = logEntryIndex, TimeToLastByteInTicks = (long)lerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)lerRow["DelayInMilliseconds"],
-                                            Error = (long)lerRow["Error"] == 0 ? null : "-"
+                                        var requestResult = new RequestResult() {
+                                            RequestIndex = requestIndex, TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"],
+                                            Error = (long)rerRow["Error"] == 0 ? null : "-"
                                         };
 
-                                        if (!uas.ContainsKey(virtualUser)) uas.TryAdd(virtualUser, new ConcurrentDictionary<string, SynchronizedCollection<LogEntryResult>>());
-                                        if (!uas[virtualUser].ContainsKey(virtualUser)) uas[virtualUser].TryAdd(userAction, new SynchronizedCollection<LogEntryResult>());
+                                        if (!uas.ContainsKey(virtualUser)) uas.TryAdd(virtualUser, new ConcurrentDictionary<string, SynchronizedCollection<RequestResult>>());
+                                        if (!uas[virtualUser].ContainsKey(virtualUser)) uas[virtualUser].TryAdd(userAction, new SynchronizedCollection<RequestResult>());
 
-                                        uas[virtualUser][userAction].Add(logEntryResult);
+                                        uas[virtualUser][userAction].Add(requestResult);
                                     }
                                 }
                                 );
@@ -171,17 +171,17 @@ namespace vApus.Results {
                                     //if (cancellationToken.IsCancellationRequested) loopState2.Break();
                                     //if (cancellationToken.IsCancellationRequested) return null;
 
-                                    var kvp = new KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>>(item.Key, new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<LogEntryResult>>>());
+                                    var kvp = new KeyValuePair<string, SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<RequestResult>>>>(item.Key, new SynchronizedCollection<KeyValuePair<string, SynchronizedCollection<RequestResult>>>());
                                     foreach (string userAction in uas[item.Key].Keys) {
                                         //if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
                                         string mappedUserAction = userAction;
-                                        var lers = uas[item.Key][userAction];
-                                        if (lers.Count != 0) {
-                                            var leri = lers[0].LogEntryIndex;
-                                            if (userActionsMap.ContainsKey(leri)) mappedUserAction = userActionsMap[leri];
+                                        var rers = uas[item.Key][userAction];
+                                        if (rers.Count != 0) {
+                                            var reri = rers[0].RequestIndex;
+                                            if (userActionsMap.ContainsKey(reri)) mappedUserAction = userActionsMap[reri];
                                         }
-                                        kvp.Value.Add(new KeyValuePair<string, SynchronizedCollection<LogEntryResult>>(mappedUserAction, lers));
+                                        kvp.Value.Add(new KeyValuePair<string, SynchronizedCollection<RequestResult>>(mappedUserAction, rers));
                                     }
                                     userActions.Add(kvp);
                                 }
@@ -209,20 +209,20 @@ namespace vApus.Results {
                             long ers = 0;
 
                             string userAction = kvp.Key;
-                            var lers = kvp.Value;
+                            var rers = kvp.Value;
 
-                            for (int j = lers.Count - 1; j != -1; j--) {
+                            for (int j = rers.Count - 1; j != -1; j--) {
                                 //if (cancellationToken.IsCancellationRequested) loopState.Break();
                                 if (cancellationToken.IsCancellationRequested) return null;
 
-                                var ler = lers[j];
+                                var rer = rers[j];
                                 if (delay == -1) {
-                                    delay = ler.DelayInMilliseconds;
-                                    ttlb = ler.TimeToLastByteInTicks;
+                                    delay = rer.DelayInMilliseconds;
+                                    ttlb = rer.TimeToLastByteInTicks;
                                 } else {
-                                    ttlb += ler.TimeToLastByteInTicks + ler.DelayInMilliseconds;
+                                    ttlb += rer.TimeToLastByteInTicks + rer.DelayInMilliseconds;
                                 }
-                                if (!string.IsNullOrEmpty(ler.Error)) ++ers;
+                                if (!string.IsNullOrEmpty(rer.Error)) ++ers;
                             }
                             userActionResultsList.Add(new object[] { userAction, ttlb, delay, ers });
                         }
@@ -306,7 +306,7 @@ namespace vApus.Results {
                     foreach (string userAction in sortedUserActions) {
                         if (cancellationToken.IsCancellationRequested) return null;
 
-                        averageUserActionResults.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
+                        averageUserActionResults.Rows.Add(stressTest, concurrencyResultId, concurrency, userAction,
                             Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
                             maxTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond,
                             perc95TimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond,
@@ -325,14 +325,14 @@ namespace vApus.Results {
             private static readonly UserActionComparer _userActionComparer = new UserActionComparer();
             public static UserActionComparer GetInstance() { return _userActionComparer; }
 
-            private const string LOG = "Log ";
+            private const string SCENARIO = "Scenario ";
             private const string UA = "User Action ";
             private const char COLON = ':';
 
             private UserActionComparer() { }
 
             public int Compare(string x, string y) {
-                if (x.StartsWith(LOG)) { //Backwards compatible.
+                if (x.StartsWith(SCENARIO)) { //Backwards compatible.
 
                     int xColonUa = x.IndexOf(COLON);
                     if (xColonUa == -1) xColonUa = x.IndexOf(UA) - 1;
@@ -340,18 +340,18 @@ namespace vApus.Results {
                     int yColonUa = y.IndexOf(COLON);
                     if (yColonUa == -1) yColonUa = y.IndexOf(UA) - 1;
 
-                    int logX, logY;
-                    if (!int.TryParse(x.Substring(LOG.Length, xColonUa - LOG.Length), out logX)) {
+                    int scenarioX, scenarioY;
+                    if (!int.TryParse(x.Substring(SCENARIO.Length, xColonUa - SCENARIO.Length), out scenarioX)) {
                         xColonUa = x.IndexOf(UA) - 1;
-                        int.TryParse(x.Substring(LOG.Length, xColonUa - LOG.Length), out logX);
+                        int.TryParse(x.Substring(SCENARIO.Length, xColonUa - SCENARIO.Length), out scenarioX);
                     }
-                    if (!int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY)) {
+                    if (!int.TryParse(x.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY)) {
                         yColonUa = y.IndexOf(UA) - 1;
-                        int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY);
+                        int.TryParse(x.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY);
                     }
 
-                    if (logX > logY) return 1;
-                    if (logY < logX) return -1;
+                    if (scenarioX > scenarioY) return 1;
+                    if (scenarioY < scenarioX) return -1;
 
                     int xUA = x.IndexOf(UA);
                     int yUA = y.IndexOf(UA);

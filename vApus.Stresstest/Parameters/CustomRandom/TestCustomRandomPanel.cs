@@ -11,7 +11,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// Compiles the CustomRandomParameter code and shows errors if any. Returns 3 values (Can be unique if the checkbox is checked in CustomRandomParameterPanel).
     /// </summary>

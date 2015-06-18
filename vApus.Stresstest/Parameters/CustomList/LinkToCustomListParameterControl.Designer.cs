@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest
+﻿namespace vApus.StressTest
 {
     partial class LinkToCustomListParameterControl
     {

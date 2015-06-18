@@ -17,9 +17,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
-    ///     Used for stresstesting, the size of the pool must equal or be greater than the concurrent users count of Stresstest.
+    ///     Used for stress testing, the size of the pool must equal or be greater than the concurrent users count of Stress test.
     ///     Note, CompileConnectionProxyClass must be called to be able to use this pool.
     /// </summary>
     public class ConnectionProxyPool : IDisposable {
@@ -56,7 +56,7 @@ namespace vApus.Stresstest {
 
         #region Con-/Destructor
         /// <summary>
-        ///     Used for stresstesting, the size of the pool must equal or be greater than the concurrent users count of Stresstest.
+        ///     Used for stress testing, the size of the pool must equal or be greater than the concurrent users count of Stress test.
         ///     Note, CompileConnectionProxyClass must be called to be able to use this pool.
         /// </summary>
         /// <param name="connection"></param>
@@ -87,7 +87,7 @@ namespace vApus.Stresstest {
             _connectionProxyType = null;
             _connectionProxyAssembly = _compilerUnit.Compile(_connection.BuildConnectionProxyClass(), debug, out compilerResults);
             if (!compilerResults.Errors.HasErrors)
-                _connectionProxyType = _connectionProxyAssembly.GetType("vApus.Stresstest.ConnectionProxy");
+                _connectionProxyType = _connectionProxyAssembly.GetType("vApus.StressTest.ConnectionProxy");
             return compilerResults;
         }
 
@@ -118,7 +118,7 @@ namespace vApus.Stresstest {
         ///     Will dispose the current connection proxies and open new ones.
         /// </summary>
         /// <param name="count"></param>
-        /// <param name="parallelConnectionCount">The count of how many log entries are executed in parallel and need a unique connection proxy (e.g. web sited). Must be dequeued ad hoc.</param>
+        /// <param name="parallelConnectionCount">The count of how many requests are executed in parallel and need a unique connection proxy (e.g. web sited). Must be dequeued ad hoc.</param>
         public void SetAndConnectConnectionProxies(int count, int parallelConnectionCount = 0) {
             DisposeConnectionProxies();
 

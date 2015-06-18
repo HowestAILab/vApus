@@ -42,7 +42,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(548, 41);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Add a short description and comma-seperated tags to the stresstest results.\r\nThes" +
+            this.label1.Text = "Add a short description and comma-seperated tags to the stress test results.\r\nThes" +
     "e values will be stored in the generated results database for easy finding.";
             // 
             // btnOK
@@ -105,7 +105,7 @@
             this.txtTags.Name = "txtTags";
             this.txtTags.Size = new System.Drawing.Size(545, 22);
             this.txtTags.TabIndex = 2;
-            this.toolTip.SetToolTip(this.txtTags, "Comma-separated tags");
+            this.toolTip.SetToolTip(this.txtTags, "Comma-separated tags.");
             // 
             // txtDescription
             // 
@@ -119,7 +119,7 @@
             this.txtDescription.Name = "txtDescription";
             this.txtDescription.Size = new System.Drawing.Size(545, 114);
             this.txtDescription.TabIndex = 1;
-            this.toolTip.SetToolTip(this.txtDescription, "Description");
+            this.toolTip.SetToolTip(this.txtDescription, "Description.");
             // 
             // DescriptionAndTagsInputDialog
             // 
@@ -142,7 +142,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Set Description and Tags";
+            this.Text = "Set description and tags";
             this.ResumeLayout(false);
             this.PerformLayout();
 

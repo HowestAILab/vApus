@@ -6,7 +6,7 @@ using System.Runtime.InteropServices;
 // associated with an assembly.
 
 [assembly: AssemblyTitle("vApus")]
-[assembly: AssemblyDescription("vApus: Virtualized Application Unique Stresstesting")]
+[assembly: AssemblyDescription("vApus: Virtualized Application Unique Stress Testing")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Sizing Servers Lab (http://www.sizingservers.be)")]
 [assembly: AssemblyProduct("vApus")]

@@ -10,11 +10,11 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
-using vApus.DistributedTesting.Properties;
+using vApus.DistributedTest.Properties;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     [ToolboxItem(false)]
     public partial class DistributedTestTreeViewItem : UserControl, ITreeViewItem {
         #region Events
@@ -97,7 +97,7 @@ namespace vApus.DistributedTesting {
                     nudMaxBreakOnLast.Enabled =
                     picAddTile.Visible = true;
 
-                picStresstestStatus.Visible = false;
+                picStressTestStatus.Visible = false;
             } else {
                 chkUseRDP.Enabled =
                     pnlRunSync.Enabled =
@@ -106,18 +106,18 @@ namespace vApus.DistributedTesting {
 
                 _testStarted = false;
 
-                picStresstestStatus.Image = Resources.Wait;
-                toolTip.SetToolTip(picStresstestStatus, string.Empty);
+                picStressTestStatus.Image = Resources.Wait;
+                toolTip.SetToolTip(picStressTestStatus, string.Empty);
 
-                picStresstestStatus.Visible = true;
+                picStressTestStatus.Visible = true;
             }
         }
         /// <summary>
-        /// Only call this if the tile stresstest has monitors.
+        /// Only call this if the tile stress test has monitors.
         /// </summary>
         public void SetMonitoringBeforeAfter() {
-            picStresstestStatus.Image = Resources.Busy;
-            toolTip.SetToolTip(picStresstestStatus, "Busy Monitoring");
+            picStressTestStatus.Image = Resources.Busy;
+            toolTip.SetToolTip(picStressTestStatus, "Busy monitoring.");
         }
 
         private void chkUseRDP_CheckedChanged(object sender, EventArgs e) {
@@ -156,21 +156,21 @@ namespace vApus.DistributedTesting {
                 AddTileClicked(this, null);
         }
 
-        public void SetStresstestStarted() {
+        public void SetStressTestStarted() {
             //Keep the running if this code at a minimum
             if (!_testStarted) {
                 _testStarted = true;
 
-                picStresstestStatus.Image = Resources.Busy;
+                picStressTestStatus.Image = Resources.Busy;
                 foreach (Tile t in _distributedTest.Tiles)
                     if (t.Use)
-                        foreach (TileStresstest ts in t)
-                            if (ts.Use && ts.BasicTileStresstest.MonitorIndices.Length != 0) {
-                                toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting and Monitoring");
+                        foreach (TileStressTest ts in t)
+                            if (ts.Use && ts.BasicTileStressTest.MonitorIndices.Length != 0) {
+                                toolTip.SetToolTip(picStressTestStatus, "Busy stress testing and monitoring.");
                                 return;
                             }
 
-                toolTip.SetToolTip(picStresstestStatus, "Busy Stresstesting");
+                toolTip.SetToolTip(picStressTestStatus, "Busy stress testing.");
             }
         }
 

@@ -15,10 +15,10 @@ namespace vApus.Results {
     /// This is serializable because metrics are sent from slaves to master in a distributed test.
     /// </summary>
     [Serializable]
-    public class StresstestMetrics : ISerializable {
+    public class StressTestMetrics : ISerializable {
 
         #region Fields
-        private long _logEntriesProcessed;
+        private long _requestsProcessed;
         #endregion
 
         #region Properties
@@ -42,7 +42,7 @@ namespace vApus.Results {
 
         public List<KeyValuePair<DateTime, DateTime>> StartsAndStopsRuns { get; set; }
 
-        public long LogEntries { get; set; }
+        public long Requests { get; set; }
 
         /// <summary>
         ///     Throughput.
@@ -58,25 +58,25 @@ namespace vApus.Results {
         public TimeSpan AverageDelay { get; set; }
         public long Errors { get; set; }
         /// <summary>
-        ///     The setter makes sure this cannot exceed the log entries count.
+        ///     The setter makes sure this cannot exceed the requests count.
         /// </summary>
-        public long LogEntriesProcessed {
-            get { return _logEntriesProcessed; }
+        public long RequestsProcessed {
+            get { return _requestsProcessed; }
             set {
-                if (value > LogEntries) value = LogEntries;
-                _logEntriesProcessed = value;
+                if (value > Requests) value = Requests;
+                _requestsProcessed = value;
             }
         }
         #endregion
 
         #region Constructors
-        public StresstestMetrics() { StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>(); }
+        public StressTestMetrics() { StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>(); }
         /// <summary>
         /// Only used for deserializing
         /// </summary>
         /// <param name="info"></param>
         /// <param name="ctxt"></param>
-        public StresstestMetrics(SerializationInfo info, StreamingContext ctxt) {
+        public StressTestMetrics(SerializationInfo info, StreamingContext ctxt) {
             SerializationReader sr;
             using (sr = SerializationReader.GetReader(info)) {
                 StartMeasuringTime = sr.ReadDateTime();
@@ -87,8 +87,8 @@ namespace vApus.Results {
                 RerunCount = sr.ReadInt32();
                 StartsAndStopsRuns = new List<KeyValuePair<DateTime, DateTime>>();
                 StartsAndStopsRuns = sr.ReadCollection<KeyValuePair<DateTime, DateTime>>(StartsAndStopsRuns) as List<KeyValuePair<DateTime, DateTime>>;
-                LogEntries = sr.ReadInt64();
-                _logEntriesProcessed = sr.ReadInt64();
+                Requests = sr.ReadInt64();
+                _requestsProcessed = sr.ReadInt64();
                 ResponsesPerSecond = sr.ReadDouble();
                 UserActionsPerSecond = sr.ReadDouble();
                 AverageResponseTime = sr.ReadTimeSpan();
@@ -114,8 +114,8 @@ namespace vApus.Results {
                 sw.Write(Run);
                 sw.Write(RerunCount);
                 sw.Write(StartsAndStopsRuns);
-                sw.Write(LogEntries);
-                sw.Write(_logEntriesProcessed);
+                sw.Write(Requests);
+                sw.Write(_requestsProcessed);
                 sw.Write(ResponsesPerSecond);
                 sw.Write(UserActionsPerSecond);
                 sw.Write(AverageResponseTime);

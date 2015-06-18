@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest
+﻿namespace vApus.StressTest
 {
     partial class CustomListGeneratorDialog
     {
@@ -71,7 +71,7 @@
             this.cboParameterType.Items.AddRange(new object[] {
             "Numeric",
             "Text",
-            "Custom Random"});
+            "Custom random"});
             this.cboParameterType.Location = new System.Drawing.Point(12, 533);
             this.cboParameterType.Name = "cboParameterType";
             this.cboParameterType.Size = new System.Drawing.Size(180, 21);

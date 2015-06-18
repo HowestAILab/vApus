@@ -12,7 +12,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class FindAndReplacePanel : UserControl {
                 public event EventHandler<FoundReplacedButtonClickedEventArgs> FoundReplacedButtonClicked;
 

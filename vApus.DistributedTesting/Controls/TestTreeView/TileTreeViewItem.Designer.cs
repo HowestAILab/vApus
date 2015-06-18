@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class TileTreeViewItem
     {
@@ -34,12 +34,12 @@
             this.picDuplicate = new System.Windows.Forms.PictureBox();
             this.picDelete = new System.Windows.Forms.PictureBox();
             this.chk = new System.Windows.Forms.CheckBox();
-            this.picAddTileStresstest = new System.Windows.Forms.PictureBox();
+            this.picAddTileStressTest = new System.Windows.Forms.PictureBox();
             this.lblTile = new System.Windows.Forms.Label();
             this.picCollapseExpand = new System.Windows.Forms.PictureBox();
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picAddTileStresstest)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picAddTileStressTest)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCollapseExpand)).BeginInit();
             this.SuspendLayout();
             // 
@@ -61,7 +61,7 @@
             this.picDuplicate.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picDuplicate.TabIndex = 17;
             this.picDuplicate.TabStop = false;
-            this.toolTip.SetToolTip(this.picDuplicate, "Duplicate <ctrl+d>");
+            this.toolTip.SetToolTip(this.picDuplicate, "Duplicate <ctrl+d>.");
             this.picDuplicate.Visible = false;
             this.picDuplicate.Click += new System.EventHandler(this.picDuplicate_Click);
             // 
@@ -76,7 +76,7 @@
             this.picDelete.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
             this.picDelete.TabIndex = 15;
             this.picDelete.TabStop = false;
-            this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>");
+            this.toolTip.SetToolTip(this.picDelete, "Remove <ctrl+r>.");
             this.picDelete.Visible = false;
             this.picDelete.Click += new System.EventHandler(this.picDelete_Click);
             // 
@@ -89,7 +89,7 @@
             this.chk.Size = new System.Drawing.Size(12, 11);
             this.chk.TabIndex = 11;
             this.chk.TabStop = false;
-            this.toolTip.SetToolTip(this.chk, "Use <ctrl+u>");
+            this.toolTip.SetToolTip(this.chk, "Use <ctrl+u>.");
             this.chk.UseVisualStyleBackColor = true;
             this.chk.CheckedChanged += new System.EventHandler(this.chk_CheckedChanged);
             this.chk.Enter += new System.EventHandler(this._Enter);
@@ -97,20 +97,20 @@
             this.chk.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             this.chk.MouseEnter += new System.EventHandler(this._MouseEnter);
             // 
-            // picAddTileStresstest
+            // picAddTileStressTest
             // 
-            this.picAddTileStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picAddTileStresstest.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picAddTileStresstest.Image = ((System.Drawing.Image)(resources.GetObject("picAddTileStresstest.Image")));
-            this.picAddTileStresstest.Location = new System.Drawing.Point(513, 6);
-            this.picAddTileStresstest.Name = "picAddTileStresstest";
-            this.picAddTileStresstest.Size = new System.Drawing.Size(16, 16);
-            this.picAddTileStresstest.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picAddTileStresstest.TabIndex = 17;
-            this.picAddTileStresstest.TabStop = false;
-            this.toolTip.SetToolTip(this.picAddTileStresstest, "Add Tile Stresstest <ctrl+i>");
-            this.picAddTileStresstest.Visible = false;
-            this.picAddTileStresstest.Click += new System.EventHandler(this.picAddTileStresstest_Click);
+            this.picAddTileStressTest.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picAddTileStressTest.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picAddTileStressTest.Image = ((System.Drawing.Image)(resources.GetObject("picAddTileStressTest.Image")));
+            this.picAddTileStressTest.Location = new System.Drawing.Point(513, 6);
+            this.picAddTileStressTest.Name = "picAddTileStressTest";
+            this.picAddTileStressTest.Size = new System.Drawing.Size(16, 16);
+            this.picAddTileStressTest.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picAddTileStressTest.TabIndex = 17;
+            this.picAddTileStressTest.TabStop = false;
+            this.toolTip.SetToolTip(this.picAddTileStressTest, "Add tile stress test <ctrl+i>.");
+            this.picAddTileStressTest.Visible = false;
+            this.picAddTileStressTest.Click += new System.EventHandler(this.picAddTileStressTest_Click);
             // 
             // lblTile
             // 
@@ -128,7 +128,7 @@
             // 
             this.picCollapseExpand.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.picCollapseExpand.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picCollapseExpand.Image = global::vApus.DistributedTesting.Properties.Resources.Collapse_small;
+            this.picCollapseExpand.Image = global::vApus.DistributedTest.Properties.Resources.Collapse_small;
             this.picCollapseExpand.Location = new System.Drawing.Point(579, 6);
             this.picCollapseExpand.Name = "picCollapseExpand";
             this.picCollapseExpand.Size = new System.Drawing.Size(16, 16);
@@ -143,7 +143,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.picCollapseExpand);
-            this.Controls.Add(this.picAddTileStresstest);
+            this.Controls.Add(this.picAddTileStressTest);
             this.Controls.Add(this.picDuplicate);
             this.Controls.Add(this.chk);
             this.Controls.Add(this.picDelete);
@@ -157,7 +157,7 @@
             this.MouseLeave += new System.EventHandler(this._MouseLeave);
             ((System.ComponentModel.ISupportInitialize)(this.picDuplicate)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDelete)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picAddTileStresstest)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picAddTileStressTest)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picCollapseExpand)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -172,6 +172,6 @@
         private System.Windows.Forms.PictureBox picDuplicate;
         private System.Windows.Forms.PictureBox picCollapseExpand;
         private System.Windows.Forms.Label lblTile;
-        private System.Windows.Forms.PictureBox picAddTileStresstest;
+        private System.Windows.Forms.PictureBox picAddTileStressTest;
     }
 }

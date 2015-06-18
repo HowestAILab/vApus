@@ -56,7 +56,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <Prefer32Bit>false</Prefer32Bit>
     <Optimize>true</Optimize>
   </PropertyGroup>
@@ -211,9 +211,9 @@
       <Project>{D9F1BD01-09E8-4CE9-9701-2997D420B250}</Project>
       <Name>vApus.Results</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Stresstest\vApus.Stresstest.csproj">
+    <ProjectReference Include="..\vApus.Stresstest\vApus.StressTest.csproj">
       <Project>{790522ab-42d5-4c39-83be-14244d8c3f22}</Project>
-      <Name>vApus.Stresstest</Name>
+      <Name>vApus.StressTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
       <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>

@@ -28,6 +28,7 @@
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -73,9 +74,9 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\vApus.DistributedTesting\vApus.DistributedTesting.csproj">
+    <ProjectReference Include="..\vApus.DistributedTesting\vApus.DistributedTest.csproj">
       <Project>{a766cb72-67c0-4f24-85b5-70b8eb76882a}</Project>
-      <Name>vApus.DistributedTesting</Name>
+      <Name>vApus.DistributedTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Monitor\vApus.Monitor.csproj">
       <Project>{d9306cdf-415e-4037-b9af-707ee208a510}</Project>
@@ -93,9 +94,9 @@
       <Project>{4a7f1649-6909-4fbc-b4e2-18cecfe5a144}</Project>
       <Name>vApus.SolutionTree</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Stresstest\vApus.Stresstest.csproj">
+    <ProjectReference Include="..\vApus.Stresstest\vApus.StressTest.csproj">
       <Project>{790522ab-42d5-4c39-83be-14244d8c3f22}</Project>
-      <Name>vApus.Stresstest</Name>
+      <Name>vApus.StressTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
       <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>

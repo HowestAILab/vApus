@@ -15,10 +15,10 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
     /// This (re)constructs a distributed test for you and is shown automaticaly when opening up an empty distributed test.
     /// </summary>
@@ -33,7 +33,7 @@ namespace vApus.DistributedTesting {
         //This is done in parallel, therefore a threadstatic work item.
 
         private readonly List<Connection> _connections = new List<Connection>();
-        private readonly StresstestProject _stresstestProject;
+        private readonly StressTestProject _stressTestProject;
         private DistributedTest _distributedTest;
 
         //Kept here, easier and faster.
@@ -56,7 +56,7 @@ namespace vApus.DistributedTesting {
                 if (item is Connection)
                     _connections.Add(item as Connection);
 
-            _stresstestProject = Solution.ActiveSolution.GetProject("StresstestProject") as StresstestProject;
+            _stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
 
             _distributedTest = distributedTest;
             SetDistributedTestToGui();
@@ -77,7 +77,7 @@ namespace vApus.DistributedTesting {
             nudTiles.Value = 1;
         }
         private void SetAddClientsAndSlaves() {
-            nudTests.Value = _stresstestProject.CountOf(typeof(Stresstest.Stresstest));
+            nudTests.Value = _stressTestProject.CountOf(typeof(StressTest.StressTest));
 
             foreach (Client client in _distributedTest.Clients) {
                 string ipOrHostname = client.HostName.Length == 0 ? client.IP : client.HostName;
@@ -278,7 +278,7 @@ namespace vApus.DistributedTesting {
 
             if (rdbAppendTiles.Checked) //In the other cases we do not add new tiles.
                 foreach (Tile tile in _distributedTest.Tiles)
-                    foreach (TileStresstest ts in tile) {
+                    foreach (TileStressTest ts in tile) {
                         ++totalTestCount;
                         if (ts.Use)
                             ++totalUsedTestCount;
@@ -313,11 +313,11 @@ namespace vApus.DistributedTesting {
             }
 
             int notAssigned = totalTestCount - totalAssignedTestCount;
-            lblNotAssignedTests.Text = notAssigned + " Test" + (notAssigned == 1 ? " is" : "s are") + " not Assigned to a Slave.";
+            lblNotAssignedTests.Text = notAssigned + " test" + (notAssigned == 1 ? " is" : "s are") + " not assigned to a slave.";
 
             int notUsedTestCount = totalTestCount - totalUsedTestCount;
             if (notUsedTestCount > 0)
-                lblNotAssignedTests.Text += " whereof " + notUsedTestCount + " that " + (notUsedTestCount == 1 ? "is" : "are") + " not Used. (Checked)";
+                lblNotAssignedTests.Text += " whereof " + notUsedTestCount + " that " + (notUsedTestCount == 1 ? "is" : "are") + " not used. (Checked)";
 
             CleanDictionary();
         }
@@ -353,11 +353,11 @@ namespace vApus.DistributedTesting {
                 } else {
                     var conUsage = new WizardConnectionUsage();
 
-                    Tiles alreadyInStresstest = rdbStartFromScratch.Checked ? new Tiles() : _distributedTest.Tiles;
+                    Tiles alreadyInStressTest = rdbStartFromScratch.Checked ? new Tiles() : _distributedTest.Tiles;
                     int tiles = rdbDoNotAddTiles.Checked ? 0 : (int)nudTiles.Value;
                     var tests = (int)nudTests.Value;
 
-                    conUsage.Init(alreadyInStresstest, tiles, tests, toAssignConnections);
+                    conUsage.Init(alreadyInStressTest, tiles, tests, toAssignConnections);
                     if (conUsage.ShowDialog() == DialogResult.Cancel)
                         return;
                     else
@@ -375,14 +375,14 @@ namespace vApus.DistributedTesting {
         }
 
         /// <summary>
-        ///     Fills an array with connections. All available connections are used, the assign pattern thats used for stresstests is applied.
+        ///     Fills an array with connections. All available connections are used, the assign pattern thats used for stress tests is applied.
         /// </summary>
         private Connection[] SmartAssignConnections() {
             int totalTestCount = rdbDoNotAddTiles.Checked ? 0 : (int)(nudTiles.Value * nudTests.Value);
 
             if (!rdbStartFromScratch.Checked) //In the other cases we do not add new tiles.
                 foreach (Tile tile in _distributedTest.Tiles)
-                    foreach (TileStresstest ts in tile)
+                    foreach (TileStressTest ts in tile)
                         ++totalTestCount;
 
 
@@ -417,11 +417,11 @@ namespace vApus.DistributedTesting {
         }
 
         private int[] GetAssignPattern() {
-            var assignPattern = new List<int>(_stresstestProject.CountOf(typeof(Stresstest.Stresstest)));
+            var assignPattern = new List<int>(_stressTestProject.CountOf(typeof(StressTest.StressTest)));
 
-            foreach (BaseItem item in _stresstestProject)
-                if (item is Stresstest.Stresstest)
-                    assignPattern.Add(_connections.IndexOf((item as Stresstest.Stresstest).Connection));
+            foreach (BaseItem item in _stressTestProject)
+                if (item is StressTest.StressTest)
+                    assignPattern.Add(_connections.IndexOf((item as StressTest.StressTest).Connection));
 
             return assignPattern.ToArray();
         }
@@ -537,36 +537,36 @@ namespace vApus.DistributedTesting {
                 _distributedTest.Tiles.ClearWithoutInvokingEvent();
             else
                 foreach (Tile tile in _distributedTest.Tiles)
-                    foreach (TileStresstest tileStresstest in tile)
-                        tileStresstest.BasicTileStresstest.Connection = toAssignConnections[connectionIndex++];
+                    foreach (TileStressTest tileStressTest in tile)
+                        tileStressTest.BasicTileStressTest.Connection = toAssignConnections[connectionIndex++];
 
-            //The existing stresstests will be reassigned to the slaves.
+            //The existing stress tests will be reassigned to the slaves.
             if (!rdbDoNotAddTiles.Checked)
                 //Add the tests to the distributed test.
                 for (int i = 0; i != (int)nudTiles.Value; i++) {
                     var tile = new Tile();
                     _distributedTest.Tiles.AddWithoutInvokingEvent(tile);
 
-                    Stresstest.Stresstest defaultToStresstest = null;
+                    StressTest.StressTest defaultToStressTest = null;
                     for (int j = 0; j != (int)nudTests.Value; j++) {
-                        var tileStresstest = new TileStresstest();
-                        defaultToStresstest = GetNextDefaultToStresstest(defaultToStresstest);
-                        //Default to a stresstest in the solution.
-                        tileStresstest.DefaultAdvancedSettingsTo = defaultToStresstest;
+                        var tileStressTest = new TileStressTest();
+                        defaultToStressTest = GetNextDefaultToStressTest(defaultToStressTest);
+                        //Default to a stress test in the solution.
+                        tileStressTest.DefaultAdvancedSettingsTo = defaultToStressTest;
 
-                        tile.AddWithoutInvokingEvent(tileStresstest);
+                        tile.AddWithoutInvokingEvent(tileStressTest);
 
-                        tileStresstest.BasicTileStresstest.Connection = toAssignConnections[connectionIndex++];
+                        tileStressTest.BasicTileStressTest.Connection = toAssignConnections[connectionIndex++];
                     }
                 }
 
             int slaveIndex = 0;
             //Assign the tests to slaves
             foreach (Tile tile in _distributedTest.Tiles)
-                foreach (TileStresstest tileStresstest in tile) {
-                    tileStresstest.Use = true;
-                    tileStresstest.BasicTileStresstest.FillAndGetSlavesParent();
-                    tileStresstest.BasicTileStresstest.Slaves = slaveIndex == slaves.Count ? new Slave[] { } : new Slave[] { slaves[slaveIndex++] };
+                foreach (TileStressTest tileStressTest in tile) {
+                    tileStressTest.Use = true;
+                    tileStressTest.BasicTileStressTest.FillAndGetSlavesParent();
+                    tileStressTest.BasicTileStressTest.Slaves = slaveIndex == slaves.Count ? new Slave[] { } : new Slave[] { slaves[slaveIndex++] };
                 }
         }
 
@@ -574,23 +574,23 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <param name="previous">Can be null</param>
         /// <returns></returns>
-        private Stresstest.Stresstest GetNextDefaultToStresstest(Stresstest.Stresstest previous) {
-            SolutionComponent stresstestProject =
-                Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject));
+        private StressTest.StressTest GetNextDefaultToStressTest(StressTest.StressTest previous) {
+            SolutionComponent stressTestProject =
+                Solution.ActiveSolution.GetSolutionComponent(typeof(StressTestProject));
             if (previous != null) {
                 bool previousFound = false;
-                foreach (BaseItem item in stresstestProject)
-                    if (item is Stresstest.Stresstest)
+                foreach (BaseItem item in stressTestProject)
+                    if (item is StressTest.StressTest)
                         if (item == previous)
                             previousFound = true; //The next item of the correct type will be returned if any
                         else if (previousFound)
-                            return item as Stresstest.Stresstest;
+                            return item as StressTest.StressTest;
             }
 
             //If next was not found (starts with the first item again if any to use for a previous default to).
             return
-                SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), stresstestProject) as
-                Stresstest.Stresstest;
+                SolutionComponent.GetNextOrEmptyChild(typeof(StressTest.StressTest), stressTestProject) as
+                StressTest.StressTest;
         }
         #endregion
 

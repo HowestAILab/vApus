@@ -34,10 +34,10 @@ namespace vApus.DetailedResultsViewer {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="stresstestId">0 for all</param>
-        public void RefreshResults(int stresstestId) {
+        /// <param name="stressTestId">0 for all</param>
+        public void RefreshResults(int stressTestId) {
             this.Enabled = false;
-            if (stresstestId == 0) detailedResultsControl.RefreshResults(_resultsHelper); else detailedResultsControl.RefreshResults(_resultsHelper, stresstestId);
+            if (stressTestId == 0) detailedResultsControl.RefreshResults(_resultsHelper); else detailedResultsControl.RefreshResults(_resultsHelper, stressTestId);
             this.Enabled = true;
         }
 

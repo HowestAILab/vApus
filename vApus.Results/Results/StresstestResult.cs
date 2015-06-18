@@ -9,7 +9,7 @@ using System;
 using System.Collections.Generic;
 
 namespace vApus.Results {
-    public class StresstestResult {
+    public class StressTestResult {
 
         #region Properties
         public DateTime StartedAt { get; private set; }
@@ -19,7 +19,7 @@ namespace vApus.Results {
         #endregion
 
         #region Constructor
-        public StresstestResult() {
+        public StressTestResult() {
             StartedAt = DateTime.Now;
             StoppedAt = DateTime.MinValue;
             ConcurrencyResults = new List<ConcurrencyResult>();

@@ -14,7 +14,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Edit", "Remove", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
@@ -59,7 +59,7 @@ namespace vApus.Stresstest {
         private string _description = string.Empty;
         private bool _ignoreCase;
         private string _regExp = string.Empty;
-        private bool _usePasswordChar;
+        private bool _displayAsPassword;
         private ValueTypes _valueType;
 
         #endregion
@@ -68,21 +68,21 @@ namespace vApus.Stresstest {
 
         [SavableCloneable, PropertyControl(0)]
         [Description("The actual rule. [http://www.google.com/search?q=regular+expressions]"),
-         DisplayName("Regular Expression")]
+         DisplayName("Regular expression")]
         public string RegExp {
             get { return _regExp; }
             set { _regExp = value; }
         }
 
         [SavableCloneable, PropertyControl(1)]
-        [Description("Ignore case for the regular expression."), DisplayName("Ignore Case")]
+        [Description("Ignore case for the regular expression."), DisplayName("Ignore case")]
         public bool IgnoreCase {
             get { return _ignoreCase; }
             set { _ignoreCase = value; }
         }
 
         [SavableCloneable, PropertyControl(2)]
-        [Description("The input must equal or castable/parsable to the selected type."), DisplayName("Value Type")]
+        [Description("The input must equal or castable/parsable to the selected type."), DisplayName("Value type")]
         public ValueTypes ValueType {
             get { return _valueType; }
             set { _valueType = value; }
@@ -90,11 +90,11 @@ namespace vApus.Stresstest {
 
         [SavableCloneable, PropertyControl(3)]
         [Description(
-            "If implemented, textual input will be displayed using the password character. Where this is implemented encryption is always used."
-            ), DisplayName("Use Password Character")]
-        public bool UsePasswordChar {
-            get { return _usePasswordChar; }
-            set { _usePasswordChar = value; }
+            "If implemented, textual input will be displayed using the password character '*'. Where this is implemented encryption is always used."
+            ), DisplayName("Display as password")]
+        public bool DisplayAsPassword {
+            get { return _displayAsPassword; }
+            set { _displayAsPassword = value; }
         }
 
         [SavableCloneable, PropertyControl(4)]

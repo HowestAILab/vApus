@@ -45,7 +45,7 @@ namespace vApus.Results {
         #region Fields
         private static string[] GROUPS = { "General", "Monitor data'/'*", "Specialized" };
 
-        private delegate string Del(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token);
+        private delegate string Del(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token);
         private static Dictionary<string, Del> _toExport;
         /// <summary>
         /// A color palette of 34 colors to be able to visualy match overiew and 5 heaviest user actions charts.
@@ -76,7 +76,7 @@ namespace vApus.Results {
 
             _toExport.Add("General'/'Results per concurrency", GeneralResultsPerConcurrency);
             _toExport.Add("General'/'Results per user action", GeneralResultsPerUserAction);
-            _toExport.Add("General'/'Results per log entry", GeneralResultsPerLogEntry);
+            _toExport.Add("General'/'Results per request", GeneralResultsPerRequest);
 
             _toExport.Add("General'/'Errors", GeneralErrors);
 
@@ -84,7 +84,7 @@ namespace vApus.Results {
 
             _toExport.Add("Monitor data'/'*", MonitorData);
 
-            _toExport.Add("Specialized'/'Response time distribution'/'for log entries per concurrency", SpecializedResponseTimeDistributionForLogEntriesPerConcurrency);
+            _toExport.Add("Specialized'/'Response time distribution'/'for requests per concurrency", SpecializedResponseTimeDistributionForRequestsPerConcurrency);
             _toExport.Add("Specialized'/'Response time distribution'/'for user actions per concurrency", SpecializedResponseTimeDistributionForUserActionsPerConcurrency);
         }
         /// <summary>
@@ -135,9 +135,9 @@ namespace vApus.Results {
         }
 
         #region Generated UI
-        public static TreeNode[] GetTreeNodes(Font prototype, ResultsHelper resultsHelper, params int[] stresstestIds) {
-            if (stresstestIds.Length == 0 || stresstestIds[0] < 1)
-                stresstestIds = resultsHelper.GetStresstestIds().ToArray();
+        public static TreeNode[] GetTreeNodes(Font prototype, ResultsHelper resultsHelper, params int[] stressTestIds) {
+            if (stressTestIds.Length == 0 || stressTestIds[0] < 1)
+                stressTestIds = resultsHelper.GetStressTestIds().ToArray();
 
             var root = new TreeNode();
 
@@ -145,7 +145,7 @@ namespace vApus.Results {
             //First search the to be dynamically added nodes.
             foreach (string path in _toExport.Keys) {
                 if (path.EndsWith("'/'*"))
-                    foreach (string dynPath in GetDynamicPaths(path, resultsHelper, stresstestIds))
+                    foreach (string dynPath in GetDynamicPaths(path, resultsHelper, stressTestIds))
                         toExport.Add(dynPath);
                 else
                     toExport.Add(path);
@@ -178,20 +178,20 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="path"></param>
         /// <param name="resultsHelper"></param>
-        /// <param name="stresstestIds"></param>
+        /// <param name="stressTestIds"></param>
         /// <returns></returns>
-        private static IEnumerable<string> GetDynamicPaths(string path, ResultsHelper resultsHelper, params int[] stresstestIds) {
+        private static IEnumerable<string> GetDynamicPaths(string path, ResultsHelper resultsHelper, params int[] stressTestIds) {
             string parentPath = path.Substring(0, path.Length - 1); //Trim the *
 
             //Expand filters here.
 
             var childPaths = new string[0];
-            if (parentPath == "Monitor data'/'") childPaths = GetMonitorDataChildPaths(resultsHelper, stresstestIds);
+            if (parentPath == "Monitor data'/'") childPaths = GetMonitorDataChildPaths(resultsHelper, stressTestIds);
 
             foreach (string childPath in childPaths) yield return parentPath + childPath;
         }
-        private static string[] GetMonitorDataChildPaths(ResultsHelper resultsHelper, params int[] stresstestIds) {
-            Dictionary<int, string> monitorIdsAndNames = resultsHelper.GetMonitors(stresstestIds);
+        private static string[] GetMonitorDataChildPaths(ResultsHelper resultsHelper, params int[] stressTestIds) {
+            Dictionary<int, string> monitorIdsAndNames = resultsHelper.GetMonitors(stressTestIds);
 
             var childPaths = new string[monitorIdsAndNames.Count];
             monitorIdsAndNames.Values.CopyTo(childPaths, 0);
@@ -204,7 +204,7 @@ namespace vApus.Results {
         /// Do not forget to unsuscribe from the tree view after check event!
         /// </summary>
         /// <param name="node"></param>
-        public static void HandleTreeNodeChecked(TreeView tvw, TreeNode node) {
+        public static void HandleTreeNodeChecked(TreeNode node) {
             HandleTreeNodeChecked(node, true);
         }
         private static void HandleTreeNodeChecked(TreeNode node, bool checkParent) {
@@ -255,7 +255,7 @@ namespace vApus.Results {
         }
 
         /// <summary>
-        /// Do the export using all stresstest ids.
+        /// Do the export using all stress test ids.
         /// </summary>
         /// <param name="fullPath"></param>
         /// <param name="resultsHelper"></param>
@@ -265,36 +265,36 @@ namespace vApus.Results {
             Do(fullExportPath, new int[] { -1 }, resultsHelper, toExport, token);
         }
         /// <summary>
-        /// Do the export certain stresstest ids. This should be either all or one.
+        /// Do the export certain stress test ids. This should be either all or one.
         /// </summary>
         /// <param name="fullExportPath"></param>
-        /// <param name="stresstestIds"></param>
+        /// <param name="stressTestIds"></param>
         /// <param name="resultsHelper"></param>
         /// <param name="toExport"></param>
         /// <param name="token"></param>
-        public static void Do(string fullExportPath, int[] stresstestIds, ResultsHelper resultsHelper, IEnumerable<string> toExport, CancellationToken token) {
+        public static void Do(string fullExportPath, int[] stressTestIds, ResultsHelper resultsHelper, IEnumerable<string> toExport, CancellationToken token) {
             string directory = Path.GetDirectoryName(fullExportPath);
 
-            if (stresstestIds.Length == 0 || stresstestIds[0] < 1)
-                stresstestIds = resultsHelper.GetStresstestIds().ToArray();
+            if (stressTestIds.Length == 0 || stressTestIds[0] < 1)
+                stressTestIds = resultsHelper.GetStressTestIds().ToArray();
 
             Dictionary<string, List<Del>> dataSetStructure = ParseToDataSetStructure(toExport);
 
             foreach (string dataSet in dataSetStructure.Keys) {
-                foreach (int stresstestId in stresstestIds) {
+                foreach (int stressTestId in stressTestIds) {
                     var doc = new SLDocument();
 
-                    DataTable stresstests = resultsHelper.GetStresstests(stresstestId);
-                    if (stresstests == null || stresstests.Rows.Count == 0) continue;
+                    DataTable stressTests = resultsHelper.GetStressTests(stressTestId);
+                    if (stressTests == null || stressTests.Rows.Count == 0) continue;
 
-                    DataRow stresstestsRow = stresstests.Rows[0];
-                    string stresstest = string.Format("{0} {1}", stresstestsRow["Stresstest"], stresstestsRow["Connection"]);
+                    DataRow stressTestsRow = stressTests.Rows[0];
+                    string stressTest = string.Format("{0} {1}", stressTestsRow["StressTest"], stressTestsRow["Connection"]);
 
-                    string docFileName = (stresstest + "_" + dataSet).Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
+                    string docFileName = (stressTest + "_" + dataSet).Replace(' ', '_').ReplaceInvalidWindowsFilenameChars('_') + ".xlsx";
                     string firstWorksheet = null;
 
                     foreach (Del del in dataSetStructure[dataSet]) {
-                        string worksheet = del.Invoke(dataSet, doc, stresstestId, resultsHelper, token);
+                        string worksheet = del.Invoke(dataSet, doc, stressTestId, resultsHelper, token);
                         if (firstWorksheet == null) firstWorksheet = worksheet;
                     }
 
@@ -348,20 +348,20 @@ namespace vApus.Results {
         }
 
         //---
-        //Do not forget to prep the datatables coming from the results helper. Prep(...) makes a copy and removes the "Stresstest" column and replaces "<16 0C 02 12$>" by "•"
+        //Do not forget to prep the datatables coming from the results helper. Prep(...) makes a copy and removes the "Stress test" column and replaces "<16 0C 02 12$>" by "•"
         //---
 
-        private static string GeneralResponseTimeVSThroughputWithThroughputInResponsesPerS(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            DataTable dt = Prep(resultsHelper.GetOverview(token, stresstestId));
-            dt.Columns.Remove("User Actions / s");
+        private static string GeneralResponseTimeVSThroughputWithThroughputInResponsesPerS(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = Prep(resultsHelper.GetOverview(token, stressTestId));
+            dt.Columns.Remove("User actions / s");
             string title = "Response time vs throughput";
             string workSheet = MakeWorksheet(doc, dt, title, false, true);
             AddChart(doc, dt.Columns.Count - 1, dt.Rows.Count + 1, title, "Concurrency", "Cumulative response time (ms)", "Throughput (responses / s)", ChartType.StackedColumnAndLine, ChartLocation.RightOfData, true);
 
             return workSheet;
         }
-        private static string GeneralResponseTimeVSThroughputWithThroughputInUserActionsPerS(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            DataTable dt = Prep(resultsHelper.GetOverview(token, stresstestId));
+        private static string GeneralResponseTimeVSThroughputWithThroughputInUserActionsPerS(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = Prep(resultsHelper.GetOverview(token, stressTestId));
             dt.Columns.Remove("Throughput");
             string title = "Response time vs user actions / s";
             string workSheet = MakeWorksheet(doc, dt, title, false, true);
@@ -370,8 +370,8 @@ namespace vApus.Results {
             return workSheet;
         }
 
-        private static string GeneralErrorsVSThroughput(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            DataTable dt = Prep(resultsHelper.GetOverviewErrors(token, stresstestId));
+        private static string GeneralErrorsVSThroughput(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = Prep(resultsHelper.GetOverviewErrors(token, stressTestId));
             string title = "Errors vs throughput";
             string workSheet = MakeWorksheet(doc, dt, title, false, true);
             AddChart(doc, dt.Columns.Count, dt.Rows.Count + 1, title, "Concurrency", "Errors", "Throughput (responses / s)", ChartType.TwoLines);
@@ -379,26 +379,26 @@ namespace vApus.Results {
             return workSheet;
         }
 
-        private static string GeneralTop5HeaviestUserActionsForAverageResponseTimes(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            return GeneralTop5HeaviestUserActions(doc, resultsHelper.GetTop5HeaviestUserActions(token, stresstestId), stresstestId, resultsHelper, token, "", " (averages)");
+        private static string GeneralTop5HeaviestUserActionsForAverageResponseTimes(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            return GeneralTop5HeaviestUserActions(doc, resultsHelper.GetTop5HeaviestUserActions(token, stressTestId), stressTestId, resultsHelper, token, "", " (averages)");
         }
-        private static string GeneralTop5HeaviestUserActionsFor95thPercentileForTheResponseTimes(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            return GeneralTop5HeaviestUserActions(doc, resultsHelper.GetTop5HeaviestUserActions95thPercentile(token, stresstestId), stresstestId, resultsHelper, token, "_", " (95th percentiles)");
+        private static string GeneralTop5HeaviestUserActionsFor95thPercentileForTheResponseTimes(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            return GeneralTop5HeaviestUserActions(doc, resultsHelper.GetTop5HeaviestUserActions95thPercentile(token, stressTestId), stressTestId, resultsHelper, token, "_", " (95th percentiles)");
         }
-        private static string GeneralTop5HeaviestUserActionsFor99thPercentileForTheResponseTimes(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            return GeneralTop5HeaviestUserActions(doc, resultsHelper.GetTop5HeaviestUserActions99thPercentile(token, stresstestId), stresstestId, resultsHelper, token, "__", " (99th percentiles)");
+        private static string GeneralTop5HeaviestUserActionsFor99thPercentileForTheResponseTimes(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            return GeneralTop5HeaviestUserActions(doc, resultsHelper.GetTop5HeaviestUserActions99thPercentile(token, stressTestId), stressTestId, resultsHelper, token, "__", " (99th percentiles)");
         }
-        private static string GeneralTop5HeaviestUserActionsForAverageTop5ResponseTimes(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            return GeneralTop5HeaviestUserActions(doc, resultsHelper.GetTop5HeaviestUserActionsAverageTop5(token, stresstestId), stresstestId, resultsHelper, token, "___", " (top 5 averages)");
+        private static string GeneralTop5HeaviestUserActionsForAverageTop5ResponseTimes(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            return GeneralTop5HeaviestUserActions(doc, resultsHelper.GetTop5HeaviestUserActionsAverageTop5(token, stressTestId), stressTestId, resultsHelper, token, "___", " (top 5 averages)");
         }
 
-        private static string GeneralTop5HeaviestUserActions(SLDocument doc, DataTable dt, int stresstestId, ResultsHelper resultsHelper, CancellationToken token, string worksheetSuffix, string chartTitleSuffix) {
+        private static string GeneralTop5HeaviestUserActions(SLDocument doc, DataTable dt, int stressTestId, ResultsHelper resultsHelper, CancellationToken token, string worksheetSuffix, string chartTitleSuffix) {
             dt = Prep(dt);
             string title = "Top 5 heaviest user actions";
 
             string workSheet = MakeWorksheet(doc, dt, title + worksheetSuffix, false, true);
 
-            List<Color> colorPalette = GetGeneralTop5HeaviestUserActionsColors(dt, stresstestId, resultsHelper, token);
+            List<Color> colorPalette = GetGeneralTop5HeaviestUserActionsColors(dt, stressTestId, resultsHelper, token);
 
             AddChart(doc, dt.Columns.Count, dt.Rows.Count + 1, title + chartTitleSuffix, "Concurrency", "Response time (ms)", ChartType.Column, ChartLocation.RightOfData, true, colorPalette);
 
@@ -410,14 +410,14 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="top5Heaviest"></param>
         /// <param name="chart"></param>
-        /// <param name="stresstestId"></param>
+        /// <param name="stressTestId"></param>
         /// <param name="resultsHelper"></param>
         /// <param name="token"></param>
-        private static List<Color> GetGeneralTop5HeaviestUserActionsColors(DataTable top5Heaviest, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
+        private static List<Color> GetGeneralTop5HeaviestUserActionsColors(DataTable top5Heaviest, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
             var clone = top5Heaviest.Copy();
             clone.Columns.Remove("Concurrency");
 
-            DataTable overview = Prep(resultsHelper.GetOverview(token, stresstestId));
+            DataTable overview = Prep(resultsHelper.GetOverview(token, stressTestId));
             overview.Columns.Remove("Concurrency");
 
             var colorPalette = new List<Color>(5);
@@ -431,30 +431,30 @@ namespace vApus.Results {
             return colorPalette;
         }
 
-        private static string GeneralResultsPerConcurrency(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            DataTable dt = Prep(resultsHelper.GetAverageConcurrencyResults(token, stresstestId));
+        private static string GeneralResultsPerConcurrency(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = Prep(resultsHelper.GetAverageConcurrencyResults(token, stressTestId));
             string title = "Results per concurrency";
             return MakeWorksheet(doc, dt, title, true, true);
         }
-        private static string GeneralResultsPerUserAction(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            DataTable dt = Prep(resultsHelper.GetAverageUserActionResults(token, stresstestId));
+        private static string GeneralResultsPerUserAction(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = Prep(resultsHelper.GetAverageUserActionResults(token, stressTestId));
             string title = "Results per user action";
             return MakeWorksheet(doc, dt, title, true, true);
         }
-        private static string GeneralResultsPerLogEntry(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            DataTable dt = Prep(resultsHelper.GetAverageLogEntryResults(token, stresstestId));
-            string title = "Results per log entry";
+        private static string GeneralResultsPerRequest(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = Prep(resultsHelper.GetAverageRequestResults(token, stressTestId));
+            string title = "Results per request";
             return MakeWorksheet(doc, dt, title, true, true);
         }
 
-        private static string GeneralErrors(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            DataTable dt = Prep(resultsHelper.GetErrors(token, stresstestId));
+        private static string GeneralErrors(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = Prep(resultsHelper.GetErrors(token, stressTestId));
             string title = "Errors";
             return MakeWorksheet(doc, dt, title, true, true);
         }
 
-        private static string GeneralUserActionComposisiton(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            DataTable dt = Prep(resultsHelper.GetUserActionComposition(token, stresstestId));
+        private static string GeneralUserActionComposisiton(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = Prep(resultsHelper.GetUserActionComposition(token, stressTestId));
 
             var userActionComposition = new DataTable("UserActionComposition");
             userActionComposition.Columns.Add();
@@ -462,24 +462,24 @@ namespace vApus.Results {
 
             var userActions = new Dictionary<string, List<string>>();
             foreach (DataRow row in dt.Rows) {
-                string userAction = row["User Action"] as string;
-                string logEntry = row["Log Entry"] as string;
+                string userAction = row["User action"] as string;
+                string request = row["Request"] as string;
                 if (!userActions.ContainsKey(userAction)) userActions.Add(userAction, new List<string>());
-                userActions[userAction].Add(logEntry);
+                userActions[userAction].Add(request);
             }
 
             foreach (string userAction in userActions.Keys) {
                 userActionComposition.Rows.Add(userAction, string.Empty);
-                foreach (string logEntry in userActions[userAction])
-                    userActionComposition.Rows.Add(string.Empty, logEntry);
+                foreach (string request in userActions[userAction])
+                    userActionComposition.Rows.Add(string.Empty, request);
             }
 
             string title = "User action composition";
             return MakeWorksheet(doc, userActionComposition, title, false, true, false);
         }
 
-        private static string MonitorData(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            Dictionary<int, string> monitorIdsAndNames = resultsHelper.GetMonitors(new int[] { stresstestId });
+        private static string MonitorData(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            Dictionary<int, string> monitorIdsAndNames = resultsHelper.GetMonitors(new int[] { stressTestId });
 
             int monitorId;
             if (monitorIdsAndNames.TryGetKey(dataset, out monitorId)) {
@@ -498,11 +498,11 @@ namespace vApus.Results {
             return null;
         }
 
-        private static string SpecializedResponseTimeDistributionForLogEntriesPerConcurrency(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            return SpecializedResponseTimeDistributionPerConcurrency(doc, resultsHelper.GetResponseTimeDistributionForLogEntriesPerConcurrency(token, stresstestId), " LE");
+        private static string SpecializedResponseTimeDistributionForRequestsPerConcurrency(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            return SpecializedResponseTimeDistributionPerConcurrency(doc, resultsHelper.GetResponseTimeDistributionForRequestsPerConcurrency(token, stressTestId), " RE");
         }
-        private static string SpecializedResponseTimeDistributionForUserActionsPerConcurrency(string dataset, SLDocument doc, int stresstestId, ResultsHelper resultsHelper, CancellationToken token) {
-            return SpecializedResponseTimeDistributionPerConcurrency(doc, resultsHelper.GetResponseTimeDistributionForUserActionsPerConcurrency(token, stresstestId), " UA");
+        private static string SpecializedResponseTimeDistributionForUserActionsPerConcurrency(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            return SpecializedResponseTimeDistributionPerConcurrency(doc, resultsHelper.GetResponseTimeDistributionForUserActionsPerConcurrency(token, stressTestId), " UA");
         }
 
         private static string SpecializedResponseTimeDistributionPerConcurrency(SLDocument doc, DataTable dt, string worksheetSuffix) {
@@ -595,7 +595,7 @@ namespace vApus.Results {
         }
 
         /// <summary>
-        /// Makes a new data table without the 'Stresstest' column (if any) and "<16 0C 02 12$>" replaced by "•".
+        /// Makes a new data table without the 'Stresst est' column (if any) and "<16 0C 02 12$>" replaced by "•".
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -603,7 +603,7 @@ namespace vApus.Results {
             DataTable copy = dt.Copy();
 
             if (copy.Columns.Count != 0) {
-                if (copy.Columns[0].ColumnName == "Stresstest")
+                if (copy.Columns[0].ColumnName == "StressTest" || copy.Columns[0].ColumnName == "Stress test")
                     copy.Columns.RemoveAt(0);
 
                 DataTable clone = copy.Clone();
@@ -663,7 +663,7 @@ namespace vApus.Results {
             if (dataSeriesColors == null) dataSeriesColors = _colorPalette;
 
             if (type == ChartType.StackedColumnAndLine)
-                chart = MakeStackedColumnAndLineChart(chart, rangeWidth, rangeHeight, setDataSeriesColors, dataSeriesColors);
+                chart = MakeStackedColumnAndLineChart(chart, rangeWidth, setDataSeriesColors, dataSeriesColors);
             else if (type == ChartType.Column)
                 chart = MakeColumnChart(chart, rangeWidth, setDataSeriesColors, dataSeriesColors);
             else if (type == ChartType.TwoLines)
@@ -693,7 +693,7 @@ namespace vApus.Results {
             return chart;
         }
 
-        private static SLChart MakeStackedColumnAndLineChart(SLChart chart, int rangeWidth, int rangeHeight, bool setDataSeriesColors, List<Color> dataSeriesColors) {
+        private static SLChart MakeStackedColumnAndLineChart(SLChart chart, int rangeWidth, bool setDataSeriesColors, List<Color> dataSeriesColors) {
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
 

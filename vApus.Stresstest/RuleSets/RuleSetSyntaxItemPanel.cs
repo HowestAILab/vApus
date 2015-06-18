@@ -10,7 +10,7 @@ using System;
 using System.Collections.Generic;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class RuleSetSyntaxItemPanel : ValueControlPanel {
         #region Events
 
@@ -113,7 +113,7 @@ namespace vApus.Stresstest {
             bool isEncrypted = false;
             if (syntaxItem.Count != 0 && syntaxItem[0] is Rule) {
                 var rule = syntaxItem[0] as Rule;
-                isEncrypted = rule.UsePasswordChar;
+                isEncrypted = rule.DisplayAsPassword;
 
                 switch (rule.ValueType) {
                     case Rule.ValueTypes.boolType:

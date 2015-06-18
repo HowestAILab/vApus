@@ -145,7 +145,7 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>true</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -215,19 +215,19 @@
     <Compile Include="LabeledBaseItem.cs" />
     <Compile Include="Solution.cs" />
     <Compile Include="SolutionComponentView\SolutionComponentViewManager.cs" />
-    <Compile Include="StresstestingSolutionExplorer.cs">
+    <Compile Include="StressTestingSolutionExplorer.cs">
       <SubType>Form</SubType>
     </Compile>
-    <Compile Include="StresstestingSolutionExplorer.Designer.cs">
-      <DependentUpon>StresstestingSolutionExplorer.cs</DependentUpon>
+    <Compile Include="StressTestingSolutionExplorer.Designer.cs">
+      <DependentUpon>StressTestingSolutionExplorer.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
     <EmbeddedResource Include="SolutionComponentView\PropertyManagement\SolutionComponentPropertyView.resx">
       <DependentUpon>SolutionComponentPropertyView.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
-    <EmbeddedResource Include="StresstestingSolutionExplorer.resx">
-      <DependentUpon>StresstestingSolutionExplorer.cs</DependentUpon>
+    <EmbeddedResource Include="StressTestingSolutionExplorer.resx">
+      <DependentUpon>StressTestingSolutionExplorer.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <None Include="app.config" />

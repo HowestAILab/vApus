@@ -134,7 +134,7 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <Prefer32Bit>false</Prefer32Bit>
@@ -168,9 +168,9 @@
     <Compile Include="SocketListenerLinker.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\vApus.DistributedTesting\vApus.DistributedTesting.csproj">
+    <ProjectReference Include="..\vApus.DistributedTesting\vApus.DistributedTest.csproj">
       <Project>{a766cb72-67c0-4f24-85b5-70b8eb76882a}</Project>
-      <Name>vApus.DistributedTesting</Name>
+      <Name>vApus.DistributedTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Monitor\vApus.Monitor.csproj">
       <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
@@ -184,9 +184,9 @@
       <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>
       <Name>vApus.SolutionTree</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Stresstest\vApus.Stresstest.csproj">
+    <ProjectReference Include="..\vApus.Stresstest\vApus.StressTest.csproj">
       <Project>{790522AB-42D5-4C39-83BE-14244D8C3F22}</Project>
-      <Name>vApus.Stresstest</Name>
+      <Name>vApus.StressTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
       <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>

@@ -81,15 +81,15 @@ namespace vApus.Results {
             SetCellValue(doc, row++, column, resultsHelper.GetTags().Combine(" "));
             ++row;
 
-            List<int> stresstestIds = resultsHelper.GetStresstestIds();
-            foreach (int stresstestId in stresstestIds)
+            List<int> stressTestIds = resultsHelper.GetStressTestIds();
+            foreach (int stressTestId in stressTestIds)
                 if (!token.IsCancellationRequested) {
-                    DataTable avgConcurrencyResults = resultsHelper.GetAverageConcurrencyResults(token, stresstestId);
+                    DataTable avgConcurrencyResults = resultsHelper.GetAverageConcurrencyResults(token, stressTestId);
 
                     if (avgConcurrencyResults.Rows.Count == 0) continue;
-                    avgConcurrencyResults.Columns.Remove("Stresstest");
+                    avgConcurrencyResults.Columns.Remove("Stress test");
 
-                    List<KeyValuePair<string, string>> configuration = resultsHelper.GetStresstestConfigurations(stresstestId);
+                    List<KeyValuePair<string, string>> configuration = resultsHelper.GetStressTestConfigurations(stressTestId);
 
                     var sb = new StringBuilder();
                     for (int i = 0; i != configuration.Count; i++) {
@@ -105,13 +105,13 @@ namespace vApus.Results {
 
                     SetCellValue(doc, row, column, sb.ToString().Trim());
 
-                    Dictionary<int, string> monitors = resultsHelper.GetMonitors(new int[] { stresstestId });
+                    Dictionary<int, string> monitors = resultsHelper.GetMonitors(new int[] { stressTestId });
 
                     if (monitors.Count != 0)
                         foreach (var kvp in configuration)
-                            if (kvp.Key == "Monitor Before" && kvp.Value != "0 minutes")
+                            if (kvp.Key == "Monitor before" && kvp.Value != "0 minutes")
                                 avgConcurrencyResults.Rows.InsertAt(avgConcurrencyResults.NewRow(), 0);
-                            else if (kvp.Key == "Monitor After" && kvp.Value != "0 minutes")
+                            else if (kvp.Key == "Monitor after" && kvp.Value != "0 minutes")
                                 avgConcurrencyResults.Rows.Add(avgConcurrencyResults.NewRow());
 
 
@@ -124,10 +124,10 @@ namespace vApus.Results {
                             DataTable avgMonitorResults = resultsHelper.GetAverageMonitorResultsByMonitorId(token, monitorId);
                             if (avgMonitorResults.Rows.Count == 0) continue;
 
-                            avgMonitorResults.Columns.Remove("Stresstest");
-                            avgMonitorResults.Columns.Remove("Started At");
-                            avgMonitorResults.Columns.Remove("Measured Time");
-                            avgMonitorResults.Columns.Remove("Measured Time (ms)");
+                            avgMonitorResults.Columns.Remove("Stress test");
+                            avgMonitorResults.Columns.Remove("Started at");
+                            avgMonitorResults.Columns.Remove("Measured time");
+                            avgMonitorResults.Columns.Remove("Measured time (ms)");
                             avgMonitorResults.Columns.Remove("Concurrency");
 
                             string monitor = avgMonitorResults.Rows[0].ItemArray[0] as string;
@@ -157,15 +157,15 @@ namespace vApus.Results {
             SetCellValue(doc, row++, column, resultsHelper.GetTags().Combine(" "));
             ++row;
 
-            List<int> stresstestIds = resultsHelper.GetStresstestIds();
-            foreach (int stresstestId in stresstestIds)
+            List<int> stressTestIds = resultsHelper.GetStressTestIds();
+            foreach (int stressTestId in stressTestIds)
                 if (!token.IsCancellationRequested) {
-                    DataTable machineConfigs = resultsHelper.GetMachineConfigurations(token, stresstestId);
+                    DataTable machineConfigs = resultsHelper.GetMachineConfigurations(token, stressTestId);
 
                     if (machineConfigs.Rows.Count == 0) continue;
                     machineConfigs = Prep(machineConfigs);
 
-                    List<KeyValuePair<string, string>> configuration = resultsHelper.GetStresstestConfigurations(stresstestId);
+                    List<KeyValuePair<string, string>> configuration = resultsHelper.GetStressTestConfigurations(stressTestId);
 
                     var sb = new StringBuilder();
                     for (int i = 0; i != configuration.Count; i++) {
@@ -188,10 +188,10 @@ namespace vApus.Results {
             return ++row;
         }
         private static void MakeMonitorSheets(SLDocument doc, ResultsHelper resultsHelper, CancellationToken token) {
-            List<int> stresstestIds = resultsHelper.GetStresstestIds();
-            foreach (int stresstestId in stresstestIds)
+            List<int> stressTestIds = resultsHelper.GetStressTestIds();
+            foreach (int stressTestId in stressTestIds)
                 if (!token.IsCancellationRequested) {
-                    Dictionary<int, string> monitorIdsAndNames = resultsHelper.GetMonitors(new int[] { stresstestId });
+                    Dictionary<int, string> monitorIdsAndNames = resultsHelper.GetMonitors(new int[] { stressTestId });
                     foreach (int monitorId in monitorIdsAndNames.Keys)
                         if (!token.IsCancellationRequested) {
                             DataTable dt = Prep(resultsHelper.GetMonitorResultsByMonitorId(token, monitorId));
@@ -281,7 +281,7 @@ namespace vApus.Results {
             }
         }
         /// <summary>
-        /// Makes a new data table without the 'Stresstest' column (if any) and "<16 0C 02 12$>" replaced by "•".
+        /// Makes a new data table without the 'Stress test' column (if any) and "<16 0C 02 12$>" replaced by "•".
         /// </summary>
         /// <param name="dt"></param>
         /// <returns></returns>
@@ -289,7 +289,7 @@ namespace vApus.Results {
             DataTable copy = dt.Copy();
 
             if (copy.Columns.Count != 0) {
-                if (copy.Columns[0].ColumnName == "Stresstest")
+                if (copy.Columns[0].ColumnName == "Stress test")
                     copy.Columns.RemoveAt(0);
 
                 var clone = copy.Clone();

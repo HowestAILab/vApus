@@ -11,11 +11,11 @@ using System.Runtime;
 
 namespace vApus.Results {
     /// <summary>
-    ///     Serves at caching stresstest metrics so they do not need to be calcullated from the stresstest results every time if metrics are asked.
-    ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StresstestMetricsHelper.
+    ///     Serves at caching stress test metrics so they do not need to be calculated from the stresstest results every time if metrics are asked.
+    ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StressTestMetricsHelper.
     /// </summary>
     [Serializable]
-    public class FastStresstestMetricsCache {
+    public class FastStressTestMetricsCache {
 
         #region Fields
         private readonly List<MetricsCacheObject> _cache = new List<MetricsCacheObject>();
@@ -26,7 +26,7 @@ namespace vApus.Results {
         #region Properties
         /// <summary>
         /// This value is set to false when AddOrUpdate is called. It will be changed to true if calculating the metrics takes longer than 5 seconds AND the 95th percentile of response times is not calculated.
-        /// This means than only basic stuff is returned, test with a big log and see (100k entries for instance).
+        /// This means than only basic stuff is returned, test with a big scenario and see (100k entries for instance).
         /// </summary>
         public bool SimplifiedMetrics { get { return _simplifiedMetrics && _allowSimplifiedMetrics; } }
         /// <summary>
@@ -39,33 +39,33 @@ namespace vApus.Results {
         #endregion
 
         /// <summary>
-        ///     Serves at caching stresstest metrics so they do not need to be calcullated from the stresstest results every time if metrics are asked.
-        ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StresstestMetricsHelper.
+        ///     Serves at caching stresstest metrics so they do not need to be calculated from the stress test results every time if metrics are asked.
+        ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StressTestMetricsHelper.
         ///     
         /// Default: metrics are not simplified.
         /// </summary>
-        public FastStresstestMetricsCache() :this(false) { }
+        public FastStressTestMetricsCache() :this(false) { }
 
         /// <summary>
-        ///     Serves at caching stresstest metrics so they do not need to be calcullated from the stresstest results every time if metrics are asked.
-        ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StresstestMetricsHelper.
+        ///     Serves at caching stresstest metrics so they do not need to be calculated from the stress test results every time if metrics are asked.
+        ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StressTestMetricsHelper.
         /// </summary>
         /// <param name="simplifiedMetrics">True for calculating simplified results. Special usecase if you want to do this right away. The code self-determines if simplification is needed (time-bound 5 sec)</param>
-        public FastStresstestMetricsCache(bool simplifiedMetrics) { _simplifiedMetrics = simplifiedMetrics; }
+        public FastStressTestMetricsCache(bool simplifiedMetrics) { _simplifiedMetrics = simplifiedMetrics; }
 
         #region Functions
         /// <summary>
         ///     Caching metrics for results that are not known (master-slave vApus setup).
         /// </summary>
         /// <param name="metrics"></param>
-        internal void Add(StresstestMetrics metrics) { __AddOrUpdate(metrics); }
+        internal void Add(StressTestMetrics metrics) { __AddOrUpdate(metrics); }
         /// <summary>
         /// This will auto add or update metrics for the given result.
         /// </summary>
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
-        public List<StresstestMetrics> AddOrUpdate(ConcurrencyResult result) {
-            __AddOrUpdate(FastStresstestMetricsHelper.GetMetrics(result, ref _simplifiedMetrics, _allowSimplifiedMetrics), result);
+        public List<StressTestMetrics> AddOrUpdate(ConcurrencyResult result) {
+            __AddOrUpdate(FastStressTestMetricsHelper.GetMetrics(result, ref _simplifiedMetrics, _allowSimplifiedMetrics), result);
             return GetConcurrencyMetrics();
         }
         /// <summary>
@@ -73,11 +73,11 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
-        public List<StresstestMetrics> AddOrUpdate(RunResult result) {
-            __AddOrUpdate(FastStresstestMetricsHelper.GetMetrics(result, ref _simplifiedMetrics, _allowSimplifiedMetrics), result);
+        public List<StressTestMetrics> AddOrUpdate(RunResult result) {
+            __AddOrUpdate(FastStressTestMetricsHelper.GetMetrics(result, ref _simplifiedMetrics, _allowSimplifiedMetrics), result);
             return GetRunMetrics();
         }
-        private void __AddOrUpdate(StresstestMetrics metrics, object result = null) {
+        private void __AddOrUpdate(StressTestMetrics metrics, object result = null) {
             bool add = true;
             var cacheObject = new MetricsCacheObject { Metrics = metrics, Result = result };
             if (result != null)
@@ -98,14 +98,14 @@ namespace vApus.Results {
         ///     The concurrency results are removed from cache when not needed anymore.
         /// </summary>
         /// <returns></returns>
-        public List<StresstestMetrics> GetConcurrencyMetrics() {
+        public List<StressTestMetrics> GetConcurrencyMetrics() {
             var removeResults = new List<MetricsCacheObject>();
-            var metrics = new List<StresstestMetrics>();
+            var metrics = new List<StressTestMetrics>();
             foreach (MetricsCacheObject o in _cache)
                 if (o.Metrics.Run == 0) {
                     if (o.Result != null) {
                         var cr = o.Result as ConcurrencyResult;
-                        o.Metrics = FastStresstestMetricsHelper.GetMetrics(cr, ref _simplifiedMetrics, _allowSimplifiedMetrics);
+                        o.Metrics = FastStressTestMetricsHelper.GetMetrics(cr, ref _simplifiedMetrics, _allowSimplifiedMetrics);
                         if (!_simplifiedMetrics && cr.StoppedAt != DateTime.MinValue)
                             removeResults.Add(o);
                     }
@@ -131,25 +131,25 @@ namespace vApus.Results {
         ///     This will update the metrics if possible, otherwise it will just return them.
         /// </summary>
         /// <returns></returns>
-        public List<StresstestMetrics> GetRunMetrics() {
-            var metrics = new List<StresstestMetrics>();
+        public List<StressTestMetrics> GetRunMetrics() {
+            var metrics = new List<StressTestMetrics>();
             foreach (MetricsCacheObject o in _cache)
                 if (o.Metrics.Run != 0) {
                     if (o.Result != null)
-                        if (!_allowSimplifiedMetrics || o.Metrics.LogEntries == 0 || o.Metrics.LogEntriesProcessed != o.Metrics.LogEntries)
-                            o.Metrics = FastStresstestMetricsHelper.GetMetrics(o.Result as RunResult, ref _simplifiedMetrics, _allowSimplifiedMetrics);
+                        if (!_allowSimplifiedMetrics || o.Metrics.Requests == 0 || o.Metrics.RequestsProcessed != o.Metrics.Requests)
+                            o.Metrics = FastStressTestMetricsHelper.GetMetrics(o.Result as RunResult, ref _simplifiedMetrics, _allowSimplifiedMetrics);
                     metrics.Add(o.Metrics);
                 }
             return metrics;
         }
 
-        internal List<StresstestMetrics> GetAllMetrics() {
-            var metrics = new List<StresstestMetrics>();
+        internal List<StressTestMetrics> GetAllMetrics() {
+            var metrics = new List<StressTestMetrics>();
             foreach (MetricsCacheObject o in _cache) {
                 if (o.Result != null) {
                     o.Metrics = (o.Metrics.Run == 0) ?
-                        FastStresstestMetricsHelper.GetMetrics(o.Result as ConcurrencyResult, ref _simplifiedMetrics, _allowSimplifiedMetrics) :
-                        FastStresstestMetricsHelper.GetMetrics(o.Result as RunResult, ref _simplifiedMetrics, _allowSimplifiedMetrics);
+                        FastStressTestMetricsHelper.GetMetrics(o.Result as ConcurrencyResult, ref _simplifiedMetrics, _allowSimplifiedMetrics) :
+                        FastStressTestMetricsHelper.GetMetrics(o.Result as RunResult, ref _simplifiedMetrics, _allowSimplifiedMetrics);
                 }
                 metrics.Add(o.Metrics);
             }
@@ -159,7 +159,7 @@ namespace vApus.Results {
 
         [Serializable]
         private class MetricsCacheObject {
-            public StresstestMetrics Metrics { get; set; }
+            public StressTestMetrics Metrics { get; set; }
             /// <summary>
             ///     ConcurrencyResult or RunResult.
             /// </summary>

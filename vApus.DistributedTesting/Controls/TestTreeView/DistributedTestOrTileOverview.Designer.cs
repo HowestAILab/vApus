@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting.Controls.TestTreeView {
+﻿namespace vApus.DistributedTest.Controls.TestTreeView {
     partial class DistributedTestOrTileOverview {
         /// <summary> 
         /// Required designer variable.

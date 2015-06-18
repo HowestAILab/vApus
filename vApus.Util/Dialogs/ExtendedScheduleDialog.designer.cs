@@ -144,7 +144,7 @@
             this.chkDuration.Name = "chkDuration";
             this.chkDuration.Size = new System.Drawing.Size(94, 17);
             this.chkDuration.TabIndex = 10;
-            this.chkDuration.Text = "Fixed Duration:";
+            this.chkDuration.Text = "Fixed duration:";
             this.chkDuration.UseVisualStyleBackColor = true;
             // 
             // ExtendedSchedule

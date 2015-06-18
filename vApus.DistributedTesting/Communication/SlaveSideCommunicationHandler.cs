@@ -18,10 +18,10 @@ using vApus.Monitor;
 using vApus.Results;
 using vApus.Server.Shared;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
     /// Handles communication comming from vApus master through SocketListener. Pushes status and metrics to the master.
     /// </summary>
@@ -31,14 +31,13 @@ namespace vApus.DistributedTesting {
         /// </summary>
         public static event EventHandler<NewTestEventArgs> NewTest;
 
-        private delegate void SendPushMessageDelegate(string tileStresstestIndex, FastStresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                              TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
+        private delegate void SendPushMessageDelegate(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+                                              TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
 
         #region Fields
         private static readonly object _lock = new object();
 
-        private static ManualResetEvent _handleMessageWaitHandle = new ManualResetEvent(true);
-        private static TileStresstestView _tileStresstestView;
+        private static TileStressTestView _tileStressTestView;
         //Get the right socket wrapper to push progress to.
         private static SocketWrapper _masterSocketWrapper;
 
@@ -56,7 +55,7 @@ namespace vApus.DistributedTesting {
         #region Functions
 
         #region Message Handling
-        public static Message<Key> HandleMessage(SocketWrapper receiver, Message<Key> message) {
+        public static Message<Key> HandleMessage(Message<Key> message) {
             try {
                 switch (message.Key) {
                     case Key.Poll:
@@ -89,7 +88,7 @@ namespace vApus.DistributedTesting {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                     try {
-                        Solution.HideStresstestingSolutionExplorer();
+                        Solution.HideStressTestingSolutionExplorer();
                     } catch (Exception ex) {
                         Loggers.Log(Level.Warning, "Failed hiding solution explorer.", ex, new object[] { message });
                     }
@@ -98,10 +97,10 @@ namespace vApus.DistributedTesting {
                 _sendQueue = new BackgroundWorkQueue();
 
                 var initializeTestMessage = (InitializeTestMessage)message.Content;
-                var stresstestWrapper = initializeTestMessage.StresstestWrapper;
-                stresstestWrapper.Stresstest.Connection.ConnectionProxy.ForceSettingChildsParent();
-                foreach (var kvp in stresstestWrapper.Stresstest.Logs) {
-                    kvp.Key.LogRuleSet.ForceSettingChildsParent();
+                var stressTestWrapper = initializeTestMessage.StressTestWrapper;
+                stressTestWrapper.StressTest.Connection.ConnectionProxy.ForceSettingChildsParent();
+                foreach (var kvp in stressTestWrapper.StressTest.Scenarios) {
+                    kvp.Key.ScenarioRuleSet.ForceSettingChildsParent();
                     kvp.Key.ForceSettingChildsParent();
                 }
 
@@ -133,9 +132,9 @@ namespace vApus.DistributedTesting {
 
                     if (NewTest != null) {
                         var invocationList = NewTest.GetInvocationList();
-                        string stresstestToString = stresstestWrapper.Stresstest.ToString();
+                        string stressTestToString = stressTestWrapper.StressTest.ToString();
                         Parallel.For(0, invocationList.Length, (i) => {
-                            (invocationList[i] as EventHandler<NewTestEventArgs>).Invoke(null, new NewTestEventArgs(stresstestToString));
+                            (invocationList[i] as EventHandler<NewTestEventArgs>).Invoke(null, new NewTestEventArgs(stressTestToString));
                         });
                     }
 
@@ -143,16 +142,16 @@ namespace vApus.DistributedTesting {
                         int done = 1;
                     Retry:
                         try {
-                            _tileStresstestView = SolutionComponentViewManager.Show(stresstestWrapper.Stresstest, typeof(TileStresstestView)) as TileStresstestView;
-                            _tileStresstestView.TileStresstestIndex = stresstestWrapper.TileStresstestIndex;
-                            _tileStresstestView.RunSynchronization = stresstestWrapper.RunSynchronization;
-                            _tileStresstestView.MaxRerunsBreakOnLast = stresstestWrapper.MaxRerunsBreakOnLast;
+                            _tileStressTestView = SolutionComponentViewManager.Show(stressTestWrapper.StressTest, typeof(TileStressTestView)) as TileStressTestView;
+                            _tileStressTestView.TileStressTestIndex = stressTestWrapper.TileStressTestIndex;
+                            _tileStressTestView.RunSynchronization = stressTestWrapper.RunSynchronization;
+                            _tileStressTestView.MaxRerunsBreakOnLast = stressTestWrapper.MaxRerunsBreakOnLast;
 
 
-                            if (stresstestWrapper.StresstestIdInDb != 0 && !string.IsNullOrEmpty(stresstestWrapper.MySqlHost)) {
-                                _tileStresstestView.ConnectToExistingDatabase(stresstestWrapper.MySqlHost, stresstestWrapper.MySqlPort, stresstestWrapper.MySqlDatabaseName, stresstestWrapper.MySqlUser,
-                                    stresstestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
-                                _tileStresstestView.StresstestIdInDb = stresstestWrapper.StresstestIdInDb;
+                            if (stressTestWrapper.StressTestIdInDb != 0 && !string.IsNullOrEmpty(stressTestWrapper.MySqlHost)) {
+                                _tileStressTestView.ConnectToExistingDatabase(stressTestWrapper.MySqlHost, stressTestWrapper.MySqlPort, stressTestWrapper.MySqlDatabaseName, stressTestWrapper.MySqlUser,
+                                    stressTestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
+                                _tileStressTestView.StressTestIdInDb = stressTestWrapper.StressTestIdInDb;
                             }
                         } catch {
                             if (++done != 4) {
@@ -166,14 +165,14 @@ namespace vApus.DistributedTesting {
 
                                 goto Retry;
                             }
-                            _tileStresstestView = null;
+                            _tileStressTestView = null;
                             throw;
                         }
                     }, null);
 
                     //This is threadsafe
-                    _tileStresstestView.TestInitialized += _tileStresstestView_TestInitialized;
-                    _tileStresstestView.InitializeTest();
+                    _tileStressTestView.TestInitialized += _tileStressTestView_TestInitialized;
+                    _tileStressTestView.InitializeTest();
                     _testInitializedWaitHandle.WaitOne();
 
                     if (_testInitializedException != null) throw _testInitializedException;
@@ -182,7 +181,7 @@ namespace vApus.DistributedTesting {
                     Loggers.Log(Level.Error, "Failed initializing test.", ex);
                 }
 
-                initializeTestMessage.StresstestWrapper = null;
+                initializeTestMessage.StressTestWrapper = null;
                 message.Content = initializeTestMessage;
             } catch (Exception ex) {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -191,18 +190,18 @@ namespace vApus.DistributedTesting {
             }
             return message;
         }
-        private static void _tileStresstestView_TestInitialized(object sender, Stresstest.TestInitializedEventArgs e) {
-            _tileStresstestView.TestInitialized -= _tileStresstestView_TestInitialized;
+        private static void _tileStressTestView_TestInitialized(object sender, StressTest.TestInitializedEventArgs e) {
+            _tileStressTestView.TestInitialized -= _tileStressTestView_TestInitialized;
             _testInitializedException = e.Exception;
             _testInitializedWaitHandle.Set();
         }
 
         private static Message<Key> HandleStartTest(Message<Key> message) {
             var startMessage = new StartAndStopMessage();
-            if (_tileStresstestView == null) startMessage.Exception = "No Tile Stresstest View found!";
+            if (_tileStressTestView == null) startMessage.Exception = "No Tile Stress Test View found!";
             else try {
-                    startMessage.TileStresstestIndex = _tileStresstestView.TileStresstestIndex;
-                    _tileStresstestView.StartTest();
+                    startMessage.TileStressTestIndex = _tileStressTestView.TileStressTestIndex;
+                    _tileStressTestView.StartTest();
                 } catch (Exception ex) { startMessage.Exception = ex.ToString(); }
 
             message.Content = startMessage;
@@ -210,28 +209,28 @@ namespace vApus.DistributedTesting {
         }
 
         private static Message<Key> HandleBreak(Message<Key> message) {
-            _tileStresstestView.Break();
+            _tileStressTestView.Break();
             return message;
         }
 
         private static Message<Key> HandleContinue(Message<Key> message) {
-            _tileStresstestView.Continue(((ContinueMessage)message.Content).ContinueCounter);
+            _tileStressTestView.Continue(((ContinueMessage)message.Content).ContinueCounter);
             return message;
         }
 
         private static Message<Key> HandleContinueDivided(Message<Key> message) {
-            _tileStresstestView.ContinueDivided();
+            _tileStressTestView.ContinueDivided();
             return message;
         }
 
         private static Message<Key> HandleStopTest(Message<Key> message) {
             var stopMessage = new StartAndStopMessage();
-            if (_tileStresstestView == null)
-                stopMessage.Exception = "No Tile Stresstest View found!";
+            if (_tileStressTestView == null)
+                stopMessage.Exception = "No Tile Stress test View found!";
             else {
-                stopMessage.TileStresstestIndex = _tileStresstestView.TileStresstestIndex;
+                stopMessage.TileStressTestIndex = _tileStressTestView.TileStressTestIndex;
                 SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                    _tileStresstestView.PerformStopClick();
+                    _tileStressTestView.PerformStopClick();
                 }, null);
             }
             message.Content = stopMessage;
@@ -241,33 +240,26 @@ namespace vApus.DistributedTesting {
 
         #region Message Sending
         /// <summary>
-        ///     Queues the messages to send in queues per stresstest (vApus.Util.ActiveObject), thread safe.
+        ///     Queues the messages to send in queues per stress test (vApus.Util.ActiveObject), thread safe.
         ///     Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
         /// </summary>
-        /// <param name="socketWrapper"></param>
-        /// <param name="tileStresstest"></param>
-        /// <param name="tileStresstestProgressResults"></param>
-        /// <param name="stresstestStatus"></param>
-        /// <param name="stresstestCore"></param>
-        /// <param name="events"></param>
-        /// <param name="concurrentUsersStateChange"></param>
-        public static void SendPushMessage(string tileStresstestIndex, FastStresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                           TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
+        public static void SendPushMessage(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
                 if (_sendQueue != null)
-                    _sendQueue.EnqueueWorkItem(_sendPushMessageDelegate, tileStresstestIndex, stresstestMetricsCache,
-                        stresstestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stresstestCore, events, concurrentUsersStateChange, runFinished, concurrencyFinished);
+                    _sendQueue.EnqueueWorkItem(_sendPushMessageDelegate, tileStressTestIndex, stressTestMetricsCache,
+                        stressTestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stressTestCore, events, concurrentUsersStateChange, runFinished, concurrencyFinished);
             }
         }
 
-        private static void SendQueuedPushMessage(string tileStresstestIndex, FastStresstestMetricsCache stresstestMetricsCache, StresstestStatus stresstestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                                  TimeSpan estimatedRuntimeLeft, StresstestCore stresstestCore, List<EventPanelEvent> events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
+        private static void SendQueuedPushMessage(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
+                                                  TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (_masterSocketWrapper != null)
                 try {
                     var tpm = new TestProgressMessage();
-                    tpm.TileStresstestIndex = tileStresstestIndex;
+                    tpm.TileStressTestIndex = tileStressTestIndex;
 
-                    tpm.ThreadsInUse = stresstestCore != null && !stresstestCore.IsDisposed ? stresstestCore.BusyThreadCount : 0;
+                    tpm.ThreadsInUse = stressTestCore != null && !stressTestCore.IsDisposed ? stressTestCore.BusyThreadCount : 0;
                     try {
                         tpm.CPUUsage = LocalMonitor.CPUUsage;
                         tpm.MemoryUsage = LocalMonitor.MemoryUsage;
@@ -280,10 +272,10 @@ namespace vApus.DistributedTesting {
                     } //Exception on false WMI. 
 
 
-                    tpm.StresstestMetricsCache = stresstestMetricsCache;
+                    tpm.StressTestMetricsCache = stressTestMetricsCache;
                     tpm.Events = events;
 
-                    tpm.StresstestStatus = stresstestStatus;
+                    tpm.StressTestStatus = stressTestStatus;
                     tpm.StartedAt = startedAt;
                     tpm.MeasuredRuntime = measuredRuntime;
                     tpm.EstimatedRuntimeLeft = estimatedRuntimeLeft;

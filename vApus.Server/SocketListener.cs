@@ -12,7 +12,7 @@ using System.Net;
 using System.Net.Sockets;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using vApus.DistributedTesting;
+using vApus.DistributedTest;
 using vApus.Server.Properties;
 using vApus.Server.Shared;
 using vApus.Util;
@@ -291,7 +291,7 @@ namespace vApus.Server {
                     BeginReceive(socketWrapper);
                 } else {
                     DisconnectMaster(socketWrapper);
-                    CommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
+                    CommunicationHandler.HandleMessage(new Message<Key>(Key.StopTest, null));
                     //The test cannot be valid without a master, stop the test if any.
                     Loggers.Log(Level.Warning, "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".", exception);
                     if (ListeningError != null)
@@ -317,12 +317,12 @@ namespace vApus.Server {
                     socketWrapper.Socket.SendBufferSize = socketWrapper.ReceiveBufferSize;
                 } else {
                     BeginReceive(socketWrapper);
-                    message = CommunicationHandler.HandleMessage(socketWrapper, message);
+                    message = CommunicationHandler.HandleMessage(message);
                 }
                 socketWrapper.Send(message, SendType.Binary);
             } catch (Exception exception) {
                 DisconnectMaster(socketWrapper);
-                CommunicationHandler.HandleMessage(socketWrapper, new Message<Key>(Key.StopTest, null));
+                CommunicationHandler.HandleMessage(new Message<Key>(Key.StopTest, null));
                 //The test cannot be valid without a master, stop the test if any.
                 //Loggers.Log(Level.Warning, "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".", exception);
                 if (ListeningError != null)

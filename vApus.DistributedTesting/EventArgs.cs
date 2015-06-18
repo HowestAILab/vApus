@@ -8,7 +8,7 @@
 using System;
 using vApus.Server.Shared;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public class ListeningErrorEventArgs : EventArgs {
 
         #region Properties
@@ -34,12 +34,12 @@ namespace vApus.DistributedTesting {
 
         #region Properties
         public Exception Exception { get; private set; }
-        public TileStresstest TileStresstest { get; private set; }
+        public TileStressTest TileStressTest { get; private set; }
         #endregion
 
         #region Constructor
-        public TestInitializedEventArgs(TileStresstest tileStresstest, Exception exception) {
-            TileStresstest = tileStresstest;
+        public TestInitializedEventArgs(TileStressTest tileStressTest, Exception exception) {
+            TileStressTest = tileStressTest;
             Exception = exception;
         }
         #endregion
@@ -49,7 +49,7 @@ namespace vApus.DistributedTesting {
 
         #region Properties
         /// <summary>
-        /// Link to the right TileStresstest using the TileStresstestIndex field.
+        /// Link to the right TileStressTest using the TileStressTestIndex field.
         /// </summary>
         public TestProgressMessage TestProgressMessage { get; private set; }
         #endregion
@@ -71,9 +71,9 @@ namespace vApus.DistributedTesting {
         /// <summary>
         /// 
         /// </summary>
-        /// <param name="ok"># of tile stresstests that finished succesfully.</param>
-        /// <param name="cancelled"># of tile stresstests that where cancelled.</param>
-        /// <param name="error"># of tile stresstests that failed.</param>
+        /// <param name="ok"># of tile stress tests that finished succesfully.</param>
+        /// <param name="cancelled"># of tile stress tests that where cancelled.</param>
+        /// <param name="error"># of tile stress tests that failed.</param>
         public TestFinishedEventArgs(int ok, int cancelled, int error) {
             OK = ok;
             Cancelled = cancelled;

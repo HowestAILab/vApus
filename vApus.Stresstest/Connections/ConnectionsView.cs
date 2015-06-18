@@ -18,7 +18,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// Shows, edit, test all connections in one view.
     /// </summary>

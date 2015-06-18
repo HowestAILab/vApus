@@ -1,5 +1,5 @@
-﻿namespace vApus.Stresstest {
-    partial class StresstestView {
+﻿namespace vApus.StressTest {
+    partial class StressTestView {
         /// <summary>
         /// Required designer variable.
         /// </summary>
@@ -11,15 +11,15 @@
         /// <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
         protected override void Dispose(bool disposing) {
             StopMonitorsAndUnlockGui(null, true);
-            Stop_Stresstest();
+            Stop_StressTest();
 
             tmrProgress.Stop();
             tmrProgressDelayCountDown.Stop();
             tmrSchedule.Stop();
 
-            if (_stresstestCore != null && !_stresstestCore.IsDisposed) {
-                _stresstestCore.Dispose();
-                _stresstestCore = null;
+            if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
+                _stressTestCore.Dispose();
+                _stressTestCore = null;
             }
             if (disposing && (components != null)) {
                 components.Dispose();
@@ -35,14 +35,14 @@
         /// </summary>
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StresstestView));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StressTestView));
             this.solutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpConfigure = new System.Windows.Forms.TabPage();
-            this.tpStresstest = new System.Windows.Forms.TabPage();
-            this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
+            this.tpStressTest = new System.Windows.Forms.TabPage();
+            this.fastResultsControl = new vApus.StressTest.FastResultsControl();
             this.tpDetailedResults = new System.Windows.Forms.TabPage();
-            this.detailedResultsControl = new vApus.Stresstest.DetailedResultsControl();
+            this.detailedResultsControl = new vApus.StressTest.DetailedResultsControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
@@ -50,10 +50,9 @@
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
-            this.sfd = new System.Windows.Forms.SaveFileDialog();
             this.tc.SuspendLayout();
             this.tpConfigure.SuspendLayout();
-            this.tpStresstest.SuspendLayout();
+            this.tpStressTest.SuspendLayout();
             this.tpDetailedResults.SuspendLayout();
             this.toolStrip.SuspendLayout();
             this.SuspendLayout();
@@ -76,7 +75,7 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpConfigure);
-            this.tc.Controls.Add(this.tpStresstest);
+            this.tc.Controls.Add(this.tpStressTest);
             this.tc.Controls.Add(this.tpDetailedResults);
             this.tc.LeftVisible = false;
             this.tc.Location = new System.Drawing.Point(0, 43);
@@ -98,15 +97,15 @@
             this.tpConfigure.TabIndex = 0;
             this.tpConfigure.Text = "Configure";
             // 
-            // tpStresstest
+            // tpStressTest
             // 
-            this.tpStresstest.BackColor = System.Drawing.Color.White;
-            this.tpStresstest.Controls.Add(this.fastResultsControl);
-            this.tpStresstest.Location = new System.Drawing.Point(0, 19);
-            this.tpStresstest.Name = "tpStresstest";
-            this.tpStresstest.Size = new System.Drawing.Size(790, 497);
-            this.tpStresstest.TabIndex = 1;
-            this.tpStresstest.Text = "Stresstest";
+            this.tpStressTest.BackColor = System.Drawing.Color.White;
+            this.tpStressTest.Controls.Add(this.fastResultsControl);
+            this.tpStressTest.Location = new System.Drawing.Point(0, 19);
+            this.tpStressTest.Name = "tpStressTest";
+            this.tpStressTest.Size = new System.Drawing.Size(790, 497);
+            this.tpStressTest.TabIndex = 1;
+            this.tpStressTest.Text = "Stress test";
             // 
             // fastResultsControl
             // 
@@ -127,7 +126,7 @@
             this.tpDetailedResults.Name = "tpDetailedResults";
             this.tpDetailedResults.Size = new System.Drawing.Size(790, 497);
             this.tpDetailedResults.TabIndex = 2;
-            this.tpDetailedResults.Text = "Detailed Results";
+            this.tpDetailedResults.Text = "Detailed results";
             // 
             // detailedResultsControl
             // 
@@ -200,7 +199,7 @@
             // 
             this.tmrSchedule.Tick += new System.EventHandler(this.tmrSchedule_Tick);
             // 
-            // StresstestView
+            // StressTestView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -208,12 +207,12 @@
             this.Controls.Add(this.toolStrip);
             this.Controls.Add(this.tc);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Name = "StresstestView";
-            this.Text = "StresstestView";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.StresstestView_FormClosing);
+            this.Name = "StressTestView";
+            this.Text = "StressTestView";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.StressTestView_FormClosing);
             this.tc.ResumeLayout(false);
             this.tpConfigure.ResumeLayout(false);
-            this.tpStresstest.ResumeLayout(false);
+            this.tpStressTest.ResumeLayout(false);
             this.tpDetailedResults.ResumeLayout(false);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
@@ -230,13 +229,12 @@
         private System.Windows.Forms.ToolStrip toolStrip;
         private vApus.Util.TabControlWithAdjustableBorders tc;
         private System.Windows.Forms.TabPage tpConfigure;
-        private System.Windows.Forms.TabPage tpStresstest;
+        private System.Windows.Forms.TabPage tpStressTest;
         private System.Windows.Forms.Timer tmrProgress;
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
         private System.Windows.Forms.ToolStripButton btnSchedule;
         private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.TabPage tpDetailedResults;
-        private System.Windows.Forms.SaveFileDialog sfd;
         private FastResultsControl fastResultsControl;
         private DetailedResultsControl detailedResultsControl;
 

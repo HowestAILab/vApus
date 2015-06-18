@@ -1,6 +1,6 @@
 ﻿using RandomUtils.Log;
 using System;
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     partial class DetailedResultsControl {
         /// <summary> 
         /// Required designer variable.
@@ -43,7 +43,7 @@ namespace vApus.Stresstest {
             this.lbtnDescription = new vApus.Util.LinkButton();
             this.lbtnTags = new vApus.Util.LinkButton();
             this.lbtnvApusInstance = new vApus.Util.LinkButton();
-            this.lbtnStresstest = new vApus.Util.LinkButton();
+            this.lbtnStressTest = new vApus.Util.LinkButton();
             this.lbtnMonitors = new vApus.Util.LinkButton();
             this.splitQueryData = new System.Windows.Forms.SplitContainer();
             this.pnlBorderExecute = new System.Windows.Forms.Panel();
@@ -141,7 +141,7 @@ namespace vApus.Stresstest {
             this.btnCollapseExpand.TabIndex = 18;
             this.btnCollapseExpand.TabStop = false;
             this.btnCollapseExpand.Text = "-";
-            this.toolTip.SetToolTip(this.btnCollapseExpand, "Collapse or Expand");
+            this.toolTip.SetToolTip(this.btnCollapseExpand, "Collapse or expand.");
             this.btnCollapseExpand.UseVisualStyleBackColor = false;
             this.btnCollapseExpand.Click += new System.EventHandler(this.btnCollapseExpand_Click);
             // 
@@ -155,7 +155,7 @@ namespace vApus.Stresstest {
             this.flpConfiguration.Controls.Add(this.lbtnDescription);
             this.flpConfiguration.Controls.Add(this.lbtnTags);
             this.flpConfiguration.Controls.Add(this.lbtnvApusInstance);
-            this.flpConfiguration.Controls.Add(this.lbtnStresstest);
+            this.flpConfiguration.Controls.Add(this.lbtnStressTest);
             this.flpConfiguration.Controls.Add(this.lbtnMonitors);
             this.flpConfiguration.Location = new System.Drawing.Point(0, 0);
             this.flpConfiguration.Name = "flpConfiguration";
@@ -238,33 +238,33 @@ namespace vApus.Stresstest {
             this.lbtnvApusInstance.Size = new System.Drawing.Size(101, 20);
             this.lbtnvApusInstance.TabIndex = 3;
             this.lbtnvApusInstance.TabStop = true;
-            this.lbtnvApusInstance.Text = "vApus Instance";
+            this.lbtnvApusInstance.Text = "vApus instance";
             this.lbtnvApusInstance.TextAlign = System.Drawing.ContentAlignment.TopCenter;
             this.lbtnvApusInstance.VisitedLinkColor = System.Drawing.Color.DimGray;
             this.lbtnvApusInstance.ActiveChanged += new System.EventHandler(this.lbtnvApusInstance_ActiveChanged);
             // 
-            // lbtnStresstest
+            // lbtnStressTest
             // 
-            this.lbtnStresstest.Active = false;
-            this.lbtnStresstest.ActiveLinkColor = System.Drawing.Color.DimGray;
-            this.lbtnStresstest.AutoSize = true;
-            this.lbtnStresstest.BackColor = System.Drawing.Color.Transparent;
-            this.lbtnStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.lbtnStresstest.ForeColor = System.Drawing.Color.DimGray;
-            this.lbtnStresstest.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
-            this.lbtnStresstest.LinkColor = System.Drawing.Color.DimGray;
-            this.lbtnStresstest.Location = new System.Drawing.Point(346, 6);
-            this.lbtnStresstest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
-            this.lbtnStresstest.Name = "lbtnStresstest";
-            this.lbtnStresstest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.lbtnStresstest.RadioButtonBehavior = true;
-            this.lbtnStresstest.Size = new System.Drawing.Size(69, 20);
-            this.lbtnStresstest.TabIndex = 4;
-            this.lbtnStresstest.TabStop = true;
-            this.lbtnStresstest.Text = "Stresstest";
-            this.lbtnStresstest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnStresstest.VisitedLinkColor = System.Drawing.Color.DimGray;
-            this.lbtnStresstest.ActiveChanged += new System.EventHandler(this.lbtnStresstest_ActiveChanged);
+            this.lbtnStressTest.Active = false;
+            this.lbtnStressTest.ActiveLinkColor = System.Drawing.Color.DimGray;
+            this.lbtnStressTest.AutoSize = true;
+            this.lbtnStressTest.BackColor = System.Drawing.Color.Transparent;
+            this.lbtnStressTest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnStressTest.ForeColor = System.Drawing.Color.DimGray;
+            this.lbtnStressTest.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
+            this.lbtnStressTest.LinkColor = System.Drawing.Color.DimGray;
+            this.lbtnStressTest.Location = new System.Drawing.Point(346, 6);
+            this.lbtnStressTest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.lbtnStressTest.Name = "lbtnStressTest";
+            this.lbtnStressTest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.lbtnStressTest.RadioButtonBehavior = true;
+            this.lbtnStressTest.Size = new System.Drawing.Size(73, 20);
+            this.lbtnStressTest.TabIndex = 4;
+            this.lbtnStressTest.TabStop = true;
+            this.lbtnStressTest.Text = "Stress test";
+            this.lbtnStressTest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbtnStressTest.VisitedLinkColor = System.Drawing.Color.DimGray;
+            this.lbtnStressTest.ActiveChanged += new System.EventHandler(this.lbtnStressTest_ActiveChanged);
             // 
             // lbtnMonitors
             // 
@@ -379,7 +379,7 @@ namespace vApus.Stresstest {
             this.chkShowCellView.Name = "chkShowCellView";
             this.chkShowCellView.Size = new System.Drawing.Size(99, 17);
             this.chkShowCellView.TabIndex = 35;
-            this.chkShowCellView.Text = "Show Cell View";
+            this.chkShowCellView.Text = "Show cell view";
             this.toolTip.SetToolTip(this.chkShowCellView, "Show a view when a cell is selected, if checked.");
             this.chkShowCellView.UseVisualStyleBackColor = true;
             this.chkShowCellView.CheckedChanged += new System.EventHandler(this.chkShowCellView_CheckedChanged);
@@ -506,13 +506,13 @@ namespace vApus.Stresstest {
             this.cboShow.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.cboShow.FormattingEnabled = true;
             this.cboShow.Items.AddRange(new object[] {
-            "Average Concurrency Results",
-            "Average User Actions",
-            "Average Log Entries",
+            "Average concurrency results",
+            "Average user actions",
+            "Average requests",
             "Errors",
-            "User Action Composition",
-            "Machine Configurations",
-            "Average Monitor Results",
+            "User action composition",
+            "Machine configurations",
+            "Average monitor results",
             "Logs"});
             this.cboShow.Location = new System.Drawing.Point(2, 2);
             this.cboShow.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
@@ -609,7 +609,7 @@ namespace vApus.Stresstest {
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
             this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.TabIndex = 4;
-            this.btnSaveDisplayedResults.Text = "Save Displayed Results...";
+            this.btnSaveDisplayedResults.Text = "Save displayed results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
             this.btnSaveDisplayedResults.Click += new System.EventHandler(this.btnSaveDisplayedResults_Click);
             // 
@@ -645,7 +645,7 @@ namespace vApus.Stresstest {
             this.btnDeleteResults.Name = "btnDeleteResults";
             this.btnDeleteResults.Size = new System.Drawing.Size(102, 24);
             this.btnDeleteResults.TabIndex = 6;
-            this.btnDeleteResults.Text = "Delete Results";
+            this.btnDeleteResults.Text = "Delete results";
             this.btnDeleteResults.UseVisualStyleBackColor = false;
             this.btnDeleteResults.Click += new System.EventHandler(this.btnDeleteResults_Click);
             // 
@@ -673,7 +673,7 @@ namespace vApus.Stresstest {
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(126, 20);
             this.label1.TabIndex = 0;
-            this.label1.Text = "Detailed Results";
+            this.label1.Text = "Detailed results";
             // 
             // DetailedResultsControl
             // 
@@ -723,7 +723,7 @@ namespace vApus.Stresstest {
         private Util.LinkButton lbtnDescription;
         private Util.LinkButton lbtnTags;
         private Util.LinkButton lbtnvApusInstance;
-        private Util.LinkButton lbtnStresstest;
+        private Util.LinkButton lbtnStressTest;
         private System.Windows.Forms.FlowLayoutPanel flpDetailedMetrics;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel pnlBorderShow;

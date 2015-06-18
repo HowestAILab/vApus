@@ -1,5 +1,5 @@
 ﻿using vApus.Util;
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     partial class CustomRandomParameterPanel {
         /// <summary>
         /// Required designer variable.
@@ -27,7 +27,7 @@ namespace vApus.Stresstest {
             this.components = new System.ComponentModel.Container();
             this.chkUnique = new System.Windows.Forms.CheckBox();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.compileCustomRandom = new vApus.Stresstest.TestCustomRandomPanel();
+            this.compileCustomRandom = new vApus.StressTest.TestCustomRandomPanel();
             this.ctxtGenerate = new vApus.Util.CodeTextBox();
             ((System.ComponentModel.ISupportInitialize)(this.ctxtGenerate)).BeginInit();
             this.SuspendLayout();
@@ -61,7 +61,7 @@ namespace vApus.Stresstest {
             this.compileCustomRandom.Padding = new System.Windows.Forms.Padding(9);
             this.compileCustomRandom.Size = new System.Drawing.Size(915, 173);
             this.compileCustomRandom.TabIndex = 3;
-            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.TestCustomRandomPanel.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
+            this.compileCustomRandom.CompileErrorButtonClicked += new System.EventHandler<vApus.StressTest.TestCustomRandomPanel.CompileErrorButtonClickedEventArgs>(this.compileCustomRandom_CompileErrorButtonClicked);
             // 
             // ctxtGenerate
             // 

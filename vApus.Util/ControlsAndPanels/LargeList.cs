@@ -108,9 +108,7 @@ namespace vApus.Util {
 
         private KeyValuePair<int, int> _endOfSelection = new KeyValuePair<int, int>(-1, -1);
 
-        private Point _firstSelectionPoint;
         private Control _lastClickedControl;
-        private Point _lastSelectionPoint;
 
         /// <summary>
         ///     The previous height for the resizing, if it is equal, nothing must be done.
@@ -130,11 +128,6 @@ namespace vApus.Util {
         //For making sure stuff happens correctly after the handle is created.
         private List<Control> _toAdd = new List<Control>();
         private int _totalControlsHeightsInLastView;
-
-        /// <summary>
-        ///     To let stuff wait on each other, because stuff could go wrong because of the Application.DoEvents.
-        /// </summary>
-        private AutoResetEvent _waitHandle = new AutoResetEvent(true);
 
         #endregion
 
@@ -267,8 +260,6 @@ namespace vApus.Util {
         /// </summary>
         public LargeList() {
             InitializeComponent();
-            flpnl.MouseDown += flpnl_MouseDown;
-            flpnl.MouseUp += flpnl_MouseUp;
         }
 
         /// <summary>
@@ -1374,46 +1365,6 @@ namespace vApus.Util {
         #endregion
 
         #region EventHandling
-
-        /// <summary>
-        ///     For the selectionbox.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void flpnl_MouseDown(object sender, MouseEventArgs e) {
-            if (e.Button == MouseButtons.Left) {
-                _firstSelectionPoint = e.Location;
-                _lastSelectionPoint = e.Location;
-            }
-        }
-
-        /// <summary>
-        ///     For the selectionbox.
-        ///     ///
-        /// </summary>
-        /// <param name="point1"></param>
-        /// <param name="point2"></param>
-        /// <returns></returns>
-        private Rectangle GetNormalizedRectangle(Point point1, Point point2) {
-            if (point1.X < point2.X)
-                if (point1.Y < point2.Y)
-                    return new Rectangle(point1.X, point1.Y, point2.X - point1.X, point2.Y - point1.Y);
-                else
-                    return new Rectangle(point1.X, point2.Y, point2.X - point1.X, point1.Y - point2.Y);
-            else if (point1.Y < point2.Y)
-                return new Rectangle(point2.X, point1.Y, point1.X - point2.X, point2.Y - point1.Y);
-            else
-                return new Rectangle(point2.X, point2.Y, point1.X - point2.X, point1.Y - point2.Y);
-        }
-
-        /// <summary>
-        ///     For the selectionbox.
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void flpnl_MouseUp(object sender, MouseEventArgs e) {
-            flpnl.Invalidate();
-        }
 
         /// <summary>
         ///     Redetermines the views on resize when needed.

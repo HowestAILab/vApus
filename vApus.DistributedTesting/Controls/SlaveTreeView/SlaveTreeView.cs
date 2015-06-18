@@ -13,7 +13,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public partial class SlaveTreeView : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(IntPtr hWnd);
@@ -81,7 +81,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void CreateAndAddClientTreeViewItem(Client client) {
-            var cvi = new ClientTreeViewItem(_distributedTest, client);
+            var cvi = new ClientTreeViewItem(client);
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += _AfterSelect;
@@ -96,7 +96,7 @@ namespace vApus.DistributedTesting {
         }
 
         private void CreateAndInsertClientTreeViewItem(Client client, KeyValuePair<int, int> index) {
-            var cvi = new ClientTreeViewItem(_distributedTest, client);
+            var cvi = new ClientTreeViewItem(client);
             //Used for handling collapsing and expanding.
             cvi.SetParent(largeList);
             cvi.AfterSelect += _AfterSelect;
@@ -182,7 +182,7 @@ namespace vApus.DistributedTesting {
         public void SetGui() {
             foreach (ITreeViewItem ctrl in largeList.AllControls) {
                 ctrl.SetVisibleControls();
-                //To determine what add tile stresstest control can be visible
+                //To determine what add tile stress test control can be visible
                 ctrl.RefreshGui();
             }
         }

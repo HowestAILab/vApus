@@ -1,0 +1,4 @@
+For a manual build:
+Make sure there is a folder Prerequisites\vApus.Monitor.Sources containing vApus.Monitor.Sources.Base.dll (from the vApus.Monitor.Sources Build folder).
+Build using msbuild or visual studio
+Copy the MonitorSourceClients folder from the vApus.Monitor.Sources Build folder to the vApus Build folder. (the folder, not just the files)

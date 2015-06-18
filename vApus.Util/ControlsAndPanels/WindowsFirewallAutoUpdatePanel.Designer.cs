@@ -173,7 +173,7 @@
             this.btnDisableAll.Name = "btnDisableAll";
             this.btnDisableAll.Size = new System.Drawing.Size(268, 24);
             this.btnDisableAll.TabIndex = 18;
-            this.btnDisableAll.Text = "Disable All";
+            this.btnDisableAll.Text = "Disable all";
             this.btnDisableAll.UseVisualStyleBackColor = false;
             this.btnDisableAll.Click += new System.EventHandler(this.btnDisableAll_Click);
             // 
@@ -184,8 +184,8 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(421, 26);
             this.label1.TabIndex = 19;
-            this.label1.Text = "The Windows firewall can block vApus communication and can break a stresstest.\r\nW" +
-    "indows auto update can restart the computer while a (scheduled) stresstest is ru" +
+            this.label1.Text = "The Windows firewall can block vApus communication and can break a stress test.\r\nW" +
+    "indows auto update can restart the computer while a (scheduled) stress test is ru" +
     "nning.\r\nYou can only do this when running vApus as administrator!";
             // 
             // DisableFirewallAutoUpdatePanel

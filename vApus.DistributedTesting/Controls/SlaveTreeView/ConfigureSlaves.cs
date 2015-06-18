@@ -10,12 +10,13 @@ using RandomUtils;
 using System;
 using System.Net;
 using System.Runtime.InteropServices;
+using System.Threading;
 using System.Windows.Forms;
-using vApus.DistributedTesting.Properties;
+using vApus.DistributedTest.Properties;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public partial class ConfigureSlaves : UserControl {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
         private static extern int LockWindowUpdate(IntPtr hWnd);
@@ -72,10 +73,10 @@ namespace vApus.DistributedTesting {
             _clientTreeViewItem = clientTreeViewItem;
             if (_clientTreeViewItem.Online) {
                 picStatus.Image = Resources.OK;
-                toolTip.SetToolTip(picStatus, "Client Online");
+                toolTip.SetToolTip(picStatus, "Client online.");
             } else {
                 picStatus.Image = Resources.Cancelled;
-                toolTip.SetToolTip(picStatus, "Client Offline");
+                toolTip.SetToolTip(picStatus, "Client offline.");
             }
 
             SetClient();
@@ -289,10 +290,10 @@ namespace vApus.DistributedTesting {
             if (enabled) {
                 if (online) {
                     picStatus.Image = Resources.OK;
-                    toolTip.SetToolTip(picStatus, "Client Online");
+                    toolTip.SetToolTip(picStatus, "Client online.");
                 } else {
                     picStatus.Image = Resources.Cancelled;
-                    toolTip.SetToolTip(picStatus, "Client Offline");
+                    toolTip.SetToolTip(picStatus, "Client offline.");
                 }
             } else {
                 picStatus.Image = Resources.Busy;
@@ -318,9 +319,9 @@ namespace vApus.DistributedTesting {
         }
 
         private void picShowRD_Click(object sender, EventArgs e) {
-            var rdc = SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
-            rdc.Text = "Remote Desktop Client";
-            rdc.ShowRemoteDesktop(_clientTreeViewItem.Client.HostName, _clientTreeViewItem.Client.IP, _clientTreeViewItem.Client.UserName, _clientTreeViewItem.Client.Password, _clientTreeViewItem.Client.Domain);
+            RemoteDesktop.Show(_clientTreeViewItem.Client.IP, _clientTreeViewItem.Client.UserName, _clientTreeViewItem.Client.Password, _clientTreeViewItem.Client.Domain);
+            Thread.Sleep(1000);
+            RemoteDesktop.RemoveCredentials(_clientTreeViewItem.Client.IP);
         }
 
 

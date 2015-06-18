@@ -50,7 +50,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
-            this.Text = "Connect to a Results MySQL Server";
+            this.Text = "Connect to a results MySQL server";
             this.ResumeLayout(false);
 
         }

@@ -9,9 +9,9 @@ using System.Collections.Generic;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
-    ///     A tile of stresstests.
+    ///     A tile of stress tests.
     /// </summary>
     public class Tile : LabeledBaseItem {
 
@@ -23,7 +23,7 @@ namespace vApus.DistributedTesting {
 
         #region Constructor
         /// <summary>
-        ///     A tile of stresstests.
+        ///     A tile of stress tests.
         /// </summary>
         public Tile() { ShowInGui = false; }
         #endregion
@@ -32,7 +32,7 @@ namespace vApus.DistributedTesting {
         public Tile Clone() {
             var clone = new Tile();
             clone.Use = Use;
-            foreach (TileStresstest ts in this)
+            foreach (TileStressTest ts in this)
                 clone.AddWithoutInvokingEvent(ts.Clone());
             return clone;
         }

@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest
+﻿namespace vApus.StressTest
 {
     partial class FindAndReplacePanel
     {
@@ -102,7 +102,7 @@
             this.chkWholeWords.Name = "chkWholeWords";
             this.chkWholeWords.Size = new System.Drawing.Size(91, 17);
             this.chkWholeWords.TabIndex = 3;
-            this.chkWholeWords.Text = "Whole Words";
+            this.chkWholeWords.Text = "Whole words";
             this.chkWholeWords.UseVisualStyleBackColor = true;
             // 
             // chkMatchCase
@@ -113,7 +113,7 @@
             this.chkMatchCase.Name = "chkMatchCase";
             this.chkMatchCase.Size = new System.Drawing.Size(83, 17);
             this.chkMatchCase.TabIndex = 4;
-            this.chkMatchCase.Text = "Match Case";
+            this.chkMatchCase.Text = "Match case";
             this.chkMatchCase.UseVisualStyleBackColor = true;
             // 
             // btnReplaceWith
@@ -130,7 +130,7 @@
             this.btnReplaceWith.Name = "btnReplaceWith";
             this.btnReplaceWith.Size = new System.Drawing.Size(135, 24);
             this.btnReplaceWith.TabIndex = 5;
-            this.btnReplaceWith.Text = "Replace Found With";
+            this.btnReplaceWith.Text = "Replace found with";
             this.btnReplaceWith.UseVisualStyleBackColor = false;
             this.btnReplaceWith.Click += new System.EventHandler(this.btnReplaceWith_Click);
             // 
@@ -171,7 +171,7 @@
             this.btnSwitchValues.Name = "btnSwitchValues";
             this.btnSwitchValues.Size = new System.Drawing.Size(99, 24);
             this.btnSwitchValues.TabIndex = 8;
-            this.btnSwitchValues.Text = "Switch Values";
+            this.btnSwitchValues.Text = "Switch values";
             this.btnSwitchValues.UseVisualStyleBackColor = false;
             this.btnSwitchValues.Click += new System.EventHandler(this.btnSwitchValues_Click);
             // 

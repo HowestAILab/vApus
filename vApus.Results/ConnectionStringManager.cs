@@ -11,7 +11,7 @@ using vApus.Util;
 
 namespace vApus.Results {
     /// <summary>
-    /// Serves at saving and loading connection strings. A connection string is needed to be able to save and load stresstest results.
+    /// Serves at saving and loading connection strings. A connection string is needed to be able to save and load stress test results.
     /// </summary>
     public static class ConnectionStringManager {
 

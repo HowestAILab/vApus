@@ -55,7 +55,7 @@
             this.btnCollapseExpand.TabIndex = 1;
             this.btnCollapseExpand.TabStop = false;
             this.btnCollapseExpand.Text = "-";
-            this.toolTip.SetToolTip(this.btnCollapseExpand, "Collapse or Expand");
+            this.toolTip.SetToolTip(this.btnCollapseExpand, "Collapse or expand.");
             this.btnCollapseExpand.UseVisualStyleBackColor = false;
             this.btnCollapseExpand.Click += new System.EventHandler(this.btnCollapseExpand_Click);
             // 
@@ -112,7 +112,7 @@
             this.cboFilter.Name = "cboFilter";
             this.cboFilter.Size = new System.Drawing.Size(70, 21);
             this.cboFilter.TabIndex = 0;
-            this.toolTip.SetToolTip(this.cboFilter, "Filter Level...");
+            this.toolTip.SetToolTip(this.cboFilter, "Filter level...");
             this.cboFilter.SelectedIndexChanged += new System.EventHandler(this.cboFilter_SelectedIndexChanged);
             // 
             // eventView

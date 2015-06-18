@@ -22,8 +22,8 @@ namespace vApus.JSON {
     public struct TestConfig {
         public int[] Concurrency;
         public string Connection, ConnectionProxy;
-        public string[] Logs;
-        public string LogRuleSet;
+        public string[] Scenarios;
+        public string ScenarioRuleSet;
         public int MaximumDelayInMS;
         public int MinimumDelayInMS;
         public int MonitorAfterInMinutes;
@@ -48,9 +48,9 @@ namespace vApus.JSON {
 
         public string RunStateChange;
         public DateTime StartMeasuringTime;
-        public string StresstestResult;
+        public string StressTestResult;
 
-        public long LogEntries, LogEntriesProcessed;
+        public long Requests, RequestsProcessed;
         public double ResponsesPerSecond, UserActionsPerSecond;
     }
 

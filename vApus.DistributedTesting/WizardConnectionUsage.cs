@@ -11,9 +11,9 @@ using System.Drawing;
 using System.Text;
 using System.Windows.Forms;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
     /// Tries to intelligently make tiles based on the connections used in the single tests. You could say that this is a blueprint for a Tile.
     /// Please call Init(..) after making a new WizardConnectionUsage.
@@ -93,23 +93,23 @@ namespace vApus.DistributedTesting {
                                     : connection.ToString());
                 tvw.SelectedNode.Text = label;
 
-                var kvp = (KeyValuePair<Stresstest.Stresstest, Connection>)tvw.SelectedNode.Tag;
-                tvw.SelectedNode.Tag = new KeyValuePair<Stresstest.Stresstest, Connection>(kvp.Key, connection);
+                var kvp = (KeyValuePair<StressTest.StressTest, Connection>)tvw.SelectedNode.Tag;
+                tvw.SelectedNode.Tag = new KeyValuePair<StressTest.StressTest, Connection>(kvp.Key, connection);
             }
         }
 
         /// <summary>
         ///     Give the radio button a back color and set a tooltip.
-        ///     The tooltip says in what tile stresstests the connection is used.
+        ///     The tooltip says in what tile stress tests the connection is used.
         /// </summary>
         private void StyleUsedConnections() {
             foreach (RadioButton rdb in flp.Controls) {
                 var sb = new StringBuilder();
                 foreach (TreeNode tileNode in tvw.Nodes)
-                    foreach (TreeNode tileStresstestNode in tileNode.Nodes) {
-                        var kvp = (KeyValuePair<Stresstest.Stresstest, Connection>)tileStresstestNode.Tag;
+                    foreach (TreeNode tileStressTestNode in tileNode.Nodes) {
+                        var kvp = (KeyValuePair<StressTest.StressTest, Connection>)tileStressTestNode.Tag;
                         if (kvp.Value == rdb.Tag)
-                            sb.AppendLine(tileNode.Text + " -> " + tileStresstestNode.Text);
+                            sb.AppendLine(tileNode.Text + " -> " + tileStressTestNode.Text);
                     }
 
                 rdb.Font = new Font(Font, rdb.Checked ? FontStyle.Bold : FontStyle.Regular);
@@ -118,26 +118,26 @@ namespace vApus.DistributedTesting {
                     toolTip.SetToolTip(rdb, null);
                 } else {
                     rdb.BackColor = Color.FromArgb(192, 192, 255);
-                    toolTip.SetToolTip(rdb, "Connection used in:\n" + sb);
+                    toolTip.SetToolTip(rdb, "Connection used in:\n" + sb + ".");
                 }
             }
         }
 
         private void FillTreeView() {
             tvw.Nodes.Clear();
-            int connectionIndex = 0; //Distribute the connections over the tile stresstests.
+            int connectionIndex = 0; //Distribute the connections over the tile stress tests.
             foreach (Tile tile in _tilesAlreadyInDistributedTest) {
                 TreeNode tileNode = AddNewTileNode();
-                foreach (TileStresstest tileStresstest in tile) {
-                    TreeNode testNode = AddNewTestNode(tileNode, tileStresstest.DefaultAdvancedSettingsTo, ToAssignConnections[connectionIndex++]);
+                foreach (TileStressTest tileStressTest in tile) {
+                    TreeNode testNode = AddNewTestNode(tileNode, tileStressTest.DefaultAdvancedSettingsTo, ToAssignConnections[connectionIndex++]);
                 }
             }
 
-            Stresstest.Stresstest defaultTo = null;
+            StressTest.StressTest defaultTo = null;
             for (int t = 0; t != _numberOfNewTiles; t++) {
                 TreeNode tileNode = AddNewTileNode();
                 for (int ts = 0; ts != _numberOfTestsPerNewTile; ts++) {
-                    defaultTo = GetNextDefaultToStresstest(defaultTo);
+                    defaultTo = GetNextDefaultToStressTest(defaultTo);
                     TreeNode testNode = AddNewTestNode(tileNode, defaultTo, ToAssignConnections[connectionIndex++]);
                 }
             }
@@ -157,7 +157,7 @@ namespace vApus.DistributedTesting {
             return tn;
         }
 
-        private TreeNode AddNewTestNode(TreeNode tileNode, Stresstest.Stresstest defaultSettingsTo, Connection connection) {
+        private TreeNode AddNewTestNode(TreeNode tileNode, StressTest.StressTest defaultSettingsTo, Connection connection) {
             string label = (tileNode.Nodes.Count + 1) + ") " +
                            ((connection == null || connection.IsEmpty)
                                 ? string.Empty
@@ -165,11 +165,11 @@ namespace vApus.DistributedTesting {
 
             var tn = new TreeNode(label);
             var defaultSettingsToAndConnection =
-                new KeyValuePair<Stresstest.Stresstest, Connection>(defaultSettingsTo, connection);
+                new KeyValuePair<StressTest.StressTest, Connection>(defaultSettingsTo, connection);
 
             tn.Tag = defaultSettingsToAndConnection;
             tn.ToolTipText =
-                "The used connection defines the name of the tile stresstest.\nOther settings are defaulted to " +
+                "The used connection defines the name of the tile stress test.\nOther settings are defaulted to " +
                 defaultSettingsTo;
             tileNode.Nodes.Add(tn);
             return tn;
@@ -179,23 +179,23 @@ namespace vApus.DistributedTesting {
         /// </summary>
         /// <param name="previous">Can be null</param>
         /// <returns></returns>
-        private Stresstest.Stresstest GetNextDefaultToStresstest(Stresstest.Stresstest previous) {
-            SolutionComponent stresstestProject =
-                Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject));
+        private StressTest.StressTest GetNextDefaultToStressTest(StressTest.StressTest previous) {
+            SolutionComponent stressTestProject =
+                Solution.ActiveSolution.GetSolutionComponent(typeof(StressTestProject));
             if (previous != null) {
                 bool previousFound = false;
-                foreach (BaseItem item in stresstestProject)
-                    if (item is Stresstest.Stresstest)
+                foreach (BaseItem item in stressTestProject)
+                    if (item is StressTest.StressTest)
                         if (item == previous)
                             previousFound = true; //The next item of the correct type will be returned if any
                         else if (previousFound)
-                            return item as Stresstest.Stresstest;
+                            return item as StressTest.StressTest;
             }
 
             //If next was not found (starts with the first item again if any to use for a previous default to).
             return
-                SolutionComponent.GetNextOrEmptyChild(typeof(Stresstest.Stresstest), stresstestProject) as
-                Stresstest.Stresstest;
+                SolutionComponent.GetNextOrEmptyChild(typeof(StressTest.StressTest), stressTestProject) as
+                StressTest.StressTest;
         }
 
         private void btnReset_Click(object sender, EventArgs e) {
@@ -222,9 +222,9 @@ namespace vApus.DistributedTesting {
 
                     if (tileNode == tvw.SelectedNode)
                         return;
-                    foreach (TreeNode tileStresstestNode in tileNode.Nodes) {
+                    foreach (TreeNode tileStressTestNode in tileNode.Nodes) {
                         ++level1Index;
-                        if (tileStresstestNode == tvw.SelectedNode)
+                        if (tileStressTestNode == tvw.SelectedNode)
                             return;
                     }
 
@@ -240,16 +240,16 @@ namespace vApus.DistributedTesting {
                         return tileNode;
                     } else {
                         int j = 0;
-                        foreach (TreeNode tileStresstestNode in tileNode.Nodes)
+                        foreach (TreeNode tileStressTestNode in tileNode.Nodes)
                             if (j++ == level1Index)
-                                return tileStresstestNode;
+                                return tileStressTestNode;
                     }
 
             return null;
         }
 
         private void tvw_AfterSelect(object sender, TreeViewEventArgs e) {
-            //The right panel should only be visible when a tile stresstest node is selected.
+            //The right panel should only be visible when a tile stress test node is selected.
             if (tvw.SelectedNode != null)
                 foreach (Control ctrl in split.Panel2.Controls)
                     ctrl.Visible = tvw.SelectedNode.Level != 0;
@@ -257,9 +257,9 @@ namespace vApus.DistributedTesting {
             //Set the default to and the used connection in the right panel.
             if (tvw.SelectedNode.Tag != null) {
                 var defaultSettingsToAndConnection =
-                    (KeyValuePair<Stresstest.Stresstest, Connection>)tvw.SelectedNode.Tag;
+                    (KeyValuePair<StressTest.StressTest, Connection>)tvw.SelectedNode.Tag;
                 lblDefaultTo.Text =
-                    "The used connection defines the name of the tile stresstest.\nOther settings are defaulted to " +
+                    "The used connection defines the name of the tile stress test.\nOther settings are defaulted to " +
                     defaultSettingsToAndConnection.Key;
 
                 foreach (RadioButton rdb in flp.Controls)
@@ -278,8 +278,8 @@ namespace vApus.DistributedTesting {
         private void btnOK_Click(object sender, EventArgs e) {
             int connectionIndex = 0;
             foreach (TreeNode tileNode in tvw.Nodes)
-                foreach (TreeNode tileStresstestNode in tileNode.Nodes) {
-                    var kvp = (KeyValuePair<Stresstest.Stresstest, Connection>)tileStresstestNode.Tag;
+                foreach (TreeNode tileStressTestNode in tileNode.Nodes) {
+                    var kvp = (KeyValuePair<StressTest.StressTest, Connection>)tileStressTestNode.Tag;
                     ToAssignConnections[connectionIndex++] = kvp.Value;
                 }
 

@@ -15,14 +15,14 @@ namespace vApus.Results {
     /// <summary>
     /// Used for average concurrant users results in the results helper.
     /// </summary>
-    internal static class DetailedStresstestMetricsHelper {
+    internal static class DetailedStressTestMetricsHelper {
         /// <summary>
         /// Metrics percentiles
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static StresstestMetrics GetMetrics(ConcurrencyResult result, CancellationToken cancellationToken) {
-            var metrics = new StresstestMetrics();
+        public static StressTestMetrics GetMetrics(ConcurrencyResult result, CancellationToken cancellationToken) {
+            var metrics = new StressTestMetrics();
             metrics.StartMeasuringTime = result.StartedAt;
             metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringTime;
             metrics.Concurrency = result.Concurrency;
@@ -31,13 +31,13 @@ namespace vApus.Results {
             metrics.AverageDelay = new TimeSpan();
 
             if (result.RunResults.Count != 0) {
-                long totalAndExtraLogEntriesProcessed = 0; //For break on last run sync.
-                long baseLogEntryCount = 0;
+                long totalAndExtraRequestsProcessed = 0; //For break on last run sync.
+                long baseRequestCount = 0;
 
                 var timesToLastByteInTicks = new List<long>();
                 foreach (RunResult runResult in result.RunResults) {
-                    StresstestMetrics runResultMetrics = GetMetrics(runResult, cancellationToken, false);
-                    if (cancellationToken.IsCancellationRequested) return new StresstestMetrics();
+                    StressTestMetrics runResultMetrics = GetMetrics(runResult, cancellationToken, false);
+                    if (cancellationToken.IsCancellationRequested) return new StressTestMetrics();
 
                     metrics.StartsAndStopsRuns.Add(new KeyValuePair<DateTime, DateTime>(runResult.StartedAt, runResult.StoppedAt));
 
@@ -45,10 +45,10 @@ namespace vApus.Results {
                     if (runResultMetrics.MaxResponseTime > metrics.MaxResponseTime) metrics.MaxResponseTime = runResultMetrics.MaxResponseTime;
 
                     metrics.AverageDelay = metrics.AverageDelay.Add(runResultMetrics.AverageDelay);
-                    metrics.LogEntries += runResultMetrics.LogEntries;
-                    if (baseLogEntryCount == 0) baseLogEntryCount = metrics.LogEntries;
+                    metrics.Requests += runResultMetrics.Requests;
+                    if (baseRequestCount == 0) baseRequestCount = metrics.Requests;
 
-                    totalAndExtraLogEntriesProcessed += runResultMetrics.LogEntriesProcessed;
+                    totalAndExtraRequestsProcessed += runResultMetrics.RequestsProcessed;
                     metrics.ResponsesPerSecond += runResultMetrics.ResponsesPerSecond;
                     metrics.UserActionsPerSecond += runResultMetrics.UserActionsPerSecond;
                     metrics.Errors += runResultMetrics.Errors;
@@ -56,18 +56,18 @@ namespace vApus.Results {
                     //For the percentiles.
                     if (runResult.VirtualUserResults != null)
                         foreach (var vur in runResult.VirtualUserResults)
-                            if (vur != null && vur.LogEntryResults != null)
-                                foreach (var ler in vur.LogEntryResults)
-                                    if (ler != null && ler.VirtualUser != null)
-                                        timesToLastByteInTicks.Add(ler.TimeToLastByteInTicks);
+                            if (vur != null && vur.RequestResults != null)
+                                foreach (var rer in vur.RequestResults)
+                                    if (rer != null && rer.VirtualUser != null)
+                                        timesToLastByteInTicks.Add(rer.TimeToLastByteInTicks);
                 }
                 for (int i = result.RunResults.Count; i < result.RunCount; i++)
-                    metrics.LogEntries += baseLogEntryCount;
+                    metrics.Requests += baseRequestCount;
 
-                if (metrics.LogEntries < totalAndExtraLogEntriesProcessed)
-                    metrics.LogEntries = totalAndExtraLogEntriesProcessed;
+                if (metrics.Requests < totalAndExtraRequestsProcessed)
+                    metrics.Requests = totalAndExtraRequestsProcessed;
 
-                metrics.LogEntriesProcessed = totalAndExtraLogEntriesProcessed;
+                metrics.RequestsProcessed = totalAndExtraRequestsProcessed;
 
                 metrics.ResponsesPerSecond /= result.RunResults.Count;
                 metrics.UserActionsPerSecond /= result.RunResults.Count;
@@ -104,8 +104,8 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        public static StresstestMetrics GetMetrics(RunResult result, CancellationToken cancellationToken, bool includePercentiles = true) {
-            var metrics = new StresstestMetrics();
+        public static StressTestMetrics GetMetrics(RunResult result, CancellationToken cancellationToken, bool includePercentiles = true) {
+            var metrics = new StressTestMetrics();
             metrics.StartMeasuringTime = result.StartedAt;
             metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringTime;
             metrics.Concurrency = result.VirtualUserResults.Length;
@@ -118,27 +118,27 @@ namespace vApus.Results {
             int enteredUserResultsCount = 0;
             var timesToLastByteInTicks = new List<long>();
             foreach (VirtualUserResult virtualUserResult in result.VirtualUserResults)
-                if (virtualUserResult != null && virtualUserResult.LogEntryResults != null) {
+                if (virtualUserResult != null && virtualUserResult.RequestResults != null) {
                     ++enteredUserResultsCount;
 
-                    StresstestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, cancellationToken);
-                    if (cancellationToken.IsCancellationRequested) return new StresstestMetrics();
+                    StressTestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, cancellationToken);
+                    if (cancellationToken.IsCancellationRequested) return new StressTestMetrics();
 
-                    metrics.LogEntries += virtualUserMetrics.LogEntries;
+                    metrics.Requests += virtualUserMetrics.Requests;
 
                     metrics.AverageResponseTime = metrics.AverageResponseTime.Add(virtualUserMetrics.AverageResponseTime);
                     if (virtualUserMetrics.MaxResponseTime > metrics.MaxResponseTime) metrics.MaxResponseTime = virtualUserMetrics.MaxResponseTime;
                     metrics.AverageDelay = metrics.AverageDelay.Add(virtualUserMetrics.AverageDelay);
-                    metrics.LogEntriesProcessed += virtualUserMetrics.LogEntriesProcessed;
+                    metrics.RequestsProcessed += virtualUserMetrics.RequestsProcessed;
                     metrics.ResponsesPerSecond += virtualUserMetrics.ResponsesPerSecond;
                     metrics.UserActionsPerSecond += virtualUserMetrics.UserActionsPerSecond;
                     metrics.Errors += virtualUserMetrics.Errors;
 
                     //For the percentiles.
                     if (includePercentiles)
-                        foreach (var ler in virtualUserResult.LogEntryResults)
-                            if (ler != null && ler.VirtualUser != null)
-                                timesToLastByteInTicks.Add(ler.TimeToLastByteInTicks);
+                        foreach (var rer in virtualUserResult.RequestResults)
+                            if (rer != null && rer.VirtualUser != null)
+                                timesToLastByteInTicks.Add(rer.TimeToLastByteInTicks);
                 }
 
             if (enteredUserResultsCount != 0) {
@@ -169,36 +169,36 @@ namespace vApus.Results {
             return metrics;
         }
 
-        private static StresstestMetrics GetMetrics(VirtualUserResult result, CancellationToken cancellationToken) {
-            var metrics = new StresstestMetrics();
+        private static StressTestMetrics GetMetrics(VirtualUserResult result, CancellationToken cancellationToken) {
+            var metrics = new StressTestMetrics();
 
             metrics.MaxResponseTime = new TimeSpan();
-            metrics.LogEntries = result.LogEntryResults.LongLength;
+            metrics.Requests = result.RequestResults.LongLength;
 
             var uniqueUserActions = new HashSet<string>();
             TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
-            foreach (LogEntryResult logEntryResult in result.LogEntryResults) {
-                if (cancellationToken.IsCancellationRequested) return new StresstestMetrics();
+            foreach (RequestResult requestResult in result.RequestResults) {
+                if (cancellationToken.IsCancellationRequested) return new StressTestMetrics();
 
-                if (logEntryResult != null && logEntryResult.VirtualUser != null) {
-                    ++metrics.LogEntriesProcessed;
-                    uniqueUserActions.Add(logEntryResult.UserAction);
+                if (requestResult != null && requestResult.VirtualUser != null) {
+                    ++metrics.RequestsProcessed;
+                    uniqueUserActions.Add(requestResult.UserAction);
 
-                    var ttlb = new TimeSpan(logEntryResult.TimeToLastByteInTicks);
+                    var ttlb = new TimeSpan(requestResult.TimeToLastByteInTicks);
                     totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
                     if (ttlb > metrics.MaxResponseTime) metrics.MaxResponseTime = ttlb;
 
-                    totalDelay = totalDelay.Add(new TimeSpan(logEntryResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
-                    if (!string.IsNullOrEmpty(logEntryResult.Error)) ++metrics.Errors;
+                    totalDelay = totalDelay.Add(new TimeSpan(requestResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
+                    if (!string.IsNullOrEmpty(requestResult.Error)) ++metrics.Errors;
                 }
             }
 
-            if (metrics.LogEntriesProcessed != 0) {
-                metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.LogEntriesProcessed);
-                metrics.AverageDelay = new TimeSpan(totalDelay.Ticks / metrics.LogEntriesProcessed);
+            if (metrics.RequestsProcessed != 0) {
+                metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.RequestsProcessed);
+                metrics.AverageDelay = new TimeSpan(totalDelay.Ticks / metrics.RequestsProcessed);
 
                 double div = ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
-                metrics.ResponsesPerSecond = ((double)metrics.LogEntriesProcessed) / div;
+                metrics.ResponsesPerSecond = ((double)metrics.RequestsProcessed) / div;
                 metrics.UserActionsPerSecond = ((double)uniqueUserActions.Count) / div;
             }
             return metrics;

@@ -8,7 +8,7 @@
 using System.Collections.Generic;
 using vApus.SolutionTree;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public class Client : BaseItem {
 
         #region Fields
@@ -60,7 +60,7 @@ namespace vApus.DistributedTesting {
                 int count = 0;
                 try {
                     foreach (Slave s in this)
-                        if (s.TileStresstest != null)
+                        if (s.TileStressTest != null)
                             ++count;
                 } catch {
                 }

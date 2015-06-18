@@ -13,12 +13,12 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Remove_Click", "Export_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { "Remove", "Export", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
-    [DisplayName("Connection Proxy"), Serializable]
+    [DisplayName("Connection proxy"), Serializable]
     public class ConnectionProxy : LabeledBaseItem, ISerializable {
 
         #region Properties

@@ -10,12 +10,12 @@ using System.Collections.Generic;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// Groups all connections and proxies.
     /// </summary>
     [ContextMenu(new[] { "Activate_Click", "Add_Click", "Import_Click", "SortItemsByLabel_Click", "Clear_Click", "Paste_Click" },
-        new[] { "Table View / Test All Connections", "Add Connection", "Import Connection(s)", "Sort", "Clear", "Paste" })]
+        new[] { "Table view / Test all connections", "Add connection", "Import connection(s)", "Sort", "Clear", "Paste" })]
     [Hotkeys(new[] { "Activate_Click", "Add_Click", "Paste_Click" }, new[] { Keys.Enter, Keys.Insert, (Keys.Control | Keys.V) })]
     public class Connections : BaseItem {
 

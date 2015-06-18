@@ -39,7 +39,7 @@ namespace vApus.Monitor {
 
         private int _refreshTimeInMS;
 
-        private bool _forStresstest;
+        private bool _forStressTest;
         private string _previousFilter;
         private MonitorSourceClient _previousMonitorSourceForParameters;
 
@@ -218,7 +218,7 @@ namespace vApus.Monitor {
         //    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
         //        Loggers.Log(Level.Warning, Text + ": A counter became unavailable while monitoring.", e.GetException(), new object[] { sender, e });
 
-        //        if (_forStresstest && OnHandledException != null) {
+        //        if (_forStressTest && OnHandledException != null) {
         //            var invocationList = OnHandledException.GetInvocationList();
         //            Parallel.For(0, invocationList.Length, (i) => {
         //                (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
@@ -229,11 +229,11 @@ namespace vApus.Monitor {
 
         //private void _monitorProxy_OnUnhandledException(object sender, ErrorEventArgs e) {
         //    SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-        //        bool forStresstest = _forStresstest;
+        //        bool forStressTest = _forStressTest;
         //        Stop();
         //        Loggers.Log(Level.Error, Text + ": An error has occured while monitoring, monitor stopped.", e.GetException(), new object[] { sender, e });
 
-        //        if (forStresstest && OnUnhandledException != null) {
+        //        if (forStressTest && OnUnhandledException != null) {
         //            var invocationList = OnHandledException.GetInvocationList();
         //            Parallel.For(0, invocationList.Length, (i) => {
         //                (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, e);
@@ -375,7 +375,7 @@ namespace vApus.Monitor {
                     string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
                     Loggers.Log(Level.Error, message, exception);
 
-                    if (!_forStresstest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (!_forStressTest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     btnSetDefaultWiw.Enabled = false;
                 } else {
@@ -750,7 +750,7 @@ namespace vApus.Monitor {
                      "Are you sure you want to start a new monitor?\nThis will clear the previous measured performance counters.",
                      string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) ==
                  DialogResult.Yes)) {
-                _forStresstest = false;
+                _forStressTest = false;
                 Start();
             }
         }
@@ -766,7 +766,7 @@ namespace vApus.Monitor {
                     btnSchedule.Text += GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                     btnSchedule.Tag = schedule;
                 } else {
-                    btnSchedule.Text = "Not Scheduled" + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
+                    btnSchedule.Text = "Not scheduled" + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                     btnSchedule.Tag = schedule;
                 }
 
@@ -1181,8 +1181,8 @@ namespace vApus.Monitor {
         /// <summary>
         ///     Will stop the previous one first.
         /// </summary>
-        public void InitializeForStresstest() {
-            _forStresstest = true;
+        public void InitializeForStressTest() {
+            _forStressTest = true;
 
             Stop();
 
@@ -1229,8 +1229,8 @@ namespace vApus.Monitor {
                 tmrSchedule.Stop();
                 StartMonitor();
             } else {
-                if (btnSchedule.Text.StartsWith("Not Scheduled")) {
-                    btnSchedule.Text = "Not Scheduled" + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
+                if (btnSchedule.Text.StartsWith("Not scheduled")) {
+                    btnSchedule.Text = "Not scheduled" + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                 } else {
                     TimeSpan dt = schedule.ScheduledAt - DateTime.Now;
                     if (dt.Milliseconds != 0) {
@@ -1282,7 +1282,7 @@ namespace vApus.Monitor {
 
             } catch (Exception ex) {
                 string message = "Could not connect to the monitor!";
-                if (_forStresstest)
+                if (_forStressTest)
                     if (OnUnhandledException != null) {
                         var e = new Exception(message);
                         var invocationList = OnHandledException.GetInvocationList();
@@ -1331,8 +1331,8 @@ namespace vApus.Monitor {
                 btnSetDefaultWiw.Enabled = true;
 
                 if (!toolStrip.Visible) {
-                    //Releasing it from stresstest if any
-                    _forStresstest = false;
+                    //Releasing it from stressTest if any
+                    _forStressTest = false;
 
                     toolStrip.Visible = true;
                     tc.Top = toolStrip.Bottom;

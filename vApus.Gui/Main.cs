@@ -77,7 +77,7 @@ namespace vApus.Gui {
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
-                if (Solution.ShowStresstestingSolutionExplorer() && Settings.Default.GreetWithFirstStepsView)
+                if (Solution.ShowStressTestingSolutionExplorer() && Settings.Default.GreetWithFirstStepsView)
                     _firstStepsView.Show(dockPanel);
                 OnActiveSolutionChanged(null);
 
@@ -323,7 +323,7 @@ namespace vApus.Gui {
         }
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e) {
-            //Look if there is nowhere a process busy (like stresstesting) that can leed to cancelling the closing of the form.
+            //Look if there is nowhere a process busy (like stress testing) that can leed to cancelling the closing of the form.
             foreach (Form mdiChild in Solution.RegisteredForCancelFormClosing) {
                 mdiChild.Close();
                 if (Solution.ExplicitCancelFormClosing) break;
@@ -464,12 +464,12 @@ namespace vApus.Gui {
             Settings.Default.Save();
         }
 
-        private void stresstestingSolutionExplorerToolStripMenuItem_Click(object sender, EventArgs e) {
-            Solution.ShowStresstestingSolutionExplorer();
+        private void stressTestingSolutionExplorerToolStripMenuItem_Click(object sender, EventArgs e) {
+            Solution.ShowStressTestingSolutionExplorer();
         }
         #endregion
 
-        #region Monitors and Stresstests
+        #region Monitors and stress tests
         private void monitorToolStripMenuItem_DropDownOpening(object sender, EventArgs e) {
             monitorToolStripMenuItem.DropDownItems.Clear();
             if (Solution.ActiveSolution != null)
@@ -482,27 +482,27 @@ namespace vApus.Gui {
                 }
         }
 
-        private void stresstestToolStripMenuItem_DropDownOpened(object sender, EventArgs e) {
+        private void stressTestToolStripMenuItem_DropDownOpened(object sender, EventArgs e) {
             distributedToolStripMenuItem.DropDownItems.Clear();
             singleTestToolStripMenuItem.DropDownItems.Clear();
             if (Solution.ActiveSolution != null) {
-                BaseProject distributedTestingProject = Solution.ActiveSolution.GetProject("DistributedTestingProject");
-                distributedToolStripMenuItem.Tag = distributedTestingProject;
+                BaseProject distributedTestProject = Solution.ActiveSolution.GetProject("DistributedTestProject");
+                distributedToolStripMenuItem.Tag = distributedTestProject;
                 SetToolStripMenuItemImage(distributedToolStripMenuItem);
-                foreach (BaseItem distributedTest in distributedTestingProject) {
+                foreach (BaseItem distributedTest in distributedTestProject) {
                     var item = new ToolStripMenuItem(distributedTest.ToString());
                     item.Tag = distributedTest;
                     SetToolStripMenuItemImage(item);
                     item.Click += item_Click;
                     distributedToolStripMenuItem.DropDownItems.Add(item);
                 }
-                BaseProject stresstestProject = Solution.ActiveSolution.GetProject("StresstestProject");
-                singleTestToolStripMenuItem.Tag = stresstestProject;
+                BaseProject stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject");
+                singleTestToolStripMenuItem.Tag = stressTestProject;
                 SetToolStripMenuItemImage(singleTestToolStripMenuItem);
-                foreach (BaseItem stresstest in stresstestProject)
-                    if (stresstest.Name == "Stresstest") {
-                        var item = new ToolStripMenuItem(stresstest.ToString());
-                        item.Tag = stresstest;
+                foreach (BaseItem stressTestCandidate in stressTestProject)
+                    if (stressTestCandidate.GetType().Name.ToLower() == "stresstest") {
+                        var item = new ToolStripMenuItem(stressTestCandidate.ToString());
+                        item.Tag = stressTestCandidate;
                         SetToolStripMenuItemImage(item);
                         item.Click += item_Click;
                         singleTestToolStripMenuItem.DropDownItems.Add(item);
@@ -596,16 +596,6 @@ namespace vApus.Gui {
             _updateNotifierPanel.CurrentSolutionFileName = Solution.ActiveSolution == null ? string.Empty : Solution.ActiveSolution.FileName;
         }
 
-        private void SetProcessorAffinityLabel() {
-            int[] cpus = ProcessorAffinityHelper.FromBitmaskToArray(Process.GetCurrentProcess().ProcessorAffinity);
-            //Make it one-based
-            var oneBasedCPUs = new int[cpus.Length];
-            for (int i = 0; i != cpus.Length; i++)
-                oneBasedCPUs[i] = cpus[i] + 1;
-
-            lblProcessorAffinity.Text = oneBasedCPUs.Combine(", ");
-        }
-
         private void SetWarningLabel() {
             WindowsFirewallAutoUpdatePanel.Status status = _disableFirewallAutoUpdatePanel.CheckStatus();
             switch (status) {
@@ -621,7 +611,7 @@ namespace vApus.Gui {
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
                 case WindowsFirewallAutoUpdatePanel.Status.AllEnabled:
-                    lblWarning.Text = "Windows firewall and auto Update enabled!";
+                    lblWarning.Text = "Windows firewall and auto update enabled!";
                     lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = lblWarning.Visible = true;
                     break;
             }

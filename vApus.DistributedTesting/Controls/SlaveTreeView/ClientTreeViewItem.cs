@@ -11,12 +11,13 @@ using System;
 using System.ComponentModel;
 using System.Drawing;
 using System.Net;
+using System.Threading;
 using System.Windows.Forms;
-using vApus.DistributedTesting.Properties;
+using vApus.DistributedTest.Properties;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     [ToolboxItem(false)]
     public partial class ClientTreeViewItem : UserControl, ITreeViewItem {
 
@@ -44,7 +45,6 @@ namespace vApus.DistributedTesting {
         private readonly BackgroundWorkQueue _backgroundWorkQueue = new BackgroundWorkQueue();
 
         private readonly Client _client = new Client();
-        private readonly DistributedTest _distributedTest;
         private ConfigureSlaves _configureSlaves;
 
         /// <summary>
@@ -81,9 +81,8 @@ namespace vApus.DistributedTesting {
             _backgroundWorkQueue.OnWorkItemProcessed += _activeObject_OnResult;
         }
 
-        public ClientTreeViewItem(DistributedTest distributedTest, Client client)
+        public ClientTreeViewItem(Client client)
             : this() {
-            _distributedTest = distributedTest;
             _client = client;
             RefreshGui();
 
@@ -222,11 +221,11 @@ namespace vApus.DistributedTesting {
                 if (online) {
                     _online = true;
                     picStatus.Image = Resources.OK;
-                    toolTip.SetToolTip(picStatus, "Client Online <f5>");
+                    toolTip.SetToolTip(picStatus, "Client online <f5>.");
                 } else {
                     _online = false;
                     picStatus.Image = Resources.Cancelled;
-                    toolTip.SetToolTip(picStatus, "Client Offline <f5>");
+                    toolTip.SetToolTip(picStatus, "Client offline <f5>.");
                 }
             } else {
                 picStatus.Image = Resources.Busy;
@@ -255,9 +254,9 @@ namespace vApus.DistributedTesting {
         }
 
         private void picRemoteDesktop_Click(object sender, EventArgs e) {
-            var rdc = SolutionComponentViewManager.Show(_distributedTest, typeof(RemoteDesktopClient)) as RemoteDesktopClient;
-            rdc.Text = "Remote Desktop Client";
-            rdc.ShowRemoteDesktop(_client.HostName, _client.IP, _client.UserName, _client.Password, _client.Domain);
+            RemoteDesktop.Show(_client.IP, _client.UserName, _client.Password, _client.Domain);
+            Thread.Sleep(1000);
+            RemoteDesktop.RemoveCredentials(_client.IP);
         }
 
         #endregion

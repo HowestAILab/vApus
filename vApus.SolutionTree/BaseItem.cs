@@ -1,11 +1,12 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections;
@@ -230,7 +231,7 @@ namespace vApus.SolutionTree {
                         } catch (Exception ex) {
                             string s = "[" + this + "] " + childNode.Name;
                             Loggers.Log(Level.Warning, "Failed loading " + s +
-                                " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stresstesting works."
+                                " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stress testing works."
                                , ex, new object[] { node });
                             sb.Append(s);
                             sb.Append(";");
@@ -322,7 +323,7 @@ namespace vApus.SolutionTree {
                             } catch (Exception ex) {
                                 string s = "[" + this + "] " + childNode.Name;
                                 Loggers.Log(Level.Warning, "Failed loading " + s +
-                                    " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stresstesting works."
+                                    " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stress testing works."
                                     , ex, new object[] { node });
 
                                 sb.Append(s);

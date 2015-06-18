@@ -34,8 +34,8 @@
             this.dgvDatabases = new System.Windows.Forms.DataGridView();
             this.llblRefresh = new System.Windows.Forms.LinkLabel();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.pnlBorderStresstest = new System.Windows.Forms.Panel();
-            this.cboStresstest = new System.Windows.Forms.ComboBox();
+            this.pnlBorderStressTest = new System.Windows.Forms.Panel();
+            this.cboStressTest = new System.Windows.Forms.ComboBox();
             this.label1 = new System.Windows.Forms.Label();
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.btnDeleteSelectedDbs = new System.Windows.Forms.Button();
@@ -45,7 +45,7 @@
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDatabases)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDatabases)).BeginInit();
-            this.pnlBorderStresstest.SuspendLayout();
+            this.pnlBorderStressTest.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer1)).BeginInit();
             this.splitContainer1.Panel1.SuspendLayout();
@@ -150,32 +150,32 @@
             this.llblRefresh.Text = "Refresh";
             this.llblRefresh.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblRefresh_LinkClicked);
             // 
-            // pnlBorderStresstest
+            // pnlBorderStressTest
             // 
-            this.pnlBorderStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.pnlBorderStressTest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlBorderStresstest.BackColor = System.Drawing.Color.Silver;
-            this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
-            this.pnlBorderStresstest.Location = new System.Drawing.Point(172, 290);
-            this.pnlBorderStresstest.Name = "pnlBorderStresstest";
-            this.pnlBorderStresstest.Size = new System.Drawing.Size(353, 23);
-            this.pnlBorderStresstest.TabIndex = 20;
+            this.pnlBorderStressTest.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderStressTest.Controls.Add(this.cboStressTest);
+            this.pnlBorderStressTest.Location = new System.Drawing.Point(172, 290);
+            this.pnlBorderStressTest.Name = "pnlBorderStressTest";
+            this.pnlBorderStressTest.Size = new System.Drawing.Size(353, 23);
+            this.pnlBorderStressTest.TabIndex = 20;
             // 
-            // cboStresstest
+            // cboStressTest
             // 
-            this.cboStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            this.cboStressTest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboStresstest.BackColor = System.Drawing.Color.White;
-            this.cboStresstest.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboStresstest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboStresstest.FormattingEnabled = true;
-            this.cboStresstest.Location = new System.Drawing.Point(1, 1);
-            this.cboStresstest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.cboStresstest.Name = "cboStresstest";
-            this.cboStresstest.Size = new System.Drawing.Size(351, 21);
-            this.cboStresstest.TabIndex = 0;
-            this.cboStresstest.SelectedIndexChanged += new System.EventHandler(this.cboStresstest_SelectedIndexChanged);
+            this.cboStressTest.BackColor = System.Drawing.Color.White;
+            this.cboStressTest.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboStressTest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboStressTest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboStressTest.FormattingEnabled = true;
+            this.cboStressTest.Location = new System.Drawing.Point(1, 1);
+            this.cboStressTest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboStressTest.Name = "cboStressTest";
+            this.cboStressTest.Size = new System.Drawing.Size(351, 21);
+            this.cboStressTest.TabIndex = 0;
+            this.cboStressTest.SelectedIndexChanged += new System.EventHandler(this.cboStressTest_SelectedIndexChanged);
             // 
             // label1
             // 
@@ -184,9 +184,9 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(33, 293);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(117, 16);
+            this.label1.Size = new System.Drawing.Size(121, 16);
             this.label1.TabIndex = 14;
-            this.label1.Text = "Select a stresstest";
+            this.label1.Text = "Select a stress test";
             // 
             // pictureBox2
             // 
@@ -239,7 +239,7 @@
             this.splitContainer1.Panel2.BackColor = System.Drawing.Color.White;
             this.splitContainer1.Panel2.Controls.Add(this.btnOverviewExportToExcel);
             this.splitContainer1.Panel2.Controls.Add(this.picDatabases);
-            this.splitContainer1.Panel2.Controls.Add(this.pnlBorderStresstest);
+            this.splitContainer1.Panel2.Controls.Add(this.pnlBorderStressTest);
             this.splitContainer1.Panel2.Controls.Add(this.btnDeleteSelectedDbs);
             this.splitContainer1.Panel2.Controls.Add(this.lblResults);
             this.splitContainer1.Panel2.Controls.Add(this.pictureBox2);
@@ -278,11 +278,11 @@
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "SettingsPanel";
-            this.Text = "Select a Results Database";
+            this.Text = "Select a results database";
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.picDatabases)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.dgvDatabases)).EndInit();
-            this.pnlBorderStresstest.ResumeLayout(false);
+            this.pnlBorderStressTest.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
             this.splitContainer1.Panel1.ResumeLayout(false);
             this.splitContainer1.Panel1.PerformLayout();
@@ -303,8 +303,8 @@
         private System.Windows.Forms.DataGridView dgvDatabases;
         private System.Windows.Forms.LinkLabel llblRefresh;
         private System.Windows.Forms.ToolTip toolTip;
-        private System.Windows.Forms.Panel pnlBorderStresstest;
-        private System.Windows.Forms.ComboBox cboStresstest;
+        private System.Windows.Forms.Panel pnlBorderStressTest;
+        private System.Windows.Forms.ComboBox cboStressTest;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Button btnDeleteSelectedDbs;

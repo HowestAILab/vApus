@@ -28,12 +28,12 @@ namespace vApus.Results {
 
             CreatevApusInstancesTable(databaseActions);
 
-            CreateStresstestsTable(databaseActions);
+            CreateStressTestsTable(databaseActions);
             CreateLogsTable(databaseActions);
-            CreateStresstestResultsTable(databaseActions);
+            CreateStressTestResultsTable(databaseActions);
             CreateConcurrencyResultsTable(databaseActions);
             CreateRunResultsTable(databaseActions);
-            CreateLogEntryResultsTable(databaseActions);
+            CreateRequestResultsTable(databaseActions);
 
             CreateMonitorsTable(databaseActions);
             CreateMonitorResultsTable(databaseActions);
@@ -78,50 +78,50 @@ FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), Timestamp datetime(6
                     );
         }
 
-        private static void CreateStresstestsTable(DatabaseActions databaseActions) {
+        private static void CreateStressTestsTable(DatabaseActions databaseActions) {
             if (!TableExists("stresstests", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table stresstests(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), vApusInstanceId int NOT NULL, 
-FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), Stresstest varchar(255) NOT NULL, RunSynchronization varchar(20) NOT NULL, Connection varchar(255) NOT NULL,
-ConnectionProxy varchar(255) NOT NULL, ConnectionString longtext NOT NULL, Logs longtext NOT NULL, LogRuleSet varchar(255) NOT NULL, Concurrencies longtext NOT NULL,
+FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), StressTest varchar(255) NOT NULL, RunSynchronization varchar(20) NOT NULL, Connection varchar(255) NOT NULL,
+ConnectionProxy varchar(255) NOT NULL, ConnectionString longtext NOT NULL, Scenarios longtext NOT NULL, ScenarioRuleSet varchar(255) NOT NULL, Concurrencies longtext NOT NULL,
 Runs int NOT NULL, MinimumDelayInMilliseconds int NOT NULL, MaximumDelayInMilliseconds int NOT NULL, Shuffle bool NOT NULL, ActionDistribution bool NOT NULL, MaximumNumberOfUserActions int NOT NULL,
 MonitorBeforeInMinutes int NOT NULL, MonitorAfterInMinutes int NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 
-        private static void CreateStresstestResultsTable(DatabaseActions databaseActions) {
+        private static void CreateStressTestResultsTable(DatabaseActions databaseActions) {
             if (!TableExists("stresstestresults", databaseActions))
                 databaseActions.ExecuteSQL(
-                    @"Create Table stresstestresults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), StresstestId int NOT NULL,
-FOREIGN KEY(StresstestId) REFERENCES stresstests(Id), StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL, Status varchar(9) NOT NULL, StatusMessage longtext NOT NULL) ROW_FORMAT=COMPRESSED");
+                    @"Create Table stresstestresults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), StressTestId int NOT NULL,
+FOREIGN KEY(StressTestId) REFERENCES stresstests(Id), StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL, Status varchar(9) NOT NULL, StatusMessage longtext NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 
         private static void CreateConcurrencyResultsTable(DatabaseActions databaseActions) {
             if (!TableExists("concurrencyresults", databaseActions))
                 databaseActions.ExecuteSQL(
-                    @"Create Table concurrencyresults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (Id), StresstestResultId int NOT NULL,
-FOREIGN KEY(StresstestResultID) REFERENCES stresstestresults(Id), Concurrency int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL) ROW_FORMAT=COMPRESSED");
+                    @"Create Table concurrencyresults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY (Id), StressTestResultId int NOT NULL,
+FOREIGN KEY(StressTestResultID) REFERENCES stresstestresults(Id), Concurrency int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 
         private static void CreateRunResultsTable(DatabaseActions databaseActions) {
             if (!TableExists("runresults", databaseActions))
                 databaseActions.ExecuteSQL(
                     @"Create Table runresults(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), ConcurrencyResultId int NOT NULL,
-FOREIGN KEY(ConcurrencyResultId) REFERENCES concurrencyresults(Id), Run int NOT NULL, TotalLogEntryCount bigint UNSIGNED NOT NULL, RerunCount int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL) ROW_FORMAT=COMPRESSED");
+FOREIGN KEY(ConcurrencyResultId) REFERENCES concurrencyresults(Id), Run int NOT NULL, TotalRequestCount bigint UNSIGNED NOT NULL, RerunCount int NOT NULL, StartedAt datetime(6) NOT NULL, StoppedAt datetime(6) NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 
-        private static void CreateLogEntryResultsTable(DatabaseActions databaseActions) {
-            if (!TableExists("logentryresults", databaseActions))
+        private static void CreateRequestResultsTable(DatabaseActions databaseActions) {
+            if (!TableExists("requestresults", databaseActions))
                 databaseActions.ExecuteSQL(
-                    @"Create Table logentryresults(Id serial, PRIMARY KEY(Id), RunResultId int NOT NULL, 
-FOREIGN KEY(RunResultId) REFERENCES runresults(Id),VirtualUser varchar(255) NOT NULL, UserAction longtext NOT NULL, LogEntryIndex varchar(255) NOT NULL, SameAsLogEntryIndex varchar(255) NOT NULL, LogEntry longtext NOT NULL,
+                    @"Create Table requestresults(Id serial, PRIMARY KEY(Id), RunResultId int NOT NULL, 
+FOREIGN KEY(RunResultId) REFERENCES runresults(Id),VirtualUser varchar(255) NOT NULL, UserAction longtext NOT NULL, RequestIndex varchar(255) NOT NULL, SameAsRequestIndex varchar(255) NOT NULL, Request longtext NOT NULL,
 SentAt datetime(6) NOT NULL, TimeToLastByteInTicks bigint NOT NULL, DelayInMilliseconds int NOT NULL, Error longtext NOT NULL, Rerun int NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 
         private static void CreateMonitorsTable(DatabaseActions databaseActions) {
             if (!TableExists("monitors", databaseActions))
                 databaseActions.ExecuteSQL(
-                    @"Create Table monitors (Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), StresstestId int NOT NULL,
-FOREIGN KEY(StresstestId) REFERENCES stresstests(Id),Monitor varchar(255) NOT NULL, MonitorSource varchar(255) NOT NULL, ConnectionString longtext NOT NULL, MachineConfiguration longtext NOT NULL, 
+                    @"Create Table monitors (Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), StressTestId int NOT NULL,
+FOREIGN KEY(StressTestId) REFERENCES stresstests(Id),Monitor varchar(255) NOT NULL, MonitorSource varchar(255) NOT NULL, ConnectionString longtext NOT NULL, MachineConfiguration longtext NOT NULL, 
 ResultHeaders longtext NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 

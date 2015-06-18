@@ -97,7 +97,7 @@ namespace vApus.Util {
                 string readme = Path.Combine(_tempFilesDirectory, "README.TXT");
                 if (!File.Exists(readme))
                     using (var sw = new StreamWriter(readme)) {
-                        sw.Write("These files are compiled connection proxies used for stresstesting, this folder can be removed safely.");
+                        sw.Write("These files are compiled connection proxies used for stress testing, this folder can be removed safely.");
                         sw.Flush();
                     }
                 compilerParameters.GenerateInMemory = false;

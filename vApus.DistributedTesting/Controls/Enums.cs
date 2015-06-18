@@ -6,7 +6,7 @@
  *    Dieter Vandroemme
  */
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     public enum DistributedTestMode {
         Edit = 0,
         Test

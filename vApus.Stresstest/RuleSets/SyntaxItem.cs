@@ -13,8 +13,8 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
-    [DisplayName("Syntax Item"), Serializable]
+namespace vApus.StressTest {
+    [DisplayName("Syntax item"), Serializable]
     public class SyntaxItem : LabeledBaseItem {
 
         #region Fields
@@ -46,13 +46,13 @@ namespace vApus.Stresstest {
             }
         }
         [SavableCloneable, PropertyControl(3)]
-        [Description("If this is an optional syntax item without a value and this has no child items the given value will be added at this position before a stresstest starts."), DisplayName("Default Value")]
+        [Description("If this is an optional syntax item without a value and this has no child items the given value will be added at this position before a stress test starts."), DisplayName("Default value")]
         public string DefaultValue {
             get { return _defaultValue; }
             set { _defaultValue = value.Trim(); }
         }
         [SavableCloneable, PropertyControl(4)]
-        [Description("If the length of the delimiter is zero, the given string in this item will not be splitted into parts (space = valid). Caution, playing with this can malform the log entries."), DisplayName("Child Delimiter")]
+        [Description("If the length of the delimiter is zero, the given string in this item will not be splitted into parts (space = valid). Caution, playing with this can malform the requests."), DisplayName("Child delimiter")]
         public virtual string ChildDelimiter {
             get { return _childDelimiter; }
             set { _childDelimiter = value; }
@@ -128,7 +128,7 @@ namespace vApus.Stresstest {
         }
 
         internal LexicalResult TryLexicalAnaysis(string input, out ASTNode output) {
-            output = new ASTNode(this, _childDelimiter);
+            output = new ASTNode(_childDelimiter);
             if (_childDelimiter.Length == 0) {
                 if (Count == 0) {
                     if (input.Length == 0)

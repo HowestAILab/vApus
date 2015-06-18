@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
 
-[assembly: AssemblyTitle("vApus.Stresstest")]
+[assembly: AssemblyTitle("vApus.StressTest")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("Sizing Servers Lab")]
-[assembly: AssemblyProduct("vApus.Stresstest")]
+[assembly: AssemblyProduct("vApus.StressTest")]
 [assembly: AssemblyCopyright("Copyright © Sizing Servers Lab 2009")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

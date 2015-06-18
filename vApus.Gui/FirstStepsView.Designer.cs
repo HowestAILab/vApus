@@ -63,7 +63,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(630, 36);
             this.label1.TabIndex = 1;
-            this.label1.Text = "Virtualized Application Unique Stress testing";
+            this.label1.Text = "Virtualized Application Unique Stress Testing";
             // 
             // panel1
             // 

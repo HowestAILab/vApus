@@ -57,7 +57,7 @@ namespace vApus.Results {
                 foreach (TreeNode node in tvw.Nodes)
                     RefreshTreeNode(node);
 
-                if (_autoExportFolder.Length != 0 && cboStresstest.SelectedIndex == 0) {
+                if (_autoExportFolder.Length != 0 && cboStressTest.SelectedIndex == 0) {
                     foreach (TreeNode node in tvw.Nodes)
                         node.Checked = true;
 
@@ -159,29 +159,29 @@ namespace vApus.Results {
 
             _resultsHelper = resultsHelper;
 
-            var stresstests = _resultsHelper.GetStresstests();
-            if (stresstests != null && stresstests.Rows.Count == 0) {
+            var stressTests = _resultsHelper.GetStressTests();
+            if (stressTests != null && stressTests.Rows.Count == 0) {
                 this.Enabled = false;
             } else {
-                if (stresstests.Rows.Count > 1)
-                    cboStresstest.Items.Add("<All>");
-                foreach (DataRow stresstestRow in stresstests.Rows)
-                    cboStresstest.Items.Add((string)stresstestRow.ItemArray[1] + " " + stresstestRow.ItemArray[2]);
+                if (stressTests.Rows.Count > 1)
+                    cboStressTest.Items.Add("<All>");
+                foreach (DataRow stressTestRow in stressTests.Rows)
+                    cboStressTest.Items.Add((string)stressTestRow.ItemArray[1] + " " + stressTestRow.ItemArray[2]);
 
-                cboStresstest.SelectedIndex = 0;
+                cboStressTest.SelectedIndex = 0;
             }
         }
 
-        private void cboStresstest_SelectedIndexChanged(object sender, EventArgs e) {
+        private void cboStressTest_SelectedIndexChanged(object sender, EventArgs e) {
             tvw.Nodes.Clear();
 
-            var stresstestIds = new int[1];
-            if (cboStresstest.Items.Count == 1)
-                stresstestIds[0] = cboStresstest.SelectedIndex + 1;
+            var stressTestIds = new int[1];
+            if (cboStressTest.Items.Count == 1)
+                stressTestIds[0] = cboStressTest.SelectedIndex + 1;
             else
-                stresstestIds[0] = cboStresstest.SelectedIndex == 0 ? -1 : cboStresstest.SelectedIndex;
+                stressTestIds[0] = cboStressTest.SelectedIndex == 0 ? -1 : cboStressTest.SelectedIndex;
 
-            tvw.Nodes.AddRange(RichExportToExcel.GetTreeNodes(tvw.Font, _resultsHelper, stresstestIds));
+            tvw.Nodes.AddRange(RichExportToExcel.GetTreeNodes(tvw.Font, _resultsHelper, stressTestIds));
 
             if (tvw.Visible)
                 foreach (TreeNode node in tvw.Nodes)
@@ -238,7 +238,7 @@ namespace vApus.Results {
 
         private void tvw_AfterCheck(object sender, TreeViewEventArgs e) {
             tvw.AfterCheck -= tvw_AfterCheck;
-            RichExportToExcel.HandleTreeNodeChecked(tvw, e.Node);
+            RichExportToExcel.HandleTreeNodeChecked(e.Node);
 
             ExtractToExport();
 
@@ -263,7 +263,7 @@ namespace vApus.Results {
         async private void Export(string autoExportFolder = "") {
             saveFileDialog.FileName = Path.Combine(autoExportFolder, _resultsHelper.DatabaseName.ReplaceInvalidWindowsFilenameChars('_'));
             if (autoExportFolder.Length != 0 || saveFileDialog.ShowDialog() == DialogResult.OK) {
-                btnExportToExcel.Enabled = btnOverviewExport.Enabled = cboStresstest.Enabled = tvw.Enabled = false;
+                btnExportToExcel.Enabled = btnOverviewExport.Enabled = cboStressTest.Enabled = tvw.Enabled = false;
                 btnExportToExcel.Text = "Exporting...";
 
                 string zipPath = saveFileDialog.FileName;
@@ -276,11 +276,11 @@ namespace vApus.Results {
                         Loggers.Log(Level.Warning, "Failed deleting zipped Excel results.", ex, new object[] { zipPath });
                     }
 
-                var stresstestIds = new int[1];
-                if (cboStresstest.Items.Count == 1)
-                    stresstestIds[0] = cboStresstest.SelectedIndex + 1;
+                var stressTestIds = new int[1];
+                if (cboStressTest.Items.Count == 1)
+                    stressTestIds[0] = cboStressTest.SelectedIndex + 1;
                 else
-                    stresstestIds[0] = cboStresstest.SelectedIndex == 0 ? -1 : cboStresstest.SelectedIndex;
+                    stressTestIds[0] = cboStressTest.SelectedIndex == 0 ? -1 : cboStressTest.SelectedIndex;
 
                 ExtractToExport();
 
@@ -290,7 +290,7 @@ namespace vApus.Results {
                     try {
                         Thread.CurrentThread.CurrentCulture = cultureInfo;
 
-                        RichExportToExcel.Do(zipPath, stresstestIds, _resultsHelper, _toExport, _cancellationTokenSource.Token);
+                        RichExportToExcel.Do(zipPath, stressTestIds, _resultsHelper, _toExport, _cancellationTokenSource.Token);
                     } catch (Exception ex) {
                         exceptionThrown = true;
                         Loggers.Log(Level.Error, "Failed to export results to Excel.", ex);
@@ -299,7 +299,7 @@ namespace vApus.Results {
                 }, _cancellationTokenSource.Token);
 
                 btnExportToExcel.Text = "Export to Excel...";
-                btnExportToExcel.Enabled = btnOverviewExport.Enabled = cboStresstest.Enabled = tvw.Enabled = true;
+                btnExportToExcel.Enabled = btnOverviewExport.Enabled = cboStressTest.Enabled = tvw.Enabled = true;
 
                 GC.WaitForPendingFinalizers();
                 GC.Collect();
@@ -315,10 +315,10 @@ namespace vApus.Results {
                 //if (specialized) {
                 //    var doc = new SLDocument();
 
-                //    //int[] stresstestIds = new int[stresstests.Count];
-                //    stresstests.Keys.CopyTo(stresstestIds, 0);
+                //    //int[] stressTestIds = new int[stressTests.Count];
+                //    stressTests.Keys.CopyTo(stressTestIds, 0);
                 //    Dictionary<string, List<string>> concurrencyAndRuns;
-                //    DataTable runsOverTimeDt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out concurrencyAndRuns, stresstestIds); //This one is special, it is for multiple tests by default.
+                //    DataTable runsOverTimeDt = _resultsHelper.GetRunsOverTime(_cancellationTokenSource.Token, out concurrencyAndRuns, stressTestIds); //This one is special, it is for multiple tests by default.
 
                 //    string firstWorksheet = MakeRunsOverTimeSheet(doc, runsOverTimeDt, concurrencyAndRuns);
 
@@ -411,7 +411,7 @@ namespace vApus.Results {
         //    chart.PrimaryValueAxis.ShowTitle = true;
 
         //    chart.PrimaryTextAxis.InReverseOrder = true;
-        //    chart.PrimaryTextAxis.Title.SetTitle("Stresstests");
+        //    chart.PrimaryTextAxis.Title.SetTitle("StressTests");
         //    chart.PrimaryTextAxis.ShowTitle = true;
 
         //    var runTimeOptions = new SLDataSeriesOptions();

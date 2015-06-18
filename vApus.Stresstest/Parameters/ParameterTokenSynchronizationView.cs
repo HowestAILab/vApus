@@ -11,7 +11,7 @@ using System.Drawing;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     ///     For debugging purposes only.
     ///     Visualizes the old and new indices of parameters if a parameter is added or removed.

@@ -10,18 +10,18 @@ using System.Collections.Generic;
 using System.Threading;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
-    /// Generates test patterns with delays for the different simulated users in StresstestCore. Delays and the way a test pattern is build is determined in Stresstest (Min- max delay, shuffle, UserActionDistribution).
+    /// Generates test patterns with delays for the different simulated users in StressTestCore. Delays and the way a test pattern is build is determined in stress test (Min- max delay, shuffle, ActionDistribution).
     /// </summary>
     internal class TestPatternsAndDelaysGenerator { //: IDisposable {
 
         #region Fields
-        private readonly LogEntry[] _logEntries;
+        private readonly Request[] _requests;
         private readonly int _maxActionCount, _maximumDelay, _minimumDelay;
         private readonly bool _shuffleUserActions;
 
-        //Representation of the user actions (List<int>) containing log entry indices.
+        //Representation of the user actions (List<int>) containing request indices.
         private List<List<int>> _actions;
 
         //For shuffle, multiple generators are used in a test, therefore this is static.
@@ -30,21 +30,21 @@ namespace vApus.Stresstest {
         #endregion
 
         #region Properties
-        public int PatternLength { get { return _logEntries.Length; } }
+        public int PatternLength { get { return _requests.Length; } }
         #endregion
 
         #region Con-/Destructor
         /// <summary>
-        /// Generates test patterns with delays for the different simulated users in StresstestCore. Delays and the way a test pattern is build is determined in Stresstest (Min- max delay, UserActionDistribution).
+        /// Generates test patterns with delays for the different simulated users in StressTestCore. Delays and the way a test pattern is build is determined in stress test (Min- max delay, UserActionDistribution).
         /// </summary>
-        /// <param name="logEntries">Predetermined in StresstestCore for difficulty reasons (depends on UserActionDistribution).</param>
-        /// <param name="maxActionCount">Pinned actions are always chosen, non pinned are if this value allows it. This value depends on UserActionDistribution but is determined in StresstestCore for difficulty reasons.</param>
+        /// <param name="requests">Predetermined in StressTestCore for difficulty reasons (depends on UserActionDistribution).</param>
+        /// <param name="maxActionCount">Pinned actions are always chosen, non pinned are if this value allows it. This value depends on UserActionDistribution but is determined in StressTestCore for difficulty reasons.</param>
         /// <param name="shuffleUserActions"></param>
         /// <param name="userActionDistribution"></param>
         /// <param name="minimumDelay"></param>
         /// <param name="maximumDelay"></param>
-        public TestPatternsAndDelaysGenerator(LogEntry[] logEntries, int maxActionCount, bool shuffleUserActions, int minimumDelay, int maximumDelay) {
-            _logEntries = logEntries;
+        public TestPatternsAndDelaysGenerator(Request[] requests, int maxActionCount, bool shuffleUserActions, int minimumDelay, int maximumDelay) {
+            _requests = requests;
             _maxActionCount = maxActionCount;
             _shuffleUserActions = shuffleUserActions;
             _minimumDelay = minimumDelay;
@@ -58,18 +58,18 @@ namespace vApus.Stresstest {
         #region Functions
         private void Init() {
             UserAction currentParent = null;
-            var unlinkedActions = new List<List<int>>(_logEntries.Length);
+            var unlinkedActions = new List<List<int>>(_requests.Length);
             List<int> action = null;
 
             var linkedUserActions = new Dictionary<int, List<int>>();
 
-            for (int i = 0; i != _logEntries.Length; i++) {
-                LogEntry logEntry = _logEntries[i];
-                if (currentParent != logEntry.Parent) {
+            for (int i = 0; i != _requests.Length; i++) {
+                Request request = _requests[i];
+                if (currentParent != request.Parent) {
                     //Set the use delay if the currentparent != null
                     SetUseDelay(currentParent);
 
-                    currentParent = logEntry.Parent as UserAction;
+                    currentParent = request.Parent as UserAction;
                     //Linked user actions will be merged to 1 afterwards. We want to set delays first.
                     if (currentParent.LinkedToUserActionIndices.Count != 0) {
                         var l = new List<int>();
@@ -79,7 +79,7 @@ namespace vApus.Stresstest {
                     }
                     action = new List<int>();
 
-                    //To pin log entries and user actions in place --> to not shuffle them.
+                    //To pin requests and user actions in place --> to not shuffle them.
                     action.SetTag(currentParent.Pinned);
 
                     unlinkedActions.Add(action);
@@ -114,13 +114,13 @@ namespace vApus.Stresstest {
         }
         private void SetUseDelay(UserAction userAction) {
             if (userAction != null) {
-                LogEntry lastLogEntry = null;
-                foreach (LogEntry logEntry in userAction) {
-                    logEntry.UseDelay = false;
-                    lastLogEntry = logEntry;
+                Request lastRequest = null;
+                foreach (Request request in userAction) {
+                    request.UseDelay = false;
+                    lastRequest = request;
                 }
-                if (userAction.UseDelay && lastLogEntry != null)
-                    lastLogEntry.UseDelay = true;
+                if (userAction.UseDelay && lastRequest != null)
+                    lastRequest.UseDelay = true;
             }
         }
 
@@ -157,7 +157,7 @@ namespace vApus.Stresstest {
                 if ((bool)action.GetTag() || notPinnedToChoose-- > 0) {
                     foreach (int j in action) {
                         tp.Add(j);
-                        dp.Add(_logEntries[j].UseDelay ? random.Next(_minimumDelay, _maximumDelay + 1) : 0);
+                        dp.Add(_requests[j].UseDelay ? random.Next(_minimumDelay, _maximumDelay + 1) : 0);
                     }
                 }
 

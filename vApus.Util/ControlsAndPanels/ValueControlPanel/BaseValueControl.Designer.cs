@@ -32,7 +32,6 @@
             this.lblLabel = new System.Windows.Forms.Label();
             this.split = new System.Windows.Forms.SplitContainer();
             this.rtxtDescription = new System.Windows.Forms.RichTextBox();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel2.SuspendLayout();
             this.split.SuspendLayout();
@@ -112,7 +111,6 @@
         private System.Windows.Forms.Label lblLabel;
         protected System.Windows.Forms.SplitContainer split;
         private System.Windows.Forms.RichTextBox rtxtDescription;
-        private System.Windows.Forms.ToolTip toolTip;
 
     }
 }

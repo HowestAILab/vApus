@@ -15,7 +15,7 @@ using System.Text;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class ReferencesPanel : UserControl {
 
         #region Fields

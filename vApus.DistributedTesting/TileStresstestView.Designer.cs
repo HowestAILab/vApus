@@ -1,6 +1,6 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
-    partial class TileStresstestView
+    partial class TileStressTestView
     {
         /// <summary>
         /// Required designer variable.
@@ -29,13 +29,13 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TileStresstestView));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(TileStressTestView));
             this.lblCurrentConcurrent = new System.Windows.Forms.Label();
             this.btnStop = new System.Windows.Forms.ToolStripButton();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.tmrProgress = new System.Timers.Timer();
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
-            this.fastResultsControl = new vApus.Stresstest.FastResultsControl();
+            this.fastResultsControl = new vApus.StressTest.FastResultsControl();
             this.toolStrip.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tmrProgress)).BeginInit();
             this.SuspendLayout();
@@ -94,7 +94,7 @@
             this.fastResultsControl.Size = new System.Drawing.Size(843, 592);
             this.fastResultsControl.TabIndex = 2;
             // 
-            // TileStresstestView
+            // TileStressTestView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -102,10 +102,10 @@
             this.Controls.Add(this.fastResultsControl);
             this.Controls.Add(this.toolStrip);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.Name = "TileStresstestView";
+            this.Name = "TileStressTestView";
             this.Padding = new System.Windows.Forms.Padding(0, 0, 0, 3);
-            this.Text = "StresstestView";
-            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TileStresstestView_FormClosing);
+            this.Text = "TileStressTestView";
+            this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.TileStressTestView_FormClosing);
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.tmrProgress)).EndInit();
@@ -121,7 +121,7 @@
         private System.Windows.Forms.ToolStrip toolStrip;
         private System.Timers.Timer tmrProgress;
         private System.Windows.Forms.Timer tmrProgressDelayCountDown;
-        private Stresstest.FastResultsControl fastResultsControl;
+        private StressTest.FastResultsControl fastResultsControl;
 
     }
 }

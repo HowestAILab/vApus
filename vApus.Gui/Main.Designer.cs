@@ -61,9 +61,9 @@
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.viewToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.firstStepsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.stresstestingSolutionExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stressTestingSolutionExplorerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.monitorToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
-            this.stresstestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
+            this.stressTestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.distributedToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.singleTestToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.toolsToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
@@ -84,8 +84,6 @@
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblSocketListener = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel6 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel2 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblProcessorAffinity = new vApus.Util.ToolStripStatusSpringLabel();
             this.lblCleanTempData = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTempDataSize = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled = new System.Windows.Forms.ToolStripStatusLabel();
@@ -102,7 +100,7 @@
             this.fileToolStripMenuItem,
             this.viewToolStripMenuItem,
             this.monitorToolStripMenuItem,
-            this.stresstestToolStripMenuItem,
+            this.stressTestToolStripMenuItem,
             this.toolsToolStripMenuItem,
             this.helpToolStripMenuItem});
             this.mainMenu.Location = new System.Drawing.Point(0, 0);
@@ -227,7 +225,7 @@
             // 
             this.viewToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.firstStepsToolStripMenuItem,
-            this.stresstestingSolutionExplorerToolStripMenuItem});
+            this.stressTestingSolutionExplorerToolStripMenuItem});
             this.viewToolStripMenuItem.Name = "viewToolStripMenuItem";
             this.viewToolStripMenuItem.Size = new System.Drawing.Size(44, 20);
             this.viewToolStripMenuItem.Text = "&View";
@@ -240,13 +238,13 @@
             this.firstStepsToolStripMenuItem.Text = "First steps";
             this.firstStepsToolStripMenuItem.Click += new System.EventHandler(this.firstStepsToolStripMenuItem_Click);
             // 
-            // stresstestingSolutionExplorerToolStripMenuItem
+            // stressTestingSolutionExplorerToolStripMenuItem
             // 
-            this.stresstestingSolutionExplorerToolStripMenuItem.Image = global::vApus.Gui.Properties.Resources.Icon_16x16_Solution;
-            this.stresstestingSolutionExplorerToolStripMenuItem.Name = "stresstestingSolutionExplorerToolStripMenuItem";
-            this.stresstestingSolutionExplorerToolStripMenuItem.Size = new System.Drawing.Size(232, 22);
-            this.stresstestingSolutionExplorerToolStripMenuItem.Text = "Stresstesting Solution Explorer";
-            this.stresstestingSolutionExplorerToolStripMenuItem.Click += new System.EventHandler(this.stresstestingSolutionExplorerToolStripMenuItem_Click);
+            this.stressTestingSolutionExplorerToolStripMenuItem.Image = global::vApus.Gui.Properties.Resources.Icon_16x16_Solution;
+            this.stressTestingSolutionExplorerToolStripMenuItem.Name = "stressTestingSolutionExplorerToolStripMenuItem";
+            this.stressTestingSolutionExplorerToolStripMenuItem.Size = new System.Drawing.Size(232, 22);
+            this.stressTestingSolutionExplorerToolStripMenuItem.Text = "Stress testing solution explorer";
+            this.stressTestingSolutionExplorerToolStripMenuItem.Click += new System.EventHandler(this.stressTestingSolutionExplorerToolStripMenuItem_Click);
             // 
             // monitorToolStripMenuItem
             // 
@@ -255,15 +253,15 @@
             this.monitorToolStripMenuItem.Text = "Monitor";
             this.monitorToolStripMenuItem.DropDownOpening += new System.EventHandler(this.monitorToolStripMenuItem_DropDownOpening);
             // 
-            // stresstestToolStripMenuItem
+            // stressTestToolStripMenuItem
             // 
-            this.stresstestToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
+            this.stressTestToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.distributedToolStripMenuItem,
             this.singleTestToolStripMenuItem});
-            this.stresstestToolStripMenuItem.Name = "stresstestToolStripMenuItem";
-            this.stresstestToolStripMenuItem.Size = new System.Drawing.Size(68, 20);
-            this.stresstestToolStripMenuItem.Text = "&Stresstest";
-            this.stresstestToolStripMenuItem.DropDownOpened += new System.EventHandler(this.stresstestToolStripMenuItem_DropDownOpened);
+            this.stressTestToolStripMenuItem.Name = "stressTestToolStripMenuItem";
+            this.stressTestToolStripMenuItem.Size = new System.Drawing.Size(68, 20);
+            this.stressTestToolStripMenuItem.Text = "&Stress test";
+            this.stressTestToolStripMenuItem.DropDownOpened += new System.EventHandler(this.stressTestToolStripMenuItem_DropDownOpened);
             // 
             // distributedToolStripMenuItem
             // 
@@ -299,7 +297,7 @@
             // 
             this.detailedResultsViewerToolStripMenuItem.Name = "detailedResultsViewerToolStripMenuItem";
             this.detailedResultsViewerToolStripMenuItem.Size = new System.Drawing.Size(204, 22);
-            this.detailedResultsViewerToolStripMenuItem.Text = "Detailed Results Viewer...";
+            this.detailedResultsViewerToolStripMenuItem.Text = "Detailed results viewer...";
             this.detailedResultsViewerToolStripMenuItem.Click += new System.EventHandler(this.detailedResultsViewerToolStripMenuItem_Click);
             // 
             // helpToolStripMenuItem
@@ -332,8 +330,6 @@
             this.toolStripStatusLabel1,
             this.lblSocketListener,
             this.toolStripStatusLabel6,
-            this.toolStripStatusLabel2,
-            this.lblProcessorAffinity,
             this.lblCleanTempData,
             this.lblTempDataSize,
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled,
@@ -432,24 +428,6 @@
             this.toolStripStatusLabel6.Size = new System.Drawing.Size(10, 17);
             this.toolStripStatusLabel6.Text = "|";
             this.toolStripStatusLabel6.Visible = false;
-            // 
-            // toolStripStatusLabel2
-            // 
-            this.toolStripStatusLabel2.Name = "toolStripStatusLabel2";
-            this.toolStripStatusLabel2.Size = new System.Drawing.Size(103, 17);
-            this.toolStripStatusLabel2.Text = "Processor affinity:";
-            this.toolStripStatusLabel2.Visible = false;
-            // 
-            // lblProcessorAffinity
-            // 
-            this.lblProcessorAffinity.IsLink = true;
-            this.lblProcessorAffinity.Name = "lblProcessorAffinity";
-            this.lblProcessorAffinity.Size = new System.Drawing.Size(196, 17);
-            this.lblProcessorAffinity.Spring = true;
-            this.lblProcessorAffinity.Text = "...";
-            this.lblProcessorAffinity.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.lblProcessorAffinity.Visible = false;
-            this.lblProcessorAffinity.VisitedLinkColor = System.Drawing.Color.Blue;
             // 
             // lblCleanTempData
             // 
@@ -579,12 +557,12 @@
 
         private System.Windows.Forms.MenuStrip mainMenu;
         private System.Windows.Forms.ToolStripMenuItem viewToolStripMenuItem;
-        private System.Windows.Forms.ToolStripMenuItem stresstestToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stressTestToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem toolsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem helpToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem aboutToolStripMenuItem;
         private WeifenLuo.WinFormsUI.Docking.DockPanel dockPanel;
-        private System.Windows.Forms.ToolStripMenuItem stresstestingSolutionExplorerToolStripMenuItem;
+        private System.Windows.Forms.ToolStripMenuItem stressTestingSolutionExplorerToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem fileToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem openToolStripMenuItem;
@@ -604,7 +582,6 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
         private System.Windows.Forms.ToolStripStatusLabel lblSocketListener;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel3;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripStatusLabel lblLocalization;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
@@ -615,7 +592,6 @@
         private System.Windows.Forms.ToolStripMenuItem detailedResultsViewerToolStripMenuItem;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
         private System.Windows.Forms.ToolStripStatusLabel lblUpdateNotifier;
-        private vApus.Util.ToolStripStatusSpringLabel lblProcessorAffinity;
         private System.Windows.Forms.Timer tmrSetStatusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;
         private System.Windows.Forms.ToolStripStatusLabel lblCleanTempData;

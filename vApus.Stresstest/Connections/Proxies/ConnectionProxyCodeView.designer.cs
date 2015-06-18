@@ -1,5 +1,5 @@
 ﻿using vApus.Util;
-namespace vApus.Stresstest
+namespace vApus.StressTest
 {
     partial class ConnectionProxyCodeView
     {
@@ -38,11 +38,11 @@ namespace vApus.Stresstest
             this.btnExport = new System.Windows.Forms.Button();
             this.tcTools = new System.Windows.Forms.TabControl();
             this.tpReferences = new System.Windows.Forms.TabPage();
-            this.references = new vApus.Stresstest.ReferencesPanel();
+            this.references = new vApus.StressTest.ReferencesPanel();
             this.tpFind = new System.Windows.Forms.TabPage();
-            this.find = new vApus.Stresstest.FindAndReplacePanel();
+            this.find = new vApus.StressTest.FindAndReplacePanel();
             this.tpCompile = new System.Windows.Forms.TabPage();
-            this.compile = new vApus.Stresstest.CompilePanel();
+            this.compile = new vApus.StressTest.CompilePanel();
             this.sfd = new System.Windows.Forms.SaveFileDialog();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitCode)).BeginInit();
@@ -191,7 +191,7 @@ namespace vApus.Stresstest
             this.tpFind.Padding = new System.Windows.Forms.Padding(3);
             this.tpFind.Size = new System.Drawing.Size(789, 153);
             this.tpFind.TabIndex = 5;
-            this.tpFind.Text = "Find and Replace";
+            this.tpFind.Text = "Find and replace";
             this.tpFind.UseVisualStyleBackColor = true;
             // 
             // find
@@ -202,7 +202,7 @@ namespace vApus.Stresstest
             this.find.Padding = new System.Windows.Forms.Padding(9);
             this.find.Size = new System.Drawing.Size(783, 147);
             this.find.TabIndex = 0;
-            this.find.FoundReplacedButtonClicked += new System.EventHandler<vApus.Stresstest.FindAndReplacePanel.FoundReplacedButtonClickedEventArgs>(this.find_FoundButtonClicked);
+            this.find.FoundReplacedButtonClicked += new System.EventHandler<vApus.StressTest.FindAndReplacePanel.FoundReplacedButtonClickedEventArgs>(this.find_FoundButtonClicked);
             // 
             // tpCompile
             // 
@@ -224,7 +224,7 @@ namespace vApus.Stresstest
             this.compile.Size = new System.Drawing.Size(783, 147);
             this.compile.TabIndex = 0;
             this.compile.CompileError += new System.EventHandler(this.compile_CompileError);
-            this.compile.CompileErrorButtonClicked += new System.EventHandler<vApus.Stresstest.CompilePanel.CompileErrorButtonClickedEventArgs>(this.compile_CompileErrorButtonClicked);
+            this.compile.CompileErrorButtonClicked += new System.EventHandler<vApus.StressTest.CompilePanel.CompileErrorButtonClickedEventArgs>(this.compile_CompileErrorButtonClicked);
             // 
             // sfd
             // 

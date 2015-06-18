@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// A view with auto generated gui for the different parameter flavors.
     /// </summary>

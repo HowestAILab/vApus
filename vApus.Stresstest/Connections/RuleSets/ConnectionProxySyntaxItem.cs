@@ -13,12 +13,12 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Activate_Click", "AddRule_Click", "Clear_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
-                  new[] { "Edit", "Add Rule", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
+                  new[] { "Edit", "Add rule", "Clear", "Remove", "Copy", "Cut", "Duplicate", "Paste" })]
     [Hotkeys(new[] { "Activate_Click", "AddRule_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click", "Paste_Click" },
               new[] { Keys.Enter, Keys.Insert, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D), (Keys.Control | Keys.V) })]
-    [DisplayName("Syntax Item"), Serializable]
+    [DisplayName("Syntax item"), Serializable]
     public class ConnectionProxySyntaxItem : SyntaxItem, ISerializable {
         public ConnectionProxySyntaxItem() {
             base._optional = true;
@@ -45,7 +45,7 @@ namespace vApus.Stresstest {
             set { }
         }
         [SavableCloneable, PropertyControl(0)]
-        [Description("If the user did not fill in anything for this item in a connection, the given value will be used."), DisplayName("Default Value")]
+        [Description("If the user did not fill in anything for this item in a connection, the given value will be used."), DisplayName("Default value")]
         public new string DefaultValue {
             get { return _defaultValue; }
             set { _defaultValue = value.Trim(); }

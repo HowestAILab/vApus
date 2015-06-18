@@ -8,7 +8,7 @@
 using System;
 using System.Collections.Generic;
 using vApus.Results;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
 namespace vApus.Server.Shared {
@@ -23,7 +23,7 @@ namespace vApus.Server.Shared {
         SynchronizeBuffers,
 
         /// <summary>
-        ///     Use this key sending a stresstest project from the master, initiate the stresstest at the slave whereupon the slave must send a message with this key in it back.
+        ///     Use this key sending a stress test project from the master, initiate the stress test at the slave whereupon the slave must send a message with this key in it back.
         /// </summary>
         InitializeTest,
         StartTest,
@@ -67,12 +67,12 @@ namespace vApus.Server.Shared {
         /// </summary>
         public int PushPort;
 
-        public StresstestWrapper StresstestWrapper;
+        public StressTestWrapper StressTestWrapper;
     }
 
     [Serializable]
-    public class StresstestWrapper {
-        public int StresstestIdInDb;
+    public class StressTestWrapper {
+        public int StressTestIdInDb;
         public string MySqlHost;
         public int MySqlPort;
         public string MySqlDatabaseName;
@@ -81,13 +81,13 @@ namespace vApus.Server.Shared {
 
         public RunSynchronization RunSynchronization;
         public int MaxRerunsBreakOnLast;
-        public Stresstest.Stresstest Stresstest;
+        public StressTest.StressTest StressTest;
 
         /// <summary>
-        ///     To be able to link the stresstest to the right tile stresstest.
-        ///     #.# (TileIndex.TileStresstestIndex eg 0.0);
+        ///     To be able to link the stress test to the right tile stress test.
+        ///     #.# (TileIndex.TileStress testIndex eg 0.0);
         /// </summary>
-        public string TileStresstestIndex;
+        public string TileStressTestIndex;
     }
 
     [Serializable]
@@ -109,14 +109,14 @@ namespace vApus.Server.Shared {
         public RunStateChange RunStateChange;
         public bool RunFinished;
         public bool ConcurrencyFinished;
-        public StresstestStatus StresstestStatus;
+        public StressTestStatus StressTestStatus;
         public DateTime StartedAt;
         public TimeSpan MeasuredRuntime;
         public TimeSpan EstimatedRuntimeLeft;
 
         public int ThreadsInUse;
-        public string TileStresstestIndex;
-        public FastStresstestMetricsCache StresstestMetricsCache;
+        public string TileStressTestIndex;
+        public FastStressTestMetricsCache StressTestMetricsCache;
         public bool SimplifiedMetrics;
 
         /// <summary>
@@ -128,7 +128,7 @@ namespace vApus.Server.Shared {
     [Serializable]
     public struct StartAndStopMessage {
         public string Exception;
-        public string TileStresstestIndex;
+        public string TileStressTestIndex;
     }
 
     [Serializable]
@@ -137,7 +137,7 @@ namespace vApus.Server.Shared {
     [Serializable]
     public struct ResultsMessage {
         public string Exception;
-        public string TileStresstestIndex;
+        public string TileStressTestIndex;
         public byte[] TorrentInfo;
     }
 }

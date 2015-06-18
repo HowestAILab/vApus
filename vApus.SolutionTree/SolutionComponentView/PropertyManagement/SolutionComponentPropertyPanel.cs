@@ -29,7 +29,6 @@ namespace vApus.SolutionTree {
         private List<PropertyInfo> _properties;
         private bool _showAdvancedSettings;
         private SolutionComponent _solutionComponent;
-        private bool _solutionComponentTypeChanged;
         private bool _allowInvokingSolutionComponentChangedEvent = true;
         #endregion
 
@@ -48,7 +47,6 @@ namespace vApus.SolutionTree {
                 if (_solutionComponent != value) {
                     ValueChanged -= SolutionComponentPropertyPanel_ValueChanged;
 
-                    _solutionComponentTypeChanged = _solutionComponent == null || _solutionComponent.GetType() != value.GetType();
                     _solutionComponent = value;
 
                     LockWindowUpdate(Handle);
@@ -57,8 +55,6 @@ namespace vApus.SolutionTree {
                     SetGui();
 
                     LockWindowUpdate(IntPtr.Zero);
-
-                    _solutionComponentTypeChanged = false;
 
                     ValueChanged += SolutionComponentPropertyPanel_ValueChanged;
                 }
@@ -86,7 +82,7 @@ namespace vApus.SolutionTree {
         public SolutionComponentPropertyPanel() {
             InitializeComponent();
 
-            _showHideAdvancedSettings.Text = "Show/Hide Advanced Settings";
+            _showHideAdvancedSettings.Text = "Show/Hide advanced settings";
             _showHideAdvancedSettings.AutoSize = true;
             _showHideAdvancedSettings.Click += _showHideAdvancedSettings_Click;
             _showHideAdvancedSettings.KeyUp += _showHideAdvancedSettings_KeyUp;

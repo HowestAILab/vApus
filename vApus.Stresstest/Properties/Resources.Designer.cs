@@ -8,7 +8,7 @@
 // </auto-generated>
 //------------------------------------------------------------------------------
 
-namespace vApus.Stresstest.Properties {
+namespace vApus.StressTest.Properties {
     using System;
     
     
@@ -39,7 +39,7 @@ namespace vApus.Stresstest.Properties {
         internal static global::System.Resources.ResourceManager ResourceManager {
             get {
                 if (object.ReferenceEquals(resourceMan, null)) {
-                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("vApus.Stresstest.Properties.Resources", typeof(Resources).Assembly);
+                    global::System.Resources.ResourceManager temp = new global::System.Resources.ResourceManager("vApus.StressTest.Properties.Resources", typeof(Resources).Assembly);
                     resourceMan = temp;
                 }
                 return resourceMan;
@@ -243,96 +243,6 @@ namespace vApus.Stresstest.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Log {
-            get {
-                object obj = ResourceManager.GetObject("Log", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogEntryError {
-            get {
-                object obj = ResourceManager.GetObject("LogEntryError", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogEntryInParallelWithFirstEntry {
-            get {
-                object obj = ResourceManager.GetObject("LogEntryInParallelWithFirstEntry", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogEntryOK {
-            get {
-                object obj = ResourceManager.GetObject("LogEntryOK", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogEntryWarning {
-            get {
-                object obj = ResourceManager.GetObject("LogEntryWarning", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogRuleSet {
-            get {
-                object obj = ResourceManager.GetObject("LogRuleSet", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogRuleSets {
-            get {
-                object obj = ResourceManager.GetObject("LogRuleSets", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap Logs {
-            get {
-                object obj = ResourceManager.GetObject("Logs", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap LogSyntaxItem {
-            get {
-                object obj = ResourceManager.GetObject("LogSyntaxItem", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap MoveDown {
             get {
                 object obj = ResourceManager.GetObject("MoveDown", resourceCulture);
@@ -473,9 +383,39 @@ namespace vApus.Stresstest.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap RedetermineTokens1 {
+        internal static System.Drawing.Bitmap RequestError {
             get {
-                object obj = ResourceManager.GetObject("RedetermineTokens1", resourceCulture);
+                object obj = ResourceManager.GetObject("RequestError", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RequestInParallelWithFirstEntry {
+            get {
+                object obj = ResourceManager.GetObject("RequestInParallelWithFirstEntry", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RequestOK {
+            get {
+                object obj = ResourceManager.GetObject("RequestOK", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap RequestWarning {
+            get {
+                object obj = ResourceManager.GetObject("RequestWarning", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -493,6 +433,56 @@ namespace vApus.Stresstest.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
+        internal static System.Drawing.Bitmap Scenario {
+            get {
+                object obj = ResourceManager.GetObject("Scenario", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ScenarioRuleSet {
+            get {
+                object obj = ResourceManager.GetObject("ScenarioRuleSet", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ScenarioRuleSets {
+            get {
+                object obj = ResourceManager.GetObject("ScenarioRuleSets", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap Scenarios {
+            get {
+                object obj = ResourceManager.GetObject("Scenarios", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        internal static System.Drawing.Bitmap ScenarioSyntaxItem {
+            get {
+                object obj = ResourceManager.GetObject("ScenarioSyntaxItem", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
         internal static System.Drawing.Bitmap Stop {
             get {
                 object obj = ResourceManager.GetObject("Stop", resourceCulture);
@@ -503,9 +493,9 @@ namespace vApus.Stresstest.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap Stresstest {
+        internal static System.Drawing.Bitmap StressTest {
             get {
-                object obj = ResourceManager.GetObject("Stresstest", resourceCulture);
+                object obj = ResourceManager.GetObject("StressTest", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -513,9 +503,9 @@ namespace vApus.Stresstest.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap StresstestProject {
+        internal static System.Drawing.Bitmap StressTestProject {
             get {
-                object obj = ResourceManager.GetObject("StresstestProject", resourceCulture);
+                object obj = ResourceManager.GetObject("StressTestProject", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

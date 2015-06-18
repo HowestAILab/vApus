@@ -143,7 +143,7 @@ namespace vApus.Server
             this.llblAvailableIPAddresses.Size = new System.Drawing.Size(78, 13);
             this.llblAvailableIPAddresses.TabIndex = 6;
             this.llblAvailableIPAddresses.TabStop = true;
-            this.llblAvailableIPAddresses.Text = "IP Addresses...";
+            this.llblAvailableIPAddresses.Text = "IP addresses...";
             this.llblAvailableIPAddresses.VisitedLinkColor = System.Drawing.Color.Blue;
             this.llblAvailableIPAddresses.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblIPAddresses_LinkClicked);
             // 

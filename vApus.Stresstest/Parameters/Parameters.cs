@@ -12,7 +12,7 @@ using System.Threading;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// Holds collections of parameters.
     /// </summary>
@@ -81,11 +81,11 @@ namespace vApus.Stresstest {
         }
 
         /// <summary>
-        ///     Needed for the token synchronization to the log and will visualize this in the gui.
+        ///     Needed for the token synchronization to the scenario and will visualize this in the gui.
         /// </summary>
         /// <param name="oldAndNewIndices">
         ///     The key and the value of the kvp are respectively the old and new index.
-        ///     This is a reversed collection, the last occurs first so that the synchronization in the log entries is correct.
+        ///     This is a reversed collection, the last occurs first so that the synchronization in the requests is correct.
         ///     Otherwise, 3 can become 4 and after this 4 can become 5.
         /// </param>
         public void SynchronizeTokenNumericIdentifierToIndices(out Dictionary<BaseParameter, KeyValuePair<int, int>> oldAndNewIndices) {

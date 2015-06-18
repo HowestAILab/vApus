@@ -15,11 +15,11 @@ using System.Reflection;
 using System.Xml;
 using vApus.Server.Shared;
 using vApus.SolutionTree;
-using vApus.Stresstest;
+using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
-    public class TileStresstest : LabeledBaseItem {
+namespace vApus.DistributedTest {
+    public class TileStressTest : LabeledBaseItem {
 
         #region Fields
         private readonly object _lock = new object();
@@ -30,8 +30,7 @@ namespace vApus.DistributedTesting {
         ///     Only when the solution is fully loaded.
         ///     Use in some cases (like changing the Use property).
         /// </summary>
-        internal bool _canDefaultAdvancedSettingsTo = false;
-        private Stresstest.Stresstest _defaultAdvancedSettingsTo;
+        private StressTest.StressTest _defaultAdvancedSettingsTo;
         private bool _automaticDefaultAdvancedSettings = true;
 
         //For encrypting the mysql password of the resuts database.
@@ -41,24 +40,24 @@ namespace vApus.DistributedTesting {
 
         #region Properties
         /// <summary>
-        ///     To be able to link the stresstest to the right tile stresstest.
-        ///     #.# (TileIndex.TileStresstestIndex eg 0.0);
+        ///     To be able to link the stress test to the right tile stress test.
+        ///     #.# (TileIndex.TileStressTestIndex eg 0.0);
         /// </summary>
-        public string TileStresstestIndex {
+        public string TileStressTestIndex {
             get {
-                if (DividedStresstestIndex == null) {
+                if (DividedStressTestIndex == null) {
                     object parent = Parent;
                     if (parent == null)
                         return "-1";
                     return (parent as Tile).Index + "." + Index;
                 }
-                return DividedStresstestIndex;
+                return DividedStressTestIndex;
             }
         }
 
-        public BasicTileStresstest BasicTileStresstest { get { return this[0] as BasicTileStresstest; } }
+        public BasicTileStressTest BasicTileStressTest { get { return this[0] as BasicTileStressTest; } }
 
-        public AdvancedTileStresstest AdvancedTileStresstest { get { return this[1] as AdvancedTileStresstest; } }
+        public AdvancedTileStressTest AdvancedTileStressTest { get { return this[1] as AdvancedTileStressTest; } }
 
         [SavableCloneable]
         public bool Use {
@@ -67,10 +66,10 @@ namespace vApus.DistributedTesting {
         }
 
         [SavableCloneable]
-        public Stresstest.Stresstest DefaultAdvancedSettingsTo {
+        public StressTest.StressTest DefaultAdvancedSettingsTo {
             get {
                 if (Solution.ActiveSolution != null && (_defaultAdvancedSettingsTo.IsEmpty || _defaultAdvancedSettingsTo.Parent == null)) {
-                    _defaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
+                    _defaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(StressTest.StressTest), Solution.ActiveSolution.GetSolutionComponent(typeof(StressTestProject))) as StressTest.StressTest;
 
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate { InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited); }, null);
                 }
@@ -88,24 +87,21 @@ namespace vApus.DistributedTesting {
         }
 
         /// <summary>
-        /// If the work is divided on multiple slaves and this is a clone of the original stresstest this must be filled in.
+        /// If the work is divided on multiple slaves and this is a clone of the original stress test this must be filled in.
         /// Must be the original index + . + # (last number being the part of the division)
         /// </summary>
-        public string DividedStresstestIndex { get; set; }
+        public string DividedStressTestIndex { get; set; }
         #endregion
 
         #region Constructors
-        public TileStresstest() {
+        public TileStressTest() {
             ShowInGui = false;
-            AddAsDefaultItem(new BasicTileStresstest());
-            AddAsDefaultItem(new AdvancedTileStresstest());
+            AddAsDefaultItem(new BasicTileStressTest());
+            AddAsDefaultItem(new AdvancedTileStressTest());
 
             if (Solution.ActiveSolution != null) {
-                _canDefaultAdvancedSettingsTo = false;
-                DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
-
-                _canDefaultAdvancedSettingsTo = true;
-            } else {
+                DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(StressTest.StressTest), Solution.ActiveSolution.GetSolutionComponent(typeof(StressTestProject))) as StressTest.StressTest;
+           } else {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             }
         }
@@ -114,10 +110,7 @@ namespace vApus.DistributedTesting {
         #region Functions
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
-            _canDefaultAdvancedSettingsTo = false;
-            DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(Stresstest.Stresstest), Solution.ActiveSolution.GetSolutionComponent(typeof(StresstestProject))) as Stresstest.Stresstest;
-
-            _canDefaultAdvancedSettingsTo = true;
+            DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(StressTest.StressTest), Solution.ActiveSolution.GetSolutionComponent(typeof(StressTestProject))) as StressTest.StressTest;
         }
 
         /// <summary>
@@ -125,12 +118,12 @@ namespace vApus.DistributedTesting {
         /// </summary>
         internal void ForceDefaultTo() {
             if (DefaultAdvancedSettingsTo != null)
-                AdvancedTileStresstest.DefaultTo(_defaultAdvancedSettingsTo);
+                AdvancedTileStressTest.DefaultTo(_defaultAdvancedSettingsTo);
         }
 
         /// <summary>
         /// Select a slave if one is available, if not no slave will be selected.
-        /// Call this function after adding a new tilestresstest or duplicating one in the GUI.
+        /// Call this function after adding a new tile stress test or duplicating one in the GUI.
         /// This will not invoke an event to notify the GUI.
         /// </summary>
         public void SelectAvailableSlave() {
@@ -146,11 +139,11 @@ namespace vApus.DistributedTesting {
 
                     foreach (Tile tile in distributedTest.Tiles)
                         if (tile.Use)
-                            foreach (TileStresstest tileStresstest in tile)
-                                if (tileStresstest.Use && tileStresstest.BasicTileStresstest.SlaveIndices.Length != 0)
-                                    availableSlaves.Remove(tileStresstest.BasicTileStresstest.Slaves[0]);
+                            foreach (TileStressTest tileStressTest in tile)
+                                if (tileStressTest.Use && tileStressTest.BasicTileStressTest.SlaveIndices.Length != 0)
+                                    availableSlaves.Remove(tileStressTest.BasicTileStressTest.Slaves[0]);
 
-                    BasicTileStresstest.Slaves = availableSlaves.Count == 0 ? new Slave[0] : new Slave[] { availableSlaves[0] };
+                    BasicTileStressTest.Slaves = availableSlaves.Count == 0 ? new Slave[0] : new Slave[] { availableSlaves[0] };
                 }
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed selecting next available slave.", ex);
@@ -161,96 +154,96 @@ namespace vApus.DistributedTesting {
         ///     Create a clone of this.
         /// </summary>
         /// <returns></returns>
-        public TileStresstest Clone() {
-            var clone = new TileStresstest();
+        public TileStressTest Clone() {
+            var clone = new TileStressTest();
             clone.Use = _use;
             clone._defaultAdvancedSettingsTo = DefaultAdvancedSettingsTo;
             clone.AutomaticDefaultAdvancedSettings = _automaticDefaultAdvancedSettings;
 
             clone.ClearWithoutInvokingEvent();
-            clone.AddWithoutInvokingEvent(BasicTileStresstest.Clone());
-            clone.AddWithoutInvokingEvent(AdvancedTileStresstest.Clone());
+            clone.AddWithoutInvokingEvent(BasicTileStressTest.Clone());
+            clone.AddWithoutInvokingEvent(AdvancedTileStressTest.Clone());
             return clone;
         }
 
         /// <summary>
         /// This is sent to a slave.
         /// </summary>
-        /// <param name="stresstestIdInDb">-1 for none</param>
+        /// <param name="stressTestIdInDb">-1 for none</param>
         /// <param name="runSynchronization"></param>
         /// <returns></returns>
-        public StresstestWrapper GetStresstestWrapper(FunctionOutputCache functionOutputCache, int stresstestIdInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public StressTestWrapper GetStressTestWrapper(FunctionOutputCache functionOutputCache, int stressTestIdInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             lock (_lock) {
-                string tileStresstestIndex = TileStresstestIndex;
-                var stresstest = new Stresstest.Stresstest();
-                stresstest.ForDistributedTest = true;
-                stresstest.IsDividedStresstest = DividedStresstestIndex != null;
-                stresstest.ShowInGui = false;
-                stresstest.ActionDistribution = AdvancedTileStresstest.ActionDistribution;
-                stresstest.MaximumNumberOfUserActions = AdvancedTileStresstest.MaximumNumberOfUserActions;
-                stresstest.Concurrencies = AdvancedTileStresstest.Concurrencies;
+                string tileStressTestIndex = TileStressTestIndex;
+                var stressTest = new StressTest.StressTest();
+                stressTest.ForDistributedTest = true;
+                stressTest.IsDividedStressTest = DividedStressTestIndex != null;
+                stressTest.ShowInGui = false;
+                stressTest.ActionDistribution = AdvancedTileStressTest.ActionDistribution;
+                stressTest.MaximumNumberOfUserActions = AdvancedTileStressTest.MaximumNumberOfUserActions;
+                stressTest.Concurrencies = AdvancedTileStressTest.Concurrencies;
 
                 var connections = new Connections();
-                var connection = BasicTileStresstest._connection.Clone();
+                var connection = BasicTileStressTest._connection.Clone();
 
                 connection.RemoveDescription();
                 connections.AddWithoutInvokingEvent(connection);
                 connection.ForceSettingChildsParent();
 
-                stresstest.Connection = connection;
+                stressTest.Connection = connection;
 
-                stresstest.Label = ToString();
+                stressTest.Label = ToString();
 
-                var allLogs = new Logs();
+                var allScenarios = new Scenarios();
 
-                var logs = new KeyValuePair<Log, uint>[AdvancedTileStresstest.Logs.Length];
-                for (int i = 0; i != logs.Length; i++) {
-                    var kvp = AdvancedTileStresstest.Logs[i];
+                var scenarios = new KeyValuePair<Scenario, uint>[AdvancedTileStressTest.Scenarios.Length];
+                for (int i = 0; i != scenarios.Length; i++) {
+                    var kvp = AdvancedTileStressTest.Scenarios[i];
 
-                    var log = CloneLog(functionOutputCache, kvp.Key);
+                    var scenario = CloneScenario(functionOutputCache, kvp.Key);
 
-                    allLogs.AddWithoutInvokingEvent(log);
-                    log.ForceSettingChildsParent();
+                    allScenarios.AddWithoutInvokingEvent(scenario);
+                    scenario.ForceSettingChildsParent();
 
-                    logs[i] = new KeyValuePair<Log, uint>(log, kvp.Value);
+                    scenarios[i] = new KeyValuePair<Scenario, uint>(scenario, kvp.Value);
                 }
 
-                stresstest.LogsOverride = logs;
+                stressTest.ScenariosOverride = scenarios;
 
-                stresstest.MinimumDelayOverride = AdvancedTileStresstest.MinimumDelay;
-                stresstest.MaximumDelayOverride = AdvancedTileStresstest.MaximumDelay;
-                stresstest.Runs = AdvancedTileStresstest.Runs;
-                stresstest.Shuffle = AdvancedTileStresstest.Shuffle;
-                stresstest.UseParallelExecutionOfLogEntries = false;
-                // AdvancedTileStresstest.useParallelExecutionOfLogEntries;
+                stressTest.MinimumDelayOverride = AdvancedTileStressTest.MinimumDelay;
+                stressTest.MaximumDelayOverride = AdvancedTileStressTest.MaximumDelay;
+                stressTest.Runs = AdvancedTileStressTest.Runs;
+                stressTest.Shuffle = AdvancedTileStressTest.Shuffle;
+                stressTest.UseParallelExecutionOfRequests = false;
+                // AdvancedTileStressTest.useParallelExecutionOfRequests;
 
-                stresstest.ForceSettingChildsParent();
+                stressTest.ForceSettingChildsParent();
 
                 string user, host, password;
                 int port;
                 vApus.Results.ConnectionStringManager.GetCurrentConnectionString(out user, out host, out port, out password);
 
-                return new StresstestWrapper {
-                    StresstestIdInDb = stresstestIdInDb,
-                    Stresstest = stresstest,
-                    TileStresstestIndex = tileStresstestIndex, RunSynchronization = runSynchronization, MaxRerunsBreakOnLast = maxRerunsBreakOnLast,
+                return new StressTestWrapper {
+                    StressTestIdInDb = stressTestIdInDb,
+                    StressTest = stressTest,
+                    TileStressTestIndex = tileStressTestIndex, RunSynchronization = runSynchronization, MaxRerunsBreakOnLast = maxRerunsBreakOnLast,
                     MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
                 };
             }
         }
 
-        private Log CloneLog(FunctionOutputCache functionOutputCache, Log log) {
-            var cacheEntry = functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), log);
-            var clone = cacheEntry.ReturnValue as Log;
+        private Scenario CloneScenario(FunctionOutputCache functionOutputCache, Scenario scenario) {
+            var cacheEntry = functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), scenario);
+            var clone = cacheEntry.ReturnValue as Scenario;
             if (clone == null) {
-                clone = log.Clone(true, false, true, false);
+                clone = scenario.Clone(true, false, true, false);
                 clone.RemoveDescription();
                 cacheEntry.ReturnValue = clone;
             }
-            return cacheEntry.ReturnValue as Log;
+            return cacheEntry.ReturnValue as Scenario;
         }
 
-        public override string ToString() { return "[TS " + TileStresstestIndex + "] "; }
+        public override string ToString() { return "[TS " + TileStressTestIndex + "] "; }
         #endregion
     }
 }

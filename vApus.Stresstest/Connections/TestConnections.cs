@@ -15,7 +15,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// To test given connections in parallel. Subscribe to the Message event to log progress. 
     /// </summary>
@@ -25,7 +25,6 @@ namespace vApus.Stresstest {
         #region Fields
         [ThreadStatic]
         private TestWorkItem _testWorkItem;
-        private static object _lock = new object();
         private AutoResetEvent _testAutoResetEvent = new AutoResetEvent(false);
         #endregion
 
@@ -99,7 +98,7 @@ namespace vApus.Stresstest {
                 }
 
                 var connectionProxyPool = new ConnectionProxyPool(connection);
-                CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(false);
+                CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(true, false);
 
                 if (compilerResults.Errors.HasErrors) {
                     var sb = new StringBuilder("Failed at compiling the connection proxy class: ");

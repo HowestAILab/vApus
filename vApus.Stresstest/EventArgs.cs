@@ -12,14 +12,14 @@ using System.Drawing;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public class TestInitializedEventArgs : EventArgs {
         public Exception Exception { private set; get; }
         public TestInitializedEventArgs(Exception exception) { Exception = exception; }
     }
-    public class StresstestResultEventArgs : EventArgs {
-        public StresstestResult StresstestResult { private set; get; }
-        public StresstestResultEventArgs(StresstestResult stresstestResult) { StresstestResult = stresstestResult; }
+    public class StressTestResultEventArgs : EventArgs {
+        public StressTestResult StressTestResult { private set; get; }
+        public StressTestResultEventArgs(StressTestResult stressTestResult) { StressTestResult = stressTestResult; }
     }
 
     public class ConcurrencyResultEventArgs : EventArgs {
@@ -33,7 +33,7 @@ namespace vApus.Stresstest {
     }
 
     /// <summary>
-    /// To let the user know what is happening while stresstesting (Run started, error occured).
+    /// To let the user know what is happening while stress testing (Run started, error occured).
     /// </summary>
     public class MessageEventArgs : EventArgs {
         public string Message { private set; get; }
@@ -41,7 +41,7 @@ namespace vApus.Stresstest {
         public RandomUtils.Log.Level LogLevel { private set; get; }
 
         /// <summary>
-        /// To let the user know what is happening while stresstesting (Run started, error occured).
+        /// To let the user know what is happening while stress testing (Run started, error occured).
         /// </summary>
         /// <param name="message"></param>
         /// <param name="color">Can be null</param>

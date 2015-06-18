@@ -14,12 +14,12 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Activate_Click", "Add_Click", "Clear_Click", "Paste_Click" },
-        new[] { "Edit", "Add Syntax Item", "Clear", "Paste" })]
+        new[] { "Edit", "Add syntax item", "Clear", "Paste" })]
     [Hotkeys(new[] { "Activate_Click", "Add_Click", "Paste_Click" },
         new[] { Keys.Enter, Keys.Insert, (Keys.Control | Keys.V) })]
-    [DisplayName("Connection Proxy Rule Set"), Serializable]
+    [DisplayName("Connection proxy rule set"), Serializable]
     public class ConnectionProxyRuleSet : BaseRuleSet, ISerializable {
    
         #region Fields
@@ -43,7 +43,7 @@ namespace vApus.Stresstest {
 
         [SavableCloneable, PropertyControl(3)]
         [Description("The one-base index of the syntax item that is used for tracing the route of communication."),
-         DisplayName("Trace Route Field")]
+         DisplayName("Trace route field")]
         public uint TracertField {
             get { return _tracertField; }
             set { _tracertField = value; }

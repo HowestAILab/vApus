@@ -13,11 +13,11 @@ using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// Generates numeric values with a pre- or suffix if you like.
     /// </summary>
-    [DisplayName("Numeric Parameter"), Serializable]
+    [DisplayName("Numeric parameter"), Serializable]
     public class NumericParameter : BaseParameter, ISerializable {
 
         #region Fields
@@ -34,7 +34,7 @@ namespace vApus.Stresstest {
 
         #region Properties
         [PropertyControl(0), SavableCloneable]
-        [DisplayName("Minimum Value"), Description("An inclusive minimum value.")]
+        [DisplayName("Minimum value"), Description("An inclusive minimum value.")]
         public int MinValue {
             get { return _minValue; }
             set {
@@ -50,7 +50,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(1), SavableCloneable]
-        [DisplayName("Maximum Value"), Description("An inclusive maximum value.")]
+        [DisplayName("Maximum value"), Description("An inclusive maximum value.")]
         public int MaxValue {
             get { return _maxValue; }
             set {
@@ -66,7 +66,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(2), SavableCloneable]
-        [DisplayName("Decimal Places"),
+        [DisplayName("Decimal places"),
          Description(
              "If this value is greater than 15 it will be ignored and no rounding of the output value will occur.")]
         public int DecimalPlaces {
@@ -79,7 +79,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(3), SavableCloneable]
-        [DisplayName("Decimal Separator"),
+        [DisplayName("Decimal separator"),
          Description("Only . or , allowed.\nThe output of a parameter is a string, so this is important!")]
         public string DecimalSeparator {
             get { return _decimalSeparator; }

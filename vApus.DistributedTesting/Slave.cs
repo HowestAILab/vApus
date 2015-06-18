@@ -10,15 +10,14 @@ using System.Linq;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
-    /// Holds information about the slave and client (via properties) to be able to let a stresstest happen there.
+    /// Holds information about the slave and client (via properties) to be able to let a stress test happen there.
     /// </summary>
     public class Slave : BaseItem {
 
         #region Fields
         private int _port = 1347;
-        private int[] _processorAffinity = { };
         #endregion
 
         #region Properties
@@ -50,13 +49,13 @@ namespace vApus.DistributedTesting {
 
         /// <summary>
         ///     Search the slaves for this.
-        ///     Use AssigneTileStresstest to set.
+        ///     Use AssigneTileStressTest to set.
         /// </summary>
-        public TileStresstest TileStresstest {
+        public TileStressTest TileStressTest {
             get {
                 try {
-                    foreach (TileStresstest ts in TileStesstests)
-                        if (ts.BasicTileStresstest.Slaves.Contains(this))
+                    foreach (TileStressTest ts in TileStessTests)
+                        if (ts.BasicTileStressTest.Slaves.Contains(this))
                             return ts;
                 } catch {
                     //Handled later on.
@@ -65,26 +64,17 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        private IEnumerable<TileStresstest> TileStesstests {
+        private IEnumerable<TileStressTest> TileStessTests {
             get {
                 if (Parent != null &&
                     Parent.GetParent() != null &&
                     Parent.GetParent().GetParent() != null) {
                     var dt = Parent.GetParent().GetParent() as DistributedTest;
                     foreach (Tile t in dt.Tiles)
-                        foreach (TileStresstest ts in t)
+                        foreach (TileStressTest ts in t)
                             yield return ts;
                 }
             }
-        }
-
-        /// <summary>
-        ///     One-based.
-        /// </summary>
-        [SavableCloneable]
-        public int[] ProcessorAffinity {
-            get { return _processorAffinity; }
-            set { _processorAffinity = new int[] { }; }// value; }
         }
 
         #endregion
@@ -95,33 +85,29 @@ namespace vApus.DistributedTesting {
 
         #region Functions
         /// <summary>
-        ///     Clears the stresstest if it is null.
+        ///     Clears the stress test if it is null.
         /// </summary>
-        /// <param name="tileStresstest"></param>
-        public void AssignTileStresstest(TileStresstest tileStresstest) {
-            ClearTileStresstest();
+        /// <param name="tileStressTest"></param>
+        public void AssignTileStressTest(TileStressTest tileStressTest) {
+            ClearTileStressTest();
 
-            if (tileStresstest != null)
-                tileStresstest.BasicTileStresstest.Slaves = new Slave[] { this };
+            if (tileStressTest != null)
+                tileStressTest.BasicTileStressTest.Slaves = new Slave[] { this };
         }
 
-        private void ClearTileStresstest() {
-            //Remove it from the tile stresstests (can be used only once atm).
-            foreach (TileStresstest ts in TileStesstests)
-                if (ts.BasicTileStresstest.Slaves.Contains(this)) {
-                    var sl = new List<Slave>(ts.BasicTileStresstest.Slaves);
+        private void ClearTileStressTest() {
+            //Remove it from the tile stress tests (can be used only once atm).
+            foreach (TileStressTest ts in TileStessTests)
+                if (ts.BasicTileStressTest.Slaves.Contains(this)) {
+                    var sl = new List<Slave>(ts.BasicTileStressTest.Slaves);
                     sl.Remove(this);
-                    ts.BasicTileStresstest.Slaves = sl.ToArray();
+                    ts.BasicTileStressTest.Slaves = sl.ToArray();
                 }
         }
 
         public Slave Clone() {
             var clone = new Slave();
             clone.Port = _port;
-
-            clone.ProcessorAffinity = new int[_processorAffinity.Length];
-            for (int i = 0; i != clone.ProcessorAffinity.Length; i++)
-                clone.ProcessorAffinity[i] = _processorAffinity[i];
 
             return clone;
         }

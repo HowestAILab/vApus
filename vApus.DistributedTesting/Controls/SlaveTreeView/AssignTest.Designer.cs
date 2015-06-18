@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class AssignTest
     {
@@ -30,7 +30,7 @@
         {
             this.splitContainer1 = new System.Windows.Forms.SplitContainer();
             this.tvwTiles = new System.Windows.Forms.TreeView();
-            this.tvwTileStresstests = new System.Windows.Forms.TreeView();
+            this.tvwTileStressTests = new System.Windows.Forms.TreeView();
             this.btnAssign = new System.Windows.Forms.Button();
             this.btnAssignAndGoTo = new System.Windows.Forms.Button();
             this.btnClear = new System.Windows.Forms.Button();
@@ -54,7 +54,7 @@
             // 
             // splitContainer1.Panel2
             // 
-            this.splitContainer1.Panel2.Controls.Add(this.tvwTileStresstests);
+            this.splitContainer1.Panel2.Controls.Add(this.tvwTileStressTests);
             this.splitContainer1.Size = new System.Drawing.Size(484, 270);
             this.splitContainer1.SplitterDistance = 160;
             this.splitContainer1.TabIndex = 0;
@@ -70,16 +70,16 @@
             this.tvwTiles.TabIndex = 0;
             this.tvwTiles.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwTiles_AfterSelect);
             // 
-            // tvwTileStresstests
+            // tvwTileStressTests
             // 
-            this.tvwTileStresstests.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tvwTileStresstests.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.tvwTileStresstests.HideSelection = false;
-            this.tvwTileStresstests.Location = new System.Drawing.Point(0, 0);
-            this.tvwTileStresstests.Name = "tvwTileStresstests";
-            this.tvwTileStresstests.Size = new System.Drawing.Size(320, 270);
-            this.tvwTileStresstests.TabIndex = 1;
-            this.tvwTileStresstests.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwTileStresstests_AfterSelect);
+            this.tvwTileStressTests.BorderStyle = System.Windows.Forms.BorderStyle.None;
+            this.tvwTileStressTests.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.tvwTileStressTests.HideSelection = false;
+            this.tvwTileStressTests.Location = new System.Drawing.Point(0, 0);
+            this.tvwTileStressTests.Name = "tvwTileStressTests";
+            this.tvwTileStressTests.Size = new System.Drawing.Size(320, 270);
+            this.tvwTileStressTests.TabIndex = 1;
+            this.tvwTileStressTests.AfterSelect += new System.Windows.Forms.TreeViewEventHandler(this.tvwTileStressTests_AfterSelect);
             // 
             // btnAssign
             // 
@@ -165,7 +165,7 @@
 
         private System.Windows.Forms.SplitContainer splitContainer1;
         private System.Windows.Forms.TreeView tvwTiles;
-        private System.Windows.Forms.TreeView tvwTileStresstests;
+        private System.Windows.Forms.TreeView tvwTileStressTests;
         private System.Windows.Forms.Button btnAssign;
         private System.Windows.Forms.Button btnAssignAndGoTo;
         private System.Windows.Forms.Button btnClear;

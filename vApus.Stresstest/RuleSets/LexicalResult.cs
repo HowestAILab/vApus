@@ -8,7 +8,7 @@
 
 using System;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public enum LexicalResult {
         OK = 0,
         Error

@@ -1,4 +1,4 @@
-﻿namespace vApus.DistributedTesting
+﻿namespace vApus.DistributedTest
 {
     partial class DistributedTestTreeViewItem
     {
@@ -38,13 +38,12 @@
             this.nudMaxBreakOnLast = new System.Windows.Forms.NumericUpDown();
             this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
-            this.picStresstestStatus = new System.Windows.Forms.PictureBox();
+            this.picStressTestStatus = new System.Windows.Forms.PictureBox();
             this.chkUseRDP = new System.Windows.Forms.CheckBox();
             this.pnlRunSync.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxBreakOnLast)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).BeginInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStressTestStatus)).BeginInit();
             this.SuspendLayout();
             // 
             // pnlRunSync
@@ -90,7 +89,7 @@
             this.label1.Name = "label1";
             this.label1.Size = new System.Drawing.Size(212, 13);
             this.label1.TabIndex = 19;
-            this.label1.Text = "Distributed Test";
+            this.label1.Text = "Distributed test";
             this.label1.Click += new System.EventHandler(this._Enter);
             // 
             // toolTip
@@ -111,7 +110,7 @@
             this.picAddTile.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
             this.picAddTile.TabIndex = 20;
             this.picAddTile.TabStop = false;
-            this.toolTip.SetToolTip(this.picAddTile, "Add Tile <ctrl+i>");
+            this.toolTip.SetToolTip(this.picAddTile, "Add tile <ctrl+i>.");
             this.picAddTile.Click += new System.EventHandler(this.picAddTile_Click);
             // 
             // nudMaxBreakOnLast
@@ -126,7 +125,7 @@
             this.nudMaxBreakOnLast.Name = "nudMaxBreakOnLast";
             this.nudMaxBreakOnLast.Size = new System.Drawing.Size(32, 20);
             this.nudMaxBreakOnLast.TabIndex = 26;
-            this.toolTip.SetToolTip(this.nudMaxBreakOnLast, "Set the maximum number of reruns for a run in a tiles tresstest for the Break on " +
+            this.toolTip.SetToolTip(this.nudMaxBreakOnLast, "Set the maximum number of reruns for a run in a tiles stress test for the Break on " +
         "Last Run Sync.\r\n(0 = infinite)");
             this.nudMaxBreakOnLast.Visible = false;
             // 
@@ -139,7 +138,7 @@
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(57, 13);
             this.label2.TabIndex = 22;
-            this.label2.Text = "Run Sync:";
+            this.label2.Text = "Run sync:";
             // 
             // panel1
             // 
@@ -150,18 +149,18 @@
             this.panel1.Size = new System.Drawing.Size(532, 2);
             this.panel1.TabIndex = 23;
             // 
-            // picStresstestStatus
+            // picStressTestStatus
             // 
-            this.picStresstestStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.picStresstestStatus.Cursor = System.Windows.Forms.Cursors.Hand;
-            this.picStresstestStatus.Location = new System.Drawing.Point(513, 10);
-            this.picStresstestStatus.Name = "picStresstestStatus";
-            this.picStresstestStatus.Size = new System.Drawing.Size(16, 16);
-            this.picStresstestStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
-            this.picStresstestStatus.TabIndex = 25;
-            this.picStresstestStatus.TabStop = false;
-            this.picStresstestStatus.Visible = false;
-            this.picStresstestStatus.Click += new System.EventHandler(this._Enter);
+            this.picStressTestStatus.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.picStressTestStatus.Cursor = System.Windows.Forms.Cursors.Hand;
+            this.picStressTestStatus.Location = new System.Drawing.Point(513, 10);
+            this.picStressTestStatus.Name = "picStressTestStatus";
+            this.picStressTestStatus.Size = new System.Drawing.Size(16, 16);
+            this.picStressTestStatus.SizeMode = System.Windows.Forms.PictureBoxSizeMode.StretchImage;
+            this.picStressTestStatus.TabIndex = 25;
+            this.picStressTestStatus.TabStop = false;
+            this.picStressTestStatus.Visible = false;
+            this.picStressTestStatus.Click += new System.EventHandler(this._Enter);
             // 
             // chkUseRDP
             // 
@@ -185,7 +184,7 @@
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnlRunSync);
             this.Controls.Add(this.picAddTile);
-            this.Controls.Add(this.picStresstestStatus);
+            this.Controls.Add(this.picStressTestStatus);
             this.Controls.Add(this.nudMaxBreakOnLast);
             this.Controls.Add(this.label2);
             this.Margin = new System.Windows.Forms.Padding(0);
@@ -197,7 +196,7 @@
             this.pnlRunSync.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.picAddTile)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudMaxBreakOnLast)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.picStresstestStatus)).EndInit();
+            ((System.ComponentModel.ISupportInitialize)(this.picStressTestStatus)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -212,8 +211,7 @@
         private System.Windows.Forms.PictureBox picAddTile;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel1;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-        private System.Windows.Forms.PictureBox picStresstestStatus;
+        private System.Windows.Forms.PictureBox picStressTestStatus;
         private System.Windows.Forms.CheckBox chkUseRDP;
         private System.Windows.Forms.NumericUpDown nudMaxBreakOnLast;
 

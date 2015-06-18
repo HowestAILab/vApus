@@ -21,7 +21,6 @@ namespace vApus.Util {
         private readonly TextStyle MagentaStyle = new TextStyle(Brushes.Magenta, null, FontStyle.Regular);
         private readonly MarkerStyle SameWordsStyle = new MarkerStyle(new SolidBrush(Color.FromArgb(40, Color.Gray)));
         private readonly FastColoredTextBox _fastColoredTextBox;
-        private TextStyle MaroonStyle = new TextStyle(Brushes.Maroon, null, FontStyle.Regular);
 
         public CSharpTextStyle(FastColoredTextBox applyTo) {
             _fastColoredTextBox = applyTo;

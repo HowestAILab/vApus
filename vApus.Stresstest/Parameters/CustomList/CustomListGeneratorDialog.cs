@@ -11,7 +11,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// To generate a list of parameters of a given type. Those are added to the given CustomListParameter.
     /// </summary>

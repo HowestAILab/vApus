@@ -27,16 +27,15 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(RichExportToExcelDialog));
             this.btnExportToExcel = new System.Windows.Forms.Button();
             this.lblDescription = new System.Windows.Forms.Label();
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.pictureBox2 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
-            this.pnlBorderStresstest = new System.Windows.Forms.Panel();
-            this.cboStresstest = new System.Windows.Forms.ComboBox();
+            this.pnlBorderStressTest = new System.Windows.Forms.Panel();
+            this.cboStressTest = new System.Windows.Forms.ComboBox();
             this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.tvw = new System.Windows.Forms.TreeView();
             this.btnOverviewExport = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).BeginInit();
-            this.pnlBorderStresstest.SuspendLayout();
+            this.pnlBorderStressTest.SuspendLayout();
             this.SuspendLayout();
             // 
             // btnExportToExcel
@@ -88,36 +87,36 @@
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(37, 588);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(119, 16);
+            this.label1.Size = new System.Drawing.Size(123, 16);
             this.label1.TabIndex = 17;
-            this.label1.Text = "Select a Stresstest";
+            this.label1.Text = "Select a stress test";
             // 
-            // pnlBorderStresstest
+            // pnlBorderStressTest
             // 
-            this.pnlBorderStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.pnlBorderStressTest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.pnlBorderStresstest.BackColor = System.Drawing.Color.Silver;
-            this.pnlBorderStresstest.Controls.Add(this.cboStresstest);
-            this.pnlBorderStresstest.Location = new System.Drawing.Point(162, 584);
-            this.pnlBorderStresstest.Name = "pnlBorderStresstest";
-            this.pnlBorderStresstest.Size = new System.Drawing.Size(203, 23);
-            this.pnlBorderStresstest.TabIndex = 0;
+            this.pnlBorderStressTest.BackColor = System.Drawing.Color.Silver;
+            this.pnlBorderStressTest.Controls.Add(this.cboStressTest);
+            this.pnlBorderStressTest.Location = new System.Drawing.Point(162, 584);
+            this.pnlBorderStressTest.Name = "pnlBorderStressTest";
+            this.pnlBorderStressTest.Size = new System.Drawing.Size(203, 23);
+            this.pnlBorderStressTest.TabIndex = 0;
             // 
-            // cboStresstest
+            // cboStressTest
             // 
-            this.cboStresstest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            this.cboStressTest.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboStresstest.BackColor = System.Drawing.Color.White;
-            this.cboStresstest.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboStresstest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboStresstest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.cboStresstest.FormattingEnabled = true;
-            this.cboStresstest.Location = new System.Drawing.Point(1, 1);
-            this.cboStresstest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.cboStresstest.Name = "cboStresstest";
-            this.cboStresstest.Size = new System.Drawing.Size(201, 21);
-            this.cboStresstest.TabIndex = 0;
-            this.cboStresstest.SelectedIndexChanged += new System.EventHandler(this.cboStresstest_SelectedIndexChanged);
+            this.cboStressTest.BackColor = System.Drawing.Color.White;
+            this.cboStressTest.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
+            this.cboStressTest.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.cboStressTest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.cboStressTest.FormattingEnabled = true;
+            this.cboStressTest.Location = new System.Drawing.Point(1, 1);
+            this.cboStressTest.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.cboStressTest.Name = "cboStressTest";
+            this.cboStressTest.Size = new System.Drawing.Size(201, 21);
+            this.cboStressTest.TabIndex = 0;
+            this.cboStressTest.SelectedIndexChanged += new System.EventHandler(this.cboStressTest_SelectedIndexChanged);
             // 
             // saveFileDialog
             // 
@@ -168,7 +167,7 @@
             this.Controls.Add(this.tvw);
             this.Controls.Add(this.pictureBox2);
             this.Controls.Add(this.label1);
-            this.Controls.Add(this.pnlBorderStresstest);
+            this.Controls.Add(this.pnlBorderStressTest);
             this.Controls.Add(this.lblDescription);
             this.Controls.Add(this.btnExportToExcel);
             this.DataBindings.Add(new System.Windows.Forms.Binding("Tag", global::vApus.Results.Properties.Settings.Default, "ExportToExcelSelectedGoals", true, System.Windows.Forms.DataSourceUpdateMode.OnPropertyChanged));
@@ -184,7 +183,7 @@
             this.Text = "Rich export to Excel";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.ExportToExcelDialog_FormClosing);
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox2)).EndInit();
-            this.pnlBorderStresstest.ResumeLayout(false);
+            this.pnlBorderStressTest.ResumeLayout(false);
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -194,11 +193,10 @@
 
         private System.Windows.Forms.Button btnExportToExcel;
         private System.Windows.Forms.Label lblDescription;
-        private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox pictureBox2;
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Panel pnlBorderStresstest;
-        private System.Windows.Forms.ComboBox cboStresstest;
+        private System.Windows.Forms.Panel pnlBorderStressTest;
+        private System.Windows.Forms.ComboBox cboStressTest;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.TreeView tvw;
         private System.Windows.Forms.Button btnOverviewExport;

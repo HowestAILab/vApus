@@ -1,6 +1,6 @@
 ﻿namespace vApus.SolutionTree
 {
-    partial class StresstestingSolutionExplorer
+    partial class StressTestingSolutionExplorer
     {
         /// <summary>
         /// Required designer variable.
@@ -29,7 +29,7 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StresstestingSolutionExplorer));
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(StressTestingSolutionExplorer));
             this.tvw = new System.Windows.Forms.TreeView();
             this.imageList = new System.Windows.Forms.ImageList(this.components);
             this.SuspendLayout();
@@ -61,7 +61,7 @@
             this.imageList.TransparentColor = System.Drawing.Color.Transparent;
             this.imageList.Images.SetKeyName(0, "DefaultTreeNodeImage.PNG");
             // 
-            // StresstestingSolutionExplorer
+            // StressTestingSolutionExplorer
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -69,8 +69,8 @@
             this.Controls.Add(this.tvw);
             this.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
-            this.Name = "StresstestingSolutionExplorer";
-            this.Text = "Stresstesting Solution Explorer";
+            this.Name = "StressTestingSolutionExplorer";
+            this.Text = "Stress testing solution explorer";
             this.ResumeLayout(false);
 
         }

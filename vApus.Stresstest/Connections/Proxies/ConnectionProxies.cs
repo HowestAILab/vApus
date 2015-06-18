@@ -17,7 +17,7 @@ using System.Xml;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(
         new[]
             {
@@ -26,11 +26,11 @@ namespace vApus.Stresstest {
             },
         new[]
             {
-                "Import One or More Connection Proxies", "Add Connection Proxy", "Import Connection Proxy Prerequisite(s)",
+                "Import one or more connection proxies", "Add connection proxy", "Import connection proxy prerequisite(s)",
                 "Sort", "Clear", "Paste"
             })]
     [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Enter, (Keys.Control | Keys.V) })]
-    [DisplayName("Connection Proxies"), Serializable]
+    [DisplayName("Connection proxies"), Serializable]
     public class ConnectionProxies : BaseItem {
         private void Import_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();

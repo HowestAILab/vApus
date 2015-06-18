@@ -11,7 +11,7 @@ using System.CodeDom.Compiler;
 using System.Drawing;
 using System.Windows.Forms;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     public partial class CompilePanel : UserControl {
         public event EventHandler CompileError;
         public event EventHandler<CompileErrorButtonClickedEventArgs> CompileErrorButtonClicked;
@@ -92,7 +92,7 @@ namespace vApus.Stresstest {
         }
 
         private void btnTryCompile_Click(object sender, EventArgs e) {
-            TryCompile(false, true);
+            TryCompile(true, false);
         }
 
         private void AddSuccessButton() {

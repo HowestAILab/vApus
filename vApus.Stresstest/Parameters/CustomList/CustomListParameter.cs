@@ -12,11 +12,11 @@ using System.Runtime.Serialization;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// Holds a list of strings, those can be generated from other parameter types.
     /// </summary>
-    [DisplayName("Custom List Parameter"), Serializable]
+    [DisplayName("Custom list parameter"), Serializable]
     public class CustomListParameter : BaseParameter, ISerializable {
 
         #region Fields
@@ -29,7 +29,7 @@ namespace vApus.Stresstest {
 
         #region Properties
         [PropertyControl(1), SavableCloneable]
-        [Description("If unique, one (randomly picked) value can be given only once until none are left, then values will be reused."), DisplayName("Custom List")]
+        [Description("If unique, one (randomly picked) value can be given only once until none are left, then values will be reused."), DisplayName("Custom list")]
         public string[] CustomList {
             get { return _customList; }
             set { _customList = value; }
@@ -43,7 +43,7 @@ namespace vApus.Stresstest {
         }
 
         [PropertyControl(int.MaxValue)]
-        [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stresstest, a value at the same index is asked for the other. ONLY WORKS IF BOTH ARE IN THE SAME NODE OF A LOG ENTRY. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
+        [Description("You can link this custom list parameter to another. This means that when a value is asked for this parameter in a stress test, a value at the same index is asked for the other. ONLY WORKS IF BOTH ARE IN THE SAME NODE OF A REQUEST. Handy for instance when you need to link user names to passwords."), DisplayName("Link to")]
         public CustomListParameter LinkTo {
             get {
                 var parent = Parent as CustomListParameters;

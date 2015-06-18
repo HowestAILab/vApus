@@ -23,7 +23,7 @@ namespace vApus.JumpStart {
         private static HandleJumpStartWorkItem _handleJumpStartWorkItem;
 
         #region Message Handling
-        public static Message<Key> HandleMessage(SocketWrapper receiver, Message<Key> message) {
+        public static Message<Key> HandleMessage( Message<Key> message) {
             try {
                 switch (message.Key) {
                     case Key.JumpStart:
@@ -42,14 +42,13 @@ namespace vApus.JumpStart {
         private static Message<Key> HandleJumpStart(Message<Key> message) {
             var jumpStartMessage = (JumpStartMessage)message.Content;
             string[] ports = jumpStartMessage.Port.Split(',');
-            string[] processorAffinity = jumpStartMessage.ProcessorAffinity.Split(',');
 
             var waithandle = new AutoResetEvent(false);
             int j = 0;
             for (int i = 0; i != ports.Length; i++) {
                 var t = new Thread(delegate(object state) {
                     _handleJumpStartWorkItem = new HandleJumpStartWorkItem();
-                    _handleJumpStartWorkItem.HandleJumpStart(int.Parse(ports[(int)state]), processorAffinity[(int)state]);
+                    _handleJumpStartWorkItem.HandleJumpStart(int.Parse(ports[(int)state]));
                     if (Interlocked.Increment(ref j) == ports.Length)
                         waithandle.Set();
                 });
@@ -127,16 +126,12 @@ namespace vApus.JumpStart {
         #endregion
 
         private class HandleJumpStartWorkItem {
-            public void HandleJumpStart(int port, string processorAffinity) {
+            public void HandleJumpStart(int port) {
                 var p = new Process();
                 try {
                     string vApusLocation = Path.Combine(Application.StartupPath, "vApus.exe");
 
-                    if (processorAffinity.Length == 0)
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-p ", port));
-                    else
-                        p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-p ", port, " -pa ", processorAffinity));
-
+                    p.StartInfo = new ProcessStartInfo(vApusLocation, string.Concat("-p ", port));
                     p.Start();
                     if (!p.WaitForInputIdle(10000))
                         throw new TimeoutException("The process did not start.");

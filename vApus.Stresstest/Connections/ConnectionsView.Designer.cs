@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest {
+﻿namespace vApus.StressTest {
     partial class ConnectionsView {
         /// <summary>
         /// Required designer variable.
@@ -72,7 +72,7 @@
             this.chkShowConnectionStrings.Name = "chkShowConnectionStrings";
             this.chkShowConnectionStrings.Size = new System.Drawing.Size(142, 17);
             this.chkShowConnectionStrings.TabIndex = 1;
-            this.chkShowConnectionStrings.Text = "Show Connection Strings";
+            this.chkShowConnectionStrings.Text = "Show connection strings";
             this.chkShowConnectionStrings.UseVisualStyleBackColor = true;
             this.chkShowConnectionStrings.CheckedChanged += new System.EventHandler(this.chkShowConnectionStrings_CheckedChanged);
             // 

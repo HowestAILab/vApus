@@ -47,7 +47,7 @@ namespace vApus.SolutionTree {
         private static readonly StringCollection _recentSolutions;
         private static Solution _activeSolution;
 
-        private static readonly StresstestingSolutionExplorer _stresstestingSolutionExplorer = new StresstestingSolutionExplorer();
+        private static readonly StressTestingSolutionExplorer _stressTestingSolutionExplorer = new StressTestingSolutionExplorer();
 
         private static readonly OpenFileDialog _ofd = new OpenFileDialog();
         private static readonly SaveFileDialog _sfd = new SaveFileDialog();
@@ -95,8 +95,8 @@ namespace vApus.SolutionTree {
         /// </summary>
         public static bool ExplicitCancelFormClosing { get; set; }
 
-        public static StresstestingSolutionExplorer StresstestingSolutionExplorer {
-            get { return Solution._stresstestingSolutionExplorer; }
+        public static StressTestingSolutionExplorer StressTestingSolutionExplorer {
+            get { return Solution._stressTestingSolutionExplorer; }
         }
         #endregion
 
@@ -127,22 +127,22 @@ namespace vApus.SolutionTree {
         ///     Note: call 'RegisterDockPanel(DockPanel dockPanel)' prior to this.
         /// </summary>
         /// <returns>True on success</returns>
-        public static bool ShowStresstestingSolutionExplorer() {
+        public static bool ShowStressTestingSolutionExplorer() {
             try {
-                int dockState = Settings.Default.StresstestingSolutionExplorerDockState;
+                int dockState = Settings.Default.StressTestingSolutionExplorerDockState;
                 if (dockState == -1) dockState = 8; //DockLeft
 
-                _stresstestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
+                _stressTestingSolutionExplorer.Show(_dockPanel, (DockState)dockState);
             } catch (Exception ex) {
                 //Could fail for slaves
-                Loggers.Log(Level.Error, "Failed showing stresstesting solution explorer.", ex);
+                Loggers.Log(Level.Error, "Failed showing stress testing solution explorer.", ex);
                 return false;
             }
             return true;
         }
 
-        public static void HideStresstestingSolutionExplorer() {
-            _stresstestingSolutionExplorer.Hide();
+        public static void HideStressTestingSolutionExplorer() {
+            _stressTestingSolutionExplorer.Hide();
         }
 
         /// <summary>
@@ -379,7 +379,7 @@ namespace vApus.SolutionTree {
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
 This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
-Take a copy of the file to be sure and test if stresstesting works.
+Take a copy of the file to be sure and test if stress testing works.
 
 See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
@@ -434,7 +434,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
 This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
-Take a copy of the file to be sure and test if stresstesting works.
+Take a copy of the file to be sure and test if stress testing works.
 
 See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
                 }
@@ -507,7 +507,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                     MessageBox.Show(@"Failed loading one or more items/properties.
 
 This is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.
-Take a copy of the file to be sure and test if stresstesting works.
+Take a copy of the file to be sure and test if stress testing works.
 
 See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warning)", string.Empty,
                                     MessageBoxButtons.OK, MessageBoxIcon.Warning);
@@ -565,13 +565,13 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 Settings.Default.RecentSolutions = new StringCollection();
             _recentSolutions = Settings.Default.RecentSolutions;
 
-            _ofd.Filter = "vApus Stresstesting Solutions (*.vass) | *.vass";
+            _ofd.Filter = "vApus stress testing solutions (*.vass) | *.vass";
             _ofd.Multiselect = false;
             _sfd.Filter = _ofd.Filter;
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
-            _stresstestingSolutionExplorer.DockStateChanged += _stresstestingSolutionExplorer_DockStateChanged;
+            _stressTestingSolutionExplorer.DockStateChanged += _stressTestingSolutionExplorer_DockStateChanged;
         }
 
         private Solution() {
@@ -595,17 +595,17 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
         }
 
 
-        private static void _stresstestingSolutionExplorer_DockStateChanged(object sender, EventArgs e) {
+        private static void _stressTestingSolutionExplorer_DockStateChanged(object sender, EventArgs e) {
             bool mutexCreated;
             var canSaveSettingshNamedMutex = new Mutex(true, "vApus_SolutionTree", out mutexCreated);
 
             if (mutexCreated || canSaveSettingshNamedMutex.WaitOne(0))
                 try {
-                    if (_stresstestingSolutionExplorer.DockState == DockState.Hidden) {
-                        Settings.Default.StresstestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
+                    if (_stressTestingSolutionExplorer.DockState == DockState.Hidden) {
+                        Settings.Default.StressTestingSolutionExplorerDockState = (int)DockState.DockLeftAutoHide;
                         Settings.Default.Save();
-                    } else if (_stresstestingSolutionExplorer.DockState != DockState.Unknown) {
-                        Settings.Default.StresstestingSolutionExplorerDockState = (int)_stresstestingSolutionExplorer.DockState;
+                    } else if (_stressTestingSolutionExplorer.DockState != DockState.Unknown) {
+                        Settings.Default.StressTestingSolutionExplorerDockState = (int)_stressTestingSolutionExplorer.DockState;
                         Settings.Default.Save();
                     }
                 } finally {
@@ -626,6 +626,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
         /// <summary>
         ///     To do stuff that is not done by 'this', like building main menu items.
+        ///     Not case sensitive.
         /// </summary>
         /// <param name="typeName"></param>
         /// <returns></returns>
@@ -633,7 +634,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             if (typeName == null)
                 throw new ArgumentNullException(typeName);
             foreach (BaseProject project in _projects)
-                if (project.GetType().Name == typeName)
+                if (project.GetType().Name.ToLower() == typeName.ToLower())
                     return project;
             return null;
         }
@@ -751,7 +752,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
                 _saveLoadTask.Dispose();
             }
 
-            _stresstestingSolutionExplorer.Enabled = false;
+            _stressTestingSolutionExplorer.Enabled = false;
 
             string errorMessage = string.Empty;
 
@@ -761,7 +762,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
 
             } catch { }
 
-            _stresstestingSolutionExplorer.Enabled = true;
+            _stressTestingSolutionExplorer.Enabled = true;
 
             return errorMessage;
         }

@@ -1,4 +1,4 @@
-﻿namespace vApus.Stresstest
+﻿namespace vApus.StressTest
 {
     partial class ConnectionView
     {
@@ -31,7 +31,7 @@
             this.btnTestConnection = new System.Windows.Forms.Button();
             this.split = new System.Windows.Forms.SplitContainer();
             this.solutionComponentPropertyPanel = new vApus.SolutionTree.SolutionComponentPropertyPanel();
-            this.ruleSetSyntaxItemPanel = new vApus.Stresstest.RuleSetSyntaxItemPanel();
+            this.ruleSetSyntaxItemPanel = new vApus.StressTest.RuleSetSyntaxItemPanel();
             this.tracertControl = new vApus.Util.TracertControl();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
@@ -52,7 +52,7 @@
             this.btnTestConnection.Name = "btnTestConnection";
             this.btnTestConnection.Size = new System.Drawing.Size(112, 24);
             this.btnTestConnection.TabIndex = 2;
-            this.btnTestConnection.Text = "Test Connection";
+            this.btnTestConnection.Text = "Test connection";
             this.btnTestConnection.UseVisualStyleBackColor = false;
             this.btnTestConnection.Click += new System.EventHandler(this.btnTestConnection_Click);
             // 

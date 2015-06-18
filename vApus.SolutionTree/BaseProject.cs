@@ -18,7 +18,7 @@ using vApus.Util;
 
 namespace vApus.SolutionTree {
     /// <summary>
-    /// The first childs of a solution, used to bundle different functionalities (Distributed Tests, Monitors, Connections, Logs, Stresstests).
+    /// The first childs of a solution, used to bundle different functionalities (Distributed tests, Monitors, Connections, Scenarios, Stress tests).
     /// The stuff in projects are either dirived from base items or labeled base items.
     /// This class implements functions to load to and save from vass files (used in Solution), paste, import, ...
     /// </summary>
@@ -30,8 +30,8 @@ namespace vApus.SolutionTree {
         #endregion
 
         #region Properties
-        [DisplayName("Stresstesting Solution FileName.")]
-        public string StresstestingSolutionFileName {
+        [DisplayName("Stress testing solution file name")]
+        public string StressTestingSolutionFileName {
             get { return _parent.FileName; }
         }
         public Solution Parent {
@@ -164,7 +164,7 @@ namespace vApus.SolutionTree {
                 } catch (Exception ex) {
                     string s = "[" + this + "] " + childNode.Name;
                     Loggers.Log(Level.Warning, "Failed loading " + s +
-                        " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stresstesting works.", 
+                        " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stress testing works.", 
                         ex, new object[] { xmlDocument });
 
                     sb.Append(s);

@@ -13,11 +13,11 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     [ContextMenu(new[] { "Add_Click", "Import_Click", "Clear_Click", "Paste_Click" },
-        new[] { "Add Text Parameter", "Import Parameter(s)", "Clear", "Paste" })]
+        new[] { "Add text parameter", "Import parameter(s)", "Clear", "Paste" })]
     [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Insert, (Keys.Control | Keys.V) })]
-    [DisplayName("Text Parameters")]
+    [DisplayName("Text parameters")]
     [Serializable]
     public class TextParameters : BaseItem, ISerializable {
         public TextParameters() { }

@@ -65,8 +65,8 @@ namespace vApus.Util {
             _lastStatus = IPStatus.Unknown;
             _hops = 0;
 
-            kvpHops.Key = "0 Hops";
-            kvpRoundtripTime.Key = "Roundtrip Time N/A";
+            kvpHops.Key = "0 hops";
+            kvpRoundtripTime.Key = "Roundtrip time N/A";
             btnStatus.Text = "Tracing...";
             btnStatus.BackColor = Color.LightBlue;
 
@@ -92,14 +92,14 @@ namespace vApus.Util {
 
         private void _tracert_Hop(object sender, Tracert.HopEventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                kvpHops.Key = ((++_hops) == 1 ? "1 Hop" : _hops + " Hop");
+                kvpHops.Key = ((++_hops) == 1 ? "1 hop" : _hops + " hop");
                 string roundtripTime = "N/A";
                 if (e.Status == IPStatus.Success) {
                     TimeSpan ts = TimeSpan.FromMilliseconds(e.RoundTripTime);
                     roundtripTime = ts.ToShortFormattedString();
-                    kvpRoundtripTime.Key = roundtripTime + " Roundtrip Time";
+                    kvpRoundtripTime.Key = roundtripTime + " Roundtrip time";
                 } else {
-                    kvpRoundtripTime.Key = "Roundtrip Time N/A";
+                    kvpRoundtripTime.Key = "Roundtrip time N/A";
                 }
                 _lastStatus = e.Status;
 

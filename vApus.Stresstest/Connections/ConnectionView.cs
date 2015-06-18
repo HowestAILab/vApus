@@ -16,7 +16,7 @@ using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
     /// <summary>
     /// Editing a connection happens here. Gui is generated based on the connection rule set in the chosen connection proxy.
     /// </summary>
@@ -87,7 +87,7 @@ namespace vApus.Stresstest {
             _testing = false;
             if (_connection.ConnectionProxy.IsEmpty) {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    btnTestConnection.Text = "Test Connection";
+                    btnTestConnection.Text = "Test connection";
                     if (!_tracing)
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;
@@ -102,7 +102,7 @@ namespace vApus.Stresstest {
             }
 
             var connectionProxyPool = new ConnectionProxyPool(_connection);
-            CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(true);
+            CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(true, false);
 
             if (compilerResults.Errors.HasErrors) {
                 error = "Failed at compiling the connection proxy class.";
@@ -115,7 +115,7 @@ namespace vApus.Stresstest {
                 }
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    btnTestConnection.Text = "Test Connection";
+                    btnTestConnection.Text = "Test connection";
                     if (!_tracing)
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;
@@ -130,7 +130,7 @@ namespace vApus.Stresstest {
                 connectionProxyPool.TestConnection(out errorMessage);
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    btnTestConnection.Text = "Test Connection";
+                    btnTestConnection.Text = "Test connection";
                     if (!_tracing)
                         split.Enabled = true;
                     btnTestConnection.Enabled = true;

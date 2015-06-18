@@ -81,7 +81,7 @@ namespace vApus.Results {
         /// <param name="concurrencyMetrics"></param>
         /// <param name="monitorResultCache"></param>
         /// <returns></returns>
-        public static MonitorMetrics GetConcurrencyMetrics(string monitor, StresstestMetrics concurrencyMetrics, MonitorResult monitorResultCache) {
+        public static MonitorMetrics GetConcurrencyMetrics(string monitor, StressTestMetrics concurrencyMetrics, MonitorResult monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitor;
             metrics.StartMeasuringRuntime = concurrencyMetrics.StartMeasuringTime;
@@ -121,7 +121,7 @@ namespace vApus.Results {
         /// <param name="runMetrics"></param>
         /// <param name="monitorResultCache"></param>
         /// <returns></returns>
-        public static MonitorMetrics GetRunMetrics(string monitor, StresstestMetrics runMetrics, MonitorResult monitorResultCache) {
+        public static MonitorMetrics GetRunMetrics(string monitor, StressTestMetrics runMetrics, MonitorResult monitorResultCache) {
             var metrics = new MonitorMetrics();
             metrics.Monitor = monitor;
             metrics.StartMeasuringRuntime = runMetrics.StartMeasuringTime;

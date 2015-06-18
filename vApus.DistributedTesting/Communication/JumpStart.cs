@@ -18,7 +18,7 @@ using System.Threading.Tasks;
 using vApus.JumpStartStructures;
 using vApus.Util;
 
-namespace vApus.DistributedTesting {
+namespace vApus.DistributedTest {
     /// <summary>
     /// Starts, kills and smart updates vApus slaves.
     /// </summary>
@@ -44,9 +44,9 @@ namespace vApus.DistributedTesting {
                     var ips = new List<string>();
                     foreach (Tile t in distributedTest.Tiles)
                         if (t.Use)
-                            foreach (TileStresstest ts in t)
+                            foreach (TileStressTest ts in t)
                                 if (ts.Use)
-                                    foreach (var slave in ts.BasicTileStresstest.Slaves) {
+                                    foreach (var slave in ts.BasicTileStressTest.Slaves) {
                                         string ip = slave.IP;
                                         if (!ips.Contains(ip))
                                             ips.Add(ip);
@@ -95,8 +95,8 @@ namespace vApus.DistributedTesting {
             var slaves = new List<Slave>();
             foreach (Tile t in distributedTest.Tiles)
                 if (t.Use)
-                    foreach (TileStresstest ts in t)
-                        if (ts.Use) slaves.AddRange(ts.BasicTileStresstest.Slaves);
+                    foreach (TileStressTest ts in t)
+                        if (ts.Use) slaves.AddRange(ts.BasicTileStressTest.Slaves);
 
             Do(slaves);
         }
@@ -105,28 +105,21 @@ namespace vApus.DistributedTesting {
 
             var toJumpStart = new Hashtable(slaves.Count);
             foreach (Slave slave in slaves)
-                RegisterForJumpStart(toJumpStart, slave.IP, slave.Port, slave.ProcessorAffinity);
+                RegisterForJumpStart(toJumpStart, slave.IP, slave.Port);
 
             Do(toKill, toJumpStart);
         }
 
-        private static void RegisterForJumpStart(Hashtable toJumpStart, string ip, int port, int[] processorAffinity) {
+        private static void RegisterForJumpStart(Hashtable toJumpStart, string ip, int port) {
             string s = port.ToString();
             if (toJumpStart.ContainsKey(ip)) {
-                var kvp = (KeyValuePair<string, string>)toJumpStart[ip];
-                if (!kvp.Key.Contains(s))
-                    kvp = new KeyValuePair<string, string>(kvp.Key + "," + s, kvp.Value + "," + GetZeroBasedPA(processorAffinity));
-                toJumpStart[ip] = kvp;
+                var ports = toJumpStart[ip] as string;
+                if (!ports.Contains(s))
+                    ports += "," + s;
+                toJumpStart[ip] = ports;
             } else {
-                var kvp = new KeyValuePair<string, string>(port.ToString(), GetZeroBasedPA(processorAffinity));
-                toJumpStart.Add(ip, kvp);
+                toJumpStart.Add(ip, port.ToString());
             }
-        }
-        private static string GetZeroBasedPA(int[] processorAffinity) {
-            var pa = new int[processorAffinity.Length];
-            for (int i = 0; i != pa.Length; i++) pa[i] = processorAffinity[i] - 1;
-
-            return pa.Combine(" ");
         }
 
         private static Hashtable RegisterForKill(List<Slave> slaves) {
@@ -205,14 +198,10 @@ namespace vApus.DistributedTesting {
                             var dictionaryEntry = (DictionaryEntry)state;
                             _workItem = new WorkItem();
 
-                            if (jumpStart) {
-                                var ip = dictionaryEntry.Key as string;
-                                var kvp = (KeyValuePair<string, string>)ht[ip];
-
-                                exceptions.Add(_workItem.DoJumpStart(ip, kvp.Key, kvp.Value));
-                            } else {
+                            if (jumpStart) 
+                                exceptions.Add(_workItem.DoJumpStart(dictionaryEntry.Key as string, dictionaryEntry.Value as string));
+                             else 
                                 _workItem.DoKill(dictionaryEntry.Key as string, (int)dictionaryEntry.Value);
-                            }
 
                             if (Interlocked.Increment(ref i) == count) waithandle.Set();
                         });
@@ -337,14 +326,14 @@ namespace vApus.DistributedTesting {
             /// </summary>
             /// <param name="ip"></param>
             /// <param name="port"></param>
-            public Exception DoJumpStart(string ip, string port, string processorAffinity) {
+            public Exception DoJumpStart(string ip, string port) {
                 Exception exception = null;
                 SocketWrapper socketWrapper = null;
                 try {
                     socketWrapper = Connect(ip);
                     if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
 
-                    var jumpStartMessage = new JumpStartMessage(port, processorAffinity);
+                    var jumpStartMessage = new JumpStartMessage(port);
                     var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.JumpStart, jumpStartMessage);
 
                     socketWrapper.Send(message, SendType.Binary);
