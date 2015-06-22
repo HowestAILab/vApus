@@ -4,6 +4,25 @@
         <name>vApus.Monitor.Sources.Base</name>
     </assembly>
     <members>
+        <member name="T:vApus.Monitor.Sources.Base.BandwidthTest">
+            <summary>
+            Used in the socket clients.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BandwidthTest.GetUploadSpeed(System.Net.Sockets.Socket)">
+            <summary>
+            
+            </summary>
+            <param name="socket"></param>
+            <returns>Upload speed in mbps</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BandwidthTest.GetDownloadSpeed(System.Net.Sockets.Socket)">
+            <summary>
+            
+            </summary>
+            <param name="socket"></param>
+            <returns>Download speed in mbps</returns>
+        </member>
         <member name="T:vApus.Monitor.Sources.Base.BaseClient">
             <summary>
             The base to all vApus monitor source clients implementations. A monitor source can be a in house or a third party agent or a device (like a power meter).
@@ -428,13 +447,37 @@
             </summary>
             <returns></returns>
         </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Connect(System.Net.Sockets.Socket,System.Net.IPAddress,System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Connects to a socket.
+                Throws an exception if it is not able too.
+                You must check the connected property first before calling this.
+            </summary>
+            <param name="socket"></param>
+            <param name="ipAddress"></param>
+            <param name="port"></param>
+            <param name="connectTimeout">In ms. If smaller then or equals 0, the timeout is infinite. If a timeout is given, connecting will happen async</param>
+            <param name="retries">If the timeout isn't sufficient you can set a retry count.</param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.ConnectCallback(System.IAsyncResult)">
+            <summary>
+            </summary>
+            <param name="ar"></param>
+        </member>
         <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.WriteRead(`0)">
             <summary>
-            Write to / read from the socket. Serialization stuff must be done here.
-            Also add Console.WriteLine stuff to be used when testing. Check using CanConsoleWriteLine if there should be outputted.
+            Write to / read from the socket. Calls Write(write) and then returns Read(write as expected response).
             </summary>
             <param name="write"></param>
             <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Write(`0)">
+            <summary>
+            Write to a socket. Used in WriteRead(write).  Serialization stuff must be done here.
+            Also add Console.WriteLine stuff to be used when testing. Check using CanConsoleWriteLine if there should be outputted.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="write"></param>
         </member>
         <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Read(`0)">
             <summary>
@@ -443,11 +486,29 @@
             <param name="expectedResponse">When called in WriteRead(T) this should be the value of write.</param>
             <returns></returns>
         </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.TestBandwidth(System.Double@,System.Double@)">
+            <summary>
+            Gets the bandwidths if connected but not started!
+            You should only do this with one client at a time.
+            </summary>
+            <param name="downloadSpeedInMbps"></param>
+            <param name="uploadSpeedInMbps"></param>
+        </member>
         <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Disconnect">
             <summary>
             Stops and disconnects, do all other cleanup stuff in Stop().
             </summary>
             <returns></returns>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IPAddresses">
+            <summary>
+            Reverse lookups the hostname if possible.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.Port">
+            <summary>
+            
+            </summary>
         </member>
         <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IsConnected">
             <summary>

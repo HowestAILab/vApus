@@ -1,19 +1,18 @@
-﻿using RandomUtils;
-using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2013 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
+using RandomUtils.Log;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using vApus.Util;
 
 namespace vApus.StressTest {
     /// <summary>

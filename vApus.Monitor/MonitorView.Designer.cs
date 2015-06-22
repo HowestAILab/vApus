@@ -43,6 +43,7 @@
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.split = new System.Windows.Forms.SplitContainer();
+            this.btnBandwidth = new System.Windows.Forms.Button();
             this.lblMonitorSourceMismatch = new System.Windows.Forms.Label();
             this.lblMonitorSourceParameters = new System.Windows.Forms.Label();
             this.parameterPanel = new vApus.Monitor.MonitorParameterPanel();
@@ -166,6 +167,7 @@
             // split.Panel1
             // 
             this.split.Panel1.BackColor = System.Drawing.Color.White;
+            this.split.Panel1.Controls.Add(this.btnBandwidth);
             this.split.Panel1.Controls.Add(this.lblMonitorSourceMismatch);
             this.split.Panel1.Controls.Add(this.lblMonitorSourceParameters);
             this.split.Panel1.Controls.Add(this.parameterPanel);
@@ -184,6 +186,27 @@
             this.split.SplitterDistance = 325;
             this.split.SplitterWidth = 2;
             this.split.TabIndex = 0;
+            // 
+            // btnBandwidth
+            // 
+            this.btnBandwidth.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnBandwidth.AutoSize = true;
+            this.btnBandwidth.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
+            this.btnBandwidth.BackColor = System.Drawing.SystemColors.Control;
+            this.btnBandwidth.Enabled = false;
+            this.btnBandwidth.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnBandwidth.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnBandwidth.Location = new System.Drawing.Point(181, 298);
+            this.btnBandwidth.MaximumSize = new System.Drawing.Size(1000, 24);
+            this.btnBandwidth.Name = "btnBandwidth";
+            this.btnBandwidth.Size = new System.Drawing.Size(78, 24);
+            this.btnBandwidth.TabIndex = 3;
+            this.btnBandwidth.Text = "Bandwidth";
+            this.toolTip.SetToolTip(this.btnBandwidth, "Measures the bandwidth over TCP using 10 MB bit streams times 100.\r\nDo this with " +
+        "not more than ONE client at a time. Otherwise, the measurement will not be corre" +
+        "ct.");
+            this.btnBandwidth.UseVisualStyleBackColor = false;
+            this.btnBandwidth.Click += new System.EventHandler(this.btnBandwidth_Click);
             // 
             // lblMonitorSourceMismatch
             // 
@@ -255,7 +278,7 @@
             this.btnConfiguration.MaximumSize = new System.Drawing.Size(94, 24);
             this.btnConfiguration.Name = "btnConfiguration";
             this.btnConfiguration.Size = new System.Drawing.Size(94, 24);
-            this.btnConfiguration.TabIndex = 3;
+            this.btnConfiguration.TabIndex = 4;
             this.btnConfiguration.Text = "Configuration";
             this.btnConfiguration.UseVisualStyleBackColor = false;
             this.btnConfiguration.Click += new System.EventHandler(this.btnConfiguration_Click);
@@ -268,7 +291,7 @@
             this.btnGetCounters.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnGetCounters.Location = new System.Drawing.Point(3, 298);
             this.btnGetCounters.Name = "btnGetCounters";
-            this.btnGetCounters.Size = new System.Drawing.Size(253, 24);
+            this.btnGetCounters.Size = new System.Drawing.Size(169, 24);
             this.btnGetCounters.TabIndex = 2;
             this.btnGetCounters.Text = "Get counters";
             this.btnGetCounters.UseVisualStyleBackColor = false;
@@ -281,7 +304,7 @@
             this.btnSetDefaultWiw.Enabled = false;
             this.btnSetDefaultWiw.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSetDefaultWiw.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSetDefaultWiw.Location = new System.Drawing.Point(3, 302);
+            this.btnSetDefaultWiw.Location = new System.Drawing.Point(3, 304);
             this.btnSetDefaultWiw.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.btnSetDefaultWiw.Name = "btnSetDefaultWiw";
             this.btnSetDefaultWiw.Size = new System.Drawing.Size(353, 22);
@@ -414,7 +437,7 @@
             this.lvwEntities.Margin = new System.Windows.Forms.Padding(3, 3, 3, 0);
             this.lvwEntities.MultiSelect = false;
             this.lvwEntities.Name = "lvwEntities";
-            this.lvwEntities.Size = new System.Drawing.Size(353, 299);
+            this.lvwEntities.Size = new System.Drawing.Size(353, 301);
             this.lvwEntities.SmallImageList = this.imgListEntityState;
             this.lvwEntities.TabIndex = 0;
             this.lvwEntities.UseCompatibleStateImageBehavior = false;
@@ -544,7 +567,7 @@
             this.btnSaveFilteredMonitoredCounters.Location = new System.Drawing.Point(12, 47);
             this.btnSaveFilteredMonitoredCounters.MaximumSize = new System.Drawing.Size(106, 24);
             this.btnSaveFilteredMonitoredCounters.Name = "btnSaveFilteredMonitoredCounters";
-            this.btnSaveFilteredMonitoredCounters.Size = new System.Drawing.Size(106, 24);
+            this.btnSaveFilteredMonitoredCounters.Size = new System.Drawing.Size(103, 24);
             this.btnSaveFilteredMonitoredCounters.TabIndex = 1;
             this.btnSaveFilteredMonitoredCounters.Text = "Save filtered...";
             this.toolTip.SetToolTip(this.btnSaveFilteredMonitoredCounters, "To filter the counters in a (large) counter collection. Wild card * can be used. " +
@@ -563,7 +586,7 @@
             this.btnSaveAllMonitorCounters.Location = new System.Drawing.Point(124, 47);
             this.btnSaveAllMonitorCounters.MaximumSize = new System.Drawing.Size(78, 24);
             this.btnSaveAllMonitorCounters.Name = "btnSaveAllMonitorCounters";
-            this.btnSaveAllMonitorCounters.Size = new System.Drawing.Size(78, 24);
+            this.btnSaveAllMonitorCounters.Size = new System.Drawing.Size(77, 24);
             this.btnSaveAllMonitorCounters.TabIndex = 2;
             this.btnSaveAllMonitorCounters.Text = "Save all...";
             this.toolTip.SetToolTip(this.btnSaveAllMonitorCounters, "To filter the counters in a (large) counter collection. Wild card * can be used. " +
@@ -705,5 +728,6 @@
         private System.Windows.Forms.LinkLabel llblUncheckAllVisible;
         private System.Windows.Forms.CheckBox chkGroupChecked;
         private System.Windows.Forms.Button btnSetDefaultWiw;
+        private System.Windows.Forms.Button btnBandwidth;
     }
 }
