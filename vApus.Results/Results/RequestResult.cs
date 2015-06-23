@@ -24,6 +24,13 @@ namespace vApus.Results {
         public string Request { get; set; }
         public DateTime SentAt { get; set; }
         public long TimeToLastByteInTicks { get; set; }
+        /// <summary>
+        /// Should only apply to the first request. This is the delay before the test starts. Not taken in account for result calculations.
+        /// </summary>
+        public int InitialDelayInMilliseconds { get; set; }
+        /// <summary>
+        /// Delay (see it as user think time in web apps) after the last request in a user action. Does not happen after the last request --> useless and influences the results.
+        /// </summary>
         public int DelayInMilliseconds { get; set; }
         public string Error { get; set; }
 

@@ -84,7 +84,7 @@ FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), Timestamp datetime(6
                     @"Create Table stresstests(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(Id), vApusInstanceId int NOT NULL, 
 FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), StressTest varchar(255) NOT NULL, RunSynchronization varchar(20) NOT NULL, Connection varchar(255) NOT NULL,
 ConnectionProxy varchar(255) NOT NULL, ConnectionString longtext NOT NULL, Scenarios longtext NOT NULL, ScenarioRuleSet varchar(255) NOT NULL, Concurrencies longtext NOT NULL,
-Runs int NOT NULL, MinimumDelayInMilliseconds int NOT NULL, MaximumDelayInMilliseconds int NOT NULL, Shuffle bool NOT NULL, ActionDistribution bool NOT NULL, MaximumNumberOfUserActions int NOT NULL,
+Runs int NOT NULL, InitialMinimumDelayInMilliseconds int NOT NULL, InitialMaximumDelayInMilliseconds int NOT NULL, MinimumDelayInMilliseconds int NOT NULL, MaximumDelayInMilliseconds int NOT NULL, Shuffle bool NOT NULL, ActionDistribution bool NOT NULL, MaximumNumberOfUserActions int NOT NULL,
 MonitorBeforeInMinutes int NOT NULL, MonitorAfterInMinutes int NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 

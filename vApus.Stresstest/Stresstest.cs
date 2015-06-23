@@ -28,7 +28,7 @@ namespace vApus.StressTest {
     public class StressTest : LabeledBaseItem, ISerializable {
 
         #region Fields
-        private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
+        private int _runs = 1, _initialMinimumDelay = 900, _initialMaximumDelay = 1100, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
         private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
         private bool _shuffle = true;
         private bool _actionDistribution;
@@ -292,8 +292,51 @@ namespace vApus.StressTest {
             }
         }
 
+        [Description("The minimum delay in milliseconds before the execution of the first requests per user. This is not used in result calculations, but rather to spread the requests at the start of the test."), DisplayName("Initial minimum delay")]
+        [PropertyControl(5, true, 0, int.MaxValue)]
+        public int InitialMinimumDelay {
+            get { return _initialMinimumDelay; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
+                if (value > _initialMaximumDelay)
+                    _initialMaximumDelay = value;
+                _initialMinimumDelay = value;
+            }
+        }
+        /// <summary>
+        ///     Only for saving and loading, should not be used.
+        /// </summary>
+        [SavableCloneable]
+        public int InitialMinimumDelayOverride {
+            get { return _initialMinimumDelay; }
+            set { _initialMinimumDelay = value; }
+        }
+
+        [Description("The maximum delay in milliseconds before the execution of the first requests per user. This is not used in result calculations, but rather to spread the requests at the start of the test."), DisplayName("Initial maximum delay")]
+        [PropertyControl(6, true, 0, int.MaxValue)]
+        public int InitialMaximumDelay {
+            get { return _initialMaximumDelay; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
+                if (value < _initialMinimumDelay)
+                    _initialMinimumDelay = value;
+                _initialMaximumDelay = value;
+            }
+        }
+
+        /// <summary>
+        ///     Only for saving and loading, should not be used.
+        /// </summary>
+        [SavableCloneable]
+        public int InitialMaximumDelayOverride {
+            get { return _initialMaximumDelay; }
+            set { _initialMaximumDelay = value; }
+        }
+        
         [Description("The minimum delay in milliseconds between the execution of requests per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum delay")]
-        [PropertyControl(5, true, 0)]
+        [PropertyControl(7, true, 0, int.MaxValue)]
         public int MinimumDelay {
             get { return _minimumDelay; }
             set {
@@ -315,7 +358,7 @@ namespace vApus.StressTest {
         }
 
         [Description("The maximum delay in milliseconds between the execution of requests per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum delay")]
-        [PropertyControl(6, true, 0)]
+        [PropertyControl(8, true, 0, int.MaxValue)]
         public int MaximumDelay {
             get { return _maximumDelay; }
             set {
@@ -337,7 +380,7 @@ namespace vApus.StressTest {
         }
 
         [Description("The user actions will be shuffled for each concurrent user when testing.")]
-        [SavableCloneable, PropertyControl(7)]
+        [SavableCloneable, PropertyControl(9)]
         public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
@@ -345,7 +388,7 @@ namespace vApus.StressTest {
 
         [Description("When this is used, user actions are executed X times its occurance. You can use 'Shuffle' and 'Maximum Number of User Actions' in combination with this to define unique test patterns for each user."),
         DisplayName("Action distribution")]
-        [SavableCloneable, PropertyControl(8, true)]
+        [SavableCloneable, PropertyControl(10, true, 0)]
         public bool ActionDistribution {
             get { return _actionDistribution; }
             set { _actionDistribution = value; }
@@ -353,7 +396,7 @@ namespace vApus.StressTest {
 
         [Description("The maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum number of user actions")]
-        [SavableCloneable, PropertyControl(9, true, 0)]
+        [SavableCloneable, PropertyControl(11, true, 0)]
         public int MaximumNumberOfUserActions {
             get { return _maximumNumberOfUserActions; }
             set {
@@ -365,7 +408,7 @@ namespace vApus.StressTest {
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."),
          DisplayName("Monitor before")]
-        [SavableCloneable, PropertyControl(10, true, 0)]
+        [SavableCloneable, PropertyControl(12, true, 0)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -379,7 +422,7 @@ namespace vApus.StressTest {
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."),
          DisplayName("Monitor after")]
-        [SavableCloneable, PropertyControl(11, true, 0)]
+        [SavableCloneable, PropertyControl(13, true, 0)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
@@ -450,6 +493,8 @@ namespace vApus.StressTest {
                 ShowInGui = false;
                 Label = sr.ReadString();
                 _runs = sr.ReadInt32();
+                _initialMinimumDelay = sr.ReadInt32();
+                _initialMaximumDelay = sr.ReadInt32();
                 _minimumDelay = sr.ReadInt32();
                 _maximumDelay = sr.ReadInt32();
                 _monitorBefore = sr.ReadInt32();
@@ -562,6 +607,8 @@ namespace vApus.StressTest {
             using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(Label);
                 sw.Write(_runs);
+                sw.Write(_initialMinimumDelay);
+                sw.Write(_initialMaximumDelay);
                 sw.Write(_minimumDelay);
                 sw.Write(_maximumDelay);
                 sw.Write(_monitorBefore);

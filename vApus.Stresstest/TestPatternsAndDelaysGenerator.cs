@@ -18,7 +18,7 @@ namespace vApus.StressTest {
 
         #region Fields
         private readonly Request[] _requests;
-        private readonly int _maxActionCount, _maximumDelay, _minimumDelay;
+        private readonly int _maxActionCount, _initialMaximumDelay, _initialMinimumDelay, _maximumDelay, _minimumDelay;
         private readonly bool _shuffleUserActions;
 
         //Representation of the user actions (List<int>) containing request indices.
@@ -41,12 +41,16 @@ namespace vApus.StressTest {
         /// <param name="maxActionCount">Pinned actions are always chosen, non pinned are if this value allows it. This value depends on UserActionDistribution but is determined in StressTestCore for difficulty reasons.</param>
         /// <param name="shuffleUserActions"></param>
         /// <param name="userActionDistribution"></param>
+        /// <param name="initialMinimumDelay"></param>
+        /// <param name="initialMaximumDelay"></param>
         /// <param name="minimumDelay"></param>
         /// <param name="maximumDelay"></param>
-        public TestPatternsAndDelaysGenerator(Request[] requests, int maxActionCount, bool shuffleUserActions, int minimumDelay, int maximumDelay) {
+        public TestPatternsAndDelaysGenerator(Request[] requests, int maxActionCount, bool shuffleUserActions, int initialMinimumDelay, int initialMaximumDelay, int minimumDelay, int maximumDelay) {
             _requests = requests;
             _maxActionCount = maxActionCount;
             _shuffleUserActions = shuffleUserActions;
+            _initialMinimumDelay = initialMinimumDelay;
+            _initialMaximumDelay = initialMaximumDelay;
             _minimumDelay = minimumDelay;
             _maximumDelay = maximumDelay;
 
@@ -124,23 +128,22 @@ namespace vApus.StressTest {
             }
         }
 
-        public void GetPatterns(out int[] testPattern, out int[] delayPattern) {
-            int seed = Guid.NewGuid().GetHashCode(); //Not using DateTime.Now or Environement.Ticks because this is updated every few milliseconds and we need a Thread.Sleep.
-            if (seed < 0) seed *= -1;
+        public void GetPatterns(out int[] testPattern, out int initialDelayInMilliseconds, out int[] delayPattern) {
+            int seed = 0;
 
-        Retry:
-            if (_chosenSeeds == null) _chosenSeeds = new HashSet<int>();
-            try {
-                while (!_chosenSeeds.Add(seed)) {
-                    seed += (seed + 11) / 2; //Simple method for getting a new unique seed (I hope).
-                    if (seed < 0) seed *= -1;
+            do {
+                try {
+                    seed = Guid.NewGuid().GetHashCode(); //Not using DateTime.Now or Environement.Ticks because this is updated every few milliseconds and we need a Thread.Sleep.
+                } catch {
+                    //To many items.
+                    _chosenSeeds = new HashSet<int>();
                 }
-            } catch { //To many items.
-                _chosenSeeds = new HashSet<int>();
-                goto Retry;
-            }
+            } while (!_chosenSeeds.Add(seed));
+
 
             var random = new Random(seed);
+
+            initialDelayInMilliseconds = random.Next(_initialMinimumDelay, _initialMaximumDelay + 1);
 
             var tp = new List<int>();
             var dp = new List<int>();

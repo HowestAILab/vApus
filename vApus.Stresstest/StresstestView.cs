@@ -174,7 +174,7 @@ namespace vApus.StressTest {
 
                 await Task.Run(() => {
                     _resultsHelper.SetStressTest(_stressTest.ToString(), "None", _stressTest.Connection.ToString(), _stressTest.ConnectionProxy, _stressTest.Connection.ConnectionString,
-                         scenarioKeys.Combine(", "), _stressTest.ScenarioRuleSet, _stressTest.Concurrencies, _stressTest.Runs, _stressTest.MinimumDelay,
+                         scenarioKeys.Combine(", "), _stressTest.ScenarioRuleSet, _stressTest.Concurrencies, _stressTest.Runs, _stressTest.InitialMinimumDelay, _stressTest.InitialMaximumDelay, _stressTest.MinimumDelay,
                          _stressTest.MaximumDelay, _stressTest.Shuffle, _stressTest.ActionDistribution, _stressTest.MaximumNumberOfUserActions, _stressTest.MonitorBefore, _stressTest.MonitorAfter);
                 });
 

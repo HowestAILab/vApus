@@ -121,12 +121,13 @@ namespace vApus.StressTest {
             SetConfigurationControlsAndMonitorLinkButtons(stressTest.ToString(), stressTest.Connection, stressTest.ConnectionProxy,
                                      stressTest.Scenarios, stressTest.ScenarioRuleSet,
                                      stressTest.Monitors, stressTest.Concurrencies, stressTest.Runs,
+                                     stressTest.InitialMinimumDelay, stressTest.InitialMaximumDelay,
                                      stressTest.MinimumDelay, stressTest.MaximumDelay, stressTest.Shuffle,
                                      stressTest.ActionDistribution, stressTest.MaximumNumberOfUserActions,
                                      stressTest.MonitorBefore, stressTest.MonitorAfter);
         }
         public void SetConfigurationControlsAndMonitorLinkButtons(string stressTest, Connection connection, string connectionProxy, KeyValuePair<Scenario, uint>[] scenarios, string scenarioRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
-                                             int runs, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter) {
+                                             int runs, int initialMinimumDelay, int initialMaximumDelay, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter) {
             kvpStressTest.Key = stressTest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
@@ -168,6 +169,9 @@ namespace vApus.StressTest {
             kvpConcurrencies.Value = concurrencies.Combine(", ");
 
             kvpRuns.Value = runs.ToString();
+            kvpInitialDelay.Value = (initialMinimumDelay == initialMaximumDelay
+                                  ? initialMinimumDelay.ToString()
+                                  : initialMinimumDelay + " - " + initialMaximumDelay) + " ms";
             kvpDelay.Value = (minimumDelay == maximumDelay
                                   ? minimumDelay.ToString()
                                   : minimumDelay + " - " + maximumDelay) + " ms";

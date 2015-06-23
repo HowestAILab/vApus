@@ -46,6 +46,7 @@
             this.kvpMonitor = new vApus.Util.KeyValuePairControl();
             this.kvpConcurrencies = new vApus.Util.KeyValuePairControl();
             this.kvpRuns = new vApus.Util.KeyValuePairControl();
+            this.kvpInitialDelay = new vApus.Util.KeyValuePairControl();
             this.kvpDelay = new vApus.Util.KeyValuePairControl();
             this.kvpShuffle = new vApus.Util.KeyValuePairControl();
             this.kvpActionDistribution = new vApus.Util.KeyValuePairControl();
@@ -187,6 +188,7 @@
             this.flpConfiguration.Controls.Add(this.kvpMonitor);
             this.flpConfiguration.Controls.Add(this.kvpConcurrencies);
             this.flpConfiguration.Controls.Add(this.kvpRuns);
+            this.flpConfiguration.Controls.Add(this.kvpInitialDelay);
             this.flpConfiguration.Controls.Add(this.kvpDelay);
             this.flpConfiguration.Controls.Add(this.kvpShuffle);
             this.flpConfiguration.Controls.Add(this.kvpActionDistribution);
@@ -324,15 +326,28 @@
     "an zero.";
             this.kvpRuns.Value = "";
             // 
+            // kvpInitialDelay
+            // 
+            this.kvpInitialDelay.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpInitialDelay.Key = "Initial delay";
+            this.kvpInitialDelay.Location = new System.Drawing.Point(733, 6);
+            this.kvpInitialDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpInitialDelay.Name = "kvpInitialDelay";
+            this.kvpInitialDelay.Size = new System.Drawing.Size(45, 24);
+            this.kvpInitialDelay.TabIndex = 9;
+            this.kvpInitialDelay.TabStop = false;
+            this.kvpInitialDelay.Tooltip = "The minimum delay in milliseconds before the execution of the first requests per user. This is not used in result calculations, but rather to spread the requests at the start of the test.";
+            this.kvpDelay.Value = "";
+            // 
             // kvpDelay
             // 
             this.kvpDelay.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpDelay.Key = "Delay";
-            this.kvpDelay.Location = new System.Drawing.Point(733, 6);
+            this.kvpDelay.Location = new System.Drawing.Point(3, 39);
             this.kvpDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpDelay.Name = "kvpDelay";
             this.kvpDelay.Size = new System.Drawing.Size(45, 24);
-            this.kvpDelay.TabIndex = 9;
+            this.kvpDelay.TabIndex = 10;
             this.kvpDelay.TabStop = false;
             this.kvpDelay.Tooltip = "The delay in milliseconds between the execution of requests per user.\r\nKeep th" +
     "is zero to have an ASAP test.";
@@ -346,7 +361,7 @@
             this.kvpShuffle.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpShuffle.Name = "kvpShuffle";
             this.kvpShuffle.Size = new System.Drawing.Size(53, 24);
-            this.kvpShuffle.TabIndex = 10;
+            this.kvpShuffle.TabIndex = 11;
             this.kvpShuffle.TabStop = false;
             this.kvpShuffle.Tooltip = "The user actions will be shuffled for each concurrent user when testing.";
             this.kvpShuffle.Value = "";
@@ -355,11 +370,11 @@
             // 
             this.kvpActionDistribution.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpActionDistribution.Key = "Action distribution";
-            this.kvpActionDistribution.Location = new System.Drawing.Point(3, 39);
+            this.kvpActionDistribution.Location = new System.Drawing.Point(123, 39);
             this.kvpActionDistribution.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpActionDistribution.Name = "kvpActionDistribution";
             this.kvpActionDistribution.Size = new System.Drawing.Size(117, 24);
-            this.kvpActionDistribution.TabIndex = 10;
+            this.kvpActionDistribution.TabIndex = 12;
             this.kvpActionDistribution.TabStop = false;
             this.kvpActionDistribution.Tooltip = "\"When this is used, user actions are executed X times its occurance. You can use " +
     "\'Shuffle\' and \'Maximum Number of User Actions\' in combination with this to defin" +
@@ -370,11 +385,11 @@
             // 
             this.kvpMaximumNumberOfUserActions.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMaximumNumberOfUserActions.Key = "Maximum number of user actions";
-            this.kvpMaximumNumberOfUserActions.Location = new System.Drawing.Point(123, 39);
+            this.kvpMaximumNumberOfUserActions.Location = new System.Drawing.Point(328, 39);
             this.kvpMaximumNumberOfUserActions.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMaximumNumberOfUserActions.Name = "kvpMaximumNumberOfUserActions";
             this.kvpMaximumNumberOfUserActions.Size = new System.Drawing.Size(202, 24);
-            this.kvpMaximumNumberOfUserActions.TabIndex = 21;
+            this.kvpMaximumNumberOfUserActions.TabIndex = 13;
             this.kvpMaximumNumberOfUserActions.TabStop = false;
             this.kvpMaximumNumberOfUserActions.Tooltip = "The maximum number of user actions that a test pattern for a user can contain. Pi" +
     "nned actions however are always picked.";
@@ -384,7 +399,7 @@
             // 
             this.kvpMonitorBefore.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorBefore.Key = "Monitor before";
-            this.kvpMonitorBefore.Location = new System.Drawing.Point(328, 39);
+            this.kvpMonitorBefore.Location = new System.Drawing.Point(427, 39);
             this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorBefore.Name = "kvpMonitorBefore";
             this.kvpMonitorBefore.Size = new System.Drawing.Size(96, 24);
@@ -397,7 +412,7 @@
             // 
             this.kvpMonitorAfter.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorAfter.Key = "Monitor after";
-            this.kvpMonitorAfter.Location = new System.Drawing.Point(427, 39);
+            this.kvpMonitorAfter.Location = new System.Drawing.Point(529, 39);
             this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorAfter.Name = "kvpMonitorAfter";
             this.kvpMonitorAfter.Size = new System.Drawing.Size(86, 24);
@@ -847,6 +862,7 @@
         private vApus.Util.KeyValuePairControl kvpScenario;
         private vApus.Util.KeyValuePairControl kvpConcurrencies;
         private vApus.Util.KeyValuePairControl kvpRuns;
+        private vApus.Util.KeyValuePairControl kvpInitialDelay;
         private vApus.Util.KeyValuePairControl kvpDelay;
         private vApus.Util.KeyValuePairControl kvpShuffle;
         private vApus.Util.KeyValuePairControl kvpActionDistribution;

@@ -29,7 +29,7 @@ namespace vApus.DistributedTest {
 
         private KeyValuePair<Scenario, uint>[] _scenarios = { };
 
-        private int _runs = 1, _minimumDelay = 900, _maximumDelay = 1100, _monitorAfter, _monitorBefore;
+        private int _runs = 1, _initialMinimumDelay = 900, _initialMaximumDelay = 1100, _minimumDelay = 900, _maximumDelay = 1100, _monitorAfter, _monitorBefore;
         private bool _shuffle = true;
         #endregion
 
@@ -180,8 +180,51 @@ namespace vApus.DistributedTest {
             }
         }
 
-        [Description("The minimum delay in milliseconds between the execution of requests per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum delay")]
+        [Description("The minimum delay in milliseconds before the execution of the first requests per user. This is not used in result calculations, but rather to spread the requests at the start of the test."), DisplayName("Initial minimum delay")]
         [PropertyControl(3, 0, int.MaxValue)]
+        public int InitialMinimumDelay {
+            get { return _initialMinimumDelay; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
+                if (value > _initialMaximumDelay)
+                    _initialMaximumDelay = value;
+                _initialMinimumDelay = value;
+            }
+        }
+        /// <summary>
+        ///     Only for saving and loading, should not be used.
+        /// </summary>
+        [SavableCloneable]
+        public int InitialMinimumDelayOverride {
+            get { return _initialMinimumDelay; }
+            set { _initialMinimumDelay = value; }
+        }
+
+        [Description("The maximum delay in milliseconds before the execution of the first requests per user. This is not used in result calculations, but rather to spread the requests at the start of the test."), DisplayName("Initial maximum delay")]
+        [PropertyControl(4, 0, int.MaxValue)]
+        public int InitialMaximumDelay {
+            get { return _initialMaximumDelay; }
+            set {
+                if (value < 0)
+                    throw new ArgumentOutOfRangeException("Cannot be smaller than zero.");
+                if (value < _initialMinimumDelay)
+                    _initialMinimumDelay = value;
+                _initialMaximumDelay = value;
+            }
+        }
+
+        /// <summary>
+        ///     Only for saving and loading, should not be used.
+        /// </summary>
+        [SavableCloneable]
+        public int InitialMaximumDelayOverride {
+            get { return _initialMaximumDelay; }
+            set { _initialMaximumDelay = value; }
+        }
+
+        [Description("The minimum delay in milliseconds between the execution of requests per user. Keep this and the maximum delay zero to have an ASAP test."), DisplayName("Minimum delay")]
+        [PropertyControl(5, 0, int.MaxValue)]
         public int MinimumDelay {
             get { return _minimumDelay; }
             set {
@@ -203,7 +246,7 @@ namespace vApus.DistributedTest {
         }
 
         [Description("The maximum delay in milliseconds between the execution of requests per user. Keep this and the minimum delay zero to have an ASAP test."), DisplayName("Maximum delay")]
-        [PropertyControl(4, 0, int.MaxValue)]
+        [PropertyControl(6, 0, int.MaxValue)]
         public int MaximumDelay {
             get { return _maximumDelay; }
             set {
@@ -225,7 +268,7 @@ namespace vApus.DistributedTest {
         }
 
         [Description("The user actions will be shuffled for each concurrent user when testing.")]
-        [SavableCloneable, PropertyControl(5)]
+        [SavableCloneable, PropertyControl(7)]
         public bool Shuffle {
             get { return _shuffle; }
             set { _shuffle = value; }
@@ -233,7 +276,7 @@ namespace vApus.DistributedTest {
 
         [Description("When this is used, user actions are executed X times its occurance. You can use 'Shuffle' and 'Maximum Number of User Actions' in combination with this to define unique test patterns for each user."),
         DisplayName("Action distribution")]
-        [SavableCloneable, PropertyControl(6)]
+        [SavableCloneable, PropertyControl(8)]
         public bool ActionDistribution {
             get { return _actionDistribution; }
             set { _actionDistribution = value; }
@@ -241,7 +284,7 @@ namespace vApus.DistributedTest {
 
         [Description("This sets the maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum number of user actions")]
-        [SavableCloneable, PropertyControl(7, 0, int.MaxValue)]
+        [SavableCloneable, PropertyControl(9, 0, int.MaxValue)]
         public int MaximumNumberOfUserActions {
             get { return _maximumNumberOfUserActions; }
             set {
@@ -252,7 +295,7 @@ namespace vApus.DistributedTest {
         }
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60. The largest value for all tile stress tests is used."), DisplayName("Monitor before")]
-        [SavableCloneable, PropertyControl(8, 0, int.MaxValue)]
+        [SavableCloneable, PropertyControl(10, 0, int.MaxValue)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -265,7 +308,7 @@ namespace vApus.DistributedTest {
         }
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60. The largest value for all tile stress tests is used."), DisplayName("Monitor after")]
-        [SavableCloneable, PropertyControl(9, 0, int.MaxValue)]
+        [SavableCloneable, PropertyControl(11, 0, int.MaxValue)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
@@ -364,6 +407,8 @@ namespace vApus.DistributedTest {
             stressTest.Concurrencies.CopyTo(_concurrencies, 0);
 
             _runs = stressTest.Runs;
+            _initialMinimumDelay = stressTest.InitialMinimumDelay;
+            _initialMaximumDelay = stressTest.InitialMaximumDelay;
             _minimumDelay = stressTest.MinimumDelay;
             _maximumDelay = stressTest.MaximumDelay;
             _shuffle = stressTest.Shuffle;
@@ -393,6 +438,8 @@ namespace vApus.DistributedTest {
             clone._concurrencies = new int[_concurrencies.Length];
             _concurrencies.CopyTo(clone._concurrencies, 0);
             clone.Runs = _runs;
+            clone.InitialMinimumDelayOverride = _initialMinimumDelay;
+            clone.InitialMaximumDelayOverride = _initialMaximumDelay;
             clone.MinimumDelayOverride = _minimumDelay;
             clone.MaximumDelayOverride = _maximumDelay;
             clone.Shuffle = _shuffle;

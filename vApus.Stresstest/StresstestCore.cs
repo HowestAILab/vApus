@@ -59,7 +59,8 @@ namespace vApus.StressTest {
         private ConcurrencyResult _concurrencyResult;
 
         private Dictionary<Scenario, TestPatternsAndDelaysGenerator> _testPatternsAndDelaysGenerators;
-        private int[][] _delays;
+        private int[] _initialDelaysInMilliseconds;
+        private int[][] _delaysInMilliseconds;
         private AutoResetEvent _sleepWaitHandle = new AutoResetEvent(false); //Better than Thread.Sleep to wait a delay after sending to / receiving from the server app.
 
         private StressTestThreadPool _threadPool;
@@ -385,7 +386,7 @@ namespace vApus.StressTest {
                     scenarios.Add(new KeyValuePair<Scenario, KeyValuePair<Request[], float>>(scenario, new KeyValuePair<Request[], float>(requestArr, Convert.ToSingle(incrementedWeight) / totalScenarioWeight)));
 
                     int actionCount = _stressTest.MaximumNumberOfUserActions == 0 ? scenario.Count : _stressTest.MaximumNumberOfUserActions;
-                    var testPatternsAndDelaysGenerators = new TestPatternsAndDelaysGenerator(requestArr, actionCount, _stressTest.Shuffle, _stressTest.MinimumDelay, _stressTest.MaximumDelay);
+                    var testPatternsAndDelaysGenerators = new TestPatternsAndDelaysGenerator(requestArr, actionCount, _stressTest.Shuffle, _stressTest.InitialMinimumDelay, _stressTest.InitialMaximumDelay, _stressTest.MinimumDelay, _stressTest.MaximumDelay);
                     _testPatternsAndDelaysGenerators.Add(scenario, testPatternsAndDelaysGenerators);
                 }
             }
@@ -513,7 +514,8 @@ namespace vApus.StressTest {
                 _sw.Start();
 
                 var testableRequests = new ConcurrentDictionary<int, TestableRequest[]>(); //Keep the user to preserve the order.
-                var delays = new List<int[]>();
+                var initialDelaysInMilliseconds = new List<int>();
+                var delaysInMilliseconds = new List<int[]>();
 
                 //Get parameterized structures and patterns first sync first.
                 var parameterizedStructures = new ConcurrentDictionary<int, StringTree[]>();
@@ -544,10 +546,13 @@ namespace vApus.StressTest {
                     }
                     parameterizedStructures.TryAdd(user, structure);
 
+                    int initialDelayInMilliseconds;
                     int[] testPattern, delayPattern;
-                    _testPatternsAndDelaysGenerators[scenario].GetPatterns(out testPattern, out delayPattern);
+                    _testPatternsAndDelaysGenerators[scenario].GetPatterns(out testPattern, out initialDelayInMilliseconds, out delayPattern);
+
                     testPatterns.TryAdd(user, testPattern);
-                    delays.Add(delayPattern);
+                    initialDelaysInMilliseconds.Add(initialDelayInMilliseconds);
+                    delaysInMilliseconds.Add(delayPattern);
 
                     testableRequests.TryAdd(user, null);
                 }
@@ -654,10 +659,12 @@ namespace vApus.StressTest {
                     tleList.Add(tle);
 
                 _testableRequests = tleList.ToArray();
-                _delays = delays.ToArray();
+                _initialDelaysInMilliseconds = initialDelaysInMilliseconds.ToArray();
+                _delaysInMilliseconds = delaysInMilliseconds.ToArray();
 
                 testableRequests = null;
-                delays = null;
+                initialDelaysInMilliseconds = null;
+                delaysInMilliseconds = null;
 
                 parameterizedStructures = null;
                 testPatterns = null;
@@ -877,7 +884,8 @@ namespace vApus.StressTest {
                 if (!connectionProxy.IsConnectionOpen) connectionProxy.OpenConnection();
 
                 TestableRequest[] testableRequests = _testableRequests[threadIndex];
-                int[] delays = _delays[threadIndex];
+                int initialDelayInMilliseconds = _initialDelaysInMilliseconds[threadIndex];
+                int[] delaysInMilliseconds = _delaysInMilliseconds[threadIndex];
 
                 int testableRequestIndex = 0;
                 while (testableRequestIndex != testableRequests.Length) {
@@ -887,7 +895,7 @@ namespace vApus.StressTest {
                     }
 
                     int incrementIndex;
-                    ExecuteRequest(threadIndex, testableRequestIndex, connectionProxy, testableRequests, delays, out incrementIndex);
+                    ExecuteRequest(threadIndex, testableRequestIndex, connectionProxy, testableRequests, testableRequestIndex == 0 ? initialDelayInMilliseconds : 0, delaysInMilliseconds, out incrementIndex);
                     testableRequestIndex += incrementIndex;
                 }
             } catch (Exception e) {
@@ -901,7 +909,7 @@ namespace vApus.StressTest {
         /// <param name="threadIndex"></param>
         /// <param name="testableRequestIndex"></param>
         /// <param name="incrementIndex">Can be greater than 1 if some are parallel executed.</param>
-        private void ExecuteRequest(int threadIndex, int testableRequestIndex, IConnectionProxy connectionProxy, TestableRequest[] testableRequests, int[] delays, out int incrementIndex) {
+        private void ExecuteRequest(int threadIndex, int testableRequestIndex, IConnectionProxy connectionProxy, TestableRequest[] testableRequests, int initialDelayInMilliseconds, int[] delaysInMilliseconds, out int incrementIndex) {
             incrementIndex = 1;
 
             if (_cancel || _break) {
@@ -939,7 +947,7 @@ namespace vApus.StressTest {
                         _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
 
                     //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                    _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, testableRequestIndex, testableRequest, connectionProxy, delays[testableRequestIndex]);
+                    _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, testableRequestIndex, testableRequest, connectionProxy, initialDelayInMilliseconds, delaysInMilliseconds[testableRequestIndex]);
                 } else {
                     int parallelCount = exclusiveEnd - testableRequestIndex;
                     //Get the connection proxies, this first one is not a parallel one but the connection proxy for the specific user, this way data (cookies for example) can be saved for other requests.
@@ -961,7 +969,7 @@ namespace vApus.StressTest {
                     for (int i = 0; i != parallelCount; i++) {
                         Thread t = _threadPool.DequeueParallelThread();
                         pThreads[i] = t;
-                        
+
                         t.Start(new object[]{ (StressTestThreadPool.WorkItemCallback)((int index) => {
                               
                             if (_syncAndAsyncWorkItem == null)
@@ -971,7 +979,7 @@ namespace vApus.StressTest {
 
                             try {
                                 //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                                _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], delays[index]);
+                                _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], 0, delaysInMilliseconds[index]);
                             } catch {
                                 //when stopping a test...
                             }
@@ -979,7 +987,7 @@ namespace vApus.StressTest {
                             if (Interlocked.Increment(ref finished) == parallelCount) pThreadsSignalFinished.Set();
                         }), testableRequestIndex + i});
                     }
-                        
+
                     //Start them all at the same time
                     pThreadsSignalStart.Set();
                     pThreadsSignalFinished.WaitOne();
@@ -1185,7 +1193,9 @@ namespace vApus.StressTest {
         /// An extra work item class (ThreadStatic) for executing requests in parallel.
         /// </summary>
         private class SyncAndAsyncWorkItem {
-            public void ExecuteRequest(StressTestCore stressTestCore, AutoResetEvent sleepWaitHandle, RunResult runResult, int threadIndex, int testableRequestIndex, TestableRequest testableRequest, IConnectionProxy connectionProxy, int delayInMilliseconds) {
+            public void ExecuteRequest(StressTestCore stressTestCore, AutoResetEvent sleepWaitHandle, RunResult runResult, int threadIndex, int testableRequestIndex, TestableRequest testableRequest, IConnectionProxy connectionProxy, int initialDelayInMilliseconds, int delayInMilliseconds) {
+                if (initialDelayInMilliseconds != 0 && !(stressTestCore._cancel || stressTestCore._break)) sleepWaitHandle.WaitOne(initialDelayInMilliseconds);
+
                 DateTime sentAt = DateTime.Now;
                 var timeToLastByte = new TimeSpan();
                 Exception exception = null;

@@ -64,7 +64,7 @@ namespace vApus.StressTest {
         internal ASTNode LexedRequest { get { return _lexedRequest; } }
 
         [ReadOnly(true)]
-        [Description("When true the determined delay (stress test properties) will take place after this request."), DisplayName("Ignore delay")]
+        [Description("When true the determined delay (stress test properties) will take place after this request."), DisplayName("Use delay")]
         public bool UseDelay {
             get { return _useDelay; }
             set { _useDelay = value; }

@@ -269,7 +269,8 @@ namespace vApus.DistributedTest {
 
                 int id = _resultsHelper.SetStressTest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStressTest.Connection.ToString(), ts.BasicTileStressTest.ConnectionProxy,
                         ts.BasicTileStressTest.Connection.ConnectionString, scenarioKeys.Combine(", "), ts.AdvancedTileStressTest.ScenarioRuleSet, ts.AdvancedTileStressTest.Concurrencies,
-                        ts.AdvancedTileStressTest.Runs, ts.AdvancedTileStressTest.MinimumDelay, ts.AdvancedTileStressTest.MaximumDelay, ts.AdvancedTileStressTest.Shuffle, ts.AdvancedTileStressTest.ActionDistribution,
+                        ts.AdvancedTileStressTest.Runs, ts.AdvancedTileStressTest.InitialMinimumDelay, ts.AdvancedTileStressTest.InitialMaximumDelay, ts.AdvancedTileStressTest.MinimumDelay, ts.AdvancedTileStressTest.MaximumDelay, 
+                        ts.AdvancedTileStressTest.Shuffle, ts.AdvancedTileStressTest.ActionDistribution,
                         ts.AdvancedTileStressTest.MaximumNumberOfUserActions, ts.AdvancedTileStressTest.MonitorBefore, ts.AdvancedTileStressTest.MonitorAfter);
 
                 _tileStressTestsWithDbIds.Add(ts, id);

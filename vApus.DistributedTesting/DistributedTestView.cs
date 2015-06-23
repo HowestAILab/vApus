@@ -222,6 +222,7 @@ namespace vApus.DistributedTest {
                     fastResultsControl.SetConfigurationControlsAndMonitorLinkButtons(tileStressTestToString, tstvi.TileStressTest.BasicTileStressTest.Connection,
                        tstvi.TileStressTest.BasicTileStressTest.ConnectionProxy, tstvi.TileStressTest.AdvancedTileStressTest.Scenarios, tstvi.TileStressTest.AdvancedTileStressTest.ScenarioRuleSet,
                        tstvi.TileStressTest.BasicTileStressTest.Monitors, tstvi.TileStressTest.AdvancedTileStressTest.Concurrencies, tstvi.TileStressTest.AdvancedTileStressTest.Runs,
+                       tstvi.TileStressTest.AdvancedTileStressTest.InitialMinimumDelay, tstvi.TileStressTest.AdvancedTileStressTest.InitialMaximumDelay,
                        tstvi.TileStressTest.AdvancedTileStressTest.MinimumDelay, tstvi.TileStressTest.AdvancedTileStressTest.MaximumDelay, tstvi.TileStressTest.AdvancedTileStressTest.Shuffle,
                        tstvi.TileStressTest.AdvancedTileStressTest.ActionDistribution, tstvi.TileStressTest.AdvancedTileStressTest.MaximumNumberOfUserActions, tstvi.TileStressTest.AdvancedTileStressTest.MonitorBefore, tstvi.TileStressTest.AdvancedTileStressTest.MonitorAfter);
                     fastResultsControl.ClearEvents();
