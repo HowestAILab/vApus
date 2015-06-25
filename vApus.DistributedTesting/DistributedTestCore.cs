@@ -15,7 +15,7 @@ using System.Drawing;
 using System.Net;
 using System.Threading;
 using vApus.Results;
-using vApus.Server.Shared;
+using vApus.Communication.Shared;
 using vApus.StressTest;
 using vApus.Util;
 

@@ -18,7 +18,7 @@ using System.Windows.Forms;
 using vApus.JSON;
 using vApus.Monitor;
 using vApus.Results;
-using vApus.Server.Shared;
+using vApus.Communication.Shared;
 using vApus.SolutionTree;
 using vApus.StressTest;
 using vApus.Util;

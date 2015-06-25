@@ -177,6 +177,12 @@ namespace vApus.StressTest {
         }
         private void SetConfig(List<KeyValuePair<string, string>> keyValues) {
             LockWindowUpdate(Handle);
+            foreach (Control ctrl in flpConfiguration.Controls)
+                if (ctrl is Button) {
+                    flpConfiguration.Controls.Remove(ctrl);
+                    break;
+                }
+
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
             _config = new KeyValuePairControl[keyValues.Count];
             int i = 0;

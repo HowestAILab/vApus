@@ -9,7 +9,7 @@ using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using vApus.Results;
-using vApus.Server.Shared;
+using vApus.Communication.Shared;
 using vApus.StressTest;
 using vApus.Util;
 

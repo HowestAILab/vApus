@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using Newtonsoft.Json;
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -14,32 +15,35 @@ using System.Threading;
 using vApus.DistributedTest;
 using vApus.Monitor;
 using vApus.Results;
-using vApus.Server.Shared;
+using vApus.Communication.Shared;
 using vApus.SolutionTree;
 using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.Server {
+namespace vApus.Communication {
     public static class CommunicationHandler {
-        //private static AutoResetEvent _jobWaitHandle = new AutoResetEvent(false);
+        private static AutoResetEvent _jobWaitHandle = new AutoResetEvent(false);
 
-        private delegate Message<Key> HandleMessageDelegate(string message);
+        private delegate string HandleMessageDelegate(string message);
         /// <summary>
         /// Holds the whole or the significant part of the path as Key. Specifics are handled by the matching delegate.
         /// </summary>
-        //private static Dictionary<string, HandleMessageDelegate> _delegates;
+        private static Dictionary<string, HandleMessageDelegate> _delegates;
 
         static CommunicationHandler() {
-            //// Fill delegates
-            //_delegates = new Dictionary<string, HandleMessageDelegate>();
+            // Fill delegates
+            _delegates = new Dictionary<string, HandleMessageDelegate>();
 
-            //// Send stuff that needs to be done. You receive an ack as plain text JSON.
-            //// Indices are one-based. If no index is given, you get all available indices and the string representation of the objects.
+            // Send stuff that needs to be done. You receive an ack as plain text JSON.
+            // Indices are one-based. If no index is given, you get all available indices and the string representation of the objects.
+            // Most of these are, and will probably not be used.
             //_delegates.Add("/testconnection/#", TestConnection);
 
-            //_delegates.Add("/startdistributedtest/#", StartDistributedTest);
-            //_delegates.Add("/startsingletest/#", StartSingleTest);
-            //_delegates.Add("/startmonitor/#/#", StartMonitor);
+            _delegates.Add("/startdistributedtest/#", StartDistributedTest);
+            _delegates.Add("/startstresstest/#", StartStressTest);
+            _delegates.Add("/startmonitor/#", StartMonitor);
+
+            //_delegates.Add("/startmonitor/#/#", StartMonitor);--> Time to monitor can be given with.
             //_delegates.Add("/stoptestandmonitors", StopTestAndMonitors);
 
             //// -----
@@ -76,13 +80,24 @@ namespace vApus.Server {
             //_delegates.Add("/runningmonitor/#/metrics", RunningMonitorMetrics);
         }
 
-        public static Message<Key> HandleMessage(Message<Key> message) {
-            if (message.Key == Key.Other) {
-                string msg = message.Content as string;
+        /// <summary>
+        /// Handles textual messages to automate vApus. If the message is not textual it supposes that it is a message for master slave communication and forwards it to   SlaveSideCommunicationHandler.HandleMessage(message).
+        /// </summary>
+        /// <param name="message"></param>
+        /// <returns></returns>
+        public static object HandleMessage(object message) {
+            if (message is string) {
+                string msg = message as string;
 
-                return new Message<Key>(Key.Other, SerializeFailed("404 Not Found. " + msg));
+                foreach (string path in _delegates.Keys)
+                    if (Match(msg, path))
+                        return _delegates[path].Invoke(msg);
+
+                return GetRPCFailed(msg, new Exception("404 Not Found"));
+            } else if (message is Message<Key>) {
+                return SlaveSideCommunicationHandler.HandleMessage((Message<Key>)message);
             }
-            return SlaveSideCommunicationHandler.HandleMessage(message);
+            throw new Exception("Communication message not of the type string or Message<Key>.");
         }
         private static bool Match(string message, string path) {
             if (message.StartsWith(path)) return true;
@@ -106,6 +121,65 @@ namespace vApus.Server {
             return true;
         }
 
+        private static string StartDistributedTest(string message) {
+            try {
+                var distributedTestProject = Solution.ActiveSolution.GetProject("DistributedTestProject");
+                int index = int.Parse(message.Split('/')[2]) - 1;
+                var distributedTest = distributedTestProject[index] as DistributedTest.DistributedTest;
+
+                DistributedTestView view = null;
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    view = distributedTest.Activate() as DistributedTestView;
+                    view.StartDistributedTest(false);
+                }, null);
+
+                return GetRPCSuccess(message);
+            } catch (Exception ex) {
+                return GetRPCFailed(message, ex);
+            }
+        }
+        private static string StartStressTest(string message) {
+            try {
+                var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject");
+                int index = int.Parse(message.Split('/')[2]) + 2;
+                var stressTest = stressTestProject[index] as StressTest.StressTest;
+
+                StressTestView view = null;
+                string error = string.Empty;
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    view = stressTest.Activate() as StressTestView;
+                    view.StartStressTest(false);
+                }, null);
+
+                return GetRPCSuccess(message);
+            } catch (Exception ex) {
+                return GetRPCFailed(message, ex);
+            }
+        }
+        private static string StartMonitor(string message) {
+            try {
+                var monitorProject = Solution.ActiveSolution.GetProject("MonitorProject");
+                string[] split = message.Split('/');
+                int index = int.Parse(split[2]) - 1;
+                var monitor = monitorProject[index] as Monitor.Monitor;
+
+                MonitorView view = null;
+                string error = string.Empty;
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                    view = monitor.Activate() as MonitorView;
+                    view.InitializeForStressTest();
+                    view.MonitorInitialized += (object sender, MonitorView.MonitorInitializedEventArgs e) => { _jobWaitHandle.Set(); };
+                }, null);
+
+
+                _jobWaitHandle.WaitOne();
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Start(); }, null);
+                return GetRPCSuccess(message);
+            } catch (Exception ex) {
+                return GetRPCFailed(message, ex);
+            }
+        }
+
         //private static Message<Key> TestConnection(string message) {
         //    var connections = Solution.ActiveSolution.GetSolutionComponent(typeof(Connections));
         //    int index = int.Parse(message.Split('/')[2]); // -1 not needed, connection proxies is the first item.
@@ -122,7 +196,7 @@ namespace vApus.Server {
         //private static Message<Key> StartDistributedTest(string message) {
         //    var distributedTestProject = Solution.ActiveSolution.GetProject("DistributedTestProject");
         //    int index = int.Parse(message.Split('/')[2]) - 1;
-        //    var distributedTest = distributedTestProject[index] as DistributedTest;
+        //    var distributedTest = distributedTestProject[index] as DistributedTest.DistributedTest;
 
         //    DistributedTestView view = null;
         //    string error = string.Empty;
@@ -162,7 +236,6 @@ namespace vApus.Server {
 
         //    return new Message<Key>(Key.Other, SerializeSucces(message));
         //}
-
         //private static Message<Key> StartMonitor(string message) {
         //    var monitorProject = Solution.ActiveSolution.GetProject("MonitorProject");
         //    string[] split = message.Split('/');
@@ -181,8 +254,6 @@ namespace vApus.Server {
 
         //    _jobWaitHandle.WaitOne();
         //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Start(); }, null);
-        //    _jobWaitHandle.WaitOne(timeInSeconds * 1000);
-        //    SynchronizationContextWrapper.SynchronizationContext.Send((state) => { view.Stop(); }, null);
 
 
         //    if (error.Length != 0)
@@ -364,13 +435,10 @@ namespace vApus.Server {
         //    return null;
         //}
 
-        private static string SerializeSucces(string message) { return SerializeStatusMessage("success", message); }
-        private static string SerializeFailed(string message) { return SerializeStatusMessage("failed", message); }
-        private static string SerializeStatusMessage(string status, string message) { return JsonConvert.SerializeObject(new statusmessage() { status = status, message = message }); }
-
-        private struct statusmessage {
-            public string status;
-            public string message;
+        private static string GetRPCSuccess(string message) { return "Success " + message; }
+        private static string GetRPCFailed(string message, Exception ex) {
+            Loggers.Log(Level.Error, "RPC communication failed: " + message, ex);
+            return "Failed " + message;
         }
     }
 }

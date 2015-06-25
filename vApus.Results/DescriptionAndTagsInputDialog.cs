@@ -79,7 +79,7 @@ namespace vApus.Results {
             btnOK.Enabled = true;
             btnOK.Text = "OK";
             if (ex != null) {
-                Loggers.Log(Level.Warning, "Could not connect to MySQL.", ex, new object[] { sender, e });
+                Loggers.Log(Level.Warning, "Could not connect to the MySQL results server.", ex, new object[] { sender, e });
                 lblCouldNotConnect.Visible = true;
             }
 

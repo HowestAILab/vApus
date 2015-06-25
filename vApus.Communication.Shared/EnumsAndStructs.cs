@@ -11,7 +11,7 @@ using vApus.Results;
 using vApus.StressTest;
 using vApus.Util;
 
-namespace vApus.Server.Shared {
+namespace vApus.Communication.Shared {
     [Serializable]
     public enum Key {
         /// <summary>
@@ -36,12 +36,7 @@ namespace vApus.Server.Shared {
         ///     To push progress to the master (also finished and failed and such).
         ///     Pushing progress will be at minimum, just the metrics will be send, getting the results will happen afterwards.
         /// </summary>
-        Push,
-
-        /// <summary>
-        ///     Other RPC stuff
-        /// </summary>
-        Other
+        Push
     }
 
     [Serializable]
@@ -133,11 +128,4 @@ namespace vApus.Server.Shared {
 
     [Serializable]
     public struct ContinueMessage { public int ContinueCounter; }
-
-    [Serializable]
-    public struct ResultsMessage {
-        public string Exception;
-        public string TileStressTestIndex;
-        public byte[] TorrentInfo;
-    }
 }

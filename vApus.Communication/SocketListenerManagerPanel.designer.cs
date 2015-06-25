@@ -1,4 +1,4 @@
-namespace vApus.Server
+namespace vApus.Communication
 {
 	partial class SocketListenerManagerPanel
 	{

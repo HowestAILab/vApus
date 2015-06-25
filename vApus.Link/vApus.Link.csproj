@@ -176,9 +176,9 @@
       <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
       <Name>vApus.Monitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Server\vApus.Server.csproj">
+    <ProjectReference Include="..\vApus.Communication\vApus.Communication.csproj">
       <Project>{c1334de2-98f8-4d32-b345-ef97e53d20b5}</Project>
-      <Name>vApus.Server</Name>
+      <Name>vApus.Communication</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>

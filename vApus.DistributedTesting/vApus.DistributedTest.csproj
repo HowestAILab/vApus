@@ -343,9 +343,9 @@
       <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
       <Name>vApus.Results</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Server.Shared\vApus.Server.Shared.csproj">
+    <ProjectReference Include="..\vApus.Communication.Shared\vApus.Communication.Shared.csproj">
       <Project>{37420528-6c41-452c-9776-0fb147f67915}</Project>
-      <Name>vApus.Server.Shared</Name>
+      <Name>vApus.Communication.Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>

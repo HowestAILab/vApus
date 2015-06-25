@@ -1,18 +1,23 @@
-﻿using RandomUtils.Log;
-/*
- * Copyright 2013 (c) Sizing Servers Lab
+﻿/*
+ * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Net;
 using System.Net.Sockets;
+using System.Threading.Tasks;
+using System.Windows.Forms;
+using vApus.DistributedTest;
+using vApus.Communication.Properties;
+using vApus.Communication.Shared;
 using vApus.Util;
 
-namespace vApus.RPCServer {
+namespace vApus.Communication {
     /// <summary>
     ///     Handles communication comming from vApus master or a vApus API Test Client.
     ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
@@ -20,11 +25,15 @@ namespace vApus.RPCServer {
     public class SocketListener {
 
         #region Events
-        //public event EventHandler<ListeningErrorEventArgs> ListeningError;
+        /// <summary>
+        ///     Use this for instance to show the test name in the title bar of the main window.
+        /// </summary>
+        public event EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs> NewTest;
+        public event EventHandler<ListeningErrorEventArgs> ListeningError;
         #endregion
 
         #region Fields
-        public const int DEFAULTPORT = 1537;
+        public const int DEFAULTPORT = 1337;
 
         private int _maximumStartTries = 3, _startTries;
 
@@ -32,15 +41,9 @@ namespace vApus.RPCServer {
         private Socket _serverSocketV4, _serverSocketV6;
         private int _port;
 
-        private readonly HashSet<SocketWrapper> _connectedClients = new HashSet<SocketWrapper>();
+        private readonly HashSet<SocketWrapper> _connectedMasters = new HashSet<SocketWrapper>();
 
         public AsyncCallback _onReceiveCallBack;
-
-        private static readonly byte[] Salt =
-            {
-                0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03,
-                0x62
-            };
         #endregion
 
         #region Properties
@@ -52,6 +55,8 @@ namespace vApus.RPCServer {
         ///     Setting an invalid port will throw an exception.
         /// </summary>
         public int Port { get { return _port; } }
+
+        public int PreferredPort { get { return Settings.Default.PreferredPort; } }
         #endregion
 
         #region Constructor
@@ -59,7 +64,7 @@ namespace vApus.RPCServer {
         ///     Handles communication comming from vApus master.
         ///     Built using the singleton design pattern so a reference must not be made in the Gui class.
         /// </summary>
-        private SocketListener() { }
+        private SocketListener() { SlaveSideCommunicationHandler.NewTest += SlaveSideCommunicationHandler_NewTest; }
         #endregion
 
         #region Functions
@@ -69,12 +74,30 @@ namespace vApus.RPCServer {
             return _socketListener;
         }
 
+        private void SlaveSideCommunicationHandler_NewTest(object sender, SlaveSideCommunicationHandler.NewTestEventArgs e) {
+            if (NewTest != null) {
+                var invocationList = NewTest.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => {
+                    (invocationList[i] as EventHandler<SlaveSideCommunicationHandler.NewTestEventArgs>).Invoke(this, e);
+                });
+
+            }
+        }
+
+        /// <summary>
+        /// Check if the given port is the same as the preferred one.
+        /// </summary>
+        /// <param name="port"></param>
+        /// <returns></returns>
+        public bool CheckAgainstPreferred(int port) { return Settings.Default.PreferredPort == port; }
+
         #region Start & Stop
         /// <summary>
         /// Restarts listening when setting this.
         /// </summary>
         /// <param name="port"></param>
-        public void SetPort(int port) {
+        /// <param name="preferred"></param>
+        public void SetPort(int port, bool preferred = false) {
             Stop();
             try {
                 _port = port;
@@ -89,6 +112,13 @@ namespace vApus.RPCServer {
                 _serverSocketV6.Bind(new IPEndPoint(address, _port));
                 _serverSocketV6.Listen(100);
                 _serverSocketV6.BeginAccept(OnAcceptV6, null);
+
+                if (preferred) {
+                    Settings.Default.PreferredPort = _port;
+                    Settings.Default.Save();
+                }
+
+                NamedObjectRegistrar.RegisterOrUpdate("Port", _port);
             } catch {
                 Stop();
                 throw;
@@ -101,7 +131,7 @@ namespace vApus.RPCServer {
         /// </summary>
         public void Start() {
             try {
-                _port = DEFAULTPORT;
+                _port = Settings.Default.PreferredPort;
                 try {
                     var address = IPAddress.Any;
                     _serverSocketV4 = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
@@ -144,6 +174,8 @@ namespace vApus.RPCServer {
                 _serverSocketV6.BeginAccept(OnAcceptV6, null);
 
                 _startTries = 0;
+
+                NamedObjectRegistrar.RegisterOrUpdate("Port", _port);
             } catch {
                 _startTries++;
                 if (_startTries <= _maximumStartTries)
@@ -165,7 +197,7 @@ namespace vApus.RPCServer {
                     try { _serverSocketV6.Close(); } catch { }
                 _serverSocketV6 = null;
 
-                DisconnectClients();
+                DisconnectMasters();
             } catch {
             }
         }
@@ -183,7 +215,7 @@ namespace vApus.RPCServer {
 
         #region Communication
 
-        private void ConnectClient(string ip, int port, int connectTimeout, out Exception exception) {
+        private void ConnectMaster(string ip, int port, int connectTimeout, out Exception exception) {
             try {
                 exception = null;
                 SocketWrapper socketWrapper = Get(ip, port);
@@ -196,38 +228,37 @@ namespace vApus.RPCServer {
                 if (!socketWrapper.Connected)
                     socketWrapper.Connect(connectTimeout);
             } catch (Exception ex) {
-                // MessageBox.Show(ex.ToString());
                 exception = ex;
             }
         }
         private SocketWrapper Get(string ip, int port) {
-            foreach (SocketWrapper socketWrapper in _connectedClients)
+            foreach (SocketWrapper socketWrapper in _connectedMasters)
                 if (socketWrapper.IP.ToString() == ip && socketWrapper.Port == port)
                     return socketWrapper;
             return null;
         }
 
-        private void DisconnectClients() {
-            foreach (SocketWrapper socketWrapper in _connectedClients)
+        private void DisconnectMasters() {
+            foreach (SocketWrapper socketWrapper in _connectedMasters)
                 if (socketWrapper != null && socketWrapper.Connected)
                     socketWrapper.Close();
-            _connectedClients.Clear();
+            _connectedMasters.Clear();
         }
-        private void DisconnectClient(SocketWrapper clientSocketWrapper) {
-            foreach (SocketWrapper socketWrapper in _connectedClients)
-                if (socketWrapper == clientSocketWrapper) {
-                    if (socketWrapper != null && socketWrapper.Connected)
-                        socketWrapper.Close();
-                    _connectedClients.Remove(socketWrapper);
+        private void DisconnectMaster(SocketWrapper masterSocketWrapper) {
+            foreach (SocketWrapper socketWrapper in _connectedMasters)
+                if (socketWrapper == masterSocketWrapper) {
+                    _connectedMasters.Remove(socketWrapper);
                     break;
                 }
+            if (masterSocketWrapper != null && masterSocketWrapper.Connected)
+                masterSocketWrapper.Close();
         }
 
         private void OnAcceptV4(IAsyncResult ar) {
             try {
                 Socket socket = _serverSocketV4.EndAccept(ar);
                 var socketWrapper = new SocketWrapper(IPAddress.Any, 1234, socket, SocketFlags.None, SocketFlags.None);
-                _connectedClients.Add(socketWrapper);
+                _connectedMasters.Add(socketWrapper);
                 BeginReceive(socketWrapper);
                 _serverSocketV4.BeginAccept(OnAcceptV4, null);
             } catch {
@@ -237,14 +268,19 @@ namespace vApus.RPCServer {
             try {
                 Socket socket = _serverSocketV6.EndAccept(ar);
                 var socketWrapper = new SocketWrapper(IPAddress.IPv6Any, 1234, socket, SocketFlags.None, SocketFlags.None);
-                _connectedClients.Add(socketWrapper);
+                _connectedMasters.Add(socketWrapper);
                 BeginReceive(socketWrapper);
                 _serverSocketV6.BeginAccept(OnAcceptV6, null);
             } catch {
             }
         }
 
-        private void BeginReceive(SocketWrapper socketWrapper) {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="socketWrapper"></param>
+        /// <param name="canReconnect">Should be false for RPC communication</param>
+        private void BeginReceive(SocketWrapper socketWrapper, bool canReconnect = true) {
             try {
                 if (_onReceiveCallBack == null)
                     _onReceiveCallBack = OnReceive;
@@ -254,49 +290,67 @@ namespace vApus.RPCServer {
             } catch (Exception ex) {
                 Exception exception = ex;
                 //Reconnect on network hiccup.
-                ConnectClient(socketWrapper.IP.ToString(), socketWrapper.Port, 1000, out exception);
-                if (exception == null) {
-                    BeginReceive(socketWrapper);
+                if (canReconnect) {
+                    ConnectMaster(socketWrapper.IP.ToString(), socketWrapper.Port, 1000, out exception);
+                    if (exception == null) {
+                        BeginReceive(socketWrapper);
+                    } else {
+                        DisconnectMaster(socketWrapper);
+                        CommunicationHandler.HandleMessage(new Message<Key>(Key.StopTest, null));
+                        //The test cannot be valid without a master, stop the test if any.
+                        Loggers.Log(Level.Warning, "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".", exception);
+                        if (ListeningError != null)
+                            ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
+                    }
                 } else {
-                    DisconnectClient(socketWrapper);
-                    //The test cannot be valid without a master, stop the test if any.
-                    Loggers.Log(Level.Warning, "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".", exception);
-                    //if (ListeningError != null)
-                    //    ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
+                    DisconnectMaster(socketWrapper);
                 }
             }
         }
 
         /// <summary>
-        /// Handles synchronization of the send and receive buffers, the rest is handled by SlaveSideCommunicationHandler.
+        /// Handles synchronization of the send and receive buffers, the rest is handled by CommunicationHandler.
         /// </summary>
         /// <param name="result"></param>
         private void OnReceive(IAsyncResult result) {
             var socketWrapper = (SocketWrapper)result.AsyncState;
-            string message = null;
+            object message;
             try {
                 socketWrapper.Socket.EndReceive(result);
-                if (socketWrapper.Connected) {
-                    message = socketWrapper.Decode(socketWrapper.Buffer, Encoding.UTF8);
-                    if (message.Length != 0) {
-                        Console.Write("In: " + message);
 
+                try {
+                    message = socketWrapper.ByteArrayToObject(socketWrapper.Buffer);
+                    var msg = (Message<Key>)message;
+                    if (msg.Key == Key.SynchronizeBuffers) {
+                        socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)msg.Content).BufferSize;
+                        BeginReceive(socketWrapper);
+                        socketWrapper.Socket.SendBufferSize = socketWrapper.ReceiveBufferSize;
+                    } else {
                         BeginReceive(socketWrapper);
                         message = CommunicationHandler.HandleMessage(message);
-                        Console.WriteLine(" Out: " + message);
+                    }
 
-                        message = message.Encrypt(vApus.RPCServer.Properties.Settings.Default.apikey.ToString(), Salt);
-                        socketWrapper.Send(message, SendType.Text, Encoding.UTF8);
+                    socketWrapper.Send(message, SendType.Binary);
+                } catch {
+                    message = socketWrapper.Decode(socketWrapper.Buffer, Encoding.UTF8); //In most times the deserialization will be valid. This is for starting vApus via the commandline + args.
+                    if ((message as string).Length == 0) {
+                        DisconnectMaster(socketWrapper);
+                    } else {
+                        BeginReceive(socketWrapper, false);
+                        message = CommunicationHandler.HandleMessage(message);
+
+                        //Do not send an answer back to avoid deadlocking when vApus is run from the commandline.
+                        //socketWrapper.Send(message, SendType.Text, Encoding.UTF8);
                     }
                 }
-                if (!socketWrapper.Connected)
-                    DisconnectClient(socketWrapper);
-            } catch { //(Exception exception) {
-                DisconnectClient(socketWrapper);
+
+            } catch (Exception exception) {
+                DisconnectMaster(socketWrapper);
+                CommunicationHandler.HandleMessage(new Message<Key>(Key.StopTest, null));
                 //The test cannot be valid without a master, stop the test if any.
-                //LogWrapper.LogByLevel("Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".\n" + exception, Level.Warning);
-                //if (ListeningError != null)
-                //    ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
+                //Loggers.Log(Level.Warning, "Lost connection with vApus master at " + socketWrapper.IP + ":" + socketWrapper.Port + ".", exception);
+                if (ListeningError != null)
+                    ListeningError(null, new ListeningErrorEventArgs(socketWrapper.IP.ToString(), socketWrapper.Port, exception));
             }
         }
         #endregion

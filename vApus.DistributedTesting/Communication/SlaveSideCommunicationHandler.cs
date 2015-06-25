@@ -16,7 +16,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using vApus.Monitor;
 using vApus.Results;
-using vApus.Server.Shared;
+using vApus.Communication.Shared;
 using vApus.SolutionTree;
 using vApus.StressTest;
 using vApus.Util;

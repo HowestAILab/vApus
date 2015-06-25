@@ -280,7 +280,7 @@ namespace vApus.Results {
                                 var uas = new ConcurrentDictionary<string, ConcurrentDictionary<string, SynchronizedCollection<RequestResult>>>(); // <VirtualUser,<UserAction, RequestResult
 
                                 Parallel.ForEach(requestResults.AsEnumerable(), (rerRow, loopState2) => {
-                                    //foreach (DataRow rerRow in requestyResults) {
+                                    //foreach (DataRow rerRow in requestResults) {
                                     if (cancellationToken.IsCancellationRequested) loopState2.Break();
                                     //if (cancellationToken.IsCancellationRequested) return null;
                                     if ((int)rerRow["Rerun"] == reRun) {

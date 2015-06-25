@@ -72,7 +72,7 @@ namespace vApus.Results {
                 using (var dba = new DatabaseActions() { ConnectionString = databaseActions.ConnectionString, CommandTimeout = 600 }) {
                     if (cancellationToken.IsCancellationRequested) loopState.Break();
                     try {
-                        parts[i] = ReaderAndCombiner.GetRequestyResults(cancellationToken, dba, runResultIds[i], columns);
+                        parts[i] = ReaderAndCombiner.GetRequestResults(cancellationToken, dba, runResultIds[i], columns);
                     } catch { 
                     }
                 }

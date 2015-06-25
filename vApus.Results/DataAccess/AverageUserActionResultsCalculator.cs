@@ -326,7 +326,7 @@ namespace vApus.Results {
             public static UserActionComparer GetInstance() { return _userActionComparer; }
 
             private const string SCENARIO = "Scenario ";
-            private const string UA = "User Action ";
+            private const string UA = "User action ";
             private const char COLON = ':';
 
             private UserActionComparer() { }

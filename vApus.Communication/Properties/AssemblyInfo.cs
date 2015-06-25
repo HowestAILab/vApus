@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("vApus.APITool")]
+[assembly: AssemblyTitle("vApus.Communication")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("vApus.APITool")]
+[assembly: AssemblyProduct("vApus.Communication")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("b8d23036-ec59-4ec1-baec-6ed8f318bdf0")]
+[assembly: Guid("bd1489db-1a09-4aea-88f1-700dcad26f79")]
 
 // Version information for an assembly consists of the following four values:
 //

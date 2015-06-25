@@ -7,8 +7,8 @@
     <ProjectGuid>{C1334DE2-98F8-4D32-B345-EF97E53D20B5}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>vApus.Server</RootNamespace>
-    <AssemblyName>vApus.Server</AssemblyName>
+    <RootNamespace>vApus.Communication</RootNamespace>
+    <AssemblyName>vApus.Communication</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
@@ -29,6 +29,15 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DevelopmentBuild\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -86,9 +95,9 @@
       <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
       <Name>vApus.Results</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Server.Shared\vApus.Server.Shared.csproj">
+    <ProjectReference Include="..\vApus.Communication.Shared\vApus.Communication.Shared.csproj">
       <Project>{37420528-6c41-452c-9776-0fb147f67915}</Project>
-      <Name>vApus.Server.Shared</Name>
+      <Name>vApus.Communication.Shared</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4a7f1649-6909-4fbc-b4e2-18cecfe5a144}</Project>

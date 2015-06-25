@@ -378,7 +378,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 }
 
                             if (rowsToInsert.Count != 0)
-                                _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestyIndex, Request, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                                _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
                                 rowsToInsert.Combine(", ")));
                         }
                     }
@@ -449,7 +449,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             string[] scenarios = _scenarios.ToArray();
             if (scenarios.Length != 0) {
                 if (_vApusInstanceId > 0 && _databaseActions != null)
-                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO scenarios(vApusInstanceId, Timestamp, Level, Entry) VALUES {0};", scenarios.Combine(", ")));
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO logs(vApusInstanceId, Timestamp, Level, Entry) VALUES {0};", scenarios.Combine(", ")));
                 _scenarios = new ConcurrentBag<string>();
             }
             scenarios = null;
@@ -1111,7 +1111,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     int runResultId = (int)rrRow.ItemArray[0];
                                     object run = rrRow.ItemArray[1];
 
-                                    DataTable requestResults = ReaderAndCombiner.GetRequestyResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Error)!=0", runResultId, "VirtualUser", "UserAction", "Request", "SentAt", "Error");
+                                    DataTable requestResults = ReaderAndCombiner.GetRequestResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Error)!=0", runResultId, "VirtualUser", "UserAction", "Request", "SentAt", "Error");
                                     if (requestResults == null || requestResults.Rows.Count == 0) continue;
 
                                     foreach (DataRow ldr in requestResults.Rows) {
@@ -1182,7 +1182,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 int runResultId = (int)rrRow.ItemArray[0];
 
                                 //We don't want duplicates
-                                DataTable requestResults = ReaderAndCombiner.GetRequestyResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1' AND CHAR_LENGTH(SameAsRequestIndex)=0", runResultId,
+                                DataTable requestResults = ReaderAndCombiner.GetRequestResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1' AND CHAR_LENGTH(SameAsRequestIndex)=0", runResultId,
                                         "UserAction", "Request");
                                 if (requestResults == null || requestResults.Rows.Count == 0) continue;
 
@@ -1911,7 +1911,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                 runResultIds.Add((int)rrRow.ItemArray[0]);
             }
-            var requestResults = ReaderAndCombiner.GetRequestyResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds");
+            var requestResults = ReaderAndCombiner.GetRequestResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds");
             if (requestResults == null || requestResults.Rows.Count == 0) return null;
 
             //Get the throughput per minute.
@@ -2189,7 +2189,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                 runResultIds.Add((int)rrRow.ItemArray[0]);
             }
-            var requestResults = ReaderAndCombiner.GetRequestyResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds");
+            var requestResults = ReaderAndCombiner.GetRequestResults(cancellationToken, _databaseActions, runResultIds.ToArray(), "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds");
             if (requestResults == null || requestResults.Rows.Count == 0) return null;
 
             //Following two variables serve at bordering monitor before and after.

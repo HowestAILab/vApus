@@ -494,7 +494,7 @@ namespace vApus.StressTest {
             _connectionProxyPool.TestConnection(out error);
 
             if (error == null) {
-                InvokeMessage("|-> ...Succes!");
+                InvokeMessage("|-> ...Success!");
             }
             if (error != null) {
                 _connectionProxyPool.Dispose();
@@ -635,10 +635,10 @@ namespace vApus.StressTest {
                                 if (request.SameAs != null)
                                     requestIndices.TryGetValue(request.SameAs, out sameAsRequestIndex);
 
-                                string requestyParent;
-                                requestParents.TryGetValue(request, out requestyParent);
+                                string requestParent;
+                                requestParents.TryGetValue(request, out requestParent);
 
-                                tle[i] = new TestableRequest(requestIndex, sameAsRequestIndex, parameterizedStructureArr[testPatternIndex], requestyParent, request.ExecuteInParallel, request.ConnectedToSentRequestOffsetInMs, _rerun);
+                                tle[i] = new TestableRequest(requestIndex, sameAsRequestIndex, parameterizedStructureArr[testPatternIndex], requestParent, request.ExecuteInParallel, request.ConnectedToSentRequestOffsetInMs, _rerun);
                             } catch (Exception ex2) {
                                 Loggers.Log(Level.Error, "Failed at determining test patterns.", ex2);
                                 loopState.Break();

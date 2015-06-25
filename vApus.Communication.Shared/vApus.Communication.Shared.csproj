@@ -4,27 +4,24 @@
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{CEDAEB32-F1E5-4FA0-8AF9-07B4ADE0A1D2}</ProjectGuid>
-    <OutputType>Exe</OutputType>
+    <ProjectGuid>{37420528-6C41-452C-9776-0FB147F67915}</ProjectGuid>
+    <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>vApus.RPCServer</RootNamespace>
-    <AssemblyName>vApus.RPCServer</AssemblyName>
+    <RootNamespace>vApus.Communication.Shared</RootNamespace>
+    <AssemblyName>vApus.Communication.Shared</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>..\Build\</OutputPath>
+    <OutputPath>bin\Debug\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
-    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <PlatformTarget>AnyCPU</PlatformTarget>
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
@@ -33,21 +30,18 @@
     <WarningLevel>4</WarningLevel>
     <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
+    <DebugSymbols>true</DebugSymbols>
+    <OutputPath>bin\DevelopmentBuild\</OutputPath>
+    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <DebugType>full</DebugType>
+    <PlatformTarget>AnyCPU</PlatformTarget>
+    <ErrorReport>prompt</ErrorReport>
+    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+  </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\Prerequisites\JSON.NET\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="RandomUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
-    </Reference>
-    <Reference Include="RandomUtils.Log, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
-    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Windows.Forms" />
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
@@ -55,37 +49,26 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="CommunicationHandler.cs" />
-    <Compile Include="Program.cs" />
+    <Compile Include="EnumsAndStructs.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Properties\Settings.Designer.cs">
-      <AutoGen>True</AutoGen>
-      <DesignTimeSharedInput>True</DesignTimeSharedInput>
-      <DependentUpon>Settings.settings</DependentUpon>
-    </Compile>
-    <Compile Include="Settings.cs" />
-    <Compile Include="SocketListener.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\vApus.JumpStartStructures\vApus.JumpStartStructures.csproj">
-      <Project>{0b87a110-73f8-496a-b656-9050272cfe7b}</Project>
-      <Name>vApus.JumpStartStructures</Name>
+    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
+      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
+      <Name>vApus.Results</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Server.Shared\vApus.Server.Shared.csproj">
-      <Project>{37420528-6c41-452c-9776-0fb147f67915}</Project>
-      <Name>vApus.Server.Shared</Name>
+    <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
+      <Project>{4a7f1649-6909-4fbc-b4e2-18cecfe5a144}</Project>
+      <Name>vApus.SolutionTree</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Stresstest\vApus.StressTest.csproj">
+      <Project>{790522ab-42d5-4c39-83be-14244d8c3f22}</Project>
+      <Name>vApus.StressTest</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
       <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>
       <Name>vApus.Util</Name>
     </ProjectReference>
-  </ItemGroup>
-  <ItemGroup>
-    <None Include="App.config" />
-    <None Include="Properties\Settings.settings">
-      <Generator>SettingsSingleFileGenerator</Generator>
-      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
-    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

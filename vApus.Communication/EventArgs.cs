@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace vApus.Server {
+namespace vApus.Communication {
     public class ListeningErrorEventArgs : EventArgs {
 
         #region Properties

@@ -340,9 +340,9 @@ namespace vApus.Results {
             return combined;
         }
 
-        public static DataTable GetRequestyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int runResultId, params string[] selectColumns) { return GetRequestyResults(cancellationToken, databaseActions, null, runResultId, selectColumns); }
-        public static DataTable GetRequestyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int runResultId, params string[] selectColumns) { return GetRequestyResults(cancellationToken, databaseActions, where, new int[] { runResultId }, selectColumns); }
-        public static DataTable GetRequestyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] runResultIds, params string[] selectColumns) { return GetRequestyResults(cancellationToken, databaseActions, null, runResultIds, selectColumns); }
+        public static DataTable GetRequestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int runResultId, params string[] selectColumns) { return GetRequestResults(cancellationToken, databaseActions, null, runResultId, selectColumns); }
+        public static DataTable GetRequestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int runResultId, params string[] selectColumns) { return GetRequestResults(cancellationToken, databaseActions, where, new int[] { runResultId }, selectColumns); }
+        public static DataTable GetRequestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, int[] runResultIds, params string[] selectColumns) { return GetRequestResults(cancellationToken, databaseActions, null, runResultIds, selectColumns); }
         /// <summary>
         /// 
         /// </summary>
@@ -351,7 +351,7 @@ namespace vApus.Results {
         /// <param name="runResultIds">If only one Id is given for a tests divided over multiple stress tests those will be found and combined for you.</param>
         /// <param name="selectColumns">If none given all columns are selected.</param>
         /// <returns></returns>
-        private static DataTable GetRequestyResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
+        private static DataTable GetRequestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
             if (GetRunResultIdsAndSiblings(cancellationToken, databaseActions, runResultIds).Length == runResultIds.Length) {//No divided stress tests, so we can immediatly return results.
                 if (runResultIds.Length == 0)
                     return databaseActions.GetDataTable(string.Format("Select {0} From requestresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));

@@ -8,7 +8,8 @@
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
+using System.IO;
+using System.Net.Sockets;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Threading;
@@ -100,6 +101,15 @@ namespace vApus.Gui {
 
             _argumentsWithDelegate.Add("-p", new ArgumentsAnalyzerParametersDelegate(SocketListenerPort));
             _argumentsWithDescription.Add("-p", "Sets the socket listener port, if no parameters are given it just returns the current socket port. (example: -p 1337)");
+
+            _argumentsWithDelegate.Add("-d", new ArgumentsAnalyzerParametersDelegate(StartDistributedTest));
+            _argumentsWithDescription.Add("-d", "Starts a distributed test defined by its one-based index. You must check yourself if the test works. (example: test.vass -d 1)");
+
+            _argumentsWithDelegate.Add("-m", new ArgumentsAnalyzerParametersDelegate(StartMonitors));
+            _argumentsWithDescription.Add("-m", "Starts one or more monitors defined by their one-based indices separated by spaces. You must check yourself if the test works. (example: test.vass -m 1 2)");
+
+            _argumentsWithDelegate.Add("-s", new ArgumentsAnalyzerParametersDelegate(StartStressTest));
+            _argumentsWithDescription.Add("-s", "Starts a stress test defined by its one-based index. You must check yourself if the monitor works. (example: test.vass -s 1)");
         }
 
         /// <summary>
@@ -229,14 +239,14 @@ namespace vApus.Gui {
             Console.ForegroundColor = ConsoleColor.Gray;
             var sb = new StringBuilder();
             Console.WriteLine("HELP");
-            Console.WriteLine("Arguments can be combined any way you want to, but a solution filename must always come first (no argument key needed).");
+            Console.WriteLine("A solution filename must always come first (no argument key needed). -d, -m and -s must always come last.");
             Console.WriteLine("You can run vApus from a script and feed it directly arguments or you can type them in the console.");
             Console.WriteLine();
             Console.WriteLine("Keep in mind that they are sequentialy handled, so if there is an error the remaining arguments will not be interpreted.");
             Console.WriteLine();
-            Console.WriteLine("Arguments can have parameters, not all of them are required (those between '(' and ')').");
+            Console.WriteLine("Some arguments can have parameters.");
             Console.WriteLine("The typing of more parameters than needed will not have any effect\non the process of execution.");
-            Console.WriteLine("If you want to use parameters with spaces, like a filename, encapsulate them with ''.");
+            Console.WriteLine("If you want to use parameters containing spaces, like a filename, encapsulate them with ''.");
             Console.WriteLine();
             Console.WriteLine();
 
@@ -286,9 +296,56 @@ namespace vApus.Gui {
             }
         }
         private static string LoadNewActiveSolution(string fileName) {
+            fileName = Path.GetFullPath(fileName);
             if (Solution.LoadNewActiveSolution(fileName))
                 return fileName;
             return "ERROR\n'" + fileName + "' could not be loaded!";
+        }
+
+        private static string StartDistributedTest(List<string> parameters) {
+            try {
+                CommunicateToVApus("/startdistributedtest/" + parameters[0]);
+            } catch (Exception ex) {
+                return "ERROR\nDistributed test could not be started!\n" + ex;
+            }
+            return "";
+        }
+
+        private static string StartMonitors(List<string> parameters) {
+            var sb = new StringBuilder();
+            foreach (string index in parameters)
+                sb.AppendLine(StartMonitor(index));
+            return sb.ToString();
+        }
+
+        private static string StartMonitor(string index) {
+            try {
+                CommunicateToVApus("/startmonitor/" + index);
+            } catch (Exception ex) {
+                return "ERROR\nMonitor could not be started!\n" + ex;
+            }
+            return "";
+        }
+
+        private static string StartStressTest(List<string> parameters) {
+            try {
+                CommunicateToVApus("/startstresstest/" + parameters[0]);
+            } catch (Exception ex) {
+                return "ERROR\nStress test could not be started!\n" + ex;
+            }
+            return "";
+        }
+
+        private static void CommunicateToVApus(string message) {
+            var socket = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
+            var socketWrapper = new SocketWrapper("127.0.0.1", SocketListenerLinker.SocketListenerPort, socket);
+
+            socketWrapper.Connect(20000, 2);
+
+            socketWrapper.Send(message, SendType.Text, Util.Encoding.UTF8);
+            //Don't care about the answer. Just close the socket, otherwise the main thread will deadlock.
+
+            socketWrapper.Close();
         }
 
         #endregion

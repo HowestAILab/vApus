@@ -13,7 +13,7 @@ using System.IO;
 using System.IO.Compression;
 using System.Reflection;
 using System.Xml;
-using vApus.Server.Shared;
+using vApus.Communication.Shared;
 using vApus.SolutionTree;
 using vApus.StressTest;
 using vApus.Util;

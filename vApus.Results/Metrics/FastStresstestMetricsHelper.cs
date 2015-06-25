@@ -20,7 +20,7 @@ namespace vApus.Results {
         #region Fields
         private static readonly string[] _readableMetricsHeadersConcurrency =
             {
-                "Started at", "Time feft", "Measured time", "Concurrency", "Requests processed", "Errors",
+                "Started at", "Time left", "Measured time", "Concurrency", "Requests processed", "Errors",
                 "Throughput (responses / s)", "User actions / s", "Avg. response time (ms)", "Max. response time (ms)",
                 "Avg. delay (ms)"
             };
