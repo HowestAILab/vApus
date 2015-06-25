@@ -65,11 +65,26 @@ namespace vApus.DistributedTest.Controls.TestTreeView {
                 tlvw.ExpandAll();
                 if (tlvw.Items.Count != 0)
                     tlvw.AutoResizeColumns(ColumnHeaderAutoResizeStyle.ColumnContent);
+
+                if (item is DistributedTest) {
+                    splitContainer.Panel2Collapsed = false;
+                    var tmr = new Timer() {  Interval = 200 };
+                    tmr.Tick += tmr_Tick;
+                    tmr.Start();
+                } else {
+                    splitContainer.Panel2Collapsed = true;
+                }
+
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed initing tile overview.", ex);
             } finally {
                 try { LockWindowUpdate(IntPtr.Zero); } catch { }
             }
+        }
+
+        private void tmr_Tick(object sender, EventArgs e) {
+            (sender as Timer).Stop();
+            solutionComponentPropertyPanel.SolutionComponent = _item;
         }
 
         private List<TLVWItem> GetOverview() {

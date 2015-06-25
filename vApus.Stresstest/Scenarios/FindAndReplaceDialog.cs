@@ -30,11 +30,11 @@ namespace vApus.StressTest {
         private void btnReplaceWith_Click(object sender, EventArgs e) { if (ReplaceClicked != null) ReplaceClicked(this, new ReplaceEventArgs(txtFind.Text, chkWholeWords.Checked, !chkMatchCase.Checked, txtReplace.Text, chkReplaceAll.Checked)); }
         private void txtFind_TextChanged(object sender, EventArgs e) {
             btnFind.Enabled = txtFind.Text.Length != 0;
-            btnReplaceWith.Enabled = txtFind.Text.Length != 0 && txtReplace.Text.Length != 0 && txtFind.Text != txtReplace.Text;
+            btnReplaceWith.Enabled = txtFind.Text.Length != 0 && txtFind.Text != txtReplace.Text;
         }
         private void txtReplace_KeyDown(object sender, KeyEventArgs e) { if (e.KeyCode == Keys.Enter && btnReplaceWith.Enabled) btnReplaceWith.PerformClick(); }
 
-        private void txtReplace_TextChanged(object sender, EventArgs e) { btnReplaceWith.Enabled = txtFind.Text.Length != 0 && txtReplace.Text.Length != 0 && txtFind.Text != txtReplace.Text; }
+        private void txtReplace_TextChanged(object sender, EventArgs e) { btnReplaceWith.Enabled = txtFind.Text.Length != 0 && txtFind.Text != txtReplace.Text; }
         #endregion
 
         public class FindEventArgs : EventArgs {

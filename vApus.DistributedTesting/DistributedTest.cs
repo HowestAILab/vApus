@@ -66,13 +66,15 @@ namespace vApus.DistributedTest {
             }
         }
 
-        [SavableCloneable]
+        [Description("The description for this test that will be stored in the results database for easy finding.")]
+        [SavableCloneable, PropertyControl(0)]
         public string Description {
             get { return _description; }
             set { _description = value; }
         }
 
-        [SavableCloneable]
+        [Description("The tags for this test that will be stored in the results database for easy finding.")]
+        [SavableCloneable, PropertyControl(1)]
         public string[] Tags {
             get { return _tags; }
             set { _tags = value; }

@@ -156,6 +156,8 @@ namespace vApus.DistributedTest {
             Shown -= DistributedTestView_Shown;
             if (_distributedTest.Tiles.Count == 0 && _distributedTest.Clients.Count == 0)
                 ShowWizard();
+
+            testTreeView.SelectDistributedTestTreeViewItem();
         }
         private void btnWizard_Click(object sender, EventArgs e) { ShowWizard(); }
         private void ShowWizard() {
@@ -191,7 +193,7 @@ namespace vApus.DistributedTest {
         private void tpTree_SelectedIndexChanged(object sender, EventArgs e) {
             if (tcTree.SelectedIndex == 0) {
                 configureTileStressTest.Visible = true;
-                tileOverview.Visible = _selectedTestTreeViewItem is TileTreeViewItem;
+                tileOverview.Visible = _selectedTestTreeViewItem is TileTreeViewItem || _selectedTestTreeViewItem is DistributedTestTreeViewItem;
                 configureSlaves.Visible = false;
             } else {
                 configureTileStressTest.Visible = false;
@@ -242,7 +244,7 @@ namespace vApus.DistributedTest {
             } else if (sender is TileTreeViewItem) {
                 tileOverview.Init((sender as TileTreeViewItem).Tile);
                 tileOverview.BringToFront();
-                configureTileStressTest.ClearTileStressTest(false);
+                configureTileStressTest.ClearTileStressTest();
 
                 fastResultsControl.Visible = false;
                 distributedStressTestControl.Visible = true;
@@ -255,16 +257,7 @@ namespace vApus.DistributedTest {
                 tileOverview.Init(_distributedTest);
                 tileOverview.BringToFront();
 
-                bool showDescriptions = false;
-                //if (sender is DistributedTestTreeViewItem) {
-                //    var dttvi = sender as DistributedTestTreeViewItem;
-                //    foreach (Control ctrl in dttvi.Controls)
-                //        if ((ctrl is CheckBox && ctrl.Focused) || (ctrl is Panel && ctrl.Controls.Count != 0 && ctrl.Controls[0].Focused)) {
-                //            showDescriptions = true;
-                //            break;
-                //        }
-                //}
-                configureTileStressTest.ClearTileStressTest(showDescriptions);
+                configureTileStressTest.ClearTileStressTest();
 
                 fastResultsControl.Visible = false;
                 distributedStressTestControl.Visible = true;

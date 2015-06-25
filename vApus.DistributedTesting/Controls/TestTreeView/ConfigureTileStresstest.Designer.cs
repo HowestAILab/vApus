@@ -29,13 +29,9 @@
         private void InitializeComponent()
         {
             this.components = new System.ComponentModel.Container();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(ConfigureTileStressTest));
             this.solutionComponentPropertyPanelBasic = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.solutionComponentPropertyPanelAdvanced = new vApus.SolutionTree.SolutionComponentPropertyPanel();
             this.llblShowHideAdvancedSettings = new System.Windows.Forms.LinkLabel();
-            this.lblUsage = new System.Windows.Forms.Label();
-            this.lblUseRDP = new System.Windows.Forms.Label();
-            this.lblRunSync = new System.Windows.Forms.Label();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.defaultAdvancedSettingsToControl = new vApus.DistributedTest.DefaultAdvancedSettingsToControl();
             this.SuspendLayout();
@@ -80,48 +76,6 @@
             this.llblShowHideAdvancedSettings.Visible = false;
             this.llblShowHideAdvancedSettings.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblAdvancedSettings_LinkClicked);
             // 
-            // lblUsage
-            // 
-            this.lblUsage.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.lblUsage.AutoSize = true;
-            this.lblUsage.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUsage.ForeColor = System.Drawing.Color.DimGray;
-            this.lblUsage.Location = new System.Drawing.Point(125, 228);
-            this.lblUsage.Name = "lblUsage";
-            this.lblUsage.Size = new System.Drawing.Size(489, 26);
-            this.lblUsage.TabIndex = 3;
-            this.lblUsage.Text = "Add Tiles to the Distributed Test and Tile Stress Tests to a Tile clicking the \'+ " +
-    "button\'.\r\nSelect a Tile Stress Test to configure it.";
-            this.lblUsage.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            // 
-            // lblUseRDP
-            // 
-            this.lblUseRDP.AutoSize = true;
-            this.lblUseRDP.BackColor = System.Drawing.SystemColors.Control;
-            this.lblUseRDP.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblUseRDP.ForeColor = System.Drawing.Color.DimGray;
-            this.lblUseRDP.Location = new System.Drawing.Point(0, 11);
-            this.lblUseRDP.Name = "lblUseRDP";
-            this.lblUseRDP.Size = new System.Drawing.Size(591, 26);
-            this.lblUseRDP.TabIndex = 4;
-            this.lblUseRDP.Text = "Check \'Use RDP\' if you want vApus to open remote desktop connections to the used " +
-    "clients.\r\nRegardless whether you check this or not, you need to be logged into the" +
-    " clients to be able to stress test.";
-            this.lblUseRDP.Visible = false;
-            // 
-            // lblRunSync
-            // 
-            this.lblRunSync.AutoSize = true;
-            this.lblRunSync.BackColor = System.Drawing.SystemColors.Control;
-            this.lblRunSync.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblRunSync.ForeColor = System.Drawing.Color.DimGray;
-            this.lblRunSync.Location = new System.Drawing.Point(0, 47);
-            this.lblRunSync.Name = "lblRunSync";
-            this.lblRunSync.Size = new System.Drawing.Size(504, 78);
-            this.lblRunSync.TabIndex = 5;
-            this.lblRunSync.Text = resources.GetString("lblRunSync.Text");
-            this.lblRunSync.Visible = false;
-            // 
             // defaultAdvancedSettingsToControl
             // 
             this.defaultAdvancedSettingsToControl.BackColor = System.Drawing.SystemColors.Control;
@@ -140,9 +94,6 @@
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.AutoScroll = true;
             this.BackColor = System.Drawing.Color.White;
-            this.Controls.Add(this.lblRunSync);
-            this.Controls.Add(this.lblUseRDP);
-            this.Controls.Add(this.lblUsage);
             this.Controls.Add(this.solutionComponentPropertyPanelAdvanced);
             this.Controls.Add(this.solutionComponentPropertyPanelBasic);
             this.Controls.Add(this.llblShowHideAdvancedSettings);
@@ -159,9 +110,6 @@
         private SolutionTree.SolutionComponentPropertyPanel solutionComponentPropertyPanelBasic;
         private SolutionTree.SolutionComponentPropertyPanel solutionComponentPropertyPanelAdvanced;
         private System.Windows.Forms.LinkLabel llblShowHideAdvancedSettings;
-        private System.Windows.Forms.Label lblUsage;
-        private System.Windows.Forms.Label lblUseRDP;
-        private System.Windows.Forms.Label lblRunSync;
         private DefaultAdvancedSettingsToControl defaultAdvancedSettingsToControl;
         private System.Windows.Forms.ToolTip toolTip;
     }

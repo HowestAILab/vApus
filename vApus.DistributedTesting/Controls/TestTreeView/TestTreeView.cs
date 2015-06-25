@@ -162,6 +162,12 @@ namespace vApus.DistributedTest {
             LockWindowUpdate(IntPtr.Zero);
         }
 
+        public void SelectDistributedTestTreeViewItem() {
+            foreach (Control ctrl in largeList.AllControls) {
+                ctrl.Select();
+                break;
+            }
+        }
         /// <summary>
         ///     Select a tile stress test tvi.
         /// </summary>

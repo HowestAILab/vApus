@@ -49,8 +49,6 @@ namespace vApus.DistributedTest {
         #region Functions
 
         public void SetTileStressTest(TileStressTest tileStressTest) {
-            lblRunSync.Visible = lblUseRDP.Visible = lblUsage.Visible = false;
-
             defaultAdvancedSettingsToControl.Visible = solutionComponentPropertyPanelBasic.Visible = llblShowHideAdvancedSettings.Visible = true;
 
             if (_tileStressTest != tileStressTest) {
@@ -66,15 +64,11 @@ namespace vApus.DistributedTest {
 
         /// <summary>
         /// </summary>
-        /// <param name="showDescriptions">Should only be shown if the run sync cbo is focused</param>
-        public void ClearTileStressTest(bool showDescriptions) {
+        public void ClearTileStressTest() {
             defaultAdvancedSettingsToControl.Visible =
                 solutionComponentPropertyPanelBasic.Visible =
                 solutionComponentPropertyPanelAdvanced.Visible =
                 llblShowHideAdvancedSettings.Visible = false;
-
-            lblUseRDP.Visible = lblRunSync.Visible = showDescriptions;
-            lblUsage.Visible = true;
         }
 
         private void defaultAdvancedSettingsToControl_CheckChanged(object sender, EventArgs e) {
