@@ -104,13 +104,13 @@ namespace vApus.Communication {
                 var address = IPAddress.Any;
                 _serverSocketV4 = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 _serverSocketV4.Bind(new IPEndPoint(address, _port));
-                _serverSocketV4.Listen(100);
+                _serverSocketV4.Listen(int.MaxValue);
                 _serverSocketV4.BeginAccept(OnAcceptV4, null);
 
                 address = IPAddress.IPv6Any;
                 _serverSocketV6 = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                 _serverSocketV6.Bind(new IPEndPoint(address, _port));
-                _serverSocketV6.Listen(100);
+                _serverSocketV6.Listen(int.MaxValue);
                 _serverSocketV6.BeginAccept(OnAcceptV6, null);
 
                 if (preferred) {
@@ -149,7 +149,7 @@ namespace vApus.Communication {
                         }
                 }
 
-                _serverSocketV4.Listen(100);
+                _serverSocketV4.Listen(int.MaxValue);
                 _serverSocketV4.BeginAccept(OnAcceptV4, null);
                 _startTries = 0;
 
@@ -170,7 +170,7 @@ namespace vApus.Communication {
                         }
                 }
 
-                _serverSocketV6.Listen(100);
+                _serverSocketV6.Listen(int.MaxValue);
                 _serverSocketV6.BeginAccept(OnAcceptV6, null);
 
                 _startTries = 0;

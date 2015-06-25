@@ -93,7 +93,7 @@ namespace vApus.StressTest {
         }
         private void captureControl_StopClicked(object sender, EventArgs e) {
             SaveCaptureSettings();
-            Import(captureControl.ParsedLog, false);
+            Import(captureControl.ParsedScenario, false);
             try {
                 ProxyHelper.UnsetProxy();
             } catch (Exception ex) {

@@ -62,13 +62,13 @@ namespace vApus.JumpStart {
                 _serverSocketIPv4 = new Socket(AddressFamily.InterNetwork, SocketType.Stream, ProtocolType.Tcp);
                 _serverSocketIPv4.Bind(new IPEndPoint(IPAddress.Any, PORT));
 
-                _serverSocketIPv4.Listen(100);
+                _serverSocketIPv4.Listen(int.MaxValue);
                 _serverSocketIPv4.BeginAccept(OnAcceptIPv4, null);
 
                 _serverSocketIPv6 = new Socket(AddressFamily.InterNetworkV6, SocketType.Stream, ProtocolType.Tcp);
                 _serverSocketIPv6.Bind(new IPEndPoint(IPAddress.IPv6Any, PORT));
 
-                _serverSocketIPv6.Listen(100);
+                _serverSocketIPv6.Listen(int.MaxValue);
                 _serverSocketIPv6.BeginAccept(OnAcceptIPv6, null);
 
                 _startTries = 0;

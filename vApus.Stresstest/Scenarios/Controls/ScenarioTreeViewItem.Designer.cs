@@ -48,10 +48,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlRuleSet.BackColor = System.Drawing.Color.Silver;
             this.pnlRuleSet.Controls.Add(this.cboRuleSet);
-            this.pnlRuleSet.Location = new System.Drawing.Point(88, 6);
+            this.pnlRuleSet.Location = new System.Drawing.Point(115, 6);
             this.pnlRuleSet.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.pnlRuleSet.Name = "pnlRuleSet";
-            this.pnlRuleSet.Size = new System.Drawing.Size(358, 23);
+            this.pnlRuleSet.Size = new System.Drawing.Size(331, 23);
             this.pnlRuleSet.TabIndex = 0;
             // 
             // cboRuleSet
@@ -66,7 +66,7 @@
             this.cboRuleSet.Location = new System.Drawing.Point(1, 1);
             this.cboRuleSet.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboRuleSet.Name = "cboRuleSet";
-            this.cboRuleSet.Size = new System.Drawing.Size(356, 21);
+            this.cboRuleSet.Size = new System.Drawing.Size(329, 21);
             this.cboRuleSet.TabIndex = 0;
             this.cboRuleSet.TabStop = false;
             this.cboRuleSet.SelectedIndexChanged += new System.EventHandler(this.cboRuleSet_SelectedIndexChanged);
@@ -84,7 +84,7 @@
             this.label1.Location = new System.Drawing.Point(3, 11);
             this.label1.MinimumSize = new System.Drawing.Size(0, 13);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(28, 13);
+            this.label1.Size = new System.Drawing.Size(57, 13);
             this.label1.TabIndex = 19;
             this.label1.Text = "Scenario";
             this.label1.Click += new System.EventHandler(this._Enter);
@@ -154,12 +154,12 @@
             // label2
             // 
             this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(37, 11);
+            this.label2.Location = new System.Drawing.Point(66, 11);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(51, 13);
+            this.label2.Size = new System.Drawing.Size(49, 13);
             this.label2.TabIndex = 22;
-            this.label2.Text = "Rule Set:";
+            this.label2.Text = "Rule set:";
             this.label2.Click += new System.EventHandler(this._Enter);
             // 
             // panel1

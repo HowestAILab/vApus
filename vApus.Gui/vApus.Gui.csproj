@@ -302,7 +302,7 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FiddlerCore.dll">
+    <Content Include="FiddlerCore4.dll">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
     <Content Include="FiddlerCoreAPILicense.txt">
