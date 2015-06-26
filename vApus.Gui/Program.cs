@@ -28,6 +28,7 @@ namespace vApus.Gui {
             ProfileOptimization.SetProfileRoot(Application.StartupPath);
             ProfileOptimization.StartProfile("Startup.Profile");
 
+            Loggers.GetLogger<FileLogger>().CurrentLevel = (Level)Settings.Default.LogLevel;
             Loggers.Log("vApus Started!");
 
             Application.EnableVisualStyles();

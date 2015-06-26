@@ -247,7 +247,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             _stressTestResultId, Parse(stressTestResult.StoppedAt), status, statusMessage)
                         );
 
-                    DoAddLogEntries();
+                    DoAddMessages();
                 }
             }
         }
@@ -384,7 +384,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
                     _databaseActions.ExecuteSQL(string.Format("UPDATE runresults SET TotalRequestCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalRequestCount, Parse(runResult.StoppedAt)));
 
-                    DoAddLogEntries();
+                    DoAddMessages();
                 }
             }
         }
@@ -427,7 +427,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 }
                 Thread.CurrentThread.CurrentCulture = prevCulture;
 
-                DoAddLogEntries();
+                DoAddMessages();
             }
         }
 
@@ -440,16 +440,16 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// Kept in memory and added every run and when the test ends.
         /// </summary>
         /// <param name="level"></param>
-        /// <param name="entry"></param>
-        public void AddLogEntryInMemory(int level, string entry) {
+        /// <param name="message"></param>
+        public void AddMessageInMemory(int level, string message) {
             if (_vApusInstanceId > 0 && _databaseActions != null)
-                _scenarios.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", _vApusInstanceId, Parse(DateTime.Now), level, entry));
+                _scenarios.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", _vApusInstanceId, Parse(DateTime.Now), level, message));
         }
-        private void DoAddLogEntries() {
+        private void DoAddMessages() {
             string[] scenarios = _scenarios.ToArray();
             if (scenarios.Length != 0) {
                 if (_vApusInstanceId > 0 && _databaseActions != null)
-                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO logs(vApusInstanceId, Timestamp, Level, Entry) VALUES {0};", scenarios.Combine(", ")));
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO messages(vApusInstanceId, Timestamp, Level, Message) VALUES {0};", scenarios.Combine(", ")));
                 _scenarios = new ConcurrentBag<string>();
             }
             scenarios = null;
@@ -2337,12 +2337,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         #endregion
 
         /// <summary>
-        /// Application logs
+        /// Test messages.
         /// </summary>
         /// <param name="cancellationToken"></param>
         /// <param name="stressTestIds"></param>
         /// <returns></returns>
-        public DataTable GetLogs(CancellationToken cancellationToken, params int[] stressTestIds) {
+        public DataTable GetMessages(CancellationToken cancellationToken, params int[] stressTestIds) {
             lock (_lock) {
                 if (_databaseActions == null) return null;
 
@@ -2361,12 +2361,12 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                     var vApusInstanceIds = new int[] { (int)vApusInstances.Rows[0].ItemArray[0] };
 
-                    DataTable logs = _databaseActions.GetDataTable(string.Format("Select Timestamp, Level, Entry from logs where vApusInstanceId IN({0});", vApusInstanceIds.Combine(",")));
+                    DataTable messages = _databaseActions.GetDataTable(string.Format("Select Timestamp, Level, Message from messages where vApusInstanceId IN({0});", vApusInstanceIds.Combine(",")));
 
-                    if (logs == null) return null;
+                    if (messages == null) return null;
 
-                    cacheEntry.ReturnValue = logs;
-                    return logs;
+                    cacheEntry.ReturnValue = messages;
+                    return messages;
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }

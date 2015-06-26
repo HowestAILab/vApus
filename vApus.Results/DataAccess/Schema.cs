@@ -29,7 +29,7 @@ namespace vApus.Results {
             CreatevApusInstancesTable(databaseActions);
 
             CreateStressTestsTable(databaseActions);
-            CreateLogsTable(databaseActions);
+            CreateMessagesTable(databaseActions);
             CreateStressTestResultsTable(databaseActions);
             CreateConcurrencyResultsTable(databaseActions);
             CreateRunResultsTable(databaseActions);
@@ -70,11 +70,11 @@ HostName varchar(255) NOT NULL, IP varchar(255) NOT NULL, Port int NOT NULL, Ver
 IsMaster bool NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 
-        private static void CreateLogsTable(DatabaseActions databaseActions) {
-            if (!TableExists("logs", databaseActions))
+        private static void CreateMessagesTable(DatabaseActions databaseActions) {
+            if (!TableExists("messages", databaseActions))
                 databaseActions.ExecuteSQL(
-                    @"Create Table logs(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(ID), vApusInstanceId int NOT NULL,
-FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), Timestamp datetime(6) NOT NULL, Level tinyint NOT NULL, Entry longtext NOT NULL) ROW_FORMAT=COMPRESSED"
+                    @"Create Table messages(Id int NOT NULL AUTO_INCREMENT, PRIMARY KEY(ID), vApusInstanceId int NOT NULL,
+FOREIGN KEY(vApusInstanceId) REFERENCES vapusinstances(Id), Timestamp datetime(6) NOT NULL, Level tinyint NOT NULL, Message longtext NOT NULL) ROW_FORMAT=COMPRESSED"
                     );
         }
 

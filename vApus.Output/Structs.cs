@@ -8,7 +8,7 @@
 using System;
 using System.Collections.Generic;
 
-namespace vApus.JSON {
+namespace vApus.Output {
     public struct MonitorConfig {
         public string MonitorSource;
         public object[] Parameters;

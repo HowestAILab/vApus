@@ -12,7 +12,7 @@ using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.JSON {
+namespace vApus.Output {
     /// <summary>
     /// Serves at prepping and storing data to be served through vApus.Server. Storing data you must do yourself after the data is prepped (Apply... fxs).
     /// </summary>

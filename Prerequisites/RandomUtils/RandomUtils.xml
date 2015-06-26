@@ -113,14 +113,17 @@
         </member>
         <member name="T:RandomUtils.FastObjectCreator">
             <summary>
-            <para>To creates a new instance of a type using an empty public constructor and Intermediate Language. This should be faster than Activator.CreateInstance(...);</para>
-            <para>However, for primitives and structs Activator is used since they cannot have a explicit parameterless constructor.</para>
+            <para>Creates a new instance of a type using an empty public constructor and Intermediate Language. This is faster than Activator.CreateInstance(...),
+            and unsafer since there are no checks. Do a comparison if you like.</para>
+            <para>However, for primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
+            This is thread-safe.
             </summary>
         </member>
         <member name="M:RandomUtils.FastObjectCreator.CreateInstance``1(System.Type)">
             <summary>
-            <para>Creates a new instance of a type using an empty public constructor and Intermediate Language. This should be faster than Activator.CreateInstance(...);</para>
-            <para>However, for primitives and structs Activator is used since they cannot have a explicit parameterless constructor.</para>
+            <para>Creates a new instance of a type using an empty public constructor and Intermediate Language. This is faster than Activator.CreateInstance(...),
+            and unsafer since there are no checks. Do a comparison if you like.</para>
+            <para>However, for primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
             This is thread-safe.
             </summary>
             <param name="type"></param>
@@ -129,8 +132,16 @@
         <member name="T:RandomUtils.FunctionOutputCache">
             <summary>
             <para>A thread-safe way to cache the calling function's return value / output arguments.</para>
-            <para>This should only be used for output that always stays the same, but takes long to calculate. S</para>
+            <para>This should only be used for output that always stays the same, but takes long to calculate.</para>
+            <para>You can use the instance if you want one general FunctionOutputCache.</para>
+            <para>I made this class before I knew you can do the same with System.Web.Caching.Cache (HttpContext.Current.Cache).</para>
             </summary>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.GetInstance">
+            <summary>
+            
+            </summary>
+            <returns></returns>
         </member>
         <member name="M:RandomUtils.FunctionOutputCache.GetOrAdd(System.Reflection.MethodBase,System.Object[])">
             <summary>
@@ -141,8 +152,17 @@
             <param name="method">e.g. MethodInfo.GetCurrentMethod()</param>
             <param name="inputArguments">
             <para>Primitives, objects that are not a collection of any sort, arrays and ILists are supported. Array / IList members are compared for equality.</para>
-            <para>Edit this if you want to for instance support dictionaries.</para>
+            <para>Override InspectArgumentEquality(object, object) if you want to for instance support dictionaries.</para>
             </param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.InspectArgumentEquality(System.Object,System.Object)">
+            <summary>
+            <para>Primitives, objects that are not a collection of any sort, arrays and ILists are supported. Array / IList members are compared for equality.</para>
+            <para>Override this if you want to for instance support dictionaries.</para>
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
             <returns></returns>
         </member>
         <member name="M:RandomUtils.FunctionOutputCache.Dispose">
@@ -162,6 +182,7 @@
         </member>
         <member name="T:RandomUtils.FunctionOutputCache.CacheEntry">
             <summary>
+            Holds the MethodBase, de input and output arguments if any and the return value.
             </summary>
         </member>
         <member name="M:RandomUtils.FunctionOutputCache.CacheEntry.#ctor(System.Reflection.MethodBase,System.Object[])">
@@ -186,53 +207,80 @@
             <summary>
             </summary>
         </member>
-        <member name="T:RandomUtils.ObjectCache">
+        <member name="T:RandomUtils.KeyValueStore">
             <summary>
-            Serves at registring an object so you can get the properties anywhere in the application.
+            <para>A super-simple key value store implementation. Basically a wrapper around ConcurrentDictionary.</para>
+            <para>You can use the instance if you want one general KeyValueStore.</para>
             </summary>
         </member>
-        <member name="M:RandomUtils.ObjectCache.AddOrUpdate(System.Object)">
+        <member name="M:RandomUtils.KeyValueStore.GetInstance">
             <summary>
-            Uses the hashcode of the object for a name.
+            You can use the instance if you want one general KeyValueStore.
             </summary>
-            <param name="obj"></param>
-            <returns>The name.</returns>
-        </member>
-        <member name="M:RandomUtils.ObjectCache.AddOrUpdate(System.String,System.Object)">
-            <summary>
-            
-            </summary>
-            <param name="name"></param>
-            <param name="obj"></param>
-        </member>
-        <member name="M:RandomUtils.ObjectCache.Remove(System.String)">
-            <summary>
-            
-            </summary>
-            <param name="name"></param>
             <returns></returns>
         </member>
-        <member name="M:RandomUtils.ObjectCache.Clear">
+        <member name="M:RandomUtils.KeyValueStore.Add(System.Object)">
             <summary>
-            
+            Uses a uniquely generated key, based on a random that uses a new guid hash code for a seed.
             </summary>
+            <param name="value"></param>
+            <returns>The generated key.</returns>
         </member>
-        <member name="M:RandomUtils.ObjectCache.Get``1(System.String)">
+        <member name="M:RandomUtils.KeyValueStore.AddOrUpdate(System.Object,System.Object)">
             <summary>
-            
+            Adds or updated the key value pair.
             </summary>
-            <typeparam name="T"></typeparam>
-            <param name="name"></param>
+            <param name="key"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Remove(System.Object)">
+            <summary>
+            Removes a key value pair if the key was found.
+            </summary>
+            <param name="key"></param>
             <returns></returns>
         </member>
-        <member name="P:RandomUtils.ObjectCache.Size">
+        <member name="M:RandomUtils.KeyValueStore.Clear">
             <summary>
-            The current size of the cache.
+            Clears the store.
             </summary>
         </member>
-        <member name="P:RandomUtils.ObjectCache.RegisteredNames">
+        <member name="M:RandomUtils.KeyValueStore.Contains(System.Object)">
             <summary>
-            
+            Returns if the store contains a key value pair for the given key.
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Get``1(System.Object)">
+            <summary>
+            Returns a value for a given key. If it was not found an exception will be thrown.
+            </summary>
+            <typeparam name="TV"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Dispose">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValueStore.Size">
+            <summary>
+            The current size of the store.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValueStore.Keys">
+            <summary>
+            Returns all the keys.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValueStore.Values">
+            <summary>
+            Returns all the values.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValueStore.IsDisposed">
+            <summary>
             </summary>
         </member>
         <member name="T:RandomUtils.SerializationHelper">
@@ -323,6 +371,22 @@
             <param name="arr"></param>
             <returns></returns>
         </member>
+        <member name="M:RandomUtils.SerializationHelper.BytesToHex(System.Byte[],System.String)">
+            <summary>
+            Converts a byte array to a hex using the given separator.
+            </summary>
+            <param name="arr"></param>
+            <param name="separator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.HexToBytes(System.String,System.String)">
+            <summary>
+            Converts a seperated hex to a byte array using the given seperator.
+            </summary>
+            <param name="s"></param>
+            <param name="separator"></param>
+            <returns></returns>
+        </member>
         <member name="T:RandomUtils.SerializationHelper.TextEncoding">
             <summary>
             Used in the Encode and Decode fx. UTF8 is advised.
@@ -402,13 +466,15 @@
                 No Scientific notation ToString().
             </summary>
             <param name="f"></param>
+            <param name="thousandSeparator"></param>
             <returns></returns>
         </member>
         <member name="M:RandomUtils.StringUtil.DoubleToLongString(System.Double,System.Boolean)">
             <summary>
                 No Scientific notation ToString().
             </summary>
-            <param name="f"></param>
+            <param name="d"></param>
+            <param name="thousandSeparator"></param>
             <returns></returns>
         </member>
         <member name="M:RandomUtils.StringUtil.NumberToLongString(System.Object,System.Boolean)">
@@ -416,6 +482,14 @@
                 No Scientific notation ToString().
             </summary>
             <param name="o"></param>
+            <param name="thousandSeparator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.ReverseString(System.String)">
+            <summary>
+            Reverse a string.
+            </summary>
+            <param name="s"></param>
             <returns></returns>
         </member>
         <member name="T:RandomUtils.SynchronizationContextWrapper">
@@ -429,6 +503,100 @@
             <summary>
             <para>Set this to System.Threading.SynchronizationContext.Current in the constructor below 'InitializeComponent();' of a WPF main form or when the handle is created for a WinForms main form.</para>
             <para>e.g. If you want to update a System.Windows.Forms.Label form another thread: SynchronizationContextWrapper.SynchronizationContext.Current.Send((state) => { lblFoo.Text = "bar"; }, null)</para>
+            </summary>
+        </member>
+        <member name="T:RandomUtils.TimeSeriesStore">
+            <summary>
+            <para>This is a very simple time series store implementation.</para>
+            <para>It is a partioned key value store with a timestamp (DateTime) for a key and an object[] for values.</para>
+            <para>If you do not specify a partition in the different functions, the default is used.</para>
+            <para>You can use the instance if you want one general time series store.</para>
+            <para>If you want something more robust and distributed I suggest that you take a look at OpenTSDB, Reddis, etc.</para>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.TimeSeriesStore.DEFAULTPARTITION">
+            <summary>
+            The default partition. This one is used if you do not specify one in the different functions (Except ClearAll()).
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.GetInstance">
+            <summary>
+            You can use the instance if you want one general time series store.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.AddOrUpdate(System.DateTime,System.Object[])">
+            <summary>
+            Adds or updates a time series on the default partition.
+            </summary>
+            <param name="timestamp"></param>
+            <param name="values"></param>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Remove(System.DateTime)">
+            <summary>
+            Removes a time series from the default partition, if found.
+            </summary>
+            <param name="timestamp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Clear">
+            <summary>
+            Clears the default partition.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Get(System.DateTime)">
+            <summary>
+            Returns a time series from the default partition.
+            </summary>
+            <param name="timestamp"></param>
+            <returns>If the time series was not found, null will be returned.</returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.AddOrUpdate(System.String,System.DateTime,System.Object[])">
+            <summary>
+            Adds or updates a time series on a given partition. If the partition does not exist it will be added.
+            </summary>
+            <param name="partition"></param>
+            <param name="timestamp"></param>
+            <param name="values"></param>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Remove(System.String,System.DateTime)">
+            <summary>
+            Removes a time series from a given partition, if found.
+            </summary>
+            <param name="partition"></param>
+            <param name="timestamp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Clear(System.String)">
+            <summary>
+            Clears a given partition.
+            </summary>
+            <param name="partition"></param>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.ClearAll">
+            <summary>
+            Clears all partitions.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Get(System.String,System.DateTime)">
+            <summary>
+            Returns a time series from the given partition.
+            </summary>
+            <param name="partition"></param>
+            <param name="timestamp"></param>
+            <returns>If the time series was not found, null will be returned.</returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Dispose">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TimeSeriesStore.Partitions">
+            <summary>
+            Returns all the partition ids.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TimeSeriesStore.IsDisposed">
+            <summary>
             </summary>
         </member>
     </members>

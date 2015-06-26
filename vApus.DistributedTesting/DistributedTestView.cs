@@ -15,7 +15,7 @@ using System.IO;
 using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
-using vApus.JSON;
+using vApus.Output;
 using vApus.Monitor;
 using vApus.Results;
 using vApus.Communication.Shared;

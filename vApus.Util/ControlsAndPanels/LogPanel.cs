@@ -25,6 +25,7 @@ namespace vApus.Util {
             InitializeComponent();
             NewIssue.Done += NewIssue_Done;
             this.ParentChanged += LogPanel_ParentChanged;
+            this.VisibleChanged += LogPanel_VisibleChanged;
         }
 
         private void LogPanel_ParentChanged(object sender, EventArgs e) {
@@ -35,6 +36,10 @@ namespace vApus.Util {
                     tmr.Start();
                 }
             }
+        }
+        private void LogPanel_VisibleChanged(object sender, EventArgs e) {
+            if (IsHandleCreated && Visible && _reporting == 0)
+                fileLoggerPanel.SelectNewestLog();
         }
 
         private void NewIssue_Done(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {

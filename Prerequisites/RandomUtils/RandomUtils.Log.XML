@@ -228,6 +228,12 @@
             <param name="entry"></param>
             <param name="json">The JSON for the given Entry.</param>
         </member>
+        <member name="M:RandomUtils.Log.WriteLogEntryEventArgs.ToString">
+            <summary>
+            JSON included in the ToString().
+            </summary>
+            <returns></returns>
+        </member>
         <member name="P:RandomUtils.Log.WriteLogEntryEventArgs.Entry">
             <summary></summary>
         </member>
@@ -470,6 +476,10 @@
             A winforms panel for displaying file log entries. You can also set the desired log level.
             </summary>
         </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.SelectNewestLog">
+            <summary>
+            </summary>
+        </member>
         <member name="M:RandomUtils.Log.FileLoggerPanel.OnResize(System.EventArgs)">
             <summary>
             Refresh the child controls, because they are not drawn well (flat-style) when resized.
@@ -502,6 +512,12 @@
             <summary>
             Z-A comparer
             </summary>
+        </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.LogFileComparer.GetInstance">
+            <summary>
+            Z-A comparer
+            </summary>
+            <returns></returns>
         </member>
         <member name="T:RandomUtils.Log.Loggers">
             <summary> 

@@ -40,7 +40,6 @@ namespace vApus.Gui {
         private UpdateNotifierPanel _updateNotifierPanel;
         private LogPanel _logPanel;
         private LocalizationPanel _localizationPanel;
-        //private ProcessorAffinityPanel _processorAffinityPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
         private SavingResultsPanel _savingResultsPanel;
         private AutoExportResultsPanel _exportingResultsPanel;
@@ -60,7 +59,6 @@ namespace vApus.Gui {
             InitializeComponent();
             mainMenu.ImageList = new ImageList { ColorDepth = ColorDepth.Depth24Bit };
             _msgHandler = new Win32WindowMessageHandler();
-            Loggers.GetLogger<FileLogger>().CurrentLevel = (Level)Settings.Default.LogLevel;
             if (IsHandleCreated)
                 SetGui();
             else
@@ -92,7 +90,6 @@ namespace vApus.Gui {
                 _logErrorToolTip.Click += lblLogLevel_Click;
 
                 _localizationPanel = new LocalizationPanel();
-                //_processorAffinityPanel = new ProcessorAffinityPanel();
                 _cleanTempDataPanel = new CleanTempDataPanel();
                 _disableFirewallAutoUpdatePanel = new WindowsFirewallAutoUpdatePanel();
 
@@ -216,7 +213,6 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
-                //_optionsDialog.AddOptionsPanel(_processorAffinityPanel);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
                 _optionsDialog.AddOptionsPanel(_savingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_exportingResultsPanel);

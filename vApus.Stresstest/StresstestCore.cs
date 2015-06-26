@@ -277,7 +277,7 @@ namespace vApus.StressTest {
                         }, null);
 
                 Loggers.Log(logLevel, message);
-                _resultsHelper.AddLogEntryInMemory((int)logLevel, message);
+                _resultsHelper.AddMessageInMemory((int)logLevel, message);
             } catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }

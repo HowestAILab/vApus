@@ -170,13 +170,16 @@ namespace vApus.Util {
             if (sfd.ShowDialog() == DialogResult.OK)
                 try {
                     using (var sw = new StreamWriter(sfd.FileName)) {
-                        lock (this)
+                        lock (this) {
+                            sw.WriteLine("Timestamp\tLevel\tMessage");
                             foreach (EventViewItem item in largeList.AllControls) {
-                                sw.Write(item.Message);
-                                sw.Write(" [");
                                 sw.Write(item.At);
-                                sw.WriteLine("]");
+                                sw.Write("\t");
+                                sw.Write((int)item.EventType);
+                                sw.Write("\t");
+                                sw.WriteLine(item.Message);
                             }
+                        }
                         sw.Flush();
                     }
                 } catch {
