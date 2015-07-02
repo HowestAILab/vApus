@@ -5,6 +5,15 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+
+/*
+ * The JSON messages from the 'Value publisher' ('Publish values'-panel in vApus options) are serialized from instances of the classes below.
+ * The names of those classes and their properties should be descriptive enough.
+ * 
+ * You can use this file in your own listener implementation, a folder watcher and/or an UDP broadcast listener, to deserialize the JSON messages.
+ * 
+ * If you're implementing a listener in another programming language, you can use the classes below as an example.
+ */
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -173,7 +182,7 @@ namespace vApus.Publish {
         /// </summary>
         public int Level { get; set; }
         public string Description { get; set; }
-        public Exception Exception { get; set; }
+        public string Exception { get; set; }
         public object[] Parameters { get; set; }
         public string Member { get; set; }
         public string SourceFile { get; set; }

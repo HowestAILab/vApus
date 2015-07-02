@@ -5,7 +5,10 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
+using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 
 namespace vApus.Publish {
@@ -91,6 +94,23 @@ namespace vApus.Publish {
             Publisher.Settings.Save();
             Publisher.Clear();
 
+        }
+
+        private void llblDeserialize_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            string path = Path.Combine(Application.StartupPath, "PublishItems.cs");
+            if (!File.Exists(path)) {
+                string error = "PublishItems.cs was not found in the root directory if vApus.";
+                Loggers.Log(Level.Error, error, null, new object[]{ sender, e });
+                MessageBox.Show(error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+
+            try {
+                Process.Start(path);
+            } catch (Exception ex) {
+                string error = "Failed to open PublishItems.cs";
+                Loggers.Log(Level.Error, error, ex, new object[] { sender, e });
+                MessageBox.Show(error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
     }
 }

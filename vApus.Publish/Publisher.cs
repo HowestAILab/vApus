@@ -80,7 +80,7 @@ namespace vApus.Publish {
                 var publishItem = new ApplicationLogEntry();
                 publishItem.Level = (int)e.Entry.Level;
                 publishItem.Description = e.Entry.Description;
-                publishItem.Exception = e.Entry.Exception;
+                publishItem.Exception = e.Entry.Exception.ToString();
                 publishItem.Parameters = e.Entry.Parameters;
                 publishItem.Member = e.Entry.Member;
                 publishItem.SourceFile = e.Entry.SourceFile;

@@ -39,6 +39,7 @@
             this.label2 = new System.Windows.Forms.Label();
             this.chkJSONFiles = new System.Windows.Forms.CheckBox();
             this.grp = new System.Windows.Forms.GroupBox();
+            this.llblDeserialize = new System.Windows.Forms.LinkLabel();
             this.cboLogLevel = new System.Windows.Forms.ComboBox();
             this.chkApplicationLogs = new System.Windows.Forms.CheckBox();
             this.cboMessageLevel = new System.Windows.Forms.ComboBox();
@@ -198,6 +199,7 @@
             this.grp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grp.Controls.Add(this.llblDeserialize);
             this.grp.Controls.Add(this.cboLogLevel);
             this.grp.Controls.Add(this.chkApplicationLogs);
             this.grp.Controls.Add(this.cboMessageLevel);
@@ -224,6 +226,22 @@
             this.grp.Size = new System.Drawing.Size(604, 384);
             this.grp.TabIndex = 0;
             this.grp.TabStop = false;
+            // 
+            // llblDeserialize
+            // 
+            this.llblDeserialize.ActiveLinkColor = System.Drawing.Color.Blue;
+            this.llblDeserialize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.llblDeserialize.AutoSize = true;
+            this.llblDeserialize.DisabledLinkColor = System.Drawing.Color.Blue;
+            this.llblDeserialize.Location = new System.Drawing.Point(534, 292);
+            this.llblDeserialize.Name = "llblDeserialize";
+            this.llblDeserialize.Size = new System.Drawing.Size(64, 13);
+            this.llblDeserialize.TabIndex = 1009;
+            this.llblDeserialize.TabStop = true;
+            this.llblDeserialize.Text = "Deserialize?";
+            this.toolTip.SetToolTip(this.llblDeserialize, resources.GetString("llblDeserialize.ToolTip"));
+            this.llblDeserialize.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.llblDeserialize.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblDeserialize_LinkClicked);
             // 
             // cboLogLevel
             // 
@@ -412,5 +430,6 @@
         private System.Windows.Forms.CheckBox chkApplicationLogs;
         private System.Windows.Forms.Button btnEnable;
         private System.Windows.Forms.ToolTip toolTip;
+        private System.Windows.Forms.LinkLabel llblDeserialize;
     }
 }
