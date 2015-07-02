@@ -128,7 +128,6 @@
     <Compile Include="PublishItems.cs">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Compile>
-    <Compile Include="Structs.cs" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
