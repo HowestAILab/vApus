@@ -99,9 +99,9 @@ namespace vApus.Communication
             this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(262, 26);
+            this.label1.Size = new System.Drawing.Size(339, 13);
             this.label1.TabIndex = 3;
-            this.label1.Text = "Used for managing the socket listener for master-slave\r\ncommunication.";
+            this.label1.Text = "Used for managing the socket listener for master-slave communication.";
             // 
             // lblStatus
             // 
@@ -128,9 +128,9 @@ namespace vApus.Communication
             this.groupBox1.Controls.Add(this.lblPort);
             this.groupBox1.Controls.Add(this.lblIP);
             this.groupBox1.Controls.Add(this.lblStatus);
-            this.groupBox1.Location = new System.Drawing.Point(12, 38);
+            this.groupBox1.Location = new System.Drawing.Point(12, 35);
             this.groupBox1.Name = "groupBox1";
-            this.groupBox1.Size = new System.Drawing.Size(561, 283);
+            this.groupBox1.Size = new System.Drawing.Size(561, 286);
             this.groupBox1.TabIndex = 0;
             this.groupBox1.TabStop = false;
             // 
@@ -140,7 +140,7 @@ namespace vApus.Communication
             this.llblAvailableIPAddresses.AutoSize = true;
             this.llblAvailableIPAddresses.Location = new System.Drawing.Point(38, 60);
             this.llblAvailableIPAddresses.Name = "llblAvailableIPAddresses";
-            this.llblAvailableIPAddresses.Size = new System.Drawing.Size(78, 13);
+            this.llblAvailableIPAddresses.Size = new System.Drawing.Size(77, 13);
             this.llblAvailableIPAddresses.TabIndex = 6;
             this.llblAvailableIPAddresses.TabStop = true;
             this.llblAvailableIPAddresses.Text = "IP addresses...";
@@ -222,7 +222,7 @@ namespace vApus.Communication
             this.btnSet.Enabled = false;
             this.btnSet.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSet.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSet.Location = new System.Drawing.Point(41, 221);
+            this.btnSet.Location = new System.Drawing.Point(41, 224);
             this.btnSet.Name = "btnSet";
             this.btnSet.Size = new System.Drawing.Size(475, 24);
             this.btnSet.TabIndex = 4;

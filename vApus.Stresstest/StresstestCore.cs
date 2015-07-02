@@ -17,6 +17,7 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using vApus.Publish;
 using vApus.Results;
 using vApus.Util;
 
@@ -118,9 +119,6 @@ namespace vApus.StressTest {
             ObjectRegistrar.Register(this);
 
             _stressTest = stressTest;
-
-            //#warning Enable REST
-            // WriteRestConfig();
         }
         ~StressTestCore() {
             Dispose();
@@ -251,7 +249,7 @@ namespace vApus.StressTest {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RerunDone(this, null); }, null);
         }
 
-        private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) { InvokeMessage(e.Message, e.Color, e.LogLevel); }
+        private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) { InvokeMessage(e.Message, e.Color, e.Level); }
 
         private void InvokeMessage(string message, Level logLevel = Level.Info) { InvokeMessage(message, Color.Empty, logLevel); }
         /// <summary>
@@ -1036,43 +1034,7 @@ namespace vApus.StressTest {
             _threadPool = null;
         }
         #endregion
-
-        //private void WriteRestConfig() {
-        //    try {
-        //        var testConfigCache = new JSONObjectTree();
-
-        //        var monitors = _stressTest.Monitors;
-        //        var newMonitors = new string[monitors.Length];
-        //        for (int i = 0; i != monitors.Length; i++)
-        //            newMonitors[i] = monitors[i].ToString();
-
-        //        var scenarios = _stressTest.Scenarios;
-        //        var newScenarios = new string[scenarios.Length];
-        //        for (int i = 0; i != scenarios.Length; i++)
-        //            newScenarios[i] = scenarios[i].Key.ToString();
-
-        //        JSONObjectTreeHelper.ApplyToRunningStressTestConfig(testConfigCache,
-        //                                _stressTest.ToString(),
-        //                                _stressTest.Connection.ToString(),
-        //                                _stressTest.ConnectionProxy.ToString(),
-        //                                newMonitors,
-        //                                newScenarios,
-        //                                _stressTest.ScenarioRuleSet,
-        //                                _stressTest.Concurrencies,
-        //                                _stressTest.Runs,
-        //                                _stressTest.MinimumDelay,
-        //                                _stressTest.MaximumDelay,
-        //                                _stressTest.Shuffle,
-        //                                _stressTest.ActionDistribution,
-        //                                _stressTest.MaximumNumberOfUserActions,
-        //                                _stressTest.MonitorBefore,
-        //                                _stressTest.MonitorAfter);
-
-        //        JSONObjectTreeHelper.RunningTestConfig = testConfigCache;
-        //    } catch {
-        //    }
-        //}
-
+        
         public void Dispose() {
             if (!_isDisposed) {
                 try {

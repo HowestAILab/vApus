@@ -73,9 +73,10 @@
             this.btnBrowse.BackColor = System.Drawing.Color.White;
             this.btnBrowse.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnBrowse.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBrowse.Location = new System.Drawing.Point(407, 18);
+            this.btnBrowse.Location = new System.Drawing.Point(407, 21);
+            this.btnBrowse.MaximumSize = new System.Drawing.Size(1000, 21);
             this.btnBrowse.Name = "btnBrowse";
-            this.btnBrowse.Size = new System.Drawing.Size(31, 25);
+            this.btnBrowse.Size = new System.Drawing.Size(31, 21);
             this.btnBrowse.TabIndex = 12;
             this.btnBrowse.Text = "...";
             this.btnBrowse.UseVisualStyleBackColor = false;
@@ -104,13 +105,14 @@
             // 
             // btnEnableDisable
             // 
-            this.btnEnableDisable.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.btnEnableDisable.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.btnEnableDisable.BackColor = System.Drawing.Color.White;
             this.btnEnableDisable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnEnableDisable.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnEnableDisable.Location = new System.Drawing.Point(12, 343);
             this.btnEnableDisable.Name = "btnEnableDisable";
-            this.btnEnableDisable.Size = new System.Drawing.Size(75, 24);
+            this.btnEnableDisable.Size = new System.Drawing.Size(444, 24);
             this.btnEnableDisable.TabIndex = 1;
             this.btnEnableDisable.Text = "Enable";
             this.btnEnableDisable.UseVisualStyleBackColor = false;

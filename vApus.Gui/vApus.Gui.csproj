@@ -284,6 +284,10 @@
       <Project>{4C597FE8-D922-4A2A-B47B-2A84E2176DF7}</Project>
       <Name>vApus.Link</Name>
     </ProjectReference>
+    <ProjectReference Include="..\vApus.Publish\vApus.Publish.csproj">
+      <Project>{9e3d2623-0e60-4883-81a9-73ee8e974439}</Project>
+      <Name>vApus.Publish</Name>
+    </ProjectReference>
     <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
       <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
       <Name>vApus.Results</Name>

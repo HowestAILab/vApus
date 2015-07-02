@@ -327,9 +327,9 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\vApus.Output\vApus.Output.csproj">
+    <ProjectReference Include="..\vApus.Publish\vApus.Publish.csproj">
       <Project>{9e3d2623-0e60-4883-81a9-73ee8e974439}</Project>
-      <Name>vApus.Output</Name>
+      <Name>vApus.Publish</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.JumpStartStructures\vApus.JumpStartStructures.csproj">
       <Project>{0B87A110-73F8-496A-B656-9050272CFE7B}</Project>

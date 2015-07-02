@@ -20,6 +20,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.Monitor.Sources.Base;
+using vApus.Publish;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -35,7 +36,7 @@ namespace vApus.Monitor {
 
         #region Fields
         private readonly Monitor _monitor;
-        private string _configuration;
+        private string _hardwareConfiguration;
 
         private int _refreshTimeInMS;
 
@@ -57,15 +58,9 @@ namespace vApus.Monitor {
             get { return _monitor; }
         }
 
-        public string Configuration {
-            get { return _configuration; }
-            private set {
-                _configuration = value;
-                ////#warning Enable REST
-                //JSONObjectTree monitorHwConfig = (JSONObjectTreeHelper.RunningMonitorHardwareConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorHardwareConfig;
-                //JSONObjectTreeHelper.ApplyToRunningMonitorHardwareConfig(monitorHwConfig, _monitor.ToString(), _configuration);
-                //JSONObjectTreeHelper.RunningMonitorHardwareConfig = monitorHwConfig;
-            }
+        public string HardwareConfiguration {
+            get { return _hardwareConfiguration; }
+            private set { _hardwareConfiguration = value; }
         }
         public bool IsRunning {
             get {
@@ -136,11 +131,6 @@ namespace vApus.Monitor {
 
             _previousMonitorSourceForParameters = _monitor.MonitorSource;
             _previousFilter = _monitor.Filter.Combine(", ");
-
-            //#warning Enable REST
-            //JSONObjectTree monitorConfig = (JSONObjectTreeHelper.RunningMonitorConfig == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorConfig;
-            // JSONObjectTreeHelper.ApplyToRunningMonitorConfig(monitorConfig, _monitor.ToString(), _monitor.MonitorSource == null ? "N/A" : _monitor.MonitorSource.ToString(), _monitor.Parameters);
-            //JSONObjectTreeHelper.RunningMonitorConfig = monitorConfig;
 
             if (exception != null) {
                 string message = "Could not connect to the monitor client.";
@@ -256,10 +246,7 @@ namespace vApus.Monitor {
                         lblCountDown.Text = "Updates in " + refreshInS;
                     }
 
-                    //#warning Enable REST
-                    //JSONObjectTree monitorProgress = (JSONObjectTreeHelper.RunningMonitorMetrics == null) ? new JSONObjectTree() : JSONObjectTreeHelper.RunningMonitorMetrics;
-                    //JSONObjectTreeHelper.ApplyToRunningMonitorMetrics(monitorProgress, _monitor.ToString(), GetMonitorResultCache().Headers, GetMonitorValues());
-                    //JSONObjectTreeHelper.RunningMonitorMetrics = monitorProgress;
+                    PublishProgress();
 
                     btnSaveAllMonitorCounters.Enabled = monitorControl.ColumnCount != 0;
                     btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&
@@ -363,7 +350,7 @@ namespace vApus.Monitor {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 if (isConnected) {
                     btnConfiguration.Enabled = !string.IsNullOrEmpty(config);
-                    Configuration = config;
+                    HardwareConfiguration = config;
                     try { FillEntities(_wdyh); } catch (Exception ex) { exception = ex; }
                 }
 
@@ -741,8 +728,8 @@ namespace vApus.Monitor {
         }
 
         private void btnConfiguration_Click(object sender, EventArgs e) {
-            if (!string.IsNullOrEmpty(Configuration))
-                (new HardwareConfigurationDialog(Configuration)).ShowDialog();
+            if (!string.IsNullOrEmpty(HardwareConfiguration))
+                (new HardwareConfigurationDialog(HardwareConfiguration)).ShowDialog();
         }
 
         private void btnStart_Click(object sender, EventArgs e) {
@@ -1183,6 +1170,61 @@ namespace vApus.Monitor {
                 new BandwidthDialog(_monitorSourceClient as BaseSocketClient<string>).ShowDialog();
             }
         }
+
+        #region Publish
+        private bool CanPublish() { return Publisher.Settings.PublisherEnabled && _monitorSourceClient != null; }
+
+        private void PublishProgress() {
+            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsMetrics) {
+                MonitorResult monitorResult = GetMonitorResultCache();
+
+                if (monitorResult.Rows.Count != 0) {
+                    var publishItem = new Publish.MonitorMetrics();
+                    publishItem.Headers = monitorResult.Headers;
+                    publishItem.Headers[0] = "TimestampInMillisecondsSinceEpoch";
+
+                    object[] candidate = monitorResult.Rows[monitorResult.Rows.Count - 1];
+
+                    var row = new object[candidate.Length];
+                    candidate.CopyTo(row, 0);
+
+                    DateTime timestamp = (DateTime)row[0];
+                    row[0] = (long)(timestamp.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
+
+                    publishItem.Values = row;
+
+                    Publish.Publisher.Post(_monitor.ToString(), publishItem);
+                }
+            }
+        }
+
+        private void PublishConfiguration() {
+            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsConfiguration) {
+                var publishItem = new MonitorConfiguration();
+                publishItem.MonitorSource = _monitor.MonitorSourceName;
+
+                var parameters = new List<KeyValuePair<string, string>>();
+                foreach (Parameter parameter in _monitorSourceClient.Parameters)
+                    if (parameter.Name.ToLower() != "password")
+                        parameters.Add(new KeyValuePair<string, string>(parameter.Name, parameter.Value.ToString()));
+
+                publishItem.Parameters = parameters.ToArray();
+
+                Publish.Publisher.Post(_monitor.ToString(), publishItem);
+            }
+        }
+
+        private void PublishHardwareConfiguration() {
+            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsHardwareConfiguration) {
+                var publishItem = new MonitorHardwareConfiguration();
+                publishItem.HardwareConfiguration = _hardwareConfiguration;
+
+                Publish.Publisher.Post(_monitor.ToString(), publishItem);
+            }
+        }
+
+        #endregion
+
         #endregion
 
         #region Public
@@ -1306,6 +1348,10 @@ namespace vApus.Monitor {
             } finally {
                 Cursor = Cursors.Default;
             }
+
+            PublishConfiguration();
+            PublishHardwareConfiguration();
+
             return true;
         }
 
@@ -1363,13 +1409,7 @@ namespace vApus.Monitor {
             Cursor = Cursors.Default;
         }
 
-        public MonitorResult GetMonitorResultCache() {
-            return monitorControl.MonitorResultCache;
-        }
-
-        public Dictionary<DateTime, double[]> GetMonitorValues() {
-            return monitorControl.GetMonitorValues();
-        }
+        public MonitorResult GetMonitorResultCache() { return monitorControl.MonitorResultCache; }
 
         /// <summary>
         ///     Get the connection parameters comma-separated.

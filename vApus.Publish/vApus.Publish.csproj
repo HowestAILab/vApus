@@ -7,8 +7,8 @@
     <ProjectGuid>{9E3D2623-0E60-4883-81A9-73EE8E974439}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>vApus.Output</RootNamespace>
-    <AssemblyName>vApus.Output</AssemblyName>
+    <RootNamespace>vApus.Publish</RootNamespace>
+    <AssemblyName>vApus.Publish</AssemblyName>
     <TargetFrameworkVersion>v4.5.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
@@ -89,6 +89,14 @@
     <Reference Include="Newtonsoft.Json">
       <HintPath>..\Prerequisites\JSON.NET\Newtonsoft.Json.dll</HintPath>
     </Reference>
+    <Reference Include="RandomUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
+    </Reference>
+    <Reference Include="RandomUtils.Log, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Data" />
@@ -97,14 +105,28 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="IDestination.cs" />
+    <Compile Include="MulticastBlock.cs" />
+    <Compile Include="Destinations\BroadcastDestination.cs" />
+    <Compile Include="Destinations\BaseDestination.cs" />
+    <Compile Include="Destinations\FlatFileDestination.cs" />
+    <Compile Include="Formatters\IFormatter.cs" />
+    <Compile Include="Formatters\JSONFormatter.cs" />
     <Compile Include="JSONObjectTreeHelper.cs" />
-    <Compile Include="OutputPanel.cs">
-      <SubType>Form</SubType>
+    <Compile Include="Publisher.cs" />
+    <Compile Include="PublishPanel.cs">
+      <SubType>Component</SubType>
     </Compile>
-    <Compile Include="OutputPanel.Designer.cs">
-      <DependentUpon>OutputPanel.cs</DependentUpon>
+    <Compile Include="PublishPanel.Designer.cs">
+      <DependentUpon>PublishPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="Properties\Settings.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTimeSharedInput>True</DesignTimeSharedInput>
+      <DependentUpon>Settings.settings</DependentUpon>
+    </Compile>
+    <Compile Include="PublishItems.cs" />
     <Compile Include="Structs.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -122,9 +144,16 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="OutputPanel.resx">
-      <DependentUpon>OutputPanel.cs</DependentUpon>
+    <EmbeddedResource Include="PublishPanel.resx">
+      <DependentUpon>PublishPanel.cs</DependentUpon>
     </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="app.config" />
+    <None Include="Properties\Settings.settings">
+      <Generator>PublicSettingsSingleFileGenerator</Generator>
+      <LastGenOutput>Settings.Designer.cs</LastGenOutput>
+    </None>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

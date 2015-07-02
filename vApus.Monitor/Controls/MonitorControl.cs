@@ -247,29 +247,7 @@ namespace vApus.Monitor {
                     Loggers.Log(Level.Error, "Failed adding monitor values.", ex, new object[] { (Parent as MonitorView).Monitor.ToString() });
             }
         }
-        /// <summary>
-        ///     Returns all monitor values.
-        /// </summary>
-        /// <returns></returns>
-        public Dictionary<DateTime, double[]> GetMonitorValues() {
-            var monitorValues = new Dictionary<DateTime, double[]>();
-            lock (_lock)
-                foreach (var row in MonitorResultCache.Rows) {
-                    if (row == null) continue;
-                    if (RowContainsNull(row)) continue;
-                    var timestamp = (DateTime)row[0];
-                    var values = new double[row.Length - 1];
-                    for (int i = 0; i != values.Length; i++) values[i] = (double)row[i + 1];
 
-                    if (!monitorValues.ContainsKey(timestamp)) monitorValues.Add(timestamp, values);
-                }
-            return monitorValues;
-        }
-        private bool RowContainsNull(object[] row) {
-            foreach (var v in (row as object[]))
-                if (v == null) return true;
-            return false;
-        }
         /// <summary>
         ///     Save all monitor values.
         /// </summary>

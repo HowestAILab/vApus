@@ -8,15 +8,10 @@
 using System;
 using System.Collections.Generic;
 
-namespace vApus.Output {
+namespace vApus.Publish {
     public struct MonitorConfig {
         public string MonitorSource;
         public object[] Parameters;
-    }
-
-    public struct MonitorMetrics {
-        public string[] Headers;
-        public Dictionary<DateTime, double[]> Values;
     }
 
     public struct TestConfig {
@@ -54,15 +49,7 @@ namespace vApus.Output {
         public double ResponsesPerSecond, UserActionsPerSecond;
     }
 
-    public struct ClientMonitorMetrics {
-        public int BusyThreadCount;
-        public float CPUUsage;
-        public uint MemoryUsage;
-        public uint TotalVisibleMemory;
-        public string Nic;
-        public float NicsSent;
-        public float NicsReceived;
-    }
+
 
     public struct ClientMessages {
         public string[] Messages;

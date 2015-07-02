@@ -100,7 +100,7 @@
             // 
             this.txtEmailaddress.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtEmailaddress.Cue = "E-Mail Address";
+            this.txtEmailaddress.Cue = "E-mail address";
             this.txtEmailaddress.ForeColor = System.Drawing.Color.Black;
             this.txtEmailaddress.Location = new System.Drawing.Point(14, 36);
             this.txtEmailaddress.Name = "txtEmailaddress";

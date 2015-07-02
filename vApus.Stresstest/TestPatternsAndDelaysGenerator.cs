@@ -195,7 +195,6 @@ namespace vApus.StressTest {
             if (!_isDisposed) {
                 _isDisposed = true;
                 _actions = null;
-                _chosenSeeds = null;
             }
         }
         #endregion

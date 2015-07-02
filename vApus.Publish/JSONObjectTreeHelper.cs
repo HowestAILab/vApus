@@ -12,19 +12,20 @@ using System.Windows.Forms;
 using vApus.Results;
 using vApus.Util;
 
-namespace vApus.Output {
+namespace vApus.Publish {
     /// <summary>
     /// Serves at prepping and storing data to be served through vApus.Server. Storing data you must do yourself after the data is prepped (Apply... fxs).
     /// </summary>
     public static class JSONObjectTreeHelper {
 
-        public static JSONObjectTree RunningTestConfig { get; set; }
-        public static JSONObjectTree RunningTestFastConcurrencyResults { get; set; }
-        public static JSONObjectTree RunningMonitorConfig { get; set; }
-        public static JSONObjectTree RunningMonitorMetrics { get; set; }
+        public static JSONObjectTree Configuration { get; set; }
+        public static JSONObjectTree FastConcurrencyResults { get; set; }
+        public static JSONObjectTree FastRunResults { get; set; }
+        public static JSONObjectTree MonitorConfiguration { get; set; }
+        public static JSONObjectTree MonitorMetrics { get; set; }
         public static JSONObjectTree RunningTestClientMonitorMetrics { get; set; }
-        public static JSONObjectTree RunningTestMessages { get; set; }
-        public static JSONObjectTree RunningMonitorHardwareConfig { get; set; }
+        public static JSONObjectTree Messages { get; set; }
+        public static JSONObjectTree MonitorHardwareConfiguration { get; set; }
 
         public static void ApplyToRunningDistributedTestConfig(JSONObjectTree testConfigCache, string runSynchronization, string tileStressTest, string connection, string connectionProxy,
                                          string[] monitors, string[] slaves, string[] scenarios, string scenarioRuleSet, int[] concurrency, int run, int minimumDelay,
@@ -156,7 +157,7 @@ namespace vApus.Output {
             }
             var monitorProgress = new MonitorMetrics {
                 Headers = headers,
-                Values = values
+                Values = null
             };
             if (index == -1) {
                 index = monitorProgressCache.Count;
@@ -186,12 +187,12 @@ namespace vApus.Output {
             uint memoryUsage, uint totalVisibleMemory, string nic, float nicsSent, float nicsReceived) {
             var clientMonitorMetrics = new ClientMonitorMetrics() {
                 BusyThreadCount = threadsInUse,
-                CPUUsage = cpuUsage,
-                MemoryUsage = memoryUsage,
-                TotalVisibleMemory = totalVisibleMemory,
+                CPUUsageInPercent = cpuUsage,
+                MemoryUsageInMB = memoryUsage,
+                TotalVisibleMemoryInMB = totalVisibleMemory,
                 Nic = nic,
-                NicsSent = nicsSent,
-                NicsReceived = nicsReceived
+                NicSentInPercent = nicsSent,
+                NicReceivedInPercent = nicsReceived
             };
             clientMonitorCache.Add(stressTest.ToString(), clientMonitorMetrics);
         }

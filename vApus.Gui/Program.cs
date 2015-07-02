@@ -5,7 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  *
- * makecert.exe is in place to be able to auto generate an ssl certificate for capturing https trafic (vApus.StressTest.EditLog).  
+ * makecert.exe is in place to be able to auto generate an ssl certificate for capturing https trafic.  
  */
 using RandomUtils.Log;
 using System;
@@ -17,6 +17,7 @@ using System.Threading;
 using System.Windows.Forms;
 using vApus.Gui.Properties;
 using vApus.Link;
+using vApus.Publish;
 
 namespace vApus.Gui {
     internal static class Program {
@@ -28,6 +29,7 @@ namespace vApus.Gui {
             ProfileOptimization.SetProfileRoot(Application.StartupPath);
             ProfileOptimization.StartProfile("Startup.Profile");
 
+            Publisher.Init();
             Loggers.GetLogger<FileLogger>().CurrentLevel = (Level)Settings.Default.LogLevel;
             Loggers.Log("vApus Started!");
 
@@ -58,6 +60,9 @@ namespace vApus.Gui {
             Application.Run(new Main(args));
 
             Loggers.Log("Bye");
+            Loggers.Flush();
+
+            Publisher.Flush();
         }
     }
 }

@@ -76,8 +76,12 @@ namespace vApus.DistributedTest {
         /// <param name="totalVisibleMemory"></param>
         /// <param name="nicsSent"></param>
         /// <param name="nicsReceived"></param>
-        public void SetMasterMonitoring(int runningTests = 0, int ok = 0, int cancelled = 0, int failed = 0, float cpuUsage = -1f,
+        /// <returns>the last warning</returns>
+        public string SetMasterMonitoring(int runningTests = 0, int ok = 0, int cancelled = 0, int failed = 0, float cpuUsage = -1f,
                                         int memoryUsage = -1, int totalVisibleMemory = -1, string nic = "NIC", float nicBandwidth = -1, float nicsSent = -1, float nicsReceived = -1) {
+
+            string lastWarning = string.Empty;
+
             kvpRunningTests.Visible = runningTests != 0;
             kvpRunningTests.Value = runningTests.ToString();
 
@@ -99,7 +103,9 @@ namespace vApus.DistributedTest {
                     kvmMasterCPUUsage.BackColor = Color.GhostWhite;
                 } else {
                     kvmMasterCPUUsage.BackColor = Color.Orange;
-                    AppendMessages(cpuUsage + " % CPU Usage", Level.Warning);
+
+                    lastWarning = cpuUsage + " % CPU Usage";
+                    AppendMessages(lastWarning, Level.Warning);
                 }
             }
 
@@ -111,7 +117,9 @@ namespace vApus.DistributedTest {
                     kvmMasterMemoryUsage.BackColor = Color.GhostWhite;
                 } else if (memoryUsage != 0) {
                     kvmMasterMemoryUsage.BackColor = Color.Orange;
-                    AppendMessages(memoryUsage + " of " + totalVisibleMemory + " MB used", Level.Warning);
+
+                    lastWarning = memoryUsage + " of " + totalVisibleMemory + " MB used";
+                    AppendMessages(lastWarning, Level.Warning);
                 }
             }
             kvmMasterNic.Key = nic;
@@ -127,7 +135,9 @@ namespace vApus.DistributedTest {
                     kvmMasterNicsSent.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmMasterNicsSent.BackColor = Color.Orange;
-                    AppendMessages(nicsSent + " % NIC Usage (Sent)", Level.Warning);
+
+                    lastWarning = nicsSent + " % NIC Usage (Sent)";
+                    AppendMessages(lastWarning, Level.Warning);
                 }
             }
             if (nicsReceived == -1) {
@@ -138,9 +148,12 @@ namespace vApus.DistributedTest {
                     kvmMasterNicsReceived.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmMasterNicsReceived.BackColor = Color.Orange;
-                    AppendMessages(nicsReceived + " % NIC Usage (Received)", Level.Warning);
+
+                    lastWarning = nicsReceived + " % NIC Usage (Received)";
+                    AppendMessages(lastWarning, Level.Warning);
                 }
             }
+            return lastWarning;
         }
 
         /// <summary>

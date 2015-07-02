@@ -244,8 +244,12 @@ namespace vApus.StressTest {
         /// <param name="threadContentionsPerSecond"></param>
         /// <param name="memoryUsage"></param>
         /// <param name="totalVisibleMemory"></param>
-        public void SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, int memoryUsage = -1, int totalVisibleMemory = -1,
+        /// <returns>The last warning if any.</returns>
+        public string SetClientMonitoring(int threadsInUse = 0, float cpuUsage = -1f, int memoryUsage = -1, int totalVisibleMemory = -1,
             string nic = "NIC", float nicBandwidth = -1, float nicsSent = -1, float nicsReceived = -1) {
+
+            string lastWarning = string.Empty;
+
             kvmThreadsInUse.Value = threadsInUse.ToString();
             if (cpuUsage == -1) {
                 kvmCPUUsage.Value = "N/A";
@@ -256,7 +260,9 @@ namespace vApus.StressTest {
                     kvmCPUUsage.BackColor = Color.GhostWhite;
                 } else {
                     kvmCPUUsage.BackColor = Color.Orange;
-                    AddEvent(cpuUsage + " % CPU Usage", Level.Warning);
+
+                    lastWarning = cpuUsage + " % CPU Usage";
+                    AddEvent(lastWarning, Level.Warning);
                 }
             }
 
@@ -268,7 +274,9 @@ namespace vApus.StressTest {
                     kvmMemoryUsage.BackColor = Color.GhostWhite;
                 } else if (memoryUsage != 0) {
                     kvmMemoryUsage.BackColor = Color.Orange;
-                    AddEvent(memoryUsage + " of " + totalVisibleMemory + " MB used", Level.Warning);
+
+                    lastWarning = memoryUsage + " of " + totalVisibleMemory + " MB used";
+                    AddEvent(lastWarning, Level.Warning);
                 }
             }
             kvmNic.Key = nic;
@@ -284,7 +292,9 @@ namespace vApus.StressTest {
                     kvmNicsSent.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmNicsSent.BackColor = Color.Orange;
-                    AddEvent(nicsSent + " % NIC Usage (Sent)", Level.Warning);
+
+                    lastWarning = nicsSent + " % NIC Usage (Sent)";
+                    AddEvent(lastWarning, Level.Warning);
                 }
             }
             if (nicsReceived == -1) {
@@ -295,9 +305,13 @@ namespace vApus.StressTest {
                     kvmNicsReceived.BackColor = Color.GhostWhite;
                 } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmNicsReceived.BackColor = Color.Orange;
-                    AddEvent(nicsReceived + " % NIC Usage (Received)", Level.Warning);
+
+                    lastWarning = nicsReceived + " % NIC Usage (Received)";
+                    AddEvent(lastWarning, Level.Warning);
                 }
             }
+
+            return lastWarning;
         }
 
         /// <summary>

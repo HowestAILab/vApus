@@ -45,6 +45,7 @@ namespace vApus.Gui {
         private AutoExportResultsPanel _exportingResultsPanel;
         private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
         private CleanTempDataPanel _cleanTempDataPanel;
+        private Publish.PublishPanel _outputPanel;
         #endregion
 
         #region Constructor
@@ -112,6 +113,8 @@ namespace vApus.Gui {
                 _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
                 _exportingResultsPanel = new AutoExportResultsPanel();
+
+                _outputPanel = new Publish.PublishPanel();
 
                 _firstStepsView.LinkClicked += _firstStepsView_LinkClicked;
 
@@ -218,6 +221,7 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
+                _optionsDialog.AddOptionsPanel(_outputPanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.Hide(); //Strange VB6 bug: Form that is already displayed modally cannot be displayed as a modal dialog box. work-around.

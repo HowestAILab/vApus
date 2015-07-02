@@ -38,18 +38,18 @@ namespace vApus.StressTest {
     public class MessageEventArgs : EventArgs {
         public string Message { private set; get; }
         public Color Color { private set; get; }
-        public RandomUtils.Log.Level LogLevel { private set; get; }
+        public RandomUtils.Log.Level Level { private set; get; }
 
         /// <summary>
         /// To let the user know what is happening while stress testing (Run started, error occured).
         /// </summary>
         /// <param name="message"></param>
         /// <param name="color">Can be null</param>
-        /// <param name="logLevel"></param>
-        public MessageEventArgs(string message, Color color, RandomUtils.Log.Level logLevel) {
+        /// <param name="level"></param>
+        public MessageEventArgs(string message, Color color, RandomUtils.Log.Level level) {
             Message = message;
             Color = color;
-            LogLevel = logLevel;
+            Level = level;
         }
     }
 }

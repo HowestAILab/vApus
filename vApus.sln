@@ -31,7 +31,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.JumpStart", "vApus.Ju
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.KillvApusAndTools", "vApus.KillvApusAndTools\vApus.KillvApusAndTools.csproj", "{6158C187-16A6-4022-9B2C-ECF8872F1462}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Output", "vApus.Output\vApus.Output.csproj", "{9E3D2623-0E60-4883-81A9-73EE8E974439}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Publish", "vApus.Publish\vApus.Publish.csproj", "{9E3D2623-0E60-4883-81A9-73EE8E974439}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "vApus.Results", "vApus.Results\vApus.Results.csproj", "{D9F1BD01-09E8-4CE9-9701-2997D420B250}"
 EndProject

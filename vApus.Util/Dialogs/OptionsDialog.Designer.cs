@@ -37,14 +37,16 @@
             // 
             // tvw
             // 
+            this.tvw.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
             this.tvw.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.tvw.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tvw.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.tvw.HideSelection = false;
-            this.tvw.Location = new System.Drawing.Point(0, 0);
-            this.tvw.Margin = new System.Windows.Forms.Padding(0);
+            this.tvw.Location = new System.Drawing.Point(0, 12);
+            this.tvw.Margin = new System.Windows.Forms.Padding(0, 3, 0, 0);
             this.tvw.Name = "tvw";
-            this.tvw.Size = new System.Drawing.Size(230, 462);
+            this.tvw.Size = new System.Drawing.Size(296, 549);
             this.tvw.TabIndex = 0;
             // 
             // split
@@ -56,19 +58,20 @@
             // 
             // split.Panel1
             // 
+            this.split.Panel1.BackColor = System.Drawing.Color.White;
             this.split.Panel1.Controls.Add(this.tvw);
-            this.split.Size = new System.Drawing.Size(684, 462);
-            this.split.SplitterDistance = 230;
+            this.split.Size = new System.Drawing.Size(884, 561);
+            this.split.SplitterDistance = 296;
             this.split.TabIndex = 0;
             // 
             // OptionsDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(684, 462);
+            this.ClientSize = new System.Drawing.Size(884, 561);
             this.Controls.Add(this.split);
             this.MinimizeBox = false;
-            this.MinimumSize = new System.Drawing.Size(700, 500);
+            this.MinimumSize = new System.Drawing.Size(900, 600);
             this.Name = "OptionsDialog";
             this.ShowIcon = false;
             this.ShowInTaskbar = false;

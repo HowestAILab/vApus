@@ -337,8 +337,8 @@ namespace vApus.DistributedTest {
         ///     Refreshes the messages from the StressTestCore for a selected node and refreshes the listed results.
         /// </summary>
         private void _stressTestCore_Message(object sender, MessageEventArgs e) {
-            if (e.Color == Color.Empty) fastResultsControl.AddEvent(e.Message, e.LogLevel);
-            else fastResultsControl.AddEvent(e.Message, e.Color, e.LogLevel);
+            if (e.Color == Color.Empty) fastResultsControl.AddEvent(e.Message, e.Level);
+            else fastResultsControl.AddEvent(e.Message, e.Color, e.Level);
         }
         #endregion
 
