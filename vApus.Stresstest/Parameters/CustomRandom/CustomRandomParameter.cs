@@ -19,14 +19,16 @@ namespace vApus.Stresstest {
     /// <summary>
     /// You can use your own piece of code as a parameter, an example is included as the default value.
     /// </summary>
-    [DisplayName("Custom Random Parameter"), Serializable]
+    [DisplayName("Custom random parameter"), Serializable]
     public class CustomRandomParameter : BaseParameter, ISerializable {
 
         #region Fields
         private ICustomRandomParameter _customRandomParameter;
-        private string _code = @"// dllreferences:System.dll;vApus.Stresstest.dll
+        private bool _codeChanged; //To check if the assembly needs to be regenerated.
+
+        private string _code = @"// dllreferences:System.dll;vApus.StressTest.dll
 using System;
-namespace vApus.Stresstest {
+namespace vApus.StressTest {
 public class CustomRandomParameter : ICustomRandomParameter {
 public string Generate() {
 // Example:
@@ -60,7 +62,10 @@ return start.AddTicks(randomTicks);
         [SavableCloneable]
         public string Code {
             get { return _code; }
-            set { _code = value; }
+            set {
+                _code = value;
+                _codeChanged = true;
+            }
         }
 
         [SavableCloneable]
@@ -93,11 +98,10 @@ return start.AddTicks(randomTicks);
         }
 
         public override void Next() {
-            lock (_lock)
-            //For thread safety, only here, because only for this type of parameter this function can be used while testing.
-            {
+            //For thread safety, only here, because only for this type of parameter this function can be used while testing. (Is it? I do not rememeber.)
+            lock (_lock) {
                 try {
-                    if (_customRandomParameter == null)
+                    if (_codeChanged || _customRandomParameter == null)
                         CreateInstance();
 
                     Value = _customRandomParameter.Generate();
@@ -126,12 +130,14 @@ return start.AddTicks(randomTicks);
         internal CompilerResults CreateInstance() {
             var cu = new CompilerUnit();
             CompilerResults results;
-            Assembly assembly = cu.Compile(_code, false, out results);
-            Type t = assembly.GetType("vApus.Stresstest.CustomRandomParameter");
+            Assembly assembly = cu.Compile(_code, true, out results);
+            Type t = assembly.GetType("vApus.StressTest.CustomRandomParameter");
 
-            if (assembly != null)
+            if (assembly != null) {
                 _customRandomParameter = FastObjectCreator.CreateInstance<ICustomRandomParameter>(t);
 
+                _codeChanged = false;
+            }
             return results;
         }
 
