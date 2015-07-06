@@ -156,7 +156,7 @@ namespace vApus.Stresstest {
                 pre = (length > 0) ? pre.Substring(0, length) : string.Empty;
             } else if (_fixed == Fixed.Prefix) {
                 length = suf.Length - value.Length + 1;
-                suf = (length > 0) ? suf.Substring(suf.Length - length) : string.Empty;
+                suf = (suf.Length - length > 0) ? suf.Substring(suf.Length - length) : string.Empty;
             }
             return pre + value + suf;
         }
