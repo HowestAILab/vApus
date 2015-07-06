@@ -78,7 +78,7 @@ namespace vApus.StressTest {
                 if (lexicalResult == LexicalResult.OK)
                     _connectionString = value;
                 else
-                    throw new Exception("Failed parsing the connectionstring.\n" + output.Error);
+                    throw new Exception("Failed parsing the connectionstring.\n" + output == null ? "Did you provide a separator in the connection proxy rule set?" : output.Error);
             }
         }
 

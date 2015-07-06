@@ -24,6 +24,8 @@ namespace vApus.StressTest {
 
         #region Fields
         private ICustomRandomParameter _customRandomParameter;
+        private bool _codeChanged; //To check if the assembly needs to be regenerated.
+
         private string _code = @"// dllreferences:System.dll;vApus.StressTest.dll
 using System;
 namespace vApus.StressTest {
@@ -60,7 +62,10 @@ return start.AddTicks(randomTicks);
         [SavableCloneable]
         public string Code {
             get { return _code; }
-            set { _code = value; }
+            set {
+                _code = value;
+                _codeChanged = true;
+            }
         }
 
         [SavableCloneable]
@@ -93,11 +98,10 @@ return start.AddTicks(randomTicks);
         }
 
         public override void Next() {
-            lock (_lock)
-            //For thread safety, only here, because only for this type of parameter this function can be used while testing.
-            {
+            //For thread safety, only here, because only for this type of parameter this function can be used while testing. (Is it? I do not rememeber.)
+            lock (_lock) {
                 try {
-                    if (_customRandomParameter == null)
+                    if (_codeChanged || _customRandomParameter == null)
                         CreateInstance();
 
                     Value = _customRandomParameter.Generate();
@@ -129,9 +133,11 @@ return start.AddTicks(randomTicks);
             Assembly assembly = cu.Compile(_code, true, out results);
             Type t = assembly.GetType("vApus.StressTest.CustomRandomParameter");
 
-            if (assembly != null)
+            if (assembly != null) {
                 _customRandomParameter = FastObjectCreator.CreateInstance<ICustomRandomParameter>(t);
 
+                _codeChanged = false;
+            }
             return results;
         }
 
