@@ -737,8 +737,10 @@ namespace vApus.StressTest {
 
                 string message;
                 fastResultsControl.SetStressTestStopped(stressTestStatus, out message);
+                PublishMessage(0, message);
                 _resultsHelper.AddMessageInMemory(0, message);
                 _resultsHelper.DoAddMessagesToDatabase();
+
 
                 toolStrip.Enabled = true;
 
