@@ -157,7 +157,10 @@ namespace vApus.Util {
                     client.Credentials = new NetworkCredential(username, txtPassword.Text);
                 }
 
-                var msg = new MailMessage("vapus@sizingservers.be", txtEmailaddress.Text, "A test mail", string.Concat("from vApus@", NamedObjectRegistrar.Get<string>("IP"), ":", NamedObjectRegistrar.Get<int>("Port")));
+                //Dns.GetHostName() does not always work.
+                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+
+                var msg = new MailMessage("vapus@sizingservers.be", txtEmailaddress.Text, "A test mail", string.Concat("from vApus@", hostName, ":", NamedObjectRegistrar.Get<int>("Port")));
                 msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                 msg.IsBodyHtml = true;
                 msg.Priority = MailPriority.High;

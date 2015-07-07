@@ -165,7 +165,9 @@ namespace vApus.StressTest {
             if (InitDatabase(!allowMessageBox)) {
                 StopProgressDelayCountDown();
 
-                _resultsHelper.SetvApusInstance(Dns.GetHostName(), NamedObjectRegistrar.Get<string>("IP"), NamedObjectRegistrar.Get<int>("Port"),
+                //Dns.GetHostName() does not always work.
+                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+                _resultsHelper.SetvApusInstance(hostName, string.Empty, NamedObjectRegistrar.Get<int>("Port"),
                     NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty, NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
                     false);
 
@@ -664,6 +666,8 @@ namespace vApus.StressTest {
         private void AddEvent(string message, Color color, Level level = Level.Info) {
             if (color == Color.Empty) fastResultsControl.AddEvent(message, level); else fastResultsControl.AddEvent(message, color, level);
             PublishMessage((int)level, message);
+            
+            _resultsHelper.AddMessageInMemory((int)level, message);
         }
         #endregion
 
@@ -731,7 +735,10 @@ namespace vApus.StressTest {
                 btnSchedule.Tag = null;
 
 
-                fastResultsControl.SetStressTestStopped(stressTestStatus);
+                string message;
+                fastResultsControl.SetStressTestStopped(stressTestStatus, out message);
+                _resultsHelper.AddMessageInMemory(0, message);
+                _resultsHelper.DoAddMessagesToDatabase();
 
                 toolStrip.Enabled = true;
 
@@ -828,8 +835,6 @@ namespace vApus.StressTest {
                         fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
                         fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
                     }
-
-                    AddEvent("Finished.");
                 }
             }, null);
         }
@@ -927,6 +932,8 @@ namespace vApus.StressTest {
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stressTest.ToString(), " finished. Status: ", _stressTestStatus, "."), exception);
                     AddEvent(exception.ToString(), Level.Error);
                 }
+
+                _resultsHelper.DoAddMessagesToDatabase();
             }
         }
 

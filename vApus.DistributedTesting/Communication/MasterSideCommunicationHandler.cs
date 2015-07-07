@@ -532,7 +532,11 @@ namespace vApus.DistributedTest {
                 var masterSocketWrapper = _connectedSlaves[socketWrapper];
 
                 var pushIPs = new List<string>();
-                foreach (var ipAddress in Dns.GetHostAddresses(Dns.GetHostName())) {
+
+                //Dns.GetHostName() does not always work.
+                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+
+                foreach (var ipAddress in Dns.GetHostAddresses(hostName)) {
                     if (ipAddress.AddressFamily == masterSocketWrapper.IP.AddressFamily)
                         pushIPs.Add(ipAddress.ToString());
                 }

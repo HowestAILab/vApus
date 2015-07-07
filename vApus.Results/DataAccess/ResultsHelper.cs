@@ -14,6 +14,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
 using System.Linq;
+using System.Net;
 using System.Reflection;
 using System.Text;
 using System.Threading;
@@ -35,12 +36,12 @@ namespace vApus.Results {
 
         private readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
 
-        private int _vApusInstanceId, _stressTestId;
+        private int _vApusInstanceId = -1, _stressTestId;
         private ulong _stressTestResultId, _concurrencyResultId, _runResultId;
 
         private FunctionOutputCache _functionOutputCache = new FunctionOutputCache(); //For caching the not so stored procedure data.
 
-        private ConcurrentBag<string> _scenarios = new ConcurrentBag<string>();
+        private List<string> _messages = new List<string>();
         #endregion
 
         #region Properties
@@ -247,7 +248,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                             _stressTestResultId, Parse(stressTestResult.StoppedAt), status, statusMessage)
                         );
 
-                    DoAddMessages();
+                    DoAddMessagesToDatabase();
                 }
             }
         }
@@ -384,7 +385,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     }
                     _databaseActions.ExecuteSQL(string.Format("UPDATE runresults SET TotalRequestCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, totalRequestCount, Parse(runResult.StoppedAt)));
 
-                    DoAddMessages();
+                    DoAddMessagesToDatabase();
                 }
             }
         }
@@ -427,7 +428,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 }
                 Thread.CurrentThread.CurrentCulture = prevCulture;
 
-                DoAddMessages();
+                DoAddMessagesToDatabase();
             }
         }
 
@@ -442,17 +443,44 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <param name="level"></param>
         /// <param name="message"></param>
         public void AddMessageInMemory(int level, string message) {
-            if (_vApusInstanceId > 0 && _databaseActions != null)
-                _scenarios.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", _vApusInstanceId, Parse(DateTime.Now), level, message));
+            if (GetvApusInstanceId() > 0 && _databaseActions != null)
+                lock (_lock)
+                    _messages.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", GetvApusInstanceId(), Parse(DateTime.Now), level, message));
         }
-        private void DoAddMessages() {
-            string[] scenarios = _scenarios.ToArray();
-            if (scenarios.Length != 0) {
-                if (_vApusInstanceId > 0 && _databaseActions != null)
-                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO messages(vApusInstanceId, Timestamp, Level, Message) VALUES {0};", scenarios.Combine(", ")));
-                _scenarios = new ConcurrentBag<string>();
+        /// <summary>
+        /// Add the messages stored in memory to the database. Do this only for distributed tests in the core.
+        /// </summary>
+        public void DoAddMessagesToDatabase() {
+            lock (_lock) {
+                string[] messages = _messages.ToArray();
+                if (messages.Length != 0) {
+                    if (GetvApusInstanceId() > 0 && _databaseActions != null)
+                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO messages(vApusInstanceId, Timestamp, Level, Message) VALUES {0};", messages.Combine(", ")));
+                    _messages = new List<string>();
+                }
+                messages = null;
             }
-            scenarios = null;
+        }
+
+        /// <summary>
+        /// Tries to retrieve the instance id using the hostname and the local port. Should only be used in the add messages fxs.
+        /// </summary>
+        /// <returns></returns>
+        private int GetvApusInstanceId() {
+            if (_vApusInstanceId == -1 && _databaseActions != null)
+                lock (_lock) {
+                    var dt = ReaderAndCombiner.GetvApusInstances(_databaseActions);
+
+                    //Dns.GetHostName() does not always work.
+                    string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+                    foreach (DataRow row in dt.Rows)
+                        if (((int)row["Port"]) == NamedObjectRegistrar.Get<int>("Port") && (row["HostName"] as string).ToLower() == hostName) {
+                            _vApusInstanceId = (int)row["Id"];
+                            break;
+                        }
+
+                }
+            return _vApusInstanceId;
         }
 
         //For getting stuff fom the database ReaderAndCombiner is used: You can execute a many-to-one distributed test (a tests workload divided over multiple slaves);
@@ -2359,11 +2387,19 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                     DataTable vApusInstances = ReaderAndCombiner.GetStressTests(cancellationToken, _databaseActions, stressTestIds, "vApusInstanceId");
                     if (vApusInstances == null || vApusInstances.Rows.Count == 0) return null;
 
-                    var vApusInstanceIds = new int[] { (int)vApusInstances.Rows[0].ItemArray[0] };
+                    List<int> vApusInstanceIds = new List<int>();
+                    vApusInstanceIds.Add((int)vApusInstances.Rows[0].ItemArray[0]);
 
-                    DataTable messages = _databaseActions.GetDataTable(string.Format("Select Timestamp, Level, Message from messages where vApusInstanceId IN({0});", vApusInstanceIds.Combine(",")));
+                    DataTable masterInstance = _databaseActions.GetDataTable("Select Id from vapusinstances where IsMaster=1;");
+                    if (masterInstance.Rows.Count != 0) vApusInstanceIds.Add((int)masterInstance.Rows[0].ItemArray[0]);
 
-                    if (messages == null) return null;
+                    DataTable messages = null; //yyyy-MM-dd HH:mm:ss.ffffff
+                    if (vApusInstanceIds.Count == 1) {
+                        messages = _databaseActions.GetDataTable(string.Format("SELECT DATE_FORMAT(Timestamp, '%Y-%m-%d %H:%i:%S') as Timestamp, Level, Message FROM messages where vApusInstanceId IN({0});", vApusInstanceIds.Combine(",")));
+                    } else {
+                        messages = _databaseActions.GetDataTable(string.Format("SELECT COALESCE(s.StressTest, 'Distributed test') as 'Test', DATE_FORMAT(m.Timestamp, '%Y-%m-%d %H:%i:%S') as Timestamp, m.Level, m.Message FROM messages as m left join stresstests as s on m.vApusInstanceId = s.vApusInstanceId where m.vApusInstanceId IN({0});", vApusInstanceIds.Combine(",")));
+                    }
+
 
                     cacheEntry.ReturnValue = messages;
                     return messages;

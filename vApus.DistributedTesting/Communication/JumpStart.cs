@@ -142,21 +142,22 @@ namespace vApus.DistributedTest {
                         break;
                     }
 
-                if (!alreadyExcludingMaster)
+                if (!alreadyExcludingMaster) {
+                    // Dns.GetHostName() does not always work. It gets the local host name, but not the name returned from the DNS server.
+                    string masterHostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
                     try {
-                        // Dns.GetHostName() does not always work. It gets the local host name, but not the name returned from the DNS server.
-                        string masterHostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0];
-                        string slaveHostName = Dns.GetHostEntry(ip).HostName.Trim().Split('.')[0];
+                        string slaveHostName = Dns.GetHostEntry(ip).HostName.Trim().Split('.')[0].ToLower();
 
                         if (masterHostName == slaveHostName) exclude = Process.GetCurrentProcess().Id;
                     } catch {
-                        var ipAddresses = Dns.GetHostAddresses(Dns.GetHostName());
+                        var ipAddresses = Dns.GetHostAddresses(masterHostName);
                         foreach (var ipAddress in ipAddresses)
                             if (ipAddress.ToString() == ip) {
                                 exclude = Process.GetCurrentProcess().Id;
                                 break;
                             }
                     }
+                }
                 toKill.Add(ip, exclude);
             }
         }
@@ -198,9 +199,9 @@ namespace vApus.DistributedTest {
                             var dictionaryEntry = (DictionaryEntry)state;
                             _workItem = new WorkItem();
 
-                            if (jumpStart) 
+                            if (jumpStart)
                                 exceptions.Add(_workItem.DoJumpStart(dictionaryEntry.Key as string, dictionaryEntry.Value as string));
-                             else 
+                            else
                                 _workItem.DoKill(dictionaryEntry.Key as string, (int)dictionaryEntry.Value);
 
                             if (Interlocked.Increment(ref i) == count) waithandle.Set();

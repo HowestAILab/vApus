@@ -135,7 +135,7 @@ namespace vApus.DistributedTest {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 Cursor = Cursors.WaitCursor;
                 btnStop.Enabled = true;
-                try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { fastResultsControl.AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", Level.Error); }
+                try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { AddEvent("Could not initialize the local monitor, something is wrong with your WMI.", Level.Error); }
                 tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
                 tmrProgress.Start();
 
@@ -268,7 +268,7 @@ namespace vApus.DistributedTest {
 
                 if (_stressTestMetricsCache.SimplifiedMetrics && !_simplifiedMetricsReturned) {
                     _simplifiedMetricsReturned = true;
-                    fastResultsControl.AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
+                    AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
                 }
 
             }
@@ -336,9 +336,14 @@ namespace vApus.DistributedTest {
         /// <summary>
         ///     Refreshes the messages from the StressTestCore for a selected node and refreshes the listed results.
         /// </summary>
-        private void _stressTestCore_Message(object sender, MessageEventArgs e) {
-            if (e.Color == Color.Empty) fastResultsControl.AddEvent(e.Message, e.Level);
-            else fastResultsControl.AddEvent(e.Message, e.Color, e.Level);
+        private void _stressTestCore_Message(object sender, MessageEventArgs e) { AddEvent(e.Message, e.Color, e.Level); }
+
+        private void AddEvent(string message, Level level = Level.Info) { AddEvent(message, Color.Empty, level); }
+
+        private void AddEvent(string message, Color color, Level level = Level.Info) {
+            if (color == Color.Empty) fastResultsControl.AddEvent(message, level); else fastResultsControl.AddEvent(message, color, level);
+
+            _resultsHelper.AddMessageInMemory((int)level, message);
         }
         #endregion
 
@@ -404,12 +409,13 @@ namespace vApus.DistributedTest {
                 StopProgressDelayCountDown();
 
                 btnStop.Enabled = false;
-                if (ex == null)
-                    fastResultsControl.SetStressTestStopped(_stressTestStatus);
-                else {
+                if (ex != null)
                     _stressTestStatus = StressTestStatus.Error;
-                    fastResultsControl.SetStressTestStopped(_stressTestStatus);
-                }
+
+                string message;
+                fastResultsControl.SetStressTestStopped(_stressTestStatus, out message);
+                _resultsHelper.AddMessageInMemory(0, message);
+                _resultsHelper.DoAddMessagesToDatabase();
 
                 if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
                     _stressTestCore.Dispose();
@@ -454,6 +460,8 @@ namespace vApus.DistributedTest {
             fastResultsControl.SetStressTestStopped();
             _stressTestResult = null;
             _canUpdateMetrics = false;
+
+            _resultsHelper.DoAddMessagesToDatabase();
         }
 
         private void StopProgressDelayCountDown() {

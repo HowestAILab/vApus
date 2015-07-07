@@ -157,7 +157,6 @@ namespace vApus.DistributedTest {
                     }, null);
 
                 Loggers.Log(logLevel, message);
-                _resultsHelper.AddMessageInMemory((int)logLevel, message);
             } catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }
@@ -273,7 +272,9 @@ namespace vApus.DistributedTest {
                 _tileStressTestsWithDbIds.Add(ts, id);
             }
 
-            _resultsHelper.SetvApusInstance(Dns.GetHostName(), NamedObjectRegistrar.Get<string>("IP"), NamedObjectRegistrar.Get<int>("Port"),
+            //Dns.GetHostName() does not always work.
+            string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+            _resultsHelper.SetvApusInstance(hostName, string.Empty, NamedObjectRegistrar.Get<int>("Port"),
                     NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty, NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
                     true);
         }
@@ -566,7 +567,10 @@ namespace vApus.DistributedTest {
                 MasterSideCommunicationHandler.OnTestProgressMessageReceived -= _masterCommunication_OnTestProgressMessageReceived;
 
                 ObjectRegistrar.Unregister(this);
+
                 InvokeOnFinished();
+
+                _resultsHelper.DoAddMessagesToDatabase();
             }
         }
 

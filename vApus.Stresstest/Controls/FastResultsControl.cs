@@ -486,9 +486,9 @@ namespace vApus.StressTest {
         /// </summary>
         /// <param name="stressTestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        public void SetStressTestStopped(StressTestStatus stressTestResult, TimeSpan measuredRuntime) {
+        public void SetStressTestStopped(StressTestStatus stressTestResult, TimeSpan measuredRuntime, out string message) {
             SetMeasuredRuntime(measuredRuntime);
-            __SetStressTestStopped(stressTestResult);
+            __SetStressTestStopped(stressTestResult, out message);
         }
 
         /// <summary>
@@ -496,19 +496,20 @@ namespace vApus.StressTest {
         /// </summary>
         /// <param name="stressTestResult">If == busy, the label text will be cleared.</param>
         /// <param name="message">If null, no message is appended.</param>
-        public void SetStressTestStopped(StressTestStatus stressTestResult) {
+        public void SetStressTestStopped(StressTestStatus stressTestResult, out string message) {
             SetMeasuredRuntime();
-            __SetStressTestStopped(stressTestResult);
+            __SetStressTestStopped(stressTestResult, out message);
         }
 
         /// <summary>
         ///     label updates in visibility + label stopped forecolor and text.
         /// </summary>
         /// <param name="stressTestResult">If == busy, the label text will be cleared.</param>
-        /// <param name="message">If null, no message is appended.</param>
-        private void __SetStressTestStopped(StressTestStatus stressTestResult, Exception exception = null) {
+        /// <param name="message">The appended message. level == info.</param>
+        /// <param name="exception"></param>
+        private void __SetStressTestStopped(StressTestStatus stressTestResult, out string message, Exception exception = null) {
+            message = null;
             try {
-                string message = null;
                 if (exception != null) {
                     var logger = Loggers.GetLogger<FileLogger>();
                     message = exception.Message + "\n" + exception.StackTrace + "\n\nSee " + logger.CurrentLogFile;

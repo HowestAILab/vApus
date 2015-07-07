@@ -576,7 +576,10 @@ namespace vApus.Gui {
             lblLogLevel.Text = Loggers.GetLogger<FileLogger>().CurrentLevel.ToString();
             lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
             //SetProcessorAffinityLabel();
-            lblSocketListener.Text = Dns.GetHostName() + ":" + SocketListenerLinker.SocketListenerPort;
+
+            //Dns.GetHostName() does not always work.
+            string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+            lblSocketListener.Text = hostName + ":" + SocketListenerLinker.SocketListenerPort;
             if (!SocketListenerLinker.SocketListenerIsRunning)
                 lblSocketListener.Text += " [Stopped]";
 

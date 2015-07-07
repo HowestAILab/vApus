@@ -216,7 +216,7 @@ namespace vApus.DistributedTest {
                 configureTileStressTest.SetTileStressTest(tstvi.TileStressTest);
 
                 fastResultsControl.Visible = true;
-                distributedStressTestControl.Visible = false;
+                distributedTestControl.Visible = false;
 
                 string tileStressTestToString = tstvi.TileStressTest.ToString();
                 if (!wasSelectedBefore) {
@@ -247,7 +247,7 @@ namespace vApus.DistributedTest {
                 configureTileStressTest.ClearTileStressTest();
 
                 fastResultsControl.Visible = false;
-                distributedStressTestControl.Visible = true;
+                distributedTestControl.Visible = true;
 
                 detailedResultsControl.ClearResults();
                 detailedResultsControl.Enabled = false;
@@ -260,7 +260,7 @@ namespace vApus.DistributedTest {
                 configureTileStressTest.ClearTileStressTest();
 
                 fastResultsControl.Visible = false;
-                distributedStressTestControl.Visible = true;
+                distributedTestControl.Visible = true;
 
                 detailedResultsControl.ClearResults();
                 detailedResultsControl.Enabled = false;
@@ -481,7 +481,7 @@ namespace vApus.DistributedTest {
 
                 if (_distributedTest.UseRDP) ShowRemoteDesktop();
 
-                distributedStressTestControl.ClearFastResults();
+                distributedTestControl.ClearFastResults();
 
                 //Smart update
                 UpdateNotifier.Refresh();
@@ -771,8 +771,10 @@ namespace vApus.DistributedTest {
             AppendMessages(e.Message, e.Level);
         }
         private void AppendMessages(string message, Level level = Level.Info) {
-            distributedStressTestControl.AppendMessages(message, level);
+            distributedTestControl.AppendMessages(message, level);
             PublishMessage(_distributedTest, (int)level, message);
+
+            _resultsHelper.AddMessageInMemory((int)level, message);
         }
 
         private void _distributedTestCore_TestProgressMessageReceivedDelayed(object sender, EventArgs e) {
@@ -888,7 +890,7 @@ namespace vApus.DistributedTest {
             if (_selectedTestTreeViewItem != null) {
                 Dictionary<TileStressTest, TestProgressMessage> testProgressMessages = null;
                 if (_selectedTestTreeViewItem is DistributedTestTreeViewItem) {
-                    distributedStressTestControl.SetTitle("Distributed Test");
+                    distributedTestControl.SetTitle("Distributed Test");
                     if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                         testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
                         var progress = new Dictionary<TileStressTest, FastStressTestMetricsCache>(testProgressMessages.Count);
@@ -897,11 +899,11 @@ namespace vApus.DistributedTest {
                             if (metricsCache != null) progress.Add(tileStressTest, metricsCache);
                         }
 
-                        distributedStressTestControl.SetOverallFastResults(progress);
+                        distributedTestControl.SetOverallFastResults(progress);
                     }
                 } else if (_selectedTestTreeViewItem is TileTreeViewItem) {
                     var ttvi = _selectedTestTreeViewItem as TileTreeViewItem;
-                    distributedStressTestControl.SetTitle(ttvi.Tile.Name + " " + ttvi.Tile.Index);
+                    distributedTestControl.SetTitle(ttvi.Tile.Name + " " + ttvi.Tile.Index);
                     if (_distributedTestCore != null && !_distributedTestCore.IsDisposed) {
                         testProgressMessages = _distributedTestCore.GetAllTestProgressMessages();
                         var progress = new Dictionary<TileStressTest, FastStressTestMetricsCache>();
@@ -911,7 +913,7 @@ namespace vApus.DistributedTest {
                                 if (metricsCache != null) progress.Add(tileStressTest, metricsCache);
                             }
 
-                        distributedStressTestControl.SetOverallFastResults(progress);
+                        distributedTestControl.SetOverallFastResults(progress);
                     }
                 }
 
@@ -948,7 +950,8 @@ namespace vApus.DistributedTest {
                     if (testProgressMessage.StressTestStatus == StressTestStatus.Busy)
                         fastResultsControl.SetMeasuredRuntime(testProgressMessage.MeasuredRuntime);
                     else {
-                        fastResultsControl.SetStressTestStopped(testProgressMessage.StressTestStatus, testProgressMessage.MeasuredRuntime);
+                        string message;
+                        fastResultsControl.SetStressTestStopped(testProgressMessage.StressTestStatus, testProgressMessage.MeasuredRuntime, out message);
                     }
                 }
 
@@ -1006,7 +1009,7 @@ namespace vApus.DistributedTest {
         }
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
-               string lastWarning = distributedStressTestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed,
+               string lastWarning = distributedTestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed,
                     LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent,
                     LocalMonitor.NicReceived);
 
@@ -1063,8 +1066,10 @@ namespace vApus.DistributedTest {
 
             if (e.Cancelled == 0 && e.Error == 0) {
                 AppendMessages("Test finished!", Level.Info);
+                _resultsHelper.DoAddMessagesToDatabase();
             } else {
                 AppendMessages("Test Cancelled!", Level.Warning);
+                _resultsHelper.DoAddMessagesToDatabase();
                 RemoveDatabase();
             }
         }
@@ -1105,7 +1110,7 @@ namespace vApus.DistributedTest {
                 try {
                     _distributedTestCore.Stop();
                     try {
-                      string lastWarning =  distributedStressTestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK,
+                      string lastWarning =  distributedTestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK,
                                                                          _distributedTestCore.Cancelled, _distributedTestCore.Failed,
                                                                          LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
                                                                          LocalMonitor.Nic, LocalMonitor.NicBandwidth,
@@ -1459,13 +1464,12 @@ namespace vApus.DistributedTest {
                 _monitorAfterBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
             }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                AppendMessages("Finished.");
+
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
 
                 if (AutoExportResultsManager.Enabled)
                     detailedResultsControl.AutoExportToExcel(AutoExportResultsManager.Folder);
-
-
-                AppendMessages("Finished.");
             }, null);
         }
 
@@ -1503,6 +1507,8 @@ namespace vApus.DistributedTest {
 
                 //Update the detailed results in the gui if any.
                 RefreshDetailedResults();
+                
+                _resultsHelper.DoAddMessagesToDatabase();
 
                 this.Focus();
             }

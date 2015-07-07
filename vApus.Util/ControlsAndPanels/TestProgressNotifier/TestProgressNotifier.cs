@@ -90,7 +90,10 @@ namespace vApus.Util {
                         client.Credentials = new NetworkCredential(username, Settings.Default.PNPassword.Decrypt(PasswordGUID, Salt));
                     }
 
-                    var msg = new MailMessage("vapus@sizingservers.be", Settings.Default.PNEMailAddress, string.Concat("vApus@", NamedObjectRegistrar.Get<string>("IP"), ":", NamedObjectRegistrar.Get<int>("Port"), " Test Progress Notification"), message);
+                    //Dns.GetHostName() does not always work.
+                    string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+
+                    var msg = new MailMessage("vapus@sizingservers.be", Settings.Default.PNEMailAddress, string.Concat("vApus@", hostName, ":", NamedObjectRegistrar.Get<int>("Port"), " Test Progress Notification"), message);
                     msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;
                     msg.IsBodyHtml = true;
                     msg.Priority = MailPriority.High;

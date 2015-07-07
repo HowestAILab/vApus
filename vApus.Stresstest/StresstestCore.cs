@@ -275,7 +275,6 @@ namespace vApus.StressTest {
                         }, null);
 
                 Loggers.Log(logLevel, message);
-                _resultsHelper.AddMessageInMemory((int)logLevel, message);
             } catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }
@@ -319,7 +318,7 @@ namespace vApus.StressTest {
                 if (_cancel) return;
 
                 if (kvp.Value != 0 && kvp.Key.Count == 0) {
-                    var ex = new Exception("There are no user actions in a selected scenario.");
+                    var ex = new Exception("There are no user actions in a selected scenario(s).");
                     Loggers.Log(Level.Error, ex.ToString());
                     throw ex;
                 }
@@ -399,7 +398,7 @@ namespace vApus.StressTest {
             GC.Collect();
 
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Log(s) Initialized in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
+            InvokeMessage(string.Format(" ...Scenario(s) Initialized in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             _sw.Reset();
         }
         /// <summary>
