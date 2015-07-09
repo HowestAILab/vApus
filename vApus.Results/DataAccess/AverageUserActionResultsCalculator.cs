@@ -28,10 +28,6 @@ namespace vApus.Results {
             data = null;
             if (cancellationToken.IsCancellationRequested) return null;
 
-            //DataView dv = results.DefaultView;
-            //dv.Sort = "Concurrency";
-            //results = dv.ToTable();
-
             return results;
         }
         protected override ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stresstestIds) {
@@ -204,7 +200,7 @@ namespace vApus.Results {
                             //if (cancellationToken.IsCancellationRequested) loopState.Break();
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            long ttlb = 0;
+                            double ttlb = 0;
                             int delay = -1;
                             long ers = 0;
 
@@ -250,11 +246,11 @@ namespace vApus.Results {
                     //Finally the averages
                     //The key of the entries for following collections are user actions.
                     var avgTimeToLastByteInTicks = new Dictionary<string, double>();
-                    var maxTimeToLastByteInTicks = new Dictionary<string, long>();
-                    var timeToLastBytesInTicks = new Dictionary<string, List<long>>();
-                    var perc95TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
-                    var perc99TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
-                    var avgTop5TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
+                    var maxTimeToLastByteInTicks = new Dictionary<string, double>();
+                    var timeToLastBytesInTicks = new Dictionary<string, List<double>>();
+                    var perc95TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
+                    var perc99TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
+                    var avgTop5TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
 
                     var avgDelay = new Dictionary<string, double>();
                     var errors = new Dictionary<string, long>();
@@ -263,16 +259,16 @@ namespace vApus.Results {
                         if (cancellationToken.IsCancellationRequested) return null;
 
                         string userAction = row[0] as string;
-                        long ttlb = (long)row[1];
+                        double ttlb = (double)row[1];
                         double delay = Convert.ToDouble((int)row[2]);
                         long ers = (long)row[3];
 
-                        if (avgTimeToLastByteInTicks.ContainsKey(userAction)) avgTimeToLastByteInTicks[userAction] += (((double)ttlb) / uniqueUserActionCounts[userAction]);
-                        else avgTimeToLastByteInTicks.Add(userAction, (((double)ttlb) / uniqueUserActionCounts[userAction]));
+                        if (avgTimeToLastByteInTicks.ContainsKey(userAction)) avgTimeToLastByteInTicks[userAction] += (ttlb / uniqueUserActionCounts[userAction]);
+                        else avgTimeToLastByteInTicks.Add(userAction, ttlb / uniqueUserActionCounts[userAction]);
 
                         if (maxTimeToLastByteInTicks.ContainsKey(userAction)) { if (maxTimeToLastByteInTicks[userAction] < ttlb) maxTimeToLastByteInTicks[userAction] = ttlb; } else maxTimeToLastByteInTicks.Add(userAction, ttlb);
 
-                        if (!timeToLastBytesInTicks.ContainsKey(userAction)) timeToLastBytesInTicks.Add(userAction, new List<long>(uniqueUserActionCounts[userAction]));
+                        if (!timeToLastBytesInTicks.ContainsKey(userAction)) timeToLastBytesInTicks.Add(userAction, new List<double>(uniqueUserActionCounts[userAction]));
                         timeToLastBytesInTicks[userAction].Add(ttlb);
 
                         if (avgDelay.ContainsKey(userAction)) avgDelay[userAction] += (delay / uniqueUserActionCounts[userAction]);
@@ -285,15 +281,15 @@ namespace vApus.Results {
                     //Percentiles / avg top 5.
                     Parallel.ForEach(timeToLastBytesInTicks, (item, loopState) => {
                         if (cancellationToken.IsCancellationRequested) loopState.Break();
-                        IEnumerable<long> orderedValues;
-                        perc95TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<long>.Get(timeToLastBytesInTicks[item.Key], 95, out orderedValues));
-                        perc99TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<long>.Get(orderedValues, 99));
+                        IEnumerable<double> orderedValues;
+                        perc95TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<double>.Get(timeToLastBytesInTicks[item.Key], 95, out orderedValues));
+                        perc99TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<double>.Get(orderedValues, 99));
 
                         int top5Count = Convert.ToInt32(orderedValues.Count() * 0.05);
                         if (top5Count == 0)
                             avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, orderedValues.FirstOrDefault());
                         else
-                            avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, (long)orderedValues.Take(top5Count).Average());
+                            avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, orderedValues.Take(top5Count).Average());
 
                     });
                     if (cancellationToken.IsCancellationRequested) return null;
@@ -308,10 +304,10 @@ namespace vApus.Results {
 
                         averageUserActionResults.Rows.Add(stresstest, concurrencyResultId, concurrency, userAction,
                             Math.Round(avgTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
-                            maxTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond,
-                            perc95TimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond,
-                            perc99TimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond,
-                            avgTop5TimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond,
+                            Math.Round(maxTimeToLastByteInTicks[userAction] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                            Math.Round(perc95TimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                            Math.Round(perc99TimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                            Math.Round(avgTop5TimeToLastBytesInTicks[userAction] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
                             Math.Round(avgDelay[userAction], MidpointRounding.AwayFromZero),
                             errors[userAction]);
                     }

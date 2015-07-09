@@ -88,15 +88,6 @@ namespace vApus.Results {
                 data.TryAdd("logentryresults" + i, parts[i]);
             parts = null;
 
-            //int[] runResultIds = new int[runResults.Rows.Count];
-            //for (int i = 0; i != runResultIds.Length; i++)
-            //    runResultIds[i] = (int)runResults.Rows[i][0];
-
-            //DataTable logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, databaseActions, runResultIds, "VirtualUser", "UserAction", "LogEntryIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Error", "RunResultId");
-            //if (cancellationToken.IsCancellationRequested) return null;
-
-            //data.Add("logentryresults", logEntryResults);
-
             return data;
         }
 
