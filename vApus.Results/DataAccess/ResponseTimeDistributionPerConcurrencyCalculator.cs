@@ -121,11 +121,11 @@ namespace vApus.Results {
                         }
 
                         //Get the request results containing requests with the given run result id.
-                        var requestResults = new DataRow[0];
+                        string selectClause = string.Format("RunResultId In({0})", runResultIds.Combine(", "));
+                        var requestResults = new List<DataRow>();
                         for (int rerDataIndex = 0; rerDataIndex != requestResultsData.Length; rerDataIndex++) {
-                            requestResults = requestResultsData[rerDataIndex].Select(string.Format("RunResultId In({0})", runResultIds.Combine(", ")));
-                            if (requestResults.Length != 0)
-                                break;
+                            DataRow[] selectedRows = requestResultsData[rerDataIndex].Select(selectClause);
+                            requestResults.AddRange(selectedRows);
                         }
 
                         if (requestResults != null)

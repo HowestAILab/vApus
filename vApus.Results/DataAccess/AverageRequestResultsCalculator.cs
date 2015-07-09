@@ -120,14 +120,14 @@ namespace vApus.Results {
                         }
 
                         //Get the request results containing requests with the given run result id.
-                        var requestResults = new DataRow[0];
+                        string selectClause = string.Format("RunResultId In({0})", runResultIds.Combine(", "));
+                        var requestResults = new List<DataRow>();
                         for (int rerDataIndex = 0; rerDataIndex != requestResultsData.Length; rerDataIndex++) {
-                            requestResults = requestResultsData[rerDataIndex].Select(string.Format("RunResultId In({0})", runResultIds.Combine(", ")));
-                            if (requestResults.Length != 0)
-                                break;
+                            DataRow[] selectedRows = requestResultsData[rerDataIndex].Select(selectClause);
+                            requestResults.AddRange(selectedRows);
                         }
 
-                        if (requestResults != null && requestResults.Length != 0) {
+                        if (requestResults.Count != 0) {
                             //We don't need to keep the run ids for this one, it's much faster and simpler like this.
                             var uniqueRequestCounts = new ConcurrentDictionary<string, int>(); //To make a correct average.
                             var userActions = new ConcurrentDictionary<string, string>(); //request index, User Action
@@ -135,29 +135,29 @@ namespace vApus.Results {
                             foreach (DataRow rerRow in requestResults) {
                                 if (cancellationToken.IsCancellationRequested) loopState.Break();
 
-                                string rogEntryIndex = rerRow["SameAsRequestIndex"] as string; //Combine results when using distribution like this.
-                                if (rogEntryIndex == string.Empty) {
-                                    rogEntryIndex = rerRow["RequestIndex"] as string;
+                                string rerEntryIndex = rerRow["SameAsRequestIndex"] as string; //Combine results when using distribution like this.
+                                if (rerEntryIndex == string.Empty) {
+                                    rerEntryIndex = rerRow["RequestIndex"] as string;
 
                                     //Make sure we have all the user actions before averages are calculated, otherwise the duplicated user action names can be used. 
-                                    if (!userActions.ContainsKey(rogEntryIndex)) {
+                                    if (!userActions.ContainsKey(rerEntryIndex)) {
                                         string userAction = rerRow["UserAction"] as string;
-                                        userActions.TryAdd(rogEntryIndex, userAction);
+                                        userActions.TryAdd(rerEntryIndex, userAction);
                                     }
                                 }
 
-                                if (uniqueRequestCounts.ContainsKey(rogEntryIndex)) ++uniqueRequestCounts[rogEntryIndex];
-                                else uniqueRequestCounts.TryAdd(rogEntryIndex, 1);
+                                if (uniqueRequestCounts.ContainsKey(rerEntryIndex)) ++uniqueRequestCounts[rerEntryIndex];
+                                else uniqueRequestCounts.TryAdd(rerEntryIndex, 1);
                             }
 
                             var requests = new Dictionary<string, string>(); //Request index, request
 
                             var avgTimeToLastByteInTicks = new Dictionary<string, double>();
-                            var maxTimeToLastByteInTicks = new Dictionary<string, long>();
-                            var timeToLastBytesInTicks = new Dictionary<string, List<long>>();
-                            var perc95TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
-                            var perc99TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
-                            var avgTop5TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
+                            var maxTimeToLastByteInTicks = new Dictionary<string, double>();
+                            var timeToLastBytesInTicks = new Dictionary<string, List<double>>();
+                            var perc95TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
+                            var perc99TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
+                            var avgTop5TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
 
                             var avgDelay = new Dictionary<string, double>();
                             var errors = new Dictionary<string, long>();
@@ -170,7 +170,7 @@ namespace vApus.Results {
 
                                 string userAction = rerRow["UserAction"] as string;
                                 string request = rerRow["Request"] as string;
-                                long ttlb = (long)rerRow["TimeToLastByteInTicks"];
+                                double ttlb = Convert.ToDouble((long)rerRow["TimeToLastByteInTicks"]);
                                 double delay = Convert.ToDouble((int)rerRow["DelayInMilliseconds"]);
                                 string error = (long)rerRow["Error"] == 0 ? null : "-";
 
@@ -180,11 +180,11 @@ namespace vApus.Results {
                                 if (!requests.ContainsKey(requestIndex)) requests.Add(requestIndex, request);
 
                                 if (avgTimeToLastByteInTicks.ContainsKey(requestIndex)) avgTimeToLastByteInTicks[requestIndex] += (ttlb / uniqueRequestCount);
-                                else avgTimeToLastByteInTicks.Add(requestIndex, (ttlb / uniqueRequestCount));
+                                else avgTimeToLastByteInTicks.Add(requestIndex, ttlb / uniqueRequestCount);
 
                                 if (maxTimeToLastByteInTicks.ContainsKey(requestIndex)) { if (maxTimeToLastByteInTicks[requestIndex] < ttlb) maxTimeToLastByteInTicks[requestIndex] = ttlb; } else maxTimeToLastByteInTicks.Add(requestIndex, ttlb);
 
-                                if (!timeToLastBytesInTicks.ContainsKey(requestIndex)) timeToLastBytesInTicks.Add(requestIndex, new List<long>(uniqueRequestCount));
+                                if (!timeToLastBytesInTicks.ContainsKey(requestIndex)) timeToLastBytesInTicks.Add(requestIndex, new List<double>(uniqueRequestCount));
                                 timeToLastBytesInTicks[requestIndex].Add(ttlb);
 
                                 if (avgDelay.ContainsKey(requestIndex)) avgDelay[requestIndex] += (delay / uniqueRequestCount);
@@ -200,15 +200,15 @@ namespace vApus.Results {
                             Parallel.ForEach(timeToLastBytesInTicks, (item, loopState2) => {
                                 if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
-                                IEnumerable<long> orderedValues;
-                                perc95TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<long>.Get(timeToLastBytesInTicks[item.Key], 95, out orderedValues));
-                                perc99TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<long>.Get(orderedValues, 99));
+                                IEnumerable<double> orderedValues;
+                                perc95TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<double>.Get(timeToLastBytesInTicks[item.Key], 95, out orderedValues));
+                                perc99TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<double>.Get(orderedValues, 99));
 
                                 int top5Count = Convert.ToInt32(orderedValues.Count() * 0.05);
                                 if (top5Count == 0)
                                     avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, orderedValues.FirstOrDefault());
                                 else
-                                    avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, (long)orderedValues.Take(top5Count).Average());
+                                    avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, orderedValues.Take(top5Count).Average());
                             });
                             if (cancellationToken.IsCancellationRequested) loopState.Break();
 
@@ -221,10 +221,10 @@ namespace vApus.Results {
 
                                     averageRequestResults.Rows.Add(stressTest, concurrency, userActions[s], requests[s],
                                         Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
-                                        maxTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond,
-                                        perc95TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
-                                        perc99TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
-                                        avgTop5TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
+                                        Math.Round(maxTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                                        Math.Round(perc95TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                                        Math.Round(perc99TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                                        Math.Round(avgTop5TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
                                         Math.Round(avgDelay[s], MidpointRounding.AwayFromZero),
                                         errors[s]);
                                 }
