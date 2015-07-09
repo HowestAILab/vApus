@@ -119,15 +119,15 @@ namespace vApus.Results {
                             runResultIds[rrRowIndex] = ((int)runResults[rrRowIndex].ItemArray[0]);
                         }
 
-                        //Get the log entry results containing log entries with the given run result id.
-                        var logEntryResults = new DataRow[0];
+                        //Get the log entry results containing log entries with the given run result ids.
+                        string selectClause = string.Format("RunResultId In({0})", runResultIds.Combine(", "));
+                        var logEntryResults = new List<DataRow>();
                         for (int lerDataIndex = 0; lerDataIndex != logEntryResultsData.Length; lerDataIndex++) {
-                            logEntryResults = logEntryResultsData[lerDataIndex].Select(string.Format("RunResultId In({0})", runResultIds.Combine(", ")));
-                            if (logEntryResults.Length != 0)
-                                break;
+                            DataRow[] selectedRows = logEntryResultsData[lerDataIndex].Select(selectClause);
+                                logEntryResults.AddRange(selectedRows);
                         }
 
-                        if (logEntryResults != null && logEntryResults.Length != 0) {
+                        if (logEntryResults.Count != 0) {
                             //We don't need to keep the run ids for this one, it's much faster and simpler like this.
                             var uniqueLogEntryCounts = new ConcurrentDictionary<string, int>(); //To make a correct average.
                             var userActions = new ConcurrentDictionary<string, string>(); //log entry index, User Action
@@ -153,11 +153,11 @@ namespace vApus.Results {
                             var logEntries = new Dictionary<string, string>(); //log entry index, log entry
 
                             var avgTimeToLastByteInTicks = new Dictionary<string, double>();
-                            var maxTimeToLastByteInTicks = new Dictionary<string, long>();
-                            var timeToLastBytesInTicks = new Dictionary<string, List<long>>();
-                            var perc95TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
-                            var perc99TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
-                            var avgTop5TimeToLastBytesInTicks = new ConcurrentDictionary<string, long>();
+                            var maxTimeToLastByteInTicks = new Dictionary<string, double>();
+                            var timeToLastBytesInTicks = new Dictionary<string, List<double>>();
+                            var perc95TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
+                            var perc99TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
+                            var avgTop5TimeToLastBytesInTicks = new ConcurrentDictionary<string, double>();
 
                             var avgDelay = new Dictionary<string, double>();
                             var errors = new Dictionary<string, long>();
@@ -170,7 +170,7 @@ namespace vApus.Results {
 
                                 string userAction = lerRow["UserAction"] as string;
                                 string logEntry = lerRow["LogEntry"] as string;
-                                long ttlb = (long)lerRow["TimeToLastByteInTicks"];
+                                double ttlb = Convert.ToDouble((long)lerRow["TimeToLastByteInTicks"]);
                                 double delay = Convert.ToDouble((int)lerRow["DelayInMilliseconds"]);
                                 string error = (long)lerRow["Error"] == 0 ? null : "-";
 
@@ -180,11 +180,11 @@ namespace vApus.Results {
                                 if (!logEntries.ContainsKey(logEntryIndex)) logEntries.Add(logEntryIndex, logEntry);
 
                                 if (avgTimeToLastByteInTicks.ContainsKey(logEntryIndex)) avgTimeToLastByteInTicks[logEntryIndex] += (ttlb / uniqueLogEntryCount);
-                                else avgTimeToLastByteInTicks.Add(logEntryIndex, (ttlb / uniqueLogEntryCount));
+                                else avgTimeToLastByteInTicks.Add(logEntryIndex, ttlb / uniqueLogEntryCount);
 
                                 if (maxTimeToLastByteInTicks.ContainsKey(logEntryIndex)) { if (maxTimeToLastByteInTicks[logEntryIndex] < ttlb) maxTimeToLastByteInTicks[logEntryIndex] = ttlb; } else maxTimeToLastByteInTicks.Add(logEntryIndex, ttlb);
 
-                                if (!timeToLastBytesInTicks.ContainsKey(logEntryIndex)) timeToLastBytesInTicks.Add(logEntryIndex, new List<long>(uniqueLogEntryCount));
+                                if (!timeToLastBytesInTicks.ContainsKey(logEntryIndex)) timeToLastBytesInTicks.Add(logEntryIndex, new List<double>(uniqueLogEntryCount));
                                 timeToLastBytesInTicks[logEntryIndex].Add(ttlb);
 
                                 if (avgDelay.ContainsKey(logEntryIndex)) avgDelay[logEntryIndex] += (delay / uniqueLogEntryCount);
@@ -200,15 +200,15 @@ namespace vApus.Results {
                             Parallel.ForEach(timeToLastBytesInTicks, (item, loopState2) => {
                                 if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
-                                IEnumerable<long> orderedValues;
-                                perc95TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<long>.Get(timeToLastBytesInTicks[item.Key], 95, out orderedValues));
-                                perc99TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<long>.Get(orderedValues, 99));
+                                IEnumerable<double> orderedValues;
+                                perc95TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<double>.Get(timeToLastBytesInTicks[item.Key], 95, out orderedValues));
+                                perc99TimeToLastBytesInTicks.TryAdd(item.Key, PercentileCalculator<double>.Get(orderedValues, 99));
 
                                 int top5Count = Convert.ToInt32(orderedValues.Count() * 0.05);
                                 if (top5Count == 0)
                                     avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, orderedValues.FirstOrDefault());
                                 else
-                                    avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, (long)orderedValues.Take(top5Count).Average());
+                                    avgTop5TimeToLastBytesInTicks.TryAdd(item.Key, (double)orderedValues.Take(top5Count).Average());
                             });
                             if (cancellationToken.IsCancellationRequested) loopState.Break();
 
@@ -221,10 +221,10 @@ namespace vApus.Results {
 
                                     averageLogEntryResults.Rows.Add(stresstest, concurrency, userActions[s], logEntries[s],
                                         Math.Round(avgTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
-                                        maxTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond,
-                                        perc95TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
-                                        perc99TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
-                                        avgTop5TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond,
+                                        Math.Round(maxTimeToLastByteInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                                        Math.Round(perc95TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                                        Math.Round(perc99TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
+                                        Math.Round(avgTop5TimeToLastBytesInTicks[s] / TimeSpan.TicksPerMillisecond, MidpointRounding.AwayFromZero),
                                         Math.Round(avgDelay[s], MidpointRounding.AwayFromZero),
                                         errors[s]);
                                 }

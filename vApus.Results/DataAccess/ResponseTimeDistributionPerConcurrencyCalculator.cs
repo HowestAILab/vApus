@@ -121,27 +121,26 @@ namespace vApus.Results {
                         }
 
                         //Get the log entry results containing log entries with the given run result id.
-                        var logEntryResults = new DataRow[0];
+                        string selectClause = string.Format("RunResultId In({0})", runResultIds.Combine(", "));
+                        var logEntryResults = new List<DataRow>();
                         for (int lerDataIndex = 0; lerDataIndex != logEntryResultsData.Length; lerDataIndex++) {
-                            logEntryResults = logEntryResultsData[lerDataIndex].Select(string.Format("RunResultId In({0})", runResultIds.Combine(", ")));
-                            if (logEntryResults.Length != 0)
-                                break;
+                            DataRow[] selectedRows = logEntryResultsData[lerDataIndex].Select(selectClause);
+                            logEntryResults.AddRange(selectedRows);
                         }
 
-                        if (logEntryResults != null)
-                            foreach (DataRow lerRow in logEntryResults) {
-                                if (cancellationToken.IsCancellationRequested) loopState.Break();
+                        foreach (DataRow lerRow in logEntryResults) {
+                            if (cancellationToken.IsCancellationRequested) loopState.Break();
 
-                                double ttlb = Convert.ToDouble((long)lerRow["TimeToLastByteInTicks"]) / (TimeSpan.TicksPerSecond);
-                                ttlb = Math.Round(ttlb, 1, MidpointRounding.AwayFromZero);
+                            double ttlb = Convert.ToDouble((long)lerRow["TimeToLastByteInTicks"]) / (TimeSpan.TicksPerSecond);
+                            ttlb = Math.Round(ttlb, 1, MidpointRounding.AwayFromZero);
 
-                                //Round to 500 ms.
-                                //ttlb *= 2;
-                                //ttlb = Math.Round(ttlb, MidpointRounding.AwayFromZero);
-                                //ttlb /= 2;
+                            //Round to 500 ms.
+                            //ttlb *= 2;
+                            //ttlb = Math.Round(ttlb, MidpointRounding.AwayFromZero);
+                            //ttlb /= 2;
 
-                                ttlbInS.Add(ttlb);
-                            }
+                            ttlbInS.Add(ttlb);
+                        }
                     }
 
                     Dictionary<double, long> responseTimeDistribution = DistributionCalculator<double>.GetEntriesAndCounts(ttlbInS);
