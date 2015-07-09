@@ -26,9 +26,9 @@ namespace vApus.Stresstest {
         private ICustomRandomParameter _customRandomParameter;
         private bool _codeChanged; //To check if the assembly needs to be regenerated.
 
-        private string _code = @"// dllreferences:System.dll;vApus.StressTest.dll
+        private string _code = @"// dllreferences:System.dll;vApus.Stresstest.dll
 using System;
-namespace vApus.StressTest {
+namespace vApus.Stresstest {
 public class CustomRandomParameter : ICustomRandomParameter {
 public string Generate() {
 // Example:
@@ -131,7 +131,7 @@ return start.AddTicks(randomTicks);
             var cu = new CompilerUnit();
             CompilerResults results;
             Assembly assembly = cu.Compile(_code, true, out results);
-            Type t = assembly.GetType("vApus.StressTest.CustomRandomParameter");
+            Type t = assembly.GetType("vApus.Stresstest.CustomRandomParameter");
 
             if (assembly != null) {
                 _customRandomParameter = FastObjectCreator.CreateInstance<ICustomRandomParameter>(t);
