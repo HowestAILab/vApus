@@ -275,7 +275,11 @@ namespace vApus.Results {
             } else if (value is double) {
                 doc.SetCellValue(row, column, (double)value);
             } else if (value is DateTime) {
-                doc.SetCellValue(row, column, ((DateTime)value).ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff"));
+                DateTime dt = (DateTime)value;
+                TimeSpan ts = new TimeSpan(dt.Ticks);
+                string dtString = ts.TotalSeconds < 1d ? dt.ToString("yyyy'-'MM'-'dd HH':'mm':'ss'.'fff") : dt.ToString("yyyy'-'MM'-'dd HH':'mm':'ss");
+
+                doc.SetCellValue(row, column, dtString);
             } else {
                 doc.SetCellValue(row, column, value.ToString());
             }

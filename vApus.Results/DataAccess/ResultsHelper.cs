@@ -1529,7 +1529,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                         string concurrency = concurrencies[concurrencyId] == 0 ? "--" : concurrencies[concurrencyId].ToString();
 
-                        var newRow = new List<object>(new object[] { stressTest, monitor, startedAt, measuredRunTime.ToString("hh':'mm':'ss'.'fff"), Math.Round(measuredRunTime.TotalMilliseconds, MidpointRounding.AwayFromZero), concurrency });
+                        string measuredTime = measuredRunTime.TotalSeconds < 1d ? measuredRunTime.ToString("hh':'mm':'ss'.'fff") : measuredRunTime.ToString("hh':'mm':'ss");
+                        var newRow = new List<object>(new object[] { stressTest, monitor, startedAt, measuredTime, Math.Round(measuredRunTime.TotalMilliseconds, MidpointRounding.AwayFromZero), concurrency });
 
                         var fragmentedAverages = new object[resultHeaders.Count];
                         for (long p = 0; p != fragmentedAverages.Length; p++)
