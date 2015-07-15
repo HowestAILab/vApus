@@ -22,7 +22,7 @@ namespace vApus.Results {
         public override DataTable Get(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds) {
             DataTable averageConcurrencyResults = CreateEmptyDataTable("AverageConcurrencyResults", "Stress test", "Started at", "Measured time", "Measured time (ms)", "Concurrency",
 "Requests processed", "Requests", "Errors", "Throughput (responses / s)", "User actions / s", "Avg. response time (ms)",
-"Max. response time (ms)", "95th percentile of the response times (ms)", "99th percentile of the response times (ms)", "Avg. top 5 response Times (ms)", "Avg. relay (ms)");
+"Max. response time (ms)", "95th percentile of the response times (ms)", "99th percentile of the response times (ms)", "Avg. top 5 response Times (ms)", "Avg. delay (ms)");
 
             ConcurrentDictionary<string, DataTable> data = GetData(databaseActions, cancellationToken, stressTestIds);
             if (cancellationToken.IsCancellationRequested) return null;

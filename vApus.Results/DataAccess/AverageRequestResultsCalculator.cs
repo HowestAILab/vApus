@@ -88,7 +88,7 @@ namespace vApus.Results {
             DataTable[] requestResultsData = requestResultsDataList.ToArray();
 
             DataTable averageRequestResults = CreateEmptyDataTable("AverageRequestResults", "Stress test", "Concurrency", "User action", "Request", "Avg. response time (ms)",
-"Max. response time (ms)", "95th percentile of the response times (ms)", "99th percentile of the response times (ms)", "Avg. top 5 response times (ms)", "Avg. relay (ms)", "Errors");
+"Max. response time (ms)", "95th percentile of the response times (ms)", "99th percentile of the response times (ms)", "Avg. top 5 response times (ms)", "Avg. delay (ms)", "Errors");
 
             foreach (DataRow stressTestsRow in stressTests) {
                 if (cancellationToken.IsCancellationRequested) return null;

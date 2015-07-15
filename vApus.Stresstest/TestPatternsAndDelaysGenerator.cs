@@ -157,12 +157,11 @@ namespace vApus.StressTest {
                 notPinnedToChoose = 0;
 
             foreach (var action in _actions)
-                if ((bool)action.GetTag() || notPinnedToChoose-- > 0) {
+                if ((bool)action.GetTag() || notPinnedToChoose-- > 0) 
                     foreach (int j in action) {
                         tp.Add(j);
                         dp.Add(_requests[j].UseDelay ? random.Next(_minimumDelay, _maximumDelay + 1) : 0);
                     }
-                }
 
             testPattern = tp.ToArray();
             delayPattern = dp.ToArray();
