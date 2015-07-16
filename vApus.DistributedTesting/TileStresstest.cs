@@ -214,8 +214,9 @@ namespace vApus.DistributedTest {
                 stressTest.MaximumDelayOverride = AdvancedTileStressTest.MaximumDelay;
                 stressTest.Runs = AdvancedTileStressTest.Runs;
                 stressTest.Shuffle = AdvancedTileStressTest.Shuffle;
-                stressTest.UseParallelExecutionOfRequests = false;
-                // AdvancedTileStressTest.useParallelExecutionOfRequests;
+                stressTest.UseParallelExecutionOfRequests = AdvancedTileStressTest.UseParallelExecutionOfRequests;
+                stressTest.MaximumPersistentConnections = AdvancedTileStressTest.MaximumPersistentConnections;
+                stressTest.PersistentConnectionsPerHostname = AdvancedTileStressTest.PersistentConnectionsPerHostname;
 
                 stressTest.ForceSettingChildsParent();
 

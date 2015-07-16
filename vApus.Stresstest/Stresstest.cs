@@ -64,6 +64,8 @@ namespace vApus.StressTest {
         private bool _forDistributedTest;
 
         private bool _useParallelExecutionOfRequests;
+        private int _maximumPersistentConnections = 0;
+        private int _persistentConnectionsPerHostname = 6; //Default for most browsers.
 
         private Parameters _parameters; //Kept here for a distributed test
         #endregion
@@ -448,22 +450,28 @@ namespace vApus.StressTest {
             }
         }
 
-#if EnableBetaFeature
-        [Description("If this equals false then the parallel switch for requests is ignored."),
+        [Description("Use this to enable the settings below. Should only be enabled for web tests."),
          DisplayName("Use parallel execution of requests")]
-        [SavableCloneable, PropertyControl(int.MaxValue, true)]
+        [SavableCloneable, PropertyControl(16, true)]
         public bool UseParallelExecutionOfRequests {
             get { return _useParallelExecutionOfRequests; }
             set { _useParallelExecutionOfRequests = value; }
         }
-#else
-#warning Parallel executions temp not available
-        public bool UseParallelExecutionOfRequests {
-            get { return false; }
-            set { //_useParallelExecutionOfRequests = false; 
-            }
+        [Description("Fill in the maximum persistent connections that a browser allows. As was researched (May 2015): IE - infinite / on demand, Chrome & Opera - 10, Firefox - 256, Safari - > 59 (unknown). (0 == infinite)"),
+         DisplayName("Maximum persistent connections")]
+        [SavableCloneable, PropertyControl(17, true)]
+        public int MaximumPersistentConnections {
+            get { return _maximumPersistentConnections; }
+            set { _maximumPersistentConnections = value; }
         }
-#endif
+        [Description("Fill in the maximum persistent connections per hostname that a browser allows. As was researched (May 2015): IE - infinite / on demand, others - 6. (0 == infinite)"),
+         DisplayName("Persistent connections per hostname")]
+        [SavableCloneable, PropertyControl(18, true)]
+        public int PersistentConnectionsPerHostname {
+            get { return _persistentConnectionsPerHostname; }
+            set { _persistentConnectionsPerHostname = value; }
+        }
+
         /// <summary>
         ///     Let for instance the gui behave differently if this is true.
         /// </summary>

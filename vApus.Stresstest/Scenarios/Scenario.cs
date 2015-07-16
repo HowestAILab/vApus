@@ -274,15 +274,8 @@ namespace vApus.StressTest {
             var requestsWithErrorsArr = requestsWithErrors.ToArray();
 
             if (_lexicalResult == LexicalResult.OK) {
-#if EnableBetaFeature
-                bool successfullyParallized = true; // SetParallelExecutions();
-#else
-            //#warning Parallel executions temp not available
-            bool successfullyParallized = true;
-#endif
-
-                if (!successfullyParallized) {
-                    string message = this + ": Could not determine the begin- and end timestamps for one or more requests in the different user actions, are they correctly formatted?";
+                if (!SetParallelExecutions()) {
+                    string message = this + ": Could not determine the offset for one or more requests in the different user actions, are they correctly formatted?";
                     Loggers.Log(Level.Error, message);
                 }
             }
@@ -292,35 +285,37 @@ namespace vApus.StressTest {
         }
 
         /// <summary>
-        /// Webpage --> all statics in parrallel after analyzing the dom. Offset based on  the begin request time. In the acual test this will be the connect time. --> needs to be fixed in the connection proxy.
+        /// Webpage --> all statics in parrallel after analyzing the dom.
         /// </summary>
         /// <returns></returns>
         private bool SetParallelExecutions() {
-            int connectedIndex = (int)ScenarioRuleSet.ClientConnectedTimestampIndex - 1;//One-based
-            if (connectedIndex == -1) return true;
+            int offsetIndex = (int)ScenarioRuleSet.OffsetInMillisIndex - 1;//One-based
+            if (offsetIndex == -1) return true;
 
-            int sentIndex = (int)ScenarioRuleSet.SentRequestTimestampIndex - 1;//One-based
-            if (sentIndex == -1) return true;
+            int hostnameIndex = (int)ScenarioRuleSet.HostnameIndex - 1;//One-based
+            if (hostnameIndex == -1) return true;
 
-            foreach (UserAction ua in this) {
-                DateTime firstConnected = DateTime.MinValue;
-                foreach (Request le in ua) {
-                    DateTime connected, sent;
-                    if (!DateTime.TryParse(le.LexedRequest[connectedIndex].Value, out connected)) return false;
-                    if (!DateTime.TryParse(le.LexedRequest[sentIndex].Value, out sent)) return false;
-
-                    if (firstConnected == DateTime.MinValue) {
-                        firstConnected = connected;
-                    } else {
-                        le.ExecuteInParallel = true;
-
-                        le.FirstRequestConnectedToThisConnectedInMs = (int)(connected - firstConnected).TotalMilliseconds;
-                        le.ConnectedToSentRequestOffsetInMs = (int)(sent - connected).TotalMilliseconds;
+            bool succes = true;
+            foreach (UserAction ua in this)
+                foreach (Request re in ua) {
+                    int offset;
+                    if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
+                        succes = false;
+                        break;
                     }
+                    re.ParallelOffsetInMs = offset;
+                    re.Hostname = re.LexedRequest[hostnameIndex].Value;
                 }
-            }
 
-            return true;
+            if (!succes) //rollback.
+                foreach (UserAction ua in this)
+                    foreach (Request re in ua) {
+                        re.ParallelOffsetInMs = 0;
+                        re.Hostname = null;
+                    }
+
+
+            return succes;
         }
 
         /// <summary>

@@ -27,8 +27,8 @@ namespace vApus.StressTest {
 
         private bool _useDelay = false;
 
-        private bool _executeInParallel;
-        private int _firstEntryConnectedToThisConnectedInMs, _connectedToSentRequestOffsetInMs;
+        private int _parallelOffsetInMs;
+        private string _hostname;
 
         private Request _sameAs;
 
@@ -71,14 +71,13 @@ namespace vApus.StressTest {
         }
 
         /// <summary>
-        ///     Only possible if in a user action.
+        /// For parallel executions.
         /// </summary>
         [ReadOnly(true)]
         [SavableCloneable]
-        [Description("You can parallel execute this with the other requests in the user action. For the first entry in the user action the connection proxy for the executing thread (user) is used, therefore only that one is able to make data available for the rest of a stress test for a certain user (eg login data)."), DisplayName("Execute in parallel with previous")]
-        public bool ExecuteInParallel {
-            get { return false;/* _executeInParallel; */ }
-            set { /*_executeInParallel = value;*/ }
+        public int ParallelOffsetInMs {
+            get { return _parallelOffsetInMs; }
+            set { _parallelOffsetInMs = value; }
         }
 
         /// <summary>
@@ -86,19 +85,9 @@ namespace vApus.StressTest {
         /// </summary>
         [ReadOnly(true)]
         [SavableCloneable]
-        public int FirstRequestConnectedToThisConnectedInMs {
-            get { return 0; /*_firstEntryConnectedToThisConnectedInMs;*/ }
-            set { /*_firstEntryConnectedToThisConnectedInMs = value;*/ }
-        }
-
-        /// <summary>
-        /// For parallel executions.
-        /// </summary>
-        [ReadOnly(true)]
-        [SavableCloneable]
-        public int ConnectedToSentRequestOffsetInMs {
-            get { return _connectedToSentRequestOffsetInMs; }
-            set { _connectedToSentRequestOffsetInMs = value; }
+        public string Hostname {
+            get { return _hostname; }
+            set { _hostname = value; }
         }
 
         /// <summary>
@@ -123,6 +112,9 @@ namespace vApus.StressTest {
         internal static Parameters Parameters {
             set { _parameters = value; }
         }
+
+        internal bool ExecuteInParallelWithPrevious { get; set; }
+
         #endregion
 
         #region Constructors
@@ -146,9 +138,7 @@ namespace vApus.StressTest {
                 Label = sr.ReadString();
                 _requestString = sr.ReadString();
                 _useDelay = sr.ReadBoolean();
-                _executeInParallel = sr.ReadBoolean();
-                _firstEntryConnectedToThisConnectedInMs = sr.ReadInt32();
-                _connectedToSentRequestOffsetInMs = sr.ReadInt32();
+                _parallelOffsetInMs = sr.ReadInt32();
             }
             sr = null;
         }
@@ -278,9 +268,7 @@ namespace vApus.StressTest {
                 sw.Write(Label);
                 sw.Write(_requestString);
                 sw.Write(_useDelay);
-                sw.Write(_executeInParallel);
-                sw.Write(_firstEntryConnectedToThisConnectedInMs);
-                sw.Write(_connectedToSentRequestOffsetInMs);
+                sw.Write(_parallelOffsetInMs);
                 sw.AddToInfo(info);
             }
             sw = null;

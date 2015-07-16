@@ -31,6 +31,10 @@ namespace vApus.DistributedTest {
 
         private int _runs = 1, _initialMinimumDelay = 900, _initialMaximumDelay = 1100, _minimumDelay = 900, _maximumDelay = 1100, _monitorAfter, _monitorBefore;
         private bool _shuffle = true;
+
+        private bool _useParallelExecutionOfRequests;
+        private int _maximumPersistentConnections = 0;
+        private int _persistentConnectionsPerHostname = 6; //Default for most browsers.
         #endregion
 
         #region Properties
@@ -320,6 +324,27 @@ namespace vApus.DistributedTest {
             }
         }
 
+        [Description("Use this to enable the settings below. Should only be enabled for web tests."),
+        DisplayName("Use parallel execution of requests")]
+        [SavableCloneable, PropertyControl(12, true)]
+        public bool UseParallelExecutionOfRequests {
+            get { return _useParallelExecutionOfRequests; }
+            set { _useParallelExecutionOfRequests = value; }
+        }
+        [Description("Fill in the maximum persistent connections that a browser allows. As was researched (May 2015): IE - infinite / on demand, Chrome & Opera - 10, Firefox - 256, Safari - > 59 (unknown). (0 == infinite)"),
+         DisplayName("Maximum persistent connections")]
+        [SavableCloneable, PropertyControl(13, true)]
+        public int MaximumPersistentConnections {
+            get { return _maximumPersistentConnections; }
+            set { _maximumPersistentConnections = value; }
+        }
+        [Description("Fill in the maximum persistent connections per hostname that a browser allows. As was researched (May 2015): IE - infinite / on demand, others - 6. (0 == infinite)"),
+         DisplayName("Persistent connections per hostname")]
+        [SavableCloneable, PropertyControl(14, true)]
+        public int PersistentConnectionsPerHostname {
+            get { return _persistentConnectionsPerHostname; }
+            set { _persistentConnectionsPerHostname = value; }
+        }
         #endregion
 
         #region Constructors
@@ -417,6 +442,10 @@ namespace vApus.DistributedTest {
             _monitorBefore = stressTest.MonitorBefore;
             _monitorAfter = stressTest.MonitorAfter;
 
+            _useParallelExecutionOfRequests = stressTest.UseParallelExecutionOfRequests;
+            _maximumPersistentConnections = stressTest.MaximumPersistentConnections;
+            _persistentConnectionsPerHostname = stressTest.PersistentConnectionsPerHostname;
+
             if (Solution.ActiveSolution != null)
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
@@ -447,6 +476,11 @@ namespace vApus.DistributedTest {
             clone.MaximumNumberOfUserActions = _maximumNumberOfUserActions;
             clone.MonitorBefore = _monitorBefore;
             clone.MonitorAfter = _monitorAfter;
+
+            clone.UseParallelExecutionOfRequests = _useParallelExecutionOfRequests;
+            clone.MaximumPersistentConnections = _maximumPersistentConnections;
+            clone.PersistentConnectionsPerHostname = _persistentConnectionsPerHostname;
+
             return clone;
         }
         #endregion

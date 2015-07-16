@@ -759,14 +759,8 @@ namespace vApus.StressTest {
                     if (e.ColumnIndex == 0) {
                         var request = userAction[e.RowIndex] as Request;
                         if (request.LexicalResult == LexicalResult.OK) {
-                            if (request.ExecuteInParallel) {
-                                e.Value = global::vApus.StressTest.Properties.Resources.RequestInParallelWithFirstEntry;
-                                dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = "In parallel with first entry. Offset first entry connected to this connected: " 
-                                    + request.FirstRequestConnectedToThisConnectedInMs + " ms. Offset this connected to request sent: " + request.ConnectedToSentRequestOffsetInMs + " ms.";
-                            } else {
-                                e.Value = request.ExecuteInParallel ? global::vApus.StressTest.Properties.Resources.RequestInParallelWithFirstEntry : null;
-                                dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = null;
-                            }
+                            e.Value = null;
+                            dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = null;
                         } else {
                             if (request.LexedRequest == null) {
                                 e.Value = null;

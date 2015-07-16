@@ -31,7 +31,7 @@ namespace vApus.StressTest {
         private string _beginCommentString = "<!--";
         private string _endCommentString = "-->";
         private string _singleLineCommentString = string.Empty;
-        private uint _clientConnectedTimestampIndex, _sentRequestTimestampIndex;
+        private uint _hostnameIndex, _offsetInMillisIndex;
         #endregion
 
         #region Properties
@@ -76,19 +76,19 @@ namespace vApus.StressTest {
         }
 
         [SavableCloneable, PropertyControl(7)]
-        [Description("The ONE-BASED index of the syntax item defining the logged timestamp for when a client (browser) was connected. Set to 0 if you do not want to use it."),
-         DisplayName("Client connected timestamp index")]
-        public uint ClientConnectedTimestampIndex {
-            get { return Count < _clientConnectedTimestampIndex ? 0 : _clientConnectedTimestampIndex; }
-            set { _clientConnectedTimestampIndex = value; }
+        [Description("The ONE-BASED index of the syntax item defining the hostname. Should only be used in web rule sets."),
+         DisplayName("Hostname index")]
+        public uint HostnameIndex {
+            get { return Count < _hostnameIndex ? 0 : _hostnameIndex; }
+            set { _hostnameIndex = value; }
         }
 
         [SavableCloneable, PropertyControl(8)]
-        [Description("The ONE-BASED index of the syntax item defining the logged timestamp for when a request was sent. Set to 0 if you do not want to use it."),
-         DisplayName("Sent request timestamp index")]
-        public uint SentRequestTimestampIndex {
-            get { return Count < _sentRequestTimestampIndex ? 0 : _sentRequestTimestampIndex; }
-            set { _sentRequestTimestampIndex = value; }
+        [Description("The ONE-BASED index of the syntax item defining the offset in milliseconds, from the previous set of parallel responses, for a request. Set to 0 if you do not want to use it."),
+         DisplayName("Offset in ms index")]
+        public uint OffsetInMillisIndex {
+            get { return Count < _offsetInMillisIndex ? 0 : _offsetInMillisIndex; }
+            set { _offsetInMillisIndex = value; }
         }
         #endregion
 
@@ -110,7 +110,8 @@ namespace vApus.StressTest {
                 ShowInGui = false;
                 Label = sr.ReadString();
                 ChildDelimiter = sr.ReadString();
-                _sentRequestTimestampIndex = sr.ReadUInt32();
+                _hostnameIndex = sr.ReadUInt32();
+                _offsetInMillisIndex = sr.ReadUInt32();
 
                 AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
@@ -129,7 +130,8 @@ namespace vApus.StressTest {
             using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(Label);
                 sw.Write(ChildDelimiter);
-                sw.Write(_sentRequestTimestampIndex);
+                sw.Write(_hostnameIndex);
+                sw.Write(_offsetInMillisIndex);
 
                 sw.Write(this);
                 sw.AddToInfo(info);

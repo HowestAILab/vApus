@@ -393,16 +393,6 @@ namespace vApus.StressTest.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        internal static System.Drawing.Bitmap RequestInParallelWithFirstEntry {
-            get {
-                object obj = ResourceManager.GetObject("RequestInParallelWithFirstEntry", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Looks up a localized resource of type System.Drawing.Bitmap.
-        /// </summary>
         internal static System.Drawing.Bitmap RequestOK {
             get {
                 object obj = ResourceManager.GetObject("RequestOK", resourceCulture);
