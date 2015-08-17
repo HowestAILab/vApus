@@ -1399,7 +1399,11 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                     int concurrencyResultId = (int)crRow.ItemArray[0];
                     int concurrency = (int)crRow.ItemArray[1];
-                    concurrencyDelimiters.Add(concurrencyResultId, new KeyValuePair<DateTime, DateTime>((DateTime)crRow.ItemArray[2], (DateTime)crRow.ItemArray[3]));
+                    DateTime startedAt = (DateTime)crRow.ItemArray[2];
+                    DateTime stoppedAt = (DateTime)crRow.ItemArray[3];
+                    if (stoppedAt == DateTime.MinValue) stoppedAt = startedAt.Subtract(new TimeSpan(TimeSpan.TicksPerMillisecond));
+
+                    concurrencyDelimiters.Add(concurrencyResultId, new KeyValuePair<DateTime, DateTime>(startedAt, stoppedAt));
 
                     DataTable runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "StartedAt", "StoppedAt");
                     if (runResults == null || runResults.Rows.Count == 0) continue;
@@ -1409,7 +1413,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         if (cancellationToken.IsCancellationRequested) return null;
 
                         var start = (DateTime)rrRow.ItemArray[0];
-                        if (!d.ContainsKey(start)) d.Add(start, (DateTime)rrRow.ItemArray[1]);
+                        var stop = (DateTime)rrRow.ItemArray[1];
+                        if (stop == DateTime.MinValue) stop = start.Subtract(new TimeSpan(TimeSpan.TicksPerMillisecond));
+
+                        if (!d.ContainsKey(start)) d.Add(start, stop);
                     }
                     runDelimiters.Add(concurrencyResultId, d);
                     concurrencies.Add(concurrencyResultId, concurrency);

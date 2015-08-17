@@ -140,6 +140,7 @@ namespace vApus.Results {
                             concurrencyResultsDic.TryAdd(concurrencyResult, stressTest);
                             concurrencyResult.StartedAt = (DateTime)crRow.ItemArray[1];
                             concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
+                            if (concurrencyResult.StoppedAt == DateTime.MinValue) concurrencyResult.StoppedAt = concurrencyResult.StartedAt.Subtract(new TimeSpan(TimeSpan.TicksPerMillisecond));
 
                             //Extract all the run results and put them in an array , runResultsArr,for later processing.
                             DataRow[] runResults = data["runresults"].Select(string.Format("ConcurrencyResultId={0}", concurrencyResultId));

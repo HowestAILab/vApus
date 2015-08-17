@@ -24,6 +24,7 @@ namespace vApus.Monitor {
 
         #region Fields
         private readonly object _lock = new object();
+        private MonitorResult _monitorResultCache;
         private List<object[]> _toDisplayRows = new List<object[]>();
         private readonly List<int> _filteredColumnIndices = new List<int>();
         private string[] _filter = new string[0];
@@ -34,7 +35,7 @@ namespace vApus.Monitor {
         #endregion
 
         #region Properties
-        public MonitorResult MonitorResultCache { get; private set; }
+        public MonitorResult MonitorResultCache { get { lock (_lock) return _monitorResultCache; } }
         public new bool AllowUserToAddRows { get { return base.AllowUserToAddRows; } set { base.AllowUserToAddRows = false; } }
         public new bool AllowUserToDeleteRows { get { return base.AllowUserToDeleteRows; } set { base.AllowUserToDeleteRows = false; } }
         public new bool AllowUserToResizeRows { get { return base.AllowUserToResizeRows; } set { base.AllowUserToResizeRows = false; } }
@@ -48,7 +49,7 @@ namespace vApus.Monitor {
 
         #region Constructor
         public MonitorControl() {
-            MonitorResultCache = new MonitorResult();
+            _monitorResultCache = new MonitorResult();
             AllowUserToAddRows = AllowUserToDeleteRows = AllowUserToResizeRows = AllowUserToOrderColumns = false;
             ReadOnly = VirtualMode = DoubleBuffered = true;
             ColumnHeadersHeightSizeMode = DataGridViewColumnHeadersHeightSizeMode.DisableResizing;
@@ -101,7 +102,7 @@ namespace vApus.Monitor {
 
             _toDisplayRows.Clear();
 
-            MonitorResultCache = new MonitorResult() { Monitor = monitor.ToString() };
+            _monitorResultCache = new MonitorResult() { Monitor = monitor.ToString() };
             _filteredColumnIndices.Clear();
 
             RowCount = 0;
@@ -132,13 +133,13 @@ namespace vApus.Monitor {
                     }
             }
 
-            MonitorResultCache.Headers = lHeaders.ToArray();
+            _monitorResultCache.Headers = lHeaders.ToArray();
 
             //Add to columns, fillweight 1 --> to enable max 65 535 columns.
-            var clms = new DataGridViewColumn[MonitorResultCache.Headers.Length];
+            var clms = new DataGridViewColumn[_monitorResultCache.Headers.Length];
             string clmPrefix = ToString() + "clm";
-            for (int headerIndex = 0; headerIndex != MonitorResultCache.Headers.Length; headerIndex++) {
-                string header = MonitorResultCache.Headers[headerIndex];
+            for (int headerIndex = 0; headerIndex != _monitorResultCache.Headers.Length; headerIndex++) {
+                string header = _monitorResultCache.Headers[headerIndex];
                 DataGridViewColumn clm = new DataGridViewTextBoxColumn();
                 clm.Name = clmPrefix + header;
                 clm.HeaderText = header;
@@ -233,9 +234,9 @@ namespace vApus.Monitor {
                 //  }, null);
 
                 lock (_lock) {
-                    MonitorResultCache.Rows.Add(row);
+                    _monitorResultCache.Rows.Add(row);
 
-                    if (row.Length != MonitorResultCache.Headers.Length)
+                    if (row.Length != _monitorResultCache.Headers.Length)
                         Loggers.Log(Level.Error, "The number of monitor values is not the same as the number of headers!\nThis is a serious problem.", null, row);
                 }
 
@@ -256,7 +257,7 @@ namespace vApus.Monitor {
             try {
                 List<string[]> newCache = GetSaveableCache();
                 using (var sw = new StreamWriter(fileName, false)) {
-                    sw.WriteLine(MonitorResultCache.Headers.Combine("\t"));
+                    sw.WriteLine(_monitorResultCache.Headers.Combine("\t"));
                     foreach (var row in newCache) sw.WriteLine(row.Combine("\t"));
                     sw.Flush();
                 }
@@ -266,7 +267,7 @@ namespace vApus.Monitor {
             try {
                 List<string[]> newCache = GetSaveableCache();
                 using (var sw = new StreamWriter(fileName, false)) {
-                    sw.WriteLine(FilterArray(MonitorResultCache.Headers).Combine("\t"));
+                    sw.WriteLine(FilterArray(_monitorResultCache.Headers).Combine("\t"));
                     foreach (var row in newCache) sw.WriteLine(FilterArray(row).Combine("\t"));
                     sw.Flush();
                 }
@@ -274,8 +275,8 @@ namespace vApus.Monitor {
         }
         private List<string[]> GetSaveableCache() {
             lock (_lock) {
-                var newCache = new List<string[]>(MonitorResultCache.Rows.Count);
-                foreach (var row in MonitorResultCache.Rows) {
+                var newCache = new List<string[]>(_monitorResultCache.Rows.Count);
+                foreach (var row in _monitorResultCache.Rows) {
                     var newRow = new string[row.Length];
                     for (int i = 0; i != row.Length; i++) {
                         object o = row[i];
@@ -330,7 +331,7 @@ namespace vApus.Monitor {
                     }
                 }
             }
-        }		
+        }
         private IEnumerable<DataGridViewColumn> Find(string text) {
             text = Regex.Escape(text);
             text = text.Replace("\\*", ".*");

@@ -58,6 +58,10 @@ namespace vApus.StressTest {
         private int _monitorsInitialized;
         private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
         private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
+
+
+        //To write monitor metrics periodically to the db.
+        private DateTime _monitorMetricsWritten = DateTime.MinValue;
         #endregion
 
         #region Properties
@@ -262,6 +266,7 @@ namespace vApus.StressTest {
         /// </summary>
         private void StartStressTest() {
             Cursor = Cursors.WaitCursor;
+            _monitorMetricsWritten = DateTime.MinValue;
 
             try {
                 LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000);
@@ -627,6 +632,8 @@ namespace vApus.StressTest {
             TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
 
             PublishProgress(RunStateChange.None);
+
+            WriteMonitorMetricsToDatabase();
         }
 
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_progressCountDown--); }
@@ -634,10 +641,10 @@ namespace vApus.StressTest {
         private void tmrProgress_Tick(object sender, EventArgs e) {
             if (_stressTestCore != null) {
                 try {
-                  string lastWarning =  fastResultsControl.SetClientMonitoring(_stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage,
-                                                          (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent, LocalMonitor.NicReceived);
+                    string lastWarning = fastResultsControl.SetClientMonitoring(_stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage,
+                                                            (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent, LocalMonitor.NicReceived);
 
-                  if (lastWarning.Length != 0) PublishMessage(1, lastWarning);
+                    if (lastWarning.Length != 0) PublishMessage(1, lastWarning);
                 } catch { } //Exception on false WMI. 
 
                 if (_canUpdateMetrics) {
@@ -666,7 +673,7 @@ namespace vApus.StressTest {
         private void AddEvent(string message, Color color, Level level = Level.Info) {
             if (color == Color.Empty) fastResultsControl.AddEvent(message, level); else fastResultsControl.AddEvent(message, color, level);
             PublishMessage((int)level, message);
-            
+
             _resultsHelper.AddMessageInMemory((int)level, message);
         }
         #endregion
@@ -876,6 +883,26 @@ namespace vApus.StressTest {
             _canUpdateMetrics = false;
         }
 
+        private void WriteMonitorMetricsToDatabase() {
+            if (_monitorViews != null && _stressTest.Monitors.Length != 0)
+                foreach (MonitorView view in _monitorViews)
+                    if (view != null && !view.IsDisposed)
+                        try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache(_monitorMetricsWritten)); } catch (Exception e) {
+                            Loggers.Log(Level.Error, view.Text + ": Failed adding results to the database.", e);
+                            _stressTestStatus = StressTestStatus.Error;
+                        }
+
+            _monitorMetricsWritten = DateTime.Now;
+        }
+        private void StopMonitors() {
+            if (_monitorViews != null && _stressTest.Monitors.Length != 0)
+                foreach (MonitorView view in _monitorViews)
+                    if (view != null && !view.IsDisposed && view.IsRunning) {
+                        view.Stop();
+                        AddEvent(view.Text + " is stopped.");
+                    }
+        }
+
         /// <summary>
         ///     Only used in stop, stops the monitors if any, saves the results; Unlocks the gui so changes can be made to the stress test.
         /// </summary>
@@ -893,21 +920,9 @@ namespace vApus.StressTest {
                 _monitorAfterCountDown = null;
             }
 
-            var validMonitorViews = new List<MonitorView>();
-            if (_monitorViews != null && _stressTest.Monitors.Length != 0)
-                foreach (MonitorView view in _monitorViews)
-                    if (view != null && !view.IsDisposed && view.IsRunning) {
-                        view.Stop();
-                        AddEvent(view.Text + " is stopped.");
-                        validMonitorViews.Add(view);
-                    }
-            foreach (MonitorView view in validMonitorViews)
-                try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
-                    Loggers.Log(Level.Error, view.Text + ": Failed adding results to the database.", e);
-                    _stressTestStatus = StressTestStatus.Error;
-                }
-
-            validMonitorViews = null;
+            StopMonitors();
+            WriteMonitorMetricsToDatabase();
+            _monitorMetricsWritten = DateTime.MinValue;
 
             if (!disposing) {
                 solutionComponentPropertyPanel.Unlock();

@@ -1411,6 +1411,25 @@ namespace vApus.Monitor {
 
         public MonitorResult GetMonitorResultCache() { return monitorControl.MonitorResultCache; }
 
+        public MonitorResult GetMonitorResultCache(DateTime from) {
+            MonitorResult monitorResult = monitorControl.MonitorResultCache;
+            var part = new MonitorResult();
+            part.MonitorConfigurationId = monitorResult.MonitorConfigurationId;
+            part.Headers = monitorResult.Headers;
+
+            for (int i = monitorResult.Rows.Count - 1; i != -1; i--) {
+                object[] row = monitorResult.Rows[i];
+                if (row.Length != 0 && row[0] is DateTime){
+                    if ((DateTime)row[0] < from) break;
+                    part.Rows.Add(row);
+                }
+            }
+            part.Rows.Reverse();
+
+            return part;
+        }
+
+
         /// <summary>
         ///     Get the connection parameters comma-separated.
         /// </summary>

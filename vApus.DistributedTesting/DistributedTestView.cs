@@ -68,6 +68,9 @@ namespace vApus.DistributedTest {
 
         private System.Timers.Timer _refreshDetailedResultsTimer = new System.Timers.Timer(1000);
 
+        //To write monitor metrics periodically to the db.
+        private DateTime _monitorMetricsWritten = DateTime.MinValue;
+
         #endregion
 
         #region Properties
@@ -482,6 +485,7 @@ namespace vApus.DistributedTest {
                 if (_distributedTest.UseRDP) ShowRemoteDesktop();
 
                 distributedTestControl.ClearFastResults();
+                _monitorMetricsWritten = DateTime.MinValue;
 
                 //Smart update
                 UpdateNotifier.Refresh();
@@ -830,6 +834,9 @@ namespace vApus.DistributedTest {
             }
 
             SetOverallProgress();
+
+            //Add monitor metrics to db.
+            WriteMonitorMetricsToDatabase();
 
             //Update the progress for all seperate tile stress tests, since a delayed invoke is used we must do this.
             foreach (var ts in _distributedTest.UsedTileStressTests)
@@ -1473,6 +1480,36 @@ namespace vApus.DistributedTest {
             }, null);
         }
 
+        private void WriteMonitorMetricsToDatabase() {
+            var validMonitorViews = new List<MonitorView>();
+            if (_monitorViews != null)
+                foreach (TileStressTest ts in _monitorViews.Keys)
+                    foreach (MonitorView view in _monitorViews[ts])
+                        if (view != null && !view.IsDisposed && !validMonitorViews.Contains(view)) 
+                            validMonitorViews.Add(view);
+
+            foreach (MonitorView view in validMonitorViews)
+                try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache(_monitorMetricsWritten)); } catch (Exception e) {
+                    Loggers.Log(Level.Error, view.Text + ": Failed adding results to the database.", e);
+                }
+            _monitorMetricsWritten = DateTime.Now;
+
+            validMonitorViews = null;
+        }
+        private void StopMonitors() {
+            var validMonitorViews = new List<MonitorView>();
+            if (_monitorViews != null)
+                foreach (TileStressTest ts in _monitorViews.Keys)
+                    foreach (MonitorView view in _monitorViews[ts])
+                        if (view != null && !view.IsDisposed && view.IsRunning && !validMonitorViews.Contains(view)) {
+                            validMonitorViews.Add(view);
+                            view.Stop();
+                            AppendMessages(view.Text + " is stopped.");
+                        }
+
+            validMonitorViews = null;
+        }
+
         /// <summary>
         ///     Only used in stop; this also saves the monitor results if any
         /// </summary>
@@ -1486,21 +1523,9 @@ namespace vApus.DistributedTest {
                 _monitorAfterCountDown = null;
             }
 
-            var validMonitorViews = new List<MonitorView>();
-            if (_monitorViews != null)
-                foreach (TileStressTest ts in _monitorViews.Keys)
-                    foreach (MonitorView view in _monitorViews[ts])
-                        if (view != null && !view.IsDisposed && view.IsRunning && !validMonitorViews.Contains(view)) {
-                            validMonitorViews.Add(view);
-                            view.Stop();
-                            AppendMessages(view.Text + " is stopped.");
-                        }
-            foreach (MonitorView view in validMonitorViews)
-                try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache()); } catch (Exception e) {
-                    Loggers.Log(Level.Error, view.Text + ": Failed adding results to the database.", e);
-                }
-
-            validMonitorViews = null;
+            StopMonitors();
+            WriteMonitorMetricsToDatabase();
+            _monitorMetricsWritten = DateTime.MinValue;
 
             if (!disposing) {
                 SetMode(DistributedTestMode.Edit, true);
