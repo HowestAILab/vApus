@@ -48,8 +48,16 @@ namespace vApus.Util {
 
         #region Functions
         private void lbl_SizeChanged(object sender, EventArgs e) {
+            SizeChanged -= KeyValuePairControl_SizeChanged;
+
             lblValue.Left = lblKey.Right;
             Width = lblValue.Right + 3;
+
+            if (lblKey.Height > Height) Height = lblKey.Height + 3;
+
+            KeyValuePairControl_SizeChanged(null, null);
+
+            SizeChanged += KeyValuePairControl_SizeChanged;
         }
 
         private void KeyValuePairControl_SizeChanged(object sender, EventArgs e) {

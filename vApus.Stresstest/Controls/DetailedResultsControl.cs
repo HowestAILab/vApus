@@ -88,7 +88,7 @@ namespace vApus.StressTest {
         private void SetDescriptionConfig() {
             string description = _resultsHelper.GetDescription();
 
-            SetConfig(description.Replace('\r', ' ').Replace('\n', ' '));
+            SetConfig(description);
 
             var btnEditDescription = new Button();
             btnEditDescription.Text = "Edit...";

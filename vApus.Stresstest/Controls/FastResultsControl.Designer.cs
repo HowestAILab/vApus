@@ -333,7 +333,7 @@
             this.kvpInitialDelay.Location = new System.Drawing.Point(733, 6);
             this.kvpInitialDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpInitialDelay.Name = "kvpInitialDelay";
-            this.kvpInitialDelay.Size = new System.Drawing.Size(45, 24);
+            this.kvpInitialDelay.Size = new System.Drawing.Size(76, 24);
             this.kvpInitialDelay.TabIndex = 9;
             this.kvpInitialDelay.TabStop = false;
             this.kvpInitialDelay.Tooltip = "The minimum delay in milliseconds before the execution of the first requests per user. This is not used in result calculations, but rather to spread the requests at the start of the test.";
