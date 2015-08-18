@@ -351,51 +351,54 @@ namespace vApus.StressTest {
 
                     if (_cancel) return;
 
-                    //Parallel connections, check per user action. Execute with previous is set correctly accoring to the stress test settings.
+                    //Parallel connections, check per user action. Execute with previous is set correctly according to the stress test settings.
                     var connectionsPerHostname = new Dictionary<string, int>();
                     var l = new List<Request>();
                     foreach (UserAction ua in scenario) {
                         int parallelConnections = 0;
                         int parallelThreads = 0;
 
+                        int validateRequestIndex = 0; //Only from the third request. After that the second after the previous parallel group.
                         foreach (Request request in ua) {
                             if (_cancel) return;
 
                             l.Add(request);
 
                             request.ExecuteInParallelWithPrevious = false;
-                            if (_stressTest.UseParallelExecutionOfRequests) {
+                            if (validateRequestIndex > 1 && _stressTest.UseParallelExecutionOfRequests && (_stressTest.MaximumPersistentConnections == 0 || parallelConnections <= _stressTest.MaximumPersistentConnections)) {
 
-                                if (_stressTest.MaximumPersistentConnections == 0 || parallelConnections <= _stressTest.MaximumPersistentConnections) {
+                                if (_stressTest.PersistentConnectionsPerHostname == 0) {
+                                    request.ExecuteInParallelWithPrevious = true;
+                                    ++parallelConnections;
+                                    ++parallelThreads;
+                                } else {
+                                    if (!connectionsPerHostname.ContainsKey(request.Hostname)) connectionsPerHostname.Add(request.Hostname, 0);
 
-                                    if (_stressTest.PersistentConnectionsPerHostname == 0) {
+                                    connectionsPerHostname[request.Hostname] += 1;
+
+                                    if (connectionsPerHostname[request.Hostname] < _stressTest.PersistentConnectionsPerHostname) {
                                         request.ExecuteInParallelWithPrevious = true;
                                         ++parallelConnections;
+                                        ++parallelThreads;
                                     } else {
-                                        if (!connectionsPerHostname.ContainsKey(request.Hostname)) connectionsPerHostname.Add(request.Hostname, 0);
-
-                                        connectionsPerHostname[request.Hostname] += 1;
-
-                                        if (connectionsPerHostname[request.Hostname] <= _stressTest.PersistentConnectionsPerHostname) {
-                                            request.ExecuteInParallelWithPrevious = true;
-                                            ++parallelConnections;
-                                        }
-
+                                        ++parallelThreads; //Need one more. Threads used in the simulated user thread to execute.
+                                        connectionsPerHostname[request.Hostname] = 0;
+                                        validateRequestIndex = 1;
                                     }
+
                                 }
-
-
-                                ++parallelThreads;
-                            } else {
-                                request.ExecuteInParallelWithPrevious = false;
                             }
+
+                            ++validateRequestIndex;
                         }
-                        connectionsPerHostname.Clear();
 
                         if (parallelConnections != 0) {
                             _parallelConnections += parallelConnections;
-                            _parallelThreads += parallelThreads; //Need one more.
+                            _parallelThreads += parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
                         }
+
+                        //Cps and threads are dequeued when used. Make sure that we have enough.
+                        connectionsPerHostname.Clear();
                     }
 
                     var requestArr = l.ToArray();
@@ -937,7 +940,7 @@ namespace vApus.StressTest {
 
             //Check if this request could be the first of a parallel executed range of entries
             //If so the range will be executed multi threaded
-            if (!testableRequest.ExecuteInParallelWithPrevious || !_stressTest.UseParallelExecutionOfRequests) {
+            if (!testableRequest.ExecuteInParallelWithPrevious) {
                 int testableRequestsLength = 0, exclusiveEnd = 0;
                 List<TestableRequest> parallelTestableRequests = null;
 
@@ -1119,7 +1122,7 @@ namespace vApus.StressTest {
             public readonly string UserAction;
 
             /// <summary>
-            ///     Execute parallel with immediate previous sibling. Not used feature atm.
+            ///     Execute in parallel with next siblings.
             /// </summary>
             public readonly bool ExecuteInParallelWithPrevious;
 
@@ -1218,7 +1221,8 @@ namespace vApus.StressTest {
                     throw (exception);
                 } finally {
                     VirtualUserResult result = runResult.VirtualUserResults[threadIndex];
-                    result.VirtualUser = Thread.CurrentThread.Name;
+                    if (string.IsNullOrEmpty(result.VirtualUser))
+                        result.VirtualUser = Thread.CurrentThread.Name;
 
                     var requestResult = new RequestResult {
                         VirtualUser = result.VirtualUser,
