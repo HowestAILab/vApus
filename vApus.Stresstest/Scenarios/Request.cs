@@ -245,6 +245,9 @@ namespace vApus.StressTest {
             else
                 request._requestString = _requestString;
 
+            request._hostname = _hostname;
+            request._parallelOffsetInMs = _parallelOffsetInMs;
+
             if (applyRuleSet)
                 request.ApplyScenarioRuleSet(scenarioRuleSet);
 

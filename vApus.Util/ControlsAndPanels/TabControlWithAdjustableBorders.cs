@@ -23,17 +23,21 @@ namespace vApus.Util {
 
         #region Functions
         protected override void WndProc(ref Message m) {
-            if (m.Msg == TCM_ADJUSTRECT) {
-                var rc = (RECT)m.GetLParam(typeof(RECT));
+            try {
+                if (m.Msg == TCM_ADJUSTRECT) {
+                    var rc = (RECT)m.GetLParam(typeof(RECT));
 
-                if (!LeftVisible) rc.Left -= 4;
-                if (!RightVisible) rc.Right += 3;
-                if (!TopVisible) rc.Top -= 3;
-                if (!BottomVisible) rc.Bottom += 3;
+                    if (!LeftVisible) rc.Left -= 4;
+                    if (!RightVisible) rc.Right += 3;
+                    if (!TopVisible) rc.Top -= 3;
+                    if (!BottomVisible) rc.Bottom += 3;
 
-                Marshal.StructureToPtr(rc, m.LParam, true);
+                    Marshal.StructureToPtr(rc, m.LParam, true);
+                }
+                base.WndProc(ref m);
+            } catch {
+                //Whatever.
             }
-            base.WndProc(ref m);
         }
         #endregion
 
