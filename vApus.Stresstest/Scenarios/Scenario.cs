@@ -295,22 +295,40 @@ namespace vApus.StressTest {
             int hostnameIndex = (int)ScenarioRuleSet.HostnameIndex - 1;//One-based
             if (hostnameIndex == -1) return true;
 
+            int redirectsIndex = (int)ScenarioRuleSet.RedirectsIndex - 1;//One-based
+            if (redirectsIndex == -1) return true;
+
+
             bool succes = true;
             foreach (UserAction ua in this)
                 foreach (Request re in ua) {
-                    int offset;
-                    if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
-                        succes = false;
-                        break;
+                    int count = re.LexedRequest.Count;
+                    if (offsetIndex < count) {
+                        int offset;
+                        if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
+                            succes = false;
+                            break;
+                        }
+                        re.ParallelOffsetInMs = offset;
                     }
-                    re.ParallelOffsetInMs = offset;
-                    re.Hostname = re.LexedRequest[hostnameIndex].Value;
+                    if (redirectsIndex < count) {
+                        bool redirects;
+                        if (!bool.TryParse(re.LexedRequest[redirectsIndex].Value, out redirects)) {
+                            succes = false;
+                            break;
+                        }
+                        re.Redirects = redirects;
+
+                    }
+                    if (hostnameIndex < count)
+                        re.Hostname = re.LexedRequest[hostnameIndex].Value;
                 }
 
             if (!succes) //rollback.
                 foreach (UserAction ua in this)
                     foreach (Request re in ua) {
                         re.ParallelOffsetInMs = 0;
+                        re.Redirects = false;
                         re.Hostname = null;
                     }
 

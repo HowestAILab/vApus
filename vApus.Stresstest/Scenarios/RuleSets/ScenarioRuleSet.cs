@@ -31,7 +31,7 @@ namespace vApus.StressTest {
         private string _beginCommentString = "<!--";
         private string _endCommentString = "-->";
         private string _singleLineCommentString = string.Empty;
-        private uint _hostnameIndex, _offsetInMillisIndex;
+        private uint _hostnameIndex, _offsetInMillisIndex, _redirectsIndex;
         #endregion
 
         #region Properties
@@ -89,6 +89,14 @@ namespace vApus.StressTest {
         public uint OffsetInMillisIndex {
             get { return Count < _offsetInMillisIndex ? 0 : _offsetInMillisIndex; }
             set { _offsetInMillisIndex = value; }
+        }
+
+        [SavableCloneable, PropertyControl(9)]
+        [Description("The ONE-BASED index of the syntax item defining if the request redirects. Should only be used in web rule sets."),
+         DisplayName("Redirects index")]
+        public uint RedirectsIndex {
+            get { return Count < _redirectsIndex ? 0 : _redirectsIndex; }
+            set { _redirectsIndex = value; }
         }
         #endregion
 

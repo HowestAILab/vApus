@@ -365,6 +365,11 @@ namespace vApus.StressTest {
                             l.Add(request);
 
                             request.ExecuteInParallelWithPrevious = false;
+                            if (request.Redirects) {
+                                //Does not apply for parallelization.
+                                continue;
+                            }
+
                             if (validateRequestIndex > 1 && _stressTest.UseParallelExecutionOfRequests && (_stressTest.MaximumPersistentConnections == 0 || parallelConnections <= _stressTest.MaximumPersistentConnections)) {
 
                                 if (_stressTest.PersistentConnectionsPerHostname == 0) {
@@ -1221,7 +1226,7 @@ namespace vApus.StressTest {
                     throw (exception);
                 } finally {
                     VirtualUserResult result = runResult.VirtualUserResults[threadIndex];
-                    if (string.IsNullOrEmpty(result.VirtualUser))
+                    if (result.VirtualUser == null)
                         result.VirtualUser = Thread.CurrentThread.Name;
 
                     var requestResult = new RequestResult {

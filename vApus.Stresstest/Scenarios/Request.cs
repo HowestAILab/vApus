@@ -29,6 +29,7 @@ namespace vApus.StressTest {
 
         private int _parallelOffsetInMs;
         private string _hostname;
+        private bool _redirects;
 
         private Request _sameAs;
 
@@ -89,6 +90,17 @@ namespace vApus.StressTest {
             get { return _hostname; }
             set { _hostname = value; }
         }
+
+        /// <summary>
+        /// For parallel executions.
+        /// </summary>
+        [ReadOnly(true)]
+        [SavableCloneable]
+        public bool Redirects {
+            get { return _redirects; }
+            set { _redirects = value; }
+        }
+
 
         /// <summary>
         ///     The maximum index of the token delimiters that can be chosen.
@@ -247,6 +259,7 @@ namespace vApus.StressTest {
 
             request._hostname = _hostname;
             request._parallelOffsetInMs = _parallelOffsetInMs;
+            request._redirects = _redirects;
 
             if (applyRuleSet)
                 request.ApplyScenarioRuleSet(scenarioRuleSet);
