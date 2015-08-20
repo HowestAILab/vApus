@@ -163,7 +163,7 @@ UseParallelExecutionOfRequests, MaximumPersistentConnections, PersistentConnecti
 VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}', '{17}', '{18}', '{19}', '{20}', '{21}')",
                                       _vApusInstanceId, stressTest, runSynchronization, connection, connectionProxy, connectionString.Encrypt(_passwordGUID, _salt), scenarios, scenarioRuleSet,
                                       concurrencies.Combine(", "), runs, initialMinimumDelayInMilliseconds, initialMaximumDelayInMilliseconds, minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, actionDistribution ? 1 : 0,
-                                      maximumNumberOfUserActions, monitorBeforeInMinutes, monitorAfterInMinutes, useParallelExecutionOfRequests, maximumPersistentConnections, persistentConnectionsPerHostname)
+                                      maximumNumberOfUserActions, monitorBeforeInMinutes, monitorAfterInMinutes, useParallelExecutionOfRequests ? 1 : 0, maximumPersistentConnections, persistentConnectionsPerHostname)
                         );
                     _stressTestId = (int)_databaseActions.GetLastInsertId();
                     return _stressTestId;
@@ -557,7 +557,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         l.Add(new KeyValuePair<string, string>("Delay", minDelay == maxDelay ? minDelay + " ms" : minDelay + " - " + maxDelay + " ms"));
                         l.Add(new KeyValuePair<string, string>("Shuffle", ((bool)row.ItemArray[15]) ? "Yes" : "No"));
                         l.Add(new KeyValuePair<string, string>("Action distribution", ((bool)row.ItemArray[16]) ? "Yes" : "No"));
-                        l.Add(new KeyValuePair<string, string>("Maximum number of user actions", ((int)row.ItemArray[17]) == 0 ? "N/A" : ((int)row.ItemArray[15]).ToString()));
+                        l.Add(new KeyValuePair<string, string>("Maximum number of user actions", ((int)row.ItemArray[17]) == 0 ? "N/A" : ((int)row.ItemArray[17]).ToString()));
                         l.Add(new KeyValuePair<string, string>("Monitor before", row.ItemArray[18] + " minutes"));
                         l.Add(new KeyValuePair<string, string>("Monitor after", row.ItemArray[19] + " minutes"));
                         bool useParallelExecutionOfRequests = (bool)row.ItemArray[20];
