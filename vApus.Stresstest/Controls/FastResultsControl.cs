@@ -1,18 +1,17 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
 using vApus.Results;
@@ -124,10 +123,12 @@ namespace vApus.StressTest {
                                      stressTest.InitialMinimumDelay, stressTest.InitialMaximumDelay,
                                      stressTest.MinimumDelay, stressTest.MaximumDelay, stressTest.Shuffle,
                                      stressTest.ActionDistribution, stressTest.MaximumNumberOfUserActions,
-                                     stressTest.MonitorBefore, stressTest.MonitorAfter);
+                                     stressTest.MonitorBefore, stressTest.MonitorAfter, stressTest.UseParallelExecutionOfRequests,
+                                     stressTest.MaximumPersistentConnections, stressTest.PersistentConnectionsPerHostname);
         }
         public void SetConfigurationControlsAndMonitorLinkButtons(string stressTest, Connection connection, string connectionProxy, KeyValuePair<Scenario, uint>[] scenarios, string scenarioRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
-                                             int runs, int initialMinimumDelay, int initialMaximumDelay, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter) {
+                                             int runs, int initialMinimumDelay, int initialMaximumDelay, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter,
+                                             bool useParallelExecutionOfRequests, int maximumPersistentConnections, int persistentConnectionsPerHostname) {
             kvpStressTest.Key = stressTest;
             kvpConnection.Key = connection.ToString();
             kvpConnectionProxy.Key = connectionProxy;
@@ -180,6 +181,14 @@ namespace vApus.StressTest {
             kvpMaximumNumberOfUserActions.Value = maximumNumberOfUserActions == 0 ? "N/A" : maximumNumberOfUserActions.ToString();
             kvpMonitorBefore.Value = monitorBefore + (monitorBefore == 1 ? " minute" : " minutes");
             kvpMonitorAfter.Value = monitorAfter + (monitorAfter == 1 ? " minute" : " minutes");
+
+            if (useParallelExecutionOfRequests) {
+                kvpParallelExecutions.Value = (maximumPersistentConnections == 0 ? "∞" : maximumPersistentConnections.ToString()) + " maximum persistent connections, ";
+                kvpParallelExecutions.Value += (persistentConnectionsPerHostname == 0 ? "∞" : persistentConnectionsPerHostname.ToString()) + " persistent connections per hostname";
+
+            } else {
+                kvpParallelExecutions.Value = "No";
+            }
 
             flpConfiguration.ScrollControlIntoView(pnlScrollConfigTo);
 

@@ -153,16 +153,17 @@ namespace vApus.Results {
         /// <returns>Id of the stress test. 0 if BuildSchemaAndConnect was not called.</returns>
         public int SetStressTest(string stressTest, string runSynchronization, string connection, string connectionProxy, string connectionString, string scenarios, string scenarioRuleSet, int[] concurrencies, int runs,
                                          int initialMinimumDelayInMilliseconds, int initialMaximumDelayInMilliseconds, int minimumDelayInMilliseconds, int maximumDelayInMilliseconds, bool shuffle, bool actionDistribution,
-            int maximumNumberOfUserActions, int monitorBeforeInMinutes, int monitorAfterInMinutes) {
+            int maximumNumberOfUserActions, int monitorBeforeInMinutes, int monitorAfterInMinutes, bool useParallelExecutionOfRequests, int maximumPersistentConnections, int persistentConnectionsPerHostname) {
             lock (_lock) {
                 if (_databaseActions != null) {
                     _databaseActions.ExecuteSQL(
                         string.Format(@"INSERT INTO stresstests(vApusInstanceId, StressTest, RunSynchronization, Connection, ConnectionProxy, ConnectionString, Scenarios, ScenarioRuleSet, Concurrencies, Runs,
-InitialMinimumDelayInMilliseconds, InitialMaximumDelayInMilliseconds, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, ActionDistribution, MaximumNumberOfUserActions, MonitorBeforeInMinutes, MonitorAfterInMinutes)
-VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}', '{17}', '{18}')",
+InitialMinimumDelayInMilliseconds, InitialMaximumDelayInMilliseconds, MinimumDelayInMilliseconds, MaximumDelayInMilliseconds, Shuffle, ActionDistribution, MaximumNumberOfUserActions, MonitorBeforeInMinutes, MonitorAfterInMinutes,
+UseParallelExecutionOfRequests, MaximumPersistentConnections, PersistentConnectionsPerHostname)
+VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{10}', '{11}', '{12}', '{13}', '{14}', '{15}', '{16}', '{17}', '{18}', '{19}', '{20}', '{21}')",
                                       _vApusInstanceId, stressTest, runSynchronization, connection, connectionProxy, connectionString.Encrypt(_passwordGUID, _salt), scenarios, scenarioRuleSet,
                                       concurrencies.Combine(", "), runs, initialMinimumDelayInMilliseconds, initialMaximumDelayInMilliseconds, minimumDelayInMilliseconds, maximumDelayInMilliseconds, shuffle ? 1 : 0, actionDistribution ? 1 : 0,
-                                      maximumNumberOfUserActions, monitorBeforeInMinutes, monitorAfterInMinutes)
+                                      maximumNumberOfUserActions, monitorBeforeInMinutes, monitorAfterInMinutes, useParallelExecutionOfRequests, maximumPersistentConnections, persistentConnectionsPerHostname)
                         );
                     _stressTestId = (int)_databaseActions.GetLastInsertId();
                     return _stressTestId;
@@ -559,6 +560,16 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         l.Add(new KeyValuePair<string, string>("Maximum number of user actions", ((int)row.ItemArray[17]) == 0 ? "N/A" : ((int)row.ItemArray[15]).ToString()));
                         l.Add(new KeyValuePair<string, string>("Monitor before", row.ItemArray[18] + " minutes"));
                         l.Add(new KeyValuePair<string, string>("Monitor after", row.ItemArray[19] + " minutes"));
+                        bool useParallelExecutionOfRequests = (bool)row.ItemArray[20];
+                        if (useParallelExecutionOfRequests) {
+                            int maximumPersistentConnections = (int)row.ItemArray[21];
+                            int persistentConnectionsPerHostname = (int)row.ItemArray[22];
+                            string value = (maximumPersistentConnections == 0 ? "∞" : maximumPersistentConnections.ToString()) + " maximum persistent connections, ";
+                            value += (persistentConnectionsPerHostname == 0 ? "∞" : persistentConnectionsPerHostname.ToString()) + " persistent connections per hostname";
+                            l.Add(new KeyValuePair<string, string>("Parallel connections", value));
+                        } else {
+                            l.Add(new KeyValuePair<string, string>("Parallel connections", "No"));
+                        }
                     }
                 }
                 return l;

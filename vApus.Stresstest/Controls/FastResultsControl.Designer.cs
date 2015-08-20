@@ -53,6 +53,7 @@
             this.kvpMaximumNumberOfUserActions = new vApus.Util.KeyValuePairControl();
             this.kvpMonitorBefore = new vApus.Util.KeyValuePairControl();
             this.kvpMonitorAfter = new vApus.Util.KeyValuePairControl();
+            this.kvpParallelExecutions = new vApus.Util.KeyValuePairControl();
             this.pnlFastResults = new System.Windows.Forms.Panel();
             this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
@@ -195,6 +196,7 @@
             this.flpConfiguration.Controls.Add(this.kvpMaximumNumberOfUserActions);
             this.flpConfiguration.Controls.Add(this.kvpMonitorBefore);
             this.flpConfiguration.Controls.Add(this.kvpMonitorAfter);
+            this.flpConfiguration.Controls.Add(this.kvpParallelExecutions);
             this.flpConfiguration.Location = new System.Drawing.Point(0, 0);
             this.flpConfiguration.Name = "flpConfiguration";
             this.flpConfiguration.Size = new System.Drawing.Size(866, 85);
@@ -421,6 +423,19 @@
             this.kvpMonitorAfter.Tooltip = "Continue monitoring after the test is finished, expressed in minutes with a max o" +
     "f 60.";
             this.kvpMonitorAfter.Value = "";
+            // 
+            // kvpParallelExecutions
+            // 
+            this.kvpParallelExecutions.BackColor = System.Drawing.Color.GhostWhite;
+            this.kvpParallelExecutions.Key = "Parallel executions";
+            this.kvpParallelExecutions.Location = new System.Drawing.Point(529, 39);
+            this.kvpParallelExecutions.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
+            this.kvpParallelExecutions.Name = "kvpParallelExecutions";
+            this.kvpParallelExecutions.Size = new System.Drawing.Size(100, 24);
+            this.kvpParallelExecutions.TabIndex = 21;
+            this.kvpParallelExecutions.TabStop = false;
+            this.kvpParallelExecutions.Tooltip = "Parallel executions of requests.";
+            this.kvpParallelExecutions.Value = "";
             // 
             // pnlFastResults
             // 
@@ -891,6 +906,7 @@
         private System.Windows.Forms.Panel pnlBorderDrillDown;
         private Util.KeyValuePairControl kvpMonitorBefore;
         private Util.KeyValuePairControl kvpMonitorAfter;
+        private Util.KeyValuePairControl kvpParallelExecutions;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkReadable;
         private System.Windows.Forms.DataGridView dgvFastResults;
