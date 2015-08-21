@@ -152,10 +152,10 @@ namespace vApus.StressTest {
             string pre = _prefix, suf = _suffix, value = Value;
             int length;
             if (_fixed == Fixed.Suffix) {
-                length = pre.Length - value.Length + 1;
+                length = Math.Abs(pre.Length - value.Length + 1);
                 pre = (length > 0) ? pre.Substring(0, length) : string.Empty;
             } else if (_fixed == Fixed.Prefix) {
-                length = suf.Length - value.Length + 1;
+                length = Math.Abs(suf.Length - value.Length + 1);
                 suf = (suf.Length - length > 0) ? suf.Substring(suf.Length - length) : string.Empty;
             }
             return pre + value + suf;

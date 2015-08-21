@@ -1651,7 +1651,7 @@ namespace vApus.DistributedTest {
                     publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
 
                     publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
-                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
+                    publishItem.AverageResponseTimeInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
                     publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
                     publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
                     publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
