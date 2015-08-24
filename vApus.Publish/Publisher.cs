@@ -78,6 +78,7 @@ namespace vApus.Publish {
         private static void Publisher_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
             if (Settings.PublisherEnabled && Settings.PublishApplicationLogs && (ushort)e.Entry.Level >= Settings.LogLevel) {
                 var publishItem = new ApplicationLogEntry();
+                publishItem.Init();
                 publishItem.Level = (int)e.Entry.Level;
                 publishItem.Description = e.Entry.Description;
                 publishItem.Exception = e.Entry.Exception.ToString();

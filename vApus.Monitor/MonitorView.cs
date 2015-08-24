@@ -1180,6 +1180,7 @@ namespace vApus.Monitor {
 
                 if (monitorResult.Rows.Count != 0) {
                     var publishItem = new Publish.MonitorMetrics();
+                    publishItem.Init();
                     publishItem.Headers = monitorResult.Headers;
                     publishItem.Headers[0] = "TimestampInMillisecondsSinceEpoch";
 
@@ -1201,6 +1202,7 @@ namespace vApus.Monitor {
         private void PublishConfiguration() {
             if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsConfiguration) {
                 var publishItem = new MonitorConfiguration();
+                publishItem.Init();
                 publishItem.MonitorSource = _monitor.MonitorSourceName;
 
                 var parameters = new List<KeyValuePair<string, string>>();
@@ -1217,6 +1219,7 @@ namespace vApus.Monitor {
         private void PublishHardwareConfiguration() {
             if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsHardwareConfiguration) {
                 var publishItem = new MonitorHardwareConfiguration();
+                publishItem.Init();
                 publishItem.HardwareConfiguration = _hardwareConfiguration;
 
                 Publish.Publisher.Post(_monitor.ToString(), publishItem);

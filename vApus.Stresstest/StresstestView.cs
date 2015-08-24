@@ -979,6 +979,7 @@ namespace vApus.StressTest {
         private void PublishConfiguration() {
             if (Publisher.Settings.PublisherEnabled && Publish.Publisher.Settings.PublishTestsConfiguration) {
                 var publishItem = new StressTestConfiguration();
+                publishItem.Init();
                 publishItem.Description = _stressTest.Description;
                 publishItem.Tags = _stressTest.Tags;
                 publishItem.Connection = _stressTest.Connection.ToString();
@@ -1022,6 +1023,7 @@ namespace vApus.StressTest {
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastConcurrencyResults();
+                    publishItem.Init();
                     publishItem.StartMeasuringTimeInMillisecondsSinceEpochUTC = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                     publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
                     publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
@@ -1054,6 +1056,7 @@ namespace vApus.StressTest {
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastRunResults();
+                    publishItem.Init();
                     publishItem.StartMeasuringTimeInMillisecondsSinceEpochUTC = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                     publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
                     publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
@@ -1086,6 +1089,7 @@ namespace vApus.StressTest {
         private void PublishClientMonitoring() {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
                 var publishItem = new ClientMonitorMetrics();
+                publishItem.Init();
                 publishItem.BusyThreadCount = _stressTestCore == null || _stressTestCore.IsDisposed ? 0 : _stressTestCore.BusyThreadCount;
                 publishItem.CPUUsageInPercent = LocalMonitor.CPUUsage;
                 publishItem.MemoryUsageInMB = LocalMonitor.MemoryUsage;
@@ -1102,6 +1106,7 @@ namespace vApus.StressTest {
         private void PublishMessage(int level, string message) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsMessages && level >= Publisher.Settings.MessageLevel) {
                 var publishItem = new Publish.Message();
+                publishItem.Init();
                 publishItem.Level = level;
                 publishItem.Body = message;
 

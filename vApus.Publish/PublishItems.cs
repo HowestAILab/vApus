@@ -18,16 +18,22 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 namespace vApus.Publish {
-    public abstract class PublishItem {
+    public class PublishItem {
         public static readonly DateTime EpochUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
         /// <summary>
         /// e.g. The tostring() of a stresstest.
         /// </summary>
-        public string PublishItemId { get; internal set; }
-        public string PublishItemType { get { return this.GetType().Name; } }
-        public long PublishItemTimestampInMillisecondsSinceEpochUTC { get { return (long)(DateTime.UtcNow - EpochUtc).TotalMilliseconds; } }
-        public int vApusPID { get { return Process.GetCurrentProcess().Id; } }
+        public string PublishItemId { get; set; }
+        public string PublishItemType { get; set; }
+        public long PublishItemTimestampInMillisecondsSinceEpochUTC { get; set; }
+        public int vApusPID { get; set; }
+
+        public void Init() {
+            PublishItemType = this.GetType().Name;
+            vApusPID = Process.GetCurrentProcess().Id;
+            PublishItemTimestampInMillisecondsSinceEpochUTC = (long)(DateTime.UtcNow - EpochUtc).TotalMilliseconds;
+        }
     }
     public class DistributedTestConfiguration : PublishItem {
         public string Description { get; set; }
@@ -201,7 +207,7 @@ namespace vApus.Publish {
 
     public class MonitorMetrics : PublishItem {
         public string[] Headers { get; set; }
-        public object[] Values;
+        public object[] Values { get; set; }
     }
 
 }

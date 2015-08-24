@@ -1545,6 +1545,7 @@ namespace vApus.DistributedTest {
         private void PublishConfiguration() {
             if (Publisher.Settings.PublisherEnabled && Publish.Publisher.Settings.PublishTestsConfiguration) {
                 var publishItem = new DistributedTestConfiguration();
+                publishItem.Init();
                 publishItem.Description = _distributedTest.Description;
                 publishItem.Tags = _distributedTest.Tags;
                 publishItem.UseRDP = _distributedTest.UseRDP;
@@ -1567,6 +1568,7 @@ namespace vApus.DistributedTest {
         private void PublishTileStressTestConfiguration(Slave slave, TileStressTest usedTileStressTest) {
             if (Publisher.Settings.PublisherEnabled && Publish.Publisher.Settings.PublishTestsConfiguration) {
                 var publishItem = new TileStressTestConfiguration();
+                publishItem.Init();
                 publishItem.Connection = usedTileStressTest.BasicTileStressTest.Connection.ToString();
                 publishItem.ConnectionProxy = usedTileStressTest.BasicTileStressTest.ConnectionProxy;
 
@@ -1623,6 +1625,7 @@ namespace vApus.DistributedTest {
         private void PublishClientMonitoring() {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
                 var publishItem = new ClientMonitorMetrics();
+                publishItem.Init();
                 publishItem.CPUUsageInPercent = LocalMonitor.CPUUsage;
                 publishItem.MemoryUsageInMB = LocalMonitor.MemoryUsage;
                 publishItem.TotalVisibleMemoryInMB = LocalMonitor.TotalVisibleMemory;
@@ -1640,6 +1643,7 @@ namespace vApus.DistributedTest {
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastConcurrencyResults();
+                    publishItem.Init();
                     publishItem.StartMeasuringTimeInMillisecondsSinceEpochUTC = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                     publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
                     publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
@@ -1673,6 +1677,7 @@ namespace vApus.DistributedTest {
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastRunResults();
+                    publishItem.Init();
                     publishItem.StartMeasuringTimeInMillisecondsSinceEpochUTC = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                     publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
                     publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
@@ -1706,6 +1711,7 @@ namespace vApus.DistributedTest {
         private void PublishTileStressTestClientMonitoring(TileStressTest tileStressTest, TestProgressMessage testProgressMessage) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
                 var publishItem = new ClientMonitorMetrics();
+                publishItem.Init();
                 publishItem.BusyThreadCount = testProgressMessage.ThreadsInUse;
                 publishItem.CPUUsageInPercent = testProgressMessage.CPUUsage;
                 publishItem.MemoryUsageInMB = testProgressMessage.MemoryUsage;
@@ -1738,6 +1744,7 @@ namespace vApus.DistributedTest {
         private void PublishMessage(object sender, int level, string message) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsMessages && level >= Publisher.Settings.MessageLevel) {
                 var publishItem = new Publish.Message();
+                publishItem.Init();
                 publishItem.Level = level;
                 publishItem.Body = message;
 
