@@ -208,7 +208,8 @@ namespace vApus.StressTest {
                     while (index != _foundUserActions.Count) {
                         var ua = _scenario[_foundUserActions[index]] as UserAction;
                         var re = ua[_foundRequests[index]] as Request;
-                        re.RequestString = vApus.Util.FindAndReplace.Replace(0, _foundColumns[index], _foundMatchLengths[index], re.RequestString, with);
+                        re.RequestString = vApus.Util.FindAndReplace.Replace(0, _foundColumns[index], _foundMatchLengths[index], re.RequestString.Replace("\n", VBLRn).Replace("\r", VBLRr), with);
+                        re.RequestString.Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                         ++index;
                     }
                     _findIndex = 0;
@@ -216,7 +217,8 @@ namespace vApus.StressTest {
                 } else {
                     var ua = _scenario[_foundUserActions[_findIndex]] as UserAction;
                     var re = ua[_foundRequests[_findIndex]] as Request;
-                    re.RequestString = vApus.Util.FindAndReplace.Replace(0, _foundColumns[_findIndex], _foundMatchLengths[_findIndex], re.RequestString, with);
+                    re.RequestString = vApus.Util.FindAndReplace.Replace(0, _foundColumns[_findIndex], _foundMatchLengths[_findIndex], re.RequestString.Replace("\n", VBLRn).Replace("\r", VBLRr), with);
+                    re.RequestString.Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                 }
 
                 SetScenario();

@@ -160,7 +160,8 @@ namespace vApus.StressTest {
         private void SetLabelChanged() {
             UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
             UserActionTreeViewItem.SetLabel();
-            UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
+            if (UserActionTreeViewItem.UserAction.Label != txtLabel.Text)
+                UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
         private void picMoveUp_Click(object sender, EventArgs e) {
             MoveUserAction(false);
