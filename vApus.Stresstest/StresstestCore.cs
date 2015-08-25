@@ -720,7 +720,8 @@ namespace vApus.StressTest {
                 _threadPool = new StressTestThreadPool(Work);
                 _threadPool.ThreadWorkException += _threadPool_ThreadWorkException;
             }
-            _threadPool.SetThreads(concurrentUsers, _parallelThreads);
+#warning This will not work with UA distribution!
+            _threadPool.SetThreads(concurrentUsers, _parallelThreads *concurrentUsers);
             _sw.Stop();
             InvokeMessage(string.Format("       | ...Thread Pool Set in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             _sw.Reset();
@@ -731,7 +732,8 @@ namespace vApus.StressTest {
             InvokeMessage(string.Format("       |Setting Connections for {0} Concurrent Users...", concurrentUsers));
             _sw.Start();
             try {
-                _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections);
+#warning This will not work with UA distribution!
+                _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections * concurrentUsers); 
                 InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             } catch {
                 throw;
