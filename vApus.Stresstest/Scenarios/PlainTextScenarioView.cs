@@ -89,7 +89,7 @@ namespace vApus.StressTest {
                 sb.Append(userAction.Label);
                 sb.AppendLine("-->");
                 foreach (Request request in userAction)
-                    sb.AppendLine(request.RequestString.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
+                    sb.AppendLine(request.RequestString.Replace("\n", VBLRn).Replace("\r", VBLRr));
             }
 
             fctxt.Text = sb.ToString();
@@ -256,7 +256,7 @@ namespace vApus.StressTest {
                     currentUserAction = new UserAction(s.Substring(userActionBegin.Length, s.Length - 7));
                     _scenario.AddWithoutInvokingEvent(currentUserAction);
                 } else if (currentUserAction != null) {
-                    currentUserAction.AddWithoutInvokingEvent(new Request(s.Replace("\n", VBLRn).Replace("\r", VBLRr)));
+                    currentUserAction.AddWithoutInvokingEvent(new Request(s.Replace(VBLRn, "\n").Replace(VBLRr, "\r")));
                 }
 
             _scenario.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
