@@ -31,6 +31,9 @@ namespace vApus.StressTest {
         private bool _findIgnoreCase = true;
 
         private FindAndReplaceDialog _findAndReplaceDialog;
+
+        private const string VBLRn = "<16 0C 02 12n>";
+        private const string VBLRr = "<16 0C 02 12r>";
         #endregion
 
         #region Constructors
@@ -86,7 +89,7 @@ namespace vApus.StressTest {
                 sb.Append(userAction.Label);
                 sb.AppendLine("-->");
                 foreach (Request request in userAction)
-                    sb.AppendLine(request.RequestString);
+                    sb.AppendLine(request.RequestString.Replace(VBLRn, "\n").Replace(VBLRr, "\r"));
             }
 
             fctxt.Text = sb.ToString();
@@ -253,7 +256,7 @@ namespace vApus.StressTest {
                     currentUserAction = new UserAction(s.Substring(userActionBegin.Length, s.Length - 7));
                     _scenario.AddWithoutInvokingEvent(currentUserAction);
                 } else if (currentUserAction != null) {
-                    currentUserAction.AddWithoutInvokingEvent(new Request(s));
+                    currentUserAction.AddWithoutInvokingEvent(new Request(s.Replace("\n", VBLRn).Replace("\r", VBLRr)));
                 }
 
             _scenario.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);

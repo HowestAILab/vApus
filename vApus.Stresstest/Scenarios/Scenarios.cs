@@ -27,6 +27,9 @@ namespace vApus.StressTest {
         //Do not synchronize the tokens of a scenario that was imported together with parameter data structures. (ImportScenarioAndUsedParameters_Click)
         //The value of a KVP is a parameters collection.
         private List<KeyValuePair<Scenario, object>> _excludeFromSynchronizeTokens = new List<KeyValuePair<Scenario, object>>();
+
+        private const string VBLRn = "<16 0C 02 12n>";
+        private const string VBLRr = "<16 0C 02 12r>";
         #endregion
 
         #region Constructor
@@ -215,13 +218,16 @@ namespace vApus.StressTest {
                             var request = x as Request;
                             for (int i = indexMapLeft1.Length - 1; i != -1; i--) {
                                 List<int> rows, columns, matchLengths;
-                                FindAndReplace.Find(indexMapLeft1[i], request.RequestString, out rows, out columns, out matchLengths, false, true);
+                                string preppedRequestString = request.RequestString.Replace("\n", VBLRn).Replace("\r", VBLRr);
+                                FindAndReplace.Find(indexMapLeft1[i], preppedRequestString, out rows, out columns, out matchLengths, false, true);
                                 if (matchLengths.Count != 0)
-                                    request.RequestString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, request.RequestString, indexMapRight1[i]);
+                                    preppedRequestString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, preppedRequestString, indexMapRight1[i]);
 
-                                FindAndReplace.Find(indexMapLeft2[i], request.RequestString, out rows, out columns, out matchLengths, false, true);
+                                FindAndReplace.Find(indexMapLeft2[i], preppedRequestString, out rows, out columns, out matchLengths, false, true);
                                 if (matchLengths.Count != 0)
-                                    request.RequestString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, request.RequestString, indexMapRight2[i]);
+                                    preppedRequestString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, preppedRequestString, indexMapRight2[i]);
+
+                                request.RequestString = preppedRequestString.Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                             }
                         });
 
