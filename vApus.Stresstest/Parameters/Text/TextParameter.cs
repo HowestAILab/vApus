@@ -1,11 +1,11 @@
-﻿using RandomUtils;
-/*
+﻿/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.ComponentModel;
 using System.Runtime.Serialization;

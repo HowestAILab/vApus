@@ -17,6 +17,8 @@ namespace vApus.Stresstest {
     public partial class PlaintTextLogView : BaseSolutionComponentView {
 
         #region Fields
+        private const string VBLRn = "<16 0C 02 12n>";
+        private const string VBLRr = "<16 0C 02 12r>";
 
         private readonly Log _log;
         private LogRuleSets _logRuleSets;
@@ -86,7 +88,7 @@ namespace vApus.Stresstest {
                 sb.Append(userAction.Label);
                 sb.AppendLine("-->");
                 foreach (LogEntry logEntry in userAction)
-                    sb.AppendLine(logEntry.LogEntryString);
+                    sb.AppendLine(logEntry.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr));
             }
 
             fctxt.Text = sb.ToString();
@@ -253,7 +255,7 @@ namespace vApus.Stresstest {
                     currentUserAction = new UserAction(s.Substring(userActionBegin.Length, s.Length - 7));
                     _log.AddWithoutInvokingEvent(currentUserAction);
                 } else if (currentUserAction != null) {
-                    currentUserAction.AddWithoutInvokingEvent(new LogEntry(s));
+                    currentUserAction.AddWithoutInvokingEvent(new LogEntry(s.Replace(VBLRn, "\n").Replace(VBLRr, "\r")));
                 }
 
             _log.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);

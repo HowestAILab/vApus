@@ -208,7 +208,8 @@ namespace vApus.Stresstest {
                     while (index != _foundUserActions.Count) {
                         var ua = _log[_foundUserActions[index]] as UserAction;
                         var le = ua[_foundLogEntries[index]] as LogEntry;
-                        le.LogEntryString = vApus.Util.FindAndReplace.Replace(0, _foundColumns[index], _foundMatchLengths[index], le.LogEntryString, with);
+                        le.LogEntryString = vApus.Util.FindAndReplace.Replace(0, _foundColumns[index], _foundMatchLengths[index], le.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr), with);
+                        le.LogEntryString = le.LogEntryString.Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                         ++index;
                     }
                     _findIndex = 0;
@@ -216,7 +217,8 @@ namespace vApus.Stresstest {
                 } else {
                     var ua = _log[_foundUserActions[_findIndex]] as UserAction;
                     var le = ua[_foundLogEntries[_findIndex]] as LogEntry;
-                    le.LogEntryString = vApus.Util.FindAndReplace.Replace(0, _foundColumns[_findIndex], _foundMatchLengths[_findIndex], le.LogEntryString, with);
+                    le.LogEntryString = vApus.Util.FindAndReplace.Replace(0, _foundColumns[_findIndex], _foundMatchLengths[_findIndex], le.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr), with);
+                    le.LogEntryString = le.LogEntryString.Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                 }
 
                 SetLog();
