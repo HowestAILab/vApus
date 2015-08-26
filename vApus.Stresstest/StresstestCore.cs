@@ -81,9 +81,9 @@ namespace vApus.StressTest {
         private volatile bool _break, _cancel, _completed, _isFailed, _isDisposed;
         private volatile bool _waitWhenInitializedTheFirstRun = false;
 
-        //Parallel execution / communication to the server app. Not used feature atm.
-        /// <summary> The number of all parallel connections, they will be disposed along the road. </summary>
+        /// <summary> The number of all parallel connections per user. Those are put in the pool in a queue. When needed one is dequeued.</summary>
         private int _parallelConnections;
+        /// <summary> The number of all parallel threads per user. Those are put in the pool in a queue. When needed one is dequeued.</summary>
         private int _parallelThreads;
         #endregion
 
@@ -400,8 +400,8 @@ namespace vApus.StressTest {
                         }
 
                         if (parallelConnections > _parallelConnections) { //Use the number for the "largest" user actions.
-                            _parallelConnections += parallelConnections;
-                            _parallelThreads += parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
+                            _parallelConnections = parallelConnections;
+                            _parallelThreads = parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
                         }
 
                         parallelConnections = parallelThreads = 0;
