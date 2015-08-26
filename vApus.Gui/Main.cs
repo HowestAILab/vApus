@@ -18,6 +18,7 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Forms;
+using vApus.ArgumentsAnalyzer;
 using vApus.Gui.Properties;
 using vApus.Link;
 using vApus.Results;
@@ -80,7 +81,7 @@ namespace vApus.Gui {
                     _firstStepsView.Show(dockPanel);
                 OnActiveSolutionChanged(null);
 
-                string error = ArgumentsAnalyzer.AnalyzeAndExecute(_args);
+                string error = Analyzer.AnalyzeAndExecute(_args);
                 if (error.Length != 0)
                     Loggers.Log(Level.Error, "Argument Analyzer " + error);
 

@@ -8,6 +8,7 @@
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Net.Sockets;
 using System.Runtime.InteropServices;
@@ -19,11 +20,11 @@ using vApus.Link;
 using vApus.SolutionTree;
 using vApus.Util;
 
-namespace vApus.Gui {
+namespace vApus.ArgumentsAnalyzer {
     /// <summary>
     /// Basic vApus CLI stuff.
     /// </summary>
-    internal static class ArgumentsAnalyzer {
+    public static class Analyzer {
 
         #region Delegates
         //Two types each returning a string, if the string equals "" that means there is no error
@@ -45,9 +46,11 @@ namespace vApus.Gui {
 
         /// <summary>
         /// </summary>
-        public static string[] PossibleArguments {
-            get { return new List<string>(_argumentsWithDelegate.Keys).ToArray(); }
+        public static Dictionary<string, string> PossibleArguments {
+            get { return _argumentsWithDescription; }
         }
+
+        public static bool StartApplication { get; private set; }
 
         #endregion
 
@@ -55,33 +58,14 @@ namespace vApus.Gui {
         /// <summary>
         /// Basic vApus CLI stuff.
         /// </summary>
-        static ArgumentsAnalyzer() {
+        static Analyzer() {
             Init();
-            Application.ApplicationExit += (object sender, EventArgs e) => {
-                try {
-                    FreeConsole();
-                } catch (Exception ex) {
-                    Loggers.Log(Level.Warning, "Failed freeing the console.", ex, new object[] { sender, e });
-                }
-            };
         }
         #endregion
 
         #region Functions
 
         #region Public
-        /// <summary>
-        /// Allocates a new console for current process.
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        public static extern Boolean AllocConsole();
-
-        /// <summary>
-        /// Frees the console.
-        /// </summary>
-        [DllImport("kernel32.dll")]
-        public static extern Boolean FreeConsole();
-
         /// <summary>
         ///     Initializes the possible arguments.
         ///     This will be done automatically when first using 'AnalyzeAndExecute'.
@@ -127,6 +111,8 @@ namespace vApus.Gui {
         /// <param name="args"></param>
         /// <returns></returns>
         public static string AnalyzeAndExecute(string[] args) {
+            StartApplication = true;
+
             //If not initialized do this.
             if (_argumentsWithDelegate == null || _argumentsWithDelegate.Count == 0)
                 Init();
@@ -218,15 +204,8 @@ namespace vApus.Gui {
         /// </summary>
         /// <returns></returns>
         private static string About() {
-            AllocConsole();
-
-            Console.ForegroundColor = ConsoleColor.Gray;
-            Console.WriteLine("ABOUT");
-            Console.WriteLine("Developed by Dieter Vandroemme.");
-            Console.WriteLine("(mail: dieter@sizingservers.be)");
-            Console.WriteLine("_____");
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
+            Process.Start(Path.Combine(Application.StartupPath, "vApus.ArgumentsAnalyzer.exe"), "a");
+            Application.Exit();
             return "";
         }
 
@@ -234,35 +213,8 @@ namespace vApus.Gui {
         /// </summary>
         /// <returns></returns>
         private static string Help() {
-            AllocConsole();
-
-            Console.ForegroundColor = ConsoleColor.Gray;
-            var sb = new StringBuilder();
-            Console.WriteLine("HELP");
-            Console.WriteLine("A solution filename must always come first (no argument key needed). -d, -m and -s must always come last.");
-            Console.WriteLine("You can run vApus from a script and feed it directly arguments or you can type them in the console.");
-            Console.WriteLine();
-            Console.WriteLine("Keep in mind that they are sequentialy handled, so if there is an error the remaining arguments will not be interpreted.");
-            Console.WriteLine();
-            Console.WriteLine("Some arguments can have parameters.");
-            Console.WriteLine("The typing of more parameters than needed will not have any effect\non the process of execution.");
-            Console.WriteLine("If you want to use parameters containing spaces, like a filename, encapsulate them with ''.");
-            Console.WriteLine();
-            Console.WriteLine();
-
-            bool otherAlreadyWritten = false;
-            foreach (string s in _argumentsWithDescription.Keys) {
-                if (!s.StartsWith("-") && !otherAlreadyWritten) {
-                    sb.AppendLine();
-                    sb.AppendLine("Other:");
-                    otherAlreadyWritten = true;
-                }
-                sb.AppendLine(s + "\t" + _argumentsWithDescription[s] + "\n");
-            }
-            Console.WriteLine(sb.ToString().Trim());
-            Console.WriteLine("_____");
-            Console.WriteLine();
-            Console.ForegroundColor = ConsoleColor.White;
+            Process.Start(Path.Combine(Application.StartupPath, "vApus.ArgumentsAnalyzer.exe"), "h");
+            Application.Exit();
             return "";
         }
 
