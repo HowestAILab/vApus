@@ -46,7 +46,7 @@ namespace vApus.StressTest {
         /// Multiple scenarios can occur in one test, the (incremental) percentage division is kept here also.
         /// </summary>
         private KeyValuePair<Scenario, KeyValuePair<Request[], float>>[] _requests;
-        private TestableRequest[][] _testableRequests;
+        private TestableRequest[][] _testableRequests; //First index: user. Second: the request
 
         private ResultsHelper _resultsHelper = new ResultsHelper();
         private StressTestResult _stressTestResult;
@@ -353,10 +353,12 @@ namespace vApus.StressTest {
 
                     //Parallel connections, check per user action. Execute with previous is set correctly according to the stress test settings.
                     var connectionsPerHostname = new Dictionary<string, int>();
+                    int parallelConnections = 0;
+                    int parallelThreads = 0;
+
                     var l = new List<Request>();
+
                     foreach (UserAction ua in scenario) {
-                        int parallelConnections = 0;
-                        int parallelThreads = 0;
 
                         int validateRequestIndex = 0; //Only from the third request. After that the second after the previous parallel group.
                         foreach (Request request in ua) {
@@ -397,10 +399,12 @@ namespace vApus.StressTest {
                             ++validateRequestIndex;
                         }
 
-                        if (parallelConnections != 0) {
+                        if (parallelConnections > _parallelConnections) { //Use the number for the "largest" user actions.
                             _parallelConnections += parallelConnections;
                             _parallelThreads += parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
                         }
+
+                        parallelConnections = parallelThreads = 0;
 
                         //Cps and threads are dequeued when used. Make sure that we have enough.
                         connectionsPerHostname.Clear();
@@ -587,7 +591,7 @@ namespace vApus.StressTest {
 
                 //Get all this stuff here, otherwise locking will slow down all following code.
                 var requestIndices = new ConcurrentDictionary<Request, string>();
-                var requestParents = new ConcurrentDictionary<Request, string>();
+                var userActionStrings = new ConcurrentDictionary<Request, string>();
                 string dot = ".", empty = " ", colon = ": ";
 
                 foreach (var kvp in _requests) {
@@ -613,7 +617,7 @@ namespace vApus.StressTest {
                                 var request = userAction[requestIndex] as Request;
 
                                 requestIndices.TryAdd(request, string.Join(dot, scenarioIndex, oneBasedUserActionIndex, requestIndex + 1));
-                                requestParents.TryAdd(request, userActionString);
+                                userActionStrings.TryAdd(request, userActionString);
                             });
                         }
                     });
@@ -663,10 +667,10 @@ namespace vApus.StressTest {
                                 if (request.SameAs != null)
                                     requestIndices.TryGetValue(request.SameAs, out sameAsRequestIndex);
 
-                                string requestParent;
-                                requestParents.TryGetValue(request, out requestParent);
+                                string userActionAlias;
+                                userActionStrings.TryGetValue(request, out userActionAlias);
 
-                                tle[i] = new TestableRequest(requestIndex, sameAsRequestIndex, parameterizedStructureArr[testPatternIndex], requestParent, request.ExecuteInParallelWithPrevious, request.ParallelOffsetInMs, _rerun);
+                                tle[i] = new TestableRequest(requestIndex, sameAsRequestIndex, parameterizedStructureArr[testPatternIndex], userActionAlias, request.ExecuteInParallelWithPrevious, request.ParallelOffsetInMs, _rerun);
                             } catch (Exception ex2) {
                                 Loggers.Log(Level.Error, "Failed at determining test patterns.", ex2);
                                 loopState.Break();
@@ -698,7 +702,7 @@ namespace vApus.StressTest {
                 testPatterns = null;
 
                 requestIndices = null;
-                requestParents = null;
+                userActionStrings = null;
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
@@ -720,8 +724,8 @@ namespace vApus.StressTest {
                 _threadPool = new StressTestThreadPool(Work);
                 _threadPool.ThreadWorkException += _threadPool_ThreadWorkException;
             }
-#warning This will not work with UA distribution!
-            _threadPool.SetThreads(concurrentUsers, _parallelThreads *concurrentUsers);
+
+            _threadPool.SetThreads(concurrentUsers, _parallelThreads * concurrentUsers);
             _sw.Stop();
             InvokeMessage(string.Format("       | ...Thread Pool Set in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             _sw.Reset();
@@ -732,8 +736,7 @@ namespace vApus.StressTest {
             InvokeMessage(string.Format("       |Setting Connections for {0} Concurrent Users...", concurrentUsers));
             _sw.Start();
             try {
-#warning This will not work with UA distribution!
-                _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections * concurrentUsers); 
+                _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections * concurrentUsers);
                 InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
             } catch {
                 throw;
@@ -1156,9 +1159,6 @@ namespace vApus.StressTest {
             /// <param name="parallelOffsetInMs">The offset in ms before this 'parallel request' is executed (this simulates what browsers do).</param>
             /// <param name="rerun">0 for all but Break on last runs (Distributed Testing).</param>
             public TestableRequest(string requestIndex, string sameAsRequestString, StringTree parameterizedRequest, string userAction, bool executeInParallelWithPrevious, int parallelOffsetInMs, int rerun) {
-                if (userAction == null)
-                    throw new ArgumentNullException("userAction");
-
                 RequestIndex = requestIndex;
                 SameAsRequestIndex = sameAsRequestString;
 
