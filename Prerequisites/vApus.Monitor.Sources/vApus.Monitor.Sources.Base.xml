@@ -4,25 +4,6 @@
         <name>vApus.Monitor.Sources.Base</name>
     </assembly>
     <members>
-        <member name="T:vApus.Monitor.Sources.Base.BandwidthTest">
-            <summary>
-            Used in the socket clients.
-            </summary>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BandwidthTest.GetUploadSpeed(System.Net.Sockets.Socket)">
-            <summary>
-            
-            </summary>
-            <param name="socket"></param>
-            <returns>Upload speed in mbps</returns>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BandwidthTest.GetDownloadSpeed(System.Net.Sockets.Socket)">
-            <summary>
-            
-            </summary>
-            <param name="socket"></param>
-            <returns>Download speed in mbps</returns>
-        </member>
         <member name="T:vApus.Monitor.Sources.Base.BaseClient">
             <summary>
             The base to all vApus monitor source clients implementations. A monitor source can be a in house or a third party agent or a device (like a power meter).
@@ -485,14 +466,6 @@
             </summary>
             <param name="expectedResponse">When called in WriteRead(T) this should be the value of write.</param>
             <returns></returns>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.TestBandwidth(System.Double@,System.Double@)">
-            <summary>
-            Gets the bandwidths if connected but not started!
-            You should only do this with one client at a time.
-            </summary>
-            <param name="downloadSpeedInMbps"></param>
-            <param name="uploadSpeedInMbps"></param>
         </member>
         <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Disconnect">
             <summary>

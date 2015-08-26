@@ -188,12 +188,6 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BandwidthDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="BandwidthDialog.Designer.cs">
-      <DependentUpon>BandwidthDialog.cs</DependentUpon>
-    </Compile>
     <Compile Include="Controls\MonitorControl.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -255,9 +249,6 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <EmbeddedResource Include="BandwidthDialog.resx">
-      <DependentUpon>BandwidthDialog.cs</DependentUpon>
-    </EmbeddedResource>
     <EmbeddedResource Include="MonitorView.resx">
       <DependentUpon>MonitorView.cs</DependentUpon>
       <SubType>Designer</SubType>

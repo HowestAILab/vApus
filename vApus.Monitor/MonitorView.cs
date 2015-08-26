@@ -278,7 +278,7 @@ namespace vApus.Monitor {
             }
             lblMonitorSourceMismatch.Visible = false;
 
-            btnGetCounters.Enabled = btnBandwidth.Enabled = false;
+            btnGetCounters.Enabled = false;
             propertyPanel.Lock();
             parameterPanel.Enabled = false;
             split.Panel2.Enabled = btnSetDefaultWiw.Enabled = false;
@@ -371,8 +371,6 @@ namespace vApus.Monitor {
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
                 parameterPanel.Enabled = true;
-
-                btnBandwidth.Enabled = isConnected && exception == null && _monitorSourceClient.GetType().BaseType.BaseType == typeof(BaseSocketClient<string>);
 
                 Cursor = Cursors.Default;
             }, null);
@@ -1163,14 +1161,6 @@ namespace vApus.Monitor {
         }
         #endregion
 
-        private void btnBandwidth_Click(object sender, EventArgs e) {
-            if (_monitorSourceClient.GetType().BaseType.BaseType == typeof(BaseSocketClient<string>)) {
-                _monitorSourceClient.Disconnect();
-                _monitorSourceClient.Connect();
-                new BandwidthDialog(_monitorSourceClient as BaseSocketClient<string>).ShowDialog();
-            }
-        }
-
         #region Publish
         private bool CanPublish() { return Publisher.Settings.PublisherEnabled && _monitorSourceClient != null; }
 
@@ -1250,7 +1240,7 @@ namespace vApus.Monitor {
         }
 
         public bool Start() {
-            split.Panel2.Enabled = btnGetCounters.Enabled = btnBandwidth.Enabled = false;
+            split.Panel2.Enabled = btnGetCounters.Enabled = false;
             propertyPanel.Lock();
             parameterPanel.Enabled = false;
             btnSetDefaultWiw.Enabled = false;
@@ -1383,7 +1373,6 @@ namespace vApus.Monitor {
 
                 split.Panel2.Enabled = true;
                 btnGetCounters.Enabled = true;
-                btnBandwidth.Enabled = _monitorSourceClient.GetType().BaseType.BaseType == typeof(BaseSocketClient<string>);
 
                 propertyPanel.Unlock();
                 parameterPanel.Enabled = true;
