@@ -61,8 +61,6 @@ namespace vApus.Results {
         /// <param name="result"></param>
         /// <param name="timeToCalculate"></param>
         /// <param name="simplified">Only started at, measured time, estimate time left, concurrency, processed requests, requests, errors and StartsAndStopsRuns are put in the metrics object this is true and 
-        /// if calculate95thPercentileResponseTimes == false. If the time to calculate exceeds 3 seconds this is set to true, if calculate95thPercentileResponseTimes == false.</param>
-        /// <param name="calculate95thPercentileResponseTimes"></param>
         /// <returns></returns>
         public static StressTestMetrics GetMetrics(ConcurrencyResult result, ref bool simplified, bool allowSimplifiedMetrics) {
             if (simplified && allowSimplifiedMetrics) return GetSimplifiedMetrics(result);
@@ -174,8 +172,6 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="result"></param>
         /// <param name="simplified">Only started at, measured time, estimate time left, concurrency, run, rerun count, processed requests, requests, errors if this is true and
-        /// if calculate95thPercentileResponseTimes == false. If the time to calculate exceeds 3 seconds this is set to true, if calculate95thPercentileResponseTimes == false.</param>
-        /// <param name="calculate95thPercentileResponseTimes"></param>
         /// <returns></returns>
         public static StressTestMetrics GetMetrics(RunResult result, ref bool simplified, bool allowSimplifiedMetrics) {
             if (allowSimplifiedMetrics && simplified) return GetSimplifiedMetrics(result);
@@ -273,6 +269,8 @@ namespace vApus.Results {
 
             var uniqueUserActions = new HashSet<string>();
             TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
+            RequestResult prevRequestResult = null; //For parallel request calculations
+
             foreach (RequestResult requestResult in result.RequestResults) {
                 if (requestResult != null && requestResult.VirtualUser != null) {
                     ++metrics.RequestsProcessed;
@@ -281,11 +279,19 @@ namespace vApus.Results {
                     var ttlb = new TimeSpan(requestResult.TimeToLastByteInTicks);
                     if (ttlb > metrics.MaxResponseTime) metrics.MaxResponseTime = ttlb;
 
-                    var delay = new TimeSpan(requestResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond);
+                    if (requestResult.InParallelWithPrevious && prevRequestResult != null) { //For parallel requests the total time to last byte in a virtual result is calculated differently. The longest is chosen of a parallel set.
+                        TimeSpan diffTtlb = requestResult.SentAt.Add(ttlb) - prevRequestResult.SentAt.AddTicks(prevRequestResult.TimeToLastByteInTicks);
+                        if (diffTtlb.Ticks > 0L) ttlb = ttlb.Add(diffTtlb);
+                    }
 
                     totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
+
+                    var delay = new TimeSpan(requestResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond);
+
                     totalDelay = totalDelay.Add(delay);
                     if (!string.IsNullOrEmpty(requestResult.Error)) ++metrics.Errors;
+
+                    prevRequestResult = requestResult;
                 }
 
                 if (allowSimplifiedMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
@@ -301,7 +307,7 @@ namespace vApus.Results {
 
                 double div = ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
                 metrics.ResponsesPerSecond = ((double)metrics.RequestsProcessed) / div;
-                metrics.UserActionsPerSecond = ((double)uniqueUserActions.Count) / div;
+                metrics.UserActionsPerSecond = ((double)uniqueUserActions.Count) / div; // Correct for ua distribution?
             }
             return metrics;
         }
@@ -385,7 +391,7 @@ namespace vApus.Results {
                     if (runs > 0 && lastStoppedRun != null)
                         estimatedRuntimeLeft = (lastStoppedRun.StoppedAt - lastStoppedRun.StartedAt).Ticks * runs;
                 }
-            } catch (Exception ex){
+            } catch (Exception ex) {
                 Loggers.Log(Level.Warning, "Failed calculating estimated runtime left.", ex);
             }
             return new TimeSpan(estimatedRuntimeLeft);

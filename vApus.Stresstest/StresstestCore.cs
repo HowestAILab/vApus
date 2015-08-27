@@ -667,10 +667,10 @@ namespace vApus.StressTest {
                                 if (request.SameAs != null)
                                     requestIndices.TryGetValue(request.SameAs, out sameAsRequestIndex);
 
-                                string userActionAlias;
-                                userActionStrings.TryGetValue(request, out userActionAlias);
+                                string userActionString;
+                                userActionStrings.TryGetValue(request, out userActionString);
 
-                                tle[i] = new TestableRequest(requestIndex, sameAsRequestIndex, parameterizedStructureArr[testPatternIndex], userActionAlias, request.ExecuteInParallelWithPrevious, request.ParallelOffsetInMs, _rerun);
+                                tle[i] = new TestableRequest(requestIndex, sameAsRequestIndex, parameterizedStructureArr[testPatternIndex], userActionString, request.ExecuteInParallelWithPrevious, request.ParallelOffsetInMs, _rerun);
                             } catch (Exception ex2) {
                                 Loggers.Log(Level.Error, "Failed at determining test patterns.", ex2);
                                 loopState.Break();
@@ -994,6 +994,7 @@ namespace vApus.StressTest {
                     int pcpIndex = -1;
                     int finished = 0;
                     int delay = 0; //Workaround for the delay after a user action.
+                    var results = new ConcurrentBag<RequestResult>();
 
                     for (int i = 0; i != parallelCount; i++) {
                         _threadPool.DequeueParallelThread().Start(new object[]{ (StressTestThreadPool.WorkItemCallback)((int index) => {
@@ -1006,13 +1007,25 @@ namespace vApus.StressTest {
 
                             try {
                                 //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                                _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], 0, delay);
+                              results.Add(_syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], 0, 0));
                             } catch {
                                 //when stopping a test...
                             }
 
                             if (Interlocked.Increment(ref finished) == parallelCount) pThreadsSignalFinished.Set();
                         }), testableRequestIndex + i});
+                    }
+
+                    if (delay != 0 && !(_cancel || _break)) {
+                        _sleepWaitHandle.WaitOne(delay);
+
+                        RequestResult resultWithDelay = null; //Only one result can store the delay in the database and fast results.
+                        foreach (var result in results) {
+                            if (resultWithDelay == null || result.SentAt.AddTicks(result.TimeToLastByteInTicks) > resultWithDelay.SentAt.AddTicks(resultWithDelay.TimeToLastByteInTicks))
+                                resultWithDelay = result;
+                        }
+
+                        resultWithDelay.DelayInMilliseconds = delay;
                     }
 
                     //Start them all at the same time
@@ -1180,12 +1193,14 @@ namespace vApus.StressTest {
         /// An extra work item class (ThreadStatic) for executing requests in parallel.
         /// </summary>
         private class SyncAndAsyncWorkItem {
-            public void ExecuteRequest(StressTestCore stressTestCore, AutoResetEvent sleepWaitHandle, RunResult runResult, int threadIndex, int testableRequestIndex, TestableRequest testableRequest, IConnectionProxy connectionProxy, int initialDelayInMilliseconds, int delayInMilliseconds) {
+            public RequestResult ExecuteRequest(StressTestCore stressTestCore, AutoResetEvent sleepWaitHandle, RunResult runResult, int threadIndex, int testableRequestIndex, TestableRequest testableRequest, IConnectionProxy connectionProxy, int initialDelayInMilliseconds, int delayInMilliseconds) {
                 if (initialDelayInMilliseconds != 0 && !(stressTestCore._cancel || stressTestCore._break))
                     sleepWaitHandle.WaitOne(initialDelayInMilliseconds);
 
                 if (testableRequest.ExecuteInParallelWithPrevious && testableRequest.ParallelOffsetInMs != 0 & !(stressTestCore._cancel || stressTestCore._break))
                     sleepWaitHandle.WaitOne(testableRequest.ParallelOffsetInMs);
+
+                RequestResult requestResult = null;
 
                 DateTime sentAt = DateTime.Now;
                 var timeToLastByte = new TimeSpan();
@@ -1193,7 +1208,7 @@ namespace vApus.StressTest {
 
                 if (stressTestCore._cancel || stressTestCore._break) {
                     sleepWaitHandle.Set();
-                    return;
+                    return requestResult;
                 }
 
                 //Sleep the offset of parallel requests.
@@ -1234,7 +1249,7 @@ namespace vApus.StressTest {
                     if (result.VirtualUser == null)
                         result.VirtualUser = Thread.CurrentThread.Name;
 
-                    var requestResult = new RequestResult {
+                    requestResult = new RequestResult {
                         VirtualUser = result.VirtualUser,
                         RequestIndex = testableRequest.RequestIndex,
                         SameAsRequestIndex = testableRequest.SameAsRequestIndex,
@@ -1251,9 +1266,10 @@ namespace vApus.StressTest {
 
                     runResult.VirtualUserResults[threadIndex] = result;
 
-
                     if (delayInMilliseconds != 0 && !(stressTestCore._cancel || stressTestCore._break)) sleepWaitHandle.WaitOne(delayInMilliseconds);
                 }
+
+            return requestResult;
             }
         }
     }
