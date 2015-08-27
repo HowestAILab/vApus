@@ -209,7 +209,7 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "TimeToLastByteInTicks", "DelayInMilliseconds", "RunResultId");
+            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "InParallelWithPrevious", "TimeToLastByteInTicks", "DelayInMilliseconds", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
                 data.TryAdd("requestresults" + i, parts[i]);
@@ -325,19 +325,23 @@ namespace vApus.Results {
                             if (cancellationToken.IsCancellationRequested) return null;
 
                             long ttlb = 0;
-                            int delay = -1;
+                            int delay = 0;
 
                             var rers = kvp.Value;
 
-                            for (int j = rers.Count - 1; j != -1; j--) {
+                            RequestResult prevRequestResult = null; //For parallel request calculations
+                            for (int j = 0; i != rers.Count; j++) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 var rer = rers[j];
-                                if (delay == -1) {
-                                    delay = rer.DelayInMilliseconds;
-                                    ttlb = rer.TimeToLastByteInTicks;
+
+                                if (rer.DelayInMilliseconds != 0) delay = rer.DelayInMilliseconds;
+
+                                if (rer.InParallelWithPrevious && prevRequestResult != null) { //For parallel requests the total time to last byte in a virtual result is calculated differently. The longest time counts for a parallel set.
+                                    long diffTtlb = (rer.SentAt.AddTicks(rer.TimeToLastByteInTicks) - prevRequestResult.SentAt.AddTicks(prevRequestResult.TimeToLastByteInTicks)).Ticks;
+                                    if (diffTtlb > 0.0) ttlb += diffTtlb;
                                 } else {
-                                    ttlb += rer.TimeToLastByteInTicks + rer.DelayInMilliseconds;
+                                    ttlb += rer.TimeToLastByteInTicks;
                                 }
                             }
                             userActionResultsList.Add(ttlb);

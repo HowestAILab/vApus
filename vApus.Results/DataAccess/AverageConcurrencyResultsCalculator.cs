@@ -83,7 +83,7 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "VirtualUser", "UserAction", "RequestIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
+            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "VirtualUser", "UserAction", "RequestIndex", "InParallelWithPrevious", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
                 data.TryAdd("requestresults" + i, parts[i]);
@@ -191,7 +191,7 @@ namespace vApus.Results {
 
                                         requestResults[virtualUser].Add(new RequestResult() {
                                             VirtualUser = virtualUser, UserAction = rerRow["UserAction"] as string, RequestIndex = rerRow["RequestIndex"] as string,
-                                            TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"], Error = (long)rerRow["Error"] == 0 ? null : "-" 
+                                            InParallelWithPrevious = (bool)rerRow["InParallelWithPrevious"], TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"], Error = (long)rerRow["Error"] == 0 ? null : "-" 
                                         });
                                     }
                                     );

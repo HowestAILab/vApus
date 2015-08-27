@@ -59,7 +59,7 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "SameAsRequestIndex", "RequestIndex", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
+            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "SameAsRequestIndex", "RequestIndex", "InParallelWithPrevious", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
                 data.TryAdd("requestresults" + i, parts[i]);
@@ -148,7 +148,7 @@ namespace vApus.Results {
                                         }
 
                                         var requestResult = new RequestResult() {
-                                            RequestIndex = requestIndex, TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"],
+                                            RequestIndex = requestIndex, InParallelWithPrevious = (bool)rerRow["InParallelWithPrevious"], TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"],
                                             Error = (long)rerRow["Error"] == 0 ? null : "-"
                                         };
 
@@ -201,23 +201,27 @@ namespace vApus.Results {
                             if (cancellationToken.IsCancellationRequested) return null;
 
                             double ttlb = 0;
-                            int delay = -1;
+                            int delay = 0;
                             long ers = 0;
 
                             string userAction = kvp.Key;
                             var rers = kvp.Value;
 
-                            for (int j = rers.Count - 1; j != -1; j--) {
-                                //if (cancellationToken.IsCancellationRequested) loopState.Break();
+                            RequestResult prevRequestResult = null; //For parallel request calculations
+                            for (int j = 0; i != rers.Count; j++) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 var rer = rers[j];
-                                if (delay == -1) {
-                                    delay = rer.DelayInMilliseconds;
-                                    ttlb = rer.TimeToLastByteInTicks;
+
+                                if (rer.DelayInMilliseconds != 0) delay = rer.DelayInMilliseconds;
+
+                                if (rer.InParallelWithPrevious && prevRequestResult != null) { //For parallel requests the total time to last byte in a virtual result is calculated differently. The longest time counts for a parallel set.
+                                    double diffTtlb = (rer.SentAt.AddTicks(rer.TimeToLastByteInTicks) - prevRequestResult.SentAt.AddTicks(prevRequestResult.TimeToLastByteInTicks)).Ticks;
+                                    if (diffTtlb > 0.0) ttlb += diffTtlb;
                                 } else {
-                                    ttlb += rer.TimeToLastByteInTicks + rer.DelayInMilliseconds;
+                                    ttlb += rer.TimeToLastByteInTicks;
                                 }
+
                                 if (!string.IsNullOrEmpty(rer.Error)) ++ers;
                             }
                             userActionResultsList.Add(new object[] { userAction, ttlb, delay, ers });
