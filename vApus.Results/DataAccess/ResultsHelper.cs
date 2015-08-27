@@ -359,6 +359,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     sb.Append("', '");
                                     sb.Append(MySQLEscapeString(requestResult.Request));
                                     sb.Append("', '");
+                                    sb.Append(requestResult.InParallelWithPrevious ? 1 : 0);
+                                    sb.Append("', '");
                                     sb.Append(Parse(requestResult.SentAt));
                                     sb.Append("', '");
                                     sb.Append(requestResult.TimeToLastByteInTicks);
@@ -373,14 +375,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     sb.Clear();
 
                                     if (rowsToInsert.Count == 100) {
-                                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
                                             rowsToInsert.Combine(", ")));
                                         rowsToInsert.Clear();
                                     }
                                 }
 
                             if (rowsToInsert.Count != 0)
-                                _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                                _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
                                 rowsToInsert.Combine(", ")));
                         }
                     }
@@ -446,7 +448,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public void AddMessageInMemory(int level, string message) {
             if (GetvApusInstanceId() > 0 && _databaseActions != null)
                 lock (_lock)
-                    _messages.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", GetvApusInstanceId(), Parse(DateTime.Now), level, message));
+                    _messages.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", GetvApusInstanceId(), Parse(DateTime.Now), level, message.Replace("\r", "_").Replace("\n", "_")));
         }
         /// <summary>
         /// Add the messages stored in memory to the database. Do this only for distributed tests in the core.

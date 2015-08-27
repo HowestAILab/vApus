@@ -279,10 +279,12 @@ namespace vApus.Results {
                     uniqueUserActions.Add(requestResult.UserAction);
 
                     var ttlb = new TimeSpan(requestResult.TimeToLastByteInTicks);
-                    totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
                     if (ttlb > metrics.MaxResponseTime) metrics.MaxResponseTime = ttlb;
 
-                    totalDelay = totalDelay.Add(new TimeSpan(requestResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
+                    var delay = new TimeSpan(requestResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond);
+
+                    totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
+                    totalDelay = totalDelay.Add(delay);
                     if (!string.IsNullOrEmpty(requestResult.Error)) ++metrics.Errors;
                 }
 

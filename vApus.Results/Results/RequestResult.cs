@@ -22,6 +22,7 @@ namespace vApus.Results {
         public string SameAsRequestIndex { get; set; }
 
         public string Request { get; set; }
+        public bool InParallelWithPrevious { get; set; }
         public DateTime SentAt { get; set; }
         public long TimeToLastByteInTicks { get; set; }
         /// <summary>

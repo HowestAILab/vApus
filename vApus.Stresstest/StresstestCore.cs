@@ -993,17 +993,20 @@ namespace vApus.StressTest {
 
                     int pcpIndex = -1;
                     int finished = 0;
+                    int delay = 0; //Workaround for the delay after a user action.
 
                     for (int i = 0; i != parallelCount; i++) {
                         _threadPool.DequeueParallelThread().Start(new object[]{ (StressTestThreadPool.WorkItemCallback)((int index) => {
                               
                             if (_syncAndAsyncWorkItem == null) _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
 
+                            if (delaysInMilliseconds[index] > delay) delay = delaysInMilliseconds[index];
+
                             pThreadsSignalStart.WaitOne();
 
                             try {
                                 //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                                _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], 0, delaysInMilliseconds[index]);
+                                _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], 0, delay);
                             } catch {
                                 //when stopping a test...
                             }
@@ -1236,6 +1239,7 @@ namespace vApus.StressTest {
                         RequestIndex = testableRequest.RequestIndex,
                         SameAsRequestIndex = testableRequest.SameAsRequestIndex,
                         Request = testableRequest.ParameterizedRequestString,
+                        InParallelWithPrevious = testableRequest.ExecuteInParallelWithPrevious,
                         UserAction = testableRequest.UserAction,
                         SentAt = sentAt,
                         TimeToLastByteInTicks = timeToLastByte.Ticks,
