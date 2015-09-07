@@ -349,7 +349,7 @@ namespace vApus.Results {
         /// <param name="databaseActions"></param>
         /// <param name="where"></param>
         /// <param name="runResultIds">If only one Id is given for a tests divided over multiple stress tests those will be found and combined for you.</param>
-        /// <param name="selectColumns">If none given all columns are selected.</param>
+        /// <param name="selectColumns">If none given all columns are selected. Id and VirtualUser must always be included.</param>
         /// <returns></returns>
         private static DataTable GetRequestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
             if (GetRunResultIdsAndSiblings(cancellationToken, databaseActions, runResultIds).Length == runResultIds.Length) {//No divided stress tests, so we can immediatly return results.
@@ -418,7 +418,7 @@ namespace vApus.Results {
                                     }
 
                                     if (runResultIdIndex != -1 && correctRunResultId == 0)
-                                        correctRunResultId = (int)row.ItemArray[correctRunResultId];
+                                        correctRunResultId = (int)row.ItemArray[runResultIdIndex];
                                 }
                         }
                     }
@@ -754,7 +754,7 @@ namespace vApus.Results {
                 dt = databaseActions.GetDataTable(
                     string.Format("Select {0} From requestresults Where RunResultId In({1}){2};", GetValidSelect(selectColumns), formattedRunResultIds, GetValidWhere(where, false)));
 
-                if (dictStressTestRunResults.Keys.Count() == 1) { //No expensive copying needed.
+                if (runResultIds.Length == 1) { //No expensive copying needed.
                     string stressTest = dictStressTestRunResults.GetKeyAt(0);
                     dict.Add(stressTest, new List<DataTable>());
                     dict[stressTest].Add(dt);
@@ -770,14 +770,14 @@ namespace vApus.Results {
                         foreach (DataTable rrDt in dictStressTestRunResults[stressTest]) {
                             if (cancellationToken.IsCancellationRequested) return null;
 
-                            var emptyCopy = dt.Clone();
+                            var copy = dt.Clone();
                             foreach (DataRow row in rrDt.Rows)
                                 foreach (DataRow toAdd in allRows)
                                     if (toAdd["RunResultId"].Equals(row["Id"]))
-                                        emptyCopy.ImportRow(toAdd);
+                                        copy.ImportRow(toAdd);
 
-                            if (emptyCopy.Rows.Count != 0)
-                                dict[stressTest].Add(emptyCopy);
+                            if (copy.Rows.Count != 0)
+                                dict[stressTest].Add(copy);
                         }
                         if (dict[stressTest].Count == 0) dict.Remove(stressTest);
                     }

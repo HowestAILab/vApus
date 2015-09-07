@@ -470,7 +470,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// </summary>
         /// <returns></returns>
         private int GetvApusInstanceId() {
-            if (_vApusInstanceId == -1 && _databaseActions != null)
+            if (_databaseActions != null && !string.IsNullOrEmpty(_databaseName)) {
                 lock (_lock) {
                     var dt = ReaderAndCombiner.GetvApusInstances(_databaseActions);
 
@@ -483,6 +483,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         }
 
                 }
+            } else {
+                _vApusInstanceId = -1;
+            }
             return _vApusInstanceId;
         }
 

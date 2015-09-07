@@ -59,7 +59,7 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetRequestResultsThreaded(databaseActions, cancellationToken, runResults, 4, "Rerun", "VirtualUser", "UserAction", "SameAsRequestIndex", "RequestIndex", "InParallelWithPrevious", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
+            DataTable[] parts = GetRequestResultsPerRunThreaded(databaseActions, cancellationToken, runResults, 4, "Id", "Rerun", "VirtualUser", "UserAction", "SameAsRequestIndex", "RequestIndex", "InParallelWithPrevious", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
                 data.TryAdd("requestresults" + i, parts[i]);
@@ -208,7 +208,7 @@ namespace vApus.Results {
                             var rers = kvp.Value;
 
                             RequestResult prevRequestResult = null; //For parallel request calculations
-                            for (int j = 0; i != rers.Count; j++) {
+                            for (int j = 0; j != rers.Count; j++) {
                                 if (cancellationToken.IsCancellationRequested) return null;
 
                                 var rer = rers[j];

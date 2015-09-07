@@ -31,15 +31,15 @@ namespace vApus.Results {
         /// <returns>Label and data table</returns>
         protected abstract ConcurrentDictionary<string, DataTable> GetData(DatabaseActions databaseActions, CancellationToken cancellationToken, params int[] stressTestIds);
         /// <summary>
-        /// 
+        /// Get data tables per run. It is possible that one data table has requests with different run result ids, because of combining homogeneous results. Take this into account!
         /// </summary>
         /// <param name="databaseActions"></param>
         /// <param name="cancellationToken"></param>
         /// <param name="runResults"></param>
-        /// <param name="threads"></param>
+        /// <param name="threads">The number of threads that should be used to query the database.</param>
         /// <param name="columns"></param>
         /// <returns></returns>
-        protected DataTable[] GetRequestResultsThreaded(DatabaseActions databaseActions, CancellationToken cancellationToken, DataTable runResults, int threads, params string[] columns) {
+        protected DataTable[] GetRequestResultsPerRunThreaded(DatabaseActions databaseActions, CancellationToken cancellationToken, DataTable runResults, int threads, params string[] columns) {
             int runCount = runResults.Rows.Count;
 
             //Adaptive parallelization.

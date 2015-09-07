@@ -114,7 +114,7 @@ namespace vApus.StressTest {
 
             for (int i = 0; i < parallelThreadCount; i++) {
                 var t = new Thread(DoParallelWork);
-                t.Name = "vApus Thread Pool Thread #" + (i + 1) + " (Parallel)";
+                t.Name = "vApus Thread Pool Thread #" + (count + i + 1);
                 t.IsBackground = true;
                 _parallelThreads.Enqueue(t);
             }
