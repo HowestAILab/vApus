@@ -457,6 +457,8 @@ namespace vApus.StressTest {
             }
 
             var newScenario = scenario.Clone(false, false, false, false);
+            newScenario.Label = scenario.ToString(); //Workaround for the wrong numbering in the user action in requestresults.
+            newScenario.SetTag(scenario.Index); //Same.
             var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
             foreach (UserAction action in scenario) {
                 if (_cancel) return null;
@@ -596,10 +598,8 @@ namespace vApus.StressTest {
 
                 foreach (var kvp in _requests) {
                     Scenario scenario = kvp.Key;
-                    int scenarioIndex = scenario.Index;
-                    string scenarioString = string.Join(empty, "Scenario", scenarioIndex);
-                    if (scenario.Label != string.Empty)
-                        scenarioString = string.Join(colon, scenarioString, scenario.Label);
+                    int scenarioIndex = (int)scenario.GetTag();
+                    string scenarioString = scenario.Label; //Previously worked around the otherwise 'wrong' scenario index in the tostring. 
 
                     Parallel.For(0, scenario.Count, (userActionIndex, loopState) => {
                         if (_cancel) loopState.Break();
@@ -1269,7 +1269,7 @@ namespace vApus.StressTest {
                     if (delayInMilliseconds != 0 && !(stressTestCore._cancel || stressTestCore._break)) sleepWaitHandle.WaitOne(delayInMilliseconds);
                 }
 
-            return requestResult;
+                return requestResult;
             }
         }
     }
