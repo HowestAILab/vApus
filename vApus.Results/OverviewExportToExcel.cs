@@ -17,6 +17,7 @@ using System.Text;
 using System.Threading;
 using System.Windows.Forms;
 using vApus.Util;
+using System.Linq;
 
 namespace vApus.Results {
     public static class OverviewExportToExcel {
@@ -324,7 +325,7 @@ namespace vApus.Results {
 
                     int[] temp = new int[addExtraColumns.Count];
                     addExtraColumns.Keys.CopyTo(temp, 0);
-                    var keys = temp.OrderByDescending(1);
+                    var keys = temp.OrderByDescending(x => x);
                     foreach (int key in keys) {
                         string prefix = copy.Columns[key - 1].ColumnName + "_";
                         for (int j = 0; j != addExtraColumns[key]; j++) {

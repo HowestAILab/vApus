@@ -26,13 +26,13 @@ namespace vApus.Util {
     }
 
     /// <summary>
-    ///     The sizemode of a control in the LargeList.
+    /// The size mode of a control in the LargeList.
     /// </summary>
     public enum SizeMode {
         Normal = 0,
 
         /// <summary>
-        ///     Stretch the control horizontal en vertical.
+        /// Stretch the control horizontal en vertical.
         /// </summary>
         Stretch,
         StretchHorizontal,
@@ -42,8 +42,8 @@ namespace vApus.Util {
     #endregion
 
     /// <summary>
-    ///     This control is actualy an advanced pager which can contain 134 217 728 controls.
-    ///     Most common functionality is implemented and a few other features.
+    ///<para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
+    ///<para>Most common functionality is implemented and a few other features.</para>
     /// </summary>
     public partial class LargeList : UserControl, IEnumerable<List<Control>> {
         [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
@@ -52,12 +52,12 @@ namespace vApus.Util {
         #region Events
 
         /// <summary>
-        ///     Occurs after a new view is loaded in de Gui.
+        /// Occurs after a new view / page is loaded in de Gui.
         /// </summary>
         public event EventHandler<AfterSwithViewsEventArgs> AfterViewSwitch;
 
         /// <summary>
-        ///     Occurs when the selection of controls changes.
+        /// Occurs when the selection of controls changes.
         /// </summary>
         public event EventHandler<SelectionChangedEventArgs> SelectionChanged;
 
@@ -69,19 +69,12 @@ namespace vApus.Util {
 
         #region Fields
 
-        /// <summary>
-        ///     The maximum capacity for one list of controls. The maximum assignable memory is 2^32 bit, the size of a pointer is 32 bit.
-        ///     This is also the maximum controls the largelist can contain, to make operations like sorting easier. On the other hand, having a List<List
-        ///     <Control>
-        ///         > makes the logic easier.
-        ///         This is still a max of 134 217 728 controls.
-        /// </summary>
         private const int MAXCAPACITY = int.MaxValue / 32;
 
         private readonly object _lock = new object();
 
         /// <summary>
-        ///     A list with the scrollvalue to know which value has wich view.
+        /// A list with the scrollvalue to know which value has which view / page.
         /// </summary>
         private readonly List<int> _scrollValues = new List<int>();
 
@@ -89,20 +82,17 @@ namespace vApus.Util {
 
         private KeyValuePair<int, int> _beginOfSelection = new KeyValuePair<int, int>(-1, -1);
 
-        /// <summary>
-        ///     Extra variable for performance.
-        /// </summary>
         private int _controlCount;
 
         /// <summary>
-        ///     A list of lists with all the controls, one list per view.
+        /// A list of lists with all the controls, one list per view.
         /// </summary>
         private List<List<Control>> _controls = new List<List<Control>>();
 
         private int _currentView;
 
         /// <summary>
-        ///     The height for drawing the controls.
+        /// The height for drawing the controls.
         /// </summary>
         private int _drawHeight;
 
@@ -111,17 +101,16 @@ namespace vApus.Util {
         private Control _lastClickedControl;
 
         /// <summary>
-        ///     The previous height for the resizing, if it is equal, nothing must be done.
+        /// The previous height for the resizing, if it is equal, nothing must be done.
         /// </summary>
         private int _previousHeight;
 
         /// <summary>
-        ///     Selection
         /// </summary>
         private List<Control> _selection = new List<Control>();
 
         /// <summary>
-        ///     Sizing the controls
+        /// Sizing the controls
         /// </summary>
         private SizeMode _sizeMode;
 
@@ -134,67 +123,67 @@ namespace vApus.Util {
         #region Properties
 
         /// <summary>
-        ///     Returns the number of views.
+        /// Returns the number of views.
         /// </summary>
         public int ViewCount {
             get { return _controls.Count; }
         }
 
         /// <summary>
-        ///     Returns the number of controls.
+        /// Returns the number of controls.
         /// </summary>
         public int ControlCount {
             get { return _controlCount; }
         }
 
         /// <summary>
-        ///     The active control if any.
+        /// The active control if any.
         /// </summary>
         public new Control ActiveControl {
             get { return _activeControl; }
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
         public Control LastClickedControl {
             get { return _lastClickedControl; }
         }
 
         /// <summary>
-        ///     The total selection.
         /// </summary>
         public List<Control> Selection {
             get { return _selection; }
         }
 
         /// <summary>
-        ///     Gets the view(key) and index(value) of the first control in the selection.
+        /// Gets the view(key) and index(value) of the first control in the selection.
         /// </summary>
         public KeyValuePair<int, int> BeginOfSelection {
             get { return _beginOfSelection; }
         }
 
         /// <summary>
-        ///     Gets the view(key) and index(value) of the last control in the selection.
+        /// Gets the view(key) and index(value) of the last control in the selection.
         /// </summary>
         public KeyValuePair<int, int> EndOfSelection {
             get { return _endOfSelection; }
         }
 
         /// <summary>
-        ///     The current view.
         /// </summary>
         public int CurrentView {
             get { return _currentView; }
         }
 
         /// <summary>
-        ///     The number of controls in the current view.
         /// </summary>
         public int NumberOfControlsInCurrentView {
             get { return flpnl.Controls.Count; }
         }
 
         /// <summary>
-        ///     Sets or gets a view.
+        /// Sets or gets a view.
         /// </summary>
         /// <param name="view"></param>
         /// <returns></returns>
@@ -207,7 +196,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Gets or Sets the sizemode for the controls who aren't autosizing.
+        ///  Gets or Sets the size mode for the controls who aren't autosizing.
         /// </summary>
         public SizeMode SizeMode {
             get { return _sizeMode; }
@@ -240,7 +229,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Enumerates all controls over all views.
+        /// To Enumerate all controls over all views.
         /// </summary>
         public IEnumerable<Control> AllControls {
             get {
@@ -255,16 +244,16 @@ namespace vApus.Util {
         #region Constructor
 
         /// <summary>
-        ///     This control is actualy an advanced pager which can contain 134 217 728 controls.
-        ///     Most common functionality is implemented and a few other features.
+        ///<para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
+        ///<para>Most common functionality is implemented and a few other features.</para>
         /// </summary>
         public LargeList() {
             InitializeComponent();
         }
 
         /// <summary>
-        ///     This control is actualy an advanced pager which can contain 134 217 728 controls.
-        ///     Most common functionality is implemented and a few other features.
+        ///<para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
+        ///<para>Most common functionality is implemented and a few other features.</para>
         /// </summary>
         /// <param name="controls"></param>
         public LargeList(List<Control> controls)
@@ -275,8 +264,8 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     This control is actualy an advanced pager which can contain 134 217 728 controls.
-        ///     Most common functionality is implemented and a few other features.
+        ///<para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
+        ///<para>Most common functionality is implemented and a few other features.</para>
         /// </summary>
         /// <param name="controls"></param>
         public LargeList(List<List<Control>> controls)
@@ -321,7 +310,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Adds a control.
         /// </summary>
         /// <param name="control"></param>
         public void Add(Control control) {
@@ -392,7 +380,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Size according to the size mode if the AutoSize property == false, do this when adding a control to the flpnl.
+        /// Size according to the size mode if the AutoSize property == false, do this when adding a control to the flpnl.
         /// </summary>
         /// <param name="control"></param>
         private void SizeControl(Control control) {
@@ -420,7 +408,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Size according to the size mode, do this when adding a range of controls to the flpnl.
+        /// Size according to the size mode, do this when adding a range of controls to the flpnl.
         /// </summary>
         /// <param name="controls"></param>
         private void SizeControls(List<Control> controls) {
@@ -429,7 +417,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Adds a range of controls.
         /// </summary>
         /// <param name="controls"></param>
         public void AddRange(List<Control> controls) {
@@ -451,7 +438,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Adds a range of controls.
         /// </summary>
         /// <param name="controls"></param>
         private void AddRange(List<List<Control>> controls) {
@@ -459,7 +445,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Adds a range of controls.
         /// </summary>
         /// <param name="controls"></param>
         /// <param name="refresh"></param>
@@ -471,7 +456,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Clears the controls.
         /// </summary>
         public void Clear() {
             LockWindowUpdate(Handle);
@@ -498,7 +482,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Returns if the LargeList contains the given control.
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
@@ -510,7 +493,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Go from a flat index to a usable index for the largelist (handy for inserting / removing controls and all that)
+        /// Go from a flat index to a usable index for the largelist (handy for inserting / removing controls and all that)
         /// </summary>
         /// <param name="index"></param>
         /// <returns>kvp(-1,-1) if not found.</returns>
@@ -526,7 +509,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Go from a usable index to a flat one, you can increment this for instance and parse it to a usable one again.
+        /// Go from a usable index to a flat one, you can increment this for instance and parse it to a usable one again.
         /// </summary>
         /// <param name="index"></param>
         /// <returns></returns>
@@ -552,7 +535,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Gets the view(index) and the index(value) in view of the given control. -1 for both if not found.
+        /// Gets the view(index) and the index(value) in view of the given control. -1 for both if not found.
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
@@ -565,6 +548,11 @@ namespace vApus.Util {
             ;
         }
 
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="control"></param>
+        /// <returns></returns>
         public int FlatIndexOf(Control control) {
             int index = -1;
             for (int i = 0; i < _controls.Count; i++)
@@ -577,21 +565,21 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Inserts a control in a specified view(key) and at a specified index(value) in the view.
+        /// Inserts a control in a specified view(key) and at a specified index(value) in the view.
         /// </summary>
         /// <param name="control"></param>
-        /// <param name="?"></param>
+        /// <param name="index"></param>
         public void Insert(Control control, KeyValuePair<int, int> index) {
             Insert(control, index, true);
         }
 
         /// <summary>
-        ///     Inserts a control in a specified view(key) and at a specified index(value) in the view.
+        /// Inserts a control in a specified view(key) and at a specified index(value) in the view.
         /// </summary>
         /// <param name="control"></param>
         /// <param name="index"></param>
         /// <param name="refresh"></param>
-        public void Insert(Control control, KeyValuePair<int, int> index, bool refresh) {
+        public void Insert(Control control, KeyValuePair<int, int> index, bool refresh = true) {
             _controls[index.Key].Insert(index.Value, control);
             switch (refresh) {
                 case true:
@@ -606,7 +594,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Inserts a range of controls in a specified view(key) and at a specified index(value) in the view.
+        /// Inserts a range of controls in a specified view(key) and at a specified index(value) in the view.
         /// </summary>
         /// <param name="controls"></param>
         /// <param name="index"></param>
@@ -620,7 +608,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Returns the previous control if any, else null is returned.
+        /// Returns the previous control if any, else null is returned.
         /// </summary>
         /// <param name="control"></param>
         public Control PreviousControl(Control control) {
@@ -637,7 +625,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Returns the previous control if any, else null is returned.
+        /// Returns the next control if any, else null is returned.
         /// </summary>
         /// <param name="control"></param>
         public Control NextControl(Control control) {
@@ -653,7 +641,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Puts one control above another.
         /// </summary>
         /// <param name="control1"></param>
         /// <param name="control2"></param>
@@ -662,7 +649,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Puts one control above another.
         /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
@@ -671,7 +657,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Puts one control below another.
         /// </summary>
         /// <param name="control1"></param>
         /// <param name="control2"></param>
@@ -680,7 +665,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Puts one control below another.
         /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
@@ -724,7 +708,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Puts a range of controls above a specified control.
         /// </summary>
         /// <param name="range">Can be for instance 'LargeList.Selection'</param>
         /// <param name="control"></param>
@@ -733,7 +716,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Puts a range of controls above a specified control.
         /// </summary>
         /// <param name="beginRangeIndex"></param>
         /// <param name="endRangeIndex"></param>
@@ -745,7 +727,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Puts a range of controls below a specified control.
         /// </summary>
         /// <param name="range">Can be for instance 'LargeList.Selection'</param>
         /// <param name="control"></param>
@@ -754,7 +735,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Puts a range of controls below a specified control.
         /// </summary>
         /// <param name="beginRangeIndex"></param>
         /// <param name="endRangeIndex"></param>
@@ -814,7 +794,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     To get a range of controls.
         /// </summary>
         /// <param name="beginRangeIndex"></param>
         /// <param name="endRangeIndex"></param>
@@ -851,6 +830,9 @@ namespace vApus.Util {
             return range;
         }
 
+        /// <summary>
+        /// Refreshes the GUI. This should be done last.
+        /// </summary>
         public void RefreshControls() {
             if (this.Height == 0) return;
 
@@ -886,7 +868,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Removes a control.
         /// </summary>
         /// <param name="control"></param>
         public void Remove(Control control) {
@@ -894,7 +875,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Removes a control.
         /// </summary>
         /// <param name="control"></param>
         /// <param name="refresh"></param>
@@ -924,14 +904,12 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Removes all controls.
         /// </summary>
         public void RemoveAll() {
             Clear();
         }
 
         /// <summary>
-        ///     Removes a control at a specified index.
         /// </summary>
         /// <param name="index"></param>
         public void RemoveAt(KeyValuePair<int, int> index) {
@@ -939,7 +917,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Removes a control at a specified index.
         /// </summary>
         /// <param name="index"></param>
         /// <param name="refresh"></param>
@@ -963,7 +940,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Removes a range of controls.
         /// </summary>
         /// <param name="range"></param>
         public void RemoveRange(List<Control> range) {
@@ -975,7 +951,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Removes a range of controls.
         /// </summary>
         /// <param name="beginIndex"></param>
         /// <param name="endIndex"></param>
@@ -984,7 +959,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Removes the selected controls.
         /// </summary>
         public void RemoveSelection() {
             if (_selection.Count > 0) {
@@ -1004,7 +978,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Scroll to a view.
         /// </summary>
         /// <param name="view"></param>
         public void ScrollTo(int view) {
@@ -1013,7 +986,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Scroll a control into view.
         /// </summary>
         /// <param name="control"></param>
         public void ScrollIntoView(Control control) {
@@ -1022,14 +994,14 @@ namespace vApus.Util {
 
         /// <summary>
         /// </summary>
-        /// <param name="sortBy">Multiple values can be add up using a binairy or</param>
+        /// <param name="sortBy">Multiple values can be add up using a binairy OR.</param>
         public void Sort(SortBy sortBy) {
             Sort(sortBy, SortOrder.Ascending);
         }
 
         /// <summary>
         /// </summary>
-        /// <param name="sortBy">Multiple values can be add up using a binairy or</param>
+        /// <param name="sortBy">Multiple values can be add up using a binairy OR.</param>
         /// <param name="sortOrder"></param>
         public void Sort(SortBy sortBy, SortOrder sortOrder) {
             if (sortOrder == SortOrder.None)
@@ -1038,7 +1010,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Sorts all controls using your own comparer. Tip: take a look at ControlComparer.
+        /// Sorts all controls using your own comparer. Tip: take a look at ControlComparer.
         /// </summary>
         /// <param name="comparer"></param>
         public void Sort(IComparer<Control> comparer) {
@@ -1058,7 +1030,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Swaps one control with an other.
         /// </summary>
         /// <param name="control1"></param>
         /// <param name="control2"></param>
@@ -1067,7 +1038,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Swaps one control with an other.
         /// </summary>
         /// <param name="control1"></param>
         /// <param name="control2"></param>
@@ -1088,7 +1058,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Swaps one control with an other.
         /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
@@ -1097,7 +1066,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Swaps one control with an other.
         /// </summary>
         /// <param name="index1"></param>
         /// <param name="index2"></param>
@@ -1122,8 +1090,6 @@ namespace vApus.Util {
         #region Selections
 
         /// <summary>
-        ///     Clears the selection.
-        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         public void ClearSelection() {
             _selection.Clear();
@@ -1136,9 +1102,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Order the selection like it is in the controls.
-        ///     Begin and end of selection will be stored.
-        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
+        /// Order the selection like it is in the controls. Begin and end of selection will be stored.
         /// </summary>
         public void OrderSelection() {
             OrderRange(_selection);
@@ -1174,7 +1138,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
+        /// Visualization of selection you must do yourself (use the SelectionChanged event).
         /// </summary>
         /// <param name="beginIndex"></param>
         /// <param name="endIndex"></param>
@@ -1183,7 +1147,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
+        /// Visualization of selection you must do yourself (use the SelectionChanged event).
         /// </summary>
         /// <param name="controls"></param>
         public void SelectRange(List<Control> controls) {
@@ -1206,8 +1170,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Selects a control.
-        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
+        /// Visualization of selection you must do yourself (use the SelectionChanged event).
         /// </summary>
         /// <param name="control"></param>
         public void Select(Control control, Hotkeys hotkeys = Hotkeys.None) {
@@ -1215,13 +1178,6 @@ namespace vApus.Util {
                 SelectControl(control, hotkeys);
         }
 
-        /// <summary>
-        ///     Selects a control.
-        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
-        /// </summary>
-        /// <param name="control"></param>
-        /// <param name="hotkeys"></param>
-        /// <param name="contains"></param>
         private void SelectControl(Control control, Hotkeys hotkeys) {
             /// Selects a control.
             _lastClickedControl = control;
@@ -1245,8 +1201,8 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Selects a control by its view(key) and index(value) in view.
-        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
+        /// <para>Selects a control by its view(key) and index(value) in view.</para>
+        /// <para>Visualization of selection you must do yourself (use the SelectionChanged event).</para>
         /// </summary>
         /// <param name="index"></param>
         /// <param name="hotkeys"></param>
@@ -1255,7 +1211,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Adds to, substract from selection.
+        /// Adds to, substract from selection.
         /// </summary>
         /// <param name="control"></param>
         private void CtrlPressed(Control control) {
@@ -1296,7 +1252,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Selects a range of controls.
+        /// Selects a range of controls.
         /// </summary>
         /// <param name="control"></param>
         private void ShiftPressed(Control control) {
@@ -1322,8 +1278,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Selects all controls.
-        ///     Visualization of selection you must do yourself (use the SelectionCHanged event).
+        /// Visualization of selection you must do yourself (use the SelectionCHanged event).
         /// </summary>
         public void SelectAll() {
             _selection.Clear();
@@ -1346,7 +1301,6 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Returns if the selection contains the given control.
         /// </summary>
         /// <param name="control"></param>
         /// <returns></returns>
@@ -1367,7 +1321,7 @@ namespace vApus.Util {
         #region EventHandling
 
         /// <summary>
-        ///     Redetermines the views on resize when needed.
+        /// Redetermines the views on resize when needed.
         /// </summary>
         /// <param name="e"></param>
         protected override void OnResize(EventArgs e) {
@@ -1376,7 +1330,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Used internally for the resizing of this control, usable externally after setting the visibility of controls.
+        /// Used internally for the resizing of this control, usable externally after setting the visibility of controls.
         /// </summary>
         /// <param name="force">Forces the rebuilding of the views even if the size has not changed.</param>
         public void PerformResize(bool force = false) {
@@ -1435,7 +1389,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     For using the arrows, for selecting next and previous control.
+        /// For using the arrow keys, home and end.
         /// </summary>
         /// <param name="msg"></param>
         /// <param name="keyData"></param>
@@ -1465,7 +1419,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Select the right view on valuechanged.
+        /// Selects the correct view on valuechanged.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1516,7 +1470,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Select the right view on keypress.
+        /// Selects the correct view on keypress.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1563,7 +1517,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     To resize the selection controls.
+        /// To resize the selection controls.
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
@@ -1584,14 +1538,12 @@ namespace vApus.Util {
     #region EventArgs
 
     /// <summary>
-    ///     Occurs after switched view.
     /// </summary>
     public class AfterSwithViewsEventArgs : EventArgs {
         private readonly int _currentView;
         private readonly int _numberOfControlsInCurrentView;
 
         /// <summary>
-        ///     Occurs after switched view.
         /// </summary>
         /// <param name="currentView"></param>
         /// <param name="controlsOnView"></param>
@@ -1636,7 +1588,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Is only used when the user selects a control.
+        /// Only used when the user selects a control.
         /// </summary>
         /// <param name="activeControl"></param>
         /// <param name="lastClickedControl">If this is not equal to ActiveControl that means this control has been deselected.</param>
@@ -1646,14 +1598,14 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     The first control in the selection or the last selected  (LastClickedControl).
+        /// The first control in the selection or the last selected  (LastClickedControl).
         /// </summary>
         public Control ActiveControl {
             get { return _activeControl; }
         }
 
         /// <summary>
-        ///     If this is not equal to ActiveControl that means this control has been deselected.
+        /// If this is not equal to ActiveControl that means this control has been deselected.
         /// </summary>
         public Control LastClickedControl {
             get { return _lastClickedControl; }

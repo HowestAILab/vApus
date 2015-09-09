@@ -14,8 +14,7 @@ namespace vApus.Util {
     /// A countdown class, can report progress and when the countdown has become 0.
     /// </summary>
     public class Countdown : IDisposable {
-        #region Events
-
+        
         /// <summary>
         ///     Occurs when started;
         /// </summary>
@@ -31,12 +30,13 @@ namespace vApus.Util {
         /// </summary>
         public event EventHandler Tick;
 
-        #endregion
 
-        private int _countdownTime;
+        private int _countdownTime, _reportProgressTime;
 
         private bool _isdisposed;
         private Timer _tmr;
+
+        public int CountdownTime { get { return _countdownTime; } }
 
         /// <summary>
         ///     A countdown class, can report progress and when the countdown has become 0.
@@ -46,19 +46,25 @@ namespace vApus.Util {
         /// <param name="reportProgressTime">In ms. Min 100</param>
         public Countdown(int countdownTime, int reportProgressTime = 1000) {
             _countdownTime = countdownTime;
+            _reportProgressTime = reportProgressTime;
 
             _tmr = new Timer(reportProgressTime);
             _tmr.Elapsed += _tmr_Elapsed;
         }
 
-        public int CountdownTime { get { return _countdownTime; } }
-
-        public void Dispose() {
-            if (!_isdisposed) {
-                _isdisposed = true;
-                _tmr.Dispose();
-                _tmr = null;
+        private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
+            _countdownTime -= _reportProgressTime;
+            if (_countdownTime <= 0) {
+                _tmr.Stop();
+                _countdownTime = 0;
             }
+
+            if (Tick != null) {
+                var invocationList = Tick.GetInvocationList();
+                Parallel.For(0, invocationList.Length, (i) => { (invocationList[i] as EventHandler).Invoke(this, e); });
+            }
+
+            if (_countdownTime == 0) Stop();
         }
 
         public void Start() {
@@ -66,7 +72,7 @@ namespace vApus.Util {
 
             if (Started != null) {
                 var invocationList = Started.GetInvocationList();
-                Parallel.For(0, invocationList.Length, (i) => {  (invocationList[i] as EventHandler).Invoke(this, null);    });
+                Parallel.For(0, invocationList.Length, (i) => { (invocationList[i] as EventHandler).Invoke(this, null); });
             }
         }
 
@@ -76,23 +82,16 @@ namespace vApus.Util {
 
             if (Stopped != null) {
                 var invocationList = Stopped.GetInvocationList();
-                Parallel.For(0, invocationList.Length, (i) => {   (invocationList[i] as EventHandler).Invoke(this, null);  });
+                Parallel.For(0, invocationList.Length, (i) => { (invocationList[i] as EventHandler).Invoke(this, null); });
             }
         }
 
-        private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
-            _countdownTime -= (int)_tmr.Interval;
-            if (_countdownTime <= 0) {
-                _tmr.Stop();
-                _countdownTime = 0;
+        public void Dispose() {
+            if (!_isdisposed) {
+                _isdisposed = true;
+                _tmr.Dispose();
+                _tmr = null;
             }
-
-            if (Tick != null) {
-                var invocationList = Tick.GetInvocationList();
-                Parallel.For(0, invocationList.Length, (i) => {   (invocationList[i] as EventHandler).Invoke(this, e);     });
-            }
-
-            if (_countdownTime == 0) Stop();
         }
     }
 }

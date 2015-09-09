@@ -6,7 +6,6 @@
  *    Vandroemme Dieter
  */
 using Microsoft.CSharp;
-using RandomUtils.Log;
 using System;
 using System.CodeDom.Compiler;
 using System.Collections.Generic;
@@ -17,65 +16,83 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     /// <summary>
-    ///     A C# .net v4.5 compiler unit.
-    ///     For references there is linked in Application.StartupPath or in the folders given in ReferenceResolver.ini if the Use property of ReferenceResolver is set to true.
+    ///<para>A C# .net v4(.#) compiler unit.</para> 
+    ///<para>For references there is linked in Application.StartupPath. Additional paths can be configured in the app.config like so:</para> 
+    ///<para><![CDATA[ <?xml version="1.0"?> ]]></para> 
+    ///<para><![CDATA[ <configuration> ]]></para> 
+    ///<para>...</para> 
+    ///<para><![CDATA[ <runtime> ]]></para> 
+    ///<para>...</para> 
+    ///<para><![CDATA[ <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> ]]></para> 
+    ///<para><![CDATA[ <probing privatePath="subfolder1;subfolder2"/> ]]></para> 
+    ///<para><![CDATA[ </assemblyBinding> ]]></para> 
+    ///<para>...</para> 
+    ///<para><![CDATA[ </runtime> ]]></para> 
+    ///<para><![CDATA[ </configuration> ]]></para> 
     /// </summary>
     public class CompilerUnit {
         private readonly List<TempFileCollection> _tempFiles = new List<TempFileCollection>();
         private readonly string _tempFilesDirectory = Path.Combine(Application.StartupPath, "CompilerUnitTempFiles");
 
+        /// <summary>
+        ///<para>A C# .net v4(.#) compiler unit.</para> 
+        ///<para>For references there is linked in Application.StartupPath. Additional paths can be configured in the app.config like so:</para> 
+        ///<para><![CDATA[ <?xml version="1.0"?> ]]></para> 
+        ///<para><![CDATA[ <configuration> ]]></para> 
+        ///<para>...</para> 
+        ///<para><![CDATA[ <runtime> ]]></para> 
+        ///<para>...</para> 
+        ///<para><![CDATA[ <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> ]]></para> 
+        ///<para><![CDATA[ <probing privatePath="subfolder1;subfolder2"/> ]]></para> 
+        ///<para><![CDATA[ </assemblyBinding> ]]></para> 
+        ///<para>...</para> 
+        ///<para><![CDATA[ </runtime> ]]></para> 
+        ///<para><![CDATA[ </configuration> ]]></para> 
+        /// </summary>
         public CompilerUnit() { Application.ApplicationExit += Application_ApplicationExit; }
 
         /// <summary>
-        ///     A threadsafe compile.
-        ///     A source should have 1 commented line with
-        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        /// A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="debug">For compiling with an attached debugger. Compile warnings are threated as errros.</param>
+        /// <param name="source">A piece of code (one or multiple classes) to be compiled into an assembly.</param>
+        /// <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
         /// <param name="compilerResults"></param>
-        /// <returns></returns>
+        /// <returns>Null if not compiled. FS exceptions are thrown up.</returns>
         public Assembly Compile(string source, bool debug, out CompilerResults compilerResults) {
             return Compile(source, null, debug, out compilerResults);
         }
 
         /// <summary>
-        ///     A threadsafe compile.
-        ///     Each source should have 1 commented line with
-        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        /// A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
-        /// <param name="sources"></param>
-        /// <param name="debug">For compiling with an attached debugger. Compile warnings are threated as errros.</param>
+        /// <param name="source">Pieces of code (one or multiple classes) to be compiled into an assembly.</param>
+        /// <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
         /// <param name="compilerResults"></param>
-        /// <returns></returns>
+        /// <returns>Null if not compiled. FS exceptions are thrown up.</returns>
         public Assembly Compile(string[] sources, bool debug, out CompilerResults compilerResults) {
             return Compile(sources, null, debug, out compilerResults);
         }
 
         /// <summary>
-        ///     A threadsafe compile.
-        ///     A source should have 1 commented line with
-        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        /// A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
-        /// <param name="source"></param>
-        /// <param name="outputAssembly"></param>
-        /// <param name="debug">For compiling with an attached debugger. Compile warnings are threated as errros.</param>
+        /// <param name="source">A piece of code (one or multiple classes) to be compiled into an assembly.</param>
+        /// <param name="outputAssembly">If null a random name will be chosen.</param>
+        /// <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
         /// <param name="compilerResults"></param>
-        /// <returns></returns>
+        /// <returns>Null if not compiled. FS exceptions are thrown up.</returns>
         public Assembly Compile(string source, string outputAssembly, bool debug, out CompilerResults compilerResults) {
             return Compile(new[] { source }, outputAssembly, debug, out compilerResults);
         }
 
         /// <summary>
-        ///     A threadsafe compile.
-        ///     Each source should have 1 commented line with
-        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+        /// A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
-        /// <param name="sources"></param>
-        /// <param name="outputAssembly"></param>
-        /// <param name="debug">For compiling with an attached debugger. Compile warnings are threated as errros.</param>
+        /// <param name="source">Pieces of code (one or multiple classes) to be compiled into an assembly.</param>
+        /// <param name="outputAssembly">If null a random name will be chosen.</param>
+        /// <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
         /// <param name="compilerResults"></param>
-        /// <returns></returns>
+        /// <returns>Null if not compiled. FS exceptions are thrown up.</returns>
         public Assembly Compile(string[] sources, string outputAssembly, bool debug, out CompilerResults compilerResults) {
             if (sources.Length == 0)
                 throw new Exception("Nothing to compile.");
@@ -90,14 +107,14 @@ namespace vApus.Util {
                 compilerParameters.OutputAssembly = outputAssembly;
 
             if (debug) {
-                //Will temp output the assembly while it is compiled in memory = no locking
+                //Will temp output the assembly while it is compiled in memory.
                 if (!Directory.Exists(_tempFilesDirectory))
                     Directory.CreateDirectory(_tempFilesDirectory);
 
                 string readme = Path.Combine(_tempFilesDirectory, "README.TXT");
                 if (!File.Exists(readme))
                     using (var sw = new StreamWriter(readme)) {
-                        sw.Write("These files are compiled connection proxies used for stress testing, this folder can be removed safely.");
+                        sw.Write("These files are here to be able to debug assemblies created by CompilerUnit, this folder can be removed safely.");
                         sw.Flush();
                     }
                 compilerParameters.GenerateInMemory = false;
@@ -121,16 +138,10 @@ namespace vApus.Util {
             for (int i = 1; i != 4; i++)
                 try {
                     compilerResults = compiler.CompileAssemblyFromSource(compilerParameters, sources);
-                    if (compilerResults.Errors.HasErrors && i == 3 || !compilerResults.Errors.HasErrors) {
-                        break;
-                    } else {
-                        if (debug) break;
-
-                        compilerResults.Errors.Clear();
-                        Thread.Sleep(1000 * i);
-                    }
+                    break;
                 } catch {
-                    //Ignore. Will be handled later on.
+                    if (i == 3) throw; //Probably FS exception.
+                    Thread.Sleep(1000 * i);
                 }
 
             if (!debug)
@@ -144,9 +155,7 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Each source should have 1 commented line with
-        ///     the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
-        ///     If the ReferenceResolver is used ('Use' property == true) there will be searched in the folders given (ReferenceResolver.ini).
+        /// A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
         /// </summary>
         /// <param name="compilerParamaters"></param>
         /// <param name="fileName"></param>
@@ -166,7 +175,7 @@ namespace vApus.Util {
                                 break;
                             } catch (Exception ex) {
                                 matchException = ex;
-                                Thread.Sleep(100 *t);
+                                Thread.Sleep(100 * t);
                             }
 
                         if (matchException != null) throw matchException;
@@ -194,7 +203,8 @@ namespace vApus.Util {
         }
 
         /// <summary>
-        ///     Delete the tempFiles generated on compiling when debugging, if possible.
+        /// Delete the tempFiles generated when compiling with the debug flag.
+        /// This also happens on app exit.
         /// </summary>
         public void DeleteTempFiles() {
             foreach (TempFileCollection tempFiles in _tempFiles) {
@@ -202,7 +212,7 @@ namespace vApus.Util {
                 try {
                     tempFiles.Delete();
                 } catch (Exception ex) {
-                    Loggers.Log(Level.Warning, "Failed deleting a temp file.", ex);
+                    //Not important. Don't care.
                 }
             }
             _tempFiles.Clear();

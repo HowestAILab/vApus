@@ -74,16 +74,12 @@ namespace vApus.StressTest {
         ///     Use this before using everything else.
         /// </summary>
         /// <param name="debug"></param>
-        /// <param name="deleteTempFiles">To delete the temp files if compiled with debug == true (generates temp files). (Fx can be called afterwards)</param>
         /// <returns></returns>
-        public CompilerResults CompileConnectionProxyClass(bool debug, bool deleteTempFiles = true) {
+        public CompilerResults CompileConnectionProxyClass(bool debug) {
             //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
             Directory.SetCurrentDirectory(Application.StartupPath);
 
             CompilerResults compilerResults = null;
-            if (deleteTempFiles)
-                _compilerUnit.DeleteTempFiles();
-
             _connectionProxyType = null;
             _connectionProxyAssembly = _compilerUnit.Compile(_connection.BuildConnectionProxyClass(), debug, out compilerResults);
             if (!compilerResults.Errors.HasErrors)

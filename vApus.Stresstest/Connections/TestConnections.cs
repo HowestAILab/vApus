@@ -97,7 +97,7 @@ namespace vApus.StressTest {
                 }
 
                 var connectionProxyPool = new ConnectionProxyPool(connection);
-                CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(true, false);
+                CompilerResults compilerResults = connectionProxyPool.CompileConnectionProxyClass(true);
 
                 if (compilerResults.Errors.HasErrors) {
                     var sb = new StringBuilder("Failed at compiling the connection proxy class: ");

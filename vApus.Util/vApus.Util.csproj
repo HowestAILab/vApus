@@ -439,7 +439,6 @@
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
     <Compile Include="JSONObjectTree.cs" />
-    <Compile Include="MultiThreadedQuickSort.cs" />
     <Compile Include="DistributionCalculator.cs" />
     <Compile Include="PercentileCalculator.cs" />
     <Compile Include="Properties\Resources.Designer.cs">

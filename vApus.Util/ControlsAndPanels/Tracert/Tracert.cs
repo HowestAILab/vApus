@@ -27,17 +27,18 @@ namespace vApus.Util {
         private PingOptions _options;
         private Ping _ping;
         private int _timeout;
+        #endregion
+
         private static byte[] Buffer {
             get {
                 if (_buffer == null) {
                     _buffer = new byte[32];
-                    for (int i = 0; i < Buffer.Length; i++)
+                    for (int i = 0; i < _buffer.Length; i++)
                         _buffer[i] = 0x65;
                 }
                 return _buffer;
             }
         }
-        #endregion
 
         #region Functions
         /// <summary>
@@ -117,7 +118,7 @@ namespace vApus.Util {
                 try {
                     hostName = Dns.GetHostEntry(ip).HostName;
                 } catch {
-                    //Some things don't have (known) a host name.
+                    //Some things don't have a (known) host name.
                 }
                 Hop(this, new HopEventArgs(ip.ToString(), hostName, roundTripTime, status));
             }

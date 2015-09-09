@@ -12,7 +12,7 @@ using System.Text.RegularExpressions;
 namespace vApus.Util {
     public static class FindAndReplace {
         /// <summary>
-        /// 
+        /// A helper class to easily find and replace in a given piece of text.
         /// </summary>
         /// <param name="s">You can use *, +, - "" like in Google.</param>
         /// <param name="inText"></param>

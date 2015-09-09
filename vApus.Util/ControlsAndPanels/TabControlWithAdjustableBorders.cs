@@ -10,18 +10,14 @@ using System.Windows.Forms;
 
 namespace vApus.Util {
     public class TabControlWithAdjustableBorders : TabControl {
-        #region Fields
-        private const int TCM_ADJUSTRECT = 0X1328;
-        #endregion
 
-        #region Properties
+        private const int TCM_ADJUSTRECT = 0X1328;
+
         public bool BottomVisible { get; set; }
         public bool LeftVisible { get; set; }
         public bool RightVisible { get; set; }
         public bool TopVisible { get; set; }
-        #endregion
 
-        #region Functions
         protected override void WndProc(ref Message m) {
             try {
                 if (m.Msg == TCM_ADJUSTRECT) {
@@ -39,7 +35,6 @@ namespace vApus.Util {
                 //Whatever.
             }
         }
-        #endregion
 
         private struct RECT { public int Left, Top, Right, Bottom;  }
     }

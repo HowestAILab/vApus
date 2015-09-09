@@ -31,15 +31,15 @@ namespace vApus.StressTest {
         /// <summary>
         /// </summary>
         /// <param name="deleteTempFiles"></param>
-        /// <returns>bull if fails</returns>
-        public ConnectionProxyPool TryCompile(bool debug, bool deleteTempFiles) {
+        /// <returns>null if fails</returns>
+        public ConnectionProxyPool TryCompile(bool debug) {
             Cursor = Cursors.WaitCursor;
 
             var connection = new Connection();
             var stub = new Connection();
             stub.ConnectionProxy = ConnectionProxyCode.Parent as ConnectionProxy;
             var connectionProxyPool = new ConnectionProxyPool(stub);
-            CompilerResults results = connectionProxyPool.CompileConnectionProxyClass(debug, deleteTempFiles);
+            CompilerResults results = connectionProxyPool.CompileConnectionProxyClass(debug);
 
 
             flpCompileLog.Controls.Clear();
@@ -92,7 +92,7 @@ namespace vApus.StressTest {
         }
 
         private void btnTryCompile_Click(object sender, EventArgs e) {
-            TryCompile(true, false);
+            TryCompile(true);
         }
 
         private void AddSuccessButton() {
