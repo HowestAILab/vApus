@@ -305,10 +305,8 @@ namespace vApus.Results {
                 metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.RequestsProcessed);
                 metrics.AverageDelay = new TimeSpan(totalDelay.Ticks / metrics.RequestsProcessed);
 
-                double div = ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
+                double div = ((double)(parallelRequestsAwareTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
                 metrics.ResponsesPerSecond = ((double)metrics.RequestsProcessed) / div;
-
-#warning Not totally correct voor ua distribution?
                 metrics.UserActionsPerSecond = ((double)uniqueUserActions.Count) / div; 
             }
             return metrics;
