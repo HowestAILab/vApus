@@ -399,10 +399,8 @@ namespace vApus.StressTest {
                             ++validateRequestIndex;
                         }
 
-                        if (parallelConnections > _parallelConnections) { //Use the number for the "largest" user actions.
-                            _parallelConnections = parallelConnections;
-                            _parallelThreads = parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
-                        }
+                        _parallelConnections += parallelConnections;
+                        _parallelThreads += parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
 
                         parallelConnections = parallelThreads = 0;
 
@@ -457,8 +455,7 @@ namespace vApus.StressTest {
             }
 
             var newScenario = scenario.Clone(false, false, false, false);
-            newScenario.Label = scenario.ToString(); //Workaround for the wrong numbering in the user action in requestresults.
-            newScenario.SetTag(scenario.Index); //Same.
+            newScenario.SetTag(scenario.Index); //Workaround for the wrong numbering in the user action in requestresults.
             var linkCloned = new Dictionary<UserAction, UserAction>(); //To add the right user actions to the link.
             foreach (UserAction action in scenario) {
                 if (_cancel) return null;
@@ -598,8 +595,8 @@ namespace vApus.StressTest {
 
                 foreach (var kvp in _requests) {
                     Scenario scenario = kvp.Key;
-                    int scenarioIndex = (int)scenario.GetTag();
-                    string scenarioString = scenario.Label; //Previously worked around the otherwise 'wrong' scenario index in the tostring. 
+                    int scenarioIndex = scenario.GetTag() == null ? scenario.Index : (int)scenario.GetTag();
+                    string scenarioString = scenario.Label == string.Empty ? string.Join(" ", scenario.Name, scenarioIndex) : string.Join(": ", string.Join(" ", scenario.Name, scenarioIndex), scenario.Label); //Previously worked around the otherwise 'wrong' scenario index in the tostring. 
 
                     Parallel.For(0, scenario.Count, (userActionIndex, loopState) => {
                         if (_cancel) loopState.Break();
