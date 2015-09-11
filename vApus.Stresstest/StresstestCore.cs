@@ -1013,6 +1013,10 @@ namespace vApus.StressTest {
                         }), testableRequestIndex + i});
                     }
 
+                    //Start them all at the same time
+                    pThreadsSignalStart.Set();
+                    pThreadsSignalFinished.WaitOne();
+
                     if (delay != 0 && !(_cancel || _break)) {
                         _sleepWaitHandle.WaitOne(delay);
 
@@ -1025,9 +1029,6 @@ namespace vApus.StressTest {
                         resultWithDelay.DelayInMilliseconds = delay;
                     }
 
-                    //Start them all at the same time
-                    pThreadsSignalStart.Set();
-                    pThreadsSignalFinished.WaitOne();
 
                     pThreadsSignalFinished.Dispose();
                     pThreadsSignalStart.Dispose();
