@@ -151,6 +151,8 @@ namespace vApus.StressTest {
                 _requestString = sr.ReadString();
                 _useDelay = sr.ReadBoolean();
                 _parallelOffsetInMs = sr.ReadInt32();
+                _hostname = sr.ReadString();
+                _redirects = sr.ReadBoolean();
             }
             sr = null;
         }
@@ -285,6 +287,8 @@ namespace vApus.StressTest {
                 sw.Write(_requestString);
                 sw.Write(_useDelay);
                 sw.Write(_parallelOffsetInMs);
+                sw.Write(_hostname);
+                sw.Write(_redirects);
                 sw.AddToInfo(info);
             }
             sw = null;

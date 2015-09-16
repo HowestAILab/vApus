@@ -275,7 +275,7 @@ namespace vApus.StressTest {
 
             if (_lexicalResult == LexicalResult.OK) {
                 if (!SetParallelExecutions()) {
-                    string message = this + ": Could not determine the offset for one or more requests in the different user actions, are they correctly formatted?";
+                    string message = this + ": Could not determine the parallel offset, hostname and redirect flag for one or more requests in the different user actions, are they correctly formatted?";
                     Loggers.Log(Level.Error, message);
                 }
             }

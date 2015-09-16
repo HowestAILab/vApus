@@ -36,6 +36,7 @@ namespace vApus.SolutionTree {
 
         #region Fields
         protected Dictionary<PropertyInfo, string> _branchedInfos;
+        private static Type _stringType = typeof(string);
         #endregion
 
         #region Properties
@@ -295,19 +296,17 @@ namespace vApus.SolutionTree {
                                             foreach (string s in array) {
                                                 if (cancellationToken.IsCancellationRequested) break;
                                                 string value = s;
+
+                                                //Handle an 'empty' array correctly.
+                                                if (value.Length == 0 && array.Length == 1 && elementType != _stringType) break;
+
                                                 if (encrypted)
                                                     value = value.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
                                                                           new byte[] { 0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65,
                                                                                   0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 
-                                                try {
-                                                    object o = Convert.ChangeType(value, elementType);
-                                                    arrayList.Add(o);
-                                                } catch {
-                                                    //Do not throw this if the array contains no elements (he thinks it does, but it does not).
-                                                    if (array.Length != 1)
-                                                        throw new Exception();
-                                                }
+                                                object o = Convert.ChangeType(value, elementType);
+                                                arrayList.Add(o);
                                             }
                                         if (childNode.InnerText.Length > 0)
                                             if (collection is Array) {

@@ -225,43 +225,43 @@ namespace vApus.StressTest {
                     _count = 0;
 
                     //Abort
-                    Parallel.ForEach(_threads, delegate(Thread t) {
+                    Parallel.ForEach(_threads, delegate (Thread t) {
                         try { if (t != null) t.Abort(); } catch {
                             //Ignore.
                         }
                     });
 
                     //Join
-                    Parallel.ForEach(_threads, delegate(Thread t) {
-                        try { if (t != null) t.Join(1000); } catch {
+                    Parallel.ForEach(_threads, delegate (Thread t) {
+                        try { if (t != null && (t.ThreadState & System.Threading.ThreadState.Unstarted) != System.Threading.ThreadState.Unstarted) t.Join(1000); } catch {
                             //Ignore.
                         }
                     });
 
                     //Abort
-                    Parallel.ForEach(_parallelThreads, delegate(Thread t) {
+                    Parallel.ForEach(_parallelThreads, delegate (Thread t) {
                         try { if (t != null) t.Abort(); } catch {
                             //Ignore.
                         }
                     });
 
                     //Join
-                    Parallel.ForEach(_parallelThreads, delegate(Thread t) {
-                        try { if (t != null) t.Join(1000); } catch {
+                    Parallel.ForEach(_parallelThreads, delegate (Thread t) {
+                        try { if (t != null && (t.ThreadState & System.Threading.ThreadState.Unstarted) != System.Threading.ThreadState.Unstarted) t.Join(1000); } catch {
                             //Ignore.
                         }
                     });
 
                     //Abort
-                    Parallel.ForEach(_toDisposeParallelThreads, delegate(Thread t) {
+                    Parallel.ForEach(_toDisposeParallelThreads, delegate (Thread t) {
                         try { if (t != null) t.Abort(); } catch {
                             //Ignore.
                         }
                     });
 
                     //Join
-                    Parallel.ForEach(_toDisposeParallelThreads, delegate(Thread t) {
-                        try { if (t != null) t.Join(1000); } catch {
+                    Parallel.ForEach(_toDisposeParallelThreads, delegate (Thread t) {
+                        try { if (t != null && (t.ThreadState & System.Threading.ThreadState.Unstarted) != System.Threading.ThreadState.Unstarted) t.Join(1000); } catch {
                             //Ignore.
                         }
                     });

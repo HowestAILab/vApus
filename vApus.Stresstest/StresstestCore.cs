@@ -763,7 +763,7 @@ namespace vApus.StressTest {
                     _runDoneOnce = false;
                     _rerun = 0;
 
-                Rerun:
+                    Rerun:
                     //Initialize all for a new test.
                     if (_cancel) break;
                     //Initialize the requests and delays (every time so the tests for different runs are not the same)
@@ -822,7 +822,7 @@ namespace vApus.StressTest {
                             SetRunStopped();
                         }
                     }
-                        //Wait here when the run is broken untill the master sends continue when using run sync.
+                    //Wait here when the run is broken untill the master sends continue when using run sync.
                     else if (RunSynchronization == RunSynchronization.BreakOnFirstFinished) {
                         ++_continueCounter;
                         SetRunDoneOnce();
@@ -838,8 +838,8 @@ namespace vApus.StressTest {
                         _runSynchronizationContinueWaitHandle.WaitOne();
                         InvokeMessage("Continuing...");
                     }
-                        //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
-                        //Also breaks after the rerun count == _maxRerunsBreakOnLast.
+                    //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
+                    //Also breaks after the rerun count == _maxRerunsBreakOnLast.
                     else if (RunSynchronization == RunSynchronization.BreakOnLastFinished && !_break) {
                         ++_rerun;
                         if (!SetRunDoneOnce())
@@ -995,7 +995,7 @@ namespace vApus.StressTest {
 
                     for (int i = 0; i != parallelCount; i++) {
                         _threadPool.DequeueParallelThread().Start(new object[]{ (StressTestThreadPool.WorkItemCallback)((int index) => {
-                              
+
                             if (_syncAndAsyncWorkItem == null) _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
 
                             if (delaysInMilliseconds[index] > delay) delay = delaysInMilliseconds[index];
@@ -1213,7 +1213,7 @@ namespace vApus.StressTest {
                 if (testableRequest.ExecuteInParallelWithPrevious) Thread.Sleep(testableRequest.ParallelOffsetInMs);
 
                 bool retried = false;
-            RetryOnce:
+                RetryOnce:
                 try {
                     if (connectionProxy == null || connectionProxy.IsDisposed) {
                         exception = new Exception("Connectionproxy is disposed. Metrics for this request (" + testableRequest.ParameterizedRequestString + ") are not correct.");

@@ -67,14 +67,13 @@ namespace vApus.Util {
             //Keep control recycling in mind.
             UserControl dcc = null;
 
+            bool isKVP = false;
+
             var ienumerable = base.__Value.__Value as IEnumerable;
-            Type elementBaseType = null;
-            try {
-                elementBaseType = ienumerable.AsQueryable().ElementType.GetGenericTypeDefinition();
-            } catch {
-                //Will fail if no generic type def.
-            }
-            bool isKVP = elementBaseType == typeof(KeyValuePair<,>);
+            Type elementType = ienumerable.AsQueryable().ElementType;
+            if (elementType.IsGenericTypeDefinition)
+                isKVP = elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
+
             if (base.ValueControl == null || !(base.ValueControl is DefinedCollectionControl)) {
 
                 if (isKVP) {

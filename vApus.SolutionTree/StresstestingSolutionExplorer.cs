@@ -100,7 +100,10 @@ namespace vApus.SolutionTree {
                         try {
                             var node = state as TreeNode;
                             try {
-                                node.BeginEdit();
+                                if (tvw.LabelEdit)
+                                    node.BeginEdit();
+                                else
+                                    e.CancelEdit = true;
                             } catch {
                                 var item = node.Tag as LabeledBaseItem;
                                 node.Text = item.ToString();
@@ -243,7 +246,7 @@ namespace vApus.SolutionTree {
                                 childNode.ExpandAll();
                                 RefreshTreeNode(node);
                                 tvw.SelectedNode = childNode;
-                                if (childNode.Tag is LabeledBaseItem && (childNode.Tag as LabeledBaseItem).Label.Length == 0) 
+                                if (childNode.Tag is LabeledBaseItem && (childNode.Tag as LabeledBaseItem).Label.Length == 0)
                                     try {
                                         tvw.LabelEdit = true;
                                         childNode.BeginEdit();

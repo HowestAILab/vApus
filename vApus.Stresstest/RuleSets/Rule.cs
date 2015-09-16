@@ -125,9 +125,11 @@ namespace vApus.StressTest {
         internal LexicalResult TryLexicalAnaysis(string input, out ASTNode output) {
             output = new ASTNode();
             output.Value = input;
-            try {
-                CastOrParseInputToType(input, _valueType);
-            } catch {
+
+            bool succes;
+            CastOrParseInputToType(input, _valueType, out succes);
+
+            if (!succes) {
                 output.Error = string.Format("The input could not be parsed to {0}.", _valueType);
                 return LexicalResult.Error;
             }
@@ -139,39 +141,57 @@ namespace vApus.StressTest {
             return LexicalResult.Error;
         }
 
-        private object CastOrParseInputToType(object input, ValueTypes valueType) {
-            try {
-                switch (valueType) {
-                    case ValueTypes.boolType:
-                        return (input is bool) ? (bool)input : bool.Parse(input.ToString());
-                    case ValueTypes.charType:
-                        return (input is char) ? (char)input : char.Parse(input.ToString());
-                    case ValueTypes.decimalType:
-                        return (input is decimal) ? (decimal)input : decimal.Parse(input.ToString());
-                    case ValueTypes.doubleType:
-                        return (input is double) ? (double)input : double.Parse(input.ToString());
-                    case ValueTypes.floatType:
-                        return (input is float) ? (float)input : float.Parse(input.ToString());
-                    case ValueTypes.intType:
-                        return (input is int) ? (int)input : int.Parse(input.ToString());
-                    case ValueTypes.longType:
-                        return (input is long) ? (long)input : long.Parse(input.ToString());
-                    case ValueTypes.shortType:
-                        return (input is short) ? (short)input : short.Parse(input.ToString());
-                    case ValueTypes.stringType:
-                        return input.ToString();
-                    case ValueTypes.uintType:
-                        return (input is uint) ? (uint)input : uint.Parse(input.ToString());
-                    case ValueTypes.ulongType:
-                        return (input is ulong) ? (ulong)input : ulong.Parse(input.ToString());
-                    case ValueTypes.ushortType:
-                        return (input is ushort) ? (ushort)input : ushort.Parse(input.ToString());
-                    default:
-                        return input;
-                }
-            } catch {
-                throw new Exception(
-                    "Please make sure the \"Value to Check Against\" is castable/parsable to the selected \"Value Type\".");
+        private object CastOrParseInputToType(object input, ValueTypes valueType, out bool succes) {
+            succes = true;
+            switch (valueType) {
+                case ValueTypes.boolType:
+                    bool outputBool = false;
+                    if (input is bool) outputBool = (bool)input; else succes = bool.TryParse(input.ToString(), out outputBool);
+                    return outputBool;
+                case ValueTypes.charType:
+                    char outputChar = new char();
+                    if (input is char) outputChar = (char)input; else succes = char.TryParse(input.ToString(), out outputChar);
+                    return outputChar;
+                case ValueTypes.decimalType:
+                    decimal outputDecimal = 0;
+                    if (input is decimal) outputDecimal = (decimal)input; else succes = decimal.TryParse(input.ToString(), out outputDecimal);
+                    return outputDecimal;
+                case ValueTypes.doubleType:
+                    double outputDouble = 0;
+                    if (input is double) outputDouble = (double)input; else succes = double.TryParse(input.ToString(), out outputDouble);
+                    return outputDouble;
+                case ValueTypes.floatType:
+                    float outputFloat = 0;
+                    if (input is float) outputFloat = (float)input; else succes = float.TryParse(input.ToString(), out outputFloat);
+                    return outputFloat;
+                case ValueTypes.intType:
+                    int outputInt = 0;
+                    if (input is int) outputInt = (int)input; else succes = int.TryParse(input.ToString(), out outputInt);
+                    return outputInt;
+                case ValueTypes.longType:
+                    long outputLong = 0;
+                    if (input is long) outputDecimal = (long)input; else succes = long.TryParse(input.ToString(), out outputLong);
+                    return outputLong;
+                case ValueTypes.shortType:
+                    short outputShort = 0;
+                    if (input is short) outputShort = (short)input; else succes = short.TryParse(input.ToString(), out outputShort);
+                    return outputShort;
+                case ValueTypes.stringType:
+                    return input.ToString();
+                case ValueTypes.uintType:
+                    uint outputUint = 0;
+                    if (input is uint) outputUint = (uint)input; else succes = uint.TryParse(input.ToString(), out outputUint);
+                    return outputUint;
+                case ValueTypes.ulongType:
+                    ulong outputUlong = 0;
+                    if (input is ulong) outputUlong = (ulong)input; else succes = ulong.TryParse(input.ToString(), out outputUlong);
+                    return outputUlong;
+                case ValueTypes.ushortType:
+                    ushort outputUshort = 0;
+                    if (input is ushort) outputUshort = (ushort)input; else succes = ushort.TryParse(input.ToString(), out outputUshort);
+                    return outputUshort;
+                default:
+                    return input;
             }
         }
 

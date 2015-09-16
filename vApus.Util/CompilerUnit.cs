@@ -211,7 +211,7 @@ namespace vApus.Util {
                 tempFiles.KeepFiles = false;
                 try {
                     tempFiles.Delete();
-                } catch (Exception ex) {
+                } catch {
                     //Not important. Don't care.
                 }
             }

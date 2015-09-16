@@ -135,7 +135,7 @@ namespace vApus.Gui {
 
         private void RelocateLogErrorToolTip() {
             try {
-                if (_logErrorToolTip.Visible) {
+                if (_logErrorToolTip != null && _logErrorToolTip.Visible) {
                     int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
                     int y = statusStrip.Location.Y - 30;
 

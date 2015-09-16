@@ -160,8 +160,20 @@ namespace vApus.DistributedTest {
             if (_distributedTest.Tiles.Count == 0 && _distributedTest.Clients.Count == 0)
                 ShowWizard();
 
+            //Sometimes this fails.
+            testTreeView.SelectDistributedTestTreeViewItem();
+
+            var tmr = new System.Windows.Forms.Timer();
+            tmr.Interval = 200;
+            tmr.Tick += TmrSelectDistributedTestTreeViewItem_Tick;
+            tmr.Start();
+        }
+
+        private void TmrSelectDistributedTestTreeViewItem_Tick(object sender, EventArgs e) {
+            (sender as System.Windows.Forms.Timer).Stop();
             testTreeView.SelectDistributedTestTreeViewItem();
         }
+
         private void btnWizard_Click(object sender, EventArgs e) { ShowWizard(); }
         private void ShowWizard() {
             var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
