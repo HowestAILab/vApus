@@ -40,7 +40,6 @@ namespace vApus.StressTest {
         private int _progressCountDown;
 
         private bool _canUpdateMetrics = false; //Can only be updated when a run is busy.
-        private bool _simplifiedMetricsReturned = false; //Only send a warning to the user once.
 
         private ResultsHelper _resultsHelper = new ResultsHelper();
 
@@ -580,7 +579,6 @@ namespace vApus.StressTest {
 
         #region Progress
         private void _stressTestCore_StressTestStarted(object sender, StressTestResultEventArgs e) {
-            _simplifiedMetricsReturned = false;
             _stressTestResult = e.StressTestResult;
             fastResultsControl.SetStressTestStarted(e.StressTestResult.StartedAt);
         }
@@ -597,7 +595,7 @@ namespace vApus.StressTest {
                 }
 
             //Update the metrics.
-            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result), true, _stressTestMetricsCache.SimplifiedMetrics);
+            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result), true);
             foreach (var monitorResultCache in GetMonitorResultCaches())
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
         }
@@ -610,8 +608,8 @@ namespace vApus.StressTest {
         private void _stressTestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             StopProgressDelayCountDown();
 
-            fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.AddOrUpdate(e.Result), true, _stressTestMetricsCache.SimplifiedMetrics);
-            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(), false, _stressTestMetricsCache.SimplifiedMetrics);
+            fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.AddOrUpdate(e.Result), true);
+            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(true), false);
             foreach (var monitorResultCache in GetMonitorResultCaches()) {
                 fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
                 fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
@@ -649,17 +647,12 @@ namespace vApus.StressTest {
                 } catch { } //Exception on false WMI. 
 
                 if (_canUpdateMetrics) {
-                    fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(), true, _stressTestMetricsCache.SimplifiedMetrics);
-                    fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.GetRunMetrics(), false, _stressTestMetricsCache.SimplifiedMetrics);
+                    fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(true), true);
+                    fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.GetRunMetrics(true), false);
                     foreach (var monitorResultCache in GetMonitorResultCaches()) {
                         fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
                         fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
-                    }
-
-                    if (_stressTestMetricsCache.SimplifiedMetrics && !_simplifiedMetricsReturned) {
-                        _simplifiedMetricsReturned = true;
-                        AddEvent("It takes too long to calculate the fast results, therefore they are simplified!", Level.Warning);
-                    }
+                    }                    
                 }
                 _progressCountDown = PROGRESSUPDATEDELAY;
 
@@ -865,9 +858,8 @@ namespace vApus.StressTest {
                     if (lastWarning.Length != 0) PublishMessage(1, lastWarning);
                 } catch { } //Exception on false WMI. 
 
-                _stressTestMetricsCache.AllowSimplifiedMetrics = false;
-                fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(), true, _stressTestMetricsCache.SimplifiedMetrics);
-                fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.GetRunMetrics(), false, _stressTestMetricsCache.SimplifiedMetrics);
+                fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(false), true);
+                fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.GetRunMetrics(false), false);
                 foreach (var monitorResultCache in GetMonitorResultCaches()) {
                     fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
                     fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
@@ -1019,7 +1011,7 @@ namespace vApus.StressTest {
 
         private void PublishFastConcurencyResults(RunStateChange runStateChange) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastConcurrencyResults && _stressTestMetricsCache != null) {
-                List<StressTestMetrics> metrics = _stressTestMetricsCache.GetConcurrencyMetrics();
+                List<StressTestMetrics> metrics = _stressTestMetricsCache.GetConcurrencyMetrics(true);
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastConcurrencyResults();
@@ -1052,7 +1044,7 @@ namespace vApus.StressTest {
         }
         private void PublishFastRunResults(RunStateChange runStateChange) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastRunResults && _stressTestMetricsCache != null) {
-                List<StressTestMetrics> metrics = _stressTestMetricsCache.GetRunMetrics();
+                List<StressTestMetrics> metrics = _stressTestMetricsCache.GetRunMetrics(true);
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastRunResults();

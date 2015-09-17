@@ -67,6 +67,8 @@ namespace vApus.Results {
                 _requestsProcessed = value;
             }
         }
+
+        public bool Simplified { get; set; }
         #endregion
 
         #region Constructors
@@ -98,6 +100,7 @@ namespace vApus.Results {
                 AverageTop5ResponseTimes = sr.ReadTimeSpan();
                 AverageDelay = sr.ReadTimeSpan();
                 Errors = sr.ReadInt64();
+                Simplified = sr.ReadBoolean();
             }
             sr = null;
         }
@@ -125,6 +128,7 @@ namespace vApus.Results {
                 sw.Write(AverageTop5ResponseTimes);
                 sw.Write(AverageDelay);
                 sw.Write(Errors);
+                sw.Write(Simplified);
                 sw.AddToInfo(info);
             }
             sw = null;

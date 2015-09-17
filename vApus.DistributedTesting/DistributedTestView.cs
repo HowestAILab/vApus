@@ -864,12 +864,12 @@ namespace vApus.DistributedTest {
                     //Notify by mail if set in the options panel.
                     if (testProgressMessage.StressTestStatus == StressTestStatus.Busy) {
                         if (testProgressMessage.RunFinished) {
-                            var l = testProgressMessage.StressTestMetricsCache.GetRunMetrics();
+                            var l = testProgressMessage.StressTestMetricsCache.GetRunMetrics(true);
                             var runMetrics = l[l.Count - 1];
                             string message = string.Concat(tileStressTest.ToString(), " - Run ", runMetrics.Run, " of concurrency ", runMetrics.Concurrency, " finished.");
                             TestProgressNotifier.Notify(TestProgressNotifier.What.RunFinished, message);
                         } else if (testProgressMessage.ConcurrencyFinished) {
-                            var l = testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics();
+                            var l = testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics(true);
                             var concurrencyMetrics = l[l.Count - 1];
                             string message = string.Concat(tileStressTest.ToString(), " - Concurrency ", concurrencyMetrics.Concurrency, " finished.");
                             TestProgressNotifier.Notify(TestProgressNotifier.What.ConcurrencyFinished, message);
@@ -888,7 +888,7 @@ namespace vApus.DistributedTest {
                 foreach (var monitorResultCache in GetMonitorResultCaches(tileStressTest)) {
                     if (_monitorBeforeBogusConcurrencyResult != null)
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorBeforeBogusConcurrencyResult, monitorResultCache));
-                    foreach (var concurrencyMetrics in testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics())
+                    foreach (var concurrencyMetrics in testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics(true))
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetConcurrencyMetrics(monitorResultCache.Monitor, concurrencyMetrics, monitorResultCache));
 
                     if (_monitorAfterCountDown == null && _monitorAfterBogusConcurrencyResult != null)
@@ -897,7 +897,7 @@ namespace vApus.DistributedTest {
 
                     if (_monitorBeforeBogusRunResult != null)
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorBeforeBogusRunResult, monitorResultCache));
-                    foreach (var runMetrics in testProgressMessage.StressTestMetricsCache.GetRunMetrics())
+                    foreach (var runMetrics in testProgressMessage.StressTestMetricsCache.GetRunMetrics(true))
                         monitorMetricsCache.Add(MonitorMetricsHelper.GetRunMetrics(monitorResultCache.Monitor, runMetrics, monitorResultCache));
 
                     if (_monitorAfterCountDown == null && _monitorAfterBogusRunResult != null)
@@ -950,8 +950,8 @@ namespace vApus.DistributedTest {
                 //Build and add fast results. Do not show the updates in label if monitoring before.
                 fastResultsControl.ClearFastResults(testProgressMessage.StartedAt == DateTime.MinValue);
                 if (testProgressMessage.StressTestMetricsCache != null) {
-                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics(), true, testProgressMessage.StressTestMetricsCache.SimplifiedMetrics);
-                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StressTestMetricsCache.GetRunMetrics(), false, testProgressMessage.StressTestMetricsCache.SimplifiedMetrics);
+                    fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics(true), true);
+                    fastResultsControl.UpdateFastRunResults(testProgressMessage.StressTestMetricsCache.GetRunMetrics(true), false);
                 }
                 var monitorResultCaches = GetMonitorResultCaches(tileStressTest);
                 foreach (var monitorResultCache in monitorResultCaches) {
@@ -1651,7 +1651,7 @@ namespace vApus.DistributedTest {
         }
         private void PublishTileStressTestFastConcurencyResults(TileStressTest tileStressTest, TestProgressMessage testProgressMessage) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastConcurrencyResults) {
-                List<StressTestMetrics> metrics = testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics();
+                List<StressTestMetrics> metrics = testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics(true);
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastConcurrencyResults();
@@ -1685,7 +1685,7 @@ namespace vApus.DistributedTest {
 
         private void PublishTileStressTestFastRunResults(TileStressTest tileStressTest, TestProgressMessage testProgressMessage) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastRunResults) {
-                List<StressTestMetrics> metrics = testProgressMessage.StressTestMetricsCache.GetRunMetrics();
+                List<StressTestMetrics> metrics = testProgressMessage.StressTestMetricsCache.GetRunMetrics(true);
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastRunResults();

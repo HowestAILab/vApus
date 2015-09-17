@@ -24,7 +24,6 @@ namespace vApus.Results {
                 "Throughput (responses / s)", "User actions / s", "Avg. response time (ms)", "Max. response time (ms)",
                 "Avg. delay (ms)"
             };
-        //"95th Percentile of the response times (ms)", 
         private static readonly string[] _readableMetricsHeadersRun =
             {
                 "Started at", "Time left", "Measured time", "Concurrency", "Run", "Requests processed", "Errors",
@@ -43,12 +42,6 @@ namespace vApus.Results {
                 "Requests", "Errors", "Throughput (responses / s)", "User actions / s", "Avg. response time (ms)", "Max. response time (ms)",
                 "Avg. delay (ms)"
             };
-
-        /// <summary>
-        /// In ms. If the calculate time is bigger than this and we do not want the 95th percentile of the response times a simplified metrics object is returned.
-        /// You can also specify when calling a getmetrics function if you want the simplified output or not.
-        /// </summary>
-        private const int MAXGETMETRICSTIME = 3000;
         #endregion
 
         #region Functions
@@ -62,10 +55,7 @@ namespace vApus.Results {
         /// <param name="timeToCalculate"></param>
         /// <param name="simplified">Only started at, measured time, estimate time left, concurrency, processed requests, requests, errors and StartsAndStopsRuns are put in the metrics object this is true and 
         /// <returns></returns>
-        public static StressTestMetrics GetMetrics(ConcurrencyResult result, ref bool simplified, bool allowSimplifiedMetrics) {
-            if (simplified && allowSimplifiedMetrics) return GetSimplifiedMetrics(result);
-
-            var sw = Stopwatch.StartNew();
+        public static StressTestMetrics GetMetrics(ConcurrencyResult result) {
             var metrics = new StressTestMetrics();
             metrics.StartMeasuringTime = result.StartedAt;
             metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringTime;
@@ -79,12 +69,8 @@ namespace vApus.Results {
                 long baseRequestCount = 0;
 
                 foreach (RunResult runResult in result.RunResults) {
-                    StressTestMetrics runResultMetrics = GetMetrics(runResult, ref simplified, allowSimplifiedMetrics);
-                    if (allowSimplifiedMetrics && simplified) { //Should return simplified if calculating one of the runs takes too long.
-                        sw.Stop();
-                        return GetSimplifiedMetrics(result);
-                    }
-
+                    StressTestMetrics runResultMetrics = GetMetrics(runResult);
+                    
                     metrics.StartsAndStopsRuns.Add(new KeyValuePair<DateTime, DateTime>(runResult.StartedAt, runResult.StoppedAt));
 
                     metrics.AverageResponseTime = metrics.AverageResponseTime.Add(runResultMetrics.AverageResponseTime);
@@ -98,12 +84,6 @@ namespace vApus.Results {
                     metrics.ResponsesPerSecond += runResultMetrics.ResponsesPerSecond;
                     metrics.UserActionsPerSecond += runResultMetrics.UserActionsPerSecond;
                     metrics.Errors += runResultMetrics.Errors;
-
-                    if (allowSimplifiedMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
-                        sw.Stop();
-                        simplified = true;
-                        return GetSimplifiedMetrics(result);
-                    }
                 }
                 for (int i = result.RunResults.Count; i < result.RunCount; i++)
                     metrics.Requests += baseRequestCount;
@@ -120,7 +100,6 @@ namespace vApus.Results {
 
                 metrics.EstimatedTimeLeft = GetEstimatedTimeLeft(metrics, result.StoppedAt == DateTime.MinValue);
             }
-            sw.Stop();
             return metrics;
         }
 
@@ -129,8 +108,9 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static StressTestMetrics GetSimplifiedMetrics(ConcurrencyResult result) {
+        public static StressTestMetrics GetSimplifiedMetrics(ConcurrencyResult result) {
             var metrics = new StressTestMetrics();
+            metrics.Simplified = true;
             metrics.StartMeasuringTime = result.StartedAt;
             metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringTime;
             metrics.Concurrency = result.Concurrency;
@@ -173,10 +153,7 @@ namespace vApus.Results {
         /// <param name="result"></param>
         /// <param name="simplified">Only started at, measured time, estimate time left, concurrency, run, rerun count, processed requests, requests, errors if this is true and
         /// <returns></returns>
-        public static StressTestMetrics GetMetrics(RunResult result, ref bool simplified, bool allowSimplifiedMetrics) {
-            if (allowSimplifiedMetrics && simplified) return GetSimplifiedMetrics(result);
-
-            var sw = Stopwatch.StartNew();
+        public static StressTestMetrics GetMetrics(RunResult result) {
             var metrics = new StressTestMetrics();
             metrics.StartMeasuringTime = result.StartedAt;
             metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringTime;
@@ -192,11 +169,7 @@ namespace vApus.Results {
                 if (virtualUserResult != null && virtualUserResult.RequestResults != null) {
                     ++enteredUserResultsCount;
 
-                    StressTestMetrics virtualUserMetrics = GetMetrics(virtualUserResult, ref simplified, allowSimplifiedMetrics);
-                    if (allowSimplifiedMetrics && simplified) {
-                        sw.Stop();
-                        return GetSimplifiedMetrics(result);
-                    }
+                    StressTestMetrics virtualUserMetrics = GetMetrics(virtualUserResult);
 
                     metrics.Requests += virtualUserMetrics.Requests;
 
@@ -207,12 +180,6 @@ namespace vApus.Results {
                     metrics.ResponsesPerSecond += virtualUserMetrics.ResponsesPerSecond;
                     metrics.UserActionsPerSecond += virtualUserMetrics.UserActionsPerSecond;
                     metrics.Errors += virtualUserMetrics.Errors;
-
-                    if (allowSimplifiedMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
-                        sw.Stop();
-                        simplified = true;
-                        return GetSimplifiedMetrics(result);
-                    }
                 }
 
             if (enteredUserResultsCount != 0) {
@@ -220,7 +187,6 @@ namespace vApus.Results {
                 metrics.AverageDelay = new TimeSpan(metrics.AverageDelay.Ticks / enteredUserResultsCount);
                 metrics.EstimatedTimeLeft = GetEstimatedTimeLeft(metrics, result.StoppedAt == DateTime.MinValue);
             }
-            sw.Stop();
             return metrics;
         }
         /// <summary>
@@ -228,8 +194,9 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="result"></param>
         /// <returns></returns>
-        private static StressTestMetrics GetSimplifiedMetrics(RunResult result) {
+        public static StressTestMetrics GetSimplifiedMetrics(RunResult result) {
             var metrics = new StressTestMetrics();
+            metrics.Simplified = true;
             metrics.StartMeasuringTime = result.StartedAt;
             metrics.MeasuredTime = (result.StoppedAt == DateTime.MinValue ? DateTime.Now : result.StoppedAt) - metrics.StartMeasuringTime;
             metrics.Concurrency = result.VirtualUserResults.Length;
@@ -257,12 +224,8 @@ namespace vApus.Results {
             return metrics;
         }
 
-        private static StressTestMetrics GetMetrics(VirtualUserResult result, ref bool simplified, bool allowSimplifiedMetrics) {
-            if (allowSimplifiedMetrics && simplified) return GetSimplifiedMetrics(result);
-
+        private static StressTestMetrics GetMetrics(VirtualUserResult result) {
             var metrics = new StressTestMetrics();
-
-            var sw = Stopwatch.StartNew();
 
             metrics.MaxResponseTime = new TimeSpan();
             metrics.Requests = result.RequestResults.LongLength;
@@ -293,12 +256,6 @@ namespace vApus.Results {
 
                     prevRequestResult = requestResult;
                 }
-
-                if (allowSimplifiedMetrics && sw.ElapsedMilliseconds >= MAXGETMETRICSTIME) {
-                    sw.Stop();
-                    simplified = true;
-                    return GetSimplifiedMetrics(result);
-                }
             }
 
             if (metrics.RequestsProcessed != 0) {
@@ -318,6 +275,7 @@ namespace vApus.Results {
         /// <returns></returns>
         private static StressTestMetrics GetSimplifiedMetrics(VirtualUserResult result) {
             var metrics = new StressTestMetrics();
+            metrics.Simplified = true;
             metrics.Requests = result.RequestResults.LongLength;
 
             foreach (RequestResult requestResult in result.RequestResults)
@@ -401,12 +359,12 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="metrics"></param>
         /// <returns></returns>
-        public static List<object[]> MetricsToRows(List<StressTestMetrics> metrics, bool readable, bool simplified) {
+        public static List<object[]> MetricsToRows(List<StressTestMetrics> metrics, bool readable) {
             var rows = new List<object[]>(metrics.Count);
-            foreach (var m in metrics) rows.Add(readable ? ReadableMetricsToRow(m, simplified) : CalculatableMetricsToRow(m, simplified));
+            foreach (var m in metrics) rows.Add(readable ? ReadableMetricsToRow(m) : CalculatableMetricsToRow(m));
             return rows;
         }
-        private static object[] ReadableMetricsToRow(StressTestMetrics metrics, bool simplified) {
+        private static object[] ReadableMetricsToRow(StressTestMetrics metrics) {
             if (metrics.Run == 0)
                 return new object[]
                     {
@@ -417,11 +375,11 @@ namespace vApus.Results {
                         metrics.RequestsProcessed + " / " +
                         (metrics.Requests == 0 ? "--" : metrics.Requests.ToString()),
                         metrics.Errors,
-                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
+                        metrics.Simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                        metrics.Simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                        metrics.Simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                        metrics.Simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                        metrics.Simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
                     };
             return new object[]
                 {
@@ -433,14 +391,14 @@ namespace vApus.Results {
                     metrics.RequestsProcessed + " / " +
                     (metrics.Requests == 0 ? "--" : metrics.Requests.ToString()),
                     metrics.Errors,
-                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
+                    metrics.Simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                    metrics.Simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                    metrics.Simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                    metrics.Simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                    metrics.Simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
                 };
         }
-        private static object[] CalculatableMetricsToRow(StressTestMetrics metrics, bool simplified) {
+        private static object[] CalculatableMetricsToRow(StressTestMetrics metrics) {
             if (metrics.Run == 0)
                 return new object[]
                     {
@@ -451,11 +409,11 @@ namespace vApus.Results {
                         metrics.RequestsProcessed,
                         metrics.Requests == 0 ? "--" : metrics.Requests.ToString(),
                         metrics.Errors,
-                        simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
-                        simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
+                        metrics.Simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                        metrics.Simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                        metrics.Simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                        metrics.Simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                        metrics.Simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
                     };
             return new object[]
                 {
@@ -467,11 +425,11 @@ namespace vApus.Results {
                     metrics.RequestsProcessed,
                     metrics.Requests == 0 ? "--" : metrics.Requests.ToString(),
                     metrics.Errors,
-                    simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
-                    simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
+                    metrics.Simplified ? "--" : Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                    metrics.Simplified ? "--" : Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero).ToString(),
+                    metrics.Simplified ? "--" : Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                    metrics.Simplified ? "--" : Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString(),
+                    metrics.Simplified ? "--" : Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero).ToString()
                 };
         }
 
@@ -487,14 +445,11 @@ namespace vApus.Results {
             else if (count == 1)
                 return metricsCaches[0];
 
-            bool simplifiedMetrics = false;
-
             //First get all the metrics...
             int maxConcurrencyAndRunCount = 0;
             var allMetrics = new List<List<StressTestMetrics>>(count);
             foreach (var metricsCache in metricsCaches) {
-                if (metricsCache.SimplifiedMetrics) simplifiedMetrics = true;
-                var m = metricsCache.GetAllMetrics();
+                var m = metricsCache.GetAllMetrics(true);
                 allMetrics.Add(m);
                 if (m.Count > maxConcurrencyAndRunCount)
                     maxConcurrencyAndRunCount = m.Count;
@@ -512,7 +467,7 @@ namespace vApus.Results {
             }
 
             //Now do the merge.
-            var mergedMetricsCache = new FastStressTestMetricsCache(simplifiedMetrics);
+            var mergedMetricsCache = new FastStressTestMetricsCache();
             foreach (var toBeMerged in pivotedMetrics)
                 mergedMetricsCache.Add(MergeStressTestMetrics(toBeMerged));
             return mergedMetricsCache;

@@ -182,8 +182,8 @@ namespace vApus.DistributedTest {
 
             foreach (TileStressTest ts in _progress.Keys) {
                 var metricsCache = _progress[ts];
-                _concurrencyStressTestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStressTestMetricsHelper.MetricsToRows(metricsCache.GetConcurrencyMetrics(), chkReadable.Checked, metricsCache.SimplifiedMetrics)));
-                _runStressTestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStressTestMetricsHelper.MetricsToRows(metricsCache.GetRunMetrics(), chkReadable.Checked, metricsCache.SimplifiedMetrics)));
+                _concurrencyStressTestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStressTestMetricsHelper.MetricsToRows(metricsCache.GetConcurrencyMetrics(true), chkReadable.Checked)));
+                _runStressTestMetricsRows.AddRange(GetUsableRows(ts.ToString(), FastStressTestMetricsHelper.MetricsToRows(metricsCache.GetRunMetrics(true), chkReadable.Checked)));
             }
             for (int i = 0; i != _concurrencyStressTestMetricsRows.Count; i++)
                 _invalidateConcurrencyRows.Add(i);

@@ -53,8 +53,6 @@ namespace vApus.StressTest {
         //For distributed test
         private DateTime _stressTestStartedAt = DateTime.Now;
         private TimeSpan _measuredRuntime = new TimeSpan();
-
-        private bool _simplifiedMetricsReturned = false; //Only send a warning to the user once.
         #endregion
 
         #region Properties
@@ -327,10 +325,9 @@ namespace vApus.StressTest {
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateFastConcurrencyResults(List<StressTestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
+        public void UpdateFastConcurrencyResults(List<StressTestMetrics> metrics, bool setMeasuredRunTime = true) {
             _concurrencyStressTestMetrics = metrics;
-            _simplifiedMetricsReturned = simplified;
-            _concurrencyStressTestMetricsRows = FastStressTestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
+            _concurrencyStressTestMetricsRows = FastStressTestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
             if (cboDrillDown.SelectedIndex == 0 && lbtnStressTest.Active) {
                 int count = _concurrencyStressTestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
@@ -370,10 +367,9 @@ namespace vApus.StressTest {
         /// </summary>
         /// <param name="metrics"></param>
         /// <param name="setMeasuredRunTime">Should only be true if the test is running or just done.</param>
-        public void UpdateFastRunResults(List<StressTestMetrics> metrics, bool setMeasuredRunTime = true, bool simplified = false) {
+        public void UpdateFastRunResults(List<StressTestMetrics> metrics, bool setMeasuredRunTime = true) {
             _runStressTestMetrics = metrics;
-            _simplifiedMetricsReturned = simplified;
-            _runStressTestMetricsRows = FastStressTestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked, _simplifiedMetricsReturned);
+            _runStressTestMetricsRows = FastStressTestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
             if (cboDrillDown.SelectedIndex == 1) {
                 int count = _runStressTestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
@@ -689,9 +685,9 @@ namespace vApus.StressTest {
             //Set the rows.
             if (lbtnStressTest.Active)
                 if (cboDrillDown.SelectedIndex == 0)
-                    UpdateFastConcurrencyResults(_concurrencyStressTestMetrics, false, _simplifiedMetricsReturned);
+                    UpdateFastConcurrencyResults(_concurrencyStressTestMetrics, false);
                 else
-                    UpdateFastRunResults(_runStressTestMetrics, false, _simplifiedMetricsReturned);
+                    UpdateFastRunResults(_runStressTestMetrics, false);
             else if (monitorToString != null)
                 if (cboDrillDown.SelectedIndex == 0)
                     UpdateFastConcurrencyResults(monitorToString, _concurrencyMonitorMetrics[monitorToString]);

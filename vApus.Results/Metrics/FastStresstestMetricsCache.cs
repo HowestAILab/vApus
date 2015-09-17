@@ -17,41 +17,13 @@ namespace vApus.Results {
     [Serializable]
     public class FastStressTestMetricsCache {
 
-        #region Fields
         private readonly List<MetricsCacheObject> _cache = new List<MetricsCacheObject>();
-        private bool _simplifiedMetrics = false;
-        private bool _allowSimplifiedMetrics = true;
-        #endregion
-
-        #region Properties
-        /// <summary>
-        /// This value is set to false when AddOrUpdate is called. It will be changed to true if calculating the metrics takes longer than 5 seconds AND the 95th percentile of response times is not calculated.
-        /// This means than only basic stuff is returned, test with a big scenario and see (100k entries for instance).
-        /// </summary>
-        public bool SimplifiedMetrics { get { return _simplifiedMetrics && _allowSimplifiedMetrics; } }
-        /// <summary>
-        /// Set to false to ignore CalculatedSimplifiedMetrics even if calculating the metrics takes longer than 5 seconds.
-        /// </summary>
-        public bool AllowSimplifiedMetrics {
-            get { return _allowSimplifiedMetrics; }
-            set { _allowSimplifiedMetrics = value; }
-        }
-        #endregion
-
-        /// <summary>
-        ///     Serves at caching stresstest metrics so they do not need to be calculated from the stress test results every time if metrics are asked.
-        ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StressTestMetricsHelper.
-        ///     
-        /// Default: metrics are not simplified.
-        /// </summary>
-        public FastStressTestMetricsCache() :this(false) { }
 
         /// <summary>
         ///     Serves at caching stresstest metrics so they do not need to be calculated from the stress test results every time if metrics are asked.
         ///     Should be kept where the results are visualized (rows in a datagridview) and used together with StressTestMetricsHelper.
         /// </summary>
-        /// <param name="simplifiedMetrics">True for calculating simplified results. Special usecase if you want to do this right away. The code self-determines if simplification is needed (time-bound 5 sec)</param>
-        public FastStressTestMetricsCache(bool simplifiedMetrics) { _simplifiedMetrics = simplifiedMetrics; }
+        public FastStressTestMetricsCache() { }
 
         #region Functions
         /// <summary>
@@ -65,8 +37,9 @@ namespace vApus.Results {
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
         public List<StressTestMetrics> AddOrUpdate(ConcurrencyResult result) {
-            __AddOrUpdate(FastStressTestMetricsHelper.GetMetrics(result, ref _simplifiedMetrics, _allowSimplifiedMetrics), result);
-            return GetConcurrencyMetrics();
+            bool simplified = result.StoppedAt == DateTime.MinValue;
+            __AddOrUpdate(simplified ? FastStressTestMetricsHelper.GetSimplifiedMetrics(result) : FastStressTestMetricsHelper.GetMetrics(result), result);
+            return GetConcurrencyMetrics(true);
         }
         /// <summary>
         /// This will auto add or update metrics for the given result.
@@ -74,8 +47,9 @@ namespace vApus.Results {
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
         public List<StressTestMetrics> AddOrUpdate(RunResult result) {
-            __AddOrUpdate(FastStressTestMetricsHelper.GetMetrics(result, ref _simplifiedMetrics, _allowSimplifiedMetrics), result);
-            return GetRunMetrics();
+            bool simplified = result.StoppedAt == DateTime.MinValue;
+            __AddOrUpdate(simplified ? FastStressTestMetricsHelper.GetSimplifiedMetrics(result) : FastStressTestMetricsHelper.GetMetrics(result), result);
+            return GetRunMetrics(true);
         }
         private void __AddOrUpdate(StressTestMetrics metrics, object result = null) {
             bool add = true;
@@ -98,15 +72,18 @@ namespace vApus.Results {
         ///     The concurrency results are removed from cache when not needed anymore.
         /// </summary>
         /// <returns></returns>
-        public List<StressTestMetrics> GetConcurrencyMetrics() {
+        public List<StressTestMetrics> GetConcurrencyMetrics(bool allowSimplified) {
             var removeResults = new List<MetricsCacheObject>();
             var metrics = new List<StressTestMetrics>();
             foreach (MetricsCacheObject o in _cache)
                 if (o.Metrics.Run == 0) {
                     if (o.Result != null) {
-                        var cr = o.Result as ConcurrencyResult;
-                        o.Metrics = FastStressTestMetricsHelper.GetMetrics(cr, ref _simplifiedMetrics, _allowSimplifiedMetrics);
-                        if (!_simplifiedMetrics && cr.StoppedAt != DateTime.MinValue)
+                        var r = o.Result as ConcurrencyResult;
+                        if (!o.Finished) { //Do not recalculate if finished. Finished results schould never be simplified.
+                            o.Finished = r.StoppedAt != DateTime.MinValue;
+                            o.Metrics = allowSimplified && !o.Finished ? FastStressTestMetricsHelper.GetSimplifiedMetrics(r) : FastStressTestMetricsHelper.GetMetrics(r);
+                        }
+                        if (o.Finished)
                             removeResults.Add(o);
                     }
                     metrics.Add(o.Metrics);
@@ -114,7 +91,7 @@ namespace vApus.Results {
 
             bool resultsRemoved = false;
             foreach (MetricsCacheObject removeResult in removeResults) {
-                var cr = removeResult.Result as ConcurrencyResult;
+                var r = removeResult.Result as ConcurrencyResult;
                 removeResult.Result = null;
 
                 resultsRemoved = true;
@@ -131,26 +108,40 @@ namespace vApus.Results {
         ///     This will update the metrics if possible, otherwise it will just return them.
         /// </summary>
         /// <returns></returns>
-        public List<StressTestMetrics> GetRunMetrics() {
+        public List<StressTestMetrics> GetRunMetrics(bool allowSimplified) {
             var metrics = new List<StressTestMetrics>();
             foreach (MetricsCacheObject o in _cache)
                 if (o.Metrics.Run != 0) {
-                    if (o.Result != null)
-                        if (!_allowSimplifiedMetrics || o.Metrics.Requests == 0 || o.Metrics.RequestsProcessed != o.Metrics.Requests)
-                            o.Metrics = FastStressTestMetricsHelper.GetMetrics(o.Result as RunResult, ref _simplifiedMetrics, _allowSimplifiedMetrics);
+                    if (o.Result != null) {
+                        var r = o.Result as RunResult;
+                        if (!o.Finished) { //Do not recalculate if finished. Finished results schould never be simplified.
+                            o.Finished = r.StoppedAt != DateTime.MinValue;
+                            o.Metrics = allowSimplified && !o.Finished ? FastStressTestMetricsHelper.GetSimplifiedMetrics(r) : FastStressTestMetricsHelper.GetMetrics(r);
+                        }
+                    }
                     metrics.Add(o.Metrics);
                 }
             return metrics;
         }
 
-        internal List<StressTestMetrics> GetAllMetrics() {
+        internal List<StressTestMetrics> GetAllMetrics(bool allowSimplified) {
             var metrics = new List<StressTestMetrics>();
             foreach (MetricsCacheObject o in _cache) {
-                if (o.Result != null) {
-                    o.Metrics = (o.Metrics.Run == 0) ?
-                        FastStressTestMetricsHelper.GetMetrics(o.Result as ConcurrencyResult, ref _simplifiedMetrics, _allowSimplifiedMetrics) :
-                        FastStressTestMetricsHelper.GetMetrics(o.Result as RunResult, ref _simplifiedMetrics, _allowSimplifiedMetrics);
-                }
+                if (o.Result != null)
+                    if (o.Metrics.Run == 0) {
+                        var r = o.Result as ConcurrencyResult;
+                        if (!o.Finished) { //Do not recalculate if finished. Finished results schould never be simplified.
+                            o.Finished = r.StoppedAt != DateTime.MinValue;
+                            o.Metrics = allowSimplified && !o.Finished ? FastStressTestMetricsHelper.GetSimplifiedMetrics(r) : FastStressTestMetricsHelper.GetMetrics(r);
+                        }
+                    } else {
+                        var r = o.Result as RunResult;
+                        if (!o.Finished) { //Do not recalculate if finished. Finished results schould never be simplified.
+                            o.Finished = r.StoppedAt != DateTime.MinValue;
+                            o.Metrics = allowSimplified && !o.Finished ? FastStressTestMetricsHelper.GetSimplifiedMetrics(r) : FastStressTestMetricsHelper.GetMetrics(r);
+                        }
+                    }
+
                 metrics.Add(o.Metrics);
             }
             return metrics;
@@ -160,6 +151,7 @@ namespace vApus.Results {
         [Serializable]
         private class MetricsCacheObject {
             public StressTestMetrics Metrics { get; set; }
+            public bool Finished { get; set; }
             /// <summary>
             ///     ConcurrencyResult or RunResult.
             /// </summary>
