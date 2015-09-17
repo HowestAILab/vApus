@@ -68,6 +68,8 @@ namespace vApus.StressTest {
         private int _persistentConnectionsPerHostname = 6; //Default for most browsers.
 
         private Parameters _parameters; //Kept here for a distributed test
+
+        private bool _simplifiedFastResults;
         #endregion
 
         #region Properties
@@ -471,7 +473,13 @@ namespace vApus.StressTest {
             get { return _persistentConnectionsPerHostname; }
             set { _persistentConnectionsPerHostname = value; }
         }
-
+        [Description("Set this to true for heavy tests (when using parallel requests). Nonetheless, Each run the full fast results will be calculated."),
+ DisplayName("Simplified fast results")]
+        [SavableCloneable, PropertyControl(19, true)]
+        public bool SimplifiedFastResults {
+            get { return _simplifiedFastResults; }
+            set { _simplifiedFastResults = value; }
+        }
         /// <summary>
         ///     Let for instance the gui behave differently if this is true.
         /// </summary>
@@ -517,6 +525,7 @@ namespace vApus.StressTest {
                 _scenarios = sr.ReadObject() as KeyValuePair<Scenario, uint>[];
                 _forDistributedTest = sr.ReadBoolean();
                 _useParallelExecutionOfRequests = sr.ReadBoolean();
+                _simplifiedFastResults = sr.ReadBoolean();
 
                 _parameters = sr.ReadObject() as Parameters;
                 _parameters.ForceSettingChildsParent();
@@ -631,6 +640,7 @@ namespace vApus.StressTest {
                 sw.WriteObject(_scenarios);
                 sw.Write(_forDistributedTest);
                 sw.Write(_useParallelExecutionOfRequests);
+                sw.Write(_simplifiedFastResults);
 
                 //Parameters will be pushed in the child objects when deserializing, this is faster and way less memory consuming then serializing this for each object (each request has a reference to this object)
 

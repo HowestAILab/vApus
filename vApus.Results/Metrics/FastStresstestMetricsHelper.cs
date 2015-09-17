@@ -438,7 +438,7 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="metricsCaches">If only one entry the list will be returned directly.</param>
         /// <returns></returns>
-        public static FastStressTestMetricsCache MergeStressTestMetricsCaches(List<FastStressTestMetricsCache> metricsCaches) {
+        public static FastStressTestMetricsCache MergeStressTestMetricsCaches(List<FastStressTestMetricsCache> metricsCaches, bool allowSimplified) {
             int count = metricsCaches.Count;
             if (count == 0)
                 throw new Exception("The given list must contain more than 0 metrics caches.");
@@ -449,7 +449,7 @@ namespace vApus.Results {
             int maxConcurrencyAndRunCount = 0;
             var allMetrics = new List<List<StressTestMetrics>>(count);
             foreach (var metricsCache in metricsCaches) {
-                var m = metricsCache.GetAllMetrics(true);
+                var m = metricsCache.GetAllMetrics(allowSimplified);
                 allMetrics.Add(m);
                 if (m.Count > maxConcurrencyAndRunCount)
                     maxConcurrencyAndRunCount = m.Count;

@@ -188,7 +188,7 @@ namespace vApus.DistributedTest {
                 if (tpm.TotalVisibleMemory > testProgressMessage.TotalVisibleMemory) testProgressMessage.TotalVisibleMemory = tpm.TotalVisibleMemory;
             }
             //Then the test progress
-            testProgressMessage.StressTestMetricsCache = FastStressTestMetricsHelper.MergeStressTestMetricsCaches(stressTestMetricsCaches);
+            testProgressMessage.StressTestMetricsCache = FastStressTestMetricsHelper.MergeStressTestMetricsCaches(stressTestMetricsCaches, true);
 
             return testProgressMessage;
         }

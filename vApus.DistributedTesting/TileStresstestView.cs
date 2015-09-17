@@ -258,8 +258,8 @@ namespace vApus.DistributedTest {
             } catch { } //Exception on false WMI. 
 
             if (_canUpdateMetrics) {
-                fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(true), true);
-                List<StressTestMetrics> runMetrics = _stressTestMetricsCache.GetRunMetrics(true);
+                fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults), true);
+                List<StressTestMetrics> runMetrics = _stressTestMetricsCache.GetRunMetrics(_stressTest.SimplifiedFastResults);
                 fastResultsControl.UpdateFastRunResults(runMetrics, false);
 
                 //Set rerunning
@@ -279,7 +279,7 @@ namespace vApus.DistributedTest {
             _progressCountDown = PROGRESSUPDATEDELAY;
             StopProgressDelayCountDown();
             //Update the metrics.
-            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result), true);
+            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result, _stressTest.SimplifiedFastResults), true);
             fastResultsControl.SetRerunning(false);
         }
         private void _stressTestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) { SendPushMessage(RunStateChange.None, false, true); }
@@ -287,8 +287,8 @@ namespace vApus.DistributedTest {
         private void _stressTestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             StopProgressDelayCountDown();
 
-            fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.AddOrUpdate(e.Result), true);
-            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(true), false);
+            fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.AddOrUpdate(e.Result, _stressTest.SimplifiedFastResults), true);
+            fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults), false);
 
             SendPushMessage(RunStateChange.ToRunInitializedFirstTime, false, false);
 

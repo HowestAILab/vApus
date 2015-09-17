@@ -35,6 +35,8 @@ namespace vApus.DistributedTest {
         private bool _useParallelExecutionOfRequests;
         private int _maximumPersistentConnections = 0;
         private int _persistentConnectionsPerHostname = 6; //Default for most browsers.
+
+        private bool _simplifiedFastResults;
         #endregion
 
         #region Properties
@@ -326,24 +328,31 @@ namespace vApus.DistributedTest {
 
         [Description("Use this to enable the settings below. Should only be enabled for web tests."),
         DisplayName("Use parallel execution of requests")]
-        [SavableCloneable, PropertyControl(12, true)]
+        [SavableCloneable, PropertyControl(12)]
         public bool UseParallelExecutionOfRequests {
             get { return _useParallelExecutionOfRequests; }
             set { _useParallelExecutionOfRequests = value; }
         }
         [Description("Fill in the maximum persistent connections that a browser allows. As was researched (May 2015): IE - infinite / on demand, Chrome & Opera - 10, Firefox - 256, Safari - > 59 (unknown). (0 == infinite)"),
          DisplayName("Maximum persistent connections")]
-        [SavableCloneable, PropertyControl(13, true)]
+        [SavableCloneable, PropertyControl(13)]
         public int MaximumPersistentConnections {
             get { return _maximumPersistentConnections; }
             set { _maximumPersistentConnections = value; }
         }
         [Description("Fill in the maximum persistent connections per hostname that a browser allows. As was researched (May 2015): IE - infinite / on demand, others - 6. (0 == infinite)"),
          DisplayName("Persistent connections per hostname")]
-        [SavableCloneable, PropertyControl(14, true)]
+        [SavableCloneable, PropertyControl(14)]
         public int PersistentConnectionsPerHostname {
             get { return _persistentConnectionsPerHostname; }
             set { _persistentConnectionsPerHostname = value; }
+        }
+        [Description("Set this to true for heavy tests (when using parallel requests). Nonetheless, Each run the full fast results will be calculated."),
+DisplayName("Simplified fast results")]
+        [SavableCloneable, PropertyControl(15)]
+        public bool SimplifiedFastResults {
+            get { return _simplifiedFastResults; }
+            set { _simplifiedFastResults = value; }
         }
         #endregion
 
@@ -446,6 +455,8 @@ namespace vApus.DistributedTest {
             _maximumPersistentConnections = stressTest.MaximumPersistentConnections;
             _persistentConnectionsPerHostname = stressTest.PersistentConnectionsPerHostname;
 
+            _simplifiedFastResults = stressTest.SimplifiedFastResults;
+
             if (Solution.ActiveSolution != null)
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
         }
@@ -480,6 +491,8 @@ namespace vApus.DistributedTest {
             clone.UseParallelExecutionOfRequests = _useParallelExecutionOfRequests;
             clone.MaximumPersistentConnections = _maximumPersistentConnections;
             clone.PersistentConnectionsPerHostname = _persistentConnectionsPerHostname;
+
+            clone.SimplifiedFastResults = _simplifiedFastResults;
 
             return clone;
         }

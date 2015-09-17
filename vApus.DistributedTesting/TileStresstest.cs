@@ -218,6 +218,8 @@ namespace vApus.DistributedTest {
                 stressTest.MaximumPersistentConnections = AdvancedTileStressTest.MaximumPersistentConnections;
                 stressTest.PersistentConnectionsPerHostname = AdvancedTileStressTest.PersistentConnectionsPerHostname;
 
+                stressTest.SimplifiedFastResults = AdvancedTileStressTest.SimplifiedFastResults;
+
                 stressTest.ForceSettingChildsParent();
 
                 string user, host, password;

@@ -36,20 +36,20 @@ namespace vApus.Results {
         /// </summary>
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
-        public List<StressTestMetrics> AddOrUpdate(ConcurrencyResult result) {
-            bool simplified = result.StoppedAt == DateTime.MinValue;
+        public List<StressTestMetrics> AddOrUpdate(ConcurrencyResult result, bool allowSimplified) {
+            bool simplified = allowSimplified && result.StoppedAt == DateTime.MinValue;
             __AddOrUpdate(simplified ? FastStressTestMetricsHelper.GetSimplifiedMetrics(result) : FastStressTestMetricsHelper.GetMetrics(result), result);
-            return GetConcurrencyMetrics(true);
+            return GetConcurrencyMetrics(allowSimplified);
         }
         /// <summary>
         /// This will auto add or update metrics for the given result.
         /// </summary>
         /// <param name="result"></param>
         /// <returns>The metrics for the complete resultset.</returns>
-        public List<StressTestMetrics> AddOrUpdate(RunResult result) {
-            bool simplified = result.StoppedAt == DateTime.MinValue;
+        public List<StressTestMetrics> AddOrUpdate(RunResult result, bool allowSimplified) {
+            bool simplified = allowSimplified && result.StoppedAt == DateTime.MinValue;
             __AddOrUpdate(simplified ? FastStressTestMetricsHelper.GetSimplifiedMetrics(result) : FastStressTestMetricsHelper.GetMetrics(result), result);
-            return GetRunMetrics(true);
+            return GetRunMetrics(allowSimplified);
         }
         private void __AddOrUpdate(StressTestMetrics metrics, object result = null) {
             bool add = true;
