@@ -326,7 +326,7 @@ namespace vApus.DistributedTest {
             }
         }
 
-        [Description("Use this to enable the settings below. Should only be enabled for web tests."),
+        [Description("Use this to enable the settings below. Should only be enabled for web tests. IMPORTANT: If you parameterize the Hostname- and/or Redirects field of a request, parallelisation might not be correct. For genereral performance reasons only the fields' string value as it is is checked to determine this."),
         DisplayName("Use parallel execution of requests")]
         [SavableCloneable, PropertyControl(12)]
         public bool UseParallelExecutionOfRequests {
