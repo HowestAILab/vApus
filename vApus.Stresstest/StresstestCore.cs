@@ -400,7 +400,7 @@ namespace vApus.StressTest {
                         }
 
                         _parallelConnections += parallelConnections;
-                        _parallelThreads += parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
+                        if (_stressTest.UseParallelExecutionOfRequests) _parallelThreads += parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
 
                         parallelConnections = parallelThreads = 0;
 

@@ -266,6 +266,10 @@ namespace vApus.Monitor {
 
         private void btnGetCounters_Click(object sender, EventArgs e) {
             ConnectAndGetCounters();
+
+            //Ugly tww sort workaround.
+            tvwCounters.TreeViewNodeSorter = CountersReverseTreeNodeTextComparer.GetInstance(); //Sorting in tvws is strange.
+            tvwCounters.TreeViewNodeSorter = CountersTreeNodeCheckedComparer.GetInstance();
         }
 
         async private void ConnectAndGetCounters() {
@@ -304,6 +308,7 @@ namespace vApus.Monitor {
             } else {
                 errorMessage = Text + ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
             }
+
             if (MonitorInitialized != null)
                 MonitorInitialized(this, new MonitorInitializedEventArgs(errorMessage));
         }
@@ -591,6 +596,15 @@ namespace vApus.Monitor {
                 try {
                     node.Nodes.AddRange(node.Tag as TreeNode[]);
                     node.Tag = null;
+
+                    tvwCounters.TreeViewNodeSorter = CountersReverseTreeNodeTextComparer.GetInstance(); //Sorting in tvws is strange.
+
+                    if (GroupChecked)
+                        tvwCounters.TreeViewNodeSorter = CountersTreeNodeCheckedComparer.GetInstance();
+                    else
+                        tvwCounters.TreeViewNodeSorter = CountersTreeNodeTextComparer.GetInstance();
+
+                    node.Expand();
                 } catch {
                     throw;
                 } finally {
@@ -948,7 +962,7 @@ namespace vApus.Monitor {
                         if (counterInfo.GetSubs().Count != 1) {
                             var otherInstances = new TreeNode[counterInfo.GetSubs().Count - 1];
                             Parallel.For(1, counterInfo.GetSubs().Count,
-                                         delegate(int k) { otherInstances[k - 1] = new TreeNode(counterInfo.GetSubs()[k].GetName()); });
+                                         delegate (int k) { otherInstances[k - 1] = new TreeNode(counterInfo.GetSubs()[k].GetName()); });
 
                             counterNode.Tag = otherInstances;
                         }
@@ -1411,7 +1425,7 @@ namespace vApus.Monitor {
 
             for (int i = monitorResult.Rows.Count - 1; i != -1; i--) {
                 object[] row = monitorResult.Rows[i];
-                if (row.Length != 0 && row[0] is DateTime){
+                if (row.Length != 0 && row[0] is DateTime) {
                     if ((DateTime)row[0] < from) break;
                     part.Rows.Add(row);
                 }

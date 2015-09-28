@@ -57,7 +57,18 @@ namespace vApus.Gui {
             //Otherwise probing privatePath will not work --> monitorsources and ConnectionProxyPrerequisites sub folder.
             Directory.SetCurrentDirectory(Application.StartupPath);
 
+            //Prerequisite for the workshop competition, 20150925
+            System.Diagnostics.Process udpBroadcastListener = null;
+            string udpBroadcastListenerPath = Path.Combine(Application.StartupPath, @"UdpBroadcastListener\UdpBroadcastListener.exe");
+            if (File.Exists(udpBroadcastListenerPath))
+                udpBroadcastListener = System.Diagnostics.Process.Start(udpBroadcastListenerPath);
+
+
             Application.Run(new Main(args));
+
+
+            if (udpBroadcastListener != null)
+                try { udpBroadcastListener.Kill(); } catch { }
 
             Loggers.Log("Bye");
             Loggers.Flush();

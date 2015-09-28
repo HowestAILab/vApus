@@ -10,89 +10,54 @@
             The socket communicates over TCP, but this can be changed if you want to.
             </summary>
         </member>
-        <member name="T:vApus.Monitor.Sources.Base.IClient">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Name">
             <summary>
-            Implemented by BaseClient
+            This is actualy the Title from the assembly properties.
             </summary>
         </member>
-        <member name="M:vApus.Monitor.Sources.Base.IClient.GetParameter(System.String)">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Description">
             <summary>
-            
-            </summary>
-            <param name="name"></param>
-            <returns>The parameter, if found or null.</returns>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.IClient.SetParameterValues(System.Object[])">
-            <summary>
-            Set the values in the parameters.
-            The number of values cannot be greater than the number of parameters.
-            The type of the values must be the same as the type of the default values in the parameters.
-            </summary>
-            <param name="value1"></param>
-            <param name="otherValues"></param>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.IClient.Connect">
-            <summary>
-            
-            </summary>
-            <returns>If connected.</returns>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.IClient.Start">
-            <summary>
-            Use the bool _started to determine if applicable. After started the client should listen for counters, if is is not a polling monitor. (use InvokeOnMonitor()).
+            This is actualy the Description from the assembly properties.
             </summary>
         </member>
-        <member name="M:vApus.Monitor.Sources.Base.IClient.Stop">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Parameters">
             <summary>
-            Use the bool _started to determine if applicable.
             </summary>
         </member>
-        <member name="M:vApus.Monitor.Sources.Base.IClient.Disconnect">
-            <summary>
-            Disconnect and clean up resources here.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.IClient.Test(System.Boolean,System.Int32,System.Object[])">
-            <summary>
-            A test should be as complete as possible. All possible RPCs must be done; returned messages must be validated.
-            </summary>
-            <param name="verboseConsoleOutput"></param>
-            <param name="id">Should be unique.</param>
-            <param name="parameterValues"></param>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.IClient.Config">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Config">
             <summary>
             The hardware configuration of the monitored machine if applicable.
-            Returns N/A
+            Returns N/A.
             </summary>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.IClient.RefreshCountersInterval">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.RefreshCountersInterval">
             <summary>
             In ms.
             </summary>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.IClient.DecimalSeparator">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.DecimalSeparator">
             <summary>
             Can be . or , because of for instance the locale settings. 
             </summary>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.IClient.WDYH">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WDYH">
             <summary>
-            What do you have: the available counters
+            What do you have: the available counters, override to determine the value first in the getter.
             </summary>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.IClient.WDYHRepresentation">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WDYHRepresentation">
             <summary>
             Get: Json serialized what do you have: the available counters. Returns null if _wdyh == null.
+            Set: Serialized the given value and stores it in _wdyh.
             </summary>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.IClient.WIW">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WIW">
             <summary>
-            What I want
+            What I want, override if you want to determine the value first in the getter or set the value to an agent in the setter.
+            For non-agent clients this should not be overriden.
             </summary>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.IClient.WIWRepresentation">
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WIWRepresentation">
             <summary>
             Get: Json serialized what I want. Returns null if _wiw == null.
             Set: Serialized the given value and stores it in _wiw.
@@ -170,106 +135,12 @@
             </summary>
             <param name="counters"></param>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Name">
-            <summary>
-            This is actualy the Title from the assembly properties.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Description">
-            <summary>
-            This is actualy the Description from the assembly properties.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Parameters">
-            <summary>
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Config">
-            <summary>
-            The hardware configuration of the monitored machine if applicable.
-            Returns N/A.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.RefreshCountersInterval">
-            <summary>
-            In ms.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.DecimalSeparator">
-            <summary>
-            Can be . or , because of for instance the locale settings. 
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WDYH">
-            <summary>
-            What do you have: the available counters, override to determine the value first in the getter.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WDYHRepresentation">
-            <summary>
-            Get: Json serialized what do you have: the available counters. Returns null if _wdyh == null.
-            Set: Serialized the given value and stores it in _wdyh.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WIW">
-            <summary>
-            What I want, override if you want to determine the value first in the getter or set the value to an agent in the setter.
-            For non-agent clients this should not be overriden.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WIWRepresentation">
-            <summary>
-            Get: Json serialized what I want. Returns null if _wiw == null.
-            Set: Serialized the given value and stores it in _wiw.
-            </summary>
-        </member>
         <member name="T:vApus.Monitor.Sources.Base.BaseClientSwitcher">
             <summary>
             <para>Use this if you want one client that supports multiple protocols.</para>
             <para>This should only be done if you have multiple versions of the same agent or monitor source.</para>
             <para>In the connect you must determine the client to use (internal class, so it is not visible to the outside.)</para>
             <para>Do not forget to subscribe to the clients' OnMonitor and re invoke it.</para>
-            </summary>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.GetParameter(System.String)">
-            <summary>
-            
-            </summary>
-            <param name="name"></param>
-            <returns>The parameter, if found or null.</returns>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.SetParameterValues(System.Object[])">
-            <summary>
-            
-            Set the values in the parameters.
-            The number of values cannot be greater than the number of parameters.
-            The type of the values must be the same as the type of the default values in the parameters.
-            </summary>
-            <param name="value1"></param>
-            <param name="otherValues"></param>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.Connect">
-            <summary>
-            Implement this and call TryConnectClient() for each client you want to connect.
-            </summary>
-            <returns></returns>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.TryConnect(vApus.Monitor.Sources.Base.IClient)">
-            <summary>
-            
-            </summary>
-            <param name="client"></param>
-            <returns>The client if it connects or null (the client gets disposed.) Store this in _client.</returns>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.InvokeOnMonitor(vApus.Monitor.Sources.Base.Entities)">
-            <summary>
-            
-            </summary>
-            <param name="counters"></param>
-        </member>
-        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.Dispose">
-            <summary>
-            Stops and disconnects, do all other cleanup stuff in Stop().
             </summary>
         </member>
         <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.Name">
@@ -326,6 +197,47 @@
             Get: Json serialized what I want. Returns null if _wiw == null.
             Set: Serialized the given value and stores it in _wiw.
             Fails if not connected.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.GetParameter(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <returns>The parameter, if found or null.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.SetParameterValues(System.Object[])">
+            <summary>
+            
+            Set the values in the parameters.
+            The number of values cannot be greater than the number of parameters.
+            The type of the values must be the same as the type of the default values in the parameters.
+            </summary>
+            <param name="value1"></param>
+            <param name="otherValues"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.Connect">
+            <summary>
+            Implement this and call TryConnectClient() for each client you want to connect.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.TryConnect(vApus.Monitor.Sources.Base.IClient)">
+            <summary>
+            
+            </summary>
+            <param name="client"></param>
+            <returns>The client if it connects or null (the client gets disposed.) Store this in _client.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.InvokeOnMonitor(vApus.Monitor.Sources.Base.Entities)">
+            <summary>
+            
+            </summary>
+            <param name="counters"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.Dispose">
+            <summary>
+            Stops and disconnects, do all other cleanup stuff in Stop().
             </summary>
         </member>
         <member name="T:vApus.Monitor.Sources.Base.BasePollingClient">
@@ -415,6 +327,21 @@
             Only set on connect to the socket.
             </summary>
         </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IPAddresses">
+            <summary>
+            Reverse lookups the hostname if possible.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.Port">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IsConnected">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.#ctor">
             <summary>
             Call this in your implementations' constructor.
@@ -473,27 +400,27 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IPAddresses">
-            <summary>
-            Reverse lookups the hostname if possible.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.Port">
-            <summary>
-            
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IsConnected">
-            <summary>
-            
-            </summary>
-        </member>
         <member name="T:vApus.Monitor.Sources.Base.CounterInfo">
             <summary>
             A wdyh (what do you have) counterInfo to serialize from and to (used lib:
             Newtonsoft.Json). Sub CounterInfos
             can be added. If a CounterInfo is a 'leafnode', it can have a counter value (type
             String to be able to deserialize).
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.name">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.counter">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.subs">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
             </summary>
         </member>
         <member name="M:vApus.Monitor.Sources.Base.CounterInfo.#ctor">
@@ -577,24 +504,19 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.name">
-            <summary>
-            For serialization only; use the appropriate get and or set function.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.counter">
-            <summary>
-            For serialization only; use the appropriate get and or set function.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.subs">
-            <summary>
-            For serialization only; use the appropriate get and or set function.
-            </summary>
-        </member>
         <member name="T:vApus.Monitor.Sources.Base.Entities">
             <summary>
             Holds all entities with their counter infos.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entities.timestamp">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entities.subs">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
             </summary>
         </member>
         <member name="M:vApus.Monitor.Sources.Base.Entities.SetTimestamp">
@@ -726,19 +648,24 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.Entities.timestamp">
-            <summary>
-            For serialization only; use the appropriate get and or set function.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.Entities.subs">
-            <summary>
-            For serialization only; use the appropriate get and or set function.
-            </summary>
-        </member>
         <member name="T:vApus.Monitor.Sources.Base.Entity">
             <summary>
             A device, client, outlet for whom counters are applicable.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entity.name">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entity.isAvailable">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entity.subs">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
             </summary>
         </member>
         <member name="M:vApus.Monitor.Sources.Base.Entity.#ctor">
@@ -811,20 +738,93 @@
             </summary>
             <returns></returns>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.Entity.name">
+        <member name="T:vApus.Monitor.Sources.Base.IClient">
             <summary>
-            For serialization only; use the appropriate get and or set function.
+            Implemented by BaseClient
             </summary>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.Entity.isAvailable">
+        <member name="P:vApus.Monitor.Sources.Base.IClient.Config">
             <summary>
-            For serialization only; use the appropriate get and or set function.
+            The hardware configuration of the monitored machine if applicable.
+            Returns N/A
             </summary>
         </member>
-        <member name="P:vApus.Monitor.Sources.Base.Entity.subs">
+        <member name="P:vApus.Monitor.Sources.Base.IClient.RefreshCountersInterval">
             <summary>
-            For serialization only; use the appropriate get and or set function.
+            In ms.
             </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.DecimalSeparator">
+            <summary>
+            Can be . or , because of for instance the locale settings. 
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.WDYH">
+            <summary>
+            What do you have: the available counters
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.WDYHRepresentation">
+            <summary>
+            Get: Json serialized what do you have: the available counters. Returns null if _wdyh == null.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.WIW">
+            <summary>
+            What I want
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.WIWRepresentation">
+            <summary>
+            Get: Json serialized what I want. Returns null if _wiw == null.
+            Set: Serialized the given value and stores it in _wiw.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.GetParameter(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <returns>The parameter, if found or null.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.SetParameterValues(System.Object[])">
+            <summary>
+            Set the values in the parameters.
+            The number of values cannot be greater than the number of parameters.
+            The type of the values must be the same as the type of the default values in the parameters.
+            </summary>
+            <param name="value1"></param>
+            <param name="otherValues"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Connect">
+            <summary>
+            
+            </summary>
+            <returns>If connected.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Start">
+            <summary>
+            Use the bool _started to determine if applicable. After started the client should listen for counters, if is is not a polling monitor. (use InvokeOnMonitor()).
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Stop">
+            <summary>
+            Use the bool _started to determine if applicable.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Disconnect">
+            <summary>
+            Disconnect and clean up resources here.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Test(System.Boolean,System.Int32,System.Object[])">
+            <summary>
+            A test should be as complete as possible. All possible RPCs must be done; returned messages must be validated.
+            </summary>
+            <param name="verboseConsoleOutput"></param>
+            <param name="id">Should be unique.</param>
+            <param name="parameterValues"></param>
         </member>
         <member name="T:vApus.Monitor.Sources.Base.ClientFactory">
             <summary>
@@ -836,6 +836,26 @@
             <summary>
             Gets the available monitor source clients. Key == name.
             Throws an exception if the folder MonitorSourceClients could not be scanned.
+            </summary>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.OnMonitorEventArgs">
+            <summary>
+            Reports counters.
+            </summary>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.Parameter">
+            <summary>
+            Stores a parameter for a client, for example IP or username.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Parameter.Value">
+            <summary>
+            Gets the default value if value is null.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Parameter.Encrypted">
+            <summary>
+            For passwords.
             </summary>
         </member>
         <member name="T:Multimedia.TimerMode">
@@ -871,6 +891,21 @@
         <member name="T:Multimedia.Timer">
             <summary>
             Represents the Windows multimedia timer.
+            </summary>
+        </member>
+        <member name="E:Multimedia.Timer.Started">
+            <summary>
+            Occurs when the Timer has started;
+            </summary>
+        </member>
+        <member name="E:Multimedia.Timer.Stopped">
+            <summary>
+            Occurs when the Timer has stopped;
+            </summary>
+        </member>
+        <member name="E:Multimedia.Timer.Tick">
+            <summary>
+            Occurs when the time period has elapsed.
             </summary>
         </member>
         <member name="M:Multimedia.Timer.#cctor">
@@ -909,26 +944,6 @@
             <exception cref="T:System.ObjectDisposedException">
             If the timer has already been disposed.
             </exception>
-        </member>
-        <member name="M:Multimedia.Timer.Dispose">
-            <summary>
-            Frees timer resources.
-            </summary>
-        </member>
-        <member name="E:Multimedia.Timer.Started">
-            <summary>
-            Occurs when the Timer has started;
-            </summary>
-        </member>
-        <member name="E:Multimedia.Timer.Stopped">
-            <summary>
-            Occurs when the Timer has stopped;
-            </summary>
-        </member>
-        <member name="E:Multimedia.Timer.Tick">
-            <summary>
-            Occurs when the time period has elapsed.
-            </summary>
         </member>
         <member name="P:Multimedia.Timer.SynchronizingObject">
             <summary>
@@ -976,6 +991,11 @@
             Gets the timer capabilities.
             </summary>
         </member>
+        <member name="M:Multimedia.Timer.Dispose">
+            <summary>
+            Frees timer resources.
+            </summary>
+        </member>
         <member name="T:Multimedia.TimerStartException">
             <summary>
             The exception that is thrown when a timer fails to start.
@@ -988,26 +1008,6 @@
             <param name="message">
             The error message that explains the reason for the exception. 
             </param>
-        </member>
-        <member name="T:vApus.Monitor.Sources.Base.OnMonitorEventArgs">
-            <summary>
-            Reports counters.
-            </summary>
-        </member>
-        <member name="T:vApus.Monitor.Sources.Base.Parameter">
-            <summary>
-            Stores a parameter for a client, for example IP or username.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.Parameter.Value">
-            <summary>
-            Gets the default value if value is null.
-            </summary>
-        </member>
-        <member name="P:vApus.Monitor.Sources.Base.Parameter.Encrypted">
-            <summary>
-            For passwords.
-            </summary>
         </member>
     </members>
 </doc>
