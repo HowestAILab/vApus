@@ -1,4 +1,6 @@
-﻿namespace vApus.Util
+﻿using RandomUtils;
+
+namespace vApus.Util
 {
     partial class EventView
     {
@@ -29,7 +31,7 @@
         private void InitializeComponent()
         {
             this.sfd = new System.Windows.Forms.SaveFileDialog();
-            this.largeList = new vApus.Util.LargeList();
+            this.largeList = new RandomUtils.LargeList();
             this.SuspendLayout();
             // 
             // sfd
@@ -45,7 +47,7 @@
             this.largeList.Margin = new System.Windows.Forms.Padding(0);
             this.largeList.Name = "largeList";
             this.largeList.Size = new System.Drawing.Size(200, 200);
-            this.largeList.SizeMode = vApus.Util.SizeMode.Normal;
+            this.largeList.SizeMode = RandomUtils.SizeMode.Normal;
             this.largeList.TabIndex = 2;
             // 
             // EventView

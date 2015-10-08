@@ -17,7 +17,6 @@ using System.Runtime;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
-using vApus.Publish;
 using vApus.Results;
 using vApus.Util;
 
@@ -549,9 +548,9 @@ namespace vApus.StressTest {
                 var delaysInMilliseconds = new List<int[]>();
 
                 //Get parameterized structures and patterns first sync first.
-                var parameterizedStructures = new ConcurrentDictionary<int, StringTree[]>();
+                var parameterizedStructures = new ConcurrentDictionary<int, Util.StringTree[]>();
                 var testPatterns = new ConcurrentDictionary<int, int[]>();
-                var parameterLessStructures = new Dictionary<Scenario, StringTree[]>();
+                var parameterLessStructures = new Dictionary<Scenario, Util.StringTree[]>();
                 for (int user = 0; user != concurrentUsers; user++) {
                     if (_cancel) return;
 
@@ -567,7 +566,7 @@ namespace vApus.StressTest {
                         previousValue = kvp.Value.Value;
                     }
 
-                    StringTree[] structure = null;
+                    Util.StringTree[] structure = null;
                     if (parameterLessStructures.ContainsKey(scenario)) {
                         structure = parameterLessStructures[scenario];
                     } else {
@@ -626,7 +625,7 @@ namespace vApus.StressTest {
                     try {
                         if (_cancel) loopState.Break();
 
-                        StringTree[] parameterizedStructureArr;
+                        Util.StringTree[] parameterizedStructureArr;
                         parameterizedStructures.TryGetValue(user, out parameterizedStructureArr);
 
                         int[] testPattern;
@@ -1133,7 +1132,7 @@ namespace vApus.StressTest {
             /// <summary>
             /// Used in IConnectionProxy.SendAndReceive.
             /// </summary>
-            public readonly StringTree ParameterizedRequest;
+            public readonly Util.StringTree ParameterizedRequest;
 
             /// <summary>
             ///     Should be scenario.IndexOf(Request) or scenario.IndexOf(UserAction) + "." + UserAction.IndexOf(Request), this must be unique.
@@ -1172,7 +1171,7 @@ namespace vApus.StressTest {
             /// <param name="executeInParallelWithPrevious">Execute parallel with immediate previous sibling. Not used feature atm.</param>
             /// <param name="parallelOffsetInMs">The offset in ms before this 'parallel request' is executed (this simulates what browsers do).</param>
             /// <param name="rerun">0 for all but Break on last runs (Distributed Testing).</param>
-            public TestableRequest(string requestIndex, string sameAsRequestString, StringTree parameterizedRequest, string userAction, bool executeInParallelWithPrevious, int parallelOffsetInMs, int rerun) {
+            public TestableRequest(string requestIndex, string sameAsRequestString, Util.StringTree parameterizedRequest, string userAction, bool executeInParallelWithPrevious, int parallelOffsetInMs, int rerun) {
                 RequestIndex = requestIndex;
                 SameAsRequestIndex = sameAsRequestString;
 
@@ -1218,7 +1217,7 @@ namespace vApus.StressTest {
                     if (connectionProxy == null || connectionProxy.IsDisposed) {
                         exception = new Exception("Connectionproxy is disposed. Metrics for this request (" + testableRequest.ParameterizedRequestString + ") are not correct.");
                     } else {
-                        StringTree parameterizedRequest = testableRequest.ParameterizedRequest;
+                        Util.StringTree parameterizedRequest = testableRequest.ParameterizedRequest;
                         connectionProxy.SendAndReceive(parameterizedRequest, out sentAt, out timeToLastByte, out exception);
                     }
                 } catch (Exception ex) {

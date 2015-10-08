@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -87,13 +88,6 @@ namespace vApus.StressTest {
             get { return _lexicalResult; }
         }
 
-        //All the settings for capturing web traffic.
-        [SavableCloneable]
-        public bool UseAllow { get; set; }
-        [SavableCloneable]
-        public string[] Allow { get { return _allow; } set { _allow = value; } }
-        [SavableCloneable]
-        public bool AllowIncludeReferer { get; set; }
         [SavableCloneable]
         public bool UseDeny { get; set; }
         [SavableCloneable]
@@ -382,8 +376,8 @@ namespace vApus.StressTest {
         ///     Get a list of string trees, these are used in the connection proxy code.
         /// </summary>
         /// <returns></returns>
-        public StringTree[] GetParameterizedStructure(out bool hasParameters) {
-            var parameterizedStructure = new List<StringTree>(Count);
+        public Util.StringTree[] GetParameterizedStructure(out bool hasParameters) {
+            var parameterizedStructure = new List<Util.StringTree>(Count);
 
             string b, e;
             bool requestContainsTokens;

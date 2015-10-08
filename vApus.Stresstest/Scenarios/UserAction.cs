@@ -1,5 +1,4 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
@@ -14,6 +13,9 @@ using System.Runtime.Serialization;
 using System.Threading.Tasks;
 using vApus.SolutionTree;
 using vApus.Util;
+using RandomUtils;
+using RandomUtils.Log;
+
 
 namespace vApus.StressTest {
     /// <summary>
@@ -149,8 +151,8 @@ namespace vApus.StressTest {
         /// <param name="containsTokens">Does the scenario contain the tokens? If not getting the structure can be simpler/faster.</param>
         /// <param name="chosenNextValueParametersForSScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
         /// <returns></returns>
-        internal StringTree[] GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForSScope) {
-            var parameterizedStructure = new StringTree[Count];
+        internal Util.StringTree[] GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForSScope) {
+            var parameterizedStructure = new Util.StringTree[Count];
 
             HashSet<BaseParameter> chosenNextValueParametersForUAScope = parameterTokens == null ? null : new HashSet<BaseParameter>();
 

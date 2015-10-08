@@ -128,6 +128,7 @@ namespace vApus.StressTest {
             scenarioTreeView.SetScenario(_scenario, (sender as EditUserActionPanel).UserActionTreeViewItem.UserAction);
             tmrRefreshGui.Start();
         }
+
         private void tmrRefreshGui_Tick(object sender, EventArgs e) {
             scenarioTreeView.SetGui();
         }

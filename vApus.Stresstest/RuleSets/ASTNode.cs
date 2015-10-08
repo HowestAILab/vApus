@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -87,14 +88,14 @@ namespace vApus.StressTest {
         /// </summary>
         /// <param name="beginTokenDelimiter">Must be determined for a collection of ast nodes (a scenario) (GetUniqueParameterTokenDelimiters()).</param>
         /// <param name="endTokenDelimiter">Must be determined for a collection of ast nodes (a scenario) (GetUniqueParameterTokenDelimiters()).</param>
-        public StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForSScope,
+        public Util.StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForSScope,
                                                      HashSet<BaseParameter> chosenNextValueParametersForUAScope, HashSet<BaseParameter> chosenNextValueParametersForREScope) {
-            StringTree st;
+            Util.StringTree st;
             int count = _children == null ? 0 : _children.Count;
             if (count == 0) {
-                st = new StringTree(ParameterizeValue(parameterTokens, chosenNextValueParametersForSScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForREScope), _childDelimiter, count);
+                st = new Util.StringTree(ParameterizeValue(parameterTokens, chosenNextValueParametersForSScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForREScope), _childDelimiter, count);
             } else {
-                st = new StringTree(string.Empty, _childDelimiter, count);
+                st = new Util.StringTree(string.Empty, _childDelimiter, count);
                 for (int i = 0; i != count; i++)
                     st[i] = _children[i].GetParameterizedStructure(parameterTokens, chosenNextValueParametersForSScope, chosenNextValueParametersForUAScope, chosenNextValueParametersForREScope);
             }

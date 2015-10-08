@@ -70,12 +70,8 @@ namespace vApus.StressTest {
             _scenario.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out requestContainsTokens, false);
 
             SetCodeStyle();
-
-            captureControl.UseAllow = _scenario.UseAllow;
+            
             captureControl.UseDeny = _scenario.UseDeny;
-            captureControl.AllowIncludeReferer = _scenario.AllowIncludeReferer;
-
-            captureControl.Allow = _scenario.Allow;
             captureControl.Deny = _scenario.Deny;
         }
 
@@ -104,18 +100,6 @@ namespace vApus.StressTest {
             try {
                 if (_scenario != null) {
                     bool editted = false;
-                    if (_scenario.UseAllow != captureControl.UseAllow) {
-                        _scenario.UseAllow = captureControl.UseAllow;
-                        editted = true;
-                    }
-                    if (_scenario.Allow.Length != captureControl.Allow.Length) {
-                        _scenario.Allow = captureControl.Allow;
-                        editted = true;
-                    }
-                    if (_scenario.AllowIncludeReferer != captureControl.AllowIncludeReferer) {
-                        _scenario.AllowIncludeReferer = captureControl.AllowIncludeReferer;
-                        editted = true;
-                    }
                     if (_scenario.UseDeny != captureControl.UseDeny) {
                         _scenario.UseDeny = captureControl.UseDeny;
                         editted = true;

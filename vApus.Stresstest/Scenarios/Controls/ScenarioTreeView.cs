@@ -101,6 +101,8 @@ namespace vApus.StressTest {
             largeList.Clear();
             largeList.AddRange(rangeToAdd);
 
+            LockWindowUpdate(IntPtr.Zero);
+
             if (focus != null) {
                 foreach (Control ctrl in largeList.AllControls) {
                     var uatvi = ctrl as UserActionTreeViewItem;
@@ -112,11 +114,10 @@ namespace vApus.StressTest {
             if (largeList.ViewCount <= selection.Key || largeList[selection.Key].Count <= selection.Value || selection.Key == -1 || selection.Value == -1)
                 selection = new KeyValuePair<int, int>(0, 0);
             largeList.Select(selection);
+            largeList.ScrollTo(selection.Key);
 
             _focussedUserActionTreeViewItem = (selection.Key == 0 && selection.Value == 0) ? null : largeList.Selection[0] as UserActionTreeViewItem;
             if (_focussedUserActionTreeViewItem == null) _scenarioTreeViewItem.Focus(); else _focussedUserActionTreeViewItem.Focus();
-
-            LockWindowUpdate(IntPtr.Zero);
         }
 
         private void _scenarioTreeViewItem_AddPasteUserActionClicked(object sender, ScenarioTreeView.AddUserActionEventArgs e) { CreateAndAddUserActionTreeViewItem(e.UserAction); }
@@ -136,7 +137,7 @@ namespace vApus.StressTest {
             if (atIndex == -1 || atIndex >= largeList.ControlCount)
                 largeList.Add(uatvi);
             else
-                largeList.Insert(uatvi, new KeyValuePair<int, int>(largeList.CurrentView, atIndex));
+                largeList.Insert(uatvi, largeList.ParseFlatIndex(atIndex));
             return uatvi;
         }
         private UserActionTreeViewItem CreateUserActionTreeViewItem(UserAction userAction) {
@@ -162,7 +163,7 @@ namespace vApus.StressTest {
         public void SelectUserActionTreeViewItem(int userActionIndex) {
             //+ 1 because there is a ScenarioTreeViewItem.
             ++userActionIndex;
-
+            
             int i = 0;
             foreach (Control control in largeList.AllControls)
                 if (i++ == userActionIndex) {

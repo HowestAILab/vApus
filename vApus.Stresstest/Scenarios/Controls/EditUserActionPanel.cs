@@ -34,7 +34,7 @@ namespace vApus.StressTest {
         private Scenario _scenario;
 
         //This list should be long enough to color user actions grouped together in a 'link'.
-        private static int[] _linkColors = { 0x00FF00, 0x0000FF, 0xFF0000, 0x01FFFE, 0xFFA6FE, 0xFFDB66, 0x006401, 0x010067, 0x95003A, 0x007DB5, 0xFF00F6, 0xFFEEE8, 0x774D00, 0x90FB92, 0x0076FF, 0xD5FF00, 
+        private static int[] _linkColors = { 0x00FF00, 0x0000FF, 0xFF0000, 0x01FFFE, 0xFFA6FE, 0xFFDB66, 0x006401, 0x010067, 0x95003A, 0x007DB5, 0xFF00F6, 0xFFEEE8, 0x774D00, 0x90FB92, 0x0076FF, 0xD5FF00,
                                              0xFF937E, 0x6A826C, 0xFF029D, 0xFE8900, 0x7A4782, 0x7E2DD2, 0x85A900, 0xFF0056, 0xA42400, 0x00AE7E, 0x683D3B, 0xBDC6FF, 0x263400, 0xBDD393, 0x00B917, 0x9E008E,
                                              0x001544, 0xC28C9F, 0xFF74A3, 0x01D0FF, 0x004754, 0xE56FFE, 0x788231, 0x0E4CA1, 0x91D0CB, 0xBE9970, 0x968AE8, 0xBB8800, 0x43002C, 0xDEFF74, 0x00FFC6, 0xFFE502,
                                              0x620E00, 0x008F9C, 0x98FF52, 0x7544B1, 0xB500FF, 0x00FF78, 0xFF6E41, 0x005F39, 0x6B6882, 0x5FAD4E, 0xA75740, 0xA5FFD2, 0xFFB167, 0x009BFF, 0xE85EBE };
@@ -935,7 +935,7 @@ namespace vApus.StressTest {
             BaseItem textParameters = _parameters[2];
             BaseItem customRandomParameters = _parameters[3];
 
-            var scopeIdentifiers = new[] { ASTNode.ALWAYS_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.REQUEST_PARAMETER_SCOPE, 
+            var scopeIdentifiers = new[] { ASTNode.ALWAYS_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.REQUEST_PARAMETER_SCOPE,
                 ASTNode.USER_ACTION_PARAMETER_SCOPE, ASTNode.SCENARIO_PARAMETER_SCOPE };
 
 
@@ -1035,6 +1035,17 @@ namespace vApus.StressTest {
 
         #region Edit View
         private void chkUseEditView_CheckedChanged(object sender, EventArgs e) { FillEditView(); }
+
+        //Draw the row index
+        private void dgvRequests_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e) {
+            var dgv = sender as DataGridView;
+            int rowIndex = e.RowIndex + 1;
+            if (rowIndex != dgv.Rows.Count) {
+                var headerBounds = new Rectangle(e.RowBounds.Left, e.RowBounds.Top, dgv.RowHeadersWidth, e.RowBounds.Height);
+                e.Graphics.DrawString(rowIndex.ToString(), this.Font, SystemBrushes.ControlText, headerBounds, new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            }
+        }
+
         private void dgvRequests_CellEnter(object sender, DataGridViewCellEventArgs e) { FillEditView(); }
         private void fctxteditView_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             if (dgvRequests.CurrentCell != null) {

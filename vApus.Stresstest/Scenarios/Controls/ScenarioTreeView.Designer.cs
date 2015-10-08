@@ -23,7 +23,7 @@
         /// the contents of this method with the code editor.
         /// </summary>
         private void InitializeComponent() {
-            this.largeList = new vApus.Util.LargeList();
+            this.largeList = new RandomUtils.LargeList();
             this.SuspendLayout();
             // 
             // largeList
@@ -32,7 +32,7 @@
             this.largeList.Location = new System.Drawing.Point(0, 0);
             this.largeList.Name = "largeList";
             this.largeList.Size = new System.Drawing.Size(288, 358);
-            this.largeList.SizeMode = vApus.Util.SizeMode.StretchHorizontal;
+            this.largeList.SizeMode = RandomUtils.SizeMode.StretchHorizontal;
             this.largeList.TabIndex = 2;
             // 
             // ScenarioTreeView
@@ -48,6 +48,6 @@
 
         #endregion
 
-        private Util.LargeList largeList;
+        private RandomUtils.LargeList largeList;
     }
 }

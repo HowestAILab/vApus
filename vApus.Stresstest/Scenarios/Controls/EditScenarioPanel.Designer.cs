@@ -93,29 +93,14 @@
             // 
             // captureControl
             // 
-            this.captureControl.Allow = new string[0];
-            this.captureControl.AllowIncludeReferer = true;
             this.captureControl.Deny = new string[] {
-        "addthis.com",
-        "apis.google.com",
-        "cloudflare.com",
-        "facebook.com",
-        "google-analytics.com",
-        "googleapis.com",
-        "linkedin.com",
-        "m.addthisedge.com",
-        "nedstatbasic.net",
-        "plusone.google.com",
-        "ssl.gstatic.com",
-        "twimg.com",
-        "twitter.com",
-        "youtube.com"};
+        "addthis.com", "cloudflare.com", "facebook.com", "google.com", "google-analytics.com", "googleapis.com", "linkedin.com",
+            "m.addthisedge.com", "microsoft.com", "nedstatbasic.net", "gstatic.com", "twimg.com", "twitter.com", "youtube.com"};
             this.captureControl.Dock = System.Windows.Forms.DockStyle.Fill;
             this.captureControl.Location = new System.Drawing.Point(3, 3);
             this.captureControl.Name = "captureControl";
             this.captureControl.Size = new System.Drawing.Size(741, 576);
             this.captureControl.TabIndex = 31;
-            this.captureControl.UseAllow = false;
             this.captureControl.UseDeny = false;
             this.captureControl.StartClicked += new System.EventHandler(this.captureControl_StartClicked);
             this.captureControl.StopClicked += new System.EventHandler(this.captureControl_StopClicked);

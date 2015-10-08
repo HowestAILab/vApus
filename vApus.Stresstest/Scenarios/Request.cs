@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel;
@@ -236,7 +237,7 @@ namespace vApus.StressTest {
         /// <param name="chosenNextValueParametersForSScope">Can be an empty hash set but may not be null, used to store all these values for the right scope.</param>
         /// <param name="chosenNextValueParametersForUAScope">Can be an empty hash set but may not be null, used to store all these values for the right scope. If the request is not in a user action this should be an empty hash set.</param>
         /// <returns></returns>
-        internal StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForSScope, HashSet<BaseParameter> chosenNextValueParametersForUAScope) {
+        internal Util.StringTree GetParameterizedStructure(Dictionary<string, BaseParameter> parameterTokens, HashSet<BaseParameter> chosenNextValueParametersForSScope, HashSet<BaseParameter> chosenNextValueParametersForUAScope) {
 
             HashSet<BaseParameter> chosenNextValueParametersForREScope = parameterTokens == null ? null : new HashSet<BaseParameter>();
 

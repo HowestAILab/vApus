@@ -210,7 +210,6 @@
     <Compile Include="CodeEditing\CodeTextBox.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="CompilerUnit.cs" />
     <Compile Include="CodeEditing\XMLTextStyle.cs" />
     <Compile Include="CodeEditing\CSharpTextStyle.cs" />
     <Compile Include="ControlsAndPanels\CleanTempDataPanel.cs">
@@ -222,7 +221,6 @@
     <Compile Include="ControlsAndPanels\CueTextBox.cs">
       <SubType>Component</SubType>
     </Compile>
-    <Compile Include="ControlsAndPanels\DataGridViewImageCellBlank.cs" />
     <Compile Include="ControlsAndPanels\AutoExportResultsPanel\AutoExportResultsManager.cs" />
     <Compile Include="ControlsAndPanels\AutoExportResultsPanel\AutoExportResultsPanel.cs">
       <SubType>Component</SubType>
@@ -295,12 +293,6 @@
     <Compile Include="ControlsAndPanels\ExtendedListView\ListViewTextCaseInsensitiveSorter.cs" />
     <Compile Include="ControlsAndPanels\ExtendedListView\SortableListviewColumnHeader.cs">
       <SubType>Component</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\LargeList.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="ControlsAndPanels\LargeList.designer.cs">
-      <DependentUpon>LargeList.cs</DependentUpon>
     </Compile>
     <Compile Include="ControlsAndPanels\ToolStripStatusSpringLabel.cs">
       <SubType>Component</SubType>
@@ -400,7 +392,6 @@
       <SubType>Component</SubType>
     </Compile>
     <Compile Include="CookieDecoder.cs" />
-    <Compile Include="Countdown.cs" />
     <Compile Include="DatabaseActions.cs" />
     <Compile Include="Dialogs\ExtendedScheduleDialog.cs">
       <SubType>Form</SubType>
@@ -413,12 +404,6 @@
     </Compile>
     <Compile Include="Dialogs\FromTextDialog.Designer.cs">
       <DependentUpon>FromTextDialog.cs</DependentUpon>
-    </Compile>
-    <Compile Include="Dialogs\InputDialog.cs">
-      <SubType>Form</SubType>
-    </Compile>
-    <Compile Include="Dialogs\InputDialog.designer.cs">
-      <DependentUpon>InputDialog.cs</DependentUpon>
     </Compile>
     <Compile Include="Comparers.cs" />
     <Compile Include="Dialogs\OptionsDialog.cs">
@@ -453,14 +438,12 @@
     </Compile>
     <Compile Include="ProxyHelper.cs" />
     <Compile Include="ObjectService\NamedObjectRegistrar.cs" />
-    <Compile Include="RemoteDesktop.cs" />
     <Compile Include="SendMessage.cs" />
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />
     <Compile Include="SocketWrapper\SocketWrapper.cs" />
     <Compile Include="SpecialFolder.cs" />
     <Compile Include="BackgroundWorkQueueWrapper.cs" />
     <Compile Include="ObjectService\ObjectRegistrar.cs" />
-    <Compile Include="StringTree.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ControlsAndPanels\UpdateNotifier\UpdateNotifier.cs" />
     <Compile Include="ControlsAndPanels\Tracert\Tracert.cs" />
@@ -476,6 +459,7 @@
     <Compile Include="Dialogs\TracertDialog.Designer.cs">
       <DependentUpon>TracertDialog.cs</DependentUpon>
     </Compile>
+    <Compile Include="StringTree.cs" />
     <Compile Include="Win32WindowMessageHandler.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -503,10 +487,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\KeyValuePairControl.resx">
       <DependentUpon>KeyValuePairControl.cs</DependentUpon>
-      <SubType>Designer</SubType>
-    </EmbeddedResource>
-    <EmbeddedResource Include="ControlsAndPanels\LargeList.resx">
-      <DependentUpon>LargeList.cs</DependentUpon>
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="ControlsAndPanels\TestProgressNotifier\TestProgressNotifierPanel.resx">
@@ -543,10 +523,6 @@
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\FromTextDialog.resx">
       <DependentUpon>FromTextDialog.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Dialogs\InputDialog.resx">
-      <DependentUpon>InputDialog.cs</DependentUpon>
-      <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Dialogs\OptionsDialog.resx">
       <DependentUpon>OptionsDialog.cs</DependentUpon>
