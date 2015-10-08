@@ -1040,6 +1040,17 @@ namespace vApus.Stresstest {
 
         #region Edit View
         private void chkUseEditView_CheckedChanged(object sender, EventArgs e) { FillEditView(); }
+
+        //Draw the row index
+        private void dgvLogEntries_RowPostPaint(object sender, DataGridViewRowPostPaintEventArgs e) {
+            var dgv = sender as DataGridView;
+            int rowIndex = e.RowIndex + 1;
+            if (rowIndex != dgv.Rows.Count) {
+                var headerBounds = new Rectangle(e.RowBounds.Left, e.RowBounds.Top, dgv.RowHeadersWidth, e.RowBounds.Height);
+                e.Graphics.DrawString(rowIndex.ToString(), this.Font, SystemBrushes.ControlText, headerBounds, new StringFormat() { Alignment = StringAlignment.Center, LineAlignment = StringAlignment.Center });
+            }
+        }
+
         private void dgvLogEntries_CellEnter(object sender, DataGridViewCellEventArgs e) { FillEditView(); }
         private void fctxteditView_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             if (dgvLogEntries.CurrentCell != null) {
