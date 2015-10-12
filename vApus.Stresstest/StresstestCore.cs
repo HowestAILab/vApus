@@ -34,7 +34,7 @@ namespace vApus.Stresstest {
 
         #region Fields
         /// <summary>
-        ///     To be able to execute log entries parallel. This feature is not used at the time.
+        /// To be able to execute log entries parallel. This feature is not used at the time.
         /// </summary>
         [ThreadStatic]
         private static SyncAndAsyncWorkItem _syncAndAsyncWorkItem;

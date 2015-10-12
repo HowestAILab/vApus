@@ -1204,9 +1204,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 int runResultId = (int)rrRow.ItemArray[0];
 
                                 //We don't want duplicates
-                                DataTable logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1' AND CHAR_LENGTH(SameAsLogEntryIndex)=0", runResultId,
-                                        "UserAction", "LogEntry");
+                                DataTable logEntryResults = ReaderAndCombiner.GetLogEntryResults(cancellationToken, _databaseActions, "CHAR_LENGTH(SameAsLogEntryIndex)=0", runResultId, "UserAction", "LogEntry");
                                 if (logEntryResults == null || logEntryResults.Rows.Count == 0) continue;
+
+                                logEntryResults = DistinctBy(logEntryResults, "LogEntry");
 
                                 var userActions = new Dictionary<string, List<string>>();
                                 foreach (DataRow lerRow in logEntryResults.Rows) {
@@ -1240,6 +1241,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
+        }
+
+        private DataTable DistinctBy(DataTable dt, string column) {
+            DataTable newDt = dt.Clone();
+
+            var keys = new HashSet<object>();
+            foreach (DataRow row in dt.Rows) 
+                if (keys.Add(row[column])) 
+                    newDt.Rows.Add(row.ItemArray);
+                
+            return newDt;
         }
 
         /// <summary>
@@ -2550,7 +2562,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             private UserActionComparer() { }
 
             public int Compare(string x, string y) {
-                if (x.StartsWith(LOG)) { //Backwards compatible.
+                if (x.StartsWith(LOG, StringComparison.InvariantCultureIgnoreCase)) { //Backwards compatible.
 
                     int xColonUa = x.IndexOf(COLON);
                     if (xColonUa == -1) xColonUa = x.IndexOf(UA) - 1;
@@ -2563,16 +2575,15 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         xColonUa = x.IndexOf(UA) - 1;
                         int.TryParse(x.Substring(LOG.Length, xColonUa - LOG.Length), out logX);
                     }
-                    if (!int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY)) {
+                    if (!int.TryParse(y.Substring(LOG.Length, yColonUa - LOG.Length), out logY)) {
                         yColonUa = y.IndexOf(UA) - 1;
-                        int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY);
+                        int.TryParse(y.Substring(LOG.Length, yColonUa - LOG.Length), out logY);
                     }
-
                     if (logX > logY) return 1;
-                    if (logY < logX) return -1;
+                    if (logY > logX) return -1;
 
-                    int xUA = x.IndexOf(UA);
-                    int yUA = y.IndexOf(UA);
+                    int xUA = x.IndexOf(UA, StringComparison.InvariantCultureIgnoreCase);
+                    int yUA = y.IndexOf(UA, StringComparison.InvariantCultureIgnoreCase);
 
                     x = x.Substring(xUA);
                     y = y.Substring(yUA);
