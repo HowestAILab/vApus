@@ -345,13 +345,13 @@ namespace vApus.Results {
                         xColonUa = x.IndexOf(UA) - 1;
                         int.TryParse(x.Substring(SCENARIO.Length, xColonUa - SCENARIO.Length), out scenarioX);
                     }
-                    if (!int.TryParse(x.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY)) {
+                    if (!int.TryParse(y.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY)) {
                         yColonUa = y.IndexOf(UA) - 1;
-                        int.TryParse(x.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY);
+                        int.TryParse(y.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY);
                     }
 
                     if (scenarioX > scenarioY) return 1;
-                    if (scenarioY < scenarioX) return -1;
+                    if (scenarioY > scenarioX) return -1;
 
                     int xUA = x.IndexOf(UA);
                     int yUA = y.IndexOf(UA);

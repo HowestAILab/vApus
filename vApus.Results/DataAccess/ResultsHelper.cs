@@ -1226,9 +1226,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                 int runResultId = (int)rrRow.ItemArray[0];
 
                                 //We don't want duplicates
-                                DataTable requestResults = ReaderAndCombiner.GetRequestResults(cancellationToken, _databaseActions, "VirtualUser='vApus Thread Pool Thread #1' AND CHAR_LENGTH(SameAsRequestIndex)=0", runResultId,
-                                        "UserAction", "Request");
+                                DataTable requestResults = ReaderAndCombiner.GetRequestResults(cancellationToken, _databaseActions, "CHAR_LENGTH(SameAsRequestIndex)=0", runResultId, "UserAction", "Request");
                                 if (requestResults == null || requestResults.Rows.Count == 0) continue;
+
+                                requestResults = DistinctBy(requestResults, "Request");
 
                                 var userActions = new Dictionary<string, List<string>>();
                                 foreach (DataRow rerRow in requestResults.Rows) {
@@ -1262,6 +1263,17 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 }
                 return cacheEntry.ReturnValue as DataTable;
             }
+        }
+
+        private DataTable DistinctBy(DataTable dt, string column) {
+            DataTable newDt = dt.Clone();
+
+            var keys = new HashSet<object>();
+            foreach (DataRow row in dt.Rows)
+                if (keys.Add(row[column]))
+                    newDt.Rows.Add(row.ItemArray);
+
+            return newDt;
         }
 
         /// <summary>
@@ -2605,13 +2617,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         xColonUa = x.IndexOf(UA) - 1;
                         int.TryParse(x.Substring(SCENARIO.Length, xColonUa - SCENARIO.Length), out scenarioX);
                     }
-                    if (!int.TryParse(x.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY)) {
+                    if (!int.TryParse(y.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY)) {
                         yColonUa = y.IndexOf(UA) - 1;
-                        int.TryParse(x.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY);
+                        int.TryParse(y.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY);
                     }
 
                     if (scenarioX > scenarioY) return 1;
-                    if (scenarioY < scenarioX) return -1;
+                    if (scenarioY > scenarioX) return -1;
 
                     int xUA = x.IndexOf(UA, StringComparison.InvariantCultureIgnoreCase);
                     int yUA = y.IndexOf(UA, StringComparison.InvariantCultureIgnoreCase);
