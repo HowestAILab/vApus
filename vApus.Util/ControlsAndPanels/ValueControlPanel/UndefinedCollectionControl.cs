@@ -20,6 +20,11 @@ namespace vApus.Util {
         private Type _elementType;
         private IEnumerable _value;
 
+        private int _rowCount;
+
+        private bool Truncated { get { return _rowCount > 1000; } }
+
+
         /// <summary>
         ///     Designer time constructor.
         /// </summary>
@@ -73,15 +78,23 @@ namespace vApus.Util {
             dataGridView.CellValueChanged -= dataGridView_CellValueChanged;
             dataGridView.RowsRemoved -= dataGridView_RowsRemoved;
             dataGridView.Rows.Clear();
+            _rowCount = 0;
 
             dataGridView.SuspendLayout();
             IEnumerator enumerator = value.GetEnumerator();
             while (enumerator.MoveNext())
                 if (enumerator.Current != null) {
-                    var row = new DataGridViewRow();
-                    row.Cells.Add(CreateDataGridViewCell(enumerator.Current));
-                    dataGridView.Rows.Add(row);
+                    ++_rowCount;
+                    if (!Truncated) {
+                        var row = new DataGridViewRow();
+                        row.Cells.Add(CreateDataGridViewCell(enumerator.Current));
+                        dataGridView.Rows.Add(row);
+                    }
                 }
+            dataGridView.ReadOnly = Truncated;
+
+            btnEdit.Text = (Truncated) ? "[Truncated] Edit..." : "Edit...";
+
             dataGridView.ResumeLayout();
 
             dataGridView.CellValueChanged += dataGridView_CellValueChanged;
@@ -116,9 +129,13 @@ namespace vApus.Util {
             var fromTextDialog = new FromTextDialog();
 
             var sb = new StringBuilder();
-            for (int i = 0; i < Rows.Count - 1; i++)
-                if (Rows[i].Cells[0].Value != null)
-                    sb.AppendLine(Rows[i].Cells[0].Value.ToString());
+            if (Truncated)
+                foreach (object value in _value)
+                    sb.AppendLine(value.ToString());
+            else
+                for (int i = 0; i < Rows.Count - 1; i++)
+                    if (Rows[i].Cells[0].Value != null)
+                        sb.AppendLine(Rows[i].Cells[0].Value.ToString());
 
             fromTextDialog.SetText(sb.ToString().Trim());
 
