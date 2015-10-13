@@ -341,13 +341,13 @@ namespace vApus.Results {
                         xColonUa = x.IndexOf(UA) - 1;
                         int.TryParse(x.Substring(LOG.Length, xColonUa - LOG.Length), out logX);
                     }
-                    if (!int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY)) {
+                    if (!int.TryParse(y.Substring(LOG.Length, yColonUa - LOG.Length), out logY)) {
                         yColonUa = y.IndexOf(UA) - 1;
-                        int.TryParse(x.Substring(LOG.Length, yColonUa - LOG.Length), out logY);
+                        int.TryParse(y.Substring(LOG.Length, yColonUa - LOG.Length), out logY);
                     }
 
                     if (logX > logY) return 1;
-                    if (logY < logX) return -1;
+                    if (logY > logX) return -1;
 
                     int xUA = x.IndexOf(UA);
                     int yUA = y.IndexOf(UA);

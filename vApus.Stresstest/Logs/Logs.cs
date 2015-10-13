@@ -27,6 +27,8 @@ namespace vApus.Stresstest {
         //Do not synchronize the tokens of a log that was imported together with parameter data structures. (ImportLogAndUsedParameters_Click)
         //The value of a KVP is a parameters collection.
         private List<KeyValuePair<Log, object>> _excludeFromSynchronizeTokens = new List<KeyValuePair<Log, object>>();
+        private const string VBLRn = "<16 0C 02 12n>";
+        private const string VBLRr = "<16 0C 02 12r>";
         #endregion
 
         #region Constructor
@@ -215,13 +217,17 @@ namespace vApus.Stresstest {
                             var logEntry = x as LogEntry;
                             for (int i = indexMapLeft1.Length - 1; i != -1; i--) {
                                 List<int> rows, columns, matchLengths;
-                                FindAndReplace.Find(indexMapLeft1[i], logEntry.LogEntryString, out rows, out columns, out matchLengths, false, true);
+                                string prepLogEntryString = logEntry.LogEntryString.Replace("\n", VBLRn).Replace("\r", VBLRr);
+                                
+                                FindAndReplace.Find(indexMapLeft1[i], prepLogEntryString, out rows, out columns, out matchLengths, false, true);
                                 if (matchLengths.Count != 0)
-                                    logEntry.LogEntryString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, logEntry.LogEntryString, indexMapRight1[i]);
+                                    prepLogEntryString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, prepLogEntryString, indexMapRight1[i]);
 
-                                FindAndReplace.Find(indexMapLeft2[i], logEntry.LogEntryString, out rows, out columns, out matchLengths, false, true);
+                                FindAndReplace.Find(indexMapLeft2[i], prepLogEntryString, out rows, out columns, out matchLengths, false, true);
                                 if (matchLengths.Count != 0)
-                                    logEntry.LogEntryString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, logEntry.LogEntryString, indexMapRight2[i]);
+                                    prepLogEntryString = vApus.Util.FindAndReplace.Replace(rows, columns, matchLengths, prepLogEntryString, indexMapRight2[i]);
+
+                                logEntry.LogEntryString = prepLogEntryString.Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                             }
                         });
 

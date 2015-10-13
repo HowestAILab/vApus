@@ -25,8 +25,8 @@
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditUserActionPanel));
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             this.lblLabel = new System.Windows.Forms.Label();
             this.txtLabel = new System.Windows.Forms.TextBox();
             this.lblMove = new System.Windows.Forms.Label();
@@ -101,13 +101,12 @@
             // 
             // txtLabel
             // 
-            this.txtLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtLabel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtLabel.Location = new System.Drawing.Point(56, 36);
             this.txtLabel.Name = "txtLabel";
             this.txtLabel.Size = new System.Drawing.Size(935, 20);
             this.txtLabel.TabIndex = 25;
-            //this.txtLabel.TextChanged += new System.EventHandler(this.txtLabel_TextChanged);
             this.txtLabel.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtLabel_KeyUp);
             this.txtLabel.Leave += new System.EventHandler(this.txtLabel_Leave);
             // 
@@ -278,8 +277,8 @@
             // 
             // splitParameterTokens
             // 
-            this.splitParameterTokens.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.splitParameterTokens.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.splitParameterTokens.BackColor = System.Drawing.SystemColors.Control;
             this.splitParameterTokens.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
@@ -335,8 +334,8 @@
             // 
             // splitStructured
             // 
-            this.splitStructured.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.splitStructured.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.splitStructured.BackColor = System.Drawing.SystemColors.Control;
             this.splitStructured.Location = new System.Drawing.Point(0, 0);
@@ -361,8 +360,8 @@
             // 
             this.dgvLogEntries.AllowDrop = true;
             this.dgvLogEntries.AllowUserToDeleteRows = false;
-            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
-            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle3;
+            dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
+            this.dgvLogEntries.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
             this.dgvLogEntries.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvLogEntries.BackgroundColor = System.Drawing.Color.White;
             this.dgvLogEntries.BorderStyle = System.Windows.Forms.BorderStyle.None;
@@ -376,14 +375,15 @@
             this.dgvLogEntries.Name = "dgvLogEntries";
             this.dgvLogEntries.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             this.dgvLogEntries.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvLogEntries.RowsDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvLogEntries.Size = new System.Drawing.Size(985, 387);
             this.dgvLogEntries.TabIndex = 32;
             this.dgvLogEntries.VirtualMode = true;
             this.dgvLogEntries.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvLogEntries_CellEnter);
             this.dgvLogEntries.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValueNeeded);
             this.dgvLogEntries.CellValuePushed += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvLogEntries_CellValuePushed);
+            this.dgvLogEntries.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dgvLogEntries_RowPostPaint);
             this.dgvLogEntries.DragDrop += new System.Windows.Forms.DragEventHandler(this.dgvLogEntries_DragDrop);
             this.dgvLogEntries.DragOver += new System.Windows.Forms.DragEventHandler(this.dgvLogEntries_DragOver);
             this.dgvLogEntries.KeyUp += new System.Windows.Forms.KeyEventHandler(this.dgvLogEntries_KeyUp);
@@ -410,6 +410,17 @@
             // 
             // fctxteditView
             // 
+            this.fctxteditView.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
             this.fctxteditView.AutoScrollMinSize = new System.Drawing.Size(0, 22);
             this.fctxteditView.BackBrush = null;
             this.fctxteditView.CharHeight = 22;
@@ -417,6 +428,7 @@
             this.fctxteditView.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxteditView.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fctxteditView.Enabled = false;
+            this.fctxteditView.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.fctxteditView.IsReplaceMode = false;
             this.fctxteditView.LineInterval = 8;
             this.fctxteditView.Location = new System.Drawing.Point(6, 0);
@@ -424,6 +436,7 @@
             this.fctxteditView.Paddings = new System.Windows.Forms.Padding(0);
             this.fctxteditView.PreferredLineWidth = 65536;
             this.fctxteditView.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctxteditView.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctxteditView.ServiceColors")));
             this.fctxteditView.Size = new System.Drawing.Size(973, 155);
             this.fctxteditView.TabIndex = 2;
             this.fctxteditView.WordWrap = true;
@@ -443,15 +456,27 @@
             // 
             // fctxtxPlainText
             // 
-            this.fctxtxPlainText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.fctxtxPlainText.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.fctxtxPlainText.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
             this.fctxtxPlainText.AutoScrollMinSize = new System.Drawing.Size(0, 22);
             this.fctxtxPlainText.BackBrush = null;
             this.fctxtxPlainText.CharHeight = 22;
             this.fctxtxPlainText.CharWidth = 8;
             this.fctxtxPlainText.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxtxPlainText.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.fctxtxPlainText.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.fctxtxPlainText.IsReplaceMode = false;
             this.fctxtxPlainText.LineInterval = 8;
             this.fctxtxPlainText.Location = new System.Drawing.Point(3, 3);
@@ -459,6 +484,7 @@
             this.fctxtxPlainText.Paddings = new System.Windows.Forms.Padding(0);
             this.fctxtxPlainText.PreferredLineWidth = 65536;
             this.fctxtxPlainText.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctxtxPlainText.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctxtxPlainText.ServiceColors")));
             this.fctxtxPlainText.Size = new System.Drawing.Size(981, 386);
             this.fctxtxPlainText.TabIndex = 1;
             this.fctxtxPlainText.WordWrap = true;
@@ -476,7 +502,7 @@
             // 
             // cboParameterScope
             // 
-            this.cboParameterScope.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.cboParameterScope.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.cboParameterScope.BackColor = System.Drawing.Color.White;
             this.cboParameterScope.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
@@ -507,7 +533,7 @@
             // 
             // flpTokens
             // 
-            this.flpTokens.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
+            this.flpTokens.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left)));
             this.flpTokens.AutoScroll = true;
             this.flpTokens.BackColor = System.Drawing.Color.White;
@@ -642,7 +668,7 @@
             // 
             // flpLink
             // 
-            this.flpLink.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.flpLink.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpLink.AutoScroll = true;
             this.flpLink.Controls.Add(this.btnMerge);

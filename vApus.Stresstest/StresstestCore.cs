@@ -34,7 +34,7 @@ namespace vApus.Stresstest {
 
         #region Fields
         /// <summary>
-        ///     To be able to execute log entries parallel. This feature is not used at the time.
+        /// To be able to execute log entries parallel. This feature is not used at the time.
         /// </summary>
         [ThreadStatic]
         private static SyncAndAsyncWorkItem _syncAndAsyncWorkItem;
@@ -473,7 +473,7 @@ namespace vApus.Stresstest {
             InvokeMessage("Initialize Connection Proxy Pool...");
             _sw.Start();
             _connectionProxyPool = new ConnectionProxyPool(_stresstest.Connection);
-            CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(false);
+            CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(true, false);
             if (compilerResults.Errors.HasErrors) {
                 var sb = new StringBuilder("Failed at compiling the connection proxy class:");
                 sb.AppendLine();
