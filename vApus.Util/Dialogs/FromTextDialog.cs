@@ -9,6 +9,7 @@
 using System;
 using System.ComponentModel;
 using System.Windows.Forms;
+using System.Collections.Generic;
 
 namespace vApus.Util {
     /// <summary>
@@ -17,22 +18,21 @@ namespace vApus.Util {
     public partial class FromTextDialog : Form {
 
         #region Fields
-        private string[] _entries = new string[] { };
+        private IList<string> _entries = new List<string>();
         #endregion
 
         #region Properties
 
-        public string[] Entries {
-            get { return _entries; }
-        }
+        public IList<string> Entries { get { return _entries; } }
+
         public string Description {
             get { return rtxtDescription.Text; }
             set {
                 rtxtDescription.Text = value.Trim();
                 split.Panel1Collapsed = rtxtDescription.Text.Length == 0;
-                rtxt.Focus();
-                rtxt.Select();
-                rtxt.Select(rtxt.Text.Length, 0);
+                fctxt.Focus();
+                fctxt.Select();
+                fctxt.SelectionStart = fctxt.Text.Length;
             }
         }
         [DefaultValue(true)]
@@ -46,7 +46,7 @@ namespace vApus.Util {
             InitializeComponent();
             WarnForEndingWithNewLine = true;
 
-            rtxt.DefaultContextMenu(true);
+            fctxt.DefaultContextMenu(true);
         }
 
         #endregion
@@ -54,35 +54,25 @@ namespace vApus.Util {
         #region Functions
 
         public void SetText(string text) {
-            rtxt.Text = text;
-            rtxt.Focus();
-            rtxt.Select();
-            rtxt.Select(rtxt.Text.Length, 0);
+            fctxt.Text = text;
+            fctxt.Focus();
+            fctxt.Select();
+            fctxt.SelectionStart = fctxt.Text.Length;
         }
         public string GetText() {
-            return rtxt.Text.Trim();
+            return fctxt.Text.Trim();
         }
 
         private void btnOK_Click(object sender, EventArgs e) {
             if (WarnForEndingWithNewLine &&
-                (rtxt.Text.EndsWith("\r") || rtxt.Text.EndsWith("\n")) &&
-                MessageBox.Show("The text ends with one ore more new line characters, do you want to trim these?",  string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                rtxt.Text = rtxt.Text.TrimEnd();
+                (fctxt.Text.EndsWith("\r") || fctxt.Text.EndsWith("\n")) &&
+                MessageBox.Show("The text ends with one ore more new line characters, do you want to trim these?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
+                fctxt.Text = fctxt.Text.TrimEnd();
 
-            _entries = rtxt.Text.Split('\n');
+            _entries = fctxt.Lines;
             DialogResult = DialogResult.OK;
             Close();
         }
-
-        private void rtxt_KeyPress(object sender, KeyPressEventArgs e) {
-            //Paste
-            if (e.KeyChar == (char)22) {
-                string text = rtxt.Text;
-                rtxt.Rtf = string.Empty;
-                rtxt.Text = text;
-            }
-        }
-
         #endregion
     }
 }

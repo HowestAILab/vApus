@@ -28,27 +28,51 @@
         /// </summary>
         private void InitializeComponent()
         {
-            this.rtxt = new System.Windows.Forms.RichTextBox();
+            this.components = new System.ComponentModel.Container();
+            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FromTextDialog));
+            this.fctxt = new FastColoredTextBoxNS.FastColoredTextBox();
             this.btnOK = new System.Windows.Forms.Button();
             this.btnCancel = new System.Windows.Forms.Button();
             this.rtxtDescription = new System.Windows.Forms.RichTextBox();
             this.split = new System.Windows.Forms.SplitContainer();
+            ((System.ComponentModel.ISupportInitialize)(this.fctxt)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.split)).BeginInit();
             this.split.Panel1.SuspendLayout();
             this.split.Panel2.SuspendLayout();
             this.split.SuspendLayout();
             this.SuspendLayout();
             // 
-            // rtxt
+            // fctxt
             // 
-            this.rtxt.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtxt.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.rtxt.Location = new System.Drawing.Point(0, 0);
-            this.rtxt.Name = "rtxt";
-            this.rtxt.Size = new System.Drawing.Size(460, 408);
-            this.rtxt.TabIndex = 0;
-            this.rtxt.Text = "";
-            this.rtxt.KeyPress += new System.Windows.Forms.KeyPressEventHandler(this.rtxt_KeyPress);
+            this.fctxt.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
+            this.fctxt.AutoScrollMinSize = new System.Drawing.Size(2, 15);
+            this.fctxt.BackBrush = null;
+            this.fctxt.CharHeight = 15;
+            this.fctxt.CharWidth = 7;
+            this.fctxt.Cursor = System.Windows.Forms.Cursors.IBeam;
+            this.fctxt.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.fctxt.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fctxt.Font = new System.Drawing.Font("Consolas", 9.75F);
+            this.fctxt.IsReplaceMode = false;
+            this.fctxt.Location = new System.Drawing.Point(0, 0);
+            this.fctxt.Name = "fctxt";
+            this.fctxt.Paddings = new System.Windows.Forms.Padding(0);
+            this.fctxt.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctxt.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctxt.ServiceColors")));
+            this.fctxt.ShowLineNumbers = false;
+            this.fctxt.Size = new System.Drawing.Size(460, 408);
+            this.fctxt.TabIndex = 0;
+            this.fctxt.Zoom = 100;
             // 
             // btnOK
             // 
@@ -109,7 +133,7 @@
             // 
             // split.Panel2
             // 
-            this.split.Panel2.Controls.Add(this.rtxt);
+            this.split.Panel2.Controls.Add(this.fctxt);
             this.split.Size = new System.Drawing.Size(460, 408);
             this.split.SplitterDistance = 100;
             this.split.TabIndex = 0;
@@ -129,6 +153,7 @@
             this.ShowIcon = false;
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
+            ((System.ComponentModel.ISupportInitialize)(this.fctxt)).EndInit();
             this.split.Panel1.ResumeLayout(false);
             this.split.Panel2.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.split)).EndInit();
@@ -139,7 +164,7 @@
 
         #endregion
 
-        private System.Windows.Forms.RichTextBox rtxt;
+        private FastColoredTextBoxNS.FastColoredTextBox fctxt;
         private System.Windows.Forms.Button btnOK;
         private System.Windows.Forms.Button btnCancel;
         private System.Windows.Forms.RichTextBox rtxtDescription;
