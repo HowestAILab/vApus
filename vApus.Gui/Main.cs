@@ -37,7 +37,7 @@ namespace vApus.Gui {
         private LogErrorToolTip _logErrorToolTip;
 
         private OptionsDialog _optionsDialog;
-        private UpdateNotifierPanel _updateNotifierPanel;
+        //private UpdateNotifierPanel _updateNotifierPanel;
         private LogPanel _logPanel;
         private LocalizationPanel _localizationPanel;
         //private ProcessorAffinityPanel _processorAffinityPanel;
@@ -72,7 +72,7 @@ namespace vApus.Gui {
             SetGui();
         }
 
-        async private void SetGui() {
+        private void SetGui() {
             try {
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
@@ -85,7 +85,7 @@ namespace vApus.Gui {
                 if (error.Length != 0)
                     Loggers.Log(Level.Error, "Argument Analyzer " + error);
 
-                _updateNotifierPanel = new UpdateNotifierPanel();
+                //_updateNotifierPanel = new UpdateNotifierPanel();
                 _logPanel = new LogPanel();
                 Loggers.GetLogger<FileLogger>().LogEntryWritten += Main_LogEntryWritten;
                 _logErrorToolTip = new LogErrorToolTip { AutoPopDelay = 10000 };
@@ -99,18 +99,18 @@ namespace vApus.Gui {
                 //When this vApus is used for a slave, the title bar will change.
                 SocketListenerLinker.NewTest += SocketListenerLinker_NewTest;
 
-                string host, username, password;
-                int port, channel;
-                bool smartUpdate;
-                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                //string host, username, password;
+                //int port, channel;
+                //bool smartUpdate;
+                //UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
 
-                UpdateNotifier.Refresh();
+                //UpdateNotifier.Refresh();
 
-                if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
-                    UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
-                    //Doing stuff automatically
-                    if (Update(host, port, username, password, channel))
-                        await Task.Run(() => SynchronizationContextWrapper.SynchronizationContext.Send((state) => { Close(); }, null));
+                //if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
+                //    UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
+                //    //Doing stuff automatically
+                //    if (Update(host, port, username, password, channel))
+                //        await Task.Run(() => SynchronizationContextWrapper.SynchronizationContext.Send((state) => { Close(); }, null));
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
                 _savingResultsPanel = new SavingResultsPanel();
@@ -212,7 +212,7 @@ namespace vApus.Gui {
             if (_optionsDialog == null) {
                 _optionsDialog = new OptionsDialog();
                 _optionsDialog.FormClosed += _optionsDialog_FormClosed;
-                _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
+                //_optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
@@ -560,18 +560,18 @@ namespace vApus.Gui {
         }
 
         private void SetStatusStrip() {
-            var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
-                                            .GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
-            lblUpdateNotifier.Text = attr[0].Description;
+            //var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
+            //                                .GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+            //lblUpdateNotifier.Text = attr[0].Description;
 
-            if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.Disabled ||
-                UpdateNotifier.UpdateNotifierState == UpdateNotifierState.FailedConnectingToTheUpdateServer)
-                lblUpdateNotifier.Image = Resources.Error;
-            else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.PleaseRefresh ||
-                     UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound)
-                lblUpdateNotifier.Image = Resources.Warning;
-            else
-                lblUpdateNotifier.Image = Resources.OK;
+            //if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.Disabled ||
+            //    UpdateNotifier.UpdateNotifierState == UpdateNotifierState.FailedConnectingToTheUpdateServer)
+            //    lblUpdateNotifier.Image = Resources.Error;
+            //else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.PleaseRefresh ||
+            //         UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound)
+            //    lblUpdateNotifier.Image = Resources.Warning;
+            //else
+            //    lblUpdateNotifier.Image = Resources.OK;
 
             lblLogLevel.Text = Loggers.GetLogger<FileLogger>().CurrentLevel.ToString();
             lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
@@ -593,7 +593,7 @@ namespace vApus.Gui {
                     lblCleanTempData.Visible = lblTempDataSize.Visible = true;
             }
 
-            _updateNotifierPanel.CurrentSolutionFileName = Solution.ActiveSolution == null ? string.Empty : Solution.ActiveSolution.FileName;
+            //_updateNotifierPanel.CurrentSolutionFileName = Solution.ActiveSolution == null ? string.Empty : Solution.ActiveSolution.FileName;
         }
 
         private void SetProcessorAffinityLabel() {
@@ -633,19 +633,19 @@ namespace vApus.Gui {
 
         private void _firstStepsView_LinkClicked(object sender, FirstStepsView.LinkClickedEventArgs e) { ShowOptionsDialog(e.OptionsIndex); }
 
-        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
+        //private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 
-        private void lblLogLevel_Click(object sender, EventArgs e) { ShowOptionsDialog(1); }
+        private void lblLogLevel_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 
-        private void lblLocalization_Click(object sender, EventArgs e) { ShowOptionsDialog(2); }
+        private void lblLocalization_Click(object sender, EventArgs e) { ShowOptionsDialog(1); }
 
-        private void lblSocketListener_Click(object sender, EventArgs e) { ShowOptionsDialog(3); }
+        private void lblSocketListener_Click(object sender, EventArgs e) { ShowOptionsDialog(2); }
 
         //private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
 
-        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
+        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
 
-        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
+        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(6); }
         #endregion
     }
 }
