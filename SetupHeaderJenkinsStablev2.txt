@@ -1,0 +1,28 @@
+[Setup]
+AppName=vApus and Tools
+AppVerName=vApus and Tools
+DefaultDirName={pf}\Sizing Servers\vApus v2
+DefaultGroupName=Sizing Servers
+UninstallDisplayIcon={app}\vApus.exe
+Compression=lzma
+SolidCompression=true
+OutputDir=C:\jenkins\workspace\vApus v2 stable
+ArchitecturesAllowed=x64
+ArchitecturesInstallIn64BitMode=x64
+OutputBaseFilename=Setup_vApus_v2
+VersionInfoCompany=Sizing Servers
+VersionInfoCopyright=Sizing Servers
+DisableProgramGroupPage=true
+ShowLanguageDialog=no
+LanguageDetectionMethod=none
+PrivilegesRequired=admin
+[Registry]
+Root: HKCR; Subkey: .vass; ValueType: string; ValueData: vApus Stresstesting Solution; Flags: uninsdeletevalue
+Root: HKCR; Subkey: vApus Stresstesting Solution; ValueType: string; ValueData: vApus Stresstesting Solution; Flags: uninsdeletekey
+Root: HKCR; Subkey: vApus Stresstesting Solution\DefaultIcon; ValueType: string; ValueData: {app}\vApus.exe,0
+Root: HKCR; Subkey: vApus Stresstesting Solution\shell\open\command; ValueType: string; ValueData: """{app}\vApus.exe"" ""%1"""
+[Icons]
+Name: {group}\vApus; Filename: {app}\vApus.exe
+Name: {group}\Detailed Results Viewer; Filename: {app}\vApus.DetailedResultsViewer.exe
+Name: {group}\Uninstall; Filename: {app}\unins000.exe
+Name: {commonstartup}\vApus JumpStart; Filename: {app}\vApus.JumpStart.exe
