@@ -72,9 +72,6 @@
             this.helpToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.aboutToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.statusStrip = new System.Windows.Forms.StatusStrip();
-            this.toolStripStatusLabel8 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblUpdateNotifier = new System.Windows.Forms.ToolStripStatusLabel();
-            this.toolStripStatusLabel5 = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel7 = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblLogLevel = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel3 = new System.Windows.Forms.ToolStripStatusLabel();
@@ -320,9 +317,6 @@
             // statusStrip
             // 
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
-            this.toolStripStatusLabel8,
-            this.lblUpdateNotifier,
-            this.toolStripStatusLabel5,
             this.toolStripStatusLabel7,
             this.lblLogLevel,
             this.toolStripStatusLabel3,
@@ -343,29 +337,6 @@
             this.statusStrip.Size = new System.Drawing.Size(1184, 22);
             this.statusStrip.TabIndex = 4;
             this.statusStrip.Text = "statusStrip";
-            // 
-            // toolStripStatusLabel8
-            // 
-            this.toolStripStatusLabel8.Name = "toolStripStatusLabel8";
-            this.toolStripStatusLabel8.Size = new System.Drawing.Size(91, 17);
-            this.toolStripStatusLabel8.Text = "Update notifier:";
-            // 
-            // lblUpdateNotifier
-            // 
-            this.lblUpdateNotifier.Image = global::vApus.Gui.Properties.Resources.Error;
-            this.lblUpdateNotifier.IsLink = true;
-            this.lblUpdateNotifier.Name = "lblUpdateNotifier";
-            this.lblUpdateNotifier.Size = new System.Drawing.Size(68, 17);
-            this.lblUpdateNotifier.Text = "Disabled";
-            this.lblUpdateNotifier.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-            this.lblUpdateNotifier.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lblUpdateNotifier.Click += new System.EventHandler(this.lblUpdateNotifier_Click);
-            // 
-            // toolStripStatusLabel5
-            // 
-            this.toolStripStatusLabel5.Name = "toolStripStatusLabel5";
-            this.toolStripStatusLabel5.Size = new System.Drawing.Size(10, 17);
-            this.toolStripStatusLabel5.Text = "|";
             // 
             // toolStripStatusLabel7
             // 
@@ -607,14 +578,11 @@
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel2;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel4;
         private System.Windows.Forms.ToolStripStatusLabel lblLocalization;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel5;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel6;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel7;
         private System.Windows.Forms.ToolStripStatusLabel lblLogLevel;
         private System.Windows.Forms.ToolStripMenuItem firstStepsToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem detailedResultsViewerToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel8;
-        private System.Windows.Forms.ToolStripStatusLabel lblUpdateNotifier;
         private vApus.Util.ToolStripStatusSpringLabel lblProcessorAffinity;
         private System.Windows.Forms.Timer tmrSetStatusStrip;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel10;

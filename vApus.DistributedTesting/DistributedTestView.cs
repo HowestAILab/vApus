@@ -475,7 +475,7 @@ namespace vApus.DistributedTesting {
             }
         }
 
-        async private void Start() {
+        private void Start() {
             try {
                 Cursor = Cursors.WaitCursor;
                 //Otherwise a handle problem can arise
@@ -490,38 +490,38 @@ namespace vApus.DistributedTesting {
                 distributedStresstestControl.ClearFastResults();
 
                 //Smart update
-                UpdateNotifier.Refresh();
-                string host, username, password;
-                int port, channel;
-                bool smartUpdate;
-                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                //UpdateNotifier.Refresh();
+                //string host, username, password;
+                //int port, channel;
+                //bool smartUpdate;
+                //UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
 
-                if (smartUpdate) {
-                    if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound) {
-                        if (MessageBox.Show("In order to be able to update the used slaves the master must be up to date as well.\nDo you want to do this now?", "Smart Update Slaves",
-                            MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                            Update(host, port, username, password, channel);
+                //if (smartUpdate) {
+                //    if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound) {
+                //        if (MessageBox.Show("In order to be able to update the used slaves the master must be up to date as well.\nDo you want to do this now?", "Smart Update Slaves",
+                //            MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
+                //            Update(host, port, username, password, channel);
 
-                        //In both cases the test cannot go on.
-                        RemoveDatabase(false);
-                        Stop();
-                        return;
-                    } else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.UpToDate) {
-                        distributedStresstestControl.AppendMessages("Updating the slaves, this can take a while...");
-                        var exceptions = await JumpStart.SmartUpdate(_distributedTest);
+                //        //In both cases the test cannot go on.
+                //        RemoveDatabase(false);
+                //        Stop();
+                //        return;
+                //    } else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.UpToDate) {
+                //        distributedStresstestControl.AppendMessages("Updating the slaves, this can take a while...");
+                //        var exceptions = await JumpStart.SmartUpdate(_distributedTest);
 
-                        if (exceptions.Length != 0) {
-                            string message = "Failed to update one or more slaves.\n";
-                            foreach (Exception ex in exceptions)
-                                message += ex.Message + "\n";
+                //        if (exceptions.Length != 0) {
+                //            string message = "Failed to update one or more slaves.\n";
+                //            foreach (Exception ex in exceptions)
+                //                message += ex.Message + "\n";
 
-                            message = message.Trim();
-                            distributedStresstestControl.AppendMessages(message, Level.Error);
+                //            message = message.Trim();
+                //            distributedStresstestControl.AppendMessages(message, Level.Error);
 
-                            throw new Exception(message);
-                        }
-                    }
-                }
+                //            throw new Exception(message);
+                //        }
+                //    }
+                //}
 
                 distributedStresstestControl.AppendMessages("Jump Starting the slaves...");
                 try {
