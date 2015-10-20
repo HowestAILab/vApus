@@ -212,7 +212,7 @@ namespace vApus.CommitTool {
         /// <param name="localGitRepository"></param>
         /// <param name="gitCmd"></param>
         /// <param name="exception"></param>
-        /// <returns>If the branch equals "* stable" "Stable" is returned, otherwise "Nightly".</returns>
+        /// <returns>If the branch equals "* stable2" "Stable" is returned, otherwise "Nightly".</returns>
         private string GetChannel(string localGitRepository, string gitCmd, out Exception exception) {
             string channel = null;
             try {
@@ -232,7 +232,7 @@ namespace vApus.CommitTool {
 
                 channel = "Nightly";
                 foreach (string branch in branches)
-                    if (branch == "* stable") {
+                    if (branch == "* stable2") {
                         channel = "Stable";
                         break;
                     }
