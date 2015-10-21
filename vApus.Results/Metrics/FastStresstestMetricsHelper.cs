@@ -505,6 +505,8 @@ namespace vApus.Results {
                 mergedMetrics.AverageDelay += new TimeSpan(m.AverageDelay.Ticks / count);
                 mergedMetrics.Errors += m.Errors;
                 mergedMetrics.RequestsProcessed += m.RequestsProcessed;
+
+                if (m.Simplified) mergedMetrics.Simplified = true;
             }
 
             return mergedMetrics;
