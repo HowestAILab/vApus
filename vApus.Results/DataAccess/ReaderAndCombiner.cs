@@ -352,7 +352,7 @@ namespace vApus.Results {
         /// <param name="selectColumns">If none given all columns are selected. Id and VirtualUser must always be included.</param>
         /// <returns></returns>
         private static DataTable GetRequestResults(CancellationToken cancellationToken, DatabaseActions databaseActions, string where, int[] runResultIds, params string[] selectColumns) {
-            if (GetRunResultIdsAndSiblings(cancellationToken, databaseActions, runResultIds).Length == runResultIds.Length) {//No divided stress tests, so we can immediatly return results.
+            if (GetRunResultIdsAndSiblings(cancellationToken, databaseActions, runResultIds).Length == runResultIds.Length) { // No divided stress tests, so we can immediatly return results.
                 if (runResultIds.Length == 0)
                     return databaseActions.GetDataTable(string.Format("Select {0} From requestresults{1};", GetValidSelect(selectColumns), GetValidWhere(where, true)));
 
@@ -369,7 +369,6 @@ namespace vApus.Results {
             if (selectColumns.Length != 0) {
                 idIndex = selectColumns.IndexOf("Id");
                 virtualUserIndex = selectColumns.IndexOf("VirtualUser");
-                runResultIdIndex = selectColumns.IndexOf("RunResultId");
 
                 if (!selectColumns.Contains("RunResultId")) {
                     var copy = new string[selectColumns.Length + 1];
@@ -377,6 +376,7 @@ namespace vApus.Results {
                     copy[selectColumns.Length] = "RunResultId";
                     selectColumns = copy;
                 }
+                runResultIdIndex = selectColumns.IndexOf("RunResultId");
             }
 
             DataTable combined = null;

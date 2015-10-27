@@ -300,7 +300,7 @@ namespace vApus.Results {
 
                     //Sort the user actions
                     List<string> sortedUserActions = avgTimeToLastByteInTicks.Keys.ToList();
-                    sortedUserActions.Sort(UserActionComparer.GetInstance());
+                    sortedUserActions.Sort(ResultsHelper.UserActionComparer.GetInstance());
 
                     //Add the sorted user actions to the whole.
                     foreach (string userAction in sortedUserActions) {
@@ -319,61 +319,6 @@ namespace vApus.Results {
             }
 
             return averageUserActionResults;
-        }
-
-        private class UserActionComparer : IComparer<string> {
-            private static readonly UserActionComparer _userActionComparer = new UserActionComparer();
-            public static UserActionComparer GetInstance() { return _userActionComparer; }
-
-            private const string SCENARIO = "Scenario ";
-            private const string UA = "User action ";
-            private const char COLON = ':';
-
-            private UserActionComparer() { }
-
-            public int Compare(string x, string y) {
-                if (x.StartsWith(SCENARIO)) { //Backwards compatible.
-
-                    int xColonUa = x.IndexOf(COLON);
-                    if (xColonUa == -1) xColonUa = x.IndexOf(UA) - 1;
-
-                    int yColonUa = y.IndexOf(COLON);
-                    if (yColonUa == -1) yColonUa = y.IndexOf(UA) - 1;
-
-                    int scenarioX, scenarioY;
-                    if (!int.TryParse(x.Substring(SCENARIO.Length, xColonUa - SCENARIO.Length), out scenarioX)) {
-                        xColonUa = x.IndexOf(UA) - 1;
-                        int.TryParse(x.Substring(SCENARIO.Length, xColonUa - SCENARIO.Length), out scenarioX);
-                    }
-                    if (!int.TryParse(y.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY)) {
-                        yColonUa = y.IndexOf(UA) - 1;
-                        int.TryParse(y.Substring(SCENARIO.Length, yColonUa - SCENARIO.Length), out scenarioY);
-                    }
-
-                    if (scenarioX > scenarioY) return 1;
-                    if (scenarioY > scenarioX) return -1;
-
-                    int xUA = x.IndexOf(UA);
-                    int yUA = y.IndexOf(UA);
-
-                    x = x.Substring(xUA);
-                    y = y.Substring(yUA);
-                }
-
-                return UserActionCompare(x, y);
-            }
-            private int UserActionCompare(string x, string y) {
-                x = x.Substring(UA.Length);
-                y = y.Substring(UA.Length);
-
-                x = x.Split(COLON)[0];
-                y = y.Split(COLON)[0];
-
-                int i = int.Parse(x);
-                int j = int.Parse(y);
-
-                return i.CompareTo(j);
-            }
         }
     }
 }

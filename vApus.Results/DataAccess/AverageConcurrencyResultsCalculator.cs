@@ -41,7 +41,7 @@ namespace vApus.Results {
                 string measuredTime = metrics.MeasuredTime.TotalSeconds < 1d ? metrics.MeasuredTime.ToString("hh':'mm':'ss'.'fff") : metrics.MeasuredTime.ToString("hh':'mm':'ss");
                 averageConcurrencyResults.Rows.Add(metricsDic[metrics], metrics.StartMeasuringTime, measuredTime, Math.Round(metrics.MeasuredTime.TotalMilliseconds, MidpointRounding.AwayFromZero),
                     metrics.Concurrency, metrics.RequestsProcessed, metrics.Requests, metrics.Errors, Math.Round(metrics.ResponsesPerSecond, 2, MidpointRounding.AwayFromZero),
-                    Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), 
+                    Math.Round(metrics.UserActionsPerSecond, 2, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero),
                     Math.Round(metrics.MaxResponseTime.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.Percentile95thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero),
                     Math.Round(metrics.Percentile99thResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero), Math.Round(metrics.AverageTop5ResponseTimes.TotalMilliseconds, MidpointRounding.AwayFromZero),
                     Math.Round(metrics.AverageDelay.TotalMilliseconds, MidpointRounding.AwayFromZero));
@@ -83,7 +83,7 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetRequestResultsPerRunThreaded(databaseActions, cancellationToken, runResults, 4, "Id", "VirtualUser", "UserAction", "RequestIndex", "InParallelWithPrevious", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
+            DataTable[] parts = GetRequestResultsPerRunThreaded(databaseActions, cancellationToken, runResults, 4, "Id", "VirtualUser", "UserAction", "RequestIndex", "InParallelWithPrevious", "TimeToLastByteInTicks", "DelayInMilliseconds", "SentAt", "Length(Error) As Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
                 data.TryAdd("requestresults" + i, parts[i]);
@@ -179,19 +179,23 @@ namespace vApus.Results {
                                         break;
                                 }
 
+                                //The order of items is very important for parallel requests.
                                 if (rer != null && rer.Length != 0) {
-                                    var requestResults = new ConcurrentDictionary<string, SynchronizedCollection<RequestResult>>(); //Key == virtual user.
+                                    var requestResults = new ConcurrentDictionary<string, ConcurrentDictionary<int, RequestResult>>(); //Key == virtual user.
 
                                     //foreach (var rerRow in rer) {
-                                    Parallel.ForEach(rer, (rerRow, loopState2) => {
+                                    Parallel.For(0, rer.Length, (rerRowIndex, loopState2) => {
                                         if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
-                                        string virtualUser = rerRow["VirtualUser"] as string;
-                                        requestResults.TryAdd(virtualUser, new SynchronizedCollection<RequestResult>());
+                                        DataRow rerRow = rer[rerRowIndex];
 
-                                        requestResults[virtualUser].Add(new RequestResult() {
+                                        string virtualUser = rerRow["VirtualUser"] as string;
+                                        requestResults.TryAdd(virtualUser, new ConcurrentDictionary<int, RequestResult>());
+
+                                        requestResults[virtualUser].TryAdd(rerRowIndex, new RequestResult() {
                                             VirtualUser = virtualUser, UserAction = rerRow["UserAction"] as string, RequestIndex = rerRow["RequestIndex"] as string,
-                                            InParallelWithPrevious = (bool)rerRow["InParallelWithPrevious"], TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"], Error = (long)rerRow["Error"] == 0 ? null : "-" 
+                                            InParallelWithPrevious = (bool)rerRow["InParallelWithPrevious"], TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"],
+                                            DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"], SentAt=(DateTime)rerRow["SentAt"], Error = (long)rerRow["Error"] == 0 ? null : "-"
                                         });
                                     }
                                     );
@@ -203,9 +207,9 @@ namespace vApus.Results {
                                     //foreach (var item in requestResults) { 
                                     Parallel.ForEach(requestResults, (item, loopState2) => {
                                         if (cancellationToken.IsCancellationRequested) loopState2.Break();
-
+                                        
                                         while ((ulong)item.Value.Count < totalRequestCountsPerUser[i])
-                                            item.Value.Add(new RequestResult());
+                                            item.Value.TryAdd(item.Value.Count, new RequestResult());
 
                                         if (cancellationToken.IsCancellationRequested) loopState2.Break();
 

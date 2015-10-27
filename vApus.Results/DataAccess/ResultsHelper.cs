@@ -2593,7 +2593,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         private static string MySQLEscapeString(string s) { return System.Text.RegularExpressions.Regex.Replace(s, @"[\r\n\x00\x1a\\'""]", @"\$0"); }
         #endregion
 
-        private class UserActionComparer : IComparer<string> {
+        internal class UserActionComparer : IComparer<string> {
             private static readonly UserActionComparer _userActionComparer = new UserActionComparer();
             public static UserActionComparer GetInstance() { return _userActionComparer; }
 
