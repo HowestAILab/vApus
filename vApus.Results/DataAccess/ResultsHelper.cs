@@ -448,7 +448,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         private void DoAddLogEntries() {
             string[] logs = _logs.ToArray();
             if (logs.Length != 0) {
-                if (_vApusInstanceId > 0 && _databaseActions != null) 
+                if (_vApusInstanceId > 0 && _databaseActions != null)
                     _databaseActions.ExecuteSQL(string.Format("INSERT INTO logs(vApusInstanceId, Timestamp, Level, Entry) VALUES {0};", logs.Combine(", ")));
                 _logs = new ConcurrentBag<string>();
             }
@@ -754,6 +754,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             int currentConcurrencyResultId = -1;
             var objectType = typeof(object);
 
+            var userActions = new HashSet<string>(); //To determine if a new column must be added or not.
+
             foreach (DataRow uaRow in averageUserActions.Rows) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
@@ -764,9 +766,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 }
 
                 string userAction = uaRow.ItemArray[3] as string;
-                string[] splittedUserAction = userAction.Split(colon);
-                userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
-                if (!overview.Columns.Contains(userAction)) {
+                if (userActions.Add(userAction)) {
+                    string[] splittedUserAction = userAction.Split(colon);
+                    userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
+
                     overview.Columns.Add(userAction, objectType);
                     range++;
                 }
@@ -1039,8 +1042,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         //format the output --> remove the column. Done this way because the calculation only needs to happen once.
                         var newAverageUserActionResults = CreateEmptyDataTable("AverageUserActionResults", "Stresstest", "Concurrency", "User Action", "Avg. Response Time (ms)",
                             "Max. Response Time (ms)", "95th Percentile of the Response Times (ms)", "99th Percentile of the Response Times (ms)", "Avg. Top 5 Response Times (ms)", "Avg. Delay (ms)", "Errors");
-                        foreach (DataRow row in averageUserActions.Rows) newAverageUserActionResults.Rows.Add(row[0], row[2], row[3], row[4],
-                            row[5], row[6], row[7], row[8], row[9], row[10]);
+                        foreach (DataRow row in averageUserActions.Rows)
+                            newAverageUserActionResults.Rows.Add(row[0], row[2], row[3], row[4],
+row[5], row[6], row[7], row[8], row[9], row[10]);
                         cacheEntry.ReturnValue = newAverageUserActionResults;
 
                         GC.Collect();
@@ -1247,10 +1251,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             DataTable newDt = dt.Clone();
 
             var keys = new HashSet<object>();
-            foreach (DataRow row in dt.Rows) 
-                if (keys.Add(row[column])) 
+            foreach (DataRow row in dt.Rows)
+                if (keys.Add(row[column]))
                     newDt.Rows.Add(row.ItemArray);
-                
+
             return newDt;
         }
 
