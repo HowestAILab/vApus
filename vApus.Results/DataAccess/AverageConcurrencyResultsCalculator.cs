@@ -216,9 +216,10 @@ namespace vApus.Results {
                                         virtualUserResults.TryAdd(item.Key, new VirtualUserResult(requestResults[item.Key].Count) { VirtualUser = item.Key });
                                         VirtualUserResult virtualUserResult = virtualUserResults[item.Key];
 
+                                        int smallestKey = item.Value.Keys.Min();
                                         for (int k = 0; k != item.Value.Count; k++) {
                                             if (cancellationToken.IsCancellationRequested) loopState2.Break();
-                                            virtualUserResult.RequestResults[k] = item.Value[k];
+                                            virtualUserResult.RequestResults[k] = item.Value[k + smallestKey];
                                         }
                                     }
                                     );
