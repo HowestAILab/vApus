@@ -776,6 +776,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             int currentConcurrencyResultId = -1;
             var objectType = typeof(object);
 
+            var userActions = new HashSet<string>(); //To determine if a new column must be added or not.
+
             foreach (DataRow uaRow in averageUserActions.Rows) {
                 if (cancellationToken.IsCancellationRequested) return null;
 
@@ -786,9 +788,10 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 }
 
                 string userAction = uaRow.ItemArray[3] as string;
-                string[] splittedUserAction = userAction.Split(colon);
-                userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
-                if (!overview.Columns.Contains(userAction)) {
+                if (userActions.Add(userAction)) {
+                    string[] splittedUserAction = userAction.Split(colon);
+                    userAction = string.Join(sColon, userActionIndex++, splittedUserAction[splittedUserAction.Length - 1]);
+
                     overview.Columns.Add(userAction, objectType);
                     range++;
                 }
