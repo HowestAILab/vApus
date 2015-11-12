@@ -92,7 +92,7 @@ namespace vApus.StressTest {
                 if (!sourceDir.EndsWith("\\")) sourceDir += "\\";
 
                 foreach (string file in Directory.GetFiles(sourceDir))
-                    if (file.EndsWith(".dll") || file.EndsWith(".pdb")) {
+                    if (!file.EndsWith(".xml")) {
                         string destFile = Path.Combine(path, file.Substring(sourceDir.Length));
                         File.Copy(file, destFile, true);
                         File.Delete(file);
