@@ -481,7 +481,7 @@ namespace vApus.DistributedTest {
                     dt = new TimeSpan(dt.Ticks - (dt.Ticks % TimeSpan.TicksPerSecond));
                     dt += new TimeSpan(0, 0, 1);
                 }
-                btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString();
+                btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString(true);
             }
         }
 
@@ -1396,7 +1396,7 @@ namespace vApus.DistributedTest {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                AppendMessages("Monitoring before the test starts: " + ts.ToShortFormattedString("0 s") + ".");
+                AppendMessages("Monitoring before the test starts: " + ts.ToShortFormattedString(true, "0 s") + ".");
 
                 int runningMonitors = 0;
                 foreach (TileStressTest tileStressTest in _monitorViews.Keys)
@@ -1460,7 +1460,7 @@ namespace vApus.DistributedTest {
                 }
 
                 var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
-                AppendMessages("Monitoring after the test is finished: " + ts.ToShortFormattedString("0 s") + ".");
+                AppendMessages("Monitoring after the test is finished: " + ts.ToShortFormattedString(true, "0 s") + ".");
 
                 int runningMonitors = 0;
                 foreach (TileStressTest tileStressTest in _monitorViews.Keys)

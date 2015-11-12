@@ -249,7 +249,7 @@ namespace vApus.DistributedTest {
                 throw ex;
             }
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Connected slaves in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
+            InvokeMessage(string.Format(" ...Connected slaves in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
             _sw.Reset();
         }
 
@@ -293,7 +293,7 @@ namespace vApus.DistributedTest {
             }
 
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Test initialized in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
+            InvokeMessage(string.Format(" ...Test initialized in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
             _sw.Reset();
         }
 

@@ -461,13 +461,13 @@ namespace vApus.StressTest {
             _measuredRuntime = epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame;
             _measuredRuntime = _measuredRuntime.Subtract(new TimeSpan(_measuredRuntime.Ticks % TimeSpan.TicksPerSecond));
             if (_measuredRuntime.TotalSeconds > 1)
-                lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString();
+                lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString(true);
         }
         public void SetMeasuredRuntime(TimeSpan measuredRuntime) {
             epnlMessages.SetEndOfTimeFrameTo(epnlMessages.BeginOfTimeFrame + measuredRuntime);
             measuredRuntime = _measuredRuntime.Subtract(new TimeSpan(measuredRuntime.Ticks % TimeSpan.TicksPerSecond));
             if (measuredRuntime.TotalSeconds > 1) {
-                string s = "; ran " + measuredRuntime.ToShortFormattedString();
+                string s = "; ran " + measuredRuntime.ToShortFormattedString(true);
                 if (lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
             }
         }
@@ -513,7 +513,7 @@ namespace vApus.StressTest {
         /// <param name="message">The appended message. level == info.</param>
         /// <param name="exception"></param>
         private void __SetStressTestStopped(StressTestStatus stressTestResult, out string message, Exception exception = null) {
-            message = null;
+            message = string.Empty;
             try {
                 if (exception != null) {
                     var logger = Loggers.GetLogger<FileLogger>();
@@ -529,7 +529,7 @@ namespace vApus.StressTest {
                             lblStopped.ForeColor = Color.Green;
                             lblStopped.Text = lblStoppedText;
 
-                            message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString());
+                            message = string.Format("The test completed succesfully in {0}.", (epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame).ToShortFormattedString(true));
                             Loggers.Log(message);
                             AddEvent(message, Color.GreenYellow);
 
@@ -541,6 +541,8 @@ namespace vApus.StressTest {
                         if (lblStopped.Text != lblStoppedText) {
                             lblStopped.ForeColor = Color.Red;
                             lblStopped.Text = lblStoppedText;
+
+                            message = "The stress test failed." + (exception == null ? "" : "\n" + exception.ToString());
 
                             SetStressTestStopped();
                         }

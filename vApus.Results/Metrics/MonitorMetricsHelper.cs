@@ -191,7 +191,7 @@ namespace vApus.Results {
         private static object[] ReadableMetricsToRow(MonitorMetrics metrics) {
             var row = new List<object>(metrics.AverageMonitorResults.Length + 4);
             row.Add(metrics.StartMeasuringRuntime.ToString());
-            row.Add(metrics.MeasuredRunTime.ToShortFormattedString());
+            row.Add(metrics.MeasuredRunTime.ToShortFormattedString(true));
             row.Add(metrics.ConcurrentUsers);
 
             if (metrics.Run != 0) row.Add(metrics.Run);

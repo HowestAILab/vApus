@@ -365,6 +365,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     sb.Append("', '");
                                     sb.Append(requestResult.TimeToLastByteInTicks);
                                     sb.Append("', '");
+                                    sb.Append(MySQLEscapeString(requestResult.Meta));
+                                    sb.Append("', '");
                                     sb.Append(requestResult.DelayInMilliseconds);
                                     sb.Append("', '");
                                     sb.Append(MySQLEscapeString(requestResult.Error));
@@ -375,14 +377,14 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                                     sb.Clear();
 
                                     if (rowsToInsert.Count == 100) {
-                                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                                        _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, Meta, DelayInMilliseconds, Error, Rerun) VALUES {0};",
                                             rowsToInsert.Combine(", ")));
                                         rowsToInsert.Clear();
                                     }
                                 }
 
                             if (rowsToInsert.Count != 0)
-                                _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                                _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, Meta, DelayInMilliseconds, Error, Rerun) VALUES {0};",
                                 rowsToInsert.Combine(", ")));
                         }
                     }

@@ -96,7 +96,7 @@ namespace vApus.Util {
                 string roundtripTime = "N/A";
                 if (e.Status == IPStatus.Success) {
                     TimeSpan ts = TimeSpan.FromMilliseconds(e.RoundTripTime);
-                    roundtripTime = ts.ToShortFormattedString();
+                    roundtripTime = ts.ToShortFormattedString(false);
                     kvpRoundtripTime.Key = roundtripTime + " Roundtrip time";
                 } else {
                     kvpRoundtripTime.Key = "Roundtrip time N/A";

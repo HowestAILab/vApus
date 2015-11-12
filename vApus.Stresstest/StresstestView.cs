@@ -389,7 +389,7 @@ namespace vApus.StressTest {
                     dt = new TimeSpan(dt.Ticks - (dt.Ticks % TimeSpan.TicksPerSecond));
                     dt += new TimeSpan(0, 0, 1);
                 }
-                btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString();
+                btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString(true);
             }
         }
 
@@ -538,7 +538,7 @@ namespace vApus.StressTest {
 
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
-                AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString("0 s") + ".");
+                AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString(true, "0 s") + ".");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null && _stressTest.Monitors.Length != 0)
@@ -805,7 +805,7 @@ namespace vApus.StressTest {
                     }
 
                 var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
-                AddEvent("Monitoring after the test is finished: " + ts.ToShortFormattedString("0 s") + ".");
+                AddEvent("Monitoring after the test is finished: " + ts.ToShortFormattedString(true, "0 s") + ".");
 
                 int runningMonitors = 0;
                 if (_monitorViews != null)

@@ -430,7 +430,7 @@ namespace vApus.StressTest {
             GC.Collect();
 
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Scenario(s) Initialized in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
+            InvokeMessage(string.Format(" ...Scenario(s) Initialized in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
             _sw.Reset();
         }
         /// <summary>
@@ -533,7 +533,7 @@ namespace vApus.StressTest {
                 throw ex;
             }
             _sw.Stop();
-            InvokeMessage(string.Format(" ...Connection Proxy Pool Initialized in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
+            InvokeMessage(string.Format(" ...Connection Proxy Pool Initialized in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
             _sw.Reset();
         }
 
@@ -704,7 +704,7 @@ namespace vApus.StressTest {
                 GC.Collect();
 
                 _sw.Stop();
-                InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
+                InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
                 _sw.Reset();
             } catch {
                 if (!_cancel)
@@ -723,7 +723,7 @@ namespace vApus.StressTest {
 
             _threadPool.SetThreads(concurrentUsers, _parallelThreads * concurrentUsers);
             _sw.Stop();
-            InvokeMessage(string.Format("       | ...Thread Pool Set in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
+            InvokeMessage(string.Format("       | ...Thread Pool Set in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
             _sw.Reset();
         }
         private void SetConnectionProxyPool(int concurrentUsers) {
@@ -733,7 +733,7 @@ namespace vApus.StressTest {
             _sw.Start();
             try {
                 _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections * concurrentUsers);
-                InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
+                InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
             } catch {
                 throw;
             } finally {
@@ -1201,6 +1201,7 @@ namespace vApus.StressTest {
 
                 DateTime sentAt = DateTime.Now;
                 var timeToLastByte = new TimeSpan();
+                string meta = null;
                 Exception exception = null;
 
                 if (stressTestCore._cancel || stressTestCore._break) {
@@ -1214,12 +1215,11 @@ namespace vApus.StressTest {
                 bool retried = false;
                 RetryOnce:
                 try {
-                    if (connectionProxy == null || connectionProxy.IsDisposed) {
+                    if (connectionProxy == null || connectionProxy.IsDisposed)
                         exception = new Exception("Connectionproxy is disposed. Metrics for this request (" + testableRequest.ParameterizedRequestString + ") are not correct.");
-                    } else {
-                        Util.StringTree parameterizedRequest = testableRequest.ParameterizedRequest;
-                        connectionProxy.SendAndReceive(parameterizedRequest, out sentAt, out timeToLastByte, out exception);
-                    }
+                    else
+                        connectionProxy.SendAndReceive(testableRequest.ParameterizedRequest, out sentAt, out timeToLastByte, out meta, out exception);
+
                 } catch (Exception ex) {
                     if (!retried && connectionProxy != null && !connectionProxy.IsDisposed) {
                         try {
@@ -1255,6 +1255,7 @@ namespace vApus.StressTest {
                         UserAction = testableRequest.UserAction,
                         SentAt = sentAt,
                         TimeToLastByteInTicks = timeToLastByte.Ticks,
+                        Meta = (meta == null) ? string.Empty : meta,
                         DelayInMilliseconds = delayInMilliseconds,
                         Error = (exception == null) ? string.Empty : exception.ToString(),
                         Rerun = testableRequest.Rerun

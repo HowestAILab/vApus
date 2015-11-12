@@ -1,0 +1,559 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>HarSharp</name>
+    </assembly>
+    <members>
+        <member name="T:HarSharp.Browser">
+            <summary>
+            Contains information about the browser that created the log.
+            <remarks>    
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-har-object-types-browser" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="T:HarSharp.Creator">
+            <summary>
+            Contains information about the log creator application.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-creator" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="T:HarSharp.EntityBase">
+            <summary>
+            A base class for all HAR entities.
+            </summary>
+        </member>
+        <member name="P:HarSharp.EntityBase.Comment">
+            <summary>
+            Gets or sets a comment provided by the user or the application.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Creator.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Creator.Version">
+            <summary>
+            Gets or sets the version.
+            </summary>
+        </member>
+        <member name="T:HarSharp.Cache">
+            <summary>
+            Contains information about a request coming from browser cache.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-cache" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Cache.BeforeRequest">
+            <summary>
+            Gets or sets the state of a cache entry before the request.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Cache.AfterRequest">
+            <summary>
+            Gets or sets the state of a cache entry after the request.
+            </summary>
+        </member>
+        <member name="T:HarSharp.CacheState">
+            <summary>
+            Represents a cache state.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-cache" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.CacheState.Expires">
+            <summary>
+            Gets or sets the expiration time of the cache entry.
+            </summary>
+        </member>
+        <member name="P:HarSharp.CacheState.LastAccess">
+            <summary>
+            Gets or sets the last time the cache entry was opened.
+            </summary>
+        </member>
+        <member name="P:HarSharp.CacheState.ETag">
+            <summary>
+            Gets or sets the ETag.
+            </summary>
+        </member>
+        <member name="P:HarSharp.CacheState.HitCount">
+            <summary>
+            Gets or sets the number of times the cache entry has been opened.
+            </summary>
+        </member>
+        <member name="T:HarSharp.Content">
+            <summary>
+            Describes details about response content.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-content" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Content.Size">
+            <summary>
+            Gets or sets the length of the returned content in bytes.
+            <remarks>
+            Should be equal to response.BodySize if there is no compression and bigger when the content has been compressed.
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Content.Compression">
+            <summary>
+            Gets or sets the number of bytes saved.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Content.MimeType">
+            <summary>
+            Gets or sets the MIME type of the response text (value of the Content-Type response header). 
+            <remarks>
+            The charset attribute of the MIME type is included (if available).
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Content.Text">
+            <summary>
+            Gets or sets the response body sent from the server or loaded from the browser cache.
+            <remarks>
+            This field is populated with textual content only. The text field is either HTTP decoded text or a encoded (e.g. "base64") representation of the response body.
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Content.Encoding">
+            <summary>
+            Gets or sets the encoding used for response text field.
+            </summary>
+        </member>
+        <member name="T:HarSharp.Cookie">
+            <summary>
+            Represents a HTTP cookie.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-cookies" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="T:HarSharp.ParameterBase">
+            <summary>
+            A base class for parameters.
+            </summary>
+        </member>
+        <member name="P:HarSharp.ParameterBase.Name">
+            <summary>
+            Gets or sets the name.
+            </summary>
+        </member>
+        <member name="P:HarSharp.ParameterBase.Value">
+            <summary>
+            Gets or sets the value.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Cookie.Path">
+            <summary>
+            Gets or sets the path pertaining to the cookie.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Cookie.Domain">
+            <summary>
+            Gets or sets the host of the cookie.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Cookie.Expires">
+            <summary>
+            Gets or sets the cookie expiration time.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Cookie.HttpOnly">
+            <summary>
+            Gets or sets a value indicating whether it is HTTP only.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Cookie.Secure">
+            <summary>
+            Gets or sets a value indicating whether it was transmitted over SSL.
+            </summary>
+        </member>
+        <member name="T:HarSharp.Entry">
+            <summary>
+            Represents one exported (tracked) HTTP request.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-har-object-types-entry" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.PageRef">
+            <summary>
+            Gets or sets the reference to the parent page.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.StartedDateTime">
+            <summary>
+            Gets or sets the date and time of the request start.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.Time">
+            <summary>
+            Gets or sets the total elapsed time of the request in milliseconds.
+            <remarks>
+            This is the sum of all timings available in the timings object.
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.Request">
+            <summary>
+            Gets or sets the detailed info about the request.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.Response">
+            <summary>
+            Gets or sets the detailed info about the response.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.Cache">
+            <summary>
+            Gets or sets the info about cache usage.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.Timings">
+            <summary>
+            Gets or sets the detailed timing info about request/response round trip.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.ServerIPAddress">
+            <summary>
+            Gets or sets the IP address of the server that was connected (result of DNS resolution).
+            </summary>
+        </member>
+        <member name="P:HarSharp.Entry.Connection">
+            <summary>
+            Gets or sets the Unique ID of the parent TCP/IP connection, can be the client port number. 
+            <remarks>
+            Note that a port number doesn't have to be unique identifier in cases where the port is shared for more connections. 
+            If the port isn't available for the application, any other unique connection ID can be used instead (e.g. connection index).
+            </remarks>
+            </summary>
+        </member>
+        <member name="T:HarSharp.Har">
+            <summary>
+            Represents a HAR - HTTP Archive Format.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Har.Log">
+            <summary>
+            Gets or sets the root object.
+            </summary>
+        </member>
+        <member name="T:HarSharp.HarConvert">
+            <summary>
+            Provides methods for converting between HTTP Archive Format (HAR) and HAR entities.
+            </summary>
+        </member>
+        <member name="M:HarSharp.HarConvert.Deserialize(System.String)">
+            <summary>
+            Deserialize HAR content to a HAR entity.
+            </summary>
+            <param name="har">The HAR content to be deserialized.</param>
+            <returns>The HAR entity.</returns>
+        </member>
+        <member name="M:HarSharp.HarConvert.DeserializeFromFile(System.String)">
+            <summary>
+            Deserialize a HAR file to a HAR entity.
+            </summary>
+            <param name="fileName">The HAR file name to be deserialized.</param>
+            <returns>The HAR entity.</returns>
+        </member>
+        <member name="M:HarSharp.HarConvert.TransformPartialRedirectUrlToFull(HarSharp.Har)">
+            <summary>
+            Transform the partial redirect URL to a full one.
+            </summary>
+            <param name="har">The HAR.</param>
+        </member>
+        <member name="T:HarSharp.Header">
+            <summary>
+            Represents a HTTP header.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-headers" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="T:HarSharp.Log">
+            <summary>
+            Represents the root of the HAR data.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-log" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:HarSharp.Log.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:HarSharp.Log"/> class.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Log.Version">
+            <summary>
+            Gets or sets the version number of the format.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Log.Creator">
+            <summary>
+            Gets or sets the log creator application. 
+            </summary>
+        </member>
+        <member name="P:HarSharp.Log.Browser">
+            <summary>
+            Gets or sets the user agent.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Log.Pages">
+            <summary>
+            Gets the pages.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Log.Entries">
+            <summary>
+            Gets the entries.
+            </summary>
+        </member>
+        <member name="T:HarSharp.MessageBase">
+            <summary>
+            A base class for HTTP messages.
+            </summary>
+        </member>
+        <member name="M:HarSharp.MessageBase.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:HarSharp.MessageBase"/> class.
+            </summary>
+        </member>
+        <member name="P:HarSharp.MessageBase.HttpVersion">
+            <summary>
+            Gets or sets the HTTP Version.
+            </summary>
+        </member>
+        <member name="P:HarSharp.MessageBase.Cookies">
+            <summary>
+            Gets the list of cookie objects.
+            </summary>
+        </member>
+        <member name="P:HarSharp.MessageBase.Headers">
+            <summary>
+            Gets the list of header objects.
+            </summary>
+        </member>
+        <member name="P:HarSharp.MessageBase.HeadersSize">
+            <summary>
+            Gets or sets the total number of bytes from the start of the HTTP request message until (and including) the double CRLF before the body.
+            </summary>
+        </member>
+        <member name="P:HarSharp.MessageBase.BodySize">
+            <summary>
+            Gets or sets the size of the request body (POST data payload) in bytes. 
+            </summary>
+        </member>
+        <member name="T:HarSharp.Page">
+            <summary>
+            Represents a tracked page.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Page.StartedDateTime">
+            <summary>
+            Gets or sets the tate and time for the beginning of the page load.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Page.Id">
+            <summary>
+            Gets or sets the unique identifier of a page.
+            <remarks>
+            Entries use it to refer the parent page.
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Page.Title">
+            <summary>
+            Gets or sets the title.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Page.PageTimings">
+            <summary>
+            Gets or sets the detailed timing info about page load.
+            </summary>
+        </member>
+        <member name="T:HarSharp.PageTimings">
+            <summary>
+            Describes timings for various events (states) fired during the page load.
+            <remarks>
+            All times are specified in milliseconds.
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-pageTimings" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.PageTimings.OnContentLoad">
+            <summary>
+            Gets or sets the number of milliseconds since page load started when the content is loaded.
+            </summary>
+        </member>
+        <member name="P:HarSharp.PageTimings.OnLoad">
+            <summary>
+            Gets or sets the number of milliseconds since page load started when the page is loaded. 
+            </summary>
+        </member>
+        <member name="T:HarSharp.PostData">
+            <summary>
+            Describes posted data.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-postData" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:HarSharp.PostData.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:HarSharp.PostData"/> class.
+            </summary>
+        </member>
+        <member name="P:HarSharp.PostData.MimeType">
+            <summary>
+            Gets or sets the mime type of posted data.
+            </summary>
+        </member>
+        <member name="P:HarSharp.PostData.Params">
+            <summary>
+            Gets the list of posted parameters (in case of URL encoded parameters).
+            </summary>
+        </member>
+        <member name="P:HarSharp.PostData.Text">
+            <summary>
+            Gets or sets the plain text posted data.
+            </summary>
+        </member>
+        <member name="T:HarSharp.PostDataParameter">
+            <summary>
+            Represents a posted data.
+            </summary>
+        </member>
+        <member name="P:HarSharp.PostDataParameter.FileName">
+            <summary>
+            Gets or sets name of a posted file.
+            </summary>
+        </member>
+        <member name="P:HarSharp.PostDataParameter.ContentType">
+            <summary>
+            Gets or sets content type of a posted file.
+            </summary>
+        </member>
+        <member name="T:HarSharp.QueryStringParameter">
+            <summary>
+            Represents a query string parameter.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-queryString" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="T:HarSharp.Request">
+            <summary>
+            Contains detailed info about performed request.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-request" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="M:HarSharp.Request.#ctor">
+            <summary>
+            Initializes a new instance of the <see cref="T:HarSharp.Request"/> class.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Request.Method">
+            <summary>
+            Gets or sets the method (GET, POST, ...).
+            </summary>
+        </member>
+        <member name="P:HarSharp.Request.Url">
+            <summary>
+            Gets or sets the absolute URL (fragments are not included).
+            </summary>
+        </member>
+        <member name="P:HarSharp.Request.QueryString">
+            <summary>
+            Gets the list of query parameter objects.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Request.PostData">
+            <summary>
+            Gets or sets the posted data info.
+            </summary>
+        </member>
+        <member name="T:HarSharp.Response">
+            <summary>
+            Contains detailed info about the response.
+            <remarks>
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-response" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Response.Status">
+            <summary>
+            Gets or sets the HTTP status.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Response.StatusText">
+            <summary>
+            Gets or sets the HTTP status description.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Response.Content">
+            <summary>
+            Gets or sets the details about the response body.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Response.RedirectUrl">
+            <summary>
+            Gets or sets the redirection target URL from the Location response header.
+            </summary>
+        </member>
+        <member name="T:HarSharp.Timings">
+            <summary>
+            Describes various phases within request-response round trip.
+            <remarks>
+            All times are specified in milliseconds.
+            <see cref="!:https://dvcs.w3.org/hg/webperf/raw-file/tip/specs/HAR/Overview.html#sec-object-types-timings" />
+            </remarks>
+            </summary>
+        </member>
+        <member name="P:HarSharp.Timings.Blocked">
+            <summary>
+            Gets or sets the time spent in a queue waiting for a network connection.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Timings.Dns">
+            <summary>
+            Gets or sets the DNS resolution time. The time required to resolve a host name. 
+            </summary>
+        </member>
+        <member name="P:HarSharp.Timings.Connect">
+            <summary>
+            Gets or sets the time required to create TCP connection.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Timings.Send">
+            <summary>
+            Gets or sets the time required to send HTTP request to the server.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Timings.Wait">
+            <summary>
+            Gets or sets the waiting for a response from the server.
+            </summary>
+        </member>
+        <member name="P:HarSharp.Timings.Receive">
+            <summary>
+            Gets or sets the time required to read entire response from the server (or cache).
+            </summary>
+        </member>
+        <member name="P:HarSharp.Timings.Ssl">
+            <summary>
+            Gets or sets the time required for SSL/TLS negotiation.
+            </summary>
+        </member>
+    </members>
+</doc>

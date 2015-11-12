@@ -45,15 +45,14 @@ namespace vApus.Util {
     }
     public static class TimeSpanExtension {
         /// <summary>
-        /// Milliseconds are ommited if seconds > 0
+        /// 
         /// </summary>
         /// <param name="timeSpan"></param>
+        /// <param name="roundMillisToNearestSecond"></param>
+        /// <param name="returnOnZero"></param>
         /// <returns></returns>
-        public static string ToLongFormattedString(this TimeSpan timeSpan, string returnOnZero = "--") {
-            if (timeSpan.Milliseconds > 499)
-                timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
-                    .Add(new TimeSpan(0, 0, 1));
-            else timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds));
+        public static string ToLongFormattedString(this TimeSpan timeSpan, bool roundMillisToNearestSecond, string returnOnZero = "--") {
+            if (roundMillisToNearestSecond) timeSpan = RoundMillisToNearestSecond(timeSpan);
 
             if (timeSpan.TotalMilliseconds == 0d) return returnOnZero;
 
@@ -79,24 +78,24 @@ namespace vApus.Util {
                 sb.Append(" seconds");
             }
             if (timeSpan.Milliseconds != 0) {
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Milliseconds);
                 sb.Append(" milliseconds");
             }
-			if (sb.ToString().Length == 0)
-				return returnOnZero;
-			
+            if (sb.ToString().Length == 0)
+                return returnOnZero;
+
             return sb.ToString();
         }
         /// <summary>
-        /// Milliseconds are ommited if seconds > 0
+        /// 
         /// </summary>
         /// <param name="timeSpan"></param>
+        /// <param name="roundMillisToNearestSecond"></param>
+        /// <param name="returnOnZero"></param>
         /// <returns></returns>
-        public static string ToShortFormattedString(this TimeSpan timeSpan, string returnOnZero = "--") {
-            if (timeSpan.Milliseconds > 499)
-                timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
-                    .Add(new TimeSpan(0, 0, 1));
-            else timeSpan = timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds));
+        public static string ToShortFormattedString(this TimeSpan timeSpan, bool roundMillisToNearestSecond, string returnOnZero = "--") {
+            if (roundMillisToNearestSecond) timeSpan = RoundMillisToNearestSecond(timeSpan);
 
             if (timeSpan.TotalMilliseconds == 0d) return returnOnZero;
 
@@ -121,15 +120,24 @@ namespace vApus.Util {
                 sb.Append(" s");
             }
             if (timeSpan.Milliseconds != 0) {
+                if (sb.ToString().Length != 0) sb.Append(", ");
                 sb.Append(timeSpan.Milliseconds);
                 sb.Append(" ms");
             }
-			if (sb.ToString().Length == 0)
+            if (sb.ToString().Length == 0)
                 return returnOnZero;
-			
+
             return sb.ToString();
         }
+
+        private static TimeSpan RoundMillisToNearestSecond(TimeSpan timeSpan) {
+            if (timeSpan.Milliseconds > 499)
+                return timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds))
+                    .Add(new TimeSpan(0, 0, 1));
+            return timeSpan.Subtract(new TimeSpan(0, 0, 0, 0, timeSpan.Milliseconds));
+        }
     }
+
     public static class StringExtension {
         public static bool ContainsChars(this string s, params char[] values) {
             foreach (var value in values)
@@ -196,7 +204,7 @@ namespace vApus.Util {
             alg.Key = key;
             alg.IV = IV;
             //alg.Padding = PaddingMode.None;
-            
+
             CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(toEncrypt, 0, toEncrypt.Length);
             cs.Close();
@@ -662,8 +670,8 @@ namespace vApus.Util {
             Copy(rtxt);
             rtxt.SelectedText = string.Empty;
         }
-        private static void Copy(RichTextBox rtxt) { 
-            Clipboard.SetData(DataFormats.UnicodeText, rtxt.SelectedText); 
+        private static void Copy(RichTextBox rtxt) {
+            Clipboard.SetData(DataFormats.UnicodeText, rtxt.SelectedText);
         }
         private static void Paste(RichTextBox rtxt) {
             if (Clipboard.ContainsText(TextDataFormat.Rtf))

@@ -369,8 +369,8 @@ namespace vApus.Results {
                 return new object[]
                     {
                         metrics.StartMeasuringTime.ToString(),
-                        metrics.EstimatedTimeLeft.ToShortFormattedString(),
-                        metrics.MeasuredTime.ToShortFormattedString(),
+                        metrics.EstimatedTimeLeft.ToShortFormattedString(true),
+                        metrics.MeasuredTime.ToShortFormattedString(true),
                         metrics.Concurrency,
                         metrics.RequestsProcessed + " / " +
                         (metrics.Requests == 0 ? "--" : metrics.Requests.ToString()),
@@ -384,8 +384,8 @@ namespace vApus.Results {
             return new object[]
                 {
                     metrics.StartMeasuringTime.ToString(),
-                    metrics.EstimatedTimeLeft.ToShortFormattedString(),
-                    metrics.MeasuredTime.ToShortFormattedString(),
+                    metrics.EstimatedTimeLeft.ToShortFormattedString(true),
+                    metrics.MeasuredTime.ToShortFormattedString(true),
                     metrics.Concurrency,
                     metrics.Run,
                     metrics.RequestsProcessed + " / " +
