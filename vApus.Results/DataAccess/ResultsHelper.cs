@@ -935,8 +935,22 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             //Find the row with the highest concurrency.
             DataRow heaviestRow = null;
             foreach (DataRow row in overview.Rows)
-                if (heaviestRow == null || (int)heaviestRow["Concurrency"] < (int)row["Concurrency"])
+                if (heaviestRow == null) {
                     heaviestRow = row;
+                } else if ((int)heaviestRow["Concurrency"] < (int)row["Concurrency"]) {
+                    bool validRow = true;
+
+                    //Handle cancelled tests.
+                    for (int i = 2; i != row.ItemArray.Length - 3; i++) { //We do not want the first two and the last two columns.
+                        if (double.Parse(row.ItemArray[i].ToString()) == 0d) {
+                            validRow = false;
+                            break;
+                        }
+                    }
+
+                    if (validRow)
+                        heaviestRow = row;
+                }
 
             //Get the response times in descending order.
             var heaviestResponseTimes = new Dictionary<string, double>();
