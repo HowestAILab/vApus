@@ -179,7 +179,7 @@
     <Reference Include="System.Windows.Forms" />
     <Reference Include="Tamir.SharpSSH, Version=1.1.1.13, Culture=neutral">
       <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\..\Prerequisites\SharpSSH\Tamir.SharpSSH.dll</HintPath>
+      <HintPath>..\Prerequisites\SharpSSH\Tamir.SharpSSH.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
