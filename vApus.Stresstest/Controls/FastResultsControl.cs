@@ -490,7 +490,7 @@ namespace vApus.Stresstest {
         /// <param name="message">If null, no message is appended.</param>
         private void __SetStresstestStopped(StresstestStatus stresstestResult, Exception exception = null) {
             try {
-                string message = null;
+                string message = string.Empty;
                 if (exception != null) {
                     var logger = Loggers.GetLogger<FileLogger>();
                     message = exception.Message + "\n" + exception.StackTrace + "\n\nSee " + logger.CurrentLogFile;
@@ -517,6 +517,8 @@ namespace vApus.Stresstest {
                         if (lblStopped.Text != lblStoppedText) {
                             lblStopped.ForeColor = Color.Red;
                             lblStopped.Text = lblStoppedText;
+
+                            message = "The stresstest failed.";
 
                             SetStresstestStopped();
                         }
