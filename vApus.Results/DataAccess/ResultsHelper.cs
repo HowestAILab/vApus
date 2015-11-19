@@ -450,7 +450,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         public void AddMessageInMemory(int level, string message) {
             if (GetvApusInstanceId() > 0 && _databaseActions != null)
                 lock (_lock)
-                    _messages.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", GetvApusInstanceId(), Parse(DateTime.Now), level, message.Replace("\r", "_").Replace("\n", "_")));
+                    _messages.Add(string.Format("('{0}', '{1}', '{2}', '{3}')", GetvApusInstanceId(), Parse(DateTime.Now), level, MySQLEscapeString(message.Replace("\r", "_").Replace("\n", "_"))));
         }
         /// <summary>
         /// Add the messages stored in memory to the database. Do this only for distributed tests in the core.
