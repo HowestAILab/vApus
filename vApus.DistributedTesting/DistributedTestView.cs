@@ -1545,8 +1545,12 @@ namespace vApus.DistributedTest {
 
                 //Update the detailed results in the gui if any.
                 RefreshDetailedResults();
-                
-                _resultsHelper.DoAddMessagesToDatabase();
+
+                try {
+                    _resultsHelper.DoAddMessagesToDatabase();
+                } catch  (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed adding messages to database. If this happens when cancelling the test when it just started, ignore it.", ex, new object[] { disposing });
+                }
 
                 this.Focus();
             }

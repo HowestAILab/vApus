@@ -378,6 +378,8 @@ namespace vApus.StressTest {
                                     ++parallelConnections;
                                     ++parallelThreads;
                                 } else {
+                                    if (string.IsNullOrWhiteSpace(request.Hostname))
+                                        throw new Exception("You try to run a a test with parallel connections (specialized web test setting) but a hostname to be able to parallize correctly was not found in one or more requests.\nIf you want to use parallel connections, please make sure a hostname is present in all requests and the index of that field is defined in the Scenario Rule Set of the given scenario (double-click on it).\nWhile you are at it, check the parallel offset in ms index field and the redirects index field.\nOtherwise uncheck this feature in the advanced settings of this stress test and press 'play' again.");
                                     if (!connectionsPerHostname.ContainsKey(request.Hostname)) connectionsPerHostname.Add(request.Hostname, 0);
 
                                     connectionsPerHostname[request.Hostname] += 1;

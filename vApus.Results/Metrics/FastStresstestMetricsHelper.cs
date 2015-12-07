@@ -85,8 +85,9 @@ namespace vApus.Results {
                     metrics.UserActionsPerSecond += runResultMetrics.UserActionsPerSecond;
                     metrics.Errors += runResultMetrics.Errors;
                 }
-                for (int i = result.RunResults.Count; i < result.RunCount; i++)
-                    metrics.Requests += baseRequestCount;
+                baseRequestCount *= result.RunCount;
+                if (metrics.Requests < baseRequestCount)
+                    metrics.Requests = baseRequestCount;
 
                 if (metrics.Requests < totalAndExtraRequestsProcessed)
                     metrics.Requests = totalAndExtraRequestsProcessed;
@@ -134,8 +135,9 @@ namespace vApus.Results {
                     metrics.Errors += runResultMetrics.Errors;
 
                 }
-                for (int i = result.RunResults.Count; i < result.RunCount; i++)
-                    metrics.Requests += baseRequestCount;
+                baseRequestCount *= result.RunCount;
+                if (metrics.Requests < baseRequestCount)
+                    metrics.Requests = baseRequestCount;
 
                 if (metrics.Requests < totalAndExtraRequestsProcessed)
                     metrics.Requests = totalAndExtraRequestsProcessed;

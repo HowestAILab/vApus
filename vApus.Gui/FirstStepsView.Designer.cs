@@ -24,7 +24,6 @@
         /// </summary>
         private void InitializeComponent() {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FirstStepsView));
-            this.pictureBox1 = new System.Windows.Forms.PictureBox();
             this.label1 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.lblCopyright = new System.Windows.Forms.Label();
@@ -37,21 +36,10 @@
             this.llblProgressNotification = new System.Windows.Forms.LinkLabel();
             this.llblFirewall = new System.Windows.Forms.LinkLabel();
             this.llblUpdate = new System.Windows.Forms.LinkLabel();
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.panel1.SuspendLayout();
             this.panel2.SuspendLayout();
             this.panel3.SuspendLayout();
             this.SuspendLayout();
-            // 
-            // pictureBox1
-            // 
-            this.pictureBox1.Image = ((System.Drawing.Image)(resources.GetObject("pictureBox1.Image")));
-            this.pictureBox1.Location = new System.Drawing.Point(3, 3);
-            this.pictureBox1.Name = "pictureBox1";
-            this.pictureBox1.Size = new System.Drawing.Size(140, 75);
-            this.pictureBox1.SizeMode = System.Windows.Forms.PictureBoxSizeMode.AutoSize;
-            this.pictureBox1.TabIndex = 0;
-            this.pictureBox1.TabStop = false;
             // 
             // label1
             // 
@@ -61,7 +49,7 @@
             this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(165, 30);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(630, 36);
+            this.label1.Size = new System.Drawing.Size(636, 36);
             this.label1.TabIndex = 1;
             this.label1.Text = "Virtualized Application Unique Stress Testing";
             // 
@@ -70,7 +58,6 @@
             this.panel1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel1.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(114)))), ((int)(((byte)(114)))), ((int)(((byte)(114)))));
-            this.panel1.Controls.Add(this.pictureBox1);
             this.panel1.Controls.Add(this.label1);
             this.panel1.Location = new System.Drawing.Point(12, 12);
             this.panel1.Name = "panel1";
@@ -201,13 +188,13 @@
             this.llblFirewall.Location = new System.Drawing.Point(15, 49);
             this.llblFirewall.Margin = new System.Windows.Forms.Padding(3, 0, 3, 20);
             this.llblFirewall.Name = "llblFirewall";
-            this.llblFirewall.Size = new System.Drawing.Size(821, 46);
+            this.llblFirewall.Size = new System.Drawing.Size(830, 46);
             this.llblFirewall.TabIndex = 1;
             this.llblFirewall.TabStop = true;
             this.llblFirewall.Tag = "7";
-            this.llblFirewall.Text = "Disable the Windows firewall and Windows update to ensure that communication won\'t" +
-    " be blocked\r\nand that the client will not restart automatically to install updat" +
-    "es";
+            this.llblFirewall.Text = "Disable the Windows firewall and Windows update to ensure that communication won\'" +
+    "t be blocked\r\nand that the client will not restart automatically to install upda" +
+    "tes";
             this.llblFirewall.VisitedLinkColor = System.Drawing.Color.Black;
             this.llblFirewall.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbl_LinkClicked);
             // 
@@ -243,7 +230,6 @@
             this.Name = "FirstStepsView";
             this.Text = "First steps";
             this.FormClosing += new System.Windows.Forms.FormClosingEventHandler(this.FirstStepsView_FormClosing);
-            ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).EndInit();
             this.panel1.ResumeLayout(false);
             this.panel1.PerformLayout();
             this.panel2.ResumeLayout(false);
@@ -256,8 +242,6 @@
         }
 
         #endregion
-
-        private System.Windows.Forms.PictureBox pictureBox1;
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.Label lblCopyright;
