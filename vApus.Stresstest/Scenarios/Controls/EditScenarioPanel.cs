@@ -347,7 +347,7 @@ namespace vApus.StressTest {
         }
 
         private void btnOpenLupusTitanium_Click(object sender, EventArgs e) {
-            string path = Path.Combine(Application.StartupPath, "..\\lupus-titanium\\lupus-titanium_gui.exe");
+            string path = Path.Combine(Application.StartupPath, "lupus-titanium\\lupus-titanium_gui.exe");
             if (File.Exists(path)) {
                 if (chkClearScenarioBeforeCapture.Checked && _scenario.Count != 0)
                     if (MessageBox.Show("Are you sure you want to clear the scenario?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
