@@ -13,11 +13,6 @@
             Can be anything, must be Serializable.
             </summary>
         </member>
-        <member name="T:SizingServers.IPC.Keys">
-            <summary>
-            To help handling acknowledgement of message lengths. More keys can be added here if need be.
-            </summary>
-        </member>
         <member name="T:SizingServers.IPC.Receiver">
             <summary>
             <para>Add a new Receiver in the code of the process you want to receive messages. Make sure the handles matches the one of the Sender.</para>
@@ -52,6 +47,12 @@
             <para>Make sure this is a unique value: use a GUID for instance:</para>
             <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
             </param>
+        </member>
+        <member name="M:SizingServers.IPC.Receiver.HandleReceive(System.Net.Sockets.TcpClient)">
+            <summary>
+            Reads handle size, handle, message size and message from the stream. If the handle in the message is invalid the connection will be closed.
+            </summary>
+            <param name="client"></param>
         </member>
         <member name="M:SizingServers.IPC.Receiver.Dispose">
             <summary>
@@ -102,6 +103,13 @@
             </summary>
             <param name="message"></param>
         </member>
+        <member name="M:SizingServers.IPC.Sender.SerializeMessage(System.Object)">
+            <summary>
+            Writes the handle size, the handle, the message size and the message to array.
+            </summary>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
         <member name="M:SizingServers.IPC.Sender.SetSenders">
             <summary>
             Clean up the stored tcp clients (_senders) and add new ones if need be.
@@ -151,11 +159,6 @@
             Only take used tcp ports into accounts. What's been registered in the registry does not matter.
             </summary>
             <returns></returns>
-        </member>
-        <member name="T:SizingServers.IPC.MessageWrapper">
-            <summary>
-            Sends the message together with the handle (extra safety check). If the handle matches at the receiving end the message will be processed; Otherwise it will be dropped.
-            </summary>
         </member>
     </members>
 </doc>
