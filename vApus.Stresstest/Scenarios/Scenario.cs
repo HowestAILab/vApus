@@ -291,7 +291,9 @@ namespace vApus.StressTest {
                     int count = re.LexedRequest.Count;
                     if (offsetIndex < count) {
                         int offset;
-                        if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
+                        if (string.IsNullOrEmpty(re.LexedRequest[offsetIndex].Value)) {
+                            offset = 0;
+                        } else if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
                             succes = false;
                             break;
                         }
@@ -400,7 +402,7 @@ namespace vApus.StressTest {
 
             var oldAndNewTokens = new Dictionary<string, string>();
 
-            var scopeIdentifiers = new[] { ASTNode.SCENARIO_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE, 
+            var scopeIdentifiers = new[] { ASTNode.SCENARIO_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE,
                 ASTNode.REQUEST_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.ALWAYS_PARAMETER_SCOPE };
 
             foreach (string scopeIdentifier in scopeIdentifiers)
