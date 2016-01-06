@@ -45,9 +45,6 @@ namespace vApus.StressTest {
         private static Parameters _parameters;
 
         private int _preferredTokenDelimiterIndex;
-
-        //Capture web traffic settings
-        private string[] _allow = new string[] { }, _deny = new string[] { };
         #endregion
 
         #region Properties
@@ -87,11 +84,6 @@ namespace vApus.StressTest {
         public LexicalResult LexicalResult {
             get { return _lexicalResult; }
         }
-
-        [SavableCloneable]
-        public bool UseDeny { get; set; }
-        [SavableCloneable]
-        public string[] Deny { get { return _deny; } set { _deny = value; } }
 
         /// <summary>
         /// </summary>

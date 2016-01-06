@@ -1,0 +1,161 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SizingServers.IPC</name>
+    </assembly>
+    <members>
+        <member name="T:SizingServers.IPC.MessageEventArgs">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.IPC.MessageEventArgs.Message">
+            <summary>
+            Can be anything, must be Serializable.
+            </summary>
+        </member>
+        <member name="T:SizingServers.IPC.Keys">
+            <summary>
+            To help handling acknowledgement of message lengths. More keys can be added here if need be.
+            </summary>
+        </member>
+        <member name="T:SizingServers.IPC.Receiver">
+            <summary>
+            <para>Add a new Receiver in the code of the process you want to receive messages. Make sure the handles matches the one of the Sender.</para>
+            <para>This inter process communication only works on the same machine and in the same Windows session.</para>
+            </summary>
+        </member>
+        <member name="E:SizingServers.IPC.Receiver.MessageReceived">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SizingServers.IPC.Receiver.IsDisposed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SizingServers.IPC.Receiver.Handle">
+            <summary>
+            <para>The handle is a value shared by a Sender and its Receivers.</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </summary>
+        </member>
+        <member name="M:SizingServers.IPC.Receiver.#ctor(System.String)">
+            <summary>
+            Receives messages of a Sender having the same handle.
+            </summary>
+            <param name="handle">
+            <para>The handle is a value shared by a Sender and its Receivers.</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </param>
+        </member>
+        <member name="M:SizingServers.IPC.Receiver.Dispose">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:SizingServers.IPC.Sender">
+            <summary>
+            <para>Add a new Sender in the code of the process you want to send messages. Make sure the handles matches the one of the Receivers.</para>
+            <para>This inter process communication only works on the same machine and in the same Windows session.</para>
+            <para>Suscribe to OnSendFailed for error handeling. Please not Sending will always fail when a Receiver disappears.</para>
+            </summary>
+        </member>
+        <member name="E:SizingServers.IPC.Sender.BeforeMessageSent">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="E:SizingServers.IPC.Sender.AfterMessageSent">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="E:SizingServers.IPC.Sender.OnSendFailed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SizingServers.IPC.Sender.IsDisposed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SizingServers.IPC.Sender.Handle">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:SizingServers.IPC.Sender.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="handle">A unique identifier to match the right sender with the right receivers.</param>
+        </member>
+        <member name="M:SizingServers.IPC.Sender.Send(System.Object)">
+            <summary>
+            Send a message to the Receivers. It must be serializable.
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="M:SizingServers.IPC.Sender.SetSenders">
+            <summary>
+            Clean up the stored tcp clients (_senders) and add new ones if need be.
+            </summary>
+        </member>
+        <member name="M:SizingServers.IPC.Sender.Dispose">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:SizingServers.IPC.EndPointManager.BASE_ID">
+            <summary>
+            Used for a key in the registry to store the end points.
+            </summary>
+        </member>
+        <member name="M:SizingServers.IPC.EndPointManager.RegisterReceiver(System.String)">
+            <summary>
+            Add a new port tot the endpoint for the receiver.
+            </summary>
+            <param name="handle">
+            <para>The handle is a value shared by a Sender and its Receivers.</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.IPC.EndPointManager.GetReceiverEndPoints(System.String)">
+            <summary>
+            The sender must use this to be able to send data to the correct receivers.
+            </summary>
+            <param name="handle">
+            <para>The handle is a value shared by a Sender and its Receivers.</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.IPC.EndPointManager.CleanupEndpoints(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.HashSet{System.Int32}})">
+            <summary>
+            All unused end points (read: unused tcp ports) are removed from the given dictionary.
+            </summary>
+        </member>
+        <member name="M:SizingServers.IPC.EndPointManager.GetUsedTcpPorts">
+            <summary>
+            Only take used tcp ports into accounts. What's been registered in the registry does not matter.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:SizingServers.IPC.MessageWrapper">
+            <summary>
+            Sends the message together with the handle (extra safety check). If the handle matches at the receiving end the message will be processed; Otherwise it will be dropped.
+            </summary>
+        </member>
+    </members>
+</doc>

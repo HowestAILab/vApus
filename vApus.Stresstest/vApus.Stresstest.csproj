@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>vApus.StressTest</RootNamespace>
     <AssemblyName>vApus.StressTest</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
@@ -171,9 +171,6 @@
     <Reference Include="FastColoredTextBox">
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="Lupus-Fiddler">
-      <HintPath>..\Prerequisites\Lupus Fiddler\Lupus-Fiddler.dll</HintPath>
-    </Reference>
     <Reference Include="Newtonsoft.Json, Version=7.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.7.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -183,6 +180,9 @@
     </Reference>
     <Reference Include="RandomUtils.Log">
       <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
+    </Reference>
+    <Reference Include="SizingServers.IPC">
+      <HintPath>..\Prerequisites\SizingServers.IPC\SizingServers.IPC.dll</HintPath>
     </Reference>
     <Reference Include="SpreadsheetLight, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>

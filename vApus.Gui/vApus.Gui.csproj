@@ -10,7 +10,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>vApus.Gui</RootNamespace>
     <AssemblyName>vApus</AssemblyName>
-    <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ApplicationIcon>Icon.32x32.vApus.ico</ApplicationIcon>
     <FileUpgradeFlags>
@@ -177,9 +177,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json, Version=4.5.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Prerequisites\RandomUtils\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="RandomUtils, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -298,21 +298,10 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="FiddlerCore4.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="FiddlerCoreAPILicense.txt">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Icon.32x32.vApus.ico" />
-    <Content Include="Ionic.Zip.dll">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
-    <Content Include="makecert.exe">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
-    </Content>
     <Content Include="Resources\dataGridViewCellStyle11.NullValue.png" />
     <None Include="app.manifest" />
+    <None Include="packages.config" />
     <None Include="Resources\FolderOpen_16x16_72.png" />
     <None Include="Resources\RecycleBin.png" />
     <None Include="Resources\delete16x16.png" />

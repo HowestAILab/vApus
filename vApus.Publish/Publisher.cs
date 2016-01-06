@@ -6,8 +6,6 @@
  *    Dieter Vandroemme
  */
 using RandomUtils.Log;
-using System.Collections.Generic;
-using System.Diagnostics;
 using System.IO;
 using vApus.Util;
 
@@ -22,7 +20,7 @@ namespace vApus.Publish {
         /// <summary>
         /// Use these settings to determine if a value can be published, where you want to call Post(string id, object message).
         /// </summary>
-        public static Properties.Settings Settings { get { return Publisher._settings; } }
+        public static Properties.Settings Settings { get { return _settings; } }
 
         private static MulticastBlock _destinations = new MulticastBlock();
 

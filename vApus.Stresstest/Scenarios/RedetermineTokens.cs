@@ -75,16 +75,16 @@ namespace vApus.StressTest {
             lblNewBegin.Text = begin;
             lblNewEnd.Text = end;
 
-            if (begin == lblCurrentBegin.Text) {
-                lblNewBegin.ForeColor = Color.DarkGray;
-                lblNewEnd.ForeColor = Color.DarkGray;
-                btnError.Visible = false;
-                btnOK.Enabled = _originalScenario != _toAdd;
-            } else if (_requestContainsTokens) {
+            if (_requestContainsTokens) {
                 lblNewBegin.ForeColor = Color.DarkOrange;
                 lblNewEnd.ForeColor = Color.DarkOrange;
                 btnError.Visible = true;
                 btnOK.Enabled = true;
+            }  else if (begin == lblCurrentBegin.Text) {
+                lblNewBegin.ForeColor = Color.DarkGray;
+                lblNewEnd.ForeColor = Color.DarkGray;
+                btnError.Visible = false;
+                btnOK.Enabled = _originalScenario != _toAdd;
             } else {
                 lblNewBegin.ForeColor = Color.Black;
                 lblNewEnd.ForeColor = Color.Black;

@@ -25,29 +25,105 @@
         private void InitializeComponent() {
             this.components = new System.ComponentModel.Container();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(EditScenarioPanel));
+            this.imageList = new System.Windows.Forms.ImageList(this.components);
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.chkClearScenarioBeforeImport = new System.Windows.Forms.CheckBox();
+            this.btnRevertToImported = new System.Windows.Forms.Button();
+            this.btnRedetermineParameterTokens = new System.Windows.Forms.Button();
+            this.chkClearScenarioBeforeCapture = new System.Windows.Forms.CheckBox();
+            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
+            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpCapture = new System.Windows.Forms.TabPage();
-            this.chkClearScenarioBeforeCapture = new System.Windows.Forms.CheckBox();
-            this.captureControl = new Lupus_Fiddler.CaptureControl();
+            this.btnOpenLupusTitanium = new System.Windows.Forms.Button();
             this.tpImport = new System.Windows.Forms.TabPage();
-            this.chkClearScenarioBeforeImport = new System.Windows.Forms.CheckBox();
             this.btnImport = new System.Windows.Forms.Button();
             this.btnBrowse = new System.Windows.Forms.Button();
             this.fctxtxImport = new FastColoredTextBoxNS.FastColoredTextBox();
             this.tpExtraTools = new System.Windows.Forms.TabPage();
-            this.btnRevertToImported = new System.Windows.Forms.Button();
-            this.btnRedetermineParameterTokens = new System.Windows.Forms.Button();
             this.btnExportToTextFile = new System.Windows.Forms.Button();
-            this.imageList = new System.Windows.Forms.ImageList(this.components);
-            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.openFileDialog = new System.Windows.Forms.OpenFileDialog();
-            this.saveFileDialog = new System.Windows.Forms.SaveFileDialog();
             this.tc.SuspendLayout();
             this.tpCapture.SuspendLayout();
             this.tpImport.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.fctxtxImport)).BeginInit();
             this.tpExtraTools.SuspendLayout();
             this.SuspendLayout();
+            // 
+            // imageList
+            // 
+            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
+            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
+            this.imageList.Images.SetKeyName(0, "capture.png");
+            this.imageList.Images.SetKeyName(1, "import.png");
+            // 
+            // chkClearScenarioBeforeImport
+            // 
+            this.chkClearScenarioBeforeImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
+            this.chkClearScenarioBeforeImport.AutoSize = true;
+            this.chkClearScenarioBeforeImport.Location = new System.Drawing.Point(6, 557);
+            this.chkClearScenarioBeforeImport.Name = "chkClearScenarioBeforeImport";
+            this.chkClearScenarioBeforeImport.Size = new System.Drawing.Size(157, 17);
+            this.chkClearScenarioBeforeImport.TabIndex = 31;
+            this.chkClearScenarioBeforeImport.Text = "Clear scenario before import";
+            this.toolTip.SetToolTip(this.chkClearScenarioBeforeImport, "Check this if you want to clear the scenario before you import from text.");
+            this.chkClearScenarioBeforeImport.UseVisualStyleBackColor = true;
+            // 
+            // btnRevertToImported
+            // 
+            this.btnRevertToImported.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnRevertToImported.BackColor = System.Drawing.Color.White;
+            this.btnRevertToImported.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRevertToImported.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRevertToImported.Location = new System.Drawing.Point(269, 279);
+            this.btnRevertToImported.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnRevertToImported.MinimumSize = new System.Drawing.Size(0, 24);
+            this.btnRevertToImported.Name = "btnRevertToImported";
+            this.btnRevertToImported.Size = new System.Drawing.Size(209, 24);
+            this.btnRevertToImported.TabIndex = 1;
+            this.btnRevertToImported.Text = "Revert to imported";
+            this.toolTip.SetToolTip(this.btnRevertToImported, "Revert the whole scenario to how it was imported.");
+            this.btnRevertToImported.UseVisualStyleBackColor = false;
+            this.btnRevertToImported.Click += new System.EventHandler(this.btnRevertToImported_Click);
+            // 
+            // btnRedetermineParameterTokens
+            // 
+            this.btnRedetermineParameterTokens.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnRedetermineParameterTokens.BackColor = System.Drawing.Color.White;
+            this.btnRedetermineParameterTokens.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnRedetermineParameterTokens.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnRedetermineParameterTokens.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnRedetermineParameterTokens.Location = new System.Drawing.Point(269, 309);
+            this.btnRedetermineParameterTokens.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnRedetermineParameterTokens.Name = "btnRedetermineParameterTokens";
+            this.btnRedetermineParameterTokens.Size = new System.Drawing.Size(209, 24);
+            this.btnRedetermineParameterTokens.TabIndex = 2;
+            this.btnRedetermineParameterTokens.Text = "Redetermine parameter tokens...";
+            this.toolTip.SetToolTip(this.btnRedetermineParameterTokens, "Sometimes a set of parameter tokens can be used and is needed for a valid request" +
+        ".\r\nIn the following dialog you can redetermine the tokens for the whole scenario" +
+        " to avoid this problem.\r\n");
+            this.btnRedetermineParameterTokens.UseVisualStyleBackColor = false;
+            this.btnRedetermineParameterTokens.Click += new System.EventHandler(this.btnRedetermineParameterTokens_Click);
+            // 
+            // chkClearScenarioBeforeCapture
+            // 
+            this.chkClearScenarioBeforeCapture.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.chkClearScenarioBeforeCapture.AutoSize = true;
+            this.chkClearScenarioBeforeCapture.Location = new System.Drawing.Point(313, 309);
+            this.chkClearScenarioBeforeCapture.Name = "chkClearScenarioBeforeCapture";
+            this.chkClearScenarioBeforeCapture.Size = new System.Drawing.Size(165, 17);
+            this.chkClearScenarioBeforeCapture.TabIndex = 32;
+            this.chkClearScenarioBeforeCapture.Text = "Clear scenario before capture";
+            this.chkClearScenarioBeforeCapture.UseVisualStyleBackColor = true;
+            // 
+            // openFileDialog
+            // 
+            this.openFileDialog.Filter = "Text Files (*.txt)|*.txt|All files (*.*)|*.*";
+            this.openFileDialog.Multiselect = true;
+            // 
+            // saveFileDialog
+            // 
+            this.saveFileDialog.DefaultExt = "txt";
+            this.saveFileDialog.Filter = "Text File (*.txt)|*.txt";
             // 
             // tc
             // 
@@ -70,7 +146,7 @@
             // 
             this.tpCapture.BackColor = System.Drawing.Color.White;
             this.tpCapture.Controls.Add(this.chkClearScenarioBeforeCapture);
-            this.tpCapture.Controls.Add(this.captureControl);
+            this.tpCapture.Controls.Add(this.btnOpenLupusTitanium);
             this.tpCapture.ImageIndex = 0;
             this.tpCapture.Location = new System.Drawing.Point(0, 23);
             this.tpCapture.Name = "tpCapture";
@@ -79,31 +155,21 @@
             this.tpCapture.TabIndex = 0;
             this.tpCapture.Text = "Capture HTTP(S)";
             // 
-            // chkClearScenarioBeforeCapture
+            // btnOpenLupusTitanium
             // 
-            this.chkClearScenarioBeforeCapture.Anchor = System.Windows.Forms.AnchorStyles.Bottom;
-            this.chkClearScenarioBeforeCapture.AutoSize = true;
-            this.chkClearScenarioBeforeCapture.Location = new System.Drawing.Point(335, 557);
-            this.chkClearScenarioBeforeCapture.Name = "chkClearScenarioBeforeCapture";
-            this.chkClearScenarioBeforeCapture.Size = new System.Drawing.Size(139, 17);
-            this.chkClearScenarioBeforeCapture.TabIndex = 30;
-            this.chkClearScenarioBeforeCapture.Text = "Clear scenario before capture";
-            this.toolTip.SetToolTip(this.chkClearScenarioBeforeCapture, "Check this if you want to clear the scenario before you start capturing.");
-            this.chkClearScenarioBeforeCapture.UseVisualStyleBackColor = true;
-            // 
-            // captureControl
-            // 
-            this.captureControl.Deny = new string[] {
-        "addthis.com", "cloudflare.com", "facebook.com", "google.com", "google-analytics.com", "googleapis.com", "linkedin.com",
-            "m.addthisedge.com", "microsoft.com", "nedstatbasic.net", "gstatic.com", "twimg.com", "twitter.com", "youtube.com"};
-            this.captureControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.captureControl.Location = new System.Drawing.Point(3, 3);
-            this.captureControl.Name = "captureControl";
-            this.captureControl.Size = new System.Drawing.Size(741, 576);
-            this.captureControl.TabIndex = 31;
-            this.captureControl.UseDeny = false;
-            this.captureControl.StartClicked += new System.EventHandler(this.captureControl_StartClicked);
-            this.captureControl.StopClicked += new System.EventHandler(this.captureControl_StopClicked);
+            this.btnOpenLupusTitanium.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnOpenLupusTitanium.BackColor = System.Drawing.Color.White;
+            this.btnOpenLupusTitanium.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnOpenLupusTitanium.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnOpenLupusTitanium.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnOpenLupusTitanium.Location = new System.Drawing.Point(269, 279);
+            this.btnOpenLupusTitanium.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnOpenLupusTitanium.Name = "btnOpenLupusTitanium";
+            this.btnOpenLupusTitanium.Size = new System.Drawing.Size(209, 24);
+            this.btnOpenLupusTitanium.TabIndex = 31;
+            this.btnOpenLupusTitanium.Text = "Open Lupus-Titanium...";
+            this.btnOpenLupusTitanium.UseVisualStyleBackColor = false;
+            this.btnOpenLupusTitanium.Click += new System.EventHandler(this.btnOpenLupusTitanium_Click);
             // 
             // tpImport
             // 
@@ -119,18 +185,6 @@
             this.tpImport.Size = new System.Drawing.Size(747, 582);
             this.tpImport.TabIndex = 1;
             this.tpImport.Text = "Import from Text";
-            // 
-            // chkClearScenarioBeforeImport
-            // 
-            this.chkClearScenarioBeforeImport.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)));
-            this.chkClearScenarioBeforeImport.AutoSize = true;
-            this.chkClearScenarioBeforeImport.Location = new System.Drawing.Point(6, 557);
-            this.chkClearScenarioBeforeImport.Name = "chkClearScenarioBeforeImport";
-            this.chkClearScenarioBeforeImport.Size = new System.Drawing.Size(131, 17);
-            this.chkClearScenarioBeforeImport.TabIndex = 31;
-            this.chkClearScenarioBeforeImport.Text = "Clear scenario before import";
-            this.toolTip.SetToolTip(this.chkClearScenarioBeforeImport, "Check this if you want to clear the scenario before you import from text.");
-            this.chkClearScenarioBeforeImport.UseVisualStyleBackColor = true;
             // 
             // btnImport
             // 
@@ -174,6 +228,17 @@
             this.fctxtxImport.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.fctxtxImport.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
             this.fctxtxImport.AutoScrollMinSize = new System.Drawing.Size(0, 14);
             this.fctxtxImport.BackBrush = null;
             this.fctxtxImport.CharHeight = 14;
@@ -187,6 +252,7 @@
             this.fctxtxImport.Paddings = new System.Windows.Forms.Padding(0);
             this.fctxtxImport.PreferredLineWidth = 65536;
             this.fctxtxImport.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctxtxImport.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctxtxImport.ServiceColors")));
             this.fctxtxImport.Size = new System.Drawing.Size(747, 546);
             this.fctxtxImport.TabIndex = 0;
             this.fctxtxImport.WordWrap = true;
@@ -206,42 +272,6 @@
             this.tpExtraTools.TabIndex = 2;
             this.tpExtraTools.Text = "Extra tools";
             // 
-            // btnRevertToImported
-            // 
-            this.btnRevertToImported.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnRevertToImported.BackColor = System.Drawing.Color.White;
-            this.btnRevertToImported.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRevertToImported.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRevertToImported.Location = new System.Drawing.Point(269, 279);
-            this.btnRevertToImported.MaximumSize = new System.Drawing.Size(9999, 24);
-            this.btnRevertToImported.MinimumSize = new System.Drawing.Size(0, 24);
-            this.btnRevertToImported.Name = "btnRevertToImported";
-            this.btnRevertToImported.Size = new System.Drawing.Size(209, 24);
-            this.btnRevertToImported.TabIndex = 1;
-            this.btnRevertToImported.Text = "Revert to imported";
-            this.toolTip.SetToolTip(this.btnRevertToImported, "Revert the whole scenario to how it was imported.");
-            this.btnRevertToImported.UseVisualStyleBackColor = false;
-            this.btnRevertToImported.Click += new System.EventHandler(this.btnRevertToImported_Click);
-            // 
-            // btnRedetermineParameterTokens
-            // 
-            this.btnRedetermineParameterTokens.Anchor = System.Windows.Forms.AnchorStyles.None;
-            this.btnRedetermineParameterTokens.BackColor = System.Drawing.Color.White;
-            this.btnRedetermineParameterTokens.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnRedetermineParameterTokens.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnRedetermineParameterTokens.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
-            this.btnRedetermineParameterTokens.Location = new System.Drawing.Point(269, 309);
-            this.btnRedetermineParameterTokens.MaximumSize = new System.Drawing.Size(9999, 24);
-            this.btnRedetermineParameterTokens.Name = "btnRedetermineParameterTokens";
-            this.btnRedetermineParameterTokens.Size = new System.Drawing.Size(209, 24);
-            this.btnRedetermineParameterTokens.TabIndex = 2;
-            this.btnRedetermineParameterTokens.Text = "Redetermine parameter tokens...";
-            this.toolTip.SetToolTip(this.btnRedetermineParameterTokens, "Sometimes a set of parameter tokens can be used and is needed for a valid request" +
-        ".\r\nIn the following dialog you can redetermine the tokens for the whole scenario to a" +
-        "void this problem.\r\n");
-            this.btnRedetermineParameterTokens.UseVisualStyleBackColor = false;
-            this.btnRedetermineParameterTokens.Click += new System.EventHandler(this.btnRedetermineParameterTokens_Click);
-            // 
             // btnExportToTextFile
             // 
             this.btnExportToTextFile.Anchor = System.Windows.Forms.AnchorStyles.None;
@@ -257,23 +287,6 @@
             this.btnExportToTextFile.Text = "Export to text file...";
             this.btnExportToTextFile.UseVisualStyleBackColor = false;
             this.btnExportToTextFile.Click += new System.EventHandler(this.btnExportToTextFile_Click);
-            // 
-            // imageList
-            // 
-            this.imageList.ImageStream = ((System.Windows.Forms.ImageListStreamer)(resources.GetObject("imageList.ImageStream")));
-            this.imageList.TransparentColor = System.Drawing.Color.Transparent;
-            this.imageList.Images.SetKeyName(0, "capture.png");
-            this.imageList.Images.SetKeyName(1, "import.png");
-            // 
-            // openFileDialog
-            // 
-            this.openFileDialog.Filter = "Text Files (*.txt)|*.txt|All files (*.*)|*.*";
-            this.openFileDialog.Multiselect = true;
-            // 
-            // saveFileDialog
-            // 
-            this.saveFileDialog.DefaultExt = "txt";
-            this.saveFileDialog.Filter = "Text File (*.txt)|*.txt";
             // 
             // EditScenarioPanel
             // 
@@ -304,14 +317,14 @@
         private FastColoredTextBoxNS.FastColoredTextBox fctxtxImport;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.ImageList imageList;
-        private System.Windows.Forms.CheckBox chkClearScenarioBeforeCapture;
         private System.Windows.Forms.CheckBox chkClearScenarioBeforeImport;
         private System.Windows.Forms.OpenFileDialog openFileDialog;
-        private Lupus_Fiddler.CaptureControl captureControl;
         private System.Windows.Forms.TabPage tpExtraTools;
         private System.Windows.Forms.SaveFileDialog saveFileDialog;
         private System.Windows.Forms.Button btnRevertToImported;
         private System.Windows.Forms.Button btnRedetermineParameterTokens;
         private System.Windows.Forms.Button btnExportToTextFile;
+        private System.Windows.Forms.Button btnOpenLupusTitanium;
+        private System.Windows.Forms.CheckBox chkClearScenarioBeforeCapture;
     }
 }
