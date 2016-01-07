@@ -30,7 +30,6 @@
         {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(AboutDialog));
             this.pnl = new System.Windows.Forms.Panel();
-            this.txtChannel = new System.Windows.Forms.TextBox();
             this.lblWebsite = new System.Windows.Forms.LinkLabel();
             this.tc = new System.Windows.Forms.TabControl();
             this.tbpAuthors = new System.Windows.Forms.TabPage();
@@ -52,7 +51,6 @@
             // pnl
             // 
             this.pnl.BackColor = System.Drawing.Color.White;
-            this.pnl.Controls.Add(this.txtChannel);
             this.pnl.Controls.Add(this.lblWebsite);
             this.pnl.Controls.Add(this.tc);
             this.pnl.Controls.Add(this.txtCopyright);
@@ -63,20 +61,6 @@
             this.pnl.Name = "pnl";
             this.pnl.Size = new System.Drawing.Size(628, 441);
             this.pnl.TabIndex = 4;
-            // 
-            // txtChannel
-            // 
-            this.txtChannel.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtChannel.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.txtChannel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.txtChannel.ForeColor = System.Drawing.Color.SteelBlue;
-            this.txtChannel.Location = new System.Drawing.Point(31, 56);
-            this.txtChannel.Name = "txtChannel";
-            this.txtChannel.Size = new System.Drawing.Size(577, 13);
-            this.txtChannel.TabIndex = 13;
-            this.txtChannel.TabStop = false;
-            this.txtChannel.Text = "Channel";
             // 
             // lblWebsite
             // 
@@ -167,10 +151,10 @@
             this.rtxtLicenses.Dock = System.Windows.Forms.DockStyle.Fill;
             this.rtxtLicenses.Location = new System.Drawing.Point(3, 3);
             this.rtxtLicenses.Name = "rtxtLicenses";
+            this.rtxtLicenses.ReadOnly = true;
             this.rtxtLicenses.Size = new System.Drawing.Size(575, 285);
             this.rtxtLicenses.TabIndex = 0;
             this.rtxtLicenses.Text = "";
-            this.rtxtLicenses.ReadOnly = true;
             // 
             // txtCopyright
             // 
@@ -198,7 +182,7 @@
             this.txtVersion.Size = new System.Drawing.Size(577, 13);
             this.txtVersion.TabIndex = 6;
             this.txtVersion.TabStop = false;
-            this.txtVersion.Text = "Version";
+            this.txtVersion.Text = "Version: 1.10.2 FINAL";
             // 
             // lblDescription
             // 
@@ -211,7 +195,7 @@
             this.lblDescription.TabIndex = 5;
             this.lblDescription.Text = "Description";
             // 
-            // About
+            // AboutDialog
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
@@ -220,7 +204,7 @@
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedDialog;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.MaximizeBox = false;
-            this.Name = "About";
+            this.Name = "AboutDialog";
             this.ShowInTaskbar = false;
             this.StartPosition = System.Windows.Forms.FormStartPosition.CenterParent;
             this.Text = "About";
@@ -248,7 +232,6 @@
         private System.Windows.Forms.Label lblDescription;
         private AuthorGrid authorGrid;
         private System.Windows.Forms.LinkLabel lblWebsite;
-        private System.Windows.Forms.TextBox txtChannel;
 
 
     }

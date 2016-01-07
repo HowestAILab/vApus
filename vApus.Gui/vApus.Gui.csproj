@@ -323,6 +323,7 @@
     <None Include="Resources\Liz_van_Dijk.png" />
     <None Include="Resources\Philip_Dubois.png" />
     <None Include="Resources\Dieter_Vandroemme.jpg" />
+    <None Include="Resources\History.txt" />
     <Content Include="Welcome\images\Link1.PNG" />
     <Content Include="Welcome\images\Link2.PNG" />
     <Content Include="Welcome\images\Link3.PNG" />

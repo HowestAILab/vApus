@@ -74,7 +74,7 @@ namespace vApus.Gui {
             _dateFont = new Font(rtxtHistory.Font, FontStyle.Italic);
             _itemFont = new Font(rtxtHistory.Font, FontStyle.Regular);
 
-            ReadVersionIni();
+            FillHistory(Resources.History);
 
             rtxtLicenses.Text = Licenses;
 
@@ -83,55 +83,6 @@ namespace vApus.Gui {
         }
 
         #region Functions
-        private void ReadVersionIni() {
-            string ini = Path.Combine(Application.StartupPath, "version.ini");
-            string line = string.Empty;
-            bool versionFound = false, channelFound = false, historyFound = false;
-
-            if (File.Exists(ini)) {
-                var sr = new StreamReader(ini);
-                while (sr.Peek() != -1) {
-                    line = sr.ReadLine().Trim();
-
-                    if (line.Length == 0)
-                        continue;
-
-                    switch (line) {
-                        case "[VERSION]":
-                            versionFound = true;
-                            continue;
-                        case "[CHANNEL]":
-                            channelFound = true;
-                            continue;
-                        case "[HISTORY]":
-                            historyFound = true;
-                            continue;
-                    }
-
-                    if (historyFound) {
-                        FillHistory(line);
-                        break;
-                    } else if (channelFound) {
-                        txtChannel.Text = "Channel: " + line;
-                        channelFound = false;
-                    } else if (versionFound) {
-                        txtVersion.Text = "Version: " + line;
-                        versionFound = false;
-                    }
-                }
-                try {
-                    sr.Close();
-                } catch {
-                    //Failed closing the stream reader. Ignore.
-                }
-                try {
-                    sr.Dispose();
-                } catch {
-                    //Failed disposing the stream reader. Ignore.
-                }
-                sr = null;
-            }
-        }
 
         private void FillHistory(string historyOfChanges) {
             var parts = new List<HistoryPart>();
