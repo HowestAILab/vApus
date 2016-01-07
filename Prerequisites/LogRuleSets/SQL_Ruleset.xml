@@ -1,0 +1,23 @@
+<LogRuleSets>
+  <Items>
+    <LogRuleSet>
+      <Items />
+      <Category>
+      </Category>
+      <ChildDelimiter>
+      </ChildDelimiter>
+      <Description>A SQL query string.</Description>
+      <SingleLineCommentString>//</SingleLineCommentString>
+      <BeginCommentString>/*</BeginCommentString>
+      <EndCommentString>*/</EndCommentString>
+      <ActionizeOnComment>True</ActionizeOnComment>
+      <ActionizeOnFile>True</ActionizeOnFile>
+      <BeginTimestampIndex>0</BeginTimestampIndex>
+      <EndTimestampIndex>0</EndTimestampIndex>
+      <Label>SQL STABLE-V1-20151020131342</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </LogRuleSet>
+  </Items>
+</LogRuleSets>

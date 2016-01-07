@@ -1,0 +1,64 @@
+<LogRuleSets>
+  <Items>
+    <LogRuleSet>
+      <Items>
+        <LogSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>
+          </Description>
+          <Label>Client IP</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </LogSyntaxItem>
+        <LogSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>
+          </Description>
+          <Label>Timestamp</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </LogSyntaxItem>
+        <LogSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>
+          </Description>
+          <Label>Content</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </LogSyntaxItem>
+      </Items>
+      <ChildDelimiter>;</ChildDelimiter>
+      <SingleLineCommentString>
+      </SingleLineCommentString>
+      <BeginCommentString>
+      </BeginCommentString>
+      <EndCommentString>
+      </EndCommentString>
+      <ActionizeOnComment>True</ActionizeOnComment>
+      <ActionizeOnFile>True</ActionizeOnFile>
+      <BeginTimestampIndex>0</BeginTimestampIndex>
+      <EndTimestampIndex>0</EndTimestampIndex>
+      <Description>
+      </Description>
+      <Label>Binary/SOAP/Text STABLE-V1-20151020131342</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </LogRuleSet>
+  </Items>
+</LogRuleSets>

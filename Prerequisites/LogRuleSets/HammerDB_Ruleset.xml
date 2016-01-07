@@ -1,0 +1,103 @@
+<LogRuleSets>
+  <Items>
+    <LogRuleSet>
+      <Items>
+        <LogSyntaxItem>
+          <Items>
+            <Rule>
+              <Items />
+              <RegExp>^new order$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <UsePasswordChar>False</UsePasswordChar>
+              <Description>
+              </Description>
+              <Label>new order</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+            <Rule>
+              <Items />
+              <RegExp>^payment$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <UsePasswordChar>False</UsePasswordChar>
+              <Description>
+              </Description>
+              <Label>payment</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+            <Rule>
+              <Items />
+              <RegExp>^delivery$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <UsePasswordChar>False</UsePasswordChar>
+              <Description>
+              </Description>
+              <Label>delivery</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+            <Rule>
+              <Items />
+              <RegExp>^stock level$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <UsePasswordChar>False</UsePasswordChar>
+              <Description>
+              </Description>
+              <Label>stock level</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+            <Rule>
+              <Items />
+              <RegExp>^order status$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <UsePasswordChar>False</UsePasswordChar>
+              <Description>
+              </Description>
+              <Label>order status</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+          </Items>
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>
+          </Description>
+          <Label>
+          </Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </LogSyntaxItem>
+      </Items>
+      <ChildDelimiter>
+      </ChildDelimiter>
+      <SingleLineCommentString>//</SingleLineCommentString>
+      <BeginCommentString>/*</BeginCommentString>
+      <EndCommentString>*/</EndCommentString>
+      <ActionizeOnComment>True</ActionizeOnComment>
+      <BeginTimestampIndex>0</BeginTimestampIndex>
+      <EndTimestampIndex>0</EndTimestampIndex>
+      <Description>A SQL query string.</Description>
+      <Label>HammerDB TPC-C STABLE-V1-20151020131342</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </LogRuleSet>
+  </Items>
+</LogRuleSets>

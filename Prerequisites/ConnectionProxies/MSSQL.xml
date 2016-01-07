@@ -1,0 +1,322 @@
+<ConnectionProxies>
+  <Items>
+    <ConnectionProxy>
+      <Items>
+        <ConnectionProxyRuleSet>
+          <Items>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>
+              </DefaultValue>
+              <Description>IP or hostname</Description>
+              <Label>Server</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>intType</ValueType>
+                  <UsePasswordChar>False</UsePasswordChar>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>1433</DefaultValue>
+              <Description>Default port = 1433</Description>
+              <Label>Port</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>
+              </DefaultValue>
+              <Description>The database to connect to</Description>
+              <Label>Database</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>
+              </DefaultValue>
+              <Description>Username</Description>
+              <Label>User ID</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>stringType</ValueType>
+                  <UsePasswordChar>True</UsePasswordChar>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>
+              </DefaultValue>
+              <Description>Password</Description>
+              <Label>Password</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>boolType</ValueType>
+                  <UsePasswordChar>False</UsePasswordChar>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>False</DefaultValue>
+              <Description>False (adviced) or True (starts with a capital letter)</Description>
+              <Label>Pooling</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>dbmssocn</DefaultValue>
+              <Description>Default = dbmssocn</Description>
+              <Label>Network Library</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+          </Items>
+          <Connected>True</Connected>
+          <TracertField>1</TracertField>
+          <ChildDelimiter>;</ChildDelimiter>
+          <Description>
+          </Description>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ConnectionProxyRuleSet>
+        <ConnectionProxyCode>
+          <Items />
+          <Code>/*
+    ConnectionProxy generated by vApus
+    vApus is Copyrighted by Sizing Servers Lab
+    University College of West-Flanders, Department GKG
+    
+    Note: If you want to edit this connection proxy code you need to know what you are doing. You might break your stresstest.
+    
+    VERSION STABLE-V1-20151020130630
+*/
+
+// The following line is used to add references when compiling, you can edit this here or in the references tab page. Please use the 'Browse...' button for dlls that are not in the GAC.
+// dllreferences:System.dll;System.Data.dll;vApus.Util.dll;vApus.Stresstest.dll;System.XML.dll;
+
+#region Preprocessors
+    // Enable debug mode
+    //#define DEBUGMODE
+#endregion // Preprocessors
+
+#region Usings
+    using System;
+    using System.Data;
+    using System.Diagnostics;
+    using vApus.Util;
+    using System.Data.SqlClient;
+#endregion // Usings
+
+namespace vApus.Stresstest {
+    public class ConnectionProxy : IConnectionProxy {
+        
+        #region Fields
+            Stopwatch _stopwatch = new Stopwatch();
+            bool _isDisposed;
+            // Please do not edit the following lines (RuleSetFields).
+            // -- RuleSetFields --
+            System.String _connectionProxySyntaxItem0 = string.Empty; // Server
+            System.Int32 _connectionProxySyntaxItem1 = 1433; // Port [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem2 = string.Empty; // Database
+            System.String _connectionProxySyntaxItem3 = string.Empty; // User ID
+            System.String _connectionProxySyntaxItem4 = string.Empty; // Password
+            System.Boolean _connectionProxySyntaxItem5 = false; // Pooling [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem6 = "dbmssocn"; // Network Library [The default value for this syntax item is used if no value is provided in the connection.]
+            // -- RuleSetFields --
+            
+            
+            SqlConnection _connection;
+            SqlCommand _command;
+            IDataReader _reader;
+        #endregion // Fields
+        
+        #region Properties
+            public bool IsConnectionOpen { get { return _connection.State == ConnectionState.Open; } }
+            public bool IsDisposed { get { return _isDisposed; } }
+        #endregion // Properties
+        
+        public ConnectionProxy() {
+            _connection = new SqlConnection("Data Source=" + _connectionProxySyntaxItem0 + "," +
+            _connectionProxySyntaxItem1 + ";Initial Catalog=" + _connectionProxySyntaxItem2 + ";User ID=" +
+            _connectionProxySyntaxItem3 + ";Password=" + _connectionProxySyntaxItem4 + ";Pooling=" +
+            _connectionProxySyntaxItem5 + ";Network Library=" + _connectionProxySyntaxItem6);
+            _command = _connection.CreateCommand();
+            _command.CommandType = CommandType.Text;
+            // Set timeout in seconds equal to timeout server side.
+            _command.CommandTimeout = 600;
+        }
+        
+        #region Functions
+            public void TestConnection(out string error) {
+                error = null;
+                try {
+                    OpenConnection();
+                    if (IsConnectionOpen) {
+                        CloseConnection();
+                    }
+                    else {
+                        error = "Could not open the connection.";
+                    }
+                }
+                catch (Exception ex) {
+                    error = ex.ToString();
+                }
+            }
+            public void OpenConnection() {
+                if (!IsConnectionOpen) {
+                    _connection.Open();
+                }
+            }
+            public void CloseConnection() {
+                if (IsConnectionOpen) {
+                    _connection.Close();
+                }
+            }
+            public void SendAndReceive(StringTree parameterizedLogEntry, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {
+                exception = null;
+                
+                //
+                // parameterizedLogEntry is the log entry parsed to a String Tree using the Log Rule Set.
+                // String Tree is a simple class: it can have either a value (string Value { get; }) or childs who are also String Trees (e.g. StringTree foo = parameterizedLogEntry[n] where n is an integer value).
+                // You can get the combined value of the childs using the function CombineValues() (not shallow, returns a string), this uses the child delimiters in the rule set to glue these values together. 
+                //
+                
+                _command.CommandText = parameterizedLogEntry.Value;
+                if (_isDisposed) {
+                    sentAt = DateTime.Now;
+                    timeToLastByte = new TimeSpan();
+                    return;
+                }
+                try {
+                    sentAt = DateTime.Now;
+                    _stopwatch.Start();
+                    try {
+                        _reader = _command.ExecuteReader();
+                    }
+                    catch (Exception ex) {
+                        exception = ex;
+                        #if DEBUGMODE
+                            EventPanel.AddEvent("SendAndReceive Exception: " + parameterizedLogEntry.CombineValues() + " " + exception);
+                        #endif
+                    }
+                    finally {
+                        if (_reader != null) {
+                            _reader.Close();
+                        }
+                    }
+                }
+                catch {
+                    //
+                    // Always throw the exception, if any, if 'stuff' cannot be closed.
+                    // vApus will handle it as a connection problem.
+                    //
+                    
+                    throw;
+                }
+                finally {
+                    _stopwatch.Stop();
+                    timeToLastByte = _stopwatch.Elapsed;
+                    _stopwatch.Reset();
+                }
+            }
+            
+            public void Dispose() {
+                if (!_isDisposed) {
+                    _isDisposed = true;
+                    try {
+                        // Timeout asap.
+                        _command.Cancel();
+                    }
+                    catch {
+                    }
+                    try {
+                        if(_connection != null) {
+                            _connection.Dispose();
+                            _connection = null;
+                        }
+                    }
+                    catch {
+                    }
+                    try {
+                        if(_command != null) {
+                            _command.Dispose();
+                            _command = null;
+                        }
+                    }
+                    catch {
+                    }
+                    try {
+                        if(_reader != null) {
+                            _reader.Close();
+                            _reader = null;
+                        }
+                    }
+                    catch {
+                    }
+                }
+            }
+        #endregion //Functions
+    } // ConnectionProxy
+} // vApus.Stresstest</Code>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ConnectionProxyCode>
+      </Items>
+      <Label>MSSQL STABLE-V1-20151020130630</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </ConnectionProxy>
+  </Items>
+</ConnectionProxies>
