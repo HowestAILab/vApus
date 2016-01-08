@@ -35,6 +35,8 @@ namespace vApus.StressTest {
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(DetailedResultsControl));
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
             this.btnCollapseExpand = new System.Windows.Forms.Button();
@@ -235,7 +237,7 @@ namespace vApus.StressTest {
             this.lbtnvApusInstance.Name = "lbtnvApusInstance";
             this.lbtnvApusInstance.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.lbtnvApusInstance.RadioButtonBehavior = true;
-            this.lbtnvApusInstance.Size = new System.Drawing.Size(101, 20);
+            this.lbtnvApusInstance.Size = new System.Drawing.Size(100, 20);
             this.lbtnvApusInstance.TabIndex = 3;
             this.lbtnvApusInstance.TabStop = true;
             this.lbtnvApusInstance.Text = "vApus instance";
@@ -253,7 +255,7 @@ namespace vApus.StressTest {
             this.lbtnStressTest.ForeColor = System.Drawing.Color.DimGray;
             this.lbtnStressTest.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
             this.lbtnStressTest.LinkColor = System.Drawing.Color.DimGray;
-            this.lbtnStressTest.Location = new System.Drawing.Point(346, 6);
+            this.lbtnStressTest.Location = new System.Drawing.Point(345, 6);
             this.lbtnStressTest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.lbtnStressTest.Name = "lbtnStressTest";
             this.lbtnStressTest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
@@ -277,7 +279,7 @@ namespace vApus.StressTest {
             this.lbtnMonitors.ForeColor = System.Drawing.Color.DimGray;
             this.lbtnMonitors.LinkBehavior = System.Windows.Forms.LinkBehavior.AlwaysUnderline;
             this.lbtnMonitors.LinkColor = System.Drawing.Color.DimGray;
-            this.lbtnMonitors.Location = new System.Drawing.Point(418, 6);
+            this.lbtnMonitors.Location = new System.Drawing.Point(421, 6);
             this.lbtnMonitors.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.lbtnMonitors.Name = "lbtnMonitors";
             this.lbtnMonitors.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
@@ -353,6 +355,17 @@ namespace vApus.StressTest {
             this.codeTextBox.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.codeTextBox.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
             this.codeTextBox.AutoScrollMinSize = new System.Drawing.Size(0, 14);
             this.codeTextBox.BackBrush = null;
             this.codeTextBox.CharHeight = 14;
@@ -365,6 +378,7 @@ namespace vApus.StressTest {
             this.codeTextBox.Paddings = new System.Windows.Forms.Padding(0);
             this.codeTextBox.PreferredLineWidth = 65536;
             this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.codeTextBox.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("codeTextBox.ServiceColors")));
             this.codeTextBox.Size = new System.Drawing.Size(864, 100);
             this.codeTextBox.TabIndex = 0;
             this.codeTextBox.WordWrap = true;
@@ -377,7 +391,7 @@ namespace vApus.StressTest {
             this.chkShowCellView.AutoSize = true;
             this.chkShowCellView.Location = new System.Drawing.Point(8, 329);
             this.chkShowCellView.Name = "chkShowCellView";
-            this.chkShowCellView.Size = new System.Drawing.Size(99, 17);
+            this.chkShowCellView.Size = new System.Drawing.Size(97, 17);
             this.chkShowCellView.TabIndex = 35;
             this.chkShowCellView.Text = "Show cell view";
             this.toolTip.SetToolTip(this.chkShowCellView, "Show a view when a cell is selected, if checked.");
@@ -417,7 +431,15 @@ namespace vApus.StressTest {
             this.dgvDetailedResults.BackgroundColor = System.Drawing.Color.White;
             this.dgvDetailedResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvDetailedResults.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
-            this.dgvDetailedResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            this.dgvDetailedResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Consolas", 9.75F);
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvDetailedResults.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvDetailedResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvDetailedResults.Dock = System.Windows.Forms.DockStyle.Fill;
             this.dgvDetailedResults.EnableHeadersVisualStyles = false;
@@ -426,9 +448,17 @@ namespace vApus.StressTest {
             this.dgvDetailedResults.Name = "dgvDetailedResults";
             this.dgvDetailedResults.ReadOnly = true;
             this.dgvDetailedResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Consolas", 9.75F);
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvDetailedResults.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvDetailedResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvDetailedResults.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvDetailedResults.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvDetailedResults.Size = new System.Drawing.Size(899, 325);
             this.dgvDetailedResults.TabIndex = 0;
             this.dgvDetailedResults.VirtualMode = true;
@@ -436,6 +466,17 @@ namespace vApus.StressTest {
             // 
             // fctxtCellView
             // 
+            this.fctxtCellView.AutoCompleteBracketsList = new char[] {
+        '(',
+        ')',
+        '{',
+        '}',
+        '[',
+        ']',
+        '\"',
+        '\"',
+        '\'',
+        '\''};
             this.fctxtCellView.AutoScrollMinSize = new System.Drawing.Size(0, 14);
             this.fctxtCellView.BackBrush = null;
             this.fctxtCellView.CharHeight = 14;
@@ -450,6 +491,7 @@ namespace vApus.StressTest {
             this.fctxtCellView.PreferredLineWidth = 65536;
             this.fctxtCellView.ReadOnly = true;
             this.fctxtCellView.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(50)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
+            this.fctxtCellView.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctxtCellView.ServiceColors")));
             this.fctxtCellView.Size = new System.Drawing.Size(899, 161);
             this.fctxtCellView.TabIndex = 2;
             this.fctxtCellView.WordWrap = true;
@@ -607,7 +649,7 @@ namespace vApus.StressTest {
             this.btnSaveDisplayedResults.Location = new System.Drawing.Point(3, 33);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
-            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
+            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(158, 24);
             this.btnSaveDisplayedResults.TabIndex = 4;
             this.btnSaveDisplayedResults.Text = "Save displayed results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
@@ -622,7 +664,7 @@ namespace vApus.StressTest {
             this.btnExportToExcel.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnExportToExcel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExportToExcel.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExportToExcel.Location = new System.Drawing.Point(174, 33);
+            this.btnExportToExcel.Location = new System.Drawing.Point(167, 33);
             this.btnExportToExcel.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnExportToExcel.Name = "btnExportToExcel";
             this.btnExportToExcel.Size = new System.Drawing.Size(117, 24);
@@ -640,10 +682,10 @@ namespace vApus.StressTest {
             this.btnDeleteResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnDeleteResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnDeleteResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnDeleteResults.Location = new System.Drawing.Point(297, 33);
+            this.btnDeleteResults.Location = new System.Drawing.Point(290, 33);
             this.btnDeleteResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnDeleteResults.Name = "btnDeleteResults";
-            this.btnDeleteResults.Size = new System.Drawing.Size(102, 24);
+            this.btnDeleteResults.Size = new System.Drawing.Size(97, 24);
             this.btnDeleteResults.TabIndex = 6;
             this.btnDeleteResults.Text = "Delete results";
             this.btnDeleteResults.UseVisualStyleBackColor = false;
@@ -653,7 +695,7 @@ namespace vApus.StressTest {
             // 
             this.lblLoading.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(255)))), ((int)(((byte)(128)))), ((int)(((byte)(0)))));
             this.lblLoading.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblLoading.Location = new System.Drawing.Point(405, 37);
+            this.lblLoading.Location = new System.Drawing.Point(393, 37);
             this.lblLoading.Margin = new System.Windows.Forms.Padding(3, 7, 3, 0);
             this.lblLoading.Name = "lblLoading";
             this.lblLoading.Size = new System.Drawing.Size(170, 13);
@@ -671,7 +713,7 @@ namespace vApus.StressTest {
             this.label1.Location = new System.Drawing.Point(3, 9);
             this.label1.Margin = new System.Windows.Forms.Padding(3, 6, 6, 3);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(126, 20);
+            this.label1.Size = new System.Drawing.Size(119, 20);
             this.label1.TabIndex = 0;
             this.label1.Text = "Detailed results";
             // 

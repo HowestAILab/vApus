@@ -366,7 +366,9 @@ namespace vApus.StressTest {
                 _lupusProcess.Exited += LupusProcess_Exited;
                 _lupusProcess.Disposed += LupusProcess_Exited;
             } else {
-                MessageBox.Show("Lupus-Titanium was not found!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string ex = "Lupus-Titanium was not found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
             }
         }
 

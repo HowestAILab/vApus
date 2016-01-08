@@ -74,9 +74,6 @@ namespace vApus.StressTest {
 
         private AutoResetEvent _runSynchronizationContinueWaitHandle = new AutoResetEvent(false), _manyToOneWaitHandle = new AutoResetEvent(false);
 
-        /// <summary>Measures intit actions and such to be able to output to the gui.</summary>
-        private Stopwatch _sw = new Stopwatch();
-
         private volatile bool _break, _cancel, _completed, _isFailed, _isDisposed;
         private volatile bool _waitWhenInitializedTheFirstRun = false;
 
@@ -299,7 +296,7 @@ namespace vApus.StressTest {
             if (_cancel) return;
 
             InvokeMessage("Initializing Scenario(s)...");
-            _sw.Start();
+
             if (_stressTest.Scenarios[0].Key.ScenarioRuleSet.IsEmpty) {
                 var ex = new Exception("No rule set has been assigned to the selected scenario(s).");
                 Loggers.Log(Level.Error, ex.ToString());
@@ -430,10 +427,6 @@ namespace vApus.StressTest {
             GC.WaitForPendingFinalizers();
             GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
             GC.Collect();
-
-            _sw.Stop();
-            InvokeMessage(string.Format(" ...Scenario(s) Initialized in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
-            _sw.Reset();
         }
         /// <summary>
         ///     Expands the scenario (into a new one) times the occurance.
@@ -503,7 +496,7 @@ namespace vApus.StressTest {
             if (_cancel) return;
 
             InvokeMessage("Initialize Connection Proxy Pool...");
-            _sw.Start();
+
             _connectionProxyPool = new ConnectionProxyPool(_stressTest.Connection);
             CompilerResults compilerResults = _connectionProxyPool.CompileConnectionProxyClass(true);
             if (compilerResults.Errors.HasErrors) {
@@ -534,16 +527,12 @@ namespace vApus.StressTest {
                 var ex = new Exception("Failed at testing the connection!\n" + error);
                 throw ex;
             }
-            _sw.Stop();
-            InvokeMessage(string.Format(" ...Connection Proxy Pool Initialized in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
-            _sw.Reset();
         }
 
         //Following init functions happen right before a run starts (ExecuteStressTest).
         private void DetermineTestableRequestsAndDelays(int concurrentUsers) {
             try {
                 InvokeMessage(string.Format("       |Determining Test Patterns and Delays for {0} Concurrent Users...", concurrentUsers));
-                _sw.Start();
 
                 var testableRequests = new ConcurrentDictionary<int, TestableRequest[]>(); //Keep the user to preserve the order.
                 var initialDelaysInMilliseconds = new List<int>();
@@ -704,10 +693,6 @@ namespace vApus.StressTest {
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
-
-                _sw.Stop();
-                InvokeMessage(string.Format("       | ...Test Patterns and Delays Determined in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
-                _sw.Reset();
             } catch {
                 if (!_cancel)
                     throw;
@@ -717,31 +702,22 @@ namespace vApus.StressTest {
             if (_cancel) return;
 
             InvokeMessage(string.Format("       |Setting Thread Pool for {0} Concurrent Users...", concurrentUsers));
-            _sw.Start();
             if (_threadPool == null) {
                 _threadPool = new StressTestThreadPool(Work);
                 _threadPool.ThreadWorkException += _threadPool_ThreadWorkException;
             }
 
             _threadPool.SetThreads(concurrentUsers, _parallelThreads * concurrentUsers);
-            _sw.Stop();
-            InvokeMessage(string.Format("       | ...Thread Pool Set in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
-            _sw.Reset();
         }
         private void SetConnectionProxyPool(int concurrentUsers) {
             if (_cancel) return;
 
             InvokeMessage(string.Format("       |Setting Connections for {0} Concurrent Users...", concurrentUsers));
-            _sw.Start();
             try {
                 _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections * concurrentUsers);
-                InvokeMessage(string.Format("       | ...Connections Set in {0}.", _sw.Elapsed.ToShortFormattedString(true, "0 ms")));
             } catch {
                 throw;
-            } finally {
-                _sw.Stop();
-                _sw.Reset();
-            }
+            } 
         }
         #endregion
 
@@ -1103,7 +1079,6 @@ namespace vApus.StressTest {
                     }
 
                     _stressTestResult = null;
-                    _sw = null;
                 } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed disposing the stress test core.", ex);
                 }

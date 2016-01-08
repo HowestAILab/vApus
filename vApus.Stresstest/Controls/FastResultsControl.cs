@@ -453,7 +453,7 @@ namespace vApus.StressTest {
         }
 
         /// <summary>
-        ///     Sets the '; ran ...' label.
+        ///     Sets the ', ran ...' label.
         /// </summary>
         /// <param name="metrics"></param>
         private void SetMeasuredRuntime() {
@@ -461,13 +461,13 @@ namespace vApus.StressTest {
             _measuredRuntime = epnlMessages.EndOfTimeFrame - epnlMessages.BeginOfTimeFrame;
             _measuredRuntime = _measuredRuntime.Subtract(new TimeSpan(_measuredRuntime.Ticks % TimeSpan.TicksPerSecond));
             if (_measuredRuntime.TotalSeconds > 1)
-                lblMeasuredRuntime.Text = "; ran " + _measuredRuntime.ToShortFormattedString(true);
+                lblMeasuredRuntime.Text = ", ran " + _measuredRuntime.ToShortFormattedString(true);
         }
         public void SetMeasuredRuntime(TimeSpan measuredRuntime) {
             epnlMessages.SetEndOfTimeFrameTo(epnlMessages.BeginOfTimeFrame + measuredRuntime);
             measuredRuntime = _measuredRuntime.Subtract(new TimeSpan(measuredRuntime.Ticks % TimeSpan.TicksPerSecond));
             if (measuredRuntime.TotalSeconds > 1) {
-                string s = "; ran " + measuredRuntime.ToShortFormattedString(true);
+                string s = ", ran " + measuredRuntime.ToShortFormattedString(true);
                 if (lblMeasuredRuntime.Text != s) lblMeasuredRuntime.Text = s;
             }
         }
@@ -564,6 +564,7 @@ namespace vApus.StressTest {
                         lblStopped.Text = string.Empty;
                         break;
                 }
+                SetMeasuredRuntime();
             } catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed setting stress test stopped.", ex, new object[] { stressTestResult, exception });
             }

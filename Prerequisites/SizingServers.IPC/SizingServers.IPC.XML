@@ -10,7 +10,6 @@
         </member>
         <member name="P:SizingServers.IPC.MessageEventArgs.Message">
             <summary>
-            Can be anything, must be Serializable.
             </summary>
         </member>
         <member name="T:SizingServers.IPC.Receiver">
@@ -50,7 +49,8 @@
         </member>
         <member name="M:SizingServers.IPC.Receiver.HandleReceive(System.Net.Sockets.TcpClient)">
             <summary>
-            Reads handle size, handle, message size and message from the stream. If the handle in the message is invalid the connection will be closed.
+            <para>Reads handle size, handle, 1 if message is byte array or 0, message size and message from the stream.</para>
+            <para>If the handle in the message is invalid the connection will be closed.</para>
             </summary>
             <param name="client"></param>
         </member>
@@ -81,9 +81,14 @@
             
             </summary>
         </member>
-        <member name="P:SizingServers.IPC.Sender.IsDisposed">
+        <member name="F:SizingServers.IPC.Sender._hashcode">
             <summary>
-            
+            Hashcode of the message. When resending the same data it is not serialized again.
+            </summary>
+        </member>
+        <member name="P:SizingServers.IPC.Sender.Buffered">
+            <summary>
+            <para>When true, a message (+ encapsulation) you send is kept in memory. When you resend the same message it will not be serialized again.</para>
             </summary>
         </member>
         <member name="P:SizingServers.IPC.Sender.Handle">
@@ -91,21 +96,32 @@
             
             </summary>
         </member>
-        <member name="M:SizingServers.IPC.Sender.#ctor(System.String)">
+        <member name="P:SizingServers.IPC.Sender.IsDisposed">
             <summary>
-            
+            </summary>
+        </member>
+        <member name="M:SizingServers.IPC.Sender.#ctor(System.String,System.Boolean)">
+            <summary>
+            <para>Add a new Sender in the code of the process you want to send messages. Make sure the handles matches the one of the Receivers.</para>
+            <para>This inter process communication only works on the same machine and in the same Windows session.</para>
+            <para>Suscribe to OnSendFailed for error handeling. Please not Sending will always fail when a Receiver disappears.</para>
             </summary>
             <param name="handle">A unique identifier to match the right sender with the right receivers.</param>
+            <param name="buffered">
+            <para>When true, a message (+ encapsulation) you send is kept in memory. When you resend the same message it will not be serialized again.</para>
+            </param>
         </member>
         <member name="M:SizingServers.IPC.Sender.Send(System.Object)">
             <summary>
-            Send a message to the Receivers. It must be serializable.
+            Send a message to the Receivers. This is a blocking function.
             </summary>
-            <param name="message"></param>
+            <param name="message">
+            If the given object is a byte array, it will not be serialized. Otherwise, the object will be serialized using a binary formatter.
+            </param>
         </member>
         <member name="M:SizingServers.IPC.Sender.SerializeMessage(System.Object)">
             <summary>
-            Writes the handle size, the handle, the message size and the message to array.
+            Writes the handle size, the handle (UTF8 encoding), 1 if message is byte array or 0, the message size and the message to an array.
             </summary>
             <param name="message"></param>
             <returns></returns>
@@ -120,7 +136,7 @@
             
             </summary>
         </member>
-        <member name="F:SizingServers.IPC.EndPointManager.BASE_ID">
+        <member name="F:SizingServers.IPC.EndPointManager.KEY">
             <summary>
             Used for a key in the registry to store the end points.
             </summary>
@@ -148,11 +164,6 @@
             <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
             </param>
             <returns></returns>
-        </member>
-        <member name="M:SizingServers.IPC.EndPointManager.CleanupEndpoints(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.HashSet{System.Int32}})">
-            <summary>
-            All unused end points (read: unused tcp ports) are removed from the given dictionary.
-            </summary>
         </member>
         <member name="M:SizingServers.IPC.EndPointManager.GetUsedTcpPorts">
             <summary>
