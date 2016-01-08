@@ -93,6 +93,9 @@ namespace vApus.StressTest {
             cboDrillDown.SelectedIndex = 0;
             btnCollapseExpand.PerformClick();
             epnlMessages.Collapsed = true;
+
+            //Stupid workaround.
+            dgvFastResults.ColumnHeadersDefaultCellStyle.Font = new Font(dgvFastResults.ColumnHeadersDefaultCellStyle.Font, FontStyle.Bold);
         }
         #endregion
 

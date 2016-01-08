@@ -66,6 +66,9 @@ namespace vApus.StressTest {
             OnResults += DetailedResultsControl_OnResults;
 
             fctxtCellView.DefaultContextMenu(true);
+
+            //Stupid workaround.
+            dgvDetailedResults.ColumnHeadersDefaultCellStyle.Font = new Font(dgvDetailedResults.ColumnHeadersDefaultCellStyle.Font, FontStyle.Bold);
         }
         #endregion
 

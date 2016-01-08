@@ -102,6 +102,9 @@ namespace vApus.Monitor {
                 InitMonitorView();
             else
                 HandleCreated += MonitorView_HandleCreated;
+
+            //Stupid workaround.
+            monitorControl.ColumnHeadersDefaultCellStyle.Font = new Font(monitorControl.ColumnHeadersDefaultCellStyle.Font, FontStyle.Bold);
         }
         #endregion
 
