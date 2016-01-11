@@ -169,8 +169,6 @@ namespace vApus.StressTest {
             if (InitDatabase(!allowMessageBox)) {
                 StopProgressDelayCountDown();
 
-                if (_stressTest.LaunchLupusTitanium) OpenLupusTitanium();
-
                 //Dns.GetHostName() does not always work.
                 string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
                 _resultsHelper.SetvApusInstance(hostName, string.Empty, NamedObjectRegistrar.Get<int>("Port"),
@@ -222,14 +220,6 @@ namespace vApus.StressTest {
 
             if (edited) _stressTest.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             return true;
-        }
-
-        private void OpenLupusTitanium() {
-            string path = Path.Combine(Application.StartupPath, "lupus-titanium\\lupus-titanium_gui.exe");
-            if (File.Exists(path))
-                Process.Start(path, "autocapture");
-            else
-                Loggers.Log(Level.Error, "Lupus-Titanium was not found!");
         }
 
         private void SetGuiForStart(bool enableStop) {
