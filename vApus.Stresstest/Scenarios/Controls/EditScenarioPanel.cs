@@ -347,6 +347,18 @@ namespace vApus.StressTest {
         }
 
         private void btnOpenLupusTitanium_Click(object sender, EventArgs e) {
+            var processes = Process.GetProcessesByName("Lupus-Titanium_GUI");
+            if (processes.Length != 0)
+                if (MessageBox.Show("Lupus-Titanium is already running.\nIn order to be able to capture correctly it must be restarted.\nDo you want to proceed? ", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                    try {
+                        processes[0].Kill();
+                    } catch {
+                        //Already killed. Not important.
+                    }
+                } else {
+                    return;
+                }
+
             string path = Path.Combine(Application.StartupPath, "lupus-titanium\\lupus-titanium_gui.exe");
             if (File.Exists(path)) {
                 if (chkClearScenarioBeforeCapture.Checked && _scenario.Count != 0)
@@ -359,10 +371,12 @@ namespace vApus.StressTest {
 
                 btnOpenLupusTitanium.Enabled = chkClearScenarioBeforeCapture.Enabled = false;
 
-                _lupusReceiver = new Receiver("Lupus-Titanium");
+                string handle = "ipc" + Process.GetCurrentProcess().Id;
+                _lupusReceiver = new Receiver(handle);
                 _lupusReceiver.MessageReceived += LupusReceiver_MessageReceived;
 
-                _lupusProcess = Process.Start(path);
+                _lupusProcess = Process.Start(path, handle);
+                _lupusProcess.EnableRaisingEvents = true;
                 _lupusProcess.Exited += LupusProcess_Exited;
                 _lupusProcess.Disposed += LupusProcess_Exited;
             } else {
@@ -378,7 +392,7 @@ namespace vApus.StressTest {
                 _lupusReceiver = null;
             }
             try {
-                btnOpenLupusTitanium.Enabled = chkClearScenarioBeforeCapture.Enabled = true;
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => btnOpenLupusTitanium.Enabled = chkClearScenarioBeforeCapture.Enabled = true, null);
             } catch {
                 //Not important. Possible on dispose of vApus.
             }

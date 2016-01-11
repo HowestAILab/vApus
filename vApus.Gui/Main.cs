@@ -241,14 +241,27 @@ namespace vApus.Gui {
             }
         }
 
+        private void lupusTitaniumHTTPsProxyToolStripMenuItem_Click(object sender, EventArgs e) {
+            string path = Path.Combine(Application.StartupPath, "lupus-titanium\\lupus-titanium_gui.exe");
+            if (File.Exists(path)) {
+                Process.Start(path);
+            } else {
+                string ex = "Lupus-Titanium was not found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
+
+        }
+
         private void detailedResultsViewerToolStripMenuItem_Click(object sender, EventArgs e) {
-            string reportApp = Path.Combine(Application.StartupPath, "vApus.DetailedResultsViewer.exe");
-            if (File.Exists(reportApp))
-                Process.Start(reportApp);
-            else
-                MessageBox.Show(
-                    "The report application could not be found!\nPlease re-install vApus or do an update with 'Get versioned and non-versioned' checked.",
-                    string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            string path = Path.Combine(Application.StartupPath, "vApus.DetailedResultsViewer.exe");
+            if (File.Exists(path)) {
+                Process.Start(path);
+            } else {
+                string ex = "The report application could not be found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
         }
 
         private void updateProcess_Exited(object sender, EventArgs e) {

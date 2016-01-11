@@ -24,5 +24,6 @@ Root: HKCR; Subkey: vApus Stresstesting Solution\shell\open\command; ValueType: 
 [Icons]
 Name: {group}\vApus; Filename: {app}\vApus.exe
 Name: {group}\Detailed Results Viewer; Filename: {app}\vApus.DetailedResultsViewer.exe
+Name: {group}\Lupus-Titanium HTTP(s) proxy; Filename: {app}\Lupus-Titanium\Lupus-Titanium_GUI.exe
 Name: {group}\Uninstall; Filename: {app}\unins000.exe
 Name: {commonstartup}\vApus JumpStart; Filename: {app}\vApus.JumpStart.exe

@@ -69,6 +69,7 @@ namespace vApus.StressTest {
 
         private Parameters _parameters; //Kept here for a distributed test
 
+        private bool _launchLupusTitanium;
         private bool _simplifiedFastResults;
         #endregion
 
@@ -473,9 +474,16 @@ namespace vApus.StressTest {
             get { return _persistentConnectionsPerHostname; }
             set { _persistentConnectionsPerHostname = value; }
         }
-        [Description("Set this to true for heavy tests (when using parallel requests). Nonetheless, Each run the full fast results will be calculated."),
- DisplayName("Simplified fast results")]
+        [Description("You can launch the Lupus-Titanium web proxy together with a web test. Should only be used for debugging your test, so do not set the concurrency to high."), 
+         DisplayName("[Browser] Launch Lupus-Titanium")]
         [SavableCloneable, PropertyControl(19, true)]
+        public bool LaunchLupusTitanium {
+            get { return _launchLupusTitanium; }
+            set { _launchLupusTitanium = value; }
+        }
+        [Description("Set this to true for heavy tests (when using parallel requests). Nonetheless, Each run the full fast results will be calculated."),
+         DisplayName("Simplified fast results")]
+        [SavableCloneable, PropertyControl(20, true)]
         public bool SimplifiedFastResults {
             get { return _simplifiedFastResults; }
             set { _simplifiedFastResults = value; }

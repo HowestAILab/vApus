@@ -108,7 +108,7 @@
             // 
             this.chkClearScenarioBeforeCapture.Anchor = System.Windows.Forms.AnchorStyles.None;
             this.chkClearScenarioBeforeCapture.AutoSize = true;
-            this.chkClearScenarioBeforeCapture.Location = new System.Drawing.Point(313, 309);
+            this.chkClearScenarioBeforeCapture.Location = new System.Drawing.Point(344, 309);
             this.chkClearScenarioBeforeCapture.Name = "chkClearScenarioBeforeCapture";
             this.chkClearScenarioBeforeCapture.Size = new System.Drawing.Size(165, 17);
             this.chkClearScenarioBeforeCapture.TabIndex = 32;
@@ -165,9 +165,9 @@
             this.btnOpenLupusTitanium.Location = new System.Drawing.Point(269, 279);
             this.btnOpenLupusTitanium.MaximumSize = new System.Drawing.Size(9999, 24);
             this.btnOpenLupusTitanium.Name = "btnOpenLupusTitanium";
-            this.btnOpenLupusTitanium.Size = new System.Drawing.Size(209, 24);
+            this.btnOpenLupusTitanium.Size = new System.Drawing.Size(240, 24);
             this.btnOpenLupusTitanium.TabIndex = 31;
-            this.btnOpenLupusTitanium.Text = "Open Lupus-Titanium...";
+            this.btnOpenLupusTitanium.Text = "Open Lupus-Titanium HTTP(s) proxy...";
             this.btnOpenLupusTitanium.UseVisualStyleBackColor = false;
             this.btnOpenLupusTitanium.Click += new System.EventHandler(this.btnOpenLupusTitanium_Click);
             // 
@@ -246,6 +246,7 @@
             this.fctxtxImport.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxtxImport.DelayedTextChangedInterval = 200;
             this.fctxtxImport.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.fctxtxImport.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.fctxtxImport.IsReplaceMode = false;
             this.fctxtxImport.Location = new System.Drawing.Point(0, 0);
             this.fctxtxImport.Name = "fctxtxImport";

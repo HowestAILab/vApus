@@ -145,7 +145,6 @@ namespace vApus.StressTest {
             var dialog = new FromTextDialog();
             dialog.Height = this.Height - 20;
             dialog.Width = 800;
-            dialog.WarnForEndingWithNewLine = false;
 
             dialog.Description = "Specify the label, the one-based connection proxy index and the connection string.\nThe delimiters are important. Invalid entries are discarded automatically.\n\nExample:\n\n\tMy connection;1;192.168.20.20<16 0C 02 12$>http<16 0C 02 12$>80";
 
