@@ -375,7 +375,7 @@ namespace vApus.StressTest {
                 _lupusReceiver = new Receiver(handle);
                 _lupusReceiver.MessageReceived += LupusReceiver_MessageReceived;
 
-                _lupusProcess = Process.Start(path, handle);
+                _lupusProcess = Process.Start(path, handle + " autocapture");
                 _lupusProcess.EnableRaisingEvents = true;
                 _lupusProcess.Exited += LupusProcess_Exited;
                 _lupusProcess.Disposed += LupusProcess_Exited;

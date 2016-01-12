@@ -153,7 +153,7 @@
             this.tpCapture.Padding = new System.Windows.Forms.Padding(3);
             this.tpCapture.Size = new System.Drawing.Size(747, 582);
             this.tpCapture.TabIndex = 0;
-            this.tpCapture.Text = "Capture HTTP(S)";
+            this.tpCapture.Text = "Capture HTTP(s)";
             // 
             // btnOpenLupusTitanium
             // 
@@ -184,7 +184,7 @@
             this.tpImport.Padding = new System.Windows.Forms.Padding(3);
             this.tpImport.Size = new System.Drawing.Size(747, 582);
             this.tpImport.TabIndex = 1;
-            this.tpImport.Text = "Import from Text";
+            this.tpImport.Text = "Import from text";
             // 
             // btnImport
             // 

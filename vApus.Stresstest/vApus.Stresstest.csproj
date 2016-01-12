@@ -202,7 +202,6 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ActorPool.cs" />
     <Compile Include="Connections\ConnectionsView.cs">
       <SubType>Form</SubType>
     </Compile>
