@@ -70,8 +70,8 @@ namespace vApus.Util {
                 foreach (string line in fctxt.Lines)
                     if (!string.IsNullOrWhiteSpace(line))
                         sb.AppendLine(line);
-                fctxt.Text = sb.ToString();
-            }        
+                fctxt.Text = sb.ToString().Trim();
+            }
 
             _entries = fctxt.Lines;
             DialogResult = DialogResult.OK;
