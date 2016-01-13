@@ -309,7 +309,7 @@ namespace vApus.UpdateTool {
                                 try {
                                     if (retry == 0)
                                         //Send a close message to the process, that way a solution can be saved before vApus is closed.
-                                        Win32WindowMessageHandler.PostMessage(p.MainWindowHandle, 16, IntPtr.Zero, IntPtr.Zero); //WM_CLOSE
+                                        Win32WindowMessageHandler.PostMessage(p.MainWindowHandle, 16, IntPtr.Zero, (IntPtr)1); //WM_CLOSE
                                     else
                                         p.Kill();
                                     p.WaitForExit(120000);

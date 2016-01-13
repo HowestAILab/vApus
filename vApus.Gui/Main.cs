@@ -292,16 +292,21 @@ namespace vApus.Gui {
             }
             //WM_CLOSE
             if (m.Msg == 16) {
-                _saveAndCloseOnUpdate = true;
+                // for updater
+                if (m.LParam == (IntPtr)1) {
+                    _saveAndCloseOnUpdate = true;
 
-                TopMost = true;
-                Show();
-                TopMost = false;
+                    TopMost = true;
+                    Show();
+                    TopMost = false;
 
-                if (_optionsDialog != null && !_optionsDialog.IsDisposed)
-                    _optionsDialog.Close();
+                    if (_optionsDialog != null && !_optionsDialog.IsDisposed)
+                        _optionsDialog.Close();
 
-                _firstStepsView.DisableFormClosingEventHandling();
+                    _firstStepsView.DisableFormClosingEventHandling();
+                } else {
+                    _firstStepsView.CancelFormClosing(); //Let the parentform decide.
+                }
             }
 
             base.WndProc(ref m);
@@ -337,12 +342,6 @@ namespace vApus.Gui {
         }
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e) {
-            //Look if there is nowhere a process busy (like stress testing) that can leed to cancelling the closing of the form.
-            foreach (Form mdiChild in Solution.RegisteredForCancelFormClosing) {
-                mdiChild.Close();
-                if (Solution.ExplicitCancelFormClosing) break;
-            }
-
             if (Solution.ExplicitCancelFormClosing) {
                 e.Cancel = true;
                 Solution.ExplicitCancelFormClosing = false;
@@ -367,6 +366,7 @@ namespace vApus.Gui {
                     e.Cancel = false;
                 } else if (result == DialogResult.Cancel) {
                     e.Cancel = true;
+                    return;
                 }
             } else {
                 tmrSetStatusStrip.Stop();
@@ -378,6 +378,15 @@ namespace vApus.Gui {
                 SolutionComponentViewManager.DisposeViews();
                 e.Cancel = false;
             }
+            //Look if there is nowhere a process busy (like stress testing) that can leed to cancelling the closing of the form.
+            foreach (Form mdiChild in Solution.RegisteredForCancelFormClosing) {
+                if (Solution.ExplicitCancelFormClosing) break;
+                mdiChild.Close();
+            }
+            if (_firstStepsView != null)
+                try {
+                    _firstStepsView.Close();
+                } catch { }
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e) {

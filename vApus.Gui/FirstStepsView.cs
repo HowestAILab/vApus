@@ -16,7 +16,7 @@ namespace vApus.Gui {
     public partial class FirstStepsView : DockablePanel {
         public event EventHandler<LinkClickedEventArgs> LinkClicked;
 
-        private bool _formClosingEventHandlingEnabled = true;
+        private bool _formClosingEventHandlingEnabled = true, _cancelFormClosing = false;
 
         public FirstStepsView() {
             InitializeComponent();
@@ -27,8 +27,17 @@ namespace vApus.Gui {
         public void DisableFormClosingEventHandling() {
             _formClosingEventHandlingEnabled = false;
         }
+        public void CancelFormClosing() {
+            _cancelFormClosing = true;
+            base.CancelHide();
+        }
 
         private void FirstStepsView_FormClosing(object sender, FormClosingEventArgs e) {
+            if (_cancelFormClosing) {
+                e.Cancel = true;
+                _cancelFormClosing = false;
+                return;
+            }
             if (_formClosingEventHandlingEnabled) {
                 //Do not show the next time if you don't want to
                 Settings.Default.GreetWithFirstStepsView =
