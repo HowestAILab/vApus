@@ -89,7 +89,7 @@ namespace vApus.Gui {
                 _logPanel = new LogPanel();
                 Loggers.GetLogger<FileLogger>().LogEntryWritten += Main_LogEntryWritten;
                 _logErrorToolTip = new LogErrorToolTip { AutoPopDelay = 10000 };
-                _logErrorToolTip.Click += lblLogLevel_Click;
+                _logErrorToolTip.Click += _logErrorToolTip_Click;
 
                 _localizationPanel = new LocalizationPanel();
                 _cleanTempDataPanel = new CleanTempDataPanel();
@@ -136,7 +136,7 @@ namespace vApus.Gui {
         private void RelocateLogErrorToolTip() {
             try {
                 if (_logErrorToolTip != null && _logErrorToolTip.Visible) {
-                    int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                    int x = statusStrip.Location.X + 9;
                     int y = statusStrip.Location.Y - 30;
 
                     _logErrorToolTip.Location = new Point(x, y);
@@ -213,16 +213,16 @@ namespace vApus.Gui {
             if (_optionsDialog == null) {
                 _optionsDialog = new OptionsDialog();
                 _optionsDialog.FormClosed += _optionsDialog_FormClosed;
-                _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
+                _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
+                _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
+                _optionsDialog.AddOptionsPanel(_outputPanel);
+                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
-                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
-                _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
+                _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
-                _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
-                _optionsDialog.AddOptionsPanel(_outputPanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
             _optionsDialog.Hide(); //Strange VB6 bug: Form that is already displayed modally cannot be displayed as a modal dialog box. work-around.
@@ -556,7 +556,7 @@ namespace vApus.Gui {
                             _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
 
                             if (!_logErrorToolTip.Visible) {
-                                int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                                int x = statusStrip.Location.X + 9;
                                 int y = statusStrip.Location.Y - 30;
 
                                 _logErrorToolTip.Show(this, x, y);
@@ -587,24 +587,7 @@ namespace vApus.Gui {
                                             .GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
             lblUpdateNotifier.Text = attr[0].Description;
 
-            if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.Disabled ||
-                UpdateNotifier.UpdateNotifierState == UpdateNotifierState.FailedConnectingToTheUpdateServer)
-                lblUpdateNotifier.Image = Resources.Error;
-            else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.PleaseRefresh ||
-                     UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound)
-                lblUpdateNotifier.Image = Resources.Warning;
-            else
-                lblUpdateNotifier.Image = Resources.OK;
-
-            lblLogLevel.Text = Loggers.GetLogger<FileLogger>().CurrentLevel.ToString();
-            lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
-            //SetProcessorAffinityLabel();
-
-            //Dns.GetHostName() does not always work.
-            string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
-            lblSocketListener.Text = hostName + ":" + SocketListenerLinker.SocketListenerPort;
-            if (!SocketListenerLinker.SocketListenerIsRunning)
-                lblSocketListener.Text += " [Stopped]";
+            lblResultsDatabase.Text = _savingResultsPanel != null && _savingResultsPanel.Connected ? "Test results database enabled" : "Test results database disabled";
 
             SetWarningLabel();
 
@@ -613,8 +596,7 @@ namespace vApus.Gui {
                 lblTempDataSize.Text = tempDataSizeInMB + " MB";
 
                 if (tempDataSizeInMB < 1.0)
-                    lblCleanTempData.Visible =
-                        lblTempDataSize.Visible = lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = false;
+                    lblCleanTempData.Visible = lblTempDataSize.Visible = lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = false;
                 else
                     lblCleanTempData.Visible = lblTempDataSize.Visible = true;
             }
@@ -649,19 +631,15 @@ namespace vApus.Gui {
 
         private void _firstStepsView_LinkClicked(object sender, FirstStepsView.LinkClickedEventArgs e) { ShowOptionsDialog(e.OptionsIndex); }
 
-        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
+        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
 
-        private void lblLogLevel_Click(object sender, EventArgs e) { ShowOptionsDialog(1); }
+        private void lblResultsDatabase_Click(object sender, EventArgs e) { ShowOptionsDialog(5); }
 
-        private void lblLocalization_Click(object sender, EventArgs e) { ShowOptionsDialog(2); }
-
-        private void lblSocketListener_Click(object sender, EventArgs e) { ShowOptionsDialog(3); }
-
-        //private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
+        private void _logErrorToolTip_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 
         private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
 
-        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
+        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(9); }
         #endregion
     }
 }

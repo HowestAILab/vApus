@@ -137,7 +137,7 @@
             this.llblExportingResults.Size = new System.Drawing.Size(565, 23);
             this.llblExportingResults.TabIndex = 4;
             this.llblExportingResults.TabStop = true;
-            this.llblExportingResults.Tag = "6";
+            this.llblExportingResults.Tag = "1";
             this.llblExportingResults.Text = "Set auto-export results to Excel when a test is successfully finished";
             this.llblExportingResults.VisitedLinkColor = System.Drawing.Color.Black;
             this.llblExportingResults.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbl_LinkClicked);
@@ -173,7 +173,7 @@
             this.llblProgressNotification.Size = new System.Drawing.Size(642, 23);
             this.llblProgressNotification.TabIndex = 2;
             this.llblProgressNotification.TabStop = true;
-            this.llblProgressNotification.Tag = "4";
+            this.llblProgressNotification.Tag = "7";
             this.llblProgressNotification.Text = "Enable test progress notification to be notified via e-mail when you are AFK";
             this.llblProgressNotification.VisitedLinkColor = System.Drawing.Color.Black;
             this.llblProgressNotification.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbl_LinkClicked);
@@ -191,7 +191,7 @@
             this.llblFirewall.Size = new System.Drawing.Size(830, 46);
             this.llblFirewall.TabIndex = 1;
             this.llblFirewall.TabStop = true;
-            this.llblFirewall.Tag = "7";
+            this.llblFirewall.Tag = "9";
             this.llblFirewall.Text = "Disable the Windows firewall and Windows update to ensure that communication won\'" +
     "t be blocked\r\nand that the client will not restart automatically to install upda" +
     "tes";
@@ -211,7 +211,7 @@
             this.llblUpdate.Size = new System.Drawing.Size(508, 23);
             this.llblUpdate.TabIndex = 0;
             this.llblUpdate.TabStop = true;
-            this.llblUpdate.Tag = "0";
+            this.llblUpdate.Tag = "8";
             this.llblUpdate.Text = "Set an update server to be notified about new vApus updates";
             this.llblUpdate.VisitedLinkColor = System.Drawing.Color.Black;
             this.llblUpdate.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbl_LinkClicked);
