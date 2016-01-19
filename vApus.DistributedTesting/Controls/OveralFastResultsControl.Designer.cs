@@ -26,6 +26,8 @@ namespace vApus.DistributedTest {
         private void InitializeComponent() {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.pnlFastResultListing = new System.Windows.Forms.Panel();
@@ -94,14 +96,22 @@ namespace vApus.DistributedTest {
             this.dgvFastResults.AllowUserToDeleteRows = false;
             dataGridViewCellStyle1.BackColor = System.Drawing.Color.White;
             this.dgvFastResults.AlternatingRowsDefaultCellStyle = dataGridViewCellStyle1;
-            this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.dgvFastResults.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.dgvFastResults.AutoSizeColumnsMode = System.Windows.Forms.DataGridViewAutoSizeColumnsMode.AllCells;
             this.dgvFastResults.BackgroundColor = System.Drawing.Color.White;
             this.dgvFastResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvFastResults.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
-            this.dgvFastResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            this.dgvFastResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Consolas", 9.75F);
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFastResults.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvFastResults.EnableHeadersVisualStyles = false;
             this.dgvFastResults.Font = new System.Drawing.Font("Consolas", 9.75F);
@@ -109,9 +119,17 @@ namespace vApus.DistributedTest {
             this.dgvFastResults.Name = "dgvFastResults";
             this.dgvFastResults.ReadOnly = true;
             this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Consolas", 9.75F);
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFastResults.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvFastResults.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvFastResults.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvFastResults.Size = new System.Drawing.Size(936, 401);
             this.dgvFastResults.TabIndex = 3;
             this.dgvFastResults.VirtualMode = true;
@@ -133,7 +151,7 @@ namespace vApus.DistributedTest {
             // 
             // flpFastResultsHeader
             // 
-            this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.flpFastResultsHeader.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpFastResultsHeader.AutoScroll = true;
             this.flpFastResultsHeader.Controls.Add(this.lblFastResults);
@@ -154,7 +172,7 @@ namespace vApus.DistributedTest {
             this.lblFastResults.Location = new System.Drawing.Point(3, 9);
             this.lblFastResults.Margin = new System.Windows.Forms.Padding(3, 6, 5, 3);
             this.lblFastResults.Name = "lblFastResults";
-            this.lblFastResults.Size = new System.Drawing.Size(99, 20);
+            this.lblFastResults.Size = new System.Drawing.Size(92, 20);
             this.lblFastResults.TabIndex = 17;
             this.lblFastResults.Text = "Fast results";
             // 
@@ -163,7 +181,7 @@ namespace vApus.DistributedTest {
             this.lblUpdatesIn.AutoSize = true;
             this.lblUpdatesIn.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUpdatesIn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lblUpdatesIn.Location = new System.Drawing.Point(107, 10);
+            this.lblUpdatesIn.Location = new System.Drawing.Point(100, 10);
             this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 7, 6, 3);
             this.lblUpdatesIn.Name = "lblUpdatesIn";
             this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
@@ -179,12 +197,12 @@ namespace vApus.DistributedTest {
             this.lbtnStressTests.ForeColor = System.Drawing.Color.Black;
             this.lbtnStressTests.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.lbtnStressTests.LinkColor = System.Drawing.Color.Black;
-            this.lbtnStressTests.Location = new System.Drawing.Point(118, 9);
+            this.lbtnStressTests.Location = new System.Drawing.Point(111, 9);
             this.lbtnStressTests.Margin = new System.Windows.Forms.Padding(5, 6, 0, 3);
             this.lbtnStressTests.Name = "lbtnStressTests";
             this.lbtnStressTests.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.lbtnStressTests.RadioButtonBehavior = true;
-            this.lbtnStressTests.Size = new System.Drawing.Size(107, 22);
+            this.lbtnStressTests.Size = new System.Drawing.Size(105, 22);
             this.lbtnStressTests.TabIndex = 0;
             this.lbtnStressTests.TabStop = true;
             this.lbtnStressTests.Text = "The stress tests";
@@ -194,7 +212,7 @@ namespace vApus.DistributedTest {
             // 
             // flpFastMetrics
             // 
-            this.flpFastMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.flpFastMetrics.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.flpFastMetrics.Controls.Add(this.label1);
             this.flpFastMetrics.Controls.Add(this.pnlBorder);
@@ -303,7 +321,7 @@ namespace vApus.DistributedTest {
             this.btnSaveDisplayedResults.Location = new System.Drawing.Point(297, 3);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(183, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
-            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(183, 24);
+            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(175, 24);
             this.btnSaveDisplayedResults.TabIndex = 2;
             this.btnSaveDisplayedResults.Text = "Save all displayed results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
@@ -348,7 +366,7 @@ namespace vApus.DistributedTest {
             this.label5.Location = new System.Drawing.Point(3, 6);
             this.label5.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
             this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(312, 20);
+            this.label5.Size = new System.Drawing.Size(127, 20);
             this.label5.TabIndex = 19;
             this.label5.Text = "Client monitoring";
             // 
@@ -356,10 +374,10 @@ namespace vApus.DistributedTest {
             // 
             this.kvpRunningTests.BackColor = System.Drawing.Color.LightSteelBlue;
             this.kvpRunningTests.Key = "Running tests";
-            this.kvpRunningTests.Location = new System.Drawing.Point(324, 9);
+            this.kvpRunningTests.Location = new System.Drawing.Point(139, 9);
             this.kvpRunningTests.Margin = new System.Windows.Forms.Padding(3, 6, 0, 6);
             this.kvpRunningTests.Name = "kvpRunningTests";
-            this.kvpRunningTests.Size = new System.Drawing.Size(108, 16);
+            this.kvpRunningTests.Size = new System.Drawing.Size(104, 16);
             this.kvpRunningTests.TabIndex = 8;
             this.kvpRunningTests.TabStop = false;
             this.kvpRunningTests.Tooltip = "The number of running tests.";
@@ -369,7 +387,7 @@ namespace vApus.DistributedTest {
             // 
             this.kvpOK.BackColor = System.Drawing.Color.LightGreen;
             this.kvpOK.Key = "OK";
-            this.kvpOK.Location = new System.Drawing.Point(441, 9);
+            this.kvpOK.Location = new System.Drawing.Point(252, 9);
             this.kvpOK.Margin = new System.Windows.Forms.Padding(9, 6, 6, 0);
             this.kvpOK.Name = "kvpOK";
             this.kvpOK.Size = new System.Drawing.Size(43, 16);
@@ -383,7 +401,7 @@ namespace vApus.DistributedTest {
             // 
             this.kvpCancelled.BackColor = System.Drawing.Color.Orange;
             this.kvpCancelled.Key = "Cancelled";
-            this.kvpCancelled.Location = new System.Drawing.Point(493, 9);
+            this.kvpCancelled.Location = new System.Drawing.Point(304, 9);
             this.kvpCancelled.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
             this.kvpCancelled.Name = "kvpCancelled";
             this.kvpCancelled.Size = new System.Drawing.Size(82, 16);
@@ -397,7 +415,7 @@ namespace vApus.DistributedTest {
             // 
             this.kvpFailed.BackColor = System.Drawing.Color.OrangeRed;
             this.kvpFailed.Key = "Failed";
-            this.kvpFailed.Location = new System.Drawing.Point(584, 9);
+            this.kvpFailed.Location = new System.Drawing.Point(395, 9);
             this.kvpFailed.Margin = new System.Windows.Forms.Padding(3, 6, 6, 0);
             this.kvpFailed.Name = "kvpFailed";
             this.kvpFailed.Size = new System.Drawing.Size(60, 16);
@@ -411,10 +429,10 @@ namespace vApus.DistributedTest {
             // 
             this.kvmMasterCPUUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterCPUUsage.Key = "CPU";
-            this.kvmMasterCPUUsage.Location = new System.Drawing.Point(653, 9);
+            this.kvmMasterCPUUsage.Location = new System.Drawing.Point(464, 9);
             this.kvmMasterCPUUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterCPUUsage.Name = "kvmMasterCPUUsage";
-            this.kvmMasterCPUUsage.Size = new System.Drawing.Size(105, 16);
+            this.kvmMasterCPUUsage.Size = new System.Drawing.Size(65, 16);
             this.kvmMasterCPUUsage.TabIndex = 8;
             this.kvmMasterCPUUsage.TabStop = false;
             this.kvmMasterCPUUsage.Tooltip = "Try to keep this below 60 % to ensure that the client is not the bottleneck.";
@@ -424,10 +442,10 @@ namespace vApus.DistributedTest {
             // 
             this.kvmMasterMemoryUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterMemoryUsage.Key = "Memory";
-            this.kvmMasterMemoryUsage.Location = new System.Drawing.Point(3, 37);
+            this.kvmMasterMemoryUsage.Location = new System.Drawing.Point(532, 9);
             this.kvmMasterMemoryUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterMemoryUsage.Name = "kvmMasterMemoryUsage";
-            this.kvmMasterMemoryUsage.Size = new System.Drawing.Size(123, 16);
+            this.kvmMasterMemoryUsage.Size = new System.Drawing.Size(83, 16);
             this.kvmMasterMemoryUsage.TabIndex = 8;
             this.kvmMasterMemoryUsage.TabStop = false;
             this.kvmMasterMemoryUsage.Tooltip = "Make sure you have sufficient memory to ensure that the client is not the bottlen" +
@@ -438,10 +456,10 @@ namespace vApus.DistributedTest {
             // 
             this.kvmMasterNic.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterNic.Key = "NIC";
-            this.kvmMasterNic.Location = new System.Drawing.Point(129, 37);
+            this.kvmMasterNic.Location = new System.Drawing.Point(618, 9);
             this.kvmMasterNic.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNic.Name = "kvmMasterNic";
-            this.kvmMasterNic.Size = new System.Drawing.Size(139, 16);
+            this.kvmMasterNic.Size = new System.Drawing.Size(61, 16);
             this.kvmMasterNic.TabIndex = 12;
             this.kvmMasterNic.TabStop = false;
             this.kvmMasterNic.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -451,10 +469,10 @@ namespace vApus.DistributedTest {
             // 
             this.kvmMasterNicsSent.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterNicsSent.Key = "Tx";
-            this.kvmMasterNicsSent.Location = new System.Drawing.Point(129, 37);
+            this.kvmMasterNicsSent.Location = new System.Drawing.Point(682, 9);
             this.kvmMasterNicsSent.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNicsSent.Name = "kvmMasterNicsSent";
-            this.kvmMasterNicsSent.Size = new System.Drawing.Size(139, 16);
+            this.kvmMasterNicsSent.Size = new System.Drawing.Size(54, 16);
             this.kvmMasterNicsSent.TabIndex = 12;
             this.kvmMasterNicsSent.TabStop = false;
             this.kvmMasterNicsSent.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -464,10 +482,10 @@ namespace vApus.DistributedTest {
             // 
             this.kvmMasterNicsReceived.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMasterNicsReceived.Key = "Rx";
-            this.kvmMasterNicsReceived.Location = new System.Drawing.Point(271, 37);
+            this.kvmMasterNicsReceived.Location = new System.Drawing.Point(739, 9);
             this.kvmMasterNicsReceived.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMasterNicsReceived.Name = "kvmMasterNicsReceived";
-            this.kvmMasterNicsReceived.Size = new System.Drawing.Size(167, 16);
+            this.kvmMasterNicsReceived.Size = new System.Drawing.Size(55, 16);
             this.kvmMasterNicsReceived.TabIndex = 13;
             this.kvmMasterNicsReceived.TabStop = false;
             this.kvmMasterNicsReceived.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -481,11 +499,11 @@ namespace vApus.DistributedTest {
             this.btnMasterExportMessages.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnMasterExportMessages.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnMasterExportMessages.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnMasterExportMessages.Location = new System.Drawing.Point(450, 31);
+            this.btnMasterExportMessages.Location = new System.Drawing.Point(806, 3);
             this.btnMasterExportMessages.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
             this.btnMasterExportMessages.MaximumSize = new System.Drawing.Size(127, 24);
             this.btnMasterExportMessages.Name = "btnMasterExportMessages";
-            this.btnMasterExportMessages.Size = new System.Drawing.Size(127, 24);
+            this.btnMasterExportMessages.Size = new System.Drawing.Size(126, 24);
             this.btnMasterExportMessages.TabIndex = 14;
             this.btnMasterExportMessages.Text = "Export messages...";
             this.btnMasterExportMessages.UseVisualStyleBackColor = false;

@@ -43,6 +43,7 @@ namespace vApus.DistributedTest {
             InitializeComponent();
             (dgvFastResults).GetType().GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic).SetValue(dgvFastResults, true);
             cboDrillDown.SelectedIndex = 0;
+            dgvFastResults.ColumnHeadersDefaultCellStyle.Font = new Font(dgvFastResults.ColumnHeadersDefaultCellStyle.Font, FontStyle.Bold);
         }
         #endregion
 
