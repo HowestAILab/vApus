@@ -70,6 +70,23 @@ namespace vApus.Util {
         #region Connection management
 
         /// <summary>
+        /// Opens and releases a connection. No Errors are logged.
+        /// </summary>
+        /// <returns></returns>
+        public bool CanConnect() {
+            try {
+                try {
+                    GetNewConnection();
+                } finally {
+                    ReleaseConnection();
+                }
+                return true;
+            } catch {
+                return false;
+            }
+        }
+
+        /// <summary>
         ///     Gets the connection.
         /// </summary>
         private void GetNewConnection() {

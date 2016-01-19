@@ -225,9 +225,10 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
-            _optionsDialog.Hide(); //Strange VB6 bug: Form that is already displayed modally cannot be displayed as a modal dialog box. work-around.
-            _optionsDialog.ShowDialog(this);
-
+            if (!_optionsDialog.Visible) {
+                _optionsDialog.Hide(); //Strange VB6 bug: Form that is already displayed modally cannot be displayed as a modal dialog box. work-around.
+                _optionsDialog.ShowDialog(this);
+            }
             SetStatusStrip();
             Cursor = Cursors.Default;
         }
@@ -582,10 +583,11 @@ namespace vApus.Gui {
                 }
         }
 
-        private void SetStatusStrip() {
-            var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
-                                            .GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+        async private void SetStatusStrip() {
+            var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
             lblUpdateNotifier.Text = attr[0].Description;
+
+            bool connected = await Task.Run(() => _savingResultsPanel.Connected);
 
             lblResultsDatabase.Text = _savingResultsPanel != null && _savingResultsPanel.Connected ? "Test results database enabled" : "Test results database disabled";
 

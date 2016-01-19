@@ -29,10 +29,7 @@ namespace vApus.Results {
                 string connectionString = ConnectionStringManager.GetCurrentConnectionString();
                 if (connectionString != null) {
                     var databaseActions = new DatabaseActions() { ConnectionString = connectionString, CommandTimeout = 10 };
-                    var dbs = databaseActions.GetDataTable("Show Databases;");
-                    bool connected = dbs.Columns.Count != 0;
-                    databaseActions.ReleaseConnection();
-                    return connected;
+                    return databaseActions.CanConnect();
                 }
                 return false;
             }
@@ -151,9 +148,7 @@ namespace vApus.Results {
             var dba = new DatabaseActions {
                 ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};", txtHost.Text, (int)nudPort.Value, txtUser.Text, txtPassword.Text)
             };
-            DataTable datatable = dba.GetDataTable("Show Databases;", CommandType.Text);
-            bool succes = datatable.Columns.Count != 0;
-            dba.ReleaseConnection();
+            bool succes = dba.CanConnect();
             dba = null;
 
             if (succes)

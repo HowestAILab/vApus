@@ -2479,7 +2479,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 ClearCache();
                 try {
                     _databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};table cache = true;", host, port, databaseName, user, password) };
-                    if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
+                    if (!_databaseActions.CanConnect()) throw new Exception("A connection to the results server could not be made!");
                     _databaseName = databaseName;
                 } catch {
                     KillConnection();
@@ -2497,7 +2497,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 ClearCache();
                 try {
                     _databaseActions = databaseActions;
-                    if (_databaseActions.GetDataTable("Show databases").Rows.Count == 0) throw new Exception("A connection to the results server could not be made!");
+                    if (!_databaseActions.CanConnect()) throw new Exception("A connection to the results server could not be made!");
                     _databaseName = databaseName;
                 } catch {
                     KillConnection();
