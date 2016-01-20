@@ -2667,6 +2667,30 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             }
         }
 
+        internal class RequestIndexComparer : IComparer<string> {
+            private static readonly RequestIndexComparer _requestIndexComparer = new RequestIndexComparer();
+            public static RequestIndexComparer GetInstance() { return _requestIndexComparer; }
+
+            private const char dot = '.';
+
+
+            private RequestIndexComparer() { }
+
+            public int Compare(string x, string y) {
+                string[] split1 = x.Split(dot);
+                string[] split2 = y.Split(dot);
+
+                int i = 0, j = 0;
+                for (int index = 0; index != split1.Length; index++) {
+                    i = int.Parse(split1[index]);
+                    j = int.Parse(split2[index]);
+                    if (i > j) return 1;
+                    if (i < j) return -1;
+                }
+                return 0;
+            }
+        }
+
         private struct Request {
             public DateTime SentAt;
             public long TimeToLastByteInTicks;

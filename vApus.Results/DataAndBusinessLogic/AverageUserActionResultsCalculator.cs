@@ -59,7 +59,7 @@ namespace vApus.Results {
 
             data.TryAdd("runresults", runResults);
 
-            DataTable[] parts = GetRequestResultsPerRunThreaded(databaseActions, cancellationToken, runResults, 4, "Id", "Rerun", "VirtualUser", "UserAction", "SameAsRequestIndex", "RequestIndex", "InParallelWithPrevious", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
+            DataTable[] parts = GetRequestResultsPerRunThreaded(databaseActions, cancellationToken, runResults, 4, "Id", "Rerun", "VirtualUser", "UserAction", "SameAsRequestIndex", "RequestIndex", "InParallelWithPrevious", "SentAt", "TimeToLastByteInTicks", "DelayInMilliseconds", "Length(Error) As Error", "RunResultId");
             //A merge is way to slow. Needed rows will be extracted when getting results.
             for (int i = 0; i != parts.Length; i++)
                 data.TryAdd("requestresults" + i, parts[i]);
@@ -148,6 +148,7 @@ namespace vApus.Results {
                                         }
 
                                         var requestResult = new RequestResult() {
+                                            SentAt = (DateTime)rerRow["SentAt"],
                                             RequestIndex = requestIndex, InParallelWithPrevious = (bool)rerRow["InParallelWithPrevious"], TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"], DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"],
                                             Error = (long)rerRow["Error"] == 0 ? null : "-"
                                         };
@@ -174,6 +175,10 @@ namespace vApus.Results {
                                         string mappedUserAction = userAction;
                                         var rers = uas[item.Key][userAction];
                                         if (rers.Count != 0) {
+                                            IOrderedEnumerable<RequestResult> sortedRers = rers.OrderBy(x => x.RequestIndex, ResultsHelper.RequestIndexComparer.GetInstance());
+                                            rers = new SynchronizedCollection<RequestResult>();
+                                            foreach (var rer in sortedRers) rers.Add(rer);
+
                                             var reri = rers[0].RequestIndex;
                                             if (userActionsMap.ContainsKey(reri)) mappedUserAction = userActionsMap[reri];
                                         }
@@ -206,24 +211,26 @@ namespace vApus.Results {
 
                             string userAction = kvp.Key;
                             var rers = kvp.Value;
+                            
+                            if (rers.Count != 0) {
+                                RequestResult firstRer = rers[0];
+                                RequestResult lastRer = rers[rers.Count - 1];
 
-                            RequestResult prevRequestResult = null; //For parallel request calculations
-                            for (int j = 0; j != rers.Count; j++) {
-                                if (cancellationToken.IsCancellationRequested) return null;
+                                for (int j = 0; j != rers.Count; j++) {
+                                    var rer = rers[i];
 
-                                var rer = rers[j];
+                                    if (rer.SentAt < firstRer.SentAt) firstRer = rer;
+                                    if (rer.SentAt.Ticks + rer.TimeToLastByteInTicks > lastRer.SentAt.Ticks + lastRer.TimeToLastByteInTicks) lastRer = rer;
 
-                                if (rer.DelayInMilliseconds != 0) delay = rer.DelayInMilliseconds;
+                                    if (rer.DelayInMilliseconds != 0) delay = rer.DelayInMilliseconds;
 
-                                if (rer.InParallelWithPrevious && prevRequestResult != null) { //For parallel requests the total time to last byte in a virtual result is calculated differently. The longest time counts for a parallel set.
-                                    double diffTtlb = (rer.SentAt.AddTicks(rer.TimeToLastByteInTicks) - prevRequestResult.SentAt.AddTicks(prevRequestResult.TimeToLastByteInTicks)).Ticks;
-                                    if (diffTtlb > 0.0) ttlb += diffTtlb;
-                                } else {
-                                    ttlb += rer.TimeToLastByteInTicks;
+                                    if (cancellationToken.IsCancellationRequested) return null;
+                                    if (!string.IsNullOrEmpty(rers[i].Error)) ++ers;
                                 }
 
-                                if (!string.IsNullOrEmpty(rer.Error)) ++ers;
+                                ttlb = lastRer.SentAt.Ticks - firstRer.SentAt.Ticks + lastRer.TimeToLastByteInTicks;                               
                             }
+   
                             userActionResultsList.Add(new object[] { userAction, ttlb, delay, ers });
                         }
                     }

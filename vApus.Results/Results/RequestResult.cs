@@ -45,5 +45,9 @@ namespace vApus.Results {
         public int Rerun { get; set; }
 
         public RequestResult() { }
+
+        public override string ToString() {
+            return RequestIndex + ": " + Request;
+        }
     }
 }
