@@ -220,7 +220,7 @@ namespace vApus.Results {
                                     var rer = rers[i];
 
                                     if (rer.SentAt < firstRer.SentAt) firstRer = rer;
-                                    if (rer.SentAt.Ticks + rer.TimeToLastByteInTicks > lastRer.SentAt.Ticks + lastRer.TimeToLastByteInTicks) lastRer = rer;
+                                    if (rer.SentAt.AddTicks(rer.TimeToLastByteInTicks) > lastRer.SentAt.AddTicks(lastRer.TimeToLastByteInTicks)) lastRer = rer;
 
                                     if (rer.DelayInMilliseconds != 0) delay = rer.DelayInMilliseconds;
 
@@ -228,7 +228,7 @@ namespace vApus.Results {
                                     if (!string.IsNullOrEmpty(rers[i].Error)) ++ers;
                                 }
 
-                                ttlb = lastRer.SentAt.Ticks - firstRer.SentAt.Ticks + lastRer.TimeToLastByteInTicks;                               
+                                ttlb = (lastRer.SentAt - firstRer.SentAt.AddTicks(lastRer.TimeToLastByteInTicks)).Ticks;                               
                             }
    
                             userActionResultsList.Add(new object[] { userAction, ttlb, delay, ers });

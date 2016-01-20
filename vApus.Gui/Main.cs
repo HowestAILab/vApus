@@ -286,30 +286,33 @@ namespace vApus.Gui {
         }
 
         protected override void WndProc(ref Message m) {
-            if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG) {
-                TopMost = true;
-                Show();
-                TopMost = false;
-            }
-            //WM_CLOSE
-            if (m.Msg == 16) {
-                // for updater
-                if (m.LParam == (IntPtr)1) {
-                    _saveAndCloseOnUpdate = true;
-
+            try {
+                if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG) {
                     TopMost = true;
                     Show();
                     TopMost = false;
-
-                    if (_optionsDialog != null && !_optionsDialog.IsDisposed)
-                        _optionsDialog.Close();
-
-                    _firstStepsView.DisableFormClosingEventHandling();
-                } else {
-                    _firstStepsView.CancelFormClosing(); //Let the parentform decide.
                 }
-            }
+                //WM_CLOSE
+                if (m.Msg == 16) {
+                    // for updater
+                    if (m.LParam == (IntPtr)1) {
+                        _saveAndCloseOnUpdate = true;
 
+                        TopMost = true;
+                        Show();
+                        TopMost = false;
+
+                        if (_optionsDialog != null && !_optionsDialog.IsDisposed)
+                            _optionsDialog.Close();
+
+                        _firstStepsView.DisableFormClosingEventHandling();
+                    } else {
+                        _firstStepsView.CancelFormClosing(); //Let the parentform decide.
+                    }
+                }
+            } catch {
+                //Don't care
+            }
             base.WndProc(ref m);
         }
 
