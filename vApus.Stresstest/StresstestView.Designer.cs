@@ -17,9 +17,11 @@
                 Stop_StressTest();
             } catch { }
 
-            tmrProgress.Stop();
-            tmrProgressDelayCountDown.Stop();
-            tmrSchedule.Stop();
+            try {
+                tmrProgress.Stop();
+                tmrProgressDelayCountDown.Stop();
+                tmrSchedule.Stop();
+            } catch { }
 
             if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
                 _stressTestCore.Dispose();
