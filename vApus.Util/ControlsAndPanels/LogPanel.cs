@@ -43,41 +43,41 @@ namespace vApus.Util {
         }
 
         private void NewIssue_Done(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
-            if (e.Exception == null) {
-                llblBug.Text = e.ReturnValue == null ? string.Empty : e.ReturnValue.ToString();
-            } else {
-                llblBug.Text = string.Empty;
-                Loggers.Log(Level.Error, "Failed posting new issue.", e.Exception, new object[] { sender, e });
-            }
+            //if (e.Exception == null) {
+            //    llblBug.Text = e.ReturnValue == null ? string.Empty : e.ReturnValue.ToString();
+            //} else {
+            //    llblBug.Text = string.Empty;
+            //    Loggers.Log(Level.Error, "Failed posting new issue.", e.Exception, new object[] { sender, e });
+            //}
 
-            if (_reporting > 0) --_reporting;
-            if (_reporting == 0) {
-                btnReport.Width = 72;
-                btnReport.Text = "Report";
-            }
+            //if (_reporting > 0) --_reporting;
+            //if (_reporting == 0) {
+            //    btnReport.Width = 72;
+            //    btnReport.Text = "Report";
+            //}
         }
 
-        private void btnReport_Click(object sender, EventArgs e) {
-            _reporting = _selectedLogEntries.Length;
+        //private void btnReport_Click(object sender, EventArgs e) {
+        //    _reporting = _selectedLogEntries.Length;
 
-            btnReport.Text = "Reporting...";
-            btnReport.Width = 103;
-            btnReport.Enabled = false;
-            llblBug.Text = string.Empty;
+        //    btnReport.Text = "Reporting...";
+        //    btnReport.Width = 103;
+        //    btnReport.Enabled = false;
+        //    llblBug.Text = string.Empty;
 
-            foreach (string json in _selectedLogEntries)
-                NewIssue.Post(json);
-        }
+        //    foreach (string json in _selectedLogEntries)
+        //        NewIssue.Post(json);
+        //}
 
-        private void llblBug_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
-            Process.Start(llblBug.Text);
-        }
+        //private void llblBug_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+        //    Process.Start(llblBug.Text);
+        //}
 
         private void tmr_Tick(object sender, EventArgs e) {
-            if (IsHandleCreated && Visible && _reporting == 0) {
-                _selectedLogEntries = fileLoggerPanel.SelectedLogEntries;
-                btnReport.Enabled = _selectedLogEntries.Length != 0;
-            }
+            //if (IsHandleCreated && Visible && _reporting == 0) {
+            //    _selectedLogEntries = fileLoggerPanel.SelectedLogEntries;
+            //    btnReport.Enabled = _selectedLogEntries.Length != 0;
+            //}
         }
 
         public override string ToString() {
