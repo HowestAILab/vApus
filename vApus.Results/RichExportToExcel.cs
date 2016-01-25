@@ -461,6 +461,7 @@ namespace vApus.Results {
             DataTable dt = resultsHelper.GetMeta(token, stressTestId);
             string firstWorksheet = null;
 
+            int i = 0;
             foreach (DataRow row in dt.Rows) {
                 dynamic data = JObject.Parse(row["Meta"] as string);
                 if (data.type == "WebPageTest") {
@@ -475,10 +476,10 @@ namespace vApus.Results {
                     colorPalette.Add(Color.FromArgb(166, 99, 44));
 
                     DataTable waterfallDt;
-                    string worksheet = CreateWaterfallWorksheet(doc, data.requests, "Waterfall c" + row["Concurrency"] + " r" + row["Run"], out waterfallDt);
+                    string worksheet = CreateWaterfallWorksheet(doc, data.requests, (++i) + " c" + row["Concurrency"] + " r" + row["Run"], out waterfallDt);
                     AddChart(doc, waterfallDt.Columns.Count, waterfallDt.Rows.Count + 1, "Waterfall (ms)", string.Empty, string.Empty, ChartType.StackedBar, ChartLocation.BelowData, true, colorPalette);
-                    CreateWaterfallWorksheet(doc, data.cachedRequests, "Waterfall cached c" + row["Concurrency"] + " r" + row["Run"], out waterfallDt);
-                    AddChart(doc, waterfallDt.Columns.Count, waterfallDt.Rows.Count + 1, "Waterfall (ms)", string.Empty, string.Empty, ChartType.StackedBar, ChartLocation.BelowData, true, colorPalette);
+                    CreateWaterfallWorksheet(doc, data.cachedRequests, i + " cached c" + row["Concurrency"] + " r" + row["Run"], out waterfallDt);
+                    AddChart(doc, waterfallDt.Columns.Count, waterfallDt.Rows.Count + 1, "Waterfall cached (ms)", string.Empty, string.Empty, ChartType.StackedBar, ChartLocation.BelowData, true, colorPalette);
 
                     if (firstWorksheet == null) firstWorksheet = worksheet;
                 }
