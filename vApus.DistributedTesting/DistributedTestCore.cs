@@ -57,8 +57,6 @@ namespace vApus.DistributedTest {
         private volatile string[] _runInitialized = new string[] { };
         private volatile ConcurrentDictionary<string, RerunCounter> _breakOnLastReruns = new ConcurrentDictionary<string, RerunCounter>();
 
-        private Stopwatch _sw = new Stopwatch();
-
         /// <summary>
         ///     The messages pushed from the slaves.
         /// </summary>
@@ -208,7 +206,6 @@ namespace vApus.DistributedTest {
         }
         private void Connect(out bool notACleanDivision) {
             InvokeMessage("Connecting slaves...");
-            _sw.Start();
 
             MasterSideCommunicationHandler.Init();
 
@@ -248,9 +245,6 @@ namespace vApus.DistributedTest {
                 InvokeMessage(message, Level.Warning);
                 throw ex;
             }
-            _sw.Stop();
-            InvokeMessage(string.Format(" ...Connected slaves in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
-            _sw.Reset();
         }
 
         private void SetvApusInstancesAndStressTestsInDb() {
@@ -280,7 +274,7 @@ namespace vApus.DistributedTest {
         }
         private void SendAndReceiveInitializeTest() {
             InvokeMessage("Initializing tests on slaves, please, be patient...");
-            _sw.Start();
+
             List<int> stressTestIdsInDb = new List<int>(_usedTileStressTests.Count);
             foreach (var ts in _usedTileStressTests.Keys)
                 stressTestIdsInDb.Add(_tileStressTestsWithDbIds.ContainsKey(ts) ? _tileStressTestsWithDbIds[ts] : 0);
@@ -291,10 +285,6 @@ namespace vApus.DistributedTest {
                 InvokeMessage(ex.ToString(), Level.Error);
                 throw ex;
             }
-
-            _sw.Stop();
-            InvokeMessage(string.Format(" ...Test initialized in {0}.", _sw.Elapsed.ToShortFormattedString("0 ms")));
-            _sw.Reset();
         }
 
         public void Start() {
@@ -586,7 +576,6 @@ namespace vApus.DistributedTest {
                     _usedTileStressTests = null;
                     _totalTestCount = 0;
                     _testProgressMessages = null;
-                    _sw = null;
 
                     _ok = null;
                     _cancelled = null;

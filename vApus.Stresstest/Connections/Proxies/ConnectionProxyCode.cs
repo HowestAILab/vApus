@@ -33,7 +33,7 @@ namespace vApus.StressTest {
 */
 
 // The following line is used to add references when compiling, you can edit this here or in the references tab page. Please use the 'Browse...' button for dlls that are not in the GAC.
-// dllreferences:System.dll;System.Data.dll;vApus.Util.dll;vApus.StressTest.dll;
+// dllreferences:System.dll;System.Data.dll;System.Windows.Forms.dll;vApus.Util.dll;vApus.StressTest.dll;
 
 #region Preprocessors
     //
@@ -121,8 +121,9 @@ namespace vApus.StressTest {
                     //
                 }
             }
-            public void SendAndReceive(StringTree parameterizedRequest, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception) {
+            public void SendAndReceive(StringTree parameterizedRequest, out DateTime sentAt, out TimeSpan timeToLastByte, out string meta, out Exception exception) {
                 exception = null;
+                meta = null; // Can be any type of result / measurement that is not timeToLastByte.
                 
                 //
                 // parameterizedRequest is the request parsed to a String Tree using the Scenario Rule Set.
@@ -174,10 +175,8 @@ namespace vApus.StressTest {
             public void Dispose() {
                 if (!_isDisposed) {
                     _isDisposed = true;
-                    // A call to CloseConnection() is not necessary, if the connection proxy pool is being disposed it will get called.
-                    
                     //
-                    // ...
+                    // Call CloseConnection() or insert your own code to dispose everything correctly...
                     //
                 }
             }

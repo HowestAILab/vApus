@@ -85,8 +85,9 @@ namespace vApus.Results {
                     metrics.UserActionsPerSecond += runResultMetrics.UserActionsPerSecond;
                     metrics.Errors += runResultMetrics.Errors;
                 }
-                for (int i = result.RunResults.Count; i < result.RunCount; i++)
-                    metrics.Requests += baseRequestCount;
+                baseRequestCount *= result.RunCount;
+                if (metrics.Requests < baseRequestCount)
+                    metrics.Requests = baseRequestCount;
 
                 if (metrics.Requests < totalAndExtraRequestsProcessed)
                     metrics.Requests = totalAndExtraRequestsProcessed;
@@ -134,8 +135,9 @@ namespace vApus.Results {
                     metrics.Errors += runResultMetrics.Errors;
 
                 }
-                for (int i = result.RunResults.Count; i < result.RunCount; i++)
-                    metrics.Requests += baseRequestCount;
+                baseRequestCount *= result.RunCount;
+                if (metrics.Requests < baseRequestCount)
+                    metrics.Requests = baseRequestCount;
 
                 if (metrics.Requests < totalAndExtraRequestsProcessed)
                     metrics.Requests = totalAndExtraRequestsProcessed;
@@ -369,8 +371,8 @@ namespace vApus.Results {
                 return new object[]
                     {
                         metrics.StartMeasuringTime.ToString(),
-                        metrics.EstimatedTimeLeft.ToShortFormattedString(),
-                        metrics.MeasuredTime.ToShortFormattedString(),
+                        metrics.EstimatedTimeLeft.ToShortFormattedString(true),
+                        metrics.MeasuredTime.ToShortFormattedString(true),
                         metrics.Concurrency,
                         metrics.RequestsProcessed + " / " +
                         (metrics.Requests == 0 ? "--" : metrics.Requests.ToString()),
@@ -384,8 +386,8 @@ namespace vApus.Results {
             return new object[]
                 {
                     metrics.StartMeasuringTime.ToString(),
-                    metrics.EstimatedTimeLeft.ToShortFormattedString(),
-                    metrics.MeasuredTime.ToShortFormattedString(),
+                    metrics.EstimatedTimeLeft.ToShortFormattedString(true),
+                    metrics.MeasuredTime.ToShortFormattedString(true),
                     metrics.Concurrency,
                     metrics.Run,
                     metrics.RequestsProcessed + " / " +
@@ -505,6 +507,8 @@ namespace vApus.Results {
                 mergedMetrics.AverageDelay += new TimeSpan(m.AverageDelay.Ticks / count);
                 mergedMetrics.Errors += m.Errors;
                 mergedMetrics.RequestsProcessed += m.RequestsProcessed;
+
+                if (m.Simplified) mergedMetrics.Simplified = true;
             }
 
             return mergedMetrics;

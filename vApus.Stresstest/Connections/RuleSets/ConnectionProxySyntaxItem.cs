@@ -7,6 +7,7 @@
  */
 
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using System.Windows.Forms;
@@ -28,6 +29,8 @@ namespace vApus.StressTest {
             using (sr = SerializationReader.GetReader(info)) {
                 ShowInGui = false;
                 _defaultValue = sr.ReadString();
+
+                AddRangeWithoutInvokingEvent(sr.ReadCollection<BaseItem>(new List<BaseItem>()));
             }
             sr = null;
         }
@@ -61,6 +64,8 @@ namespace vApus.StressTest {
             SerializationWriter sw;
             using (sw = SerializationWriter.GetWriter()) {
                 sw.Write(_defaultValue);
+
+                sw.Write(this);
                 sw.AddToInfo(info);
             }
             sw = null;

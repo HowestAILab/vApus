@@ -100,6 +100,9 @@ namespace vApus.StressTest {
             this.HandleCreated -= EditUserActionPanel_HandleCreated;
             ParentForm.FormClosing += ParentForm_FormClosing;
             ParentForm.Leave += ParentForm_Leave;
+
+            //Stupid workaround.
+            dgvRequests.ColumnHeadersDefaultCellStyle.Font = new Font(dgvRequests.ColumnHeadersDefaultCellStyle.Font, FontStyle.Bold);
         }
 
         private void ParentForm_FormClosing(object sender, FormClosingEventArgs e) {

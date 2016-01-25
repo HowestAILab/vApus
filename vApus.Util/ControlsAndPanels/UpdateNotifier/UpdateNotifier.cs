@@ -8,26 +8,23 @@
 using RandomUtils.Log;
 using System;
 using System.ComponentModel;
-using System.Diagnostics;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
 using Tamir.SharpSsh;
 using vApus.Util.Properties;
-using System.Linq;
-using System.Reflection;
 
 namespace vApus.Util {
     public enum UpdateNotifierState {
-        [Description("Disabled")]
+        [Description("Update notifier disabled")]
         Disabled = 0,
-        [Description("Failed Connecting to the Update Server!")]
+        [Description("Failed Connecting to the update server!")]
         FailedConnectingToTheUpdateServer,
-        [Description("Please Refresh...")]
+        [Description("Update notifier - please refresh...")]
         PleaseRefresh,
-        [Description("New Update Found")]
+        [Description("New update found")]
         NewUpdateFound,
-        [Description("Up to Date")]
+        [Description("vApus up to date")]
         UpToDate
     }
 

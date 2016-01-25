@@ -20,6 +20,6 @@ namespace vApus.StressTest {
         void OpenConnection();
         void CloseConnection();
 
-        void SendAndReceive(StringTree parameterizedRequest, out DateTime sentAt, out TimeSpan timeToLastByte, out Exception exception);
+        void SendAndReceive(StringTree parameterizedRequest, out DateTime sentAt, out TimeSpan timeToLastByte, out string meta, out Exception exception);
     }
 }

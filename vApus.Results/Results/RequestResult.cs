@@ -26,6 +26,10 @@ namespace vApus.Results {
         public DateTime SentAt { get; set; }
         public long TimeToLastByteInTicks { get; set; }
         /// <summary>
+        /// Can be any result / measurement that is not timeToLastByte.
+        /// </summary>
+        public string Meta { get; set; }
+        /// <summary>
         /// Should only apply to the first request. This is the delay before the test starts. Not taken in account for result calculations.
         /// </summary>
         public int InitialDelayInMilliseconds { get; set; }
@@ -41,5 +45,9 @@ namespace vApus.Results {
         public int Rerun { get; set; }
 
         public RequestResult() { }
+
+        public override string ToString() {
+            return RequestIndex + ": " + Request;
+        }
     }
 }

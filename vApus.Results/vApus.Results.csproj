@@ -86,15 +86,18 @@
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DocumentFormat.OpenXml">
-      <HintPath>..\Prerequisites\SpreadsheetLight\DocumentFormat.OpenXml.dll</HintPath>
+    <Reference Include="DocumentFormat.OpenXml, Version=2.0.5022.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
+      <HintPath>..\packages\DocumentFormat.OpenXml.1.0\lib\DocumentFormat.OpenXml.dll</HintPath>
+      <Private>True</Private>
     </Reference>
+    <Reference Include="Microsoft.CSharp" />
     <Reference Include="MySql.Data, Version=6.5.4.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\Providers\MySql.Data.dll</HintPath>
     </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\Prerequisites\RandomUtils\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
+      <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="RandomUtils">
       <HintPath>..\Prerequisites\RandomUtils\RandomUtils.dll</HintPath>
@@ -102,8 +105,9 @@
     <Reference Include="RandomUtils.Log">
       <HintPath>..\Prerequisites\RandomUtils\RandomUtils.Log.dll</HintPath>
     </Reference>
-    <Reference Include="SpreadsheetLight">
-      <HintPath>..\Prerequisites\SpreadsheetLight\SpreadsheetLight.dll</HintPath>
+    <Reference Include="SpreadsheetLight, Version=3.4.4.0, Culture=neutral, PublicKeyToken=32fbb46dc1730c57, processorArchitecture=MSIL">
+      <HintPath>..\packages\SpreadsheetLight.3.4.4\lib\SpreadsheetLight.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
@@ -116,13 +120,13 @@
     <Reference Include="WindowsBase" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="DataAccess\AverageConcurrencyResultsCalculator.cs" />
-    <Compile Include="DataAccess\AverageRequestResultsCalculator.cs" />
-    <Compile Include="DataAccess\AverageUserActionResultsCalculator.cs" />
-    <Compile Include="DataAccess\BaseResultSetCalculator.cs" />
-    <Compile Include="DataAccess\ResponseTimeDistributionPerConcurrencyCalculator.cs" />
-    <Compile Include="DataAccess\ReaderAndCombiner.cs" />
-    <Compile Include="DataAccess\Schema.cs" />
+    <Compile Include="DataAndBusinessLogic\AverageConcurrencyResultsCalculator.cs" />
+    <Compile Include="DataAndBusinessLogic\AverageRequestResultsCalculator.cs" />
+    <Compile Include="DataAndBusinessLogic\AverageUserActionResultsCalculator.cs" />
+    <Compile Include="DataAndBusinessLogic\BaseResultSetCalculator.cs" />
+    <Compile Include="DataAndBusinessLogic\ResponseTimeDistributionPerConcurrencyCalculator.cs" />
+    <Compile Include="DataAndBusinessLogic\ReaderAndCombiner.cs" />
+    <Compile Include="DataAndBusinessLogic\Schema.cs" />
     <Compile Include="DescriptionAndTagsInputDialog.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -156,7 +160,7 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="DataAccess\ResultsHelper.cs" />
+    <Compile Include="DataAndBusinessLogic\ResultsHelper.cs" />
     <Compile Include="SavingResultsPanel.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -179,6 +183,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

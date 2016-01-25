@@ -406,7 +406,7 @@ namespace vApus.StressTest {
 
         [Description("When this is used, user actions are executed X times its occurance. You can use 'Shuffle' and 'Maximum Number of User Actions' in combination with this to define unique test patterns for each user."),
         DisplayName("Action distribution")]
-        [SavableCloneable, PropertyControl(12, true, 0)]
+        [SavableCloneable, PropertyControl(12, false, 0)]
         public bool ActionDistribution {
             get { return _actionDistribution; }
             set { _actionDistribution = value; }
@@ -414,7 +414,7 @@ namespace vApus.StressTest {
 
         [Description("The maximum number of user actions that a test pattern for a user can contain. Pinned and linked actions however are always picked. Set this to zero to not use this."),
         DisplayName("Maximum number of user actions")]
-        [SavableCloneable, PropertyControl(13, true, 0)]
+        [SavableCloneable, PropertyControl(13, false, 0)]
         public int MaximumNumberOfUserActions {
             get { return _maximumNumberOfUserActions; }
             set {
@@ -426,7 +426,7 @@ namespace vApus.StressTest {
 
         [Description("Start monitoring before the test starts, expressed in minutes with a max of 60."),
          DisplayName("Monitor before")]
-        [SavableCloneable, PropertyControl(14, true, 0)]
+        [SavableCloneable, PropertyControl(14, false, 0)]
         public int MonitorBefore {
             get { return _monitorBefore; }
             set {
@@ -440,7 +440,7 @@ namespace vApus.StressTest {
 
         [Description("Continue monitoring after the test is finished, expressed in minutes with a max of 60."),
          DisplayName("Monitor after")]
-        [SavableCloneable, PropertyControl(15, true, 0)]
+        [SavableCloneable, PropertyControl(15, false, 0)]
         public int MonitorAfter {
             get { return _monitorAfter; }
             set {
@@ -453,28 +453,28 @@ namespace vApus.StressTest {
         }
 
         [Description("Use this to enable the settings below. Should only be enabled for web tests. IMPORTANT: If you parameterize the Hostname- and/or Redirects field of a request, parallelisation might not be correct. For genereral performance reasons only the fields' string value as it is is checked to determine this."),
-         DisplayName("Use parallel execution of requests")]
+         DisplayName("[Browser] Use parallel execution of requests")]
         [SavableCloneable, PropertyControl(16, true)]
         public bool UseParallelExecutionOfRequests {
             get { return _useParallelExecutionOfRequests; }
             set { _useParallelExecutionOfRequests = value; }
         }
         [Description("Fill in the maximum persistent connections that a browser allows. As was researched (May 2015): IE - infinite / on demand, Chrome & Opera - 10, Firefox - 256, Safari - > 59 (unknown). (0 == infinite)"),
-         DisplayName("Maximum persistent connections")]
+         DisplayName("[Browser] Maximum persistent connections")]
         [SavableCloneable, PropertyControl(17, true)]
         public int MaximumPersistentConnections {
             get { return _maximumPersistentConnections; }
             set { _maximumPersistentConnections = value; }
         }
         [Description("Fill in the maximum persistent connections per hostname that a browser allows. As was researched (May 2015): IE - infinite / on demand, others - 6. (0 == infinite)"),
-         DisplayName("Persistent connections per hostname")]
+         DisplayName("[Browser] Persistent connections per hostname")]
         [SavableCloneable, PropertyControl(18, true)]
         public int PersistentConnectionsPerHostname {
             get { return _persistentConnectionsPerHostname; }
             set { _persistentConnectionsPerHostname = value; }
         }
         [Description("Set this to true for heavy tests (when using parallel requests). Nonetheless, Each run the full fast results will be calculated."),
- DisplayName("Simplified fast results")]
+         DisplayName("Simplified fast results")]
         [SavableCloneable, PropertyControl(19, true)]
         public bool SimplifiedFastResults {
             get { return _simplifiedFastResults; }

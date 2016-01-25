@@ -327,21 +327,21 @@ namespace vApus.DistributedTest {
         }
 
         [Description("Use this to enable the settings below. Should only be enabled for web tests. IMPORTANT: If you parameterize the Hostname- and/or Redirects field of a request, parallelisation might not be correct. For genereral performance reasons only the fields' string value as it is is checked to determine this."),
-        DisplayName("Use parallel execution of requests")]
+        DisplayName("[Browser] Use parallel execution of requests")]
         [SavableCloneable, PropertyControl(12)]
         public bool UseParallelExecutionOfRequests {
             get { return _useParallelExecutionOfRequests; }
             set { _useParallelExecutionOfRequests = value; }
         }
         [Description("Fill in the maximum persistent connections that a browser allows. As was researched (May 2015): IE - infinite / on demand, Chrome & Opera - 10, Firefox - 256, Safari - > 59 (unknown). (0 == infinite)"),
-         DisplayName("Maximum persistent connections")]
+         DisplayName("[Browser] Maximum persistent connections")]
         [SavableCloneable, PropertyControl(13)]
         public int MaximumPersistentConnections {
             get { return _maximumPersistentConnections; }
             set { _maximumPersistentConnections = value; }
         }
         [Description("Fill in the maximum persistent connections per hostname that a browser allows. As was researched (May 2015): IE - infinite / on demand, others - 6. (0 == infinite)"),
-         DisplayName("Persistent connections per hostname")]
+         DisplayName("[Browser] Persistent connections per hostname")]
         [SavableCloneable, PropertyControl(14)]
         public int PersistentConnectionsPerHostname {
             get { return _persistentConnectionsPerHostname; }

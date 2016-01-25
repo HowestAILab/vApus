@@ -5,9 +5,12 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using RandomUtils.Log;
+using SizingServers.IPC;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.IO;
 using System.Text;
 using System.Windows.Forms;
@@ -33,6 +36,9 @@ namespace vApus.StressTest {
         private const string VBLRn = "<16 0C 02 12n>";
         private const string VBLRr = "<16 0C 02 12r>";
         private static string _multilineComment = string.Empty;
+
+        private Receiver _lupusReceiver;
+        private Process _lupusProcess;
 
         #endregion
 
@@ -70,52 +76,7 @@ namespace vApus.StressTest {
             _scenario.GetParameterTokenDelimiters(out _beginTokenDelimiter, out _endTokenDelimiter, out requestContainsTokens, false);
 
             SetCodeStyle();
-            
-            captureControl.UseDeny = _scenario.UseDeny;
-            captureControl.Deny = _scenario.Deny;
         }
-
-        #region Capture HTTP(S)
-        private void captureControl_StartClicked(object sender, EventArgs e) {
-            if (chkClearScenarioBeforeCapture.Checked && _scenario.Count != 0)
-                if (MessageBox.Show("Are you sure you want to clear the scenario?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
-                    _scenario.Clear();
-                    if (ScenarioImported != null) ScenarioImported(this, null); //'Import' the empty scenario to correctly refresh the GUI.
-                } else {
-                    captureControl.CancelStart();
-                    return;
-                }
-            SaveCaptureSettings();
-        }
-        private void captureControl_StopClicked(object sender, EventArgs e) {
-            SaveCaptureSettings();
-            Import(captureControl.ParsedScenario, false);
-            try {
-                ProxyHelper.UnsetProxy();
-            } catch (Exception ex) {
-                Loggers.Log(Level.Warning, "Failed to unset the proxy.", ex);
-            }
-        }
-        private void SaveCaptureSettings() {
-            try {
-                if (_scenario != null) {
-                    bool editted = false;
-                    if (_scenario.UseDeny != captureControl.UseDeny) {
-                        _scenario.UseDeny = captureControl.UseDeny;
-                        editted = true;
-                    }
-                    if (_scenario.Deny.Length != captureControl.Deny.Length) {
-                        _scenario.Deny = captureControl.Deny;
-                        editted = true;
-                    }
-                    if (editted)
-                        _scenario.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-                }
-            } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed saving capture settings.", ex);
-            }
-        }
-        #endregion
 
         #region Import from Text
         private void fctxtxImport_TextChangedDelayed(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) { btnImport.Enabled = fctxtxImport.Text.Trim().Length != 0; }
@@ -145,7 +106,7 @@ namespace vApus.StressTest {
             BaseItem textParameters = _parameters[2];
             BaseItem customRandomParameters = _parameters[3];
 
-            var scopeIdentifiers = new[] { ASTNode.ALWAYS_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.REQUEST_PARAMETER_SCOPE, 
+            var scopeIdentifiers = new[] { ASTNode.ALWAYS_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.REQUEST_PARAMETER_SCOPE,
                 ASTNode.USER_ACTION_PARAMETER_SCOPE, ASTNode.SCENARIO_PARAMETER_SCOPE };
 
 
@@ -205,7 +166,7 @@ namespace vApus.StressTest {
         }
 
         private void btnImport_Click(object sender, EventArgs e) { Import(fctxtxImport.Text, chkClearScenarioBeforeImport.Checked); }
-        private void Import(string text, bool clearScenario) {
+        private void Import(string text, bool clearScenario, bool autoRedetermineTokenDelimiters = false) {
             //Clone and add to the clone to redetermine the tokens if needed.
             Scenario toAdd = _scenario.Clone(false, false, false, false);
 
@@ -246,8 +207,16 @@ namespace vApus.StressTest {
             toAdd.GetParameterTokenDelimiters(out beginTokenDelimiter, out endTokenDelimiter, out requestContainsTokens, false);
 
             if (requestContainsTokens) {
-                var dialog = new RedetermineTokens(_scenario, toAdd);
-                if (dialog.ShowDialog() == DialogResult.Cancel) return;
+                if (autoRedetermineTokenDelimiters) {
+                    while (requestContainsTokens) {
+                        ++toAdd.PreferredTokenDelimiterIndex;
+                        toAdd.GetParameterTokenDelimiters(out beginTokenDelimiter, out endTokenDelimiter, out requestContainsTokens, false);
+                    }
+
+                } else {
+                    var dialog = new RedetermineTokens(_scenario, toAdd);
+                    if (dialog.ShowDialog() == DialogResult.Cancel) return;
+                }
             }
 
             _scenario.AddRangeWithoutInvokingEvent(toAdd);
@@ -376,6 +345,70 @@ namespace vApus.StressTest {
                     sw.Write(sb.ToString().TrimEnd());
             }
         }
+
+        private void btnOpenLupusTitanium_Click(object sender, EventArgs e) {
+            var processes = Process.GetProcessesByName("Lupus-Titanium_GUI");
+            if (processes.Length != 0)
+                if (MessageBox.Show("Lupus-Titanium is already running.\nIn order to be able to capture correctly it must be restarted.\nDo you want to proceed? ", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                    try {
+                        processes[0].Kill();
+                    } catch {
+                        //Already killed. Not important.
+                    }
+                } else {
+                    return;
+                }
+
+            string path = Path.Combine(Application.StartupPath, "lupus-titanium\\lupus-titanium_gui.exe");
+            if (File.Exists(path)) {
+                if (chkClearScenarioBeforeCapture.Checked && _scenario.Count != 0)
+                    if (MessageBox.Show("Are you sure you want to clear the scenario?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
+                        _scenario.Clear();
+                        if (ScenarioImported != null) ScenarioImported(this, null); //'Import' the empty scenario to correctly refresh the GUI.
+                    } else {
+                        return;
+                    }
+
+                btnOpenLupusTitanium.Enabled = chkClearScenarioBeforeCapture.Enabled = false;
+
+                string handle = "ipc" + Process.GetCurrentProcess().Id;
+                _lupusReceiver = new Receiver(handle);
+                _lupusReceiver.MessageReceived += LupusReceiver_MessageReceived;
+
+                _lupusProcess = Process.Start(path, handle);
+                _lupusProcess.EnableRaisingEvents = true;
+                _lupusProcess.Exited += LupusProcess_Exited;
+                _lupusProcess.Disposed += LupusProcess_Exited;
+            } else {
+                string ex = "Lupus-Titanium was not found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
+        }
+
+        private void LupusProcess_Exited(object sender, EventArgs e) {
+            if (_lupusReceiver != null) {
+                _lupusReceiver.Dispose();
+                _lupusReceiver = null;
+            }
+            try {
+                SynchronizationContextWrapper.SynchronizationContext.Send((state) => btnOpenLupusTitanium.Enabled = chkClearScenarioBeforeCapture.Enabled = true, null);
+            } catch {
+                //Not important. Possible on dispose of vApus.
+            }
+        }
+
+        private void LupusReceiver_MessageReceived(object sender, SizingServers.IPC.MessageEventArgs e) {
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                if (_lupusProcess != null && !_lupusProcess.HasExited) {
+                    _lupusProcess.Kill();
+                    _lupusProcess.Dispose();
+                    _lupusProcess = null;
+                }
+                Import(e.Message.ToString(), false, true);
+            }, null);
+        }
+
         private void btnRevertToImported_Click(object sender, EventArgs e) {
             if (_scenario != null && MessageBox.Show("Are you sure you want to do this?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes) {
                 foreach (UserAction userAction in _scenario) {

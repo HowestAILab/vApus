@@ -21,8 +21,8 @@ namespace vApus.StressTest {
     public class Request : LabeledBaseItem, ISerializable {
 
         #region Fields
-        private static readonly char[] _beginParameterTokenDelimiterCanditates = new[] { '{', '<', '[', '(', '\\', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
-        private static readonly char[] _endParameterTokenDelimiterCanditates = new[] { '}', '>', ']', ')', '/', '#', '$', '£', '€', '§', '%', '*', '²', '³', '°' };
+        private static readonly char[] _beginParameterTokenDelimiterCanditates = new[] { '{', '§', '<', '[', '(', '\\', '#', '$', '£', '€', '%', '*', '²', '³', '°' };
+        private static readonly char[] _endParameterTokenDelimiterCanditates = new[] { '}', '§', '>', ']', ')', '/', '#', '$', '£', '€', '%', '*', '²', '³', '°' };
 
         private string _requestString = string.Empty;
 

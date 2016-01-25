@@ -15,7 +15,6 @@ using System.Threading;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.SolutionTree;
-using vApus.Util;
 
 namespace vApus.StressTest {
     [ContextMenu(
@@ -32,13 +31,16 @@ namespace vApus.StressTest {
     [Hotkeys(new[] { "Add_Click", "Paste_Click" }, new[] { Keys.Enter, (Keys.Control | Keys.V) })]
     [DisplayName("Connection proxies"), Serializable]
     public class ConnectionProxies : BaseItem {
+        public ConnectionProxies() {
+            MoveConnectionProxyPrerequisistes();
+        }
         private void Import_Click(object sender, EventArgs e) {
             var ofd = new OpenFileDialog();
 
             string path = Path.Combine(Application.StartupPath, "ConnectionProxies");
             if (Directory.Exists(path)) {
                 ofd.InitialDirectory = path;
-                MoveConnectionProxyPrerequisistes(path);
+                MoveConnectionProxyPrerequisistes();
             }
 
             ofd.Multiselect = true;
@@ -83,22 +85,34 @@ namespace vApus.StressTest {
         /// Only if in ConnectionProxies.
         /// </summary>
         /// <param name="sourceDir"></param>
-        private void MoveConnectionProxyPrerequisistes(string sourceDir) {
+        private void MoveConnectionProxyPrerequisistes() {
             try {
-                string path = Path.Combine(Application.StartupPath, "ConnectionProxyPrerequisites");
-                if (!Directory.Exists(path))
-                    Directory.CreateDirectory(path);
+                string sourceDir = Path.Combine(Application.StartupPath, "ConnectionProxies");
+                if (Directory.Exists(sourceDir)) {
+                    bool mutexCreated;
+                    var namedMutex = new Mutex(true, "vApus_SolutionTree", out mutexCreated);
+                    if (mutexCreated || namedMutex.WaitOne(0)) {
+                        try {
+                            string path = Path.Combine(Application.StartupPath, "ConnectionProxyPrerequisites");
+                            if (!Directory.Exists(path))
+                                Directory.CreateDirectory(path);
 
-                if (!sourceDir.EndsWith("\\")) sourceDir += "\\";
+                            if (!sourceDir.EndsWith("\\")) sourceDir += "\\";
 
-                foreach (string file in Directory.GetFiles(sourceDir))
-                    if (file.EndsWith(".dll") || file.EndsWith(".pdb")) {
-                        string destFile = Path.Combine(path, file.Substring(sourceDir.Length));
-                        File.Copy(file, destFile, true);
-                        File.Delete(file);
+                            foreach (string file in Directory.GetFiles(sourceDir))
+                                if (!file.EndsWith(".xml")) {
+                                    string destFile = Path.Combine(path, file.Substring(sourceDir.Length));
+                                    File.Copy(file, destFile, true);
+                                    File.Delete(file);
+                                }
+
+                        } finally {
+                            namedMutex.ReleaseMutex();
+                        }
                     }
+                }
             } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed moving connection proxy prerequisites from the ConnectionProxies folder.", ex);
+                Loggers.Log(Level.Error, "Failed moving one or more connection proxy prerequisites from the ConnectionProxies folder.", ex);
             }
         }
 

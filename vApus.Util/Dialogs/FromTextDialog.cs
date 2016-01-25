@@ -10,6 +10,7 @@ using System;
 using System.ComponentModel;
 using System.Windows.Forms;
 using System.Collections.Generic;
+using System.Text;
 
 namespace vApus.Util {
     /// <summary>
@@ -35,8 +36,10 @@ namespace vApus.Util {
                 fctxt.SelectionStart = fctxt.Text.Length;
             }
         }
-        [DefaultValue(true)]
-        public bool WarnForEndingWithNewLine { get; set; }
+        /// <summary>
+        /// Auto remove the empty lines when OK is clicked.
+        /// </summary>
+        public bool AutoRemoveEmptyLines { get; set; }
         #endregion
 
         #region Constructor
@@ -44,8 +47,6 @@ namespace vApus.Util {
         /// Entries can be given one per line, those can be returned using the Entries property.
         public FromTextDialog() {
             InitializeComponent();
-            WarnForEndingWithNewLine = true;
-
             fctxt.DefaultContextMenu(true);
         }
 
@@ -64,10 +65,13 @@ namespace vApus.Util {
         }
 
         private void btnOK_Click(object sender, EventArgs e) {
-            if (WarnForEndingWithNewLine &&
-                (fctxt.Text.EndsWith("\r") || fctxt.Text.EndsWith("\n")) &&
-                MessageBox.Show("The text ends with one ore more new line characters, do you want to trim these?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) == DialogResult.Yes)
-                fctxt.Text = fctxt.Text.TrimEnd();
+            if (AutoRemoveEmptyLines) {
+                var sb = new StringBuilder();
+                foreach (string line in fctxt.Lines)
+                    if (!string.IsNullOrWhiteSpace(line))
+                        sb.AppendLine(line);
+                fctxt.Text = sb.ToString().Trim();
+            }
 
             _entries = fctxt.Lines;
             DialogResult = DialogResult.OK;

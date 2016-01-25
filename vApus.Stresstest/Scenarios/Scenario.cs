@@ -45,9 +45,6 @@ namespace vApus.StressTest {
         private static Parameters _parameters;
 
         private int _preferredTokenDelimiterIndex;
-
-        //Capture web traffic settings
-        private string[] _allow = new string[] { }, _deny = new string[] { };
         #endregion
 
         #region Properties
@@ -87,11 +84,6 @@ namespace vApus.StressTest {
         public LexicalResult LexicalResult {
             get { return _lexicalResult; }
         }
-
-        [SavableCloneable]
-        public bool UseDeny { get; set; }
-        [SavableCloneable]
-        public string[] Deny { get { return _deny; } set { _deny = value; } }
 
         /// <summary>
         /// </summary>
@@ -299,7 +291,9 @@ namespace vApus.StressTest {
                     int count = re.LexedRequest.Count;
                     if (offsetIndex < count) {
                         int offset;
-                        if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
+                        if (string.IsNullOrEmpty(re.LexedRequest[offsetIndex].Value)) {
+                            offset = 0;
+                        } else if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
                             succes = false;
                             break;
                         }
@@ -408,7 +402,7 @@ namespace vApus.StressTest {
 
             var oldAndNewTokens = new Dictionary<string, string>();
 
-            var scopeIdentifiers = new[] { ASTNode.SCENARIO_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE, 
+            var scopeIdentifiers = new[] { ASTNode.SCENARIO_PARAMETER_SCOPE, ASTNode.USER_ACTION_PARAMETER_SCOPE,
                 ASTNode.REQUEST_PARAMETER_SCOPE, ASTNode.LEAF_NODE_PARAMETER_SCOPE, ASTNode.ALWAYS_PARAMETER_SCOPE };
 
             foreach (string scopeIdentifier in scopeIdentifiers)

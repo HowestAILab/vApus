@@ -31,6 +31,8 @@
             this.components = new System.ComponentModel.Container();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
             this.splitContainer = new System.Windows.Forms.SplitContainer();
             this.splitTop = new System.Windows.Forms.SplitContainer();
             this.pnlBorderCollapse = new System.Windows.Forms.Panel();
@@ -73,9 +75,9 @@
             this.epnlMessages = new vApus.Util.EventPanel();
             this.flpMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
-            this.kvmThreadsInUse = new vApus.Util.KeyValuePairControl();
             this.kvmCPUUsage = new vApus.Util.KeyValuePairControl();
             this.kvmMemoryUsage = new vApus.Util.KeyValuePairControl();
+            this.kvmThreadsInUse = new vApus.Util.KeyValuePairControl();
             this.kvmNic = new vApus.Util.KeyValuePairControl();
             this.kvmNicsSent = new vApus.Util.KeyValuePairControl();
             this.kvmNicsReceived = new vApus.Util.KeyValuePairControl();
@@ -229,7 +231,7 @@
             this.kvpStressTest.Location = new System.Drawing.Point(116, 6);
             this.kvpStressTest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpStressTest.Name = "kvpStressTest";
-            this.kvpStressTest.Size = new System.Drawing.Size(74, 24);
+            this.kvpStressTest.Size = new System.Drawing.Size(73, 24);
             this.kvpStressTest.TabIndex = 14;
             this.kvpStressTest.TabStop = false;
             this.kvpStressTest.Tooltip = "";
@@ -239,7 +241,7 @@
             // 
             this.kvpConnection.BackColor = System.Drawing.Color.LightBlue;
             this.kvpConnection.Key = "Connection";
-            this.kvpConnection.Location = new System.Drawing.Point(188, 6);
+            this.kvpConnection.Location = new System.Drawing.Point(192, 6);
             this.kvpConnection.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpConnection.Name = "kvpConnection";
             this.kvpConnection.Size = new System.Drawing.Size(77, 24);
@@ -252,10 +254,10 @@
             // 
             this.kvpConnectionProxy.BackColor = System.Drawing.SystemColors.Control;
             this.kvpConnectionProxy.Key = "Connection proxy";
-            this.kvpConnectionProxy.Location = new System.Drawing.Point(268, 6);
+            this.kvpConnectionProxy.Location = new System.Drawing.Point(272, 6);
             this.kvpConnectionProxy.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpConnectionProxy.Name = "kvpConnectionProxy";
-            this.kvpConnectionProxy.Size = new System.Drawing.Size(112, 24);
+            this.kvpConnectionProxy.Size = new System.Drawing.Size(111, 24);
             this.kvpConnectionProxy.TabIndex = 15;
             this.kvpConnectionProxy.TabStop = false;
             this.kvpConnectionProxy.Tooltip = "This is used in and defines the connection.";
@@ -265,10 +267,10 @@
             // 
             this.kvpScenario.BackColor = System.Drawing.Color.LightBlue;
             this.kvpScenario.Key = "Scenario(s)";
-            this.kvpScenario.Location = new System.Drawing.Point(383, 6);
+            this.kvpScenario.Location = new System.Drawing.Point(386, 6);
             this.kvpScenario.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpScenario.Name = "kvpScenario";
-            this.kvpScenario.Size = new System.Drawing.Size(34, 24);
+            this.kvpScenario.Size = new System.Drawing.Size(77, 24);
             this.kvpScenario.TabIndex = 8;
             this.kvpScenario.TabStop = false;
             this.kvpScenario.Tooltip = "The scenario(s) used to test the application.";
@@ -278,10 +280,10 @@
             // 
             this.kvpScenarioRuleSet.BackColor = System.Drawing.SystemColors.Control;
             this.kvpScenarioRuleSet.Key = "Scenario rule set";
-            this.kvpScenarioRuleSet.Location = new System.Drawing.Point(420, 6);
+            this.kvpScenarioRuleSet.Location = new System.Drawing.Point(466, 6);
             this.kvpScenarioRuleSet.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpScenarioRuleSet.Name = "kvpScenarioRuleSet";
-            this.kvpScenarioRuleSet.Size = new System.Drawing.Size(87, 24);
+            this.kvpScenarioRuleSet.Size = new System.Drawing.Size(109, 24);
             this.kvpScenarioRuleSet.TabIndex = 17;
             this.kvpScenarioRuleSet.TabStop = false;
             this.kvpScenarioRuleSet.Tooltip = "This is used in and defines the requests.";
@@ -291,7 +293,7 @@
             // 
             this.kvpMonitor.BackColor = System.Drawing.Color.LightBlue;
             this.kvpMonitor.Key = "Monitor(s)";
-            this.kvpMonitor.Location = new System.Drawing.Point(510, 6);
+            this.kvpMonitor.Location = new System.Drawing.Point(578, 6);
             this.kvpMonitor.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitor.Name = "kvpMonitor";
             this.kvpMonitor.Size = new System.Drawing.Size(69, 24);
@@ -304,7 +306,7 @@
             // 
             this.kvpConcurrencies.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpConcurrencies.Key = "Concurrencies";
-            this.kvpConcurrencies.Location = new System.Drawing.Point(591, 6);
+            this.kvpConcurrencies.Location = new System.Drawing.Point(659, 6);
             this.kvpConcurrencies.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
             this.kvpConcurrencies.Name = "kvpConcurrencies";
             this.kvpConcurrencies.Size = new System.Drawing.Size(94, 24);
@@ -318,7 +320,7 @@
             // 
             this.kvpRuns.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpRuns.Key = "Runs";
-            this.kvpRuns.Location = new System.Drawing.Point(688, 6);
+            this.kvpRuns.Location = new System.Drawing.Point(756, 6);
             this.kvpRuns.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpRuns.Name = "kvpRuns";
             this.kvpRuns.Size = new System.Drawing.Size(42, 24);
@@ -332,34 +334,36 @@
             // 
             this.kvpInitialDelay.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpInitialDelay.Key = "Initial delay";
-            this.kvpInitialDelay.Location = new System.Drawing.Point(733, 6);
+            this.kvpInitialDelay.Location = new System.Drawing.Point(3, 39);
             this.kvpInitialDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpInitialDelay.Name = "kvpInitialDelay";
             this.kvpInitialDelay.Size = new System.Drawing.Size(76, 24);
             this.kvpInitialDelay.TabIndex = 9;
             this.kvpInitialDelay.TabStop = false;
-            this.kvpInitialDelay.Tooltip = "The minimum delay in milliseconds before the execution of the first requests per user. This is not used in result calculations, but rather to spread the requests at the start of the test.";
-            this.kvpDelay.Value = "";
+            this.kvpInitialDelay.Tooltip = "The minimum delay in milliseconds before the execution of the first requests per " +
+    "user. This is not used in result calculations, but rather to spread the requests" +
+    " at the start of the test.";
+            this.kvpInitialDelay.Value = "Value";
             // 
             // kvpDelay
             // 
             this.kvpDelay.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpDelay.Key = "Delay";
-            this.kvpDelay.Location = new System.Drawing.Point(3, 39);
+            this.kvpDelay.Location = new System.Drawing.Point(82, 39);
             this.kvpDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpDelay.Name = "kvpDelay";
             this.kvpDelay.Size = new System.Drawing.Size(45, 24);
             this.kvpDelay.TabIndex = 10;
             this.kvpDelay.TabStop = false;
-            this.kvpDelay.Tooltip = "The delay in milliseconds between the execution of requests per user.\r\nKeep th" +
-    "is zero to have an ASAP test.";
+            this.kvpDelay.Tooltip = "The delay in milliseconds between the execution of requests per user.\r\nKeep this " +
+    "zero to have an ASAP test.";
             this.kvpDelay.Value = "";
             // 
             // kvpShuffle
             // 
             this.kvpShuffle.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpShuffle.Key = "Shuffle";
-            this.kvpShuffle.Location = new System.Drawing.Point(781, 6);
+            this.kvpShuffle.Location = new System.Drawing.Point(130, 39);
             this.kvpShuffle.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpShuffle.Name = "kvpShuffle";
             this.kvpShuffle.Size = new System.Drawing.Size(53, 24);
@@ -372,10 +376,10 @@
             // 
             this.kvpActionDistribution.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpActionDistribution.Key = "Action distribution";
-            this.kvpActionDistribution.Location = new System.Drawing.Point(123, 39);
+            this.kvpActionDistribution.Location = new System.Drawing.Point(186, 39);
             this.kvpActionDistribution.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpActionDistribution.Name = "kvpActionDistribution";
-            this.kvpActionDistribution.Size = new System.Drawing.Size(117, 24);
+            this.kvpActionDistribution.Size = new System.Drawing.Size(115, 24);
             this.kvpActionDistribution.TabIndex = 12;
             this.kvpActionDistribution.TabStop = false;
             this.kvpActionDistribution.Tooltip = "\"When this is used, user actions are executed X times its occurance. You can use " +
@@ -387,10 +391,10 @@
             // 
             this.kvpMaximumNumberOfUserActions.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMaximumNumberOfUserActions.Key = "Maximum number of user actions";
-            this.kvpMaximumNumberOfUserActions.Location = new System.Drawing.Point(328, 39);
+            this.kvpMaximumNumberOfUserActions.Location = new System.Drawing.Point(304, 39);
             this.kvpMaximumNumberOfUserActions.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMaximumNumberOfUserActions.Name = "kvpMaximumNumberOfUserActions";
-            this.kvpMaximumNumberOfUserActions.Size = new System.Drawing.Size(202, 24);
+            this.kvpMaximumNumberOfUserActions.Size = new System.Drawing.Size(197, 24);
             this.kvpMaximumNumberOfUserActions.TabIndex = 13;
             this.kvpMaximumNumberOfUserActions.TabStop = false;
             this.kvpMaximumNumberOfUserActions.Tooltip = "The maximum number of user actions that a test pattern for a user can contain. Pi" +
@@ -401,10 +405,10 @@
             // 
             this.kvpMonitorBefore.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorBefore.Key = "Monitor before";
-            this.kvpMonitorBefore.Location = new System.Drawing.Point(427, 39);
+            this.kvpMonitorBefore.Location = new System.Drawing.Point(504, 39);
             this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorBefore.Name = "kvpMonitorBefore";
-            this.kvpMonitorBefore.Size = new System.Drawing.Size(96, 24);
+            this.kvpMonitorBefore.Size = new System.Drawing.Size(95, 24);
             this.kvpMonitorBefore.TabIndex = 19;
             this.kvpMonitorBefore.TabStop = false;
             this.kvpMonitorBefore.Tooltip = "Start monitoring before the test starts, expressed in minutes with a max of 60.";
@@ -414,10 +418,10 @@
             // 
             this.kvpMonitorAfter.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorAfter.Key = "Monitor after";
-            this.kvpMonitorAfter.Location = new System.Drawing.Point(529, 39);
+            this.kvpMonitorAfter.Location = new System.Drawing.Point(602, 39);
             this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorAfter.Name = "kvpMonitorAfter";
-            this.kvpMonitorAfter.Size = new System.Drawing.Size(86, 24);
+            this.kvpMonitorAfter.Size = new System.Drawing.Size(85, 24);
             this.kvpMonitorAfter.TabIndex = 20;
             this.kvpMonitorAfter.TabStop = false;
             this.kvpMonitorAfter.Tooltip = "Continue monitoring after the test is finished, expressed in minutes with a max o" +
@@ -428,10 +432,10 @@
             // 
             this.kvpParallelExecutions.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpParallelExecutions.Key = "Parallel executions";
-            this.kvpParallelExecutions.Location = new System.Drawing.Point(529, 39);
+            this.kvpParallelExecutions.Location = new System.Drawing.Point(690, 39);
             this.kvpParallelExecutions.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpParallelExecutions.Name = "kvpParallelExecutions";
-            this.kvpParallelExecutions.Size = new System.Drawing.Size(100, 24);
+            this.kvpParallelExecutions.Size = new System.Drawing.Size(120, 24);
             this.kvpParallelExecutions.TabIndex = 21;
             this.kvpParallelExecutions.TabStop = false;
             this.kvpParallelExecutions.Tooltip = "Parallel executions of requests.";
@@ -475,7 +479,7 @@
             this.label4.Location = new System.Drawing.Point(3, 9);
             this.label4.Margin = new System.Windows.Forms.Padding(3, 6, 5, 3);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(99, 20);
+            this.label4.Size = new System.Drawing.Size(92, 20);
             this.label4.TabIndex = 17;
             this.label4.Text = "Fast results";
             // 
@@ -484,7 +488,7 @@
             this.lblUpdatesIn.AutoSize = true;
             this.lblUpdatesIn.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUpdatesIn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lblUpdatesIn.Location = new System.Drawing.Point(107, 10);
+            this.lblUpdatesIn.Location = new System.Drawing.Point(100, 10);
             this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 7, 6, 3);
             this.lblUpdatesIn.Name = "lblUpdatesIn";
             this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
@@ -500,12 +504,12 @@
             this.lbtnStressTest.ForeColor = System.Drawing.Color.Black;
             this.lbtnStressTest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
             this.lbtnStressTest.LinkColor = System.Drawing.Color.Black;
-            this.lbtnStressTest.Location = new System.Drawing.Point(118, 9);
+            this.lbtnStressTest.Location = new System.Drawing.Point(111, 9);
             this.lbtnStressTest.Margin = new System.Windows.Forms.Padding(5, 6, 0, 3);
             this.lbtnStressTest.Name = "lbtnStressTest";
             this.lbtnStressTest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.lbtnStressTest.RadioButtonBehavior = true;
-            this.lbtnStressTest.Size = new System.Drawing.Size(101, 22);
+            this.lbtnStressTest.Size = new System.Drawing.Size(99, 22);
             this.lbtnStressTest.TabIndex = 0;
             this.lbtnStressTest.TabStop = true;
             this.lbtnStressTest.Text = "The stress test";
@@ -527,7 +531,15 @@
             this.dgvFastResults.BackgroundColor = System.Drawing.Color.White;
             this.dgvFastResults.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.dgvFastResults.CellBorderStyle = System.Windows.Forms.DataGridViewCellBorderStyle.None;
-            this.dgvFastResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.Single;
+            this.dgvFastResults.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle2.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Consolas", 9.75F);
+            dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle2.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFastResults.ColumnHeadersDefaultCellStyle = dataGridViewCellStyle2;
             this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvFastResults.EnableHeadersVisualStyles = false;
             this.dgvFastResults.Font = new System.Drawing.Font("Consolas", 9.75F);
@@ -535,9 +547,17 @@
             this.dgvFastResults.Name = "dgvFastResults";
             this.dgvFastResults.ReadOnly = true;
             this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
+            dataGridViewCellStyle3.BackColor = System.Drawing.Color.White;
+            dataGridViewCellStyle3.Font = new System.Drawing.Font("Consolas", 9.75F);
+            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.WindowText;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.SystemColors.Highlight;
+            dataGridViewCellStyle3.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
+            dataGridViewCellStyle3.WrapMode = System.Windows.Forms.DataGridViewTriState.True;
+            this.dgvFastResults.RowHeadersDefaultCellStyle = dataGridViewCellStyle3;
             this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
-            dataGridViewCellStyle2.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
-            this.dgvFastResults.RowsDefaultCellStyle = dataGridViewCellStyle2;
+            dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
+            this.dgvFastResults.RowsDefaultCellStyle = dataGridViewCellStyle4;
             this.dgvFastResults.Size = new System.Drawing.Size(897, 258);
             this.dgvFastResults.TabIndex = 2;
             this.dgvFastResults.VirtualMode = true;
@@ -676,7 +696,7 @@
             this.btnSaveDisplayedResults.Location = new System.Drawing.Point(400, 3);
             this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
-            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(165, 24);
+            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(158, 24);
             this.btnSaveDisplayedResults.TabIndex = 4;
             this.btnSaveDisplayedResults.Text = "Save displayed results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
@@ -729,19 +749,18 @@
             this.label2.Location = new System.Drawing.Point(3, 6);
             this.label2.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(312, 20);
+            this.label2.Size = new System.Drawing.Size(127, 20);
             this.label2.TabIndex = 9;
             this.label2.Text = "Client monitoring";
-
             // 
             // kvmCPUUsage
             // 
             this.kvmCPUUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmCPUUsage.Key = "CPU";
-            this.kvmCPUUsage.Location = new System.Drawing.Point(439, 9);
+            this.kvmCPUUsage.Location = new System.Drawing.Point(139, 9);
             this.kvmCPUUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmCPUUsage.Name = "kvmCPUUsage";
-            this.kvmCPUUsage.Size = new System.Drawing.Size(105, 16);
+            this.kvmCPUUsage.Size = new System.Drawing.Size(65, 16);
             this.kvmCPUUsage.TabIndex = 8;
             this.kvmCPUUsage.TabStop = false;
             this.kvmCPUUsage.Tooltip = "Try to keep this below 60 % to ensure that the client is not the bottleneck.";
@@ -751,10 +770,10 @@
             // 
             this.kvmMemoryUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMemoryUsage.Key = "Memory";
-            this.kvmMemoryUsage.Location = new System.Drawing.Point(708, 9);
+            this.kvmMemoryUsage.Location = new System.Drawing.Point(207, 9);
             this.kvmMemoryUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMemoryUsage.Name = "kvmMemoryUsage";
-            this.kvmMemoryUsage.Size = new System.Drawing.Size(123, 16);
+            this.kvmMemoryUsage.Size = new System.Drawing.Size(83, 16);
             this.kvmMemoryUsage.TabIndex = 8;
             this.kvmMemoryUsage.TabStop = false;
             this.kvmMemoryUsage.Tooltip = "Make sure you have sufficient memory to ensure that the client is not the bottlen" +
@@ -765,10 +784,10 @@
             // 
             this.kvmThreadsInUse.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmThreadsInUse.Key = "Threads";
-            this.kvmThreadsInUse.Location = new System.Drawing.Point(324, 9);
+            this.kvmThreadsInUse.Location = new System.Drawing.Point(293, 9);
             this.kvmThreadsInUse.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmThreadsInUse.Name = "kvmThreadsInUse";
-            this.kvmThreadsInUse.Size = new System.Drawing.Size(112, 16);
+            this.kvmThreadsInUse.Size = new System.Drawing.Size(72, 16);
             this.kvmThreadsInUse.TabIndex = 8;
             this.kvmThreadsInUse.TabStop = false;
             this.kvmThreadsInUse.Tooltip = "The number of threads in use should remain equal to the concurrent users just unt" +
@@ -779,10 +798,10 @@
             // 
             this.kvmNic.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmNic.Key = "NIC";
-            this.kvmNic.Location = new System.Drawing.Point(3, 35);
+            this.kvmNic.Location = new System.Drawing.Point(368, 9);
             this.kvmNic.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNic.Name = "kvmNic";
-            this.kvmNic.Size = new System.Drawing.Size(139, 16);
+            this.kvmNic.Size = new System.Drawing.Size(61, 16);
             this.kvmNic.TabIndex = 10;
             this.kvmNic.TabStop = false;
             this.kvmNic.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -792,10 +811,10 @@
             // 
             this.kvmNicsSent.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmNicsSent.Key = "Tx";
-            this.kvmNicsSent.Location = new System.Drawing.Point(3, 35);
+            this.kvmNicsSent.Location = new System.Drawing.Point(432, 9);
             this.kvmNicsSent.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNicsSent.Name = "kvmNicsSent";
-            this.kvmNicsSent.Size = new System.Drawing.Size(139, 16);
+            this.kvmNicsSent.Size = new System.Drawing.Size(54, 16);
             this.kvmNicsSent.TabIndex = 10;
             this.kvmNicsSent.TabStop = false;
             this.kvmNicsSent.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -805,10 +824,10 @@
             // 
             this.kvmNicsReceived.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmNicsReceived.Key = "Rx";
-            this.kvmNicsReceived.Location = new System.Drawing.Point(145, 35);
+            this.kvmNicsReceived.Location = new System.Drawing.Point(489, 9);
             this.kvmNicsReceived.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNicsReceived.Name = "kvmNicsReceived";
-            this.kvmNicsReceived.Size = new System.Drawing.Size(167, 16);
+            this.kvmNicsReceived.Size = new System.Drawing.Size(55, 16);
             this.kvmNicsReceived.TabIndex = 11;
             this.kvmNicsReceived.TabStop = false;
             this.kvmNicsReceived.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -822,11 +841,11 @@
             this.btnExport.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExport.Location = new System.Drawing.Point(324, 29);
+            this.btnExport.Location = new System.Drawing.Point(556, 3);
             this.btnExport.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
             this.btnExport.MaximumSize = new System.Drawing.Size(127, 24);
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(127, 24);
+            this.btnExport.Size = new System.Drawing.Size(126, 24);
             this.btnExport.TabIndex = 12;
             this.btnExport.Text = "Export messages...";
             this.btnExport.UseVisualStyleBackColor = false;

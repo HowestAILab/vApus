@@ -169,6 +169,12 @@ namespace vApus.Results {
             return metrics;
         }
 
+        /// <summary>
+        /// Calculates max response time, # requests, average response time, average delay, responses / second and user actions per second for a single user.
+        /// </summary>
+        /// <param name="result"></param>
+        /// <param name="cancellationToken"></param>
+        /// <returns></returns>
         private static StressTestMetrics GetMetrics(VirtualUserResult result, CancellationToken cancellationToken) {
             var metrics = new StressTestMetrics();
 
@@ -176,7 +182,14 @@ namespace vApus.Results {
             metrics.Requests = result.RequestResults.LongLength;
 
             var uniqueUserActions = new HashSet<string>();
-            TimeSpan totalTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
+            TimeSpan totalTimeToLastByte = new TimeSpan(); 
+            TimeSpan totalDelay = new TimeSpan(); //Delay after each user action.
+
+            //Requests can happen in parallel (web tests). We need to take this into account to be able to calculate responses and user actions / second correctly.
+            //The longest time counts for a parallel set. Only that time is added to the time span.
+            TimeSpan parallelRequestsAwareTimeToLastByte = new TimeSpan(); 
+            RequestResult prevRequestResult = null; //For parallelRequestsAwareTimeToLastByte calculations
+
             foreach (RequestResult requestResult in result.RequestResults) {
                 if (cancellationToken.IsCancellationRequested) return new StressTestMetrics();
 
@@ -185,11 +198,21 @@ namespace vApus.Results {
                     uniqueUserActions.Add(requestResult.UserAction);
 
                     var ttlb = new TimeSpan(requestResult.TimeToLastByteInTicks);
-                    totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
                     if (ttlb > metrics.MaxResponseTime) metrics.MaxResponseTime = ttlb;
+                    totalTimeToLastByte = totalTimeToLastByte.Add(ttlb);
 
-                    totalDelay = totalDelay.Add(new TimeSpan(requestResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond));
+                    if (requestResult.InParallelWithPrevious && prevRequestResult != null) { //The longest time counts for a parallel set.
+                        TimeSpan diffTtlb = requestResult.SentAt.Add(ttlb) - prevRequestResult.SentAt.AddTicks(prevRequestResult.TimeToLastByteInTicks);
+                        ttlb = (diffTtlb.Ticks > 0L) ? diffTtlb : new TimeSpan(0);
+                    }
+                    parallelRequestsAwareTimeToLastByte = parallelRequestsAwareTimeToLastByte.Add(ttlb);
+
+                    var delay = new TimeSpan(requestResult.DelayInMilliseconds * TimeSpan.TicksPerMillisecond);
+
+                    totalDelay = totalDelay.Add(delay);
                     if (!string.IsNullOrEmpty(requestResult.Error)) ++metrics.Errors;
+
+                    prevRequestResult = requestResult;
                 }
             }
 
@@ -197,7 +220,7 @@ namespace vApus.Results {
                 metrics.AverageResponseTime = new TimeSpan(totalTimeToLastByte.Ticks / metrics.RequestsProcessed);
                 metrics.AverageDelay = new TimeSpan(totalDelay.Ticks / metrics.RequestsProcessed);
 
-                double div = ((double)(totalTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
+                double div = ((double)(parallelRequestsAwareTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
                 metrics.ResponsesPerSecond = ((double)metrics.RequestsProcessed) / div;
                 metrics.UserActionsPerSecond = ((double)uniqueUserActions.Count) / div;
             }

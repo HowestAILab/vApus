@@ -102,6 +102,9 @@ namespace vApus.Monitor {
                 InitMonitorView();
             else
                 HandleCreated += MonitorView_HandleCreated;
+
+            //Stupid workaround.
+            monitorControl.ColumnHeadersDefaultCellStyle.Font = new Font(monitorControl.ColumnHeadersDefaultCellStyle.Font, FontStyle.Bold);
         }
         #endregion
 
@@ -1294,7 +1297,7 @@ namespace vApus.Monitor {
                         dt = new TimeSpan(dt.Ticks - (dt.Ticks % TimeSpan.TicksPerSecond));
                         dt += new TimeSpan(0, 0, 1);
                     }
-                    btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString() +
+                    btnSchedule.Text = "Scheduled in " + dt.ToLongFormattedString(true) +
                                        GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                 }
             }

@@ -66,6 +66,9 @@ namespace vApus.StressTest {
             OnResults += DetailedResultsControl_OnResults;
 
             fctxtCellView.DefaultContextMenu(true);
+
+            //Stupid workaround.
+            dgvDetailedResults.ColumnHeadersDefaultCellStyle.Font = new Font(dgvDetailedResults.ColumnHeadersDefaultCellStyle.Font, FontStyle.Bold);
         }
         #endregion
 
@@ -104,7 +107,7 @@ namespace vApus.StressTest {
             fromTextDialog.Text = "Please enter a description";
             fromTextDialog.SetText((sender as Button).Tag.ToString());
             if (fromTextDialog.ShowDialog() == DialogResult.OK) {
-                _resultsHelper.SetDescriptionAndTags(fromTextDialog.GetText(), _resultsHelper.GetTags().ToArray());
+                _resultsHelper.SetDescriptionAndTags(fromTextDialog.GetText().Trim(), _resultsHelper.GetTags().ToArray());
 
                 SetDescriptionConfig();
             }

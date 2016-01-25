@@ -89,7 +89,7 @@ namespace vApus.Gui {
                 _logPanel = new LogPanel();
                 Loggers.GetLogger<FileLogger>().LogEntryWritten += Main_LogEntryWritten;
                 _logErrorToolTip = new LogErrorToolTip { AutoPopDelay = 10000 };
-                _logErrorToolTip.Click += lblLogLevel_Click;
+                _logErrorToolTip.Click += _logErrorToolTip_Click;
 
                 _localizationPanel = new LocalizationPanel();
                 _cleanTempDataPanel = new CleanTempDataPanel();
@@ -136,7 +136,7 @@ namespace vApus.Gui {
         private void RelocateLogErrorToolTip() {
             try {
                 if (_logErrorToolTip != null && _logErrorToolTip.Visible) {
-                    int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                    int x = statusStrip.Location.X + 9;
                     int y = statusStrip.Location.Y - 30;
 
                     _logErrorToolTip.Location = new Point(x, y);
@@ -213,21 +213,22 @@ namespace vApus.Gui {
             if (_optionsDialog == null) {
                 _optionsDialog = new OptionsDialog();
                 _optionsDialog.FormClosed += _optionsDialog_FormClosed;
-                _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_logPanel);
+                _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
+                _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
+                _optionsDialog.AddOptionsPanel(_outputPanel);
+                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
-                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
-                _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
+                _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
                 _optionsDialog.AddOptionsPanel(_disableFirewallAutoUpdatePanel);
-                _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
-                _optionsDialog.AddOptionsPanel(_outputPanel);
             }
             _optionsDialog.SelectedPanel = panelIndex;
-            _optionsDialog.Hide(); //Strange VB6 bug: Form that is already displayed modally cannot be displayed as a modal dialog box. work-around.
-            _optionsDialog.ShowDialog(this);
-
+            if (!_optionsDialog.Visible) {
+                _optionsDialog.Hide(); //Strange VB6 bug: Form that is already displayed modally cannot be displayed as a modal dialog box. work-around.
+                _optionsDialog.ShowDialog(this);
+            }
             SetStatusStrip();
             Cursor = Cursors.Default;
         }
@@ -241,14 +242,27 @@ namespace vApus.Gui {
             }
         }
 
+        private void lupusTitaniumHTTPsProxyToolStripMenuItem_Click(object sender, EventArgs e) {
+            string path = Path.Combine(Application.StartupPath, "lupus-titanium\\lupus-titanium_gui.exe");
+            if (File.Exists(path)) {
+                Process.Start(path);
+            } else {
+                string ex = "Lupus-Titanium was not found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
+
+        }
+
         private void detailedResultsViewerToolStripMenuItem_Click(object sender, EventArgs e) {
-            string reportApp = Path.Combine(Application.StartupPath, "vApus.DetailedResultsViewer.exe");
-            if (File.Exists(reportApp))
-                Process.Start(reportApp);
-            else
-                MessageBox.Show(
-                    "The report application could not be found!\nPlease re-install vApus or do an update with 'Get versioned and non-versioned' checked.",
-                    string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            string path = Path.Combine(Application.StartupPath, "vApus.DetailedResultsViewer.exe");
+            if (File.Exists(path)) {
+                Process.Start(path);
+            } else {
+                string ex = "The report application could not be found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
         }
 
         private void updateProcess_Exited(object sender, EventArgs e) {
@@ -272,25 +286,33 @@ namespace vApus.Gui {
         }
 
         protected override void WndProc(ref Message m) {
-            if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG) {
-                TopMost = true;
-                Show();
-                TopMost = false;
+            try {
+                if (_msgHandler != null && m.Msg == _msgHandler.WINDOW_MSG) {
+                    TopMost = true;
+                    Show();
+                    TopMost = false;
+                }
+                //WM_CLOSE
+                if (m.Msg == 16) {
+                    // for updater
+                    if (m.LParam == (IntPtr)1) {
+                        _saveAndCloseOnUpdate = true;
+
+                        TopMost = true;
+                        Show();
+                        TopMost = false;
+
+                        if (_optionsDialog != null && !_optionsDialog.IsDisposed)
+                            _optionsDialog.Close();
+
+                        _firstStepsView.DisableFormClosingEventHandling();
+                    } else {
+                        _firstStepsView.CancelFormClosing(); //Let the parentform decide.
+                    }
+                }
+            } catch {
+                //Don't care
             }
-            //WM_CLOSE
-            if (m.Msg == 16) {
-                _saveAndCloseOnUpdate = true;
-
-                TopMost = true;
-                Show();
-                TopMost = false;
-
-                if (_optionsDialog != null && !_optionsDialog.IsDisposed)
-                    _optionsDialog.Close();
-
-                _firstStepsView.DisableFormClosingEventHandling();
-            }
-
             base.WndProc(ref m);
         }
 
@@ -324,12 +346,6 @@ namespace vApus.Gui {
         }
 
         private void MainWindow_FormClosing(object sender, FormClosingEventArgs e) {
-            //Look if there is nowhere a process busy (like stress testing) that can leed to cancelling the closing of the form.
-            foreach (Form mdiChild in Solution.RegisteredForCancelFormClosing) {
-                mdiChild.Close();
-                if (Solution.ExplicitCancelFormClosing) break;
-            }
-
             if (Solution.ExplicitCancelFormClosing) {
                 e.Cancel = true;
                 Solution.ExplicitCancelFormClosing = false;
@@ -354,6 +370,7 @@ namespace vApus.Gui {
                     e.Cancel = false;
                 } else if (result == DialogResult.Cancel) {
                     e.Cancel = true;
+                    return;
                 }
             } else {
                 tmrSetStatusStrip.Stop();
@@ -365,6 +382,15 @@ namespace vApus.Gui {
                 SolutionComponentViewManager.DisposeViews();
                 e.Cancel = false;
             }
+            //Look if there is nowhere a process busy (like stress testing) that can leed to cancelling the closing of the form.
+            foreach (Form mdiChild in Solution.RegisteredForCancelFormClosing) {
+                if (Solution.ExplicitCancelFormClosing) break;
+                mdiChild.Close();
+            }
+            if (_firstStepsView != null)
+                try {
+                    _firstStepsView.Close();
+                } catch { }
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -534,7 +560,7 @@ namespace vApus.Gui {
                             _logErrorToolTip.IncrementNumberOfErrorsOrFatals();
 
                             if (!_logErrorToolTip.Visible) {
-                                int x = statusStrip.Location.X + lblLogLevel.Bounds.X;
+                                int x = statusStrip.Location.X + 9;
                                 int y = statusStrip.Location.Y - 30;
 
                                 _logErrorToolTip.Show(this, x, y);
@@ -560,29 +586,13 @@ namespace vApus.Gui {
                 }
         }
 
-        private void SetStatusStrip() {
-            var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString())
-                                            .GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
+        async private void SetStatusStrip() {
+            var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
             lblUpdateNotifier.Text = attr[0].Description;
 
-            if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.Disabled ||
-                UpdateNotifier.UpdateNotifierState == UpdateNotifierState.FailedConnectingToTheUpdateServer)
-                lblUpdateNotifier.Image = Resources.Error;
-            else if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.PleaseRefresh ||
-                     UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound)
-                lblUpdateNotifier.Image = Resources.Warning;
-            else
-                lblUpdateNotifier.Image = Resources.OK;
+            bool connected = await Task.Run(() => _savingResultsPanel.Connected);
 
-            lblLogLevel.Text = Loggers.GetLogger<FileLogger>().CurrentLevel.ToString();
-            lblLocalization.Text = Thread.CurrentThread.CurrentCulture.DisplayName;
-            //SetProcessorAffinityLabel();
-
-            //Dns.GetHostName() does not always work.
-            string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
-            lblSocketListener.Text = hostName + ":" + SocketListenerLinker.SocketListenerPort;
-            if (!SocketListenerLinker.SocketListenerIsRunning)
-                lblSocketListener.Text += " [Stopped]";
+            lblResultsDatabase.Text = _savingResultsPanel != null && _savingResultsPanel.Connected ? "Test results database enabled" : "Test results database disabled";
 
             SetWarningLabel();
 
@@ -591,8 +601,7 @@ namespace vApus.Gui {
                 lblTempDataSize.Text = tempDataSizeInMB + " MB";
 
                 if (tempDataSizeInMB < 1.0)
-                    lblCleanTempData.Visible =
-                        lblTempDataSize.Visible = lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = false;
+                    lblCleanTempData.Visible = lblTempDataSize.Visible = lblPipeMicrosoftFirewallAutoUpdateEnabled.Visible = false;
                 else
                     lblCleanTempData.Visible = lblTempDataSize.Visible = true;
             }
@@ -627,19 +636,15 @@ namespace vApus.Gui {
 
         private void _firstStepsView_LinkClicked(object sender, FirstStepsView.LinkClickedEventArgs e) { ShowOptionsDialog(e.OptionsIndex); }
 
-        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
+        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
 
-        private void lblLogLevel_Click(object sender, EventArgs e) { ShowOptionsDialog(1); }
+        private void lblResultsDatabase_Click(object sender, EventArgs e) { ShowOptionsDialog(5); }
 
-        private void lblLocalization_Click(object sender, EventArgs e) { ShowOptionsDialog(2); }
-
-        private void lblSocketListener_Click(object sender, EventArgs e) { ShowOptionsDialog(3); }
-
-        //private void lblProcessorAffinity_Click(object sender, EventArgs e) { ShowOptionsDialog(4); }
+        private void _logErrorToolTip_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 
         private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
 
-        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
+        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(9); }
         #endregion
     }
 }
