@@ -1,6 +1,6 @@
 [Setup]
-AppName=vApus and Tools
-AppVerName=vApus and Tools
+AppName=vApus v2
+AppVerName=vApus v2
 DefaultDirName={pf}\Sizing Servers\vApus v2
 DefaultGroupName=Sizing Servers
 UninstallDisplayIcon={app}\vApus.exe
