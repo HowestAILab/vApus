@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using Newtonsoft.Json.Linq;
 using SpreadsheetLight;
 using SpreadsheetLight.Charts;
 using System;
@@ -37,13 +38,14 @@ namespace vApus.Results {
             BelowData
         }
         private enum ChartType {
-            StackedColumnAndLine = 0,
+            StackedBar = 0,
+            StackedColumnAndLine,
             Column,
             TwoLines
         }
 
         #region Fields
-        private static string[] GROUPS = { "General", "Monitor data'/'*", "Specialized" };
+        private static string[] GROUPS = { "General", "Meta", "Monitor data'/'*", "Specialized" };
 
         private delegate string Del(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token);
         private static Dictionary<string, Del> _toExport;
@@ -81,6 +83,8 @@ namespace vApus.Results {
             _toExport.Add("General'/'Errors", GeneralErrors);
 
             _toExport.Add("General'/'User action composition", GeneralUserActionComposisiton);
+
+            _toExport.Add("Meta'/'Export meta results if any", Meta);
 
             _toExport.Add("Monitor data'/'*", MonitorData);
 
@@ -453,6 +457,55 @@ namespace vApus.Results {
             return MakeWorksheet(doc, dt, title, true, true);
         }
 
+        private static string Meta(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
+            DataTable dt = resultsHelper.GetMeta(token, stressTestId);
+            string firstWorksheet = null;
+
+            foreach (DataRow row in dt.Rows) {
+                dynamic data = JObject.Parse(row["Meta"] as string);
+                if (data.type == "WebPageTest") {
+                    var colorPalette = new List<Color>(7);
+
+                    colorPalette.Add(Color.FromArgb(255, 255, 255));
+                    colorPalette.Add(Color.FromArgb(50, 85, 126));
+                    colorPalette.Add(Color.FromArgb(128, 51, 49));
+                    colorPalette.Add(Color.FromArgb(103, 125, 57));
+                    colorPalette.Add(Color.FromArgb(84, 65, 107));
+                    colorPalette.Add(Color.FromArgb(47, 114, 132));
+                    colorPalette.Add(Color.FromArgb(166, 99, 44));
+
+                    DataTable waterfallDt;
+                    string worksheet = CreateWaterfallWorksheet(doc, data.requests, "Waterfall c" + row["Concurrency"] + " r" + row["Run"], out waterfallDt);
+                    AddChart(doc, waterfallDt.Columns.Count, waterfallDt.Rows.Count + 1, "Waterfall (ms)", string.Empty, string.Empty, ChartType.StackedBar, ChartLocation.BelowData, true, colorPalette);
+                    CreateWaterfallWorksheet(doc, data.cachedRequests, "Waterfall cached c" + row["Concurrency"] + " r" + row["Run"], out waterfallDt);
+                    AddChart(doc, waterfallDt.Columns.Count, waterfallDt.Rows.Count + 1, "Waterfall (ms)", string.Empty, string.Empty, ChartType.StackedBar, ChartLocation.BelowData, true, colorPalette);
+
+                    if (firstWorksheet == null) firstWorksheet = worksheet;
+                }
+            }
+
+            return firstWorksheet;
+        }
+
+        private static string CreateWaterfallWorksheet(SLDocument doc, JArray requests, string title, out DataTable waterfallDt) {
+            waterfallDt = CreateEmptyDataTable("Waterfall", "Url", "empty", "DNS", "Connect", "SSL", "Time to first byte", "Time to last byte");
+
+            foreach (dynamic r in requests)
+                waterfallDt.Rows.Add(r.method + " " + r.result + " " + r.host + r.url, (long)r.requestOffsetInMs, (long)r.dnsInMs,
+                    (long)r.connectInMs, (long)r.sslInMs, (long)r.timeToFirstByteInMs, (long)r.timeToLastByteInMs);
+
+            string worksheet = MakeWorksheet(doc, waterfallDt, title, false, true);         
+            
+            return worksheet;
+        }
+
+        private static DataTable CreateEmptyDataTable(string name, params string[] columnNames) {
+            var objectType = typeof(object);
+            var dataTable = new DataTable(name);
+            foreach (string columnName in columnNames) dataTable.Columns.Add(columnName, objectType);
+            return dataTable;
+        }
+
         private static string GeneralUserActionComposisiton(string dataset, SLDocument doc, int stressTestId, ResultsHelper resultsHelper, CancellationToken token) {
             DataTable dt = Prep(resultsHelper.GetUserActionComposition(token, stressTestId));
 
@@ -550,7 +603,9 @@ namespace vApus.Results {
             //Add the headers
             if (includeHeaders)
                 for (int clmIndex = 0; clmIndex != dt.Columns.Count; clmIndex++) {
-                    doc.SetCellValue(1, clmIndex + 1, dt.Columns[clmIndex].ColumnName);
+                    string columnName = dt.Columns[clmIndex].ColumnName;
+                    if (columnName == "empty") columnName = string.Empty;
+                    doc.SetCellValue(1, clmIndex + 1, columnName);
                     doc.SetCellStyle(1, clmIndex + 1, boldStyle);
                 }
 
@@ -666,7 +721,9 @@ namespace vApus.Results {
 
             if (dataSeriesColors == null) dataSeriesColors = _colorPalette;
 
-            if (type == ChartType.StackedColumnAndLine)
+            if (type == ChartType.StackedBar)
+                chart = MakeStackedBar(chart, rangeWidth, setDataSeriesColors, dataSeriesColors);
+            else if (type == ChartType.StackedColumnAndLine)
                 chart = MakeStackedColumnAndLineChart(chart, rangeWidth, setDataSeriesColors, dataSeriesColors);
             else if (type == ChartType.Column)
                 chart = MakeColumnChart(chart, rangeWidth, setDataSeriesColors, dataSeriesColors);
@@ -682,9 +739,9 @@ namespace vApus.Results {
             chart.Title.SetTitle(title);
             chart.ShowChartTitle(false);
             chart.PrimaryTextAxis.Title.SetTitle(xAxis);
-            chart.PrimaryTextAxis.ShowTitle = true;
+            chart.PrimaryTextAxis.ShowTitle = !string.IsNullOrEmpty(xAxis);
             chart.PrimaryValueAxis.Title.SetTitle(yAxis);
-            chart.PrimaryValueAxis.ShowTitle = true;
+            chart.PrimaryValueAxis.ShowTitle = !string.IsNullOrEmpty(xAxis);
             chart.PrimaryValueAxis.ShowMinorGridlines = true;
 
             if (!string.IsNullOrWhiteSpace(secondaryYAxis)) {
@@ -697,6 +754,16 @@ namespace vApus.Results {
             return chart;
         }
 
+        private static SLChart MakeStackedBar(SLChart chart, int rangeWidth, bool setDataSeriesColors, List<Color> dataSeriesColors) {
+            chart.SetChartType(SLBarChartType.StackedBar);
+            chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;
+            chart.PrimaryTextAxis.InReverseOrder = true;
+
+            if (setDataSeriesColors)
+                SetDataSeriesColors(chart, rangeWidth, dataSeriesColors);
+
+            return chart;
+        }
         private static SLChart MakeStackedColumnAndLineChart(SLChart chart, int rangeWidth, bool setDataSeriesColors, List<Color> dataSeriesColors) {
             chart.SetChartType(SLColumnChartType.StackedColumn);
             chart.Legend.LegendPosition = DocumentFormat.OpenXml.Drawing.Charts.LegendPositionValues.Bottom;

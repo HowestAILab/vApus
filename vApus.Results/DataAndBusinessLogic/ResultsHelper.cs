@@ -1298,6 +1298,72 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
         /// <summary>
         /// 
         /// </summary>
+        /// <param name="cancellationToken"></param>
+        /// <param name="stressTestIds"></param>
+        /// <returns></returns>
+        public DataTable GetMeta(CancellationToken cancellationToken, params int[] stressTestIds) {
+            lock (_lock) {
+                if (_databaseActions != null) {
+                    var cacheEntry = _functionOutputCache.GetOrAdd(MethodInfo.GetCurrentMethod(), stressTestIds);
+                    var cacheEntryDt = cacheEntry.ReturnValue as DataTable;
+                    if (cacheEntryDt == null) {
+
+                        DataTable stressTests = ReaderAndCombiner.GetStressTests(cancellationToken, _databaseActions, stressTestIds, "Id", "StressTest", "Connection");
+                        if (stressTests == null || stressTests.Rows.Count == 0) return null;
+
+                        var meta = CreateEmptyDataTable("Meta", "Stress test", "At", "Concurrency", "Run", "Virtual user", "User action", "Request", "Meta");
+
+                        foreach (DataRow stressTestsRow in stressTests.Rows) {
+                            if (cancellationToken.IsCancellationRequested) return null;
+
+                            int stressTestId = (int)stressTestsRow.ItemArray[0];
+
+                            DataTable stressTestResults = ReaderAndCombiner.GetStressTestResults(cancellationToken, _databaseActions, stressTestId, "Id");
+                            if (stressTestResults == null || stressTestResults.Rows.Count == 0) continue;
+                            int stressTestResultId = (int)stressTestResults.Rows[0].ItemArray[0];
+
+                            string stressTest = string.Format("{0} {1}", stressTestsRow.ItemArray[1], stressTestsRow.ItemArray[2]);
+
+                            DataTable concurrencyResults = ReaderAndCombiner.GetConcurrencyResults(cancellationToken, _databaseActions, stressTestResultId, "Id", "Concurrency");
+                            if (concurrencyResults == null || concurrencyResults.Rows.Count == 0) continue;
+
+                            foreach (DataRow crRow in concurrencyResults.Rows) {
+                                if (cancellationToken.IsCancellationRequested) return null;
+
+                                int concurrencyResultId = (int)crRow.ItemArray[0];
+                                object concurrency = crRow.ItemArray[1];
+
+                                DataTable runResults = ReaderAndCombiner.GetRunResults(cancellationToken, _databaseActions, concurrencyResultId, "Id", "Run");
+                                if (runResults == null || runResults.Rows.Count == 0) continue;
+
+                                foreach (DataRow rrRow in runResults.Rows) {
+                                    if (cancellationToken.IsCancellationRequested) return null;
+
+                                    int runResultId = (int)rrRow.ItemArray[0];
+                                    object run = rrRow.ItemArray[1];
+
+                                    DataTable requestResults = ReaderAndCombiner.GetRequestResults(cancellationToken, _databaseActions, "CHAR_LENGTH(Meta)!=0", runResultId, "VirtualUser", "UserAction", "Request", "SentAt", "Meta");
+                                    if (requestResults == null || requestResults.Rows.Count == 0) continue;
+
+                                    foreach (DataRow ldr in requestResults.Rows) {
+                                        if (cancellationToken.IsCancellationRequested) return null;
+                                        meta.Rows.Add(stressTest, ldr["SentAt"], concurrency, run, ldr["VirtualUser"], ldr["UserAction"], ldr["Request"], ldr["Meta"]);
+                                    }
+                                }
+                            }
+                        }
+
+                        cacheEntry.ReturnValue = meta;
+                    }
+                    return cacheEntry.ReturnValue as DataTable;
+                }
+                return null;
+            }
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         /// <param name="cancellationToken">Used in await Task.Run...</param>
         /// <param name="stressTestIds">If none, all the results for all tests will be returned.</param>
         /// <returns></returns>
