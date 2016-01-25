@@ -195,7 +195,7 @@ namespace vApus.Results {
                                         requestResults[virtualUser].TryAdd(rerRowIndex, new RequestResult() {
                                             VirtualUser = virtualUser, UserAction = rerRow["UserAction"] as string, RequestIndex = rerRow["RequestIndex"] as string,
                                             InParallelWithPrevious = (bool)rerRow["InParallelWithPrevious"], TimeToLastByteInTicks = (long)rerRow["TimeToLastByteInTicks"],
-                                            DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"], SentAt=(DateTime)rerRow["SentAt"], Error = (long)rerRow["Error"] == 0 ? null : "-"
+                                            DelayInMilliseconds = (int)rerRow["DelayInMilliseconds"], SentAt = (DateTime)rerRow["SentAt"], Error = (long)rerRow["Error"] == 0 ? null : "-"
                                         });
                                     }
                                     );
@@ -207,20 +207,18 @@ namespace vApus.Results {
                                     //foreach (var item in requestResults) { 
                                     Parallel.ForEach(requestResults, (item, loopState2) => {
                                         if (cancellationToken.IsCancellationRequested) loopState2.Break();
-                                        
-                                        while ((ulong)item.Value.Count < totalRequestCountsPerUser[i])
-                                            item.Value.TryAdd(item.Value.Count, new RequestResult());
+
+                                        ulong valueCount = (ulong)item.Value.Count;
+                                        int maxValueKey = item.Value.Keys.Max();
+                                        while (valueCount++ < totalRequestCountsPerUser[i])
+                                            item.Value.TryAdd(++maxValueKey, new RequestResult());
 
                                         if (cancellationToken.IsCancellationRequested) loopState2.Break();
 
                                         virtualUserResults.TryAdd(item.Key, new VirtualUserResult(requestResults[item.Key].Count) { VirtualUser = item.Key });
                                         VirtualUserResult virtualUserResult = virtualUserResults[item.Key];
 
-                                        int smallestKey = item.Value.Keys.Min();
-                                        for (int k = 0; k != item.Value.Count; k++) {
-                                            if (cancellationToken.IsCancellationRequested) loopState2.Break();
-                                            virtualUserResult.RequestResults[k] = item.Value[k + smallestKey];
-                                        }
+                                        virtualUserResult.RequestResults = item.Value.Values.ToArray();
                                     }
                                     );
                                     runResult.VirtualUserResults = virtualUserResults.Values.ToArray();
