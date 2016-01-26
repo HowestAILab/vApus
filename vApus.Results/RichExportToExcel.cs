@@ -476,9 +476,9 @@ namespace vApus.Results {
                     colorPalette.Add(Color.FromArgb(166, 99, 44));
 
                     DataTable waterfallDt;
-                    string worksheet = CreateWaterfallWorksheet(doc, data.requests, (++i) + " c" + row["Concurrency"] + " r" + row["Run"], out waterfallDt);
+                    string worksheet = CreateWaterfallWorksheet(doc, data.requests, (++i).ToString(), out waterfallDt);
                     AddChart(doc, waterfallDt.Columns.Count, waterfallDt.Rows.Count + 1, "Waterfall (ms)", string.Empty, string.Empty, ChartType.StackedBar, ChartLocation.BelowData, true, colorPalette);
-                    CreateWaterfallWorksheet(doc, data.cachedRequests, i + " cached c" + row["Concurrency"] + " r" + row["Run"], out waterfallDt);
+                    CreateWaterfallWorksheet(doc, data.cachedRequests, i + " cached", out waterfallDt);
                     AddChart(doc, waterfallDt.Columns.Count, waterfallDt.Rows.Count + 1, "Waterfall cached (ms)", string.Empty, string.Empty, ChartType.StackedBar, ChartLocation.BelowData, true, colorPalette);
 
                     if (firstWorksheet == null) firstWorksheet = worksheet;
