@@ -2,10 +2,10 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="vApus.Publish.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="BroadcastPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">3337</Value>
+    <Setting Name="UdpBroadcastPort" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">3338</Value>
     </Setting>
-    <Setting Name="JSONFolder" Type="System.String" Scope="User">
+    <Setting Name="TcpHost" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="PublishTestsConfiguration" Type="System.Boolean" Scope="User">
@@ -32,10 +32,10 @@
     <Setting Name="PublishTestsClientMonitoring" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="UseJSONFileOutput" Type="System.Boolean" Scope="User">
+    <Setting Name="TcpOutput" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="UseJSONBroadcastOutput" Type="System.Boolean" Scope="User">
+    <Setting Name="UdpBroadcastOutput" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="PublisherEnabled" Type="System.Boolean" Scope="User">
@@ -49,6 +49,12 @@
     </Setting>
     <Setting Name="LogLevel" Type="System.UInt16" Scope="User">
       <Value Profile="(Default)">1</Value>
+    </Setting>
+    <Setting Name="TcpPort" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">3337</Value>
+    </Setting>
+    <Setting Name="PublishTestRequestResults" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
     </Setting>
   </Settings>
 </SettingsFile>

@@ -7,6 +7,9 @@
  */
 
 namespace vApus.Publish {
+    /// <summary>
+    /// Contains a super simple one-entry cache.
+    /// </summary>
     public class JSONFormatter : IFormatter {
         private object _cached, _cachedFormatted;
 

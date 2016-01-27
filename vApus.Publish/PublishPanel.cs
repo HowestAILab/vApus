@@ -41,11 +41,12 @@ namespace vApus.Publish {
             chkApplicationLogs.Checked = Publisher.Settings.PublishApplicationLogs;
             cboLogLevel.SelectedIndex = (int)Publisher.Settings.LogLevel;
 
-            chkJSONFiles.Checked = Publisher.Settings.UseJSONFileOutput;
-            txtJSONFolder.Text = Publisher.Settings.JSONFolder;
+            chkTcp.Checked = Publisher.Settings.TcpOutput;
+            txtTcpHost.Text = Publisher.Settings.TcpHost;
+            nudTcpPort.Value = Publisher.Settings.TcpPort;
 
-            chkJSONBroadcast.Checked = Publisher.Settings.UseJSONBroadcastOutput;
-            nudBroadcastPort.Value = Publisher.Settings.BroadcastPort;
+            chkUdpBroadcast.Checked = Publisher.Settings.UdpBroadcastOutput;
+            nudBroadcastPort.Value = Publisher.Settings.UdpBroadcastPort;
 
             EnableDisable(Publisher.Settings.PublisherEnabled);
         }
@@ -63,21 +64,16 @@ namespace vApus.Publish {
 
             Publisher.Settings.PublishApplicationLogs = chkApplicationLogs.Checked;
             Publisher.Settings.LogLevel = (ushort)cboLogLevel.SelectedIndex;
+            
+            Publisher.Settings.TcpOutput = chkTcp.Checked;
+            Publisher.Settings.TcpHost = txtTcpHost.Text;
+            Publisher.Settings.TcpPort = (ushort)nudTcpPort.Value;
 
-
-            Publisher.Settings.UseJSONFileOutput = chkJSONFiles.Checked;
-            Publisher.Settings.JSONFolder = txtJSONFolder.Text;
-
-            Publisher.Settings.UseJSONBroadcastOutput = chkJSONBroadcast.Checked;
-            Publisher.Settings.BroadcastPort = (ushort)nudBroadcastPort.Value;
+            Publisher.Settings.UdpBroadcastOutput = chkUdpBroadcast.Checked;
+            Publisher.Settings.UdpBroadcastPort = (ushort)nudBroadcastPort.Value;
 
             Publisher.Settings.Save();
             Publisher.Clear();
-        }
-
-
-        private void btnBrowseJSON_Click(object sender, EventArgs e) {
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK) txtJSONFolder.Text = folderBrowserDialog.SelectedPath;
         }
 
         private void btnSet_Click(object sender, EventArgs e) { SaveSettings(); }
@@ -100,7 +96,7 @@ namespace vApus.Publish {
             string path = Path.Combine(Application.StartupPath, "PublishItems.cs");
             if (!File.Exists(path)) {
                 string error = "PublishItems.cs was not found in the root directory if vApus.";
-                Loggers.Log(Level.Error, error, null, new object[]{ sender, e });
+                Loggers.Log(Level.Error, error, null, new object[] { sender, e });
                 MessageBox.Show(error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 

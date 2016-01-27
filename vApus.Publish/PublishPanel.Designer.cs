@@ -37,22 +37,26 @@
             this.chkMonitorsHWConfig = new System.Windows.Forms.CheckBox();
             this.btnSet = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
-            this.chkJSONFiles = new System.Windows.Forms.CheckBox();
             this.grp = new System.Windows.Forms.GroupBox();
+            this.chkRequestResults = new System.Windows.Forms.CheckBox();
+            this.txtTcpHost = new System.Windows.Forms.TextBox();
+            this.label4 = new System.Windows.Forms.Label();
+            this.chkTcp = new System.Windows.Forms.CheckBox();
+            this.label3 = new System.Windows.Forms.Label();
+            this.nudTcpPort = new System.Windows.Forms.NumericUpDown();
             this.llblDeserialize = new System.Windows.Forms.LinkLabel();
             this.cboLogLevel = new System.Windows.Forms.ComboBox();
             this.chkApplicationLogs = new System.Windows.Forms.CheckBox();
             this.cboMessageLevel = new System.Windows.Forms.ComboBox();
-            this.chkJSONBroadcast = new System.Windows.Forms.CheckBox();
+            this.chkUdpBroadcast = new System.Windows.Forms.CheckBox();
             this.chkTestsClientMonitoring = new System.Windows.Forms.CheckBox();
             this.label6 = new System.Windows.Forms.Label();
             this.nudBroadcastPort = new System.Windows.Forms.NumericUpDown();
-            this.btnBrowseJSON = new System.Windows.Forms.Button();
-            this.txtJSONFolder = new System.Windows.Forms.TextBox();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.btnEnable = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.grp.SuspendLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudTcpPort)).BeginInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudBroadcastPort)).BeginInit();
             this.SuspendLayout();
             // 
@@ -140,7 +144,7 @@
             // chkTestsMessages
             // 
             this.chkTestsMessages.AutoSize = true;
-            this.chkTestsMessages.Location = new System.Drawing.Point(19, 142);
+            this.chkTestsMessages.Location = new System.Drawing.Point(19, 165);
             this.chkTestsMessages.Name = "chkTestsMessages";
             this.chkTestsMessages.Size = new System.Drawing.Size(74, 17);
             this.chkTestsMessages.TabIndex = 5;
@@ -177,42 +181,34 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(6, 183);
+            this.label2.Location = new System.Drawing.Point(6, 206);
             this.label2.Name = "label2";
             this.label2.Size = new System.Drawing.Size(48, 13);
             this.label2.TabIndex = 16;
             this.label2.Text = "Publish";
-            // 
-            // chkJSONFiles
-            // 
-            this.chkJSONFiles.AutoSize = true;
-            this.chkJSONFiles.Location = new System.Drawing.Point(19, 204);
-            this.chkJSONFiles.Name = "chkJSONFiles";
-            this.chkJSONFiles.Size = new System.Drawing.Size(42, 17);
-            this.chkJSONFiles.TabIndex = 15;
-            this.chkJSONFiles.Text = "File";
-            this.toolTip.SetToolTip(this.chkJSONFiles, resources.GetString("chkJSONFiles.ToolTip"));
-            this.chkJSONFiles.UseVisualStyleBackColor = true;
             // 
             // grp
             // 
             this.grp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grp.Controls.Add(this.chkRequestResults);
+            this.grp.Controls.Add(this.txtTcpHost);
+            this.grp.Controls.Add(this.label4);
+            this.grp.Controls.Add(this.chkTcp);
+            this.grp.Controls.Add(this.label3);
+            this.grp.Controls.Add(this.nudTcpPort);
             this.grp.Controls.Add(this.llblDeserialize);
             this.grp.Controls.Add(this.cboLogLevel);
             this.grp.Controls.Add(this.chkApplicationLogs);
             this.grp.Controls.Add(this.cboMessageLevel);
-            this.grp.Controls.Add(this.chkJSONBroadcast);
+            this.grp.Controls.Add(this.chkUdpBroadcast);
             this.grp.Controls.Add(this.chkTestsClientMonitoring);
             this.grp.Controls.Add(this.label6);
             this.grp.Controls.Add(this.nudBroadcastPort);
-            this.grp.Controls.Add(this.btnBrowseJSON);
-            this.grp.Controls.Add(this.txtJSONFolder);
             this.grp.Controls.Add(this.lblTests);
             this.grp.Controls.Add(this.lblMonitors);
             this.grp.Controls.Add(this.chkTestsFastConcurrencyResults);
-            this.grp.Controls.Add(this.chkJSONFiles);
             this.grp.Controls.Add(this.chkTestsConfig);
             this.grp.Controls.Add(this.chkTestsFastRunResults);
             this.grp.Controls.Add(this.label2);
@@ -227,13 +223,84 @@
             this.grp.TabIndex = 0;
             this.grp.TabStop = false;
             // 
+            // chkRequestResults
+            // 
+            this.chkRequestResults.AutoSize = true;
+            this.chkRequestResults.Location = new System.Drawing.Point(19, 111);
+            this.chkRequestResults.Name = "chkRequestResults";
+            this.chkRequestResults.Size = new System.Drawing.Size(99, 17);
+            this.chkRequestResults.TabIndex = 1015;
+            this.chkRequestResults.Text = "Request results";
+            this.chkRequestResults.UseVisualStyleBackColor = true;
+            // 
+            // txtTcpHost
+            // 
+            this.txtTcpHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
+            | System.Windows.Forms.AnchorStyles.Right)));
+            this.txtTcpHost.Location = new System.Drawing.Point(51, 256);
+            this.txtTcpHost.Name = "txtTcpHost";
+            this.txtTcpHost.Size = new System.Drawing.Size(453, 20);
+            this.txtTcpHost.TabIndex = 1014;
+            // 
+            // label4
+            // 
+            this.label4.AutoSize = true;
+            this.label4.Location = new System.Drawing.Point(16, 259);
+            this.label4.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
+            this.label4.Name = "label4";
+            this.label4.Size = new System.Drawing.Size(32, 13);
+            this.label4.TabIndex = 1013;
+            this.label4.Text = "Host:";
+            // 
+            // chkTcp
+            // 
+            this.chkTcp.AutoSize = true;
+            this.chkTcp.Location = new System.Drawing.Point(19, 232);
+            this.chkTcp.Name = "chkTcp";
+            this.chkTcp.Size = new System.Drawing.Size(47, 17);
+            this.chkTcp.TabIndex = 1010;
+            this.chkTcp.Text = "TCP";
+            this.toolTip.SetToolTip(this.chkTcp, "TCP send JSON, UTF8 encoded.\r\nWrite your own TCP client to receive the sent messa" +
+        "ges.");
+            this.chkTcp.UseVisualStyleBackColor = true;
+            // 
+            // label3
+            // 
+            this.label3.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.label3.AutoSize = true;
+            this.label3.Location = new System.Drawing.Point(513, 259);
+            this.label3.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
+            this.label3.Name = "label3";
+            this.label3.Size = new System.Drawing.Size(29, 13);
+            this.label3.TabIndex = 1012;
+            this.label3.Text = "Port:";
+            // 
+            // nudTcpPort
+            // 
+            this.nudTcpPort.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
+            this.nudTcpPort.Location = new System.Drawing.Point(542, 257);
+            this.nudTcpPort.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
+            this.nudTcpPort.Maximum = new decimal(new int[] {
+            99999,
+            0,
+            0,
+            0});
+            this.nudTcpPort.Name = "nudTcpPort";
+            this.nudTcpPort.Size = new System.Drawing.Size(50, 20);
+            this.nudTcpPort.TabIndex = 1011;
+            this.nudTcpPort.Value = new decimal(new int[] {
+            3337,
+            0,
+            0,
+            0});
+            // 
             // llblDeserialize
             // 
             this.llblDeserialize.ActiveLinkColor = System.Drawing.Color.Blue;
             this.llblDeserialize.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.llblDeserialize.AutoSize = true;
             this.llblDeserialize.DisabledLinkColor = System.Drawing.Color.Blue;
-            this.llblDeserialize.Location = new System.Drawing.Point(534, 292);
+            this.llblDeserialize.Location = new System.Drawing.Point(534, 315);
             this.llblDeserialize.Name = "llblDeserialize";
             this.llblDeserialize.Size = new System.Drawing.Size(64, 13);
             this.llblDeserialize.TabIndex = 1009;
@@ -281,28 +348,28 @@
             "Info",
             "Warning",
             "Error"});
-            this.cboMessageLevel.Location = new System.Drawing.Point(99, 140);
+            this.cboMessageLevel.Location = new System.Drawing.Point(99, 163);
             this.cboMessageLevel.Name = "cboMessageLevel";
             this.cboMessageLevel.Size = new System.Drawing.Size(72, 21);
             this.cboMessageLevel.TabIndex = 6;
             this.toolTip.SetToolTip(this.cboMessageLevel, "Publish messages with this log level and worst.");
             // 
-            // chkJSONBroadcast
+            // chkUdpBroadcast
             // 
-            this.chkJSONBroadcast.AutoSize = true;
-            this.chkJSONBroadcast.Location = new System.Drawing.Point(19, 265);
-            this.chkJSONBroadcast.Name = "chkJSONBroadcast";
-            this.chkJSONBroadcast.Size = new System.Drawing.Size(99, 17);
-            this.chkJSONBroadcast.TabIndex = 19;
-            this.chkJSONBroadcast.Text = "UDP broadcast";
-            this.toolTip.SetToolTip(this.chkJSONBroadcast, "UDP broadcast JSON, UTF8 encoded.\r\nWrite your own UDP client to receive the broad" +
+            this.chkUdpBroadcast.AutoSize = true;
+            this.chkUdpBroadcast.Location = new System.Drawing.Point(19, 288);
+            this.chkUdpBroadcast.Name = "chkUdpBroadcast";
+            this.chkUdpBroadcast.Size = new System.Drawing.Size(99, 17);
+            this.chkUdpBroadcast.TabIndex = 19;
+            this.chkUdpBroadcast.Text = "UDP broadcast";
+            this.toolTip.SetToolTip(this.chkUdpBroadcast, "UDP broadcast JSON, UTF8 encoded.\r\nWrite your own UDP client to receive the broad" +
         "casted messages.");
-            this.chkJSONBroadcast.UseVisualStyleBackColor = true;
+            this.chkUdpBroadcast.UseVisualStyleBackColor = true;
             // 
             // chkTestsClientMonitoring
             // 
             this.chkTestsClientMonitoring.AutoSize = true;
-            this.chkTestsClientMonitoring.Location = new System.Drawing.Point(19, 111);
+            this.chkTestsClientMonitoring.Location = new System.Drawing.Point(19, 134);
             this.chkTestsClientMonitoring.Name = "chkTestsClientMonitoring";
             this.chkTestsClientMonitoring.Size = new System.Drawing.Size(103, 17);
             this.chkTestsClientMonitoring.TabIndex = 4;
@@ -312,7 +379,7 @@
             // label6
             // 
             this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(27, 292);
+            this.label6.Location = new System.Drawing.Point(27, 315);
             this.label6.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
             this.label6.Name = "label6";
             this.label6.Size = new System.Drawing.Size(29, 13);
@@ -321,7 +388,7 @@
             // 
             // nudBroadcastPort
             // 
-            this.nudBroadcastPort.Location = new System.Drawing.Point(56, 290);
+            this.nudBroadcastPort.Location = new System.Drawing.Point(56, 313);
             this.nudBroadcastPort.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
             this.nudBroadcastPort.Maximum = new decimal(new int[] {
             99999,
@@ -332,38 +399,10 @@
             this.nudBroadcastPort.Size = new System.Drawing.Size(50, 20);
             this.nudBroadcastPort.TabIndex = 20;
             this.nudBroadcastPort.Value = new decimal(new int[] {
-            3337,
+            3338,
             0,
             0,
             0});
-            // 
-            // btnBrowseJSON
-            // 
-            this.btnBrowseJSON.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.btnBrowseJSON.AutoSize = true;
-            this.btnBrowseJSON.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
-            this.btnBrowseJSON.BackColor = System.Drawing.Color.White;
-            this.btnBrowseJSON.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.btnBrowseJSON.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnBrowseJSON.Location = new System.Drawing.Point(561, 226);
-            this.btnBrowseJSON.MaximumSize = new System.Drawing.Size(1000, 21);
-            this.btnBrowseJSON.Name = "btnBrowseJSON";
-            this.btnBrowseJSON.Size = new System.Drawing.Size(31, 21);
-            this.btnBrowseJSON.TabIndex = 17;
-            this.btnBrowseJSON.Text = "...";
-            this.btnBrowseJSON.UseVisualStyleBackColor = false;
-            this.btnBrowseJSON.Click += new System.EventHandler(this.btnBrowseJSON_Click);
-            // 
-            // txtJSONFolder
-            // 
-            this.txtJSONFolder.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
-            | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtJSONFolder.ForeColor = System.Drawing.Color.Black;
-            this.txtJSONFolder.Location = new System.Drawing.Point(30, 227);
-            this.txtJSONFolder.Name = "txtJSONFolder";
-            this.txtJSONFolder.ReadOnly = true;
-            this.txtJSONFolder.Size = new System.Drawing.Size(525, 20);
-            this.txtJSONFolder.TabIndex = 16;
             // 
             // btnEnable
             // 
@@ -396,6 +435,7 @@
             this.Text = "PublishPanel";
             this.grp.ResumeLayout(false);
             this.grp.PerformLayout();
+            ((System.ComponentModel.ISupportInitialize)(this.nudTcpPort)).EndInit();
             ((System.ComponentModel.ISupportInitialize)(this.nudBroadcastPort)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
@@ -416,20 +456,23 @@
         private System.Windows.Forms.CheckBox chkMonitorsHWConfig;
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.Label label2;
-        private System.Windows.Forms.CheckBox chkJSONFiles;
         private System.Windows.Forms.GroupBox grp;
-        private System.Windows.Forms.Button btnBrowseJSON;
-        private System.Windows.Forms.TextBox txtJSONFolder;
         private System.Windows.Forms.Label label6;
         private System.Windows.Forms.NumericUpDown nudBroadcastPort;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.CheckBox chkTestsClientMonitoring;
-        private System.Windows.Forms.CheckBox chkJSONBroadcast;
+        private System.Windows.Forms.CheckBox chkUdpBroadcast;
         private System.Windows.Forms.ComboBox cboMessageLevel;
         private System.Windows.Forms.ComboBox cboLogLevel;
         private System.Windows.Forms.CheckBox chkApplicationLogs;
         private System.Windows.Forms.Button btnEnable;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.LinkLabel llblDeserialize;
+        private System.Windows.Forms.CheckBox chkTcp;
+        private System.Windows.Forms.Label label3;
+        private System.Windows.Forms.NumericUpDown nudTcpPort;
+        private System.Windows.Forms.TextBox txtTcpHost;
+        private System.Windows.Forms.Label label4;
+        private System.Windows.Forms.CheckBox chkRequestResults;
     }
 }

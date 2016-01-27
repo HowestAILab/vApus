@@ -73,7 +73,7 @@ namespace vApus.Gui {
             Loggers.Log("Bye");
             Loggers.Flush();
 
-            Publisher.Flush();
+            Publisher.WaitUntilIdle();
         }
     }
 }

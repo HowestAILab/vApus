@@ -6,7 +6,6 @@
  *    Dieter Vandroemme
  */
 using RandomUtils.Log;
-using System.IO;
 using vApus.Util;
 
 namespace vApus.Publish {
@@ -37,7 +36,7 @@ namespace vApus.Publish {
         /// <summary>
         /// Will only post if Settings.PublisherEnabled.
         /// </summary>
-        /// <param name="id">e.g. The tostring of a stress test.</param>
+        /// <param name="id">e.g. The tostring of a stress test. Does not have to be unique persee. Only useful for you own logic later on.</param>
         /// <param name="message"></param>
         /// <returns>The fully qualified id of the destination group. (one message to multiple destinations)</returns>
         public static string Post(string id, PublishItem message) {
@@ -59,15 +58,16 @@ namespace vApus.Publish {
 
             if (_destinations.Contains(destinationGroupId)) return false;
 
-            //Reuse for cached formatted entries.
-            JSONFormatter jsonFormatter = new JSONFormatter();
-
-            if (_settings.UseJSONFileOutput && !string.IsNullOrWhiteSpace(_settings.JSONFolder))
-                _destinations.Add(destinationGroupId, new FlatFileDestination(Path.Combine(_settings.JSONFolder, destinationGroupId + ".txt")) { Formatter = jsonFormatter });
-
-            if (_settings.UseJSONBroadcastOutput)
-                _destinations.Add(destinationGroupId, new BroadcastDestination(_settings.BroadcastPort) { Formatter = jsonFormatter });
-
+            if (_settings.TcpOutput && !string.IsNullOrWhiteSpace(_settings.TcpHost)) {
+                var tcpDestination = TcpDestination.GetInstance();
+                if (tcpDestination.Init(_settings.TcpHost, _settings.TcpPort)) {
+                    tcpDestination.Formatter = new JSONFormatter();
+                }
+                _destinations.Add(destinationGroupId, tcpDestination);
+            }
+            if (_settings.UdpBroadcastOutput) {
+                _destinations.Add(destinationGroupId, new UdpBroadcastDestination(_settings.UdpBroadcastPort) { Formatter = new JSONFormatter() });
+            }
             return true;
         }
 
@@ -90,6 +90,6 @@ namespace vApus.Publish {
         }
 
         /// Wait until the post is idle. Can be handy for when posting stuff when the application gets closed.
-        public static void Flush() { _destinations.Flush(); }
+        public static void WaitUntilIdle() { _destinations.WaitUntilIdle(); }
     }
 }

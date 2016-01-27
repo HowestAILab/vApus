@@ -14,12 +14,21 @@ namespace vApus.Publish {
     internal class FlatFileDestination : BaseDestination {
         private string _fileName, _directory;
 
+        public override bool AllowMultipleInstances { get { return true; } }
+
         private FlatFileDestination() { }
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="fileName"></param>
         public FlatFileDestination(string fileName) {
             _fileName = fileName;
             _directory = Path.GetDirectoryName(_fileName);
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         public override void Post(object message) {
             if (!Directory.Exists(_directory)) Directory.CreateDirectory(_directory);
 

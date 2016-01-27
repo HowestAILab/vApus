@@ -106,9 +106,10 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Destinations\TcpDestination.cs" />
     <Compile Include="IDestination.cs" />
     <Compile Include="MulticastBlock.cs" />
-    <Compile Include="Destinations\BroadcastDestination.cs" />
+    <Compile Include="Destinations\UdpBroadcastDestination.cs" />
     <Compile Include="Destinations\BaseDestination.cs" />
     <Compile Include="Destinations\FlatFileDestination.cs" />
     <Compile Include="Formatters\IFormatter.cs" />
@@ -127,7 +128,7 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="PublishItems.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>
   <ItemGroup>

@@ -26,13 +26,20 @@ namespace vApus.Publish {
         /// </summary>
         public string PublishItemId { get; set; }
         public string PublishItemType { get; set; }
-        public long PublishItemTimestampInMillisecondsSinceEpochUTC { get; set; }
+        /// <summary>
+        /// Use this to link all data together.
+        /// </summary>
+        public long PublishItemTimestampInMillisecondsSinceEpochUtc { get; set; }
+        /// <summary>
+        /// Use this to link all data together.
+        /// </summary>
         public int vApusPID { get; set; }
 
         public void Init() {
             PublishItemType = this.GetType().Name;
             vApusPID = Process.GetCurrentProcess().Id;
-            PublishItemTimestampInMillisecondsSinceEpochUTC = (long)(DateTime.UtcNow - EpochUtc).TotalMilliseconds;
+            //PublishItemTimestampInMillisecondsSinceEpochUTC = (long)(DateTime.UtcNow - EpochUtc).TotalMilliseconds;
+            PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(HighResolutionDateTime.UtcNow - EpochUtc).TotalMilliseconds;
         }
     }
     public class DistributedTestConfiguration : PublishItem {
@@ -88,12 +95,11 @@ namespace vApus.Publish {
         public string SlaveHostName { get; set; }
         public int SlavePort { get; set; }
     }
-
     public class FastConcurrencyResults : PublishItem {
-        public long StartMeasuringTimeInMillisecondsSinceEpochUTC { get; set; }
+        public long StartMeasuringTimeInMillisecondsSinceEpochUtc { get; set; }
         public long EstimatedTimeLeftInMilliseconds { get; set; }
         /// <summary>
-        /// For run sync break on last is this not only the run time, think time between the reruns are included. 
+        /// For run sync break on last this is not only the run time. vApus processing time between the reruns are included. 
         /// </summary>
         public long MeasuredTimeInMilliseconds { get; set; }
         public int Concurrency { get; set; }
@@ -125,10 +131,10 @@ namespace vApus.Publish {
         public string StressTestStatus { get; set; }
     }
     public class FastRunResults : PublishItem {
-        public long StartMeasuringTimeInMillisecondsSinceEpochUTC { get; set; }
+        public long StartMeasuringTimeInMillisecondsSinceEpochUtc { get; set; }
         public long EstimatedTimeLeftInMilliseconds { get; set; }
         /// <summary>
-        /// For run sync break on last is this not only the run time, think time between the reruns are included. 
+        /// For run sync break on last this is not only the run time. vApus processing time between the reruns are included. 
         /// </summary>
         public long MeasuredTimeInMilliseconds { get; set; }
         public int Concurrency { get; set; }
@@ -163,6 +169,35 @@ namespace vApus.Publish {
         public string StressTestStatus { get; set; }
     }
 
+    public class RequestResults : PublishItem {
+        public string VirtualUser { get; set; }
+        public string UserAction { get; set; }
+        public string RequestIndex { get; set; }
+        public string SameAsRequestIndex { get; set; }
+        public string Request { get; set; }
+        public bool InParallelWithPrevious { get; set; }
+        /// <summary>
+        /// Use this for calculations instead of PublishItemTimestampInMillisecondsSinceEpochUtc. PublishItemTimestampInMillisecondsSinceEpochUtc will skew.
+        /// </summary>
+        public long SentAtInMicrosecondsSinceEpochUtc { get; set; }
+        /// <summary>
+        /// A tenth of a microsecond.
+        /// </summary>
+        public long TimeToLastByteInTicks { get; set; }
+        /// <summary>
+        /// Can be anything. Preferably a clean JSON / BSON / XML string that can be used for creating visuals / reports.  
+        /// </summary>
+        public string Meta { get; set; }
+        /// <summary>
+        /// The time waited to fire the next request.
+        /// </summary>
+        public int DelayInMilliseconds { get; set; }
+        public string Error { get; set; }
+        /// <summary>
+        /// Applicable for break on last run sync distributed testing. A test (for a certain concurrenty and run) will rerun until the slowest one is finished. This rerun count is needed to for instance correctly calculate averages.
+        /// </summary>
+        public int Rerun { get; set; }
+    }
     public class ClientMonitorMetrics : PublishItem {
         public int BusyThreadCount { get; set; }
         public float CPUUsageInPercent { get; set; }
@@ -173,7 +208,9 @@ namespace vApus.Publish {
         public float NicSentInPercent { get; set; }
         public float NicReceivedInPercent { get; set; }
     }
-
+    /// <summary>
+    /// A stress test or distributed test message.
+    /// </summary>
     public class Message : PublishItem {
         /// <summary>
         /// 0 = info, 1 = warning, 2 = error
@@ -181,7 +218,6 @@ namespace vApus.Publish {
         public int Level { get; set; }
         public string Body { get; set; }
     }
-
     internal class ApplicationLogEntry : PublishItem {
         /// <summary>
         /// 0 = info, 1 = warning, 2 = error, 3 = fatal
@@ -194,20 +230,16 @@ namespace vApus.Publish {
         public string SourceFile { get; set; }
         public int Line { get; set; }
     }
-
     public class MonitorConfiguration : PublishItem {
         public string MonitorSource { get; set; }
         //Do not put passwords in here.
         public KeyValuePair<string, string>[] Parameters { get; set; }
     }
-
     public class MonitorHardwareConfiguration : PublishItem {
         public string HardwareConfiguration { get; set; }
     }
-
     public class MonitorMetrics : PublishItem {
         public string[] Headers { get; set; }
         public object[] Values { get; set; }
     }
-
 }

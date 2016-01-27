@@ -9,6 +9,8 @@ namespace vApus.Publish {
     internal abstract class BaseDestination : IDestination {
         private IFormatter _formatter;
 
+        public abstract bool AllowMultipleInstances { get; }
+
         /// <summary>
         /// Set a formatter to format the message before it is posted.
         /// </summary>

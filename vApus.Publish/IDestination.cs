@@ -6,5 +6,8 @@
  *    Dieter Vandroemme
  */
 namespace vApus.Publish {
-    internal interface IDestination { void Post(object message); }
+    internal interface IDestination {
+        bool AllowMultipleInstances { get; }
+        void Post(object message);
+    }
 }

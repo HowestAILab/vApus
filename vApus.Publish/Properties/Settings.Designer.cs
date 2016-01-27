@@ -25,25 +25,25 @@ namespace vApus.Publish.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3337")]
-        public ushort BroadcastPort {
+        [global::System.Configuration.DefaultSettingValueAttribute("3338")]
+        public ushort UdpBroadcastPort {
             get {
-                return ((ushort)(this["BroadcastPort"]));
+                return ((ushort)(this["UdpBroadcastPort"]));
             }
             set {
-                this["BroadcastPort"] = value;
+                this["UdpBroadcastPort"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string JSONFolder {
+        public string TcpHost {
             get {
-                return ((string)(this["JSONFolder"]));
+                return ((string)(this["TcpHost"]));
             }
             set {
-                this["JSONFolder"] = value;
+                this["TcpHost"] = value;
             }
         }
         
@@ -146,24 +146,24 @@ namespace vApus.Publish.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UseJSONFileOutput {
+        public bool TcpOutput {
             get {
-                return ((bool)(this["UseJSONFileOutput"]));
+                return ((bool)(this["TcpOutput"]));
             }
             set {
-                this["UseJSONFileOutput"] = value;
+                this["TcpOutput"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UseJSONBroadcastOutput {
+        public bool UdpBroadcastOutput {
             get {
-                return ((bool)(this["UseJSONBroadcastOutput"]));
+                return ((bool)(this["UdpBroadcastOutput"]));
             }
             set {
-                this["UseJSONBroadcastOutput"] = value;
+                this["UdpBroadcastOutput"] = value;
             }
         }
         
@@ -212,6 +212,30 @@ namespace vApus.Publish.Properties {
             }
             set {
                 this["LogLevel"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("3337")]
+        public ushort TcpPort {
+            get {
+                return ((ushort)(this["TcpPort"]));
+            }
+            set {
+                this["TcpPort"] = value;
+            }
+        }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool PublishTestRequestResults {
+            get {
+                return ((bool)(this["PublishTestRequestResults"]));
+            }
+            set {
+                this["PublishTestRequestResults"] = value;
             }
         }
     }

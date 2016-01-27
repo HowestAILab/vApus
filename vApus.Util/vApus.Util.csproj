@@ -420,7 +420,6 @@
     <Compile Include="Dialogs\ScheduleDialog.Designer.cs">
       <DependentUpon>ScheduleDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="DictionaryUtil.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FastSerializer.cs" />
     <Compile Include="FindAndReplace.cs" />

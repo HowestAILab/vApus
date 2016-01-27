@@ -77,7 +77,7 @@ namespace vApus.Publish {
         /// <summary>
         /// Wait until the post is idle. Can be handy for when posting stuff when the application gets closed.
         /// </summary>
-        public void Flush() {
+        public void WaitUntilIdle() {
             while (_busyPosting != 0)
                 _idleWaithandle.WaitOne();
         }

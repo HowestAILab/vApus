@@ -717,7 +717,7 @@ namespace vApus.StressTest {
                 _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections * concurrentUsers);
             } catch {
                 throw;
-            } 
+            }
         }
         #endregion
 
@@ -1244,8 +1244,31 @@ namespace vApus.StressTest {
                     if (delayInMilliseconds != 0 && !(stressTestCore._cancel || stressTestCore._break)) sleepWaitHandle.WaitOne(delayInMilliseconds);
                 }
 
+                stressTestCore.PublishRequestResults(requestResult);
                 return requestResult;
             }
         }
+
+        internal void PublishRequestResults(RequestResult result) {
+            if (Publish.Publisher.Settings.PublisherEnabled && Publish.Publisher.Settings.PublishTestRequestResults) {
+                var publishItem = new Publish.RequestResults();
+                publishItem.Init();
+
+                publishItem.VirtualUser = result.VirtualUser;
+                publishItem.UserAction = result.UserAction;
+                publishItem.RequestIndex = result.RequestIndex;
+                publishItem.SameAsRequestIndex = result.SameAsRequestIndex;
+                publishItem.Request = result.Request;
+                publishItem.SentAtInMicrosecondsSinceEpochUtc = (long)(result.SentAt - Publish.PublishItem.EpochUtc).TotalMilliseconds;
+                publishItem.TimeToLastByteInTicks = result.TimeToLastByteInTicks;
+                publishItem.Meta = result.Meta;
+                publishItem.DelayInMilliseconds = result.DelayInMilliseconds;
+                publishItem.Error = result.Error;
+                publishItem.Rerun = result.Rerun;
+
+                Publish.Publisher.Post(_stressTest.ToString(), publishItem);
+            }
+        }
+
     }
 }
