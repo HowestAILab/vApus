@@ -74,6 +74,11 @@ namespace vApus.Communication.Shared {
         public string MySqlUser;
         public string MySqlPassword;
 
+        public string PublishResultSetId;
+        public bool Publish;
+        public string PublishHost;
+        public int PublishPort;
+
         public RunSynchronization RunSynchronization;
         public int MaxRerunsBreakOnLast;
         public StressTest.StressTest StressTest;
@@ -83,6 +88,8 @@ namespace vApus.Communication.Shared {
         ///     #.# (TileIndex.TileStress testIndex eg 0.0);
         /// </summary>
         public string TileStressTestIndex;
+        public string TileStressTest;
+        public string DistributedTest;
     }
 
     [Serializable]

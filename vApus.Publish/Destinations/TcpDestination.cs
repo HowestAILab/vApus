@@ -36,15 +36,18 @@ namespace vApus.Publish {
         /// <param name="port"></param>
         /// <returns>False if already inited.</returns>
         public bool Init(string host, int port) {
-            if (_tcpClient.Connected && _host == host && _port == port) return false;
+            if (Connected && _host == host && _port == port) return false;
 
-            Connect();
+            Connect(host, port);
             _host = Dns.GetHostEntry(host).HostName;
             _port = port;
             return true;
         }
+        private bool Connected { get { return _tcpClient != null && _tcpClient.Connected; } }
+        private void Connect(string host, int port) {
+            _host = host;
+            _port = port;
 
-        private void Connect() {
             if (_sw != null) {
                 _sw.Dispose();
                 _sw = null;
@@ -54,8 +57,7 @@ namespace vApus.Publish {
                 _tcpClient = null;
             }
             _tcpClient = new TcpClient(_host, _port);
-
-            if (_sw == null) _sw = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8);
+            _sw = new StreamWriter(_tcpClient.GetStream(), Encoding.UTF8);
         }
         /// <summary>
         /// 

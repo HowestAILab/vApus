@@ -48,16 +48,12 @@
             this.cboLogLevel = new System.Windows.Forms.ComboBox();
             this.chkApplicationLogs = new System.Windows.Forms.CheckBox();
             this.cboMessageLevel = new System.Windows.Forms.ComboBox();
-            this.chkUdpBroadcast = new System.Windows.Forms.CheckBox();
             this.chkTestsClientMonitoring = new System.Windows.Forms.CheckBox();
-            this.label6 = new System.Windows.Forms.Label();
-            this.nudBroadcastPort = new System.Windows.Forms.NumericUpDown();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.btnEnable = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.grp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudTcpPort)).BeginInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudBroadcastPort)).BeginInit();
             this.SuspendLayout();
             // 
             // label1
@@ -202,10 +198,7 @@
             this.grp.Controls.Add(this.cboLogLevel);
             this.grp.Controls.Add(this.chkApplicationLogs);
             this.grp.Controls.Add(this.cboMessageLevel);
-            this.grp.Controls.Add(this.chkUdpBroadcast);
             this.grp.Controls.Add(this.chkTestsClientMonitoring);
-            this.grp.Controls.Add(this.label6);
-            this.grp.Controls.Add(this.nudBroadcastPort);
             this.grp.Controls.Add(this.lblTests);
             this.grp.Controls.Add(this.lblMonitors);
             this.grp.Controls.Add(this.chkTestsFastConcurrencyResults);
@@ -354,18 +347,6 @@
             this.cboMessageLevel.TabIndex = 6;
             this.toolTip.SetToolTip(this.cboMessageLevel, "Publish messages with this log level and worst.");
             // 
-            // chkUdpBroadcast
-            // 
-            this.chkUdpBroadcast.AutoSize = true;
-            this.chkUdpBroadcast.Location = new System.Drawing.Point(19, 288);
-            this.chkUdpBroadcast.Name = "chkUdpBroadcast";
-            this.chkUdpBroadcast.Size = new System.Drawing.Size(99, 17);
-            this.chkUdpBroadcast.TabIndex = 19;
-            this.chkUdpBroadcast.Text = "UDP broadcast";
-            this.toolTip.SetToolTip(this.chkUdpBroadcast, "UDP broadcast JSON, UTF8 encoded.\r\nWrite your own UDP client to receive the broad" +
-        "casted messages.");
-            this.chkUdpBroadcast.UseVisualStyleBackColor = true;
-            // 
             // chkTestsClientMonitoring
             // 
             this.chkTestsClientMonitoring.AutoSize = true;
@@ -375,34 +356,6 @@
             this.chkTestsClientMonitoring.TabIndex = 4;
             this.chkTestsClientMonitoring.Text = "Client monitoring";
             this.chkTestsClientMonitoring.UseVisualStyleBackColor = true;
-            // 
-            // label6
-            // 
-            this.label6.AutoSize = true;
-            this.label6.Location = new System.Drawing.Point(27, 315);
-            this.label6.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
-            this.label6.Name = "label6";
-            this.label6.Size = new System.Drawing.Size(29, 13);
-            this.label6.TabIndex = 1008;
-            this.label6.Text = "Port:";
-            // 
-            // nudBroadcastPort
-            // 
-            this.nudBroadcastPort.Location = new System.Drawing.Point(56, 313);
-            this.nudBroadcastPort.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
-            this.nudBroadcastPort.Maximum = new decimal(new int[] {
-            99999,
-            0,
-            0,
-            0});
-            this.nudBroadcastPort.Name = "nudBroadcastPort";
-            this.nudBroadcastPort.Size = new System.Drawing.Size(50, 20);
-            this.nudBroadcastPort.TabIndex = 20;
-            this.nudBroadcastPort.Value = new decimal(new int[] {
-            3338,
-            0,
-            0,
-            0});
             // 
             // btnEnable
             // 
@@ -436,7 +389,6 @@
             this.grp.ResumeLayout(false);
             this.grp.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudTcpPort)).EndInit();
-            ((System.ComponentModel.ISupportInitialize)(this.nudBroadcastPort)).EndInit();
             this.ResumeLayout(false);
             this.PerformLayout();
 
@@ -457,11 +409,8 @@
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox grp;
-        private System.Windows.Forms.Label label6;
-        private System.Windows.Forms.NumericUpDown nudBroadcastPort;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.CheckBox chkTestsClientMonitoring;
-        private System.Windows.Forms.CheckBox chkUdpBroadcast;
         private System.Windows.Forms.ComboBox cboMessageLevel;
         private System.Windows.Forms.ComboBox cboLogLevel;
         private System.Windows.Forms.CheckBox chkApplicationLogs;

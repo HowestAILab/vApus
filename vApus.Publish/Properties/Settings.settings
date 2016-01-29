@@ -2,9 +2,6 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="vApus.Publish.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="UdpBroadcastPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">3338</Value>
-    </Setting>
     <Setting Name="TcpHost" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
@@ -33,9 +30,6 @@
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="TcpOutput" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="UdpBroadcastOutput" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="PublisherEnabled" Type="System.Boolean" Scope="User">

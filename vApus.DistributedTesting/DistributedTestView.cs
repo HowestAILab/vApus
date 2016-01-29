@@ -789,7 +789,7 @@ namespace vApus.DistributedTest {
         }
         private void AppendMessages(string message, Level level = Level.Info) {
             distributedTestControl.AppendMessages(message, level);
-            PublishMessage(_distributedTest, (int)level, message);
+            PublishMessage((int)level, message);
 
             _resultsHelper.AddMessageInMemory((int)level, message);
         }
@@ -937,7 +937,7 @@ namespace vApus.DistributedTest {
                     }
                 }
 
-                PublishProgress(testProgressMessages);
+                PublishClientMonitoring();
             }
         }
         /// <summary>
@@ -1029,11 +1029,11 @@ namespace vApus.DistributedTest {
         }
         private void tmrProgress_Tick(object sender, EventArgs e) {
             try {
-               string lastWarning = distributedTestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed,
-                    LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent,
-                    LocalMonitor.NicReceived);
+                string lastWarning = distributedTestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK, _distributedTestCore.Cancelled, _distributedTestCore.Failed,
+                     LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent,
+                     LocalMonitor.NicReceived);
 
-               if (lastWarning.Length != 0) PublishMessage(_distributedTest, 1, lastWarning);
+                if (lastWarning.Length != 0) PublishMessage(1, lastWarning);
             } catch { } //Exception on false WMI. 
         }
         #endregion
@@ -1130,13 +1130,13 @@ namespace vApus.DistributedTest {
                 try {
                     _distributedTestCore.Stop();
                     try {
-                      string lastWarning =  distributedTestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK,
-                                                                         _distributedTestCore.Cancelled, _distributedTestCore.Failed,
-                                                                         LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
-                                                                         LocalMonitor.Nic, LocalMonitor.NicBandwidth,
-                                                                         LocalMonitor.NicSent, LocalMonitor.NicReceived);
+                        string lastWarning = distributedTestControl.SetMasterMonitoring(_distributedTestCore.Running, _distributedTestCore.OK,
+                                                                           _distributedTestCore.Cancelled, _distributedTestCore.Failed,
+                                                                           LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
+                                                                           LocalMonitor.Nic, LocalMonitor.NicBandwidth,
+                                                                           LocalMonitor.NicSent, LocalMonitor.NicReceived);
 
-                      if (lastWarning.Length != 0) PublishMessage(_distributedTest, 1, lastWarning);
+                        if (lastWarning.Length != 0) PublishMessage(1, lastWarning);
                     } catch { } //Exception on false WMI. 
                 } catch (Exception ex) {
                     string message = ex.Message + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
@@ -1269,7 +1269,7 @@ namespace vApus.DistributedTest {
                 monitorView.MonitorInitialized += new EventHandler<MonitorView.MonitorInitializedEventArgs>(monitorView_MonitorInitialized);
                 monitorView.OnHandledException += new EventHandler<ErrorEventArgs>(monitorView_OnHandledException);
                 monitorView.OnUnhandledException += new EventHandler<ErrorEventArgs>(monitorView_OnUnhandledException);
-                monitorView.InitializeForStressTest();
+                monitorView.InitializeForStressTest(tileStressTest.ToString());
             }
 
             if (!_monitorViews.ContainsKey(tileStressTest))
@@ -1498,7 +1498,7 @@ namespace vApus.DistributedTest {
             if (_monitorViews != null)
                 foreach (TileStressTest ts in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[ts])
-                        if (view != null && !view.IsDisposed && !validMonitorViews.Contains(view)) 
+                        if (view != null && !view.IsDisposed && !validMonitorViews.Contains(view))
                             validMonitorViews.Add(view);
 
             foreach (MonitorView view in validMonitorViews)
@@ -1548,7 +1548,7 @@ namespace vApus.DistributedTest {
 
                 try {
                     _resultsHelper.DoAddMessagesToDatabase();
-                } catch  (Exception ex) {
+                } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed adding messages to database. If this happens when cancelling the test when it just started, ignore it.", ex, new object[] { disposing });
                 }
 
@@ -1558,10 +1558,12 @@ namespace vApus.DistributedTest {
         #endregion
 
         #region Publish
+        private string _resultSetId;
         private void PublishConfiguration() {
-            if (Publisher.Settings.PublisherEnabled && Publish.Publisher.Settings.PublishTestsConfiguration) {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsConfiguration) {
+                _resultSetId = Publisher.GenerateResultSetId();
                 var publishItem = new DistributedTestConfiguration();
-                publishItem.Init();
+                publishItem.DistributedTest = _distributedTest.ToString();
                 publishItem.Description = _distributedTest.Description;
                 publishItem.Tags = _distributedTest.Tags;
                 publishItem.UseRDP = _distributedTest.UseRDP;
@@ -1571,77 +1573,20 @@ namespace vApus.DistributedTest {
                 var usedTileStressTests = new List<string>();
                 foreach (Client client in _distributedTest.Clients)
                     foreach (Slave slave in client)
-                        if (slave.TileStressTest != null && slave.TileStressTest.Use) {
-                            PublishTileStressTestConfiguration(slave, slave.TileStressTest);
+                        if (slave.TileStressTest != null && slave.TileStressTest.Use)
+#warning Multiple slaves?
                             usedTileStressTests.Add(slave.TileStressTest.ToString());
-                        }
 
                 publishItem.UsedTileStressTests = usedTileStressTests.ToArray();
 
-                Publish.Publisher.Post(_distributedTest.ToString(), publishItem);
-            }
-        }
-        private void PublishTileStressTestConfiguration(Slave slave, TileStressTest usedTileStressTest) {
-            if (Publisher.Settings.PublisherEnabled && Publish.Publisher.Settings.PublishTestsConfiguration) {
-                var publishItem = new TileStressTestConfiguration();
-                publishItem.Init();
-                publishItem.Connection = usedTileStressTest.BasicTileStressTest.Connection.ToString();
-                publishItem.ConnectionProxy = usedTileStressTest.BasicTileStressTest.ConnectionProxy;
-
-                var scenariosAndWeights = new KeyValuePair<string, uint>[usedTileStressTest.AdvancedTileStressTest.Scenarios.Length];
-                for (int i = 0; i != usedTileStressTest.AdvancedTileStressTest.Scenarios.Length; i++) {
-                    var kvp = usedTileStressTest.AdvancedTileStressTest.Scenarios[i];
-                    scenariosAndWeights[i] = new KeyValuePair<string, uint>(kvp.Key.ToString(), kvp.Value);
-                }
-                publishItem.ScenariosAndWeights = scenariosAndWeights;
-
-                publishItem.ScenarioRuleSet = usedTileStressTest.AdvancedTileStressTest.ScenarioRuleSet;
-
-                var monitors = new string[usedTileStressTest.BasicTileStressTest.Monitors.Length];
-                for (int i = 0; i != usedTileStressTest.BasicTileStressTest.Monitors.Length; i++)
-                    monitors[i] = usedTileStressTest.BasicTileStressTest.Monitors[i].ToString();
-
-                publishItem.Monitors = monitors;
-
-                publishItem.Concurrencies = usedTileStressTest.AdvancedTileStressTest.Concurrencies;
-                publishItem.Runs = usedTileStressTest.AdvancedTileStressTest.Runs;
-                publishItem.InitialMinimumDelay = usedTileStressTest.AdvancedTileStressTest.InitialMinimumDelay;
-                publishItem.InitialMaximumDelay = usedTileStressTest.AdvancedTileStressTest.InitialMaximumDelay;
-                publishItem.MinimumDelayInMilliseconds = usedTileStressTest.AdvancedTileStressTest.MinimumDelay;
-                publishItem.MaximumDelayInMilliseconds = usedTileStressTest.AdvancedTileStressTest.MaximumDelay;
-                publishItem.Shuffle = usedTileStressTest.AdvancedTileStressTest.Shuffle;
-                publishItem.ActionDistribution = usedTileStressTest.AdvancedTileStressTest.ActionDistribution;
-                publishItem.MaximumNumberOfUserActions = usedTileStressTest.AdvancedTileStressTest.MaximumNumberOfUserActions;
-                publishItem.MonitorBeforeInSeconds = usedTileStressTest.AdvancedTileStressTest.MonitorBefore;
-                publishItem.MonitorAfterInSeconds = usedTileStressTest.AdvancedTileStressTest.MonitorAfter;
-                //publishItem.UseParallelExecutionOfRequests = usedTileStressTest.AdvancedTileStressTest.UseParallelExecutionOfRequests;
-
-                publishItem.SlaveIP = slave.IP;
-                publishItem.SlaveHostName = slave.HostName;
-                publishItem.SlavePort = slave.Port;
-
-                Publish.Publisher.Post(usedTileStressTest.ToString(), publishItem);
-            }
-        }
-
-        private void PublishProgress(Dictionary<TileStressTest, TestProgressMessage> testProgressMessages) {
-            if (Publisher.Settings.PublisherEnabled && testProgressMessages != null) {
-                PublishClientMonitoring();
-
-                foreach (TileStressTest tileStressTest in testProgressMessages.Keys) {
-                    TestProgressMessage testProgressMessage = testProgressMessages[tileStressTest];
-                    PublishTileStressTestFastConcurencyResults(tileStressTest, testProgressMessage);
-                    PublishTileStressTestFastRunResults(tileStressTest, testProgressMessage);
-                    PublishTileStressTestClientMonitoring(tileStressTest, testProgressMessage);
-                    PublishTileStressTestLastMessage(tileStressTest, testProgressMessage);
-                }
+                Publisher.Post(publishItem, _resultSetId);
             }
         }
 
         private void PublishClientMonitoring() {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
                 var publishItem = new ClientMonitorMetrics();
-                publishItem.Init();
+                publishItem.Test = _distributedTest.ToString();
                 publishItem.CPUUsageInPercent = LocalMonitor.CPUUsage;
                 publishItem.MemoryUsageInMB = LocalMonitor.MemoryUsage;
                 publishItem.TotalVisibleMemoryInMB = LocalMonitor.TotalVisibleMemory;
@@ -1650,104 +1595,7 @@ namespace vApus.DistributedTest {
                 publishItem.NicSentInPercent = LocalMonitor.NicSent;
                 publishItem.NicReceivedInPercent = LocalMonitor.NicReceived;
 
-                Publish.Publisher.Post(_distributedTest.ToString(), publishItem);
-            }
-        }
-        private void PublishTileStressTestFastConcurencyResults(TileStressTest tileStressTest, TestProgressMessage testProgressMessage) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastConcurrencyResults) {
-                List<StressTestMetrics> metrics = testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics(true);
-                if (metrics.Count != 0) {
-                    StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
-                    var publishItem = new FastConcurrencyResults();
-                    publishItem.Init();
-                    publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
-                    publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
-                    publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
-                    publishItem.Concurrency = lastMetrics.Concurrency;
-
-                    publishItem.RequestsProcessed = lastMetrics.RequestsProcessed;
-                    publishItem.Requests = lastMetrics.Requests;
-
-                    publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
-
-                    publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
-                    publishItem.AverageResponseTimeInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
-                    publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
-                    publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
-                    publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
-                    publishItem.AverageTop5ResponseTimesInMilliseconds = (long)lastMetrics.AverageTop5ResponseTimes.TotalMilliseconds;
-                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageDelay.TotalMilliseconds;
-                    publishItem.Errors = (long)lastMetrics.Errors;
-
-                    publishItem.RunStateChange = testProgressMessage.RunStateChange.ToString();
-                    publishItem.StressTestStatus = testProgressMessage.StressTestStatus.ToString();
-
-                    Publish.Publisher.Post(tileStressTest.ToString(), publishItem);
-                }
-            }
-        }
-
-        private void PublishTileStressTestFastRunResults(TileStressTest tileStressTest, TestProgressMessage testProgressMessage) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastRunResults) {
-                List<StressTestMetrics> metrics = testProgressMessage.StressTestMetricsCache.GetRunMetrics(true);
-                if (metrics.Count != 0) {
-                    StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
-                    var publishItem = new FastRunResults();
-                    publishItem.Init();
-                    publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
-                    publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
-                    publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
-                    publishItem.Concurrency = lastMetrics.Concurrency;
-
-                    publishItem.Run = lastMetrics.Run;
-                    publishItem.RerunCount = lastMetrics.RerunCount;
-
-                    publishItem.RequestsProcessed = lastMetrics.RequestsProcessed;
-                    publishItem.Requests = lastMetrics.Requests;
-
-                    publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
-
-                    publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
-                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
-                    publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
-                    publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
-                    publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
-                    publishItem.AverageTop5ResponseTimesInMilliseconds = (long)lastMetrics.AverageTop5ResponseTimes.TotalMilliseconds;
-                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageDelay.TotalMilliseconds;
-                    publishItem.Errors = (long)lastMetrics.Errors;
-
-                    publishItem.RunStateChange = testProgressMessage.RunStateChange.ToString();
-                    publishItem.StressTestStatus = testProgressMessage.StressTestStatus.ToString();
-
-                    Publish.Publisher.Post(tileStressTest.ToString(), publishItem);
-                }
-            }
-        }
-
-        private void PublishTileStressTestClientMonitoring(TileStressTest tileStressTest, TestProgressMessage testProgressMessage) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
-                var publishItem = new ClientMonitorMetrics();
-                publishItem.Init();
-                publishItem.BusyThreadCount = testProgressMessage.ThreadsInUse;
-                publishItem.CPUUsageInPercent = testProgressMessage.CPUUsage;
-                publishItem.MemoryUsageInMB = testProgressMessage.MemoryUsage;
-                publishItem.TotalVisibleMemoryInMB = testProgressMessage.TotalVisibleMemory;
-                publishItem.Nic = testProgressMessage.Nic;
-                publishItem.NicBandwidthInMbps = testProgressMessage.NicBandwidth;
-                publishItem.NicSentInPercent = testProgressMessage.NicSent;
-                publishItem.NicReceivedInPercent = testProgressMessage.NicReceived;
-
-                Publish.Publisher.Post(tileStressTest.ToString(), publishItem);
-            }
-        }
-
-        private void PublishTileStressTestLastMessage(TileStressTest tileStressTest, TestProgressMessage testProgressMessage) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsMessages) {
-                List<EventPanelEvent> events = testProgressMessage.Events;
-                if (events.Count != 0) {
-                    EventPanelEvent ev = events[events.Count - 1];
-                    PublishMessage(tileStressTest, (int)ev.EventType, ev.Message);
-                }
+                Publisher.Post(publishItem, _resultSetId);
             }
         }
 
@@ -1757,14 +1605,14 @@ namespace vApus.DistributedTest {
         /// <param name="sender">_distributedTest or tile stresstest</param>
         /// <param name="level"></param>
         /// <param name="message"></param>
-        private void PublishMessage(object sender, int level, string message) {
+        private void PublishMessage(int level, string message) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsMessages && level >= Publisher.Settings.MessageLevel) {
-                var publishItem = new Publish.Message();
-                publishItem.Init();
+                var publishItem = new TestMessage();
+                publishItem.Test = _distributedTest.ToString();
                 publishItem.Level = level;
                 publishItem.Body = message;
 
-                Publish.Publisher.Post(sender.ToString(), publishItem);
+                Publisher.Post(publishItem, _resultSetId);
             }
         }
         #endregion

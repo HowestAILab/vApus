@@ -25,18 +25,6 @@ namespace vApus.Publish.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3338")]
-        public ushort UdpBroadcastPort {
-            get {
-                return ((ushort)(this["UdpBroadcastPort"]));
-            }
-            set {
-                this["UdpBroadcastPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
         public string TcpHost {
             get {
@@ -152,18 +140,6 @@ namespace vApus.Publish.Properties {
             }
             set {
                 this["TcpOutput"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UdpBroadcastOutput {
-            get {
-                return ((bool)(this["UdpBroadcastOutput"]));
-            }
-            set {
-                this["UdpBroadcastOutput"] = value;
             }
         }
         

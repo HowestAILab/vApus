@@ -170,7 +170,7 @@ namespace vApus.StressTest {
                 StopProgressDelayCountDown();
 
                 //Dns.GetHostName() does not always work.
-                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+                string hostName = Dns.GetHostEntry(IPAddress.Loopback).HostName.Trim().Split('.')[0].ToLower();
                 _resultsHelper.SetvApusInstance(hostName, string.Empty, NamedObjectRegistrar.Get<int>("Port"),
                     NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty, NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
                     false);
@@ -291,8 +291,6 @@ namespace vApus.StressTest {
                 ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
 
                 PublishConfiguration();
-
-
             } catch (Exception ex) {
                 //Only one test can run at the same time.
                 if (ex is ArgumentOutOfRangeException) {
@@ -419,7 +417,7 @@ namespace vApus.StressTest {
                 monitorView.MonitorInitialized += monitorView_MonitorInitialized;
                 monitorView.OnHandledException += monitorView_OnHandledException;
                 monitorView.OnUnhandledException += monitorView_OnUnhandledException;
-                monitorView.InitializeForStressTest();
+                monitorView.InitializeForStressTest(_stressTest.ToString());
             }
         }
         private void monitorView_MonitorInitialized(object sender, MonitorView.MonitorInitializedEventArgs e) {
@@ -963,16 +961,12 @@ namespace vApus.StressTest {
         #endregion
 
         #region Publish
-        private void PublishProgress(RunStateChange runStateChange) {
-            PublishFastConcurencyResults(runStateChange);
-            PublishFastRunResults(runStateChange);
-            PublishClientMonitoring();
-        }
-
+        private string _resultSetId;
         private void PublishConfiguration() {
-            if (Publisher.Settings.PublisherEnabled && Publish.Publisher.Settings.PublishTestsConfiguration) {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsConfiguration) {
+                _resultSetId = Publisher.GenerateResultSetId();
                 var publishItem = new StressTestConfiguration();
-                publishItem.Init();
+                publishItem.StressTest = _stressTest.ToString();
                 publishItem.Description = _stressTest.Description;
                 publishItem.Tags = _stressTest.Tags;
                 publishItem.Connection = _stressTest.Connection.ToString();
@@ -995,28 +989,35 @@ namespace vApus.StressTest {
 
                 publishItem.Concurrencies = _stressTest.Concurrencies;
                 publishItem.Runs = _stressTest.Runs;
-                publishItem.InitialMinimumDelay = _stressTest.InitialMinimumDelay;
-                publishItem.InitialMaximumDelay = _stressTest.InitialMaximumDelay;
+                publishItem.InitialMinimumDelayInMilliseconds = _stressTest.InitialMinimumDelay;
+                publishItem.InitialMaximumDelayInMilliseconds = _stressTest.InitialMaximumDelay;
                 publishItem.MinimumDelayInMilliseconds = _stressTest.MinimumDelay;
                 publishItem.MaximumDelayInMilliseconds = _stressTest.MaximumDelay;
                 publishItem.Shuffle = _stressTest.Shuffle;
                 publishItem.ActionDistribution = _stressTest.ActionDistribution;
                 publishItem.MaximumNumberOfUserActions = _stressTest.MaximumNumberOfUserActions;
-                publishItem.MonitorBeforeInSeconds = _stressTest.MonitorBefore;
-                publishItem.MonitorAfterInSeconds = _stressTest.MonitorAfter;
+                publishItem.MonitorBeforeInMinutes = _stressTest.MonitorBefore;
+                publishItem.MonitorAfterInMinutes = _stressTest.MonitorAfter;
                 publishItem.UseParallelExecutionOfRequests = _stressTest.UseParallelExecutionOfRequests;
+                publishItem.PersistentConnectionsPerHostname = _stressTest.PersistentConnectionsPerHostname;
+                publishItem.MaximumPersistentConnections = _stressTest.MaximumPersistentConnections;
 
-                Publish.Publisher.Post(_stressTest.ToString(), publishItem);
+                Publisher.Post(publishItem, _resultSetId);
             }
         }
 
+        private void PublishProgress(RunStateChange runStateChange) {
+            PublishFastConcurencyResults(runStateChange);
+            PublishFastRunResults(runStateChange);
+            PublishClientMonitoring();
+        }
         private void PublishFastConcurencyResults(RunStateChange runStateChange) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastConcurrencyResults && _stressTestMetricsCache != null) {
                 List<StressTestMetrics> metrics = _stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults);
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastConcurrencyResults();
-                    publishItem.Init();
+                    publishItem.Test = _stressTest.ToString();
                     publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                     publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
                     publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
@@ -1039,7 +1040,7 @@ namespace vApus.StressTest {
                     publishItem.RunStateChange = runStateChange.ToString();
                     publishItem.StressTestStatus = _stressTestStatus.ToString();
 
-                    Publish.Publisher.Post(_stressTest.ToString(), publishItem);
+                    Publisher.Post(publishItem, _resultSetId);
                 }
             }
         }
@@ -1049,7 +1050,7 @@ namespace vApus.StressTest {
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
                     var publishItem = new FastRunResults();
-                    publishItem.Init();
+                    publishItem.Test = _stressTest.ToString();
                     publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                     publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
                     publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
@@ -1075,14 +1076,14 @@ namespace vApus.StressTest {
                     publishItem.RunStateChange = runStateChange.ToString();
                     publishItem.StressTestStatus = _stressTestStatus.ToString();
 
-                    Publish.Publisher.Post(_stressTest.ToString(), publishItem);
+                    Publisher.Post(publishItem, _resultSetId);
                 }
             }
         }
         private void PublishClientMonitoring() {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
                 var publishItem = new ClientMonitorMetrics();
-                publishItem.Init();
+                publishItem.Test = _stressTest.ToString();
                 publishItem.BusyThreadCount = _stressTestCore == null || _stressTestCore.IsDisposed ? 0 : _stressTestCore.BusyThreadCount;
                 publishItem.CPUUsageInPercent = LocalMonitor.CPUUsage;
                 publishItem.MemoryUsageInMB = LocalMonitor.MemoryUsage;
@@ -1092,18 +1093,18 @@ namespace vApus.StressTest {
                 publishItem.NicSentInPercent = LocalMonitor.NicSent;
                 publishItem.NicReceivedInPercent = LocalMonitor.NicReceived;
 
-                Publish.Publisher.Post(_stressTest.ToString(), publishItem);
+                Publisher.Post(publishItem, _resultSetId);
             }
         }
 
         private void PublishMessage(int level, string message) {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsMessages && level >= Publisher.Settings.MessageLevel) {
-                var publishItem = new Publish.Message();
-                publishItem.Init();
+                var publishItem = new TestMessage();
+                publishItem.Test = _stressTest.ToString();
                 publishItem.Level = level;
                 publishItem.Body = message;
 
-                Publish.Publisher.Post(_stressTest.ToString(), publishItem);
+                Publisher.Post(publishItem, _resultSetId);
             }
         }
         #endregion

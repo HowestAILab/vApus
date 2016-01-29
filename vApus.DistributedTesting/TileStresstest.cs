@@ -101,7 +101,7 @@ namespace vApus.DistributedTest {
 
             if (Solution.ActiveSolution != null) {
                 DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(StressTest.StressTest), Solution.ActiveSolution.GetSolutionComponent(typeof(StressTestProject))) as StressTest.StressTest;
-           } else {
+            } else {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             }
         }
@@ -227,10 +227,14 @@ namespace vApus.DistributedTest {
                 vApus.Results.ConnectionStringManager.GetCurrentConnectionString(out user, out host, out port, out password);
 
                 return new StressTestWrapper {
-                    StressTestIdInDb = stressTestIdInDb,
-                    StressTest = stressTest,
-                    TileStressTestIndex = tileStressTestIndex, RunSynchronization = runSynchronization, MaxRerunsBreakOnLast = maxRerunsBreakOnLast,
-                    MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
+                    DistributedTest = Parent.ToString(), StressTestIdInDb = stressTestIdInDb, StressTest = stressTest,
+                    PublishResultSetId = Publish.Publisher.LastGeneratedResultSetId,
+                    Publish = Publish.Publisher.Settings.TcpOutput, PublishHost = Publish.Publisher.Settings.TcpHost,
+                    PublishPort = Publish.Publisher.Settings.TcpPort,
+                    TileStressTest = this.ToString(), TileStressTestIndex = tileStressTestIndex, RunSynchronization = runSynchronization,
+                    MaxRerunsBreakOnLast = maxRerunsBreakOnLast,
+                    MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user,
+                    MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
                 };
             }
         }

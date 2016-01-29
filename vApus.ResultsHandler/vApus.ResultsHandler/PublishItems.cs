@@ -17,54 +17,34 @@
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
-using System.Net;
-
 namespace vApus.Publish {
     public class PublishItem {
         public static readonly DateTime EpochUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-        
-        // Use following to link all data together.
-        public long PublishItemTimestampInMillisecondsSinceEpochUtc { get; set; }
 
         /// <summary>
-        /// A unique Id to bind all PublishItems that belong to each other.
+        /// e.g. The tostring() of a stresstest.
         /// </summary>
-        public string ResultSetId { get; set; }
-
+        public string PublishItemId { get; set; }
         public string PublishItemType { get; set; }
-
-        public string vApusHost { get; set; }
-        public int vApusPort { get; set; }
-        public string vApusVersion { get; set; }
-        public string vApusChannel { get; set; }
-        public bool vApusIsMaster { get; set; }
-
         /// <summary>
-        /// You must call Init() when you are posting a new publish item. This should never be called when deserializing.
+        /// Use this to link all data together.
         /// </summary>
-        /// <param name="vApusHost"></param>
-        /// <param name="vApusPort"></param>
-        /// <param name="vApusVersion"></param>
-        /// <param name="vApusChannel"></param>
-        internal void Init(string resultSetId, string vApusHost, int vApusPort, string vApusVersion, string vApusChannel, bool vApusIsMaster) {
-            //PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - EpochUtc).TotalMilliseconds;
-            PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(HighResolutionDateTime.UtcNow - EpochUtc).TotalMilliseconds;
-
-            ResultSetId = resultSetId;
-
+        public long PublishItemTimestampInMillisecondsSinceEpochUtc { get; set; }
+        /// <summary>
+        /// Use this to link all data together.
+        /// </summary>
+        public int vApusPID { get; set; }
+        /// <summary>
+        /// You must call Init() when you are making a new publish item. This should never be called when deserializing.
+        /// </summary>
+        public void Init() {
             PublishItemType = this.GetType().Name;
-
-            this.vApusHost = vApusHost;
-            this.vApusPort = vApusPort;
-            this.vApusVersion = vApusVersion;
-            this.vApusChannel = vApusChannel;
-            this.vApusIsMaster = vApusIsMaster;
+            vApusPID = Process.GetCurrentProcess().Id;
+            PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - EpochUtc).TotalMilliseconds;
+            //PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(HighResolutionDateTime.UtcNow - EpochUtc).TotalMilliseconds;
         }
     }
-    /// <summary>
-    /// </summary>
     public class DistributedTestConfiguration : PublishItem {
-        public string DistributedTest { get; set; }
         public string Description { get; set; }
         public string[] Tags { get; set; }
         public bool UseRDP { get; set; }
@@ -72,12 +52,8 @@ namespace vApus.Publish {
         public int MaximumRerunsBreakOnLast { get; set; }
         public string[] UsedTileStressTests { get; set; }
     }
-    /// <summary>
-    /// </summary>
+
     public class StressTestConfiguration : PublishItem {
-        /// <summary>
-        /// </summary>
-        public string StressTest { get; set; }
         public string Description { get; set; }
         public string[] Tags { get; set; }
         public string Connection { get; set; }
@@ -87,24 +63,18 @@ namespace vApus.Publish {
         public string[] Monitors { get; set; }
         public int[] Concurrencies { get; set; }
         public int Runs { get; set; }
-        public int InitialMinimumDelayInMilliseconds { get; set; }
-        public int InitialMaximumDelayInMilliseconds { get; set; }
+        public int InitialMinimumDelay { get; set; }
+        public int InitialMaximumDelay { get; set; }
         public int MinimumDelayInMilliseconds { get; set; }
         public int MaximumDelayInMilliseconds { get; set; }
         public bool Shuffle { get; set; }
         public bool ActionDistribution { get; set; }
         public int MaximumNumberOfUserActions { get; set; }
-        public int MonitorBeforeInMinutes { get; set; }
-        public int MonitorAfterInMinutes { get; set; }
+        public int MonitorBeforeInSeconds { get; set; }
+        public int MonitorAfterInSeconds { get; set; }
         public bool UseParallelExecutionOfRequests { get; set; }
-        public int PersistentConnectionsPerHostname { get; set; }
-        public int MaximumPersistentConnections { get; set; }
     }
     public class TileStressTestConfiguration : PublishItem {
-        public string DistributedTest { get; set; }
-        public string TileStressTest { get; set; }
-        public string Description { get; set; }
-        public string[] Tags { get; set; }
         public string Connection { get; set; }
         public string ConnectionProxy { get; set; }
         public KeyValuePair<string, uint>[] ScenariosAndWeights { get; set; }
@@ -112,26 +82,22 @@ namespace vApus.Publish {
         public string[] Monitors { get; set; }
         public int[] Concurrencies { get; set; }
         public int Runs { get; set; }
-        public int InitialMinimumDelayInMilliseconds { get; set; }
-        public int InitialMaximumDelayInMilliseconds { get; set; }
+        public int InitialMinimumDelay { get; set; }
+        public int InitialMaximumDelay { get; set; }
         public int MinimumDelayInMilliseconds { get; set; }
         public int MaximumDelayInMilliseconds { get; set; }
         public bool Shuffle { get; set; }
         public bool ActionDistribution { get; set; }
         public int MaximumNumberOfUserActions { get; set; }
-        public int MonitorBeforeInMinutes { get; set; }
-        public int MonitorAfterInMinutes { get; set; }
+        public int MonitorBeforeInSeconds { get; set; }
+        public int MonitorAfterInSeconds { get; set; }
         public bool UseParallelExecutionOfRequests { get; set; }
-        public int PersistentConnectionsPerHostname { get; set; }
-        public int MaximumPersistentConnections { get; set; }
+
+        public string SlaveIP { get; set; }
+        public string SlaveHostName { get; set; }
+        public int SlavePort { get; set; }
     }
-    /// <summary>
-    /// </summary>
     public class FastConcurrencyResults : PublishItem {
-        /// <summary>
-        /// TileStressTest- or StressTest.ToString(). Link to correct test using the vApus props (which slave for instance).
-        /// </summary>
-        public string Test { get; set; }
         public long StartMeasuringTimeInMillisecondsSinceEpochUtc { get; set; }
         public long EstimatedTimeLeftInMilliseconds { get; set; }
         /// <summary>
@@ -166,14 +132,7 @@ namespace vApus.Publish {
         /// </summary>
         public string StressTestStatus { get; set; }
     }
-    /// <summary>
-    /// Use the timestamps to link to the right concurrency.
-    /// </summary>
     public class FastRunResults : PublishItem {
-        /// <summary>
-        /// TileStressTest- or StressTest.ToString(). Link to correct test using the vApus props (which slave for instance).
-        /// </summary>
-        public string Test { get; set; }
         public long StartMeasuringTimeInMillisecondsSinceEpochUtc { get; set; }
         public long EstimatedTimeLeftInMilliseconds { get; set; }
         /// <summary>
@@ -211,20 +170,8 @@ namespace vApus.Publish {
         /// </summary>
         public string StressTestStatus { get; set; }
     }
-    /// <summary>
-    /// <para>PublishItemId should be StressTest.ToString() or TileStressTest.ToString().</para> 
-    /// </summary>
+
     public class RequestResults : PublishItem {
-        /// <summary>
-        /// TileStressTest- or StressTest.ToString(). Link to correct test using the vApus props (which slave for instance).
-        /// </summary>
-        public string Test { get; set; }
-        /// <summary>
-        /// Must be unique for each run. (The concurrency can be duplicate. That is why we have a seperate Id.)
-        /// </summary>
-        public string RunId { get; set; }
-        public int Concurrency { get; set; }
-        public int Run { get; set; }
         public string VirtualUser { get; set; }
         public string UserAction { get; set; }
         public string RequestIndex { get; set; }
@@ -253,13 +200,7 @@ namespace vApus.Publish {
         /// </summary>
         public int Rerun { get; set; }
     }
-    /// <summary>
-    /// </summary>
     public class ClientMonitorMetrics : PublishItem {
-        /// <summary>
-        /// DistributedTest-, TileStressTest- or StressTest.ToString(). Link to correct test using the vApus props (which slave for instance).
-        /// </summary>
-        public string Test { get; set; }
         public int BusyThreadCount { get; set; }
         public float CPUUsageInPercent { get; set; }
         public uint MemoryUsageInMB { get; set; }
@@ -270,21 +211,15 @@ namespace vApus.Publish {
         public float NicReceivedInPercent { get; set; }
     }
     /// <summary>
+    /// A stress test or distributed test message.
     /// </summary>
     public class TestMessage : PublishItem {
-        /// <summary>
-        /// DistributedTest-, TileStressTest- or StressTest.ToString(). Link to correct test using the vApus props (which slave for instance).
-        /// </summary>
-        public string Test { get; set; }
         /// <summary>
         /// 0 = info, 1 = warning, 2 = error
         /// </summary>
         public int Level { get; set; }
         public string Body { get; set; }
     }
-    /// <summary>
-    /// Belongs to the last generated result set Id if any. That way you can see what stuff went wrong during a test. Can contain false positives though.
-    /// </summary>
     internal class ApplicationLogEntry : PublishItem {
         /// <summary>
         /// 0 = info, 1 = warning, 2 = error, 3 = fatal
@@ -297,32 +232,15 @@ namespace vApus.Publish {
         public string SourceFile { get; set; }
         public int Line { get; set; }
     }
-    /// <summary>
-    /// </summary>
     public class MonitorConfiguration : PublishItem {
-        /// <summary>
-        /// TileStressTest- or StressTest.ToString(), if any. Link to correct test using the vApus props (which slave for instance).
-        /// Even though this can be a tile stress test, monitors are always executed from the master. 
-        /// You link a monitor to a certain test to get the time based averages for a certain test on the vApus GUI.
-        /// </summary>
-        public string Test { get; set; }
-        public string Monitor { get; set; }
         public string MonitorSource { get; set; }
-        /// <summary>
-        /// Parameter names and values. Do not put passwords in here.
-        /// </summary>
+        //Do not put passwords in here.
         public KeyValuePair<string, string>[] Parameters { get; set; }
     }
-    /// <summary>
-    /// </summary>
     public class MonitorHardwareConfiguration : PublishItem {
-        public string Monitor { get; set; }
         public string HardwareConfiguration { get; set; }
     }
-    /// <summary>
-    /// </summary>
     public class MonitorMetrics : PublishItem {
-        public string Monitor { get; set; }
         public string[] Headers { get; set; }
         public object[] Values { get; set; }
     }

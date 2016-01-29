@@ -45,9 +45,6 @@ namespace vApus.Publish {
             txtTcpHost.Text = Publisher.Settings.TcpHost;
             nudTcpPort.Value = Publisher.Settings.TcpPort;
 
-            chkUdpBroadcast.Checked = Publisher.Settings.UdpBroadcastOutput;
-            nudBroadcastPort.Value = Publisher.Settings.UdpBroadcastPort;
-
             EnableDisable(Publisher.Settings.PublisherEnabled);
         }
         private void SaveSettings() {
@@ -68,9 +65,6 @@ namespace vApus.Publish {
             Publisher.Settings.TcpOutput = chkTcp.Checked;
             Publisher.Settings.TcpHost = txtTcpHost.Text;
             Publisher.Settings.TcpPort = (ushort)nudTcpPort.Value;
-
-            Publisher.Settings.UdpBroadcastOutput = chkUdpBroadcast.Checked;
-            Publisher.Settings.UdpBroadcastPort = (ushort)nudBroadcastPort.Value;
 
             Publisher.Settings.Save();
             Publisher.Clear();

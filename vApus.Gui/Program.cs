@@ -18,6 +18,7 @@ using System.Windows.Forms;
 using vApus.Gui.Properties;
 using vApus.Link;
 using vApus.Publish;
+using vApus.Util;
 
 namespace vApus.Gui {
     internal static class Program {
@@ -28,6 +29,8 @@ namespace vApus.Gui {
         private static void Main(string[] args) {
             ProfileOptimization.SetProfileRoot(Application.StartupPath);
             ProfileOptimization.StartProfile("Startup.Profile");
+
+            NamedObjectRegistrar.RegisterOrUpdate("IsMaster", true);
 
             Publisher.Init();
             Loggers.GetLogger<FileLogger>().CurrentLevel = (Level)Settings.Default.LogLevel;

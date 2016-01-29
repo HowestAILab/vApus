@@ -14,6 +14,7 @@ using System.Threading;
 using System.Timers;
 using System.Windows.Forms;
 using vApus.Monitor;
+using vApus.Publish;
 using vApus.Results;
 using vApus.SolutionTree;
 using vApus.StressTest;
@@ -30,7 +31,7 @@ namespace vApus.DistributedTest {
         private readonly object _lock = new object();
 
         private readonly StressTest.StressTest _stressTest;
-        private string _tileStressTestIndex;
+        private string _tileStressTest, _tileStressTestIndex, _resultSetId, _distributedTest;
 
         /// <summary>
         ///     In seconds how fast the stress test progress will be updated.
@@ -60,6 +61,7 @@ namespace vApus.DistributedTest {
         #endregion
 
         #region Properties
+
         /// <summary>
         ///     Store to identify the right stress test.
         /// </summary>
@@ -67,7 +69,18 @@ namespace vApus.DistributedTest {
             get { return _tileStressTestIndex; }
             set { _tileStressTestIndex = value; }
         }
-
+        public string TileStressTest {
+            get { return _tileStressTest; }
+            set { _tileStressTest = value; }
+        }
+        public string ResultSetId {
+            get { return _resultSetId; }
+            set { _resultSetId = value; }
+        }
+        public string DistributedTest {
+            get { return _distributedTest; }
+            set { _distributedTest = value; }
+        }
         public RunSynchronization RunSynchronization { get; set; }
         public int MaxRerunsBreakOnLast { get; set; }
         public StressTestResult StressTestResult {
@@ -162,6 +175,8 @@ namespace vApus.DistributedTest {
 
                     _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                     ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
+
+                    PublishConfiguration();
                 } catch (Exception ex) {
                     Stop(ex);
 
@@ -268,6 +283,8 @@ namespace vApus.DistributedTest {
             _progressCountDown = PROGRESSUPDATEDELAY;
 
             SendPushMessage(RunStateChange.None, false, false);
+
+            PublishProgress(RunStateChange.None);
         }
 
         private void _stressTestCore_StressTestStarted(object sender, StressTestResultEventArgs e) {
@@ -282,7 +299,11 @@ namespace vApus.DistributedTest {
             fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result, _stressTest.SimplifiedFastResults), true);
             fastResultsControl.SetRerunning(false);
         }
-        private void _stressTestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) { SendPushMessage(RunStateChange.None, false, true); }
+        private void _stressTestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) {
+            SendPushMessage(RunStateChange.None, false, true);
+
+            PublishProgress(RunStateChange.None);
+        }
 
         private void _stressTestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
             StopProgressDelayCountDown();
@@ -291,6 +312,8 @@ namespace vApus.DistributedTest {
             fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults), false);
 
             SendPushMessage(RunStateChange.ToRunInitializedFirstTime, false, false);
+
+            PublishProgress(RunStateChange.ToRunInitializedFirstTime);
 
             fastResultsControl.SetRerunning(false);
 
@@ -302,11 +325,21 @@ namespace vApus.DistributedTest {
         }
 
         private void _stressTestCore_RunStarted(object sender, RunResultEventArgs e) { _canUpdateMetrics = true; }
-        private void _stressTestCore_RunDoneOnce(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRunDoneOnce, false, false); }
-        private void _stressTestCore_RerunDone(object sender, EventArgs e) { SendPushMessage(RunStateChange.ToRerunDone, false, false); }
+        private void _stressTestCore_RunDoneOnce(object sender, EventArgs e) {
+            SendPushMessage(RunStateChange.ToRunDoneOnce, false, false);
+
+            PublishProgress(RunStateChange.ToRunDoneOnce);
+        }
+        private void _stressTestCore_RerunDone(object sender, EventArgs e) {
+            SendPushMessage(RunStateChange.ToRerunDone, false, false);
+
+            PublishProgress(RunStateChange.ToRerunDone);
+        }
         private void _stressTestCore_RunStopped(object sender, RunResultEventArgs e) {
             _canUpdateMetrics = false;
             SendPushMessage(RunStateChange.None, true, false);
+
+            PublishProgress(RunStateChange.None);
         }
 
         /// <summary>
@@ -354,6 +387,8 @@ namespace vApus.DistributedTest {
                 }
 
                 SendPushMessage(RunStateChange.None, false, false);
+
+                PublishProgress(RunStateChange.None);
             } else {
                 Solution.ExplicitCancelFormClosing = true;
                 e.Cancel = true;
@@ -415,6 +450,8 @@ namespace vApus.DistributedTest {
                 }
 
                 SendPushMessage(RunStateChange.None, false, false);
+
+                PublishProgress(RunStateChange.None);
             } catch (Exception eeee) {
                 MessageBox.Show(eeee.ToString());
                 Loggers.Log(Level.Error, "Failed stopping the test.", eeee);
@@ -465,6 +502,160 @@ namespace vApus.DistributedTest {
             }
         }
         #endregion
+
+
+        #region Publish
+        private void PublishConfiguration() {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsConfiguration) {
+                var publishItem = new TileStressTestConfiguration();
+#warning set distributed test
+                publishItem.DistributedTest = "";
+                publishItem.TileStressTest = _tileStressTest;
+                publishItem.Description = _stressTest.Description;
+                publishItem.Tags = _stressTest.Tags;
+                publishItem.Connection = _stressTest.Connection.ToString();
+                publishItem.ConnectionProxy = _stressTest.ConnectionProxy;
+
+                var scenariosAndWeights = new KeyValuePair<string, uint>[_stressTest.Scenarios.Length];
+                for (int i = 0; i != _stressTest.Scenarios.Length; i++) {
+                    var kvp = _stressTest.Scenarios[i];
+                    scenariosAndWeights[i] = new KeyValuePair<string, uint>(kvp.Key.ToString(), kvp.Value);
+                }
+                publishItem.ScenariosAndWeights = scenariosAndWeights;
+
+                publishItem.ScenarioRuleSet = _stressTest.ScenarioRuleSet;
+
+#warning set monitors?
+                var monitors = new string[_stressTest.Monitors.Length];
+                for (int i = 0; i != _stressTest.Monitors.Length; i++)
+                    monitors[i] = _stressTest.Monitors[i].ToString();
+
+                publishItem.Monitors = monitors;
+
+                publishItem.Concurrencies = _stressTest.Concurrencies;
+                publishItem.Runs = _stressTest.Runs;
+                publishItem.InitialMinimumDelayInMilliseconds = _stressTest.InitialMinimumDelay;
+                publishItem.InitialMaximumDelayInMilliseconds = _stressTest.InitialMaximumDelay;
+                publishItem.MinimumDelayInMilliseconds = _stressTest.MinimumDelay;
+                publishItem.MaximumDelayInMilliseconds = _stressTest.MaximumDelay;
+                publishItem.Shuffle = _stressTest.Shuffle;
+                publishItem.ActionDistribution = _stressTest.ActionDistribution;
+                publishItem.MaximumNumberOfUserActions = _stressTest.MaximumNumberOfUserActions;
+                publishItem.MonitorBeforeInMinutes = _stressTest.MonitorBefore;
+                publishItem.MonitorAfterInMinutes = _stressTest.MonitorAfter;
+                publishItem.UseParallelExecutionOfRequests = _stressTest.UseParallelExecutionOfRequests;
+                publishItem.PersistentConnectionsPerHostname = _stressTest.PersistentConnectionsPerHostname;
+                publishItem.MaximumPersistentConnections = _stressTest.MaximumPersistentConnections;
+
+                Publisher.Post(publishItem, _resultSetId);
+            }
+        }
+
+        private void PublishProgress(RunStateChange runStateChange) {
+            PublishFastConcurencyResults(runStateChange);
+            PublishFastRunResults(runStateChange);
+            PublishClientMonitoring();
+        }
+        private void PublishFastConcurencyResults(RunStateChange runStateChange) {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastConcurrencyResults && _stressTestMetricsCache != null) {
+                List<StressTestMetrics> metrics = _stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults);
+                if (metrics.Count != 0) {
+                    StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
+                    var publishItem = new FastConcurrencyResults();
+                    publishItem.Test = _tileStressTest;
+                    publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
+                    publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
+                    publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
+                    publishItem.Concurrency = lastMetrics.Concurrency;
+
+                    publishItem.RequestsProcessed = lastMetrics.RequestsProcessed;
+                    publishItem.Requests = lastMetrics.Requests;
+
+                    publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
+
+                    publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
+                    publishItem.AverageResponseTimeInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
+                    publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
+                    publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
+                    publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
+                    publishItem.AverageTop5ResponseTimesInMilliseconds = (long)lastMetrics.AverageTop5ResponseTimes.TotalMilliseconds;
+                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageDelay.TotalMilliseconds;
+                    publishItem.Errors = (long)lastMetrics.Errors;
+
+                    publishItem.RunStateChange = runStateChange.ToString();
+                    publishItem.StressTestStatus = _stressTestStatus.ToString();
+
+                    Publisher.Post(publishItem, _resultSetId);
+                }
+            }
+        }
+
+        private void PublishFastRunResults(RunStateChange runStateChange) {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastRunResults && _stressTestMetricsCache != null) {
+                List<StressTestMetrics> metrics = _stressTestMetricsCache.GetRunMetrics(_stressTest.SimplifiedFastResults);
+                if (metrics.Count != 0) {
+                    StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
+                    var publishItem = new FastRunResults();
+                    publishItem.Test = _tileStressTest;
+                    publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
+                    publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
+                    publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
+                    publishItem.Concurrency = lastMetrics.Concurrency;
+
+                    publishItem.Run = lastMetrics.Run;
+                    publishItem.RerunCount = lastMetrics.RerunCount;
+
+                    publishItem.RequestsProcessed = lastMetrics.RequestsProcessed;
+                    publishItem.Requests = lastMetrics.Requests;
+
+                    publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
+
+                    publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
+                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
+                    publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
+                    publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
+                    publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
+                    publishItem.AverageTop5ResponseTimesInMilliseconds = (long)lastMetrics.AverageTop5ResponseTimes.TotalMilliseconds;
+                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageDelay.TotalMilliseconds;
+                    publishItem.Errors = (long)lastMetrics.Errors;
+
+                    publishItem.RunStateChange = runStateChange.ToString();
+                    publishItem.StressTestStatus = _stressTestStatus.ToString();
+
+                    Publisher.Post(publishItem, _resultSetId);
+                }
+            }
+        }
+
+        private void PublishClientMonitoring() {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
+                var publishItem = new ClientMonitorMetrics();
+                publishItem.Test = _tileStressTest;
+                publishItem.BusyThreadCount = _stressTestCore == null || _stressTestCore.IsDisposed ? 0 : _stressTestCore.BusyThreadCount;
+                publishItem.CPUUsageInPercent = LocalMonitor.CPUUsage;
+                publishItem.MemoryUsageInMB = LocalMonitor.MemoryUsage;
+                publishItem.TotalVisibleMemoryInMB = LocalMonitor.TotalVisibleMemory;
+                publishItem.Nic = LocalMonitor.Nic;
+                publishItem.NicBandwidthInMbps = LocalMonitor.NicBandwidth;
+                publishItem.NicSentInPercent = LocalMonitor.NicSent;
+                publishItem.NicReceivedInPercent = LocalMonitor.NicReceived;
+
+                Publisher.Post(publishItem, _resultSetId);
+            }
+        }
+
+        private void PublishMessage(int level, string message) {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsMessages && level >= Publisher.Settings.MessageLevel) {
+                var publishItem = new TestMessage();
+                publishItem.Test = _tileStressTest;
+                publishItem.Level = level;
+                publishItem.Body = message;
+
+                Publisher.Post(publishItem, _resultSetId);
+            }
+        }
+        #endregion
+
 
         #endregion
     }

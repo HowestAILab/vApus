@@ -93,6 +93,9 @@ namespace vApus.DistributedTest {
                         Loggers.Log(Level.Warning, "Failed hiding solution explorer.", ex, new object[] { message });
                     }
                 }, null);
+
+                NamedObjectRegistrar.RegisterOrUpdate("IsMaster", false);
+
                 //init the send queue for push messages.
                 _sendQueue = new BackgroundWorkQueue();
 
@@ -143,7 +146,10 @@ namespace vApus.DistributedTest {
                     Retry:
                         try {
                             _tileStressTestView = SolutionComponentViewManager.Show(stressTestWrapper.StressTest, typeof(TileStressTestView)) as TileStressTestView;
+                            _tileStressTestView.DistributedTest = stressTestWrapper.DistributedTest;
+                            _tileStressTestView.TileStressTest = stressTestWrapper.TileStressTest;
                             _tileStressTestView.TileStressTestIndex = stressTestWrapper.TileStressTestIndex;
+                            _tileStressTestView.ResultSetId = stressTestWrapper.PublishResultSetId;
                             _tileStressTestView.RunSynchronization = stressTestWrapper.RunSynchronization;
                             _tileStressTestView.MaxRerunsBreakOnLast = stressTestWrapper.MaxRerunsBreakOnLast;
 

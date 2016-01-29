@@ -6,6 +6,8 @@
  *    Dieter Vandroemme
  */
 using RandomUtils.Log;
+using System.Diagnostics;
+using System.Net;
 using vApus.Util;
 
 namespace vApus.Publish {
@@ -15,13 +17,38 @@ namespace vApus.Publish {
     public static class Publisher {
         private static Properties.Settings _settings = Properties.Settings.Default;
         private static bool _inited = false;
+        private static readonly object _lock = new object();
+
+        private static MulticastBlock _destinations = new MulticastBlock();
+
+        private static string _lastGeneratedResultSetId;
 
         /// <summary>
         /// Use these settings to determine if a value can be published, where you want to call Post(string id, object message).
         /// </summary>
         public static Properties.Settings Settings { get { return _settings; } }
 
-        private static MulticastBlock _destinations = new MulticastBlock();
+        /// <summary>
+        /// Set should only be used for a slave --> a master generated the result set id.
+        /// </summary>
+        public static string LastGeneratedResultSetId {
+            get { lock (_lock) return _lastGeneratedResultSetId; }
+            set { lock (_lock) _lastGeneratedResultSetId = value; }
+        }
+
+        /// <summary>
+        /// <para>Call this when a Test or a standalone monitor is started.</para>
+        /// <para>Use this to generate a result set id. It will be set on Post(...) to the publish item.</para>
+        /// <para>This value is used to link all publish items that belong to one another. </para>
+        /// <para>Call ClearResultSetId when a test or a monitor is stopped.</para>
+        /// </summary>
+        /// <returns></returns>
+        public static string GenerateResultSetId() {
+            lock (_lock) {
+                _lastGeneratedResultSetId = Dns.GetHostEntry(IPAddress.Loopback).HostName + Process.GetCurrentProcess().Id + HighResolutionDateTime.UtcNow.Ticks;
+                return _lastGeneratedResultSetId;
+            }
+        }
 
         /// <summary>
         /// Must be called as early as possible to enable capturing application logging.
@@ -32,29 +59,30 @@ namespace vApus.Publish {
                 _inited = true;
             }
         }
-
         /// <summary>
-        /// Will only post if Settings.PublisherEnabled.
+        /// <para>Will only post if Settings.PublisherEnabled.</para> 
+        /// <para>Following must be vailable in NamedObjectRegistrar: string Host, int Port, string Version, string Channel, bool IsMaster</para> 
         /// </summary>
-        /// <param name="id">e.g. The tostring of a stress test. Does not have to be unique persee. Only useful for you own logic later on.</param>
-        /// <param name="message"></param>
-        /// <returns>The fully qualified id of the destination group. (one message to multiple destinations)</returns>
-        public static string Post(string id, PublishItem message) {
+        /// <param name="item"></param>
+        /// <param name="resultSetId">If null, the last generated one will be used.Can be null, not adviced.</param>
+        public static void Post(PublishItem item, string resultSetId) {
             if (Settings.PublisherEnabled) {
-                message.PublishItemId = id;
+                item.Init(resultSetId ?? LastGeneratedResultSetId, NamedObjectRegistrar.Get<string>("Host"), NamedObjectRegistrar.Get<int>("Port"),
+                    NamedObjectRegistrar.Get<string>("Version"), NamedObjectRegistrar.Get<string>("Channel"),
+                    NamedObjectRegistrar.Get<bool>("IsMaster"));
 
                 string destinationGroupId;
-                TryAddDestination(message, out destinationGroupId);
+                TryAddDestination(item, out destinationGroupId);
 
-                _destinations.Post(destinationGroupId, message);
+                _destinations.Post(destinationGroupId, item);
 
-                return destinationGroupId;
             }
-            return null;
         }
 
         private static bool TryAddDestination(PublishItem message, out string destinationGroupId) {
-            destinationGroupId = message.PublishItemId.ReplaceInvalidWindowsFilenameChars('_').Replace(" ", "_") + "_" + message.PublishItemType + "_" + message.vApusPID;
+            //Only handy for real multicast / broadcast destinations like file or udp. Not used atm.
+            //destinationGroupId = message.PublishItemId.ReplaceInvalidWindowsFilenameChars('_').Replace(" ", "_") + "_" + message.PublishItemType + "_" + message.ResultSetId;
+            destinationGroupId = "stub";
 
             if (_destinations.Contains(destinationGroupId)) return false;
 
@@ -65,9 +93,7 @@ namespace vApus.Publish {
                 }
                 _destinations.Add(destinationGroupId, tcpDestination);
             }
-            if (_settings.UdpBroadcastOutput) {
-                _destinations.Add(destinationGroupId, new UdpBroadcastDestination(_settings.UdpBroadcastPort) { Formatter = new JSONFormatter() });
-            }
+
             return true;
         }
 
@@ -76,7 +102,6 @@ namespace vApus.Publish {
         private static void Publisher_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
             if (Settings.PublisherEnabled && Settings.PublishApplicationLogs && (ushort)e.Entry.Level >= Settings.LogLevel) {
                 var publishItem = new ApplicationLogEntry();
-                publishItem.Init();
                 publishItem.Level = (int)e.Entry.Level;
                 publishItem.Description = e.Entry.Description;
                 publishItem.Exception = e.Entry.Exception.ToString();
@@ -85,7 +110,7 @@ namespace vApus.Publish {
                 publishItem.SourceFile = e.Entry.SourceFile;
                 publishItem.Line = e.Entry.Line;
 
-                Post("vApus", publishItem);
+                Post(publishItem, LastGeneratedResultSetId);
             }
         }
 

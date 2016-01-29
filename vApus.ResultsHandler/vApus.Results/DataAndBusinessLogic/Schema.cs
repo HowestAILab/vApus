@@ -13,11 +13,11 @@ namespace vApus.Results {
     /// <summary>
     /// Only used for building a new results database.
     /// </summary>
-    internal static class Schema {
+    public static class Schema {
         /// <summary>
         /// </summary>
         /// <returns>The database name.</returns>
-        internal static string Build() {
+        public static string Build() {
             DatabaseActions databaseActions = GetDatabaseActions();
             string databaseName = CreateDatabase(databaseActions);
             ReleaseConnection(databaseActions);
@@ -140,7 +140,7 @@ TimeStamp datetime(6) NOT NULL, Value longtext NOT NULL) ROW_FORMAT=COMPRESSED")
             return new DatabaseActions { ConnectionString = connectionString };
         }
 
-        internal static DatabaseActions GetDatabaseActionsUsingDatabase(string databaseName) {
+        public static DatabaseActions GetDatabaseActionsUsingDatabase(string databaseName) {
             string connectionString = ConnectionStringManager.GetCurrentConnectionString(databaseName);
 
             if (string.IsNullOrEmpty(connectionString)) throw new Exception("No MySQL connection was set.");

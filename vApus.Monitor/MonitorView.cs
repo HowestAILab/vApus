@@ -40,7 +40,7 @@ namespace vApus.Monitor {
 
         private int _refreshTimeInMS;
 
-        private bool _forStressTest;
+        private string _test;
         private string _previousFilter;
         private MonitorSourceClient _previousMonitorSourceForParameters;
 
@@ -370,7 +370,7 @@ namespace vApus.Monitor {
                     string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
                     Loggers.Log(Level.Error, message, exception);
 
-                    if (!_forStressTest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (_test == null) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     btnSetDefaultWiw.Enabled = false;
                 } else {
@@ -754,7 +754,7 @@ namespace vApus.Monitor {
                      "Are you sure you want to start a new monitor?\nThis will clear the previous measured performance counters.",
                      string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) ==
                  DialogResult.Yes)) {
-                _forStressTest = false;
+                _test = null;
                 Start();
             }
         }
@@ -1179,15 +1179,47 @@ namespace vApus.Monitor {
         #endregion
 
         #region Publish
+        private string _resultSetId;
         private bool CanPublish() { return Publisher.Settings.PublisherEnabled && _monitorSourceClient != null; }
 
+        private void PublishConfiguration() {
+            if (CanPublish() && Publisher.Settings.PublishMonitorsConfiguration) {
+                //Do not generate if a parent test generated one already.
+                _resultSetId = _test == null ? Publisher.GenerateResultSetId() : Publisher.LastGeneratedResultSetId;
+
+                var publishItem = new MonitorConfiguration();
+                publishItem.Test = _test ?? string.Empty;
+                publishItem.Monitor = Monitor.ToString();
+                publishItem.MonitorSource = _monitor.MonitorSourceName;
+
+                var parameters = new List<KeyValuePair<string, string>>();
+                foreach (Parameter parameter in _monitorSourceClient.Parameters)
+                    if (parameter.Name.ToLower() != "password")
+                        parameters.Add(new KeyValuePair<string, string>(parameter.Name, parameter.Value.ToString()));
+
+                publishItem.Parameters = parameters.ToArray();
+
+                Publisher.Post(publishItem, _resultSetId);
+            }
+        }
+
+        private void PublishHardwareConfiguration() {
+            if (CanPublish() && Publisher.Settings.PublishMonitorsHardwareConfiguration) {
+                var publishItem = new MonitorHardwareConfiguration();
+                publishItem.Monitor = _monitor.ToString();
+                publishItem.HardwareConfiguration = _hardwareConfiguration;
+
+                Publisher.Post(publishItem, _resultSetId);
+            }
+        }
+
         private void PublishProgress() {
-            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsMetrics) {
+            if (CanPublish() && Publisher.Settings.PublishMonitorsMetrics) {
                 MonitorResult monitorResult = GetMonitorResultCache();
 
                 if (monitorResult.Rows.Count != 0) {
                     var publishItem = new Publish.MonitorMetrics();
-                    publishItem.Init();
+                    publishItem.Monitor = _monitor.ToString();
                     publishItem.Headers = monitorResult.Headers;
                     publishItem.Headers[0] = "TimestampInMillisecondsSinceEpoch";
 
@@ -1201,37 +1233,11 @@ namespace vApus.Monitor {
 
                     publishItem.Values = row;
 
-                    Publish.Publisher.Post(_monitor.ToString(), publishItem);
+                    Publisher.Post(publishItem, _resultSetId);
                 }
             }
         }
 
-        private void PublishConfiguration() {
-            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsConfiguration) {
-                var publishItem = new MonitorConfiguration();
-                publishItem.Init();
-                publishItem.MonitorSource = _monitor.MonitorSourceName;
-
-                var parameters = new List<KeyValuePair<string, string>>();
-                foreach (Parameter parameter in _monitorSourceClient.Parameters)
-                    if (parameter.Name.ToLower() != "password")
-                        parameters.Add(new KeyValuePair<string, string>(parameter.Name, parameter.Value.ToString()));
-
-                publishItem.Parameters = parameters.ToArray();
-
-                Publish.Publisher.Post(_monitor.ToString(), publishItem);
-            }
-        }
-
-        private void PublishHardwareConfiguration() {
-            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsHardwareConfiguration) {
-                var publishItem = new MonitorHardwareConfiguration();
-                publishItem.Init();
-                publishItem.HardwareConfiguration = _hardwareConfiguration;
-
-                Publish.Publisher.Post(_monitor.ToString(), publishItem);
-            }
-        }
 
         #endregion
 
@@ -1242,8 +1248,9 @@ namespace vApus.Monitor {
         /// <summary>
         ///     Will stop the previous one first.
         /// </summary>
-        public void InitializeForStressTest() {
-            _forStressTest = true;
+        /// <param name="test">StressTest- or TileStressTest.ToString()</param>
+        public void InitializeForStressTest(string test) {
+            _test = test;
 
             Stop();
 
@@ -1342,7 +1349,7 @@ namespace vApus.Monitor {
 
             } catch (Exception ex) {
                 string message = "Could not connect to the monitor!";
-                if (_forStressTest)
+                if (_test != null)
                     if (OnUnhandledException != null) {
                         var e = new Exception(message);
                         var invocationList = OnHandledException.GetInvocationList();
@@ -1397,7 +1404,7 @@ namespace vApus.Monitor {
 
                 if (!toolStrip.Visible) {
                     //Releasing it from stressTest if any
-                    _forStressTest = false;
+                    _test = null;
 
                     toolStrip.Visible = true;
                     tc.Top = toolStrip.Bottom;

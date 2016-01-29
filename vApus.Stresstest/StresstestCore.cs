@@ -1252,8 +1252,6 @@ namespace vApus.StressTest {
         internal void PublishRequestResults(RequestResult result) {
             if (Publish.Publisher.Settings.PublisherEnabled && Publish.Publisher.Settings.PublishTestRequestResults) {
                 var publishItem = new Publish.RequestResults();
-                publishItem.Init();
-
                 publishItem.VirtualUser = result.VirtualUser;
                 publishItem.UserAction = result.UserAction;
                 publishItem.RequestIndex = result.RequestIndex;
@@ -1266,7 +1264,7 @@ namespace vApus.StressTest {
                 publishItem.Error = result.Error;
                 publishItem.Rerun = result.Rerun;
 
-                Publish.Publisher.Post(_stressTest.ToString(), publishItem);
+               // Publish.Publisher.Post(publishItem, _stressTest.ToString());
             }
         }
 
