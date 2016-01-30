@@ -20,6 +20,7 @@ using vApus.Communication.Shared;
 using vApus.SolutionTree;
 using vApus.StressTest;
 using vApus.Util;
+using vApus.Publish;
 
 namespace vApus.DistributedTest {
     /// <summary>
@@ -159,6 +160,10 @@ namespace vApus.DistributedTest {
                                     stressTestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
                                 _tileStressTestView.StressTestIdInDb = stressTestWrapper.StressTestIdInDb;
                             }
+
+                            Publisher.Settings.TcpOutput = stressTestWrapper.Publish;
+                            Publisher.Settings.TcpHost = stressTestWrapper.PublishHost;
+                            Publisher.Settings.TcpPort = stressTestWrapper.PublishPort;
                         } catch {
                             if (++done != 4) {
                                 Thread.Sleep(1000);

@@ -61,16 +61,25 @@ namespace vApus.Publish {
 
             Publisher.Settings.PublishApplicationLogs = chkApplicationLogs.Checked;
             Publisher.Settings.LogLevel = (ushort)cboLogLevel.SelectedIndex;
-            
+
             Publisher.Settings.TcpOutput = chkTcp.Checked;
-            Publisher.Settings.TcpHost = txtTcpHost.Text;
+            Publisher.Settings.TcpHost = txtTcpHost.Text.ToLowerInvariant().Trim();
             Publisher.Settings.TcpPort = (ushort)nudTcpPort.Value;
 
             Publisher.Settings.Save();
             Publisher.Clear();
         }
 
-        private void btnSet_Click(object sender, EventArgs e) { SaveSettings(); }
+        private void btnSet_Click(object sender, EventArgs e) {
+            SaveSettings();
+            if (Publisher.TryPost()) {
+                string host = Publisher.Settings.TcpHost;
+                if ((host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "0:0:0:0:0:0:0:1"))
+                    MessageBox.Show("The endpoint server must be reachable from a remote location, otherwise distributed testing won't work!\nBe sure that '" + host + "' is what you want.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            } else {
+                MessageBox.Show("Failed to connect to the given endpoint.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
+        }
 
         public override string ToString() { return "Publish values"; }
 

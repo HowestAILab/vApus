@@ -17,7 +17,10 @@ namespace vApus.Publish {
         public IFormatter Formatter { get { return _formatter; } set { _formatter = value; } }
 
         internal object FormatMessage(object message) { return (_formatter == null) ? message : _formatter.Format(message); }
-
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="message"></param>
         public abstract void Post(object message);
     }
 }

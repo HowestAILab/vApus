@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using System;
 using System.IO;
 
 namespace vApus.Publish {

@@ -77,7 +77,7 @@ namespace vApus.Communication.Shared {
         public string PublishResultSetId;
         public bool Publish;
         public string PublishHost;
-        public int PublishPort;
+        public ushort PublishPort;
 
         public RunSynchronization RunSynchronization;
         public int MaxRerunsBreakOnLast;

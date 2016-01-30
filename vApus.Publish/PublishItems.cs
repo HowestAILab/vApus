@@ -22,7 +22,7 @@ using System.Net;
 namespace vApus.Publish {
     public class PublishItem {
         public static readonly DateTime EpochUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
-        
+
         // Use following to link all data together.
         public long PublishItemTimestampInMillisecondsSinceEpochUtc { get; set; }
 
@@ -61,6 +61,10 @@ namespace vApus.Publish {
             this.vApusIsMaster = vApusIsMaster;
         }
     }
+    /// <summary>
+    /// To poll connections.
+    /// </summary>
+    public class Poll : PublishItem { }
     /// <summary>
     /// </summary>
     public class DistributedTestConfiguration : PublishItem {

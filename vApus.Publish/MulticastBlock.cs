@@ -25,7 +25,7 @@ namespace vApus.Publish {
         /// </summary>
         /// <param name="destinationGroupId"></param>
         /// <returns></returns>
-        public bool Contains(string destinationGroupId) { return _destinationGroupIds.Contains(destinationGroupId); }
+        public bool Contains(string destinationGroupId) { return _internalStore.ContainsKey(destinationGroupId) && _destinationGroupIds.Contains(destinationGroupId); }
 
         /// <summary>
         /// 
@@ -37,6 +37,19 @@ namespace vApus.Publish {
             _destinationGroupIds.Add(destinationGroupId);
 
             _internalStore[destinationGroupId].Add(item);
+        }
+  
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="destinationGroupId"></param>
+        /// <returns></returns>
+        public bool Remove(string destinationGroupId) {
+            bool removed = true;
+            HashSet<IDestination> value;
+            if (!_internalStore.TryRemove(destinationGroupId, out value)) removed = false;
+            if (!_destinationGroupIds.Remove(destinationGroupId)) removed = false;
+            return removed;
         }
 
         /// <summary>

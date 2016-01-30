@@ -6,6 +6,8 @@
  *    Dieter Vandroemme
  */
 using RandomUtils.Log;
+using System;
+using System.Collections;
 using System.Diagnostics;
 using System.Net;
 using vApus.Util;
@@ -66,31 +68,56 @@ namespace vApus.Publish {
         /// <param name="item"></param>
         /// <param name="resultSetId">If null, the last generated one will be used.Can be null, not adviced.</param>
         public static void Post(PublishItem item, string resultSetId) {
-            if (Settings.PublisherEnabled) {
-                item.Init(resultSetId ?? LastGeneratedResultSetId, NamedObjectRegistrar.Get<string>("Host"), NamedObjectRegistrar.Get<int>("Port"),
-                    NamedObjectRegistrar.Get<string>("Version"), NamedObjectRegistrar.Get<string>("Channel"),
-                    NamedObjectRegistrar.Get<bool>("IsMaster"));
+            try {
+                if (Settings.PublisherEnabled) {
+                    item.Init(resultSetId ?? LastGeneratedResultSetId, NamedObjectRegistrar.Get<string>("Host"), NamedObjectRegistrar.Get<int>("Port"),
+                        NamedObjectRegistrar.Get<string>("Version"), NamedObjectRegistrar.Get<string>("Channel"),
+                        NamedObjectRegistrar.Get<bool>("IsMaster"));
 
-                string destinationGroupId;
-                TryAddDestination(item, out destinationGroupId);
-
-                _destinations.Post(destinationGroupId, item);
-
+                    //Only handy for real multicast / broadcast destinations like file or udp. Not used atm.
+                    //destinationGroupId = message.PublishItemId.ReplaceInvalidWindowsFilenameChars('_').Replace(" ", "_") + "_" + message.PublishItemType + "_" + message.ResultSetId;
+                    string destinationGroupId = "stub";
+                    TryAddDestination(item, destinationGroupId);
+                    _destinations.Post(destinationGroupId, item);
+                }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed posting.", ex);
             }
         }
+        /// <summary>
+        /// Posts a publish item of the type Poll with an empty result set id.
+        /// </summary>
+        /// <returns></returns>
+        public static bool TryPost() {
+            try {
+                if (Settings.PublisherEnabled) {
+                    var item = new Poll();
+                    item.Init(string.Empty, NamedObjectRegistrar.Get<string>("Host"), NamedObjectRegistrar.Get<int>("Port"),
+                        NamedObjectRegistrar.Get<string>("Version"), NamedObjectRegistrar.Get<string>("Channel"),
+                        NamedObjectRegistrar.Get<bool>("IsMaster"));
 
-        private static bool TryAddDestination(PublishItem message, out string destinationGroupId) {
-            //Only handy for real multicast / broadcast destinations like file or udp. Not used atm.
-            //destinationGroupId = message.PublishItemId.ReplaceInvalidWindowsFilenameChars('_').Replace(" ", "_") + "_" + message.PublishItemType + "_" + message.ResultSetId;
-            destinationGroupId = "stub";
+                    _destinations.Clear();
 
-            if (_destinations.Contains(destinationGroupId)) return false;
+                    string destinationGroupId = "stub";
+                    TryAddDestination(item, destinationGroupId);
+                    _destinations.Post(destinationGroupId, item);
+                }
+            } catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed try posting.", ex);
+                return false;
+            }
+            return true;
+        }
 
+        private static bool TryAddDestination(PublishItem message, string destinationGroupId) {
             if (_settings.TcpOutput && !string.IsNullOrWhiteSpace(_settings.TcpHost)) {
                 var tcpDestination = TcpDestination.GetInstance();
                 if (tcpDestination.Init(_settings.TcpHost, _settings.TcpPort)) {
                     tcpDestination.Formatter = new JSONFormatter();
                 }
+
+                if (_destinations.Contains(destinationGroupId)) return false;
+
                 _destinations.Add(destinationGroupId, tcpDestination);
             }
 
@@ -100,17 +127,22 @@ namespace vApus.Publish {
         internal static void Clear() { _destinations.Clear(); }
 
         private static void Publisher_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
-            if (Settings.PublisherEnabled && Settings.PublishApplicationLogs && (ushort)e.Entry.Level >= Settings.LogLevel) {
-                var publishItem = new ApplicationLogEntry();
-                publishItem.Level = (int)e.Entry.Level;
-                publishItem.Description = e.Entry.Description;
-                publishItem.Exception = e.Entry.Exception.ToString();
-                publishItem.Parameters = e.Entry.Parameters;
-                publishItem.Member = e.Entry.Member;
-                publishItem.SourceFile = e.Entry.SourceFile;
-                publishItem.Line = e.Entry.Line;
+            try {
+                if (Settings.PublisherEnabled && Settings.PublishApplicationLogs && (ushort)e.Entry.Level >= Settings.LogLevel) {
+                    var publishItem = new ApplicationLogEntry();
+                    publishItem.Level = (int)e.Entry.Level;
+                    publishItem.Description = e.Entry.Description;
+                    publishItem.Exception = e.Entry.Exception.ToString();
+                    publishItem.Parameters = e.Entry.Parameters;
+                    publishItem.Member = e.Entry.Member;
+                    publishItem.SourceFile = e.Entry.SourceFile;
+                    publishItem.Line = e.Entry.Line;
 
-                Post(publishItem, LastGeneratedResultSetId);
+                    Post(publishItem, LastGeneratedResultSetId);
+                }
+            } catch (Exception ex) {
+                //Can fail if not connected. Handle like ths to avoid circular error mess.
+                Debug.WriteLine("Failed publishing log entry. Is the publisher connected?" + ex.ToString());
             }
         }
 
