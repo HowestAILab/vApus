@@ -7,7 +7,6 @@
  */
 using RandomUtils.Log;
 using System;
-using System.Collections;
 using System.Diagnostics;
 using System.Net;
 using vApus.Util;
@@ -70,9 +69,7 @@ namespace vApus.Publish {
         public static void Post(PublishItem item, string resultSetId) {
             try {
                 if (Settings.PublisherEnabled) {
-                    item.Init(resultSetId ?? LastGeneratedResultSetId, NamedObjectRegistrar.Get<string>("Host"), NamedObjectRegistrar.Get<int>("Port"),
-                        NamedObjectRegistrar.Get<string>("Version"), NamedObjectRegistrar.Get<string>("Channel"),
-                        NamedObjectRegistrar.Get<bool>("IsMaster"));
+                    InitItem(item, resultSetId ?? LastGeneratedResultSetId);
 
                     //Only handy for real multicast / broadcast destinations like file or udp. Not used atm.
                     //destinationGroupId = message.PublishItemId.ReplaceInvalidWindowsFilenameChars('_').Replace(" ", "_") + "_" + message.PublishItemType + "_" + message.ResultSetId;
@@ -84,6 +81,19 @@ namespace vApus.Publish {
                 Loggers.Log(Level.Error, "Failed posting.", ex);
             }
         }
+        private static void InitItem(PublishItem item, string resultSetId) {
+            item.PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(HighResolutionDateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
+
+            item.ResultSetId = resultSetId;
+
+            item.PublishItemType = item.GetType().Name;
+
+            item.vApusHost = NamedObjectRegistrar.Get<string>("Host");
+            item.vApusPort = NamedObjectRegistrar.Get<int>("Port");
+            item.vApusVersion = NamedObjectRegistrar.Get<string>("Version");
+            item.vApusChannel = NamedObjectRegistrar.Get<string>("Channel");
+            item.vApusIsMaster = NamedObjectRegistrar.Get<bool>("IsMaster");
+        }
         /// <summary>
         /// Posts a publish item of the type Poll with an empty result set id.
         /// </summary>
@@ -92,9 +102,7 @@ namespace vApus.Publish {
             try {
                 if (Settings.PublisherEnabled) {
                     var item = new Poll();
-                    item.Init(string.Empty, NamedObjectRegistrar.Get<string>("Host"), NamedObjectRegistrar.Get<int>("Port"),
-                        NamedObjectRegistrar.Get<string>("Version"), NamedObjectRegistrar.Get<string>("Channel"),
-                        NamedObjectRegistrar.Get<bool>("IsMaster"));
+                    InitItem(item, string.Empty);
 
                     _destinations.Clear();
 

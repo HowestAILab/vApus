@@ -286,6 +286,7 @@ namespace vApus.StressTest {
                 _stressTestCore.RunStarted += _stressTestCore_RunStarted;
                 _stressTestCore.RunStopped += _stressTestCore_RunStopped;
                 _stressTestCore.Message += _stressTestCore_Message;
+                _stressTestCore.OnRequest += _stressTestCore_OnRequest;
 
                 _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                 ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
@@ -301,7 +302,7 @@ namespace vApus.StressTest {
                 }
             }
         }
-
+        
         private void _stressTestCore_TestInitialized(object sender, TestInitializedEventArgs e) {
             _stressTestCore.TestInitialized -= _stressTestCore_TestInitialized;
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
@@ -634,6 +635,9 @@ namespace vApus.StressTest {
             WriteMonitorMetricsToDatabase();
         }
 
+        private void _stressTestCore_OnRequest(object sender, OnRequestEventArgs e) {
+            PublishRequest(e.RequestResults);
+        }
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_progressCountDown--); }
 
         private void tmrProgress_Tick(object sender, EventArgs e) {
@@ -1106,6 +1110,10 @@ namespace vApus.StressTest {
 
                 Publisher.Post(publishItem, _resultSetId);
             }
+        }
+
+        private void PublishRequest(RequestResults requestResults) {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) Publisher.Post(requestResults, _resultSetId);
         }
         #endregion
 

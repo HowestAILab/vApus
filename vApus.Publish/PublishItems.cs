@@ -16,14 +16,11 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Net;
 
 namespace vApus.Publish {
     public class PublishItem {
         public static readonly DateTime EpochUtc = new DateTime(1970, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc);
 
-        // Use following to link all data together.
         public long PublishItemTimestampInMillisecondsSinceEpochUtc { get; set; }
 
         /// <summary>
@@ -38,28 +35,6 @@ namespace vApus.Publish {
         public string vApusVersion { get; set; }
         public string vApusChannel { get; set; }
         public bool vApusIsMaster { get; set; }
-
-        /// <summary>
-        /// You must call Init() when you are posting a new publish item. This should never be called when deserializing.
-        /// </summary>
-        /// <param name="vApusHost"></param>
-        /// <param name="vApusPort"></param>
-        /// <param name="vApusVersion"></param>
-        /// <param name="vApusChannel"></param>
-        internal void Init(string resultSetId, string vApusHost, int vApusPort, string vApusVersion, string vApusChannel, bool vApusIsMaster) {
-            //PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - EpochUtc).TotalMilliseconds;
-            PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(HighResolutionDateTime.UtcNow - EpochUtc).TotalMilliseconds;
-
-            ResultSetId = resultSetId;
-
-            PublishItemType = this.GetType().Name;
-
-            this.vApusHost = vApusHost;
-            this.vApusPort = vApusPort;
-            this.vApusVersion = vApusVersion;
-            this.vApusChannel = vApusChannel;
-            this.vApusIsMaster = vApusIsMaster;
-        }
     }
     /// <summary>
     /// To poll connections.
@@ -79,8 +54,6 @@ namespace vApus.Publish {
     /// <summary>
     /// </summary>
     public class StressTestConfiguration : PublishItem {
-        /// <summary>
-        /// </summary>
         public string StressTest { get; set; }
         public string Description { get; set; }
         public string[] Tags { get; set; }
@@ -107,8 +80,6 @@ namespace vApus.Publish {
     public class TileStressTestConfiguration : PublishItem {
         public string DistributedTest { get; set; }
         public string TileStressTest { get; set; }
-        public string Description { get; set; }
-        public string[] Tags { get; set; }
         public string Connection { get; set; }
         public string ConnectionProxy { get; set; }
         public KeyValuePair<string, uint>[] ScenariosAndWeights { get; set; }
@@ -129,6 +100,7 @@ namespace vApus.Publish {
         public int PersistentConnectionsPerHostname { get; set; }
         public int MaximumPersistentConnections { get; set; }
     }
+
     /// <summary>
     /// </summary>
     public class FastConcurrencyResults : PublishItem {
@@ -170,6 +142,7 @@ namespace vApus.Publish {
         /// </summary>
         public string StressTestStatus { get; set; }
     }
+
     /// <summary>
     /// Use the timestamps to link to the right concurrency.
     /// </summary>
@@ -224,14 +197,17 @@ namespace vApus.Publish {
         /// </summary>
         public string Test { get; set; }
         /// <summary>
-        /// Must be unique for each run. (The concurrency can be duplicate. That is why we have a seperate Id.)
+        /// Must be unique for each concurrency. (The concurrency can be duplicate. That is why we have a seperate Id.)
         /// </summary>
-        public string RunId { get; set; }
+        public int ConcurrencyId { get; set; }
         public int Concurrency { get; set; }
         public int Run { get; set; }
         public string VirtualUser { get; set; }
         public string UserAction { get; set; }
         public string RequestIndex { get; set; }
+        /// <summary>
+        /// Use this to make correct averages for a test with action distribution. This will be empty if not applicable.
+        /// </summary>
         public string SameAsRequestIndex { get; set; }
         public string Request { get; set; }
         public bool InParallelWithPrevious { get; set; }
@@ -313,14 +289,9 @@ namespace vApus.Publish {
         public string Monitor { get; set; }
         public string MonitorSource { get; set; }
         /// <summary>
-        /// Parameter names and values. Do not put passwords in here.
+        /// Parameter names and values. Rather not put passwords in here.
         /// </summary>
         public KeyValuePair<string, string>[] Parameters { get; set; }
-    }
-    /// <summary>
-    /// </summary>
-    public class MonitorHardwareConfiguration : PublishItem {
-        public string Monitor { get; set; }
         public string HardwareConfiguration { get; set; }
     }
     /// <summary>

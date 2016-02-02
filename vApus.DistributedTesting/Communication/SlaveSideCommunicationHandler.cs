@@ -95,13 +95,17 @@ namespace vApus.DistributedTest {
                     }
                 }, null);
 
-                NamedObjectRegistrar.RegisterOrUpdate("IsMaster", false);
-
                 //init the send queue for push messages.
                 _sendQueue = new BackgroundWorkQueue();
 
                 var initializeTestMessage = (InitializeTestMessage)message.Content;
                 var stressTestWrapper = initializeTestMessage.StressTestWrapper;
+
+                NamedObjectRegistrar.RegisterOrUpdate("IsMaster", false);
+                Publisher.Settings.TcpOutput = stressTestWrapper.Publish;
+                Publisher.Settings.TcpHost = stressTestWrapper.PublishHost;
+                Publisher.Settings.TcpPort = stressTestWrapper.PublishPort;
+
                 stressTestWrapper.StressTest.Connection.ConnectionProxy.ForceSettingChildsParent();
                 foreach (var kvp in stressTestWrapper.StressTest.Scenarios) {
                     kvp.Key.ScenarioRuleSet.ForceSettingChildsParent();
@@ -150,6 +154,7 @@ namespace vApus.DistributedTest {
                             _tileStressTestView.DistributedTest = stressTestWrapper.DistributedTest;
                             _tileStressTestView.TileStressTest = stressTestWrapper.TileStressTest;
                             _tileStressTestView.TileStressTestIndex = stressTestWrapper.TileStressTestIndex;
+                            _tileStressTestView.Monitors = stressTestWrapper.Monitors;
                             _tileStressTestView.ResultSetId = stressTestWrapper.PublishResultSetId;
                             _tileStressTestView.RunSynchronization = stressTestWrapper.RunSynchronization;
                             _tileStressTestView.MaxRerunsBreakOnLast = stressTestWrapper.MaxRerunsBreakOnLast;
@@ -160,10 +165,6 @@ namespace vApus.DistributedTest {
                                     stressTestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
                                 _tileStressTestView.StressTestIdInDb = stressTestWrapper.StressTestIdInDb;
                             }
-
-                            Publisher.Settings.TcpOutput = stressTestWrapper.Publish;
-                            Publisher.Settings.TcpHost = stressTestWrapper.PublishHost;
-                            Publisher.Settings.TcpPort = stressTestWrapper.PublishPort;
                         } catch {
                             if (++done != 4) {
                                 Thread.Sleep(1000);

@@ -1,14 +1,10 @@
 ﻿using Newtonsoft.Json.Linq;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
 using System.Net.Sockets;
 using System.Reflection;
 using System.Text;
 using System.Threading;
-using System.Threading.Tasks;
 using vApus.Publish;
 
 namespace vApus.ResultsHandler {
@@ -19,7 +15,7 @@ namespace vApus.ResultsHandler {
 
         static QueuedListener() { }
 
-        public static void Start(int port = 3337) {
+        public static void Start(int port = 4337) {
             _isListening = true;
             _queue = new MessageQueue();
             _queue.OnDequeue += _queue_OnDequeue;
@@ -28,9 +24,13 @@ namespace vApus.ResultsHandler {
             _listener.Start(int.MaxValue);
 
             ThreadPool.QueueUserWorkItem((state) => {
-                while (!_isListening) {
-                    HandleRead(new StreamReader(_listener.AcceptTcpClient().GetStream(), Encoding.UTF8));
-                }
+                while (_isListening)
+                    try {
+                        var client = _listener.AcceptTcpClient();
+                        HandleRead(new StreamReader(client.GetStream(), Encoding.UTF8));
+                    } catch {
+
+                    }
             });
         }
 
@@ -39,15 +39,21 @@ namespace vApus.ResultsHandler {
         }
 
         private static void HandleRead(StreamReader sr) {
-            while (!_isListening) {
-                string msg = sr.ReadLine();
-                dynamic intermediate = JObject.Parse(msg);
-                //A validating step.
-                var item = intermediate.ToObject(Assembly.GetExecutingAssembly().GetType("vApus.Publish." + intermediate.PublishItemType));
-                _queue.Enqueue(item);
-            }
+            ThreadPool.QueueUserWorkItem((state) => {
+            try {
+                while (_isListening) {
+                    string msg = sr.ReadLine();
+                    dynamic intermediate = JObject.Parse(msg);
+                    //A validating step.
+                    var item = intermediate.ToObject(Assembly.GetExecutingAssembly().GetType("vApus.Publish." + intermediate.PublishItemType));
+                    _queue.Enqueue(item);
+                    }
+                } catch {
+
+                }
+            });
         }
 
-        private static void _queue_OnDequeue(object sender, MessageQueue.OnDequeueEventArgs e) { PublishItemHandler.Handle(e.Message as PublishItem); }
+        private static void _queue_OnDequeue(object sender, MessageQueue.OnDequeueEventArgs e) { PublishItemHandler.Handle(e.Messages as PublishItem[]); }
     }
 }

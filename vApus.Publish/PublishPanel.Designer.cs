@@ -282,7 +282,7 @@
             this.nudTcpPort.Size = new System.Drawing.Size(50, 20);
             this.nudTcpPort.TabIndex = 1011;
             this.nudTcpPort.Value = new decimal(new int[] {
-            3337,
+            4337,
             0,
             0,
             0});

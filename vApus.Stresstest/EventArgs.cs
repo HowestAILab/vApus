@@ -9,6 +9,7 @@
  */
 using System;
 using System.Drawing;
+using vApus.Publish;
 using vApus.Results;
 using vApus.Util;
 
@@ -50,6 +51,16 @@ namespace vApus.StressTest {
             Message = message;
             Color = color;
             Level = level;
+        }
+    }
+
+    /// <summary>
+    /// Be carefull when you use this. Only to output results to be handled elsewhere (other process).
+    /// </summary>
+    public class OnRequestEventArgs : EventArgs {
+        public RequestResults RequestResults { get; private set; }
+        public OnRequestEventArgs(RequestResults requestResults) {
+            RequestResults = requestResults;
         }
     }
 }

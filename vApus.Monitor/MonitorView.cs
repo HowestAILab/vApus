@@ -1183,33 +1183,31 @@ namespace vApus.Monitor {
         private bool CanPublish() { return Publisher.Settings.PublisherEnabled && _monitorSourceClient != null; }
 
         private void PublishConfiguration() {
-            if (CanPublish() && Publisher.Settings.PublishMonitorsConfiguration) {
-                //Do not generate if a parent test generated one already.
-                _resultSetId = _test == null ? Publisher.GenerateResultSetId() : Publisher.LastGeneratedResultSetId;
-
+            if (CanPublish()) {
                 var publishItem = new MonitorConfiguration();
-                publishItem.Test = _test ?? string.Empty;
-                publishItem.Monitor = Monitor.ToString();
-                publishItem.MonitorSource = _monitor.MonitorSourceName;
+                bool publish = false; ;
+                if (Publisher.Settings.PublishMonitorsConfiguration) {
+                    publish = true;
+                    publishItem.Test = _test ?? string.Empty;
+                    publishItem.Monitor = Monitor.ToString();
+                    publishItem.MonitorSource = _monitor.MonitorSourceName;
 
-                var parameters = new List<KeyValuePair<string, string>>();
-                foreach (Parameter parameter in _monitorSourceClient.Parameters)
-                    if (parameter.Name.ToLower() != "password")
-                        parameters.Add(new KeyValuePair<string, string>(parameter.Name, parameter.Value.ToString()));
+                    var parameters = new List<KeyValuePair<string, string>>();
+                    foreach (Parameter parameter in _monitorSourceClient.Parameters)
+                        if (parameter.Name.ToLower() != "password")
+                            parameters.Add(new KeyValuePair<string, string>(parameter.Name, parameter.Value.ToString()));
 
-                publishItem.Parameters = parameters.ToArray();
+                    publishItem.Parameters = parameters.ToArray();
+                } else if (Publisher.Settings.PublishMonitorsHardwareConfiguration) {
+                    publish = true;
+                    publishItem.HardwareConfiguration = _hardwareConfiguration;
+                }
 
-                Publisher.Post(publishItem, _resultSetId);
-            }
-        }
-
-        private void PublishHardwareConfiguration() {
-            if (CanPublish() && Publisher.Settings.PublishMonitorsHardwareConfiguration) {
-                var publishItem = new MonitorHardwareConfiguration();
-                publishItem.Monitor = _monitor.ToString();
-                publishItem.HardwareConfiguration = _hardwareConfiguration;
-
-                Publisher.Post(publishItem, _resultSetId);
+                if (publish) {
+                    //Do not generate if a parent test generated one already.
+                    _resultSetId = _test == null ? Publisher.GenerateResultSetId() : Publisher.LastGeneratedResultSetId;
+                    Publisher.Post(publishItem, _resultSetId);
+                }
             }
         }
 
@@ -1367,7 +1365,6 @@ namespace vApus.Monitor {
             }
 
             PublishConfiguration();
-            PublishHardwareConfiguration();
 
             return true;
         }

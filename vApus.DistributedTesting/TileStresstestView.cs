@@ -32,6 +32,7 @@ namespace vApus.DistributedTest {
 
         private readonly StressTest.StressTest _stressTest;
         private string _tileStressTest, _tileStressTestIndex, _resultSetId, _distributedTest;
+        private string[] _monitors;
 
         /// <summary>
         ///     In seconds how fast the stress test progress will be updated.
@@ -80,6 +81,13 @@ namespace vApus.DistributedTest {
         public string DistributedTest {
             get { return _distributedTest; }
             set { _distributedTest = value; }
+        }
+        /// <summary>
+        /// Monitors to string.
+        /// </summary>
+        public string[] Monitors {
+            get { return _monitors; }
+            set { _monitors = value; }
         }
         public RunSynchronization RunSynchronization { get; set; }
         public int MaxRerunsBreakOnLast { get; set; }
@@ -172,6 +180,7 @@ namespace vApus.DistributedTest {
                     _stressTestCore.RerunDone += _stressTestCore_RerunDone;
                     _stressTestCore.RunStopped += _stressTestCore_RunStopped;
                     _stressTestCore.Message += _stressTestCore_Message;
+                    _stressTestCore.OnRequest += _stressTestCore_OnRequest;
 
                     _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                     ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
@@ -342,6 +351,10 @@ namespace vApus.DistributedTest {
             PublishProgress(RunStateChange.None);
         }
 
+        private void _stressTestCore_OnRequest(object sender, OnRequestEventArgs e) {
+            PublishRequest(e.RequestResults);
+        }
+
         /// <summary>
         /// </summary>
         /// <param name="runStateChange"></param>
@@ -508,11 +521,9 @@ namespace vApus.DistributedTest {
         private void PublishConfiguration() {
             if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsConfiguration) {
                 var publishItem = new TileStressTestConfiguration();
-#warning set distributed test
-                publishItem.DistributedTest = "";
+
+                publishItem.DistributedTest = _distributedTest;
                 publishItem.TileStressTest = _tileStressTest;
-                publishItem.Description = _stressTest.Description;
-                publishItem.Tags = _stressTest.Tags;
                 publishItem.Connection = _stressTest.Connection.ToString();
                 publishItem.ConnectionProxy = _stressTest.ConnectionProxy;
 
@@ -525,12 +536,7 @@ namespace vApus.DistributedTest {
 
                 publishItem.ScenarioRuleSet = _stressTest.ScenarioRuleSet;
 
-#warning set monitors?
-                var monitors = new string[_stressTest.Monitors.Length];
-                for (int i = 0; i != _stressTest.Monitors.Length; i++)
-                    monitors[i] = _stressTest.Monitors[i].ToString();
-
-                publishItem.Monitors = monitors;
+                publishItem.Monitors = _monitors;
 
                 publishItem.Concurrencies = _stressTest.Concurrencies;
                 publishItem.Runs = _stressTest.Runs;
@@ -654,6 +660,11 @@ namespace vApus.DistributedTest {
                 Publisher.Post(publishItem, _resultSetId);
             }
         }
+
+        private void PublishRequest(RequestResults requestResults) {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) Publisher.Post(requestResults, _resultSetId);
+        }
+
         #endregion
 
 

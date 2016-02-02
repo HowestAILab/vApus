@@ -23,32 +23,30 @@ namespace vApus.ResultsHandler {
         public MessageQueue(int dequeueTimeInMs = 5000) {
             _tmr = new Timer(dequeueTimeInMs);
             _tmr.Elapsed += _tmr_Elapsed;
+            _tmr.Start();
         }
 
         private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
             if (OnDequeue != null)
                 lock (_lock) {
-                    long count = _queue.LongCount();
-                    for (long l = 0L; l != count; l++) {
+                    var messages = new object[_queue.LongCount()];
+                    for (long l = 0L; l != messages.LongLength; l++) {
                         object message;
-                        if (_queue.TryDequeue(out message)) FireDequeue(message);
+                        if (_queue.TryDequeue(out message))                            messages[l] = message;
                     }
+                    if(OnDequeue != null)
+                        OnDequeue.BeginInvoke(null, new OnDequeueEventArgs(messages), null, null);
                 }
         }
-
-        private void FireDequeue(object message) {
-            if (OnDequeue != null)
-                OnDequeue.BeginInvoke(null, new OnDequeueEventArgs(message), null, null);
-        }
-
+        
         public void Enqueue(PublishItem item) {
             lock (_lock) _queue.Enqueue(item);
         }
 
         public class OnDequeueEventArgs : EventArgs {
-            public object Message { get; private set; }
-            public OnDequeueEventArgs(object message) {
-                Message = message;
+            public object[] Messages { get; private set; }
+            public OnDequeueEventArgs(object[] messages) {
+                Messages = messages;
             }
         }
     }

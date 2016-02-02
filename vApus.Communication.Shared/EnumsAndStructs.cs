@@ -90,6 +90,8 @@ namespace vApus.Communication.Shared {
         public string TileStressTestIndex;
         public string TileStressTest;
         public string DistributedTest;
+
+        public string[] Monitors;
     }
 
     [Serializable]

@@ -222,6 +222,10 @@ namespace vApus.DistributedTest {
 
                 stressTest.ForceSettingChildsParent();
 
+
+                string[] monitors = new string[BasicTileStressTest.Monitors.Length];
+                for (int i = 0; i != monitors.Length; i++) monitors[i] = BasicTileStressTest.Monitors[i].ToString();
+
                 string user, host, password;
                 int port;
                 vApus.Results.ConnectionStringManager.GetCurrentConnectionString(out user, out host, out port, out password);
@@ -232,6 +236,7 @@ namespace vApus.DistributedTest {
                     Publish = Publish.Publisher.Settings.TcpOutput, PublishHost = Publish.Publisher.Settings.TcpHost,
                     PublishPort = Publish.Publisher.Settings.TcpPort,
                     TileStressTest = this.ToString(), TileStressTestIndex = tileStressTestIndex, RunSynchronization = runSynchronization,
+                    Monitors = monitors,
                     MaxRerunsBreakOnLast = maxRerunsBreakOnLast,
                     MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user,
                     MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
