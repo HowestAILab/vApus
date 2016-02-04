@@ -24,7 +24,7 @@ namespace vApus.StressTest {
     /// </summary>
     [Serializable]
     [ContextMenu(new[] { "Activate_Click", "EditPlainText_Click", "Remove_Click", "Export_Click", "ExportScenarioAndUsedParameters_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
-        new[] { "Edit/Import", "Edit plain text", "remove", "Export data structure", "Export scenario and used parameter data sstructures", "Copy", "Cut", "Duplicate" })]
+        new[] { "Edit/Import", "Edit plain text", "Remove", "Export data structure", "Export scenario and used parameter data sstructures", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     public class Scenario : LabeledBaseItem, ISerializable {

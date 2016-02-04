@@ -29,7 +29,7 @@ namespace vApus.StressTest {
         public event EventHandler<StressTestResultEventArgs> StressTestStarted;
         public event EventHandler<ConcurrencyResultEventArgs> ConcurrencyStarted, ConcurrencyStopped;
         public event EventHandler<RunResultEventArgs> RunInitializedFirstTime, RunStarted, RunStopped;
-        public event EventHandler RunDoneOnce, RerunDone;
+        public event EventHandler RunDoneOnce, RerunStarted, RerunDone;
         public event EventHandler<MessageEventArgs> Message;
         /// <summary>
         /// Be carefull when you use this. Only to output results to be handled elsewhere (other process).
@@ -145,7 +145,7 @@ namespace vApus.StressTest {
 
         private void SetConcurrencyStarted(int concurrentUsersIndex) {
             int concurrentUsers = _stressTest.Concurrencies[concurrentUsersIndex];
-            _concurrencyResult = new ConcurrencyResult(concurrentUsers, _stressTest.Runs);
+            _concurrencyResult = new ConcurrencyResult(concurrentUsersIndex, concurrentUsers, _stressTest.Runs);
             _stressTestResult.ConcurrencyResults.Add(_concurrencyResult);
             _resultsHelper.SetConcurrencyStarted(_concurrencyResult);
             InvokeMessage(
@@ -199,7 +199,7 @@ namespace vApus.StressTest {
 
             int concurrentUsers = _stressTest.Concurrencies[concurrentUsersIndex];
 
-            _runResult = new RunResult(run, concurrentUsers);
+            _runResult = new RunResult(concurrentUsersIndex, run, concurrentUsers);
             for (int user = 0; user != concurrentUsers; user++) {
                 //Find the right scenario based on the weight given in the stress test view config.
                 float percentage = ((float)(user + 1)) / concurrentUsers;
@@ -236,6 +236,11 @@ namespace vApus.StressTest {
                 return true;
             }
             return false;
+        }
+
+        public void SetRerunStarted() {
+            if (!_cancel && RerunStarted != null)
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RerunStarted(this, null); }, null);
         }
         /// <summary>
         ///     For run sync (break on last finished)
@@ -827,9 +832,9 @@ namespace vApus.StressTest {
                     //Rerun untill the master sends a break. This is better than recurions --> no stack overflows.
                     //Also breaks after the rerun count == _maxRerunsBreakOnLast.
                     else if (RunSynchronization == RunSynchronization.BreakOnLastFinished && !_break) {
-                        ++_rerun;
                         if (!SetRunDoneOnce())
                             SetRerunDone();
+                        ++_rerun;
 
                         //Allow one last rerun, then wait for the master for a continue, or rerun nfinite.
                         if (MaxRerunsBreakOnLast == 0 || _rerun <= MaxRerunsBreakOnLast) {
@@ -837,6 +842,7 @@ namespace vApus.StressTest {
                             //Increase resultset
                             _runResult.PrepareForRerun();
                             _resultsHelper.SetRerun(_runResult);
+                            SetRerunStarted();
                             goto Rerun;
                         } else {
                             SetRunStopped();
@@ -855,6 +861,7 @@ namespace vApus.StressTest {
 
             return Completed();
         }
+
 
         /// <summary>
         /// Break the current executing run. (Distributed testing)

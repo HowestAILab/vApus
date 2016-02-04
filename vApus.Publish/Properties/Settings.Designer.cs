@@ -193,7 +193,7 @@ namespace vApus.Publish.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3337")]
+        [global::System.Configuration.DefaultSettingValueAttribute("4337")]
         public ushort TcpPort {
             get {
                 return ((ushort)(this["TcpPort"]));

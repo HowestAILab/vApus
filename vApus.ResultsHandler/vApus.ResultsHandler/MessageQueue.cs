@@ -30,15 +30,17 @@ namespace vApus.ResultsHandler {
             if (OnDequeue != null)
                 lock (_lock) {
                     var messages = new object[_queue.LongCount()];
-                    for (long l = 0L; l != messages.LongLength; l++) {
-                        object message;
-                        if (_queue.TryDequeue(out message))                            messages[l] = message;
+                    if (messages.LongLength != 0) {
+                        for (long l = 0L; l != messages.LongLength; l++) {
+                            object message;
+                            if (_queue.TryDequeue(out message)) messages[l] = message;
+                        }
+                        if (OnDequeue != null)
+                            OnDequeue.Invoke(null, new OnDequeueEventArgs(messages));
                     }
-                    if(OnDequeue != null)
-                        OnDequeue.BeginInvoke(null, new OnDequeueEventArgs(messages), null, null);
                 }
         }
-        
+
         public void Enqueue(PublishItem item) {
             lock (_lock) _queue.Enqueue(item);
         }

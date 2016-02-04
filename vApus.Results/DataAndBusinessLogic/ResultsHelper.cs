@@ -9,7 +9,6 @@ using MySql.Data.MySqlClient;
 using RandomUtils;
 using RandomUtils.Log;
 using System;
-using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Data;
 using System.Globalization;
@@ -340,9 +339,9 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
                     var sb = new StringBuilder();
                     foreach (VirtualUserResult virtualUserResult in runResult.VirtualUserResults) {
-                        totalRequestCount += (ulong)virtualUserResult.RequestResults.LongLength;
-
                         if (virtualUserResult != null) {
+                            totalRequestCount += (ulong)virtualUserResult.RequestResults.LongLength;
+
                             var rowsToInsert = new List<string>(); //Insert multiple values at once.
                             foreach (var requestResult in virtualUserResult.RequestResults)
                                 if (requestResult != null && requestResult.VirtualUser != null) {

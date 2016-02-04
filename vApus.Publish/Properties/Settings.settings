@@ -45,7 +45,7 @@
       <Value Profile="(Default)">1</Value>
     </Setting>
     <Setting Name="TcpPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">3337</Value>
+      <Value Profile="(Default)">4337</Value>
     </Setting>
     <Setting Name="PublishTestRequestResults" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>

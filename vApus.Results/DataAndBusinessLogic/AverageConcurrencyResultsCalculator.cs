@@ -136,7 +136,7 @@ namespace vApus.Results {
 
                             int concurrencyResultId = (int)crRow.ItemArray[0];
                             int concurrency = (int)crRow.ItemArray[3];
-                            ConcurrencyResult concurrencyResult = new ConcurrencyResult(concurrency, runs);
+                            ConcurrencyResult concurrencyResult = new ConcurrencyResult(concurrencyResultId, concurrency, runs);
                             concurrencyResultsDic.TryAdd(concurrencyResult, stressTest);
                             concurrencyResult.StartedAt = (DateTime)crRow.ItemArray[1];
                             concurrencyResult.StoppedAt = (DateTime)crRow.ItemArray[2];
@@ -156,7 +156,7 @@ namespace vApus.Results {
 
                                 int runResultId = (int)rrRow.ItemArray[0];
                                 runResultIds[rrRowIndex] = runResultId;
-                                runResultsArr[rrRowIndex] = new RunResult((int)rrRow.ItemArray[1], concurrencyResult.Concurrency);
+                                runResultsArr[rrRowIndex] = new RunResult(concurrencyResult.ConcurrencyId, (int)rrRow.ItemArray[1], concurrencyResult.Concurrency);
 
                                 totalRequestCountsPerUser[rrRowIndex] = (ulong)rrRow.ItemArray[2] / (ulong)concurrencyResult.Concurrency; //Used for adding ampty request results. Needed for correct calcullating metrics for a cancelled or broken test.
                             }

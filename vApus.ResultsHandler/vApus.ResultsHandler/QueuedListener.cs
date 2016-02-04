@@ -54,6 +54,6 @@ namespace vApus.ResultsHandler {
             });
         }
 
-        private static void _queue_OnDequeue(object sender, MessageQueue.OnDequeueEventArgs e) { PublishItemHandler.Handle(e.Messages as PublishItem[]); }
+        private static void _queue_OnDequeue(object sender, MessageQueue.OnDequeueEventArgs e) { PublishItemHandler.Handle(e.Messages); }
     }
 }

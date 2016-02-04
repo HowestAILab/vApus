@@ -14,7 +14,7 @@
                 StopMonitorsAndUnlockGui(null, true);
             } catch { }
             try {
-                Stop_StressTest();
+                Stop_StressTest(StressTestStatus.Cancelled);
             } catch { }
 
             try {

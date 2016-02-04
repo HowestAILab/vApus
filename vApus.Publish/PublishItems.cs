@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2015 (c) Sizing Servers Lab
+ * Copyright 2016 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
@@ -10,9 +10,9 @@
  * The JSON messages from the 'Value publisher' ('Publish values'-panel in vApus options) are serialized from instances of the classes below.
  * The names of those classes and their properties should be descriptive enough.
  * 
- * You can use this file in your own listener implementation, a folder watcher and/or an UDP broadcast listener, to deserialize the JSON messages.
+ * You can use this file in your own listener implementation to deserialize the JSON messages.
  * 
- * If you're implementing a listener in another programming language, you can use the classes below as an example.
+ * If you're implementing a listener in another programming language, you can use the classes below as an example for correctly deserialing.
  */
 using System;
 using System.Collections.Generic;
@@ -136,7 +136,7 @@ namespace vApus.Publish {
         /// <summary>
         /// e.g. run initialized the first time (used in break in first)
         /// </summary>
-        public string RunStateChange { get; set; }
+        public int TestEvent { get; set; }
         /// <summary>
         /// Busy, cancelled, failed, success
         /// </summary>
@@ -180,13 +180,51 @@ namespace vApus.Publish {
         public long Errors { get; set; }
 
         /// <summary>
-        /// e.g. run initialized the first time (used in break in first)
+        /// e.g. run initialized the first time (used in break in first). 'Cast' to the TestEvents enum to know what event it is.
         /// </summary>
-        public string RunStateChange { get; set; }
+        public int TestEvent { get; set; }
         /// <summary>
         /// Busy, cancelled, failed, success
         /// </summary>
         public string StressTestStatus { get; set; }
+    }
+
+    public enum TestEventType {
+        Unchanged = -1,
+        TestMessage = 0,
+        TestInitialized = 1,
+        TestStarted = 2,
+        ConcurrencyStarted = 3,
+        RunInitializedFirstTime = 4,
+        RunStarted = 5,
+        /// <summary>
+        /// For distributed tests.
+        /// </summary>
+        RunDoneOnce = 6,
+        /// <summary>
+        /// For distributed tests.
+        /// </summary>
+        RerunStarted = 7,
+        /// <summary>
+        /// For distributed tests.
+        /// </summary>
+        RerunDone = 8,
+        RunStopped = 9,
+        ConcurrencyStopped = 10,
+        TestStopped = 11,
+        MasterListeningError = 12
+    }
+
+    public class TestEvent : PublishItem {
+        /// <summary>
+        /// Distributed Test, TileStressTest- or StressTest.ToString(). Link to correct test using the vApus props (which slave for instance).
+        /// </summary>
+        public string Test { get; set; }
+        /// <summary>
+        /// 'Cast' to the TestEvents enum to know what event it is.
+        /// </summary>
+        public int TestEventType { get; set; }
+        public KeyValuePair<string, string>[] Parameters { get; set; }
     }
     /// <summary>
     /// <para>PublishItemId should be StressTest.ToString() or TileStressTest.ToString().</para> 
@@ -250,19 +288,6 @@ namespace vApus.Publish {
         public float NicReceivedInPercent { get; set; }
     }
     /// <summary>
-    /// </summary>
-    public class TestMessage : PublishItem {
-        /// <summary>
-        /// DistributedTest-, TileStressTest- or StressTest.ToString(). Link to correct test using the vApus props (which slave for instance).
-        /// </summary>
-        public string Test { get; set; }
-        /// <summary>
-        /// 0 = info, 1 = warning, 2 = error
-        /// </summary>
-        public int Level { get; set; }
-        public string Body { get; set; }
-    }
-    /// <summary>
     /// Belongs to the last generated result set Id if any. That way you can see what stuff went wrong during a test. Can contain false positives though.
     /// </summary>
     internal class ApplicationLogEntry : PublishItem {
@@ -293,6 +318,33 @@ namespace vApus.Publish {
         /// </summary>
         public KeyValuePair<string, string>[] Parameters { get; set; }
         public string HardwareConfiguration { get; set; }
+    }
+    public enum MonitorEventType {
+        Unchanged = -1,
+        MonitorInitialized = 0,
+        MonitorStarted = 1,
+        MonitorBeforeTestStarted = 2,
+        MonitorBeforeTestDone = 3,
+        MonitorAfterTestStarted = 4,
+        MonitorAfterTestDone = 5,
+        MonitorStopped = 6,
+    }
+    public class MonitorEvent : PublishItem {
+        /// <summary>
+        /// TileStressTest- or StressTest.ToString(), if any. Link to correct test using the vApus props (which slave for instance).
+        /// Even though this can be a tile stress test, monitors are always executed from the master. 
+        /// You link a monitor to a certain test to get the time based averages for a certain test on the vApus GUI.
+        /// </summary>
+        public string Test { get; set; }
+        /// <summary>
+        /// Monitor.ToString(). Link to correct test using the vApus props (which slave for instance).
+        /// </summary>
+        public string Monitor { get; set; }
+        /// <summary>
+        /// 'Cast' to the MonitorEvents enum to know what event it is.
+        /// </summary>
+        public int MonitorEventType { get; set; }
+        public KeyValuePair<string, string>[] Parameters { get; set; }
     }
     /// <summary>
     /// </summary>

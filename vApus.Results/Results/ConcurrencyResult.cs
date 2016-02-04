@@ -11,6 +11,10 @@ using System.Collections.Generic;
 namespace vApus.Results {
     public class ConcurrencyResult {
         #region Properties
+        /// <summary>
+        /// Only for publisher
+        /// </summary>
+        public int ConcurrencyId { get; private set; }
         public int Concurrency { get; private set; }
 
         /// <summary>
@@ -30,12 +34,14 @@ namespace vApus.Results {
         #region Constructor
         /// <summary>
         /// </summary>
-        /// <param name="concurrentUsers"></param>
+        /// <param name="concurrencyId"></param>
+        /// <param name="concurrency"></param>
         /// <param name="runCount">Not in the database, only for the metrics helper.</param>
-        public ConcurrencyResult(int concurrentUsers, int runCount) {
+        public ConcurrencyResult(int concurrencyId, int concurrency, int runCount) {
             StartedAt = DateTime.Now;
             StoppedAt = DateTime.MinValue;
-            Concurrency = concurrentUsers;
+            ConcurrencyId = concurrencyId;
+            Concurrency = concurrency;
             RunCount = runCount;
             RunResults = new List<RunResult>();
         }

@@ -23,19 +23,21 @@ namespace vApus.ResultsHandler {
             ConnectionStringManager.AddConnectionString("root", "127.0.0.1", 3306, "BDaEWS2015!");
         }
 
-        public static void Handle(PublishItem[] items) {
-            foreach (var item in items) {
-                string id = item.ResultSetId + item.vApusHost + item.vApusPort;
-                if (!_handleObjects.ContainsKey(id))
-                    _handleObjects.TryAdd(id, new HandleObject());
+        public static void Handle(object[] items) {
+            foreach (PublishItem item in items)
+                if (!(item is Poll) && item.ResultSetId != null) {
+                    string id = item.ResultSetId + item.vApusHost + item.vApusPort;
+                    if (!_handleObjects.ContainsKey(id))
+                        _handleObjects.TryAdd(id, new HandleObject());
 
-                _handleObjects[id].Handle(item);
-            }
+                    _handleObjects[id].Handle(item);
+                }
         }
 
         private class HandleObject {
             private DatabaseActions _databaseActions;
-            private int _vApusInstanceId = -1, _testId = -1, _concurrencyId = -1, _run = -1;
+            private int _vApusInstanceId = -1, _testId = -1, _stressTestResultId = -1, _concurrencyId = -1, _concurrencyResultId = -1, _runResultId = -1, _run = -1;
+            private ulong _totalRequestCount = 0;
 
             private MessageQueue _requestsMessageQueue = new MessageQueue();
 
@@ -67,20 +69,23 @@ namespace vApus.ResultsHandler {
                     case "FastRunResults":
                         HandleFastRunResults(item);
                         break;
+                    case "TestEvent":
+                        HandleTestEvent(item);
+                        break;
                     case "RequestResults":
                         HandleRequestResults(item);
                         break;
                     case "ClientMonitorMetrics":
                         HandleClientMonitorMetrics(item);
                         break;
-                    case "TestMessage":
-                        HandleTestMessage(item);
-                        break;
                     case "ApplicationLogEntry":
                         HandleApplicationLogEntry(item);
                         break;
                     case "MonitorConfiguration":
                         HandleMonitorConfiguration(item);
+                        break;
+                    case "MonitorEvent":
+                        HandleMonitorEvent(item);
                         break;
                     case "MonitorMetrics":
                         HandleMonitorMetrics(item);
@@ -111,13 +116,95 @@ namespace vApus.ResultsHandler {
             }
             private void HandleFastConcurrencyResults(PublishItem item) { }
             private void HandleFastRunResults(PublishItem item) { }
+            private void HandleTestEvent(PublishItem item) {
+                var pi = item as TestEvent;
+                switch ((TestEventType)pi.TestEventType) {
+                    case TestEventType.TestMessage: break;
+                    case TestEventType.TestInitialized: break;
+                    case TestEventType.TestStarted:
+                        SetStressTestStarted(GetUtcDateTime(pi.PublishItemTimestampInMillisecondsSinceEpochUtc).ToLocalTime());
+                        break;
+                    case TestEventType.ConcurrencyStarted:
+                        _concurrencyId = int.Parse(GetValues(pi.Parameters, "ConcurrencyId")[0]);
+                        SetConcurrencyStarted(int.Parse(GetValues(pi.Parameters, "Concurrency")[0]), GetUtcDateTime(pi.PublishItemTimestampInMillisecondsSinceEpochUtc).ToLocalTime());
+                        break;
+                    case TestEventType.RunInitializedFirstTime:
+                        _run = int.Parse(GetValues(pi.Parameters, "Run")[0]);
+                        break;
+                    case TestEventType.RunStarted:
+                        SetRunStarted(_run, GetUtcDateTime(pi.PublishItemTimestampInMillisecondsSinceEpochUtc).ToLocalTime());
+                        break;
+                    case TestEventType.RunDoneOnce: break;
+                    case TestEventType.RerunDone: break;
+                    case TestEventType.RunStopped:
+                        SetRunStopped(GetUtcDateTime(pi.PublishItemTimestampInMillisecondsSinceEpochUtc).ToLocalTime());
+                        break;
+                    case TestEventType.ConcurrencyStopped:
+                        SetConcurrencyStopped(GetUtcDateTime(pi.PublishItemTimestampInMillisecondsSinceEpochUtc).ToLocalTime());
+                        break;
+                    case TestEventType.TestStopped:
+                        SetStressTestStopped(GetUtcDateTime(pi.PublishItemTimestampInMillisecondsSinceEpochUtc).ToLocalTime(),
+                            GetValues(pi.Parameters, "Status")[0], GetValues(pi.Parameters, "StatusMessage")[0]);
+                        break;
+                    case TestEventType.MasterListeningError: break;
+                }
+            }
             private void HandleRequestResults(PublishItem item) {
                 if (_testId != -1)
                     _requestsMessageQueue.Enqueue(item as RequestResults);
             }
 
             private void _requestsMessageQueue_OnDequeue(object sender, MessageQueue.OnDequeueEventArgs e) {
+                if (_databaseActions != null) {
+                    var sb = new StringBuilder();
 
+                    var rowsToInsert = new List<string>(); //Insert multiple values at once.
+                    foreach (RequestResults requestResults in e.Messages) {
+                        ++_totalRequestCount;
+
+                        if (requestResults.VirtualUser != null) {
+                            sb.Append("('");
+                            sb.Append(_runResultId);
+                            sb.Append("', '");
+                            sb.Append(requestResults.VirtualUser);
+                            sb.Append("', '");
+                            sb.Append(MySQLEscapeString(requestResults.UserAction));
+                            sb.Append("', '");
+                            sb.Append(requestResults.RequestIndex);
+                            sb.Append("', '");
+                            sb.Append(requestResults.SameAsRequestIndex);
+                            sb.Append("', '");
+                            sb.Append(MySQLEscapeString(requestResults.Request));
+                            sb.Append("', '");
+                            sb.Append(requestResults.InParallelWithPrevious ? 1 : 0);
+                            sb.Append("', '");
+                            sb.Append(Parse(GetUtcDateTime(requestResults.SentAtInMicrosecondsSinceEpochUtc))); //No local time here!
+                            sb.Append("', '");
+                            sb.Append(requestResults.TimeToLastByteInTicks);
+                            sb.Append("', '");
+                            sb.Append(MySQLEscapeString(requestResults.Meta));
+                            sb.Append("', '");
+                            sb.Append(requestResults.DelayInMilliseconds);
+                            sb.Append("', '");
+                            sb.Append(MySQLEscapeString(requestResults.Error));
+                            sb.Append("', '");
+                            sb.Append(requestResults.Rerun);
+                            sb.Append("')");
+                            rowsToInsert.Add(sb.ToString());
+                            sb.Clear();
+
+                            if (rowsToInsert.Count == 100) {
+                                _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, Meta, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                                    rowsToInsert.Combine(", ")));
+                                rowsToInsert.Clear();
+                            }
+
+                        }
+                        if (rowsToInsert.Count != 0)
+                            _databaseActions.ExecuteSQL(string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, Meta, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                            rowsToInsert.Combine(", ")));
+                    }
+                }
             }
 
             private void HandleClientMonitorMetrics(PublishItem item) { }
@@ -129,6 +216,25 @@ namespace vApus.ResultsHandler {
                     ulong id = SetMonitor(_testId, pi.Monitor, pi.MonitorSource, "", pi.HardwareConfiguration);
                     _monitorsMissingHeaders.Add(pi.Monitor);
                     _monitorsWithIds.TryAdd(pi.Monitor, id);
+                }
+            }
+            private void HandleMonitorEvent(PublishItem item) {
+                var pi = item as MonitorEvent;
+                switch ((MonitorEventType)pi.MonitorEventType) {
+                    case MonitorEventType.MonitorInitialized:
+                        break;
+                    case MonitorEventType.MonitorStarted:
+                        break;
+                    case MonitorEventType.MonitorBeforeTestStarted:
+                        break;
+                    case MonitorEventType.MonitorBeforeTestDone:
+                        break;
+                    case MonitorEventType.MonitorAfterTestStarted:
+                        break;
+                    case MonitorEventType.MonitorAfterTestDone:
+                        break;
+                    case MonitorEventType.MonitorStopped:
+                        break;
                 }
             }
             private void HandleMonitorMetrics(PublishItem item) {
@@ -143,22 +249,25 @@ namespace vApus.ResultsHandler {
                 }
             }
 
-            private void _monitorMessageQueue_OnDequeue(object sender, MessageQueue.OnDequeueEventArgs e) { SetMonitorResults(e.Messages as Publish.MonitorMetrics[]); }
+            private void _monitorMessageQueue_OnDequeue(object sender, MessageQueue.OnDequeueEventArgs e) { SetMonitorResults(e.Messages); }
 
             private void SetDescriptionAndTags(string description, string[] tags) {
                 _databaseActions.ExecuteSQL("DELETE FROM description");
                 _databaseActions.ExecuteSQL("DELETE FROM tags");
 
-                _databaseActions.ExecuteSQL("INSERT INTO description(Description) VALUES('" + description + "')");
-                var rowsToInsert = new List<string>(); //Insert multiple values at once.
+                if (description.Length != 0)
+                    _databaseActions.ExecuteSQL("INSERT INTO description(Description) VALUES('" + description + "')");
 
-                foreach (string tag in tags) {
-                    var sb = new StringBuilder("('");
-                    sb.Append(tag);
-                    sb.Append("')");
-                    rowsToInsert.Add(sb.ToString());
+                if (tags.Length != 0) {
+                    var rowsToInsert = new List<string>(); //Insert multiple values at once.
+                    foreach (string tag in tags) {
+                        var sb = new StringBuilder("('");
+                        sb.Append(tag);
+                        sb.Append("')");
+                        rowsToInsert.Add(sb.ToString());
+                    }
+                    _databaseActions.ExecuteSQL(string.Format("INSERT INTO tags(Tag) VALUES {0};", rowsToInsert.Combine(", ")));
                 }
-                _databaseActions.ExecuteSQL(string.Format("INSERT INTO tags(Tag) VALUES {0};", rowsToInsert.Combine(", ")));
             }
             public int SetvApusInstance(string hostName, string ip, int port, string version, string channel, bool isMaster) {
                 if (_databaseActions != null) {
@@ -190,6 +299,71 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return 0;
             }
 
+            private void SetStressTestStarted(DateTime startedAt) {
+                if (_databaseActions != null) {
+                    _databaseActions.ExecuteSQL(
+                        string.Format(
+                            "INSERT INTO stresstestresults(StressTestId, StartedAt, StoppedAt, Status, StatusMessage) VALUES('{0}', '{1}', '{2}', 'OK', '')",
+                            _testId, Parse(startedAt), Parse(DateTime.MinValue))
+                        );
+                    _stressTestResultId = (int)_databaseActions.GetLastInsertId();
+                }
+            }
+
+            public void SetConcurrencyStarted(int concurrency, DateTime startedAt) {
+                if (_databaseActions != null) {
+                    _databaseActions.ExecuteSQL(
+                        string.Format(
+                            "INSERT INTO concurrencyresults(StressTestResultId, Concurrency, StartedAt, StoppedAt) VALUES('{0}', '{1}', '{2}', '{3}')",
+                            _stressTestResultId, concurrency, Parse(startedAt),
+                            Parse(DateTime.MinValue))
+                        );
+                    _concurrencyResultId = (int)_databaseActions.GetLastInsertId();
+                }
+            }
+
+            public void SetRunStarted(int run, DateTime startedAt) {
+                if (_databaseActions != null) {
+                    _totalRequestCount = 0;
+                    _databaseActions.ExecuteSQL(
+                        string.Format(
+                            "INSERT INTO runresults(ConcurrencyResultId, Run, TotalRequestCount, ReRunCount, StartedAt, StoppedAt) VALUES('{0}', '{1}', '0', '0', '{2}', '{3}')",
+                            _concurrencyResultId, run, Parse(startedAt), Parse(DateTime.MinValue))
+                        );
+                    _runResultId = (int)_databaseActions.GetLastInsertId();
+                }
+            }
+
+            public void SetRunStopped(DateTime stoppedAt) {
+                if (_databaseActions != null) {
+                    _totalRequestCount = 0;
+                    _databaseActions.ExecuteSQL(string.Format("UPDATE runresults SET TotalRequestCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, _totalRequestCount, Parse(stoppedAt)));
+
+                }
+            }
+
+            /// <summary>
+            ///     Stopped at datetime now.
+            /// </summary>
+            /// <param name="concurrencyResult"></param>
+            public void SetConcurrencyStopped(DateTime stoppedAt) {
+                if (_databaseActions != null)
+                    _databaseActions.ExecuteSQL(
+                        string.Format("UPDATE concurrencyresults SET StoppedAt='{1}' WHERE Id='{0}'", _concurrencyResultId,
+                                      Parse(stoppedAt))
+                        );
+            }
+
+
+            private void SetStressTestStopped(DateTime stoppedAt, string status = "OK", string statusMessage = "") {
+                if (_databaseActions != null) {
+                    _databaseActions.ExecuteSQL(
+                        string.Format(
+                            "UPDATE stresstestresults SET StoppedAt='{1}', Status='{2}', StatusMessage='{3}' WHERE Id='{0}'",
+                            _stressTestResultId, Parse(stoppedAt), status, statusMessage)
+                        );
+                }
+            }
             private ulong SetMonitor(int stressTestId, string monitor, string monitorSource, string connectionString, string machineConfiguration) {
                 if (_databaseActions != null) {
                     if (machineConfiguration == null) machineConfiguration = string.Empty;
@@ -216,13 +390,13 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                 return 0;
             }
 
-            public void SetMonitorResults(Publish.MonitorMetrics[] monitorMetrics) {
+            public void SetMonitorResults(object[] monitorMetrics) {
                 //Store monitor values with a ',' for decimal seperator.
                 CultureInfo prevCulture = Thread.CurrentThread.CurrentCulture;
                 Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("nl-BE");
                 if (_databaseActions != null && monitorMetrics.Length != 0) {
                     var rowsToInsert = new List<string>(); //Insert multiple values at once.
-                    foreach (var metrics in monitorMetrics) {
+                    foreach (Publish.MonitorMetrics metrics in monitorMetrics) {
                         var value = new List<string>();
                         for (int i = 1; i < metrics.Values.Length; i++) {
                             object o = metrics.Values[i];
@@ -232,7 +406,7 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
                         var sb = new StringBuilder("('");
                         sb.Append(_monitorsWithIds[metrics.Monitor]);
                         sb.Append("', '");
-                        sb.Append(Parse(PublishItem.EpochUtc.AddMilliseconds(metrics.PublishItemTimestampInMillisecondsSinceEpochUtc).ToLocalTime()));
+                        sb.Append(Parse(GetUtcDateTime(metrics.PublishItemTimestampInMillisecondsSinceEpochUtc).ToLocalTime()));
                         sb.Append("', '");
                         sb.Append(MySQLEscapeString(MySQLEscapeString(value.Combine("; "))));
                         sb.Append("')");
@@ -255,6 +429,24 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
             /// <param name="s"></param>
             /// <returns></returns>
             private static string MySQLEscapeString(string s) { return System.Text.RegularExpressions.Regex.Replace(s, @"[\r\n\x00\x1a\\'""]", @"\$0"); }
+
+            private List<string> GetValues(KeyValuePair<string, string>[] arr, string key, bool ignoreCase = true) {
+                if (ignoreCase) key = key.ToLowerInvariant();
+                var values = new List<string>();
+                foreach (var kvp in arr)
+                    if (ignoreCase) {
+                        if (kvp.Key.ToLowerInvariant() == key) values.Add(kvp.Value);
+                    }
+                    else {
+                        if (kvp.Key == key) values.Add(kvp.Value);
+                    }
+
+                return values;
+            }
+
+            private DateTime GetUtcDateTime(long publishItemTimestampInMillisecondsSinceEpochUtc) {
+                return PublishItem.EpochUtc.AddMilliseconds(publishItemTimestampInMillisecondsSinceEpochUtc);
+            }
         }
     }
 }
