@@ -106,12 +106,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Destinations\TcpDestination.cs" />
-    <Compile Include="IDestination.cs" />
-    <Compile Include="MulticastBlock.cs" />
-    <Compile Include="Destinations\UdpBroadcastDestination.cs" />
-    <Compile Include="Destinations\BaseDestination.cs" />
-    <Compile Include="Destinations\FlatFileDestination.cs" />
+    <Compile Include="TcpDestination.cs" />
     <Compile Include="Formatters\IFormatter.cs" />
     <Compile Include="Formatters\JSONFormatter.cs" />
     <Compile Include="Publisher.cs" />

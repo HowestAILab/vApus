@@ -1,4 +1,6 @@
 ﻿using Newtonsoft.Json.Linq;
+using System;
+using System.Diagnostics;
 using System.IO;
 using System.Net;
 using System.Net.Sockets;
@@ -28,7 +30,8 @@ namespace vApus.ResultsHandler {
                     try {
                         var client = _listener.AcceptTcpClient();
                         HandleRead(new StreamReader(client.GetStream(), Encoding.UTF8));
-                    } catch {
+                    }
+                    catch {
 
                     }
             });
@@ -40,16 +43,23 @@ namespace vApus.ResultsHandler {
 
         private static void HandleRead(StreamReader sr) {
             ThreadPool.QueueUserWorkItem((state) => {
-            try {
-                while (_isListening) {
-                    string msg = sr.ReadLine();
-                    dynamic intermediate = JObject.Parse(msg);
-                    //A validating step.
-                    var item = intermediate.ToObject(Assembly.GetExecutingAssembly().GetType("vApus.Publish." + intermediate.PublishItemType));
-                    _queue.Enqueue(item);
+                try {
+                    string msg;
+                    while (_isListening) {
+                        msg = sr.ReadLine();
+                        try {
+                            dynamic intermediate = JObject.Parse(msg);
+                            //A validating step.
+                            var item = intermediate.ToObject(Assembly.GetExecutingAssembly().GetType("vApus.Publish." + intermediate.PublishItemType));
+                            _queue.Enqueue(item);
+                        }
+                        catch (Exception ex) {
+                            Debug.WriteLine("Faled parsing msg " + msg + " " + ex.ToString());
+                        }
                     }
-                } catch {
-
+                }
+                catch {
+                    Debug.WriteLine("Faled reading line, connection was closed.");
                 }
             });
         }

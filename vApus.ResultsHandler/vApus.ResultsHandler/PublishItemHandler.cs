@@ -150,8 +150,49 @@ namespace vApus.ResultsHandler {
                 }
             }
             private void HandleRequestResults(PublishItem item) {
-                if (_testId != -1)
-                    _requestsMessageQueue.Enqueue(item as RequestResults);
+                ++_totalRequestCount;
+
+                if (_testId != -1 && _databaseActions != null) {
+
+                    var requestResults = item as RequestResults;
+
+                    var sb = new StringBuilder();
+
+                    if (requestResults.VirtualUser != null) {
+                        sb.Append("('");
+                        sb.Append(_runResultId);
+                        sb.Append("', '");
+                        sb.Append(requestResults.VirtualUser);
+                        sb.Append("', '");
+                        sb.Append(MySQLEscapeString(requestResults.UserAction));
+                        sb.Append("', '");
+                        sb.Append(requestResults.RequestIndex);
+                        sb.Append("', '");
+                        sb.Append(requestResults.SameAsRequestIndex);
+                        sb.Append("', '");
+                        sb.Append(MySQLEscapeString(requestResults.Request));
+                        sb.Append("', '");
+                        sb.Append(requestResults.InParallelWithPrevious ? 1 : 0);
+                        sb.Append("', '");
+                        sb.Append(Parse(GetUtcDateTime(requestResults.SentAtInMicrosecondsSinceEpochUtc))); //No local time here!
+                        sb.Append("', '");
+                        sb.Append(requestResults.TimeToLastByteInTicks);
+                        sb.Append("', '");
+                        sb.Append(MySQLEscapeString(requestResults.Meta));
+                        sb.Append("', '");
+                        sb.Append(requestResults.DelayInMilliseconds);
+                        sb.Append("', '");
+                        sb.Append(MySQLEscapeString(requestResults.Error));
+                        sb.Append("', '");
+                        sb.Append(requestResults.Rerun);
+                        sb.Append("')");
+
+                        _databaseActions.ExecuteSQL(
+                            string.Format("INSERT INTO requestresults(RunResultId, VirtualUser, UserAction, RequestIndex, SameAsRequestIndex, Request, InParallelWithPrevious, SentAt, TimeToLastByteInTicks, Meta, DelayInMilliseconds, Error, Rerun) VALUES {0};",
+                            sb.ToString()));
+                    }
+                }
+                //_requestsMessageQueue.Enqueue(item as RequestResults);
             }
 
             private void _requestsMessageQueue_OnDequeue(object sender, MessageQueue.OnDequeueEventArgs e) {
@@ -208,7 +249,6 @@ namespace vApus.ResultsHandler {
             }
 
             private void HandleClientMonitorMetrics(PublishItem item) { }
-            private void HandleTestMessage(PublishItem item) { }
             private void HandleApplicationLogEntry(PublishItem item) { }
             private void HandleMonitorConfiguration(PublishItem item) {
                 if (_testId != -1) {
@@ -336,9 +376,8 @@ VALUES('{0}', '{1}', '{2}', '{3}', '{4}', '{5}', '{6}', '{7}', '{8}', '{9}', '{1
 
             public void SetRunStopped(DateTime stoppedAt) {
                 if (_databaseActions != null) {
-                    _totalRequestCount = 0;
                     _databaseActions.ExecuteSQL(string.Format("UPDATE runresults SET TotalRequestCount='{1}', StoppedAt='{2}' WHERE Id='{0}'", _runResultId, _totalRequestCount, Parse(stoppedAt)));
-
+                    _totalRequestCount = 0;
                 }
             }
 

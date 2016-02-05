@@ -555,7 +555,7 @@ namespace vApus.DistributedTest {
                 publishItem.PersistentConnectionsPerHostname = _stressTest.PersistentConnectionsPerHostname;
                 publishItem.MaximumPersistentConnections = _stressTest.MaximumPersistentConnections;
 
-                Publisher.Post(publishItem, _resultSetId);
+                Publisher.Send(publishItem, _resultSetId);
             }
         }
 
@@ -647,7 +647,7 @@ namespace vApus.DistributedTest {
                 publishItem.NicSentInPercent = LocalMonitor.NicSent;
                 publishItem.NicReceivedInPercent = LocalMonitor.NicReceived;
 
-                Publisher.Post(publishItem, _resultSetId);
+                Publisher.Send(publishItem, _resultSetId);
             }
         }
 
@@ -661,7 +661,7 @@ namespace vApus.DistributedTest {
                     new KeyValuePair<string, string>("Message", message)
                 };
 
-                Publisher.Post(publishItem, _resultSetId);
+                Publisher.Send(publishItem, _resultSetId);
             }
         }
 
@@ -675,7 +675,7 @@ namespace vApus.DistributedTest {
                     new KeyValuePair<string, string>("Run", run.ToString())
                 };
 
-                Publisher.Post(publishItem, _resultSetId);
+                Publisher.Send(publishItem, _resultSetId);
             }
         }
         private void PublishRerunDone(int concurrencyId, int run, int rerun) {
@@ -689,12 +689,12 @@ namespace vApus.DistributedTest {
                     new KeyValuePair<string, string>("Rerun", rerun.ToString())
                 };
 
-                Publisher.Post(publishItem, _resultSetId);
+                Publisher.Send(publishItem, _resultSetId);
             }
         }
 
         private void PublishRequest(RequestResults requestResults) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) Publisher.Post(requestResults, _resultSetId);
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) Publisher.Send(requestResults, _resultSetId);
         }
 
         #endregion

@@ -1206,7 +1206,7 @@ namespace vApus.Monitor {
                 if (publish) {
                     //Do not generate if a parent test generated one already.
                     _resultSetId = _test == null ? Publisher.GenerateResultSetId() : Publisher.LastGeneratedResultSetId;
-                    Publisher.Post(publishItem, _resultSetId);
+                    Publisher.Send(publishItem, _resultSetId);
                 }
             }
         }
@@ -1231,7 +1231,7 @@ namespace vApus.Monitor {
 
                     publishItem.Values = row;
 
-                    Publisher.Post(publishItem, _resultSetId);
+                    Publisher.Send(publishItem, _resultSetId);
                 }
             }
         }

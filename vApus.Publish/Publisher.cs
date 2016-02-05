@@ -9,6 +9,7 @@ using RandomUtils.Log;
 using System;
 using System.Diagnostics;
 using System.Net;
+using System.Threading.Tasks;
 using vApus.Util;
 
 namespace vApus.Publish {
@@ -17,10 +18,11 @@ namespace vApus.Publish {
     /// </summary>
     public static class Publisher {
         private static Properties.Settings _settings = Properties.Settings.Default;
+
         private static bool _inited = false;
         private static readonly object _lock = new object();
 
-        private static MulticastBlock _destinations = new MulticastBlock();
+        private static TcpDestination _tcpDestination = new TcpDestination();
 
         private static string _lastGeneratedResultSetId;
 
@@ -61,27 +63,21 @@ namespace vApus.Publish {
             }
         }
         /// <summary>
-        /// <para>Will only post if Settings.PublisherEnabled.</para> 
+        /// <para>Will only send if Settings.PublisherEnabled.</para> 
         /// <para>Following must be vailable in NamedObjectRegistrar: string Host, int Port, string Version, string Channel, bool IsMaster</para> 
         /// </summary>
         /// <param name="item"></param>
-        /// <param name="resultSetId">If null, the last generated one will be used.Can be null, not adviced.</param>
-        public static void Post(PublishItem item, string resultSetId) {
+        /// <param name="resultSetId">Can be null, not adviced. You can use, with caution, this.LastGeneratedResultSetId.</param>
+        public static void Send(PublishItem item, string resultSetId) {
             try {
-                if (Settings.PublisherEnabled) {
-                    InitItem(item, resultSetId ?? LastGeneratedResultSetId);
-
-                    //Only handy for real multicast / broadcast destinations like file or udp. Not used atm.
-                    //destinationGroupId = message.PublishItemId.ReplaceInvalidWindowsFilenameChars('_').Replace(" ", "_") + "_" + message.PublishItemType + "_" + message.ResultSetId;
-                    string destinationGroupId = "stub";
-                    TryAddDestination(item, destinationGroupId);
-                    _destinations.Post(destinationGroupId, item);
-                }
-            } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed posting.", ex);
+                if (Settings.PublisherEnabled && !string.IsNullOrWhiteSpace(_settings.TcpHost))
+                    Send(InitItem(item, resultSetId));
+            }
+            catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed sending.", ex);
             }
         }
-        private static void InitItem(PublishItem item, string resultSetId) {
+        private static PublishItem InitItem(PublishItem item, string resultSetId) {
             item.PublishItemTimestampInMillisecondsSinceEpochUtc = (long)(HighResolutionDateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
 
             item.ResultSetId = resultSetId;
@@ -93,46 +89,30 @@ namespace vApus.Publish {
             item.vApusVersion = NamedObjectRegistrar.Get<string>("Version");
             item.vApusChannel = NamedObjectRegistrar.Get<string>("Channel");
             item.vApusIsMaster = NamedObjectRegistrar.Get<bool>("IsMaster");
+
+            return item;
         }
         /// <summary>
-        /// Posts a publish item of the type Poll with an empty result set id.
+        /// Sends a publish item of the type Poll with an empty result set id.
         /// </summary>
         /// <returns></returns>
-        public static bool TryPost() {
+        public static bool Poll() {
             try {
-                if (Settings.PublisherEnabled) {
-                    var item = new Poll();
-                    InitItem(item, string.Empty);
-
-                    _destinations.Clear();
-
-                    string destinationGroupId = "stub";
-                    TryAddDestination(item, destinationGroupId);
-                    _destinations.Post(destinationGroupId, item);
-                }
-            } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed try posting.", ex);
+                if (Settings.PublisherEnabled && !string.IsNullOrWhiteSpace(_settings.TcpHost))
+                    Send(InitItem(new Poll(), string.Empty));
+            }
+            catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed polling.", ex);
                 return false;
             }
             return true;
         }
-
-        private static bool TryAddDestination(PublishItem message, string destinationGroupId) {
-            if (_settings.TcpOutput && !string.IsNullOrWhiteSpace(_settings.TcpHost)) {
-                var tcpDestination = TcpDestination.GetInstance();
-                if (tcpDestination.Init(_settings.TcpHost, _settings.TcpPort)) {
-                    tcpDestination.Formatter = new JSONFormatter();
-                }
-
-                if (_destinations.Contains(destinationGroupId)) return false;
-
-                _destinations.Add(destinationGroupId, tcpDestination);
-            }
-
-            return true;
+        async private static void Send(PublishItem item) {
+            await Task.Run(() => {
+                _tcpDestination.Init(_settings.TcpHost, _settings.TcpPort, JSONFormatter.GetInstance());
+                _tcpDestination.Send(item);
+            });
         }
-
-        internal static void Clear() { _destinations.Clear(); }
 
         private static void Publisher_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
             try {
@@ -146,15 +126,13 @@ namespace vApus.Publish {
                     publishItem.SourceFile = e.Entry.SourceFile;
                     publishItem.Line = e.Entry.Line;
 
-                    Post(publishItem, LastGeneratedResultSetId);
+                    Send(publishItem, LastGeneratedResultSetId);
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 //Can fail if not connected. Handle like ths to avoid circular error mess.
                 Debug.WriteLine("Failed publishing log entry. Is the publisher connected?" + ex.ToString());
             }
         }
-
-        /// Wait until the post is idle. Can be handy for when posting stuff when the application gets closed.
-        public static void WaitUntilIdle() { _destinations.WaitUntilIdle(); }
     }
 }

@@ -102,7 +102,7 @@ namespace vApus.DistributedTest {
                 var stressTestWrapper = initializeTestMessage.StressTestWrapper;
 
                 NamedObjectRegistrar.RegisterOrUpdate("IsMaster", false);
-                Publisher.Settings.TcpOutput = stressTestWrapper.Publish;
+                Publisher.Settings.PublisherEnabled = stressTestWrapper.Publish;
                 Publisher.Settings.TcpHost = stressTestWrapper.PublishHost;
                 Publisher.Settings.TcpPort = stressTestWrapper.PublishPort;
 

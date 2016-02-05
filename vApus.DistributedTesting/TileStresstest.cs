@@ -233,7 +233,7 @@ namespace vApus.DistributedTest {
                 return new StressTestWrapper {
                     DistributedTest = Parent.ToString(), StressTestIdInDb = stressTestIdInDb, StressTest = stressTest,
                     PublishResultSetId = Publish.Publisher.LastGeneratedResultSetId,
-                    Publish = Publish.Publisher.Settings.TcpOutput, PublishHost = Publish.Publisher.Settings.TcpHost,
+                    Publish = Publish.Publisher.Settings.PublisherEnabled, PublishHost = Publish.Publisher.Settings.TcpHost,
                     PublishPort = Publish.Publisher.Settings.TcpPort,
                     TileStressTest = this.ToString(), TileStressTestIndex = tileStressTestIndex, RunSynchronization = runSynchronization,
                     Monitors = monitors,

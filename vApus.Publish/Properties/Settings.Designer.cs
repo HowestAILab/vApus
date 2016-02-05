@@ -134,18 +134,6 @@ namespace vApus.Publish.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool TcpOutput {
-            get {
-                return ((bool)(this["TcpOutput"]));
-            }
-            set {
-                this["TcpOutput"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool PublisherEnabled {
             get {
                 return ((bool)(this["PublisherEnabled"]));

@@ -41,7 +41,6 @@
             this.chkRequestResults = new System.Windows.Forms.CheckBox();
             this.txtTcpHost = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
-            this.chkTcp = new System.Windows.Forms.CheckBox();
             this.label3 = new System.Windows.Forms.Label();
             this.nudTcpPort = new System.Windows.Forms.NumericUpDown();
             this.llblDeserialize = new System.Windows.Forms.LinkLabel();
@@ -177,11 +176,11 @@
             // 
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label2.Location = new System.Drawing.Point(6, 206);
+            this.label2.Location = new System.Drawing.Point(6, 234);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(48, 13);
+            this.label2.Size = new System.Drawing.Size(105, 13);
             this.label2.TabIndex = 16;
-            this.label2.Text = "Publish";
+            this.label2.Text = "Publish over TCP";
             // 
             // grp
             // 
@@ -191,7 +190,6 @@
             this.grp.Controls.Add(this.chkRequestResults);
             this.grp.Controls.Add(this.txtTcpHost);
             this.grp.Controls.Add(this.label4);
-            this.grp.Controls.Add(this.chkTcp);
             this.grp.Controls.Add(this.label3);
             this.grp.Controls.Add(this.nudTcpPort);
             this.grp.Controls.Add(this.llblDeserialize);
@@ -244,18 +242,6 @@
             this.label4.Size = new System.Drawing.Size(32, 13);
             this.label4.TabIndex = 1013;
             this.label4.Text = "Host:";
-            // 
-            // chkTcp
-            // 
-            this.chkTcp.AutoSize = true;
-            this.chkTcp.Location = new System.Drawing.Point(19, 232);
-            this.chkTcp.Name = "chkTcp";
-            this.chkTcp.Size = new System.Drawing.Size(47, 17);
-            this.chkTcp.TabIndex = 1010;
-            this.chkTcp.Text = "TCP";
-            this.toolTip.SetToolTip(this.chkTcp, "TCP send JSON, UTF8 encoded.\r\nWrite your own TCP client to receive the sent messa" +
-        "ges.");
-            this.chkTcp.UseVisualStyleBackColor = true;
             // 
             // label3
             // 
@@ -417,7 +403,6 @@
         private System.Windows.Forms.Button btnEnable;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.LinkLabel llblDeserialize;
-        private System.Windows.Forms.CheckBox chkTcp;
         private System.Windows.Forms.Label label3;
         private System.Windows.Forms.NumericUpDown nudTcpPort;
         private System.Windows.Forms.TextBox txtTcpHost;

@@ -1628,7 +1628,7 @@ namespace vApus.DistributedTest {
 
                 publishItem.UsedTileStressTests = usedTileStressTests.ToArray();
 
-                Publisher.Post(publishItem, _resultSetId);
+                Publisher.Send(publishItem, _resultSetId);
             }
         }
 
@@ -1644,7 +1644,7 @@ namespace vApus.DistributedTest {
                 publishItem.NicSentInPercent = LocalMonitor.NicSent;
                 publishItem.NicReceivedInPercent = LocalMonitor.NicReceived;
 
-                Publisher.Post(publishItem, _resultSetId);
+                Publisher.Send(publishItem, _resultSetId);
             }
         }
 
@@ -1664,7 +1664,7 @@ namespace vApus.DistributedTest {
                     new KeyValuePair<string, string>("Message", message)
                 };
 
-                Publisher.Post(publishItem, _resultSetId);
+                Publisher.Send(publishItem, _resultSetId);
             }
         }
         #endregion
