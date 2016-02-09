@@ -71,8 +71,13 @@ namespace vApus.Publish {
         /// <param name="message"></param>
         public void Send(object message) {
             if (Connected) {
-                _sw.WriteLine(FormatMessage(message));
-                _sw.Flush();
+                try {
+                    _sw.WriteLine(FormatMessage(message));
+                    _sw.Flush();
+                }
+                catch {
+                    //Ignore. Not important.
+                }
             }
         }
         private object FormatMessage(object message) { return (_formatter == null) ? message : _formatter.Format(message); }

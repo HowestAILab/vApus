@@ -280,6 +280,8 @@ namespace vApus.StressTest {
             tmrProgress.Interval = PROGRESSUPDATEDELAY * 1000;
             tmrProgress.Start();
             try {
+                PublishConfiguration();
+
                 _stressTestCore = new StressTestCore(_stressTest);
                 _stressTestCore.ResultsHelper = _resultsHelper;
                 _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
@@ -291,8 +293,6 @@ namespace vApus.StressTest {
                 _stressTestCore.RunStopped += _stressTestCore_RunStopped;
                 _stressTestCore.Message += _stressTestCore_Message;
                 _stressTestCore.OnRequest += _stressTestCore_OnRequest;
-
-                PublishConfiguration();
 
                 ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
             }
@@ -521,7 +521,7 @@ namespace vApus.StressTest {
 
                 if (runningMonitors != 0 && _stressTest.MonitorBefore != 0) {
                     int countdownTime = _stressTest.MonitorBefore * 60000;
-                    _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
+                    _monitorBeforeCountDown = new Countdown();
                     _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                     _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
 
@@ -547,7 +547,7 @@ namespace vApus.StressTest {
 
                     PublishMonitorBeforeTestStarted();
 
-                    _monitorBeforeCountDown.Start();
+                    _monitorBeforeCountDown.Start(countdownTime, 5000);
                 }
                 else {
                     MonitorBeforeDone();
@@ -807,7 +807,7 @@ namespace vApus.StressTest {
 
                 if (monitorAfter && _stressTest.MonitorAfter != 0 && runningMonitors != 0 && stressTestStatus != StressTestStatus.Cancelled && stressTestStatus != StressTestStatus.Error) {
                     int countdownTime = _stressTest.MonitorAfter * 60000;
-                    _monitorAfterCountDown = new Countdown(countdownTime, 5000);
+                    _monitorAfterCountDown = new Countdown();
                     _monitorAfterCountDown.Tick += monitorAfterCountdown_Tick;
                     _monitorAfterCountDown.Stopped += monitorAfterCountdown_Stopped;
 
@@ -830,7 +830,7 @@ namespace vApus.StressTest {
 
                     PublishMonitorAfterTestStarted();
 
-                    _monitorAfterCountDown.Start();
+                    _monitorAfterCountDown.Start(countdownTime, 5000);
                 }
                 else {
                     StopMonitorsAndUnlockGui(ex, false);
@@ -1034,7 +1034,7 @@ namespace vApus.StressTest {
         #region Publish
         private string _resultSetId;
         private void PublishConfiguration() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsConfiguration) {
+            if (Publisher.Settings.PublisherEnabled) {
                 _resultSetId = Publisher.GenerateResultSetId();
                 var publishItem = new StressTestConfiguration();
                 publishItem.StressTest = _stressTest.ToString();
@@ -1083,7 +1083,7 @@ namespace vApus.StressTest {
             PublishClientMonitoring();
         }
         private void PublishFastConcurencyResults(TestEventType testEventType) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastConcurrencyResults && _stressTestMetricsCache != null) {
+            if (Publisher.Settings.PublisherEnabled && _stressTestMetricsCache != null) {
                 List<StressTestMetrics> metrics = _stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults);
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
@@ -1116,7 +1116,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishFastRunResults(TestEventType testEventType) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastRunResults && _stressTestMetricsCache != null) {
+            if (Publisher.Settings.PublisherEnabled && _stressTestMetricsCache != null) {
                 List<StressTestMetrics> metrics = _stressTestMetricsCache.GetRunMetrics(_stressTest.SimplifiedFastResults);
                 if (metrics.Count != 0) {
                     StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
@@ -1152,7 +1152,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishClientMonitoring() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new ClientMonitorMetrics();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.BusyThreadCount = _stressTestCore == null || _stressTestCore.IsDisposed ? 0 : _stressTestCore.BusyThreadCount;
@@ -1169,7 +1169,7 @@ namespace vApus.StressTest {
         }
 
         private void PublishTestInitialized() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestInitialized;
@@ -1179,7 +1179,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishTestStarted() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestStarted;
@@ -1189,7 +1189,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishConcurrencyStarted(int concurrencyId, int concurrency) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.ConcurrencyStarted;
@@ -1202,7 +1202,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishRunInitializedFirstTime(int concurrencyId, int run) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RunInitializedFirstTime;
@@ -1215,7 +1215,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishRunStarted(int concurrencyId, int run) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RunStarted;
@@ -1228,7 +1228,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishRunStopped(int concurrencyId, int run) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RunStopped;
@@ -1241,7 +1241,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishConcurrencyStopped(int concurrencyId) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.ConcurrencyStopped;
@@ -1253,7 +1253,7 @@ namespace vApus.StressTest {
             }
         }
         private void PublishTestStopped(StressTestStatus stressTestStatus, Exception ex) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestStopped;
@@ -1267,7 +1267,7 @@ namespace vApus.StressTest {
         }
 
         private void PublishMonitorBeforeTestStarted() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishMonitorsMetrics)
+            if (Publisher.Settings.PublisherEnabled)
                 foreach (var monitor in _stressTest.Monitors) {
                     var publishItem = new MonitorEvent();
                     publishItem.Test = _stressTest.ToString();
@@ -1281,7 +1281,7 @@ namespace vApus.StressTest {
                 }
         }
         private void PublishMonitorBeforeTestDone() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishMonitorsMetrics)
+            if (Publisher.Settings.PublisherEnabled)
                 foreach (var monitor in _stressTest.Monitors) {
                     var publishItem = new MonitorEvent();
                     publishItem.Test = _stressTest.ToString();
@@ -1293,7 +1293,7 @@ namespace vApus.StressTest {
                 }
         }
         private void PublishMonitorAfterTestStarted() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishMonitorsMetrics)
+            if (Publisher.Settings.PublisherEnabled)
                 foreach (var monitor in _stressTest.Monitors) {
                     var publishItem = new MonitorEvent();
                     publishItem.Test = _stressTest.ToString();
@@ -1307,7 +1307,7 @@ namespace vApus.StressTest {
                 }
         }
         private void PublishMonitorAfterTestDone() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishMonitorsMetrics)
+            if (Publisher.Settings.PublisherEnabled)
                 foreach (var monitor in _stressTest.Monitors) {
                     var publishItem = new MonitorEvent();
                     publishItem.Test = _stressTest.ToString();
@@ -1320,7 +1320,7 @@ namespace vApus.StressTest {
         }
 
         private void PublishMessage(int level, string message) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsMessages && level >= Publisher.Settings.MessageLevel) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestMessage;
@@ -1334,7 +1334,7 @@ namespace vApus.StressTest {
         }
 
         private void PublishRequest(RequestResults requestResults) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) Publisher.Send(requestResults, _resultSetId);
+            if (Publisher.Settings.PublisherEnabled) Publisher.Send(requestResults, _resultSetId);
         }
         #endregion
 

@@ -166,6 +166,8 @@ namespace vApus.DistributedTest {
 
                 _progressCountDown = PROGRESSUPDATEDELAY - 1;
                 try {
+                    PublishConfiguration();
+
                     _stressTestCore = new StressTestCore(_stressTest);
                     _stressTestCore.WaitWhenInitializedTheFirstRun = true;
                     _stressTestCore.ResultsHelper = _resultsHelper;
@@ -185,8 +187,6 @@ namespace vApus.DistributedTest {
 
                     _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                     ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
-
-                    PublishConfiguration();
                 } catch (Exception ex) {
                     Stop(ex);
 
@@ -196,6 +196,9 @@ namespace vApus.DistributedTest {
         }
         private void _stressTestCore_TestInitialized(object sender, StressTest.TestInitializedEventArgs e) {
             _stressTestCore.TestInitialized -= _stressTestCore_TestInitialized;
+            PublishTestInitialized();
+            PublishFastResultsAndClientMonitoring(TestEventType.TestInitialized);
+
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 if (e.Exception == null) {
                     try {
@@ -293,12 +296,15 @@ namespace vApus.DistributedTest {
 
             SendPushMessage(RunStateChange.None, false, false);
 
-            PublishProgress(RunStateChange.None);
+            PublishFastResultsAndClientMonitoring(TestEventType.Unchanged);
         }
 
         private void _stressTestCore_StressTestStarted(object sender, StressTestResultEventArgs e) {
             _stressTestResult = e.StressTestResult;
             fastResultsControl.SetStressTestStarted(e.StressTestResult.StartedAt);
+
+            PublishTestStarted();
+            PublishFastResultsAndClientMonitoring(TestEventType.TestStarted);
         }
 
         private void _stressTestCore_ConcurrentUsersStarted(object sender, ConcurrencyResultEventArgs e) {
@@ -307,11 +313,15 @@ namespace vApus.DistributedTest {
             //Update the metrics.
             fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result, _stressTest.SimplifiedFastResults), true);
             fastResultsControl.SetRerunning(false);
+
+            PublishConcurrencyStarted(e.Result.ConcurrencyId, e.Result.Concurrency);
+            PublishFastResultsAndClientMonitoring(TestEventType.ConcurrencyStarted);
         }
         private void _stressTestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) {
             SendPushMessage(RunStateChange.None, false, true);
 
-            PublishProgress(RunStateChange.None);
+            PublishConcurrencyStopped(e.Result.ConcurrencyId);
+            PublishFastResultsAndClientMonitoring(TestEventType.ConcurrencyStopped);
         }
 
         private void _stressTestCore_RunInitializedFirstTime(object sender, RunResultEventArgs e) {
@@ -322,7 +332,8 @@ namespace vApus.DistributedTest {
 
             SendPushMessage(RunStateChange.ToRunInitializedFirstTime, false, false);
 
-            PublishProgress(RunStateChange.ToRunInitializedFirstTime);
+            PublishRunInitializedFirstTime(e.Result.ConcurrencyId, e.Result.Run);
+            PublishFastResultsAndClientMonitoring(TestEventType.RunInitializedFirstTime);
 
             fastResultsControl.SetRerunning(false);
 
@@ -333,25 +344,34 @@ namespace vApus.DistributedTest {
             tmrProgress.Start();
         }
 
-        private void _stressTestCore_RunStarted(object sender, RunResultEventArgs e) { _canUpdateMetrics = true; }
-        private void _stressTestCore_RunDoneOnce(object sender, EventArgs e) {
+        private void _stressTestCore_RunStarted(object sender, RunResultEventArgs e) {
+            _canUpdateMetrics = true;
+
+            PublishRunStarted(e.Result.ConcurrencyId, e.Result.Run);
+            PublishFastResultsAndClientMonitoring(TestEventType.RunStarted);
+        }
+        private void _stressTestCore_RunDoneOnce(object sender, RunResultEventArgs e) {
             SendPushMessage(RunStateChange.ToRunDoneOnce, false, false);
 
-            PublishProgress(RunStateChange.ToRunDoneOnce);
+            PublishRunDoneOnce(e.Result.ConcurrencyId, e.Result.Run);
+            PublishFastResultsAndClientMonitoring(TestEventType.RunDoneOnce);
         }
-        private void _stressTestCore_RerunStarted(object sender, EventArgs e) {
-
+        private void _stressTestCore_RerunStarted(object sender, RunResultEventArgs e) {
+            PublishRerunStarted(e.Result.ConcurrencyId, e.Result.Run, e.Result.RerunCount);
+            PublishFastResultsAndClientMonitoring(TestEventType.RerunStarted);
         }
-        private void _stressTestCore_RerunDone(object sender, EventArgs e) {
+        private void _stressTestCore_RerunDone(object sender, RunResultEventArgs e) {
             SendPushMessage(RunStateChange.ToRerunDone, false, false);
 
-            PublishProgress(RunStateChange.ToRerunDone);
+            PublishRerunDone(e.Result.ConcurrencyId, e.Result.Run, e.Result.RerunCount);
+            PublishFastResultsAndClientMonitoring(TestEventType.RerunDone);
         }
         private void _stressTestCore_RunStopped(object sender, RunResultEventArgs e) {
             _canUpdateMetrics = false;
             SendPushMessage(RunStateChange.None, true, false);
 
-            PublishProgress(RunStateChange.None);
+            PublishRunStopped(e.Result.ConcurrencyId, e.Result.Run);
+            PublishFastResultsAndClientMonitoring(TestEventType.RunStopped);
         }
 
         private void _stressTestCore_OnRequest(object sender, OnRequestEventArgs e) {
@@ -404,8 +424,9 @@ namespace vApus.DistributedTest {
 
                 SendPushMessage(RunStateChange.None, false, false);
 
-                PublishProgress(RunStateChange.None);
-            } else {
+                PublishFastResultsAndClientMonitoring(TestEventType.Unchanged);
+            }
+            else {
                 Solution.ExplicitCancelFormClosing = true;
                 e.Cancel = true;
             }
@@ -446,14 +467,15 @@ namespace vApus.DistributedTest {
         private void Stop(Exception ex = null) {
             Cursor = Cursors.WaitCursor;
             try {
+                if (ex != null)
+                    _stressTestStatus = StressTestStatus.Error;
+
                 StopStressTest();
 
                 tmrProgress.Stop();
                 StopProgressDelayCountDown();
 
                 btnStop.Enabled = false;
-                if (ex != null)
-                    _stressTestStatus = StressTestStatus.Error;
 
                 string message;
                 fastResultsControl.SetStressTestStopped(_stressTestStatus, out message);
@@ -467,8 +489,9 @@ namespace vApus.DistributedTest {
 
                 SendPushMessage(RunStateChange.None, false, false);
 
-                PublishProgress(RunStateChange.None);
-            } catch (Exception eeee) {
+                PublishFastResultsAndClientMonitoring(TestEventType.Unchanged);
+            }
+            catch (Exception eeee) {
                 MessageBox.Show(eeee.ToString());
                 Loggers.Log(Level.Error, "Failed stopping the test.", eeee);
             }
@@ -478,7 +501,7 @@ namespace vApus.DistributedTest {
         /// <summary>
         ///     Only used in stop
         /// </summary>
-        private void StopStressTest() {
+        private void StopStressTest(Exception ex = null) {
             if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
                 try {
                     fastResultsControl.SetClientMonitoring(_stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage,
@@ -496,9 +519,11 @@ namespace vApus.DistributedTest {
                 if (_stressTestCore != null && !_stressTestCore.IsDisposed)
                     try {
                         _stressTestCore.Cancel();
-                    } catch (Exception ex) {
-                        Loggers.Log(Level.Error, "Failed cancelling the test.", ex);
+                    } catch (Exception e) {
+                        Loggers.Log(Level.Error, "Failed cancelling the test.", e);
                     }
+
+                PublishTestStopped(_stressTestStatus, ex);
             }
 
             fastResultsControl.SetStressTestStopped();
@@ -521,7 +546,7 @@ namespace vApus.DistributedTest {
 
         #region Publish
         private void PublishConfiguration() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsConfiguration) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TileStressTestConfiguration();
 
                 publishItem.DistributedTest = _distributedTest;
@@ -559,83 +584,82 @@ namespace vApus.DistributedTest {
             }
         }
 
-        private void PublishProgress(RunStateChange runStateChange) {
-            //PublishFastConcurencyResults(runStateChange);
-            //PublishFastRunResults(runStateChange);
+        private void PublishFastResultsAndClientMonitoring(TestEventType testEventType) {
+            PublishFastConcurencyResults(testEventType);
+            PublishFastRunResults(testEventType);
             PublishClientMonitoring();
         }
-        //private void PublishFastConcurencyResults(RunStateChange runStateChange) {
-        //    if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastConcurrencyResults && _stressTestMetricsCache != null) {
-        //        List<StressTestMetrics> metrics = _stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults);
-        //        if (metrics.Count != 0) {
-        //            StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
-        //            var publishItem = new FastConcurrencyResults();
-        //            publishItem.Test = _tileStressTest;
-        //            publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
-        //            publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
-        //            publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
-        //            publishItem.Concurrency = lastMetrics.Concurrency;
+        private void PublishFastConcurencyResults(TestEventType testEventType) {
+            if (Publisher.Settings.PublisherEnabled && _stressTestMetricsCache != null) {
+                List<StressTestMetrics> metrics = _stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults);
+                if (metrics.Count != 0) {
+                    StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
+                    var publishItem = new FastConcurrencyResults();
+                    publishItem.Test = _stressTest.ToString();
+                    publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
+                    publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
+                    publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
+                    publishItem.Concurrency = lastMetrics.Concurrency;
 
-        //            publishItem.RequestsProcessed = lastMetrics.RequestsProcessed;
-        //            publishItem.Requests = lastMetrics.Requests;
+                    publishItem.RequestsProcessed = lastMetrics.RequestsProcessed;
+                    publishItem.Requests = lastMetrics.Requests;
 
-        //            publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
+                    publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
 
-        //            publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
-        //            publishItem.AverageResponseTimeInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
-        //            publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
-        //            publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
-        //            publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
-        //            publishItem.AverageTop5ResponseTimesInMilliseconds = (long)lastMetrics.AverageTop5ResponseTimes.TotalMilliseconds;
-        //            publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageDelay.TotalMilliseconds;
-        //            publishItem.Errors = (long)lastMetrics.Errors;
+                    publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
+                    publishItem.AverageResponseTimeInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
+                    publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
+                    publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
+                    publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
+                    publishItem.AverageTop5ResponseTimesInMilliseconds = (long)lastMetrics.AverageTop5ResponseTimes.TotalMilliseconds;
+                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageDelay.TotalMilliseconds;
+                    publishItem.Errors = (long)lastMetrics.Errors;
 
-        //            publishItem.RunStateChange = runStateChange.ToString();
-        //            publishItem.StressTestStatus = _stressTestStatus.ToString();
+                    publishItem.TestEvent = (int)testEventType;
+                    publishItem.StressTestStatus = _stressTestStatus.ToString();
 
-        //            Publisher.Post(publishItem, _resultSetId);
-        //        }
-        //    }
-        //}
-        //private void PublishFastRunResults(RunStateChange runStateChange) {
-        //    if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsFastRunResults && _stressTestMetricsCache != null) {
-        //        List<StressTestMetrics> metrics = _stressTestMetricsCache.GetRunMetrics(_stressTest.SimplifiedFastResults);
-        //        if (metrics.Count != 0) {
-        //            StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
-        //            var publishItem = new FastRunResults();
-        //            publishItem.Test = _tileStressTest;
-        //            publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
-        //            publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
-        //            publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
-        //            publishItem.Concurrency = lastMetrics.Concurrency;
+                    Publisher.Send(publishItem, _resultSetId);
+                }
+            }
+        }
+        private void PublishFastRunResults(TestEventType testEventType) {
+            if (Publisher.Settings.PublisherEnabled && _stressTestMetricsCache != null) {
+                List<StressTestMetrics> metrics = _stressTestMetricsCache.GetRunMetrics(_stressTest.SimplifiedFastResults);
+                if (metrics.Count != 0) {
+                    StressTestMetrics lastMetrics = metrics[metrics.Count - 1];
+                    var publishItem = new FastRunResults();
+                    publishItem.Test = _stressTest.ToString();
+                    publishItem.StartMeasuringTimeInMillisecondsSinceEpochUtc = (long)(lastMetrics.StartMeasuringTime.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
+                    publishItem.EstimatedTimeLeftInMilliseconds = (long)lastMetrics.EstimatedTimeLeft.TotalMilliseconds;
+                    publishItem.MeasuredTimeInMilliseconds = (long)lastMetrics.MeasuredTime.TotalMilliseconds;
+                    publishItem.Concurrency = lastMetrics.Concurrency;
 
-        //            publishItem.Run = lastMetrics.Run;
-        //            publishItem.RerunCount = lastMetrics.RerunCount;
+                    publishItem.Run = lastMetrics.Run;
+                    publishItem.RerunCount = lastMetrics.RerunCount;
 
-        //            publishItem.RequestsProcessed = lastMetrics.RequestsProcessed;
-        //            publishItem.Requests = lastMetrics.Requests;
+                    publishItem.RequestsProcessed = lastMetrics.RequestsProcessed;
+                    publishItem.Requests = lastMetrics.Requests;
 
-        //            publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
+                    publishItem.ResponsesPerSecond = lastMetrics.ResponsesPerSecond;
 
-        //            publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
-        //            publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
-        //            publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
-        //            publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
-        //            publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
-        //            publishItem.AverageTop5ResponseTimesInMilliseconds = (long)lastMetrics.AverageTop5ResponseTimes.TotalMilliseconds;
-        //            publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageDelay.TotalMilliseconds;
-        //            publishItem.Errors = (long)lastMetrics.Errors;
+                    publishItem.UserActionsPerSecond = lastMetrics.UserActionsPerSecond;
+                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageResponseTime.TotalMilliseconds;
+                    publishItem.MaxResponseTimeInMilliseconds = (long)lastMetrics.MaxResponseTime.TotalMilliseconds;
+                    publishItem.Percentile95thResponseTimesInMilliseconds = (long)lastMetrics.Percentile95thResponseTimes.TotalMilliseconds;
+                    publishItem.Percentile99thResponseTimesInMilliseconds = (long)lastMetrics.Percentile99thResponseTimes.TotalMilliseconds;
+                    publishItem.AverageTop5ResponseTimesInMilliseconds = (long)lastMetrics.AverageTop5ResponseTimes.TotalMilliseconds;
+                    publishItem.AverageDelayInMilliseconds = (long)lastMetrics.AverageDelay.TotalMilliseconds;
+                    publishItem.Errors = (long)lastMetrics.Errors;
 
-        //            publishItem.RunStateChange = runStateChange.ToString();
-        //            publishItem.StressTestStatus = _stressTestStatus.ToString();
+                    publishItem.TestEvent = (int)testEventType;
+                    publishItem.StressTestStatus = _stressTestStatus.ToString();
 
-        //            Publisher.Post(publishItem, _resultSetId);
-        //        }
-        //    }
-        //}
-
+                    Publisher.Send(publishItem, _resultSetId);
+                }
+            }
+        }
         private void PublishClientMonitoring() {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsClientMonitoring) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new ClientMonitorMetrics();
                 publishItem.Test = _tileStressTest;
                 publishItem.BusyThreadCount = _stressTestCore == null || _stressTestCore.IsDisposed ? 0 : _stressTestCore.BusyThreadCount;
@@ -651,22 +675,67 @@ namespace vApus.DistributedTest {
             }
         }
 
-        private void PublishMessage(int level, string message) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestsMessages && level >= Publisher.Settings.MessageLevel) {
+        private void PublishTestInitialized() {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
-                publishItem.Test = _tileStressTest;
-                publishItem.TestEventType = (int)TestEventType.TestMessage;
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.TestInitialized;
+                publishItem.Parameters = new KeyValuePair<string, string>[0];
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
+        private void PublishTestStarted() {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.TestStarted;
+                publishItem.Parameters = new KeyValuePair<string, string>[0];
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
+        private void PublishConcurrencyStarted(int concurrencyId, int concurrency) {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.ConcurrencyStarted;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
-                    new KeyValuePair<string, string>("Level", level.ToString()),
-                    new KeyValuePair<string, string>("Message", message)
+                    new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
+                    new KeyValuePair<string, string>("Concurrency", concurrency.ToString())
                 };
 
                 Publisher.Send(publishItem, _resultSetId);
             }
         }
+        private void PublishRunInitializedFirstTime(int concurrencyId, int run) {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.RunInitializedFirstTime;
+                publishItem.Parameters = new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
+                    new KeyValuePair<string, string>("Run", run.ToString())
+                };
 
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
+        private void PublishRunStarted(int concurrencyId, int run) {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.RunStarted;
+                publishItem.Parameters = new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
+                    new KeyValuePair<string, string>("Run", run.ToString())
+                };
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
         private void PublishRunDoneOnce(int concurrencyId, int run) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RunDoneOnce;
@@ -678,8 +747,22 @@ namespace vApus.DistributedTest {
                 Publisher.Send(publishItem, _resultSetId);
             }
         }
+        private void PublishRerunStarted(int concurrencyId, int run, int rerun) {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.RerunStarted;
+                publishItem.Parameters = new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
+                    new KeyValuePair<string, string>("Run", run.ToString()),
+                    new KeyValuePair<string, string>("Rerun", rerun.ToString())
+                };
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
         private void PublishRerunDone(int concurrencyId, int run, int rerun) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) {
+            if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RerunDone;
@@ -692,9 +775,61 @@ namespace vApus.DistributedTest {
                 Publisher.Send(publishItem, _resultSetId);
             }
         }
+        private void PublishRunStopped(int concurrencyId, int run) {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.RunStopped;
+                publishItem.Parameters = new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
+                    new KeyValuePair<string, string>("Run", run.ToString()),
+                };
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
+        private void PublishConcurrencyStopped(int concurrencyId) {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.ConcurrencyStopped;
+                publishItem.Parameters = new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
+                };
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
+        private void PublishTestStopped(StressTestStatus stressTestStatus, Exception ex) {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _stressTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.TestStopped;
+                publishItem.Parameters = new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>("Status", stressTestStatus.ToString()),
+                    new KeyValuePair<string, string>("StatusMessage", ex == null ? string.Empty : ex.ToString())
+                };
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
+
+        private void PublishMessage(int level, string message) {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _tileStressTest;
+                publishItem.TestEventType = (int)TestEventType.TestMessage;
+                publishItem.Parameters = new KeyValuePair<string, string>[] {
+                    new KeyValuePair<string, string>("Level", level.ToString()),
+                    new KeyValuePair<string, string>("Message", message)
+                };
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
 
         private void PublishRequest(RequestResults requestResults) {
-            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.PublishTestRequestResults) Publisher.Send(requestResults, _resultSetId);
+            if (Publisher.Settings.PublisherEnabled) Publisher.Send(requestResults, _resultSetId);
         }
 
         #endregion

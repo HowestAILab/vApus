@@ -196,6 +196,47 @@
             This also happens on app exit.
             </summary>
         </member>
+        <member name="T:RandomUtils.FindAndReplaceHelperObject">
+            <summary>
+            <para>This class contains extra functionality upon FindAndReplace for searching a given text. For instance: A find next is implemented in it.</para>
+            <para>It caches the found entries in the text (rows, columns, starts, match lengths) and invalidate it's cache when needed. For instance: A new find pattern is given.</para>
+            <para>This also means that, unlike FindAndReplace, the functionality in this class is not thread safe.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceHelperObject.FindNext(System.String,System.String,System.Int32@,System.Int32@,System.Int32@,System.Int32@,System.Boolean,System.Boolean)">
+            <summary>
+            Find the next occurance of a given find pattern. When one of the given arguments is different then the last time this function was called, the find cache is invalidated.
+            </summary>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
+            <param name="inText"></param>
+            <param name="row">The row where a match is found.</param>
+            <param name="column">The column where a match is found.</param>
+            <param name="start">The start index of a find, for making text selections easier.</param>
+            <param name="matchLength">The length of the match</param>
+            <param name="wholeWords"></param>
+            <param name="matchCase"></param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceHelperObject.FindAll(System.String,System.String,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Boolean,System.Boolean)">
+            <summary>
+            Find all occurances of a given find pattern. When one of the given arguments is different then the last time this function was called, the find cache is invalidated.
+            </summary>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
+            <param name="inText"></param>
+            <param name="rows">The rows where a match is found.</param>
+            <param name="columns">The columns where a match is found.</param>
+            <param name="starts">The start index of each find, for making text selections easier.</param>
+            <param name="matchLengths">The lengths of the match</param>
+            <param name="wholeWords"></param>
+            <param name="matchCase"></param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceHelperObject.Replace(System.String,System.Boolean)">
+            <summary>
+            Always call FindNext(...) or FindAll(...) first.
+            </summary>
+            <param name="with"></param>
+            <param name="all">True for replacing all occurances.</param>
+            <returns></returns>
+        </member>
         <member name="T:RandomUtils.ControlComparer">
             <summary>
              Compares by text, to string, name, full name or a combination of these.
@@ -248,22 +289,33 @@
         </member>
         <member name="E:RandomUtils.Countdown.Tick">
             <summary>
-            Occurs when the time period has elapsed.
+            Occurs when the time period has elapsed. Get the current countdown from the Countdown field.
             </summary>
         </member>
         <member name="P:RandomUtils.Countdown.CountdownTime">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Countdown.ReportProgressTime">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Countdown.IsStarted">
             <summary></summary>
         </member>
-        <member name="M:RandomUtils.Countdown.#ctor(System.Int32,System.Int32)">
+        <member name="M:RandomUtils.Countdown.#ctor">
             <summary>
-                A countdown class, can report progress and when the countdown has become 0.
-                Inits and starts the countdown.
+            A countdown class, can report progress and when the countdown has become 0.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Countdown.Start(System.Int32,System.Int32)">
+            <summary>
+            Start or restarts the countdown.
             </summary>
             <param name="countdownTime">In ms.</param>
             <param name="reportProgressTime">In ms. Min 100</param>
-        </member>
-        <member name="M:RandomUtils.Countdown.Start">
-            <summary></summary>
         </member>
         <member name="M:RandomUtils.Countdown.Stop">
             <summary></summary>
@@ -273,39 +325,64 @@
         </member>
         <member name="T:RandomUtils.FastObjectCreator">
             <summary>
-            <para>Creates a new instance of a type using an empty public constructor and Intermediate Language. This is faster than Activator.CreateInstance(...),
-            and unsafer since there are no checks. Do a comparison if you like.</para>
-            <para>However, for primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
-            </summary>
+            <para>Use this to create a new instance of a type using an empty public constructor and Intermediate Language. This used to be faster than Activator.CreateInstance(...),but speaking from own experience this is no longer the case with modern .Net.</para>
+            <para>However, the type's constructor is cached when calling CreateInstance, wich makes this faster when creating a lot of the same objects.</para>
+            <para>I'm not at all the inventor of this way of working, check for instance this blog post: https://codingsolution.wordpress.com/2013/07/12/activator-createinstance-is-slow/ </para>
+            <para>You would use this (or Activator) when you know only a class type, e.g.</para>
+            <para>You load a custom text-based save file, if it is a custom type you can cast to an interface in the return type definition:</para>
+            <para><![CDATA[ var compilerUnit = new CompilerUnit(); ]]></para>
+            <para><![CDATA[ CompilerResults compilerResults = null; ]]></para>
+            <para><![CDATA[ Type t = null; ]]></para>
+            <para><![CDATA[ Assembly as = compilerUnit.Compile("<Insert code here>", debug, out compilerResults); ]]></para>
+            <para><![CDATA[ if (!compilerResults.Errors.HasErrors) { ]]></para>
+            <para><![CDATA[ t = _connectionProxyAssembly.GetType("MyNamespace.MyClass"); ]]></para>
+            <para><![CDATA[ var obj = FastObjectCreator<IMyInterface>.CreateInstance(t); ]]></para>
+            <para><![CDATA[ } ]]></para>
+            <para>For primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
+            </summary>  
         </member>
         <member name="M:RandomUtils.FastObjectCreator.CreateInstance``1(System.Type)">
             <summary>
-            <para>Creates a new instance of a type using an empty public constructor and Intermediate Language. This is faster than Activator.CreateInstance(...),
-            and unsafer since there are no checks. Do a comparison if you like.</para>
-            <para>However, for primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
+            <para>Use this to create a new instance of a type using an empty public constructor and Intermediate Language. This used to be faster than Activator.CreateInstance(...),but speaking from own experience this is no longer the case with modern .Net.</para>
+            <para>However, the type's constructor is cached when calling CreateInstance, wich makes this faster when creating a lot of the same objects.</para>
+            <para>I'm not at all the inventor of this way of working, check for instance this blog post: https://codingsolution.wordpress.com/2013/07/12/activator-createinstance-is-slow/ </para>
+            <para>You would use this (or Activator) when you know only a class type, e.g.</para>
+            <para>You load a custom text-based save file, if it is a custom type you can cast to an interface in the return type definition:</para>
+            <para><![CDATA[ var compilerUnit = new CompilerUnit(); ]]></para>
+            <para><![CDATA[ CompilerResults compilerResults = null; ]]></para>
+            <para><![CDATA[ Type t = null; ]]></para>
+            <para><![CDATA[ Assembly as = compilerUnit.Compile("<Insert code here>", debug, out compilerResults); ]]></para>
+            <para><![CDATA[ if (!compilerResults.Errors.HasErrors) { ]]></para>
+            <para><![CDATA[ t = _connectionProxyAssembly.GetType("MyNamespace.MyClass"); ]]></para>
+            <para><![CDATA[ var obj = FastObjectCreator<IMyInterface>.CreateInstance(t); ]]></para>
+            <para><![CDATA[ } ]]></para>
+            <para>For primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
             </summary>
             <param name="type"></param>
             <returns></returns>
         </member>
         <member name="T:RandomUtils.FindAndReplace">
             <summary>
-            A helper class to easily find and replace in a given piece of text.
+            <para>A helper class to easily find and replace in a given piece of text. Multiline find patterns are not supported.</para>
+            <para>Use this class if you want something 'reasonably' fast and thread safe.</para>
+            <para>If you want more practical functionality for real user input, use FindAndReplaceHelperObject.</para>
             </summary>
         </member>
-        <member name="M:RandomUtils.FindAndReplace.Find(System.String,System.String,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Boolean,System.Boolean)">
+        <member name="M:RandomUtils.FindAndReplace.Find(System.String,System.String,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Boolean,System.Boolean)">
             <summary>
             </summary>
-            <param name="s">You can use *, +, - "" like previously in Google.</param>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
             <param name="inText"></param>
             <param name="rows">The rows where a match is found.</param>
             <param name="columns">The columns where a match is found.</param>
+            <param name="starts">The start index of each find, for making text selections easier.</param>
             <param name="matchLengths">The lengths of the match</param>
             <param name="wholeWords"></param>
-            <param name="ignoreCase"></param>
+            <param name="matchCase"></param>
         </member>
         <member name="M:RandomUtils.FindAndReplace.Replace(System.Int32,System.Int32,System.Int32,System.String,System.String)">
             <summary>
-            Call Find(...) first.
+            Always call Find(...) first.
             </summary>
             <param name="row"></param>
             <param name="column"></param>
@@ -316,7 +393,7 @@
         </member>
         <member name="M:RandomUtils.FindAndReplace.Replace(System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32},System.String,System.String)">
             <summary>
-            Call Find(...) first.
+            Always call Find(...) first.
             </summary>
             <param name="rows"></param>
             <param name="columns"></param>
@@ -325,7 +402,17 @@
             <param name="with"></param>
             <returns></returns>
         </member>
-        <member name="M:RandomUtils.FindAndReplace.Split(System.String)">
+        <member name="M:RandomUtils.FindAndReplace.DetermineFindRegexes(System.String,System.Boolean,System.String@,System.String@,System.String@)">
+            <summary>
+            
+            </summary>
+            <param name="find"></param>
+            <param name="wholeWords"></param>
+            <param name="mustHaveRegex"></param>
+            <param name="canHaveRegex"></param>
+            <param name="cannotHaveRegex"></param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplace.GetSentences(System.String)">
             <summary>
             This takes double quotes into account
             </summary>
@@ -506,7 +593,7 @@
         </member>
         <member name="P:RandomUtils.StringTree.Item(System.Int32)">
             <summary>
-            Indexer for this StringTreee.
+            Indexer for this StringTree.
             </summary>
             <param name="index"></param>
             <returns></returns>
@@ -525,6 +612,7 @@
             </summary>
             <param name="value"></param>
             <param name="childDelimiter">Use combine values to return a string representation of the elements in this structure.</param>
+            <param name="count">Set the number of child nodes.</param>
         </member>
         <member name="M:RandomUtils.StringTree.CombineValues">
             <summary>
@@ -559,6 +647,92 @@
         </member>
         <member name="P:RandomUtils.DataGridViewImageCellBlank.DefaultNewRowValue">
             <summary> </summary>
+        </member>
+        <member name="T:RandomUtils.FindAndReplaceControl">
+            <summary>
+            A GUI wrapper for FindAndReplace. 
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.FindTextChanged">
+            <summary>
+            Occures when the find text is changed.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.ReplaceTextChanged">
+            <summary>
+            Occures when the replace text is changed.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.FindClicked">
+            <summary>
+            Occures when the find button is clicked.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.ReplaceClicked">
+            <summary>
+            Occures when the replace button is clicked.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.WholeWordsChanged">
+            <summary>
+            Occures when whole words is (un)checked.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.MatchCaseChanged">
+            <summary>
+            Occures when match case is (un)checked.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.ReplaceAllChanged">
+            <summary>
+            Occures when replace all is (un)checked.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceControl.#ctor">
+            <summary>
+            A GUI wrapper for FindAndReplace. 
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.Find">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.FindWholeWords">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.FindMatchCase">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.ReplaceWith">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.ReplaceAll">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:RandomUtils.FindAndReplaceControl.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceControl.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceControl.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
         </member>
         <member name="T:RandomUtils.InputDialog">
             <summary>
@@ -632,6 +806,53 @@
         </member>
         <member name="F:RandomUtils.InputDialog.btnOK">
             <summary></summary>
+        </member>
+        <member name="T:RandomUtils.KeyValuePairControl">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValuePairControl.Key">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValuePairControl.Value">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValuePairControl.Tooltip">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:RandomUtils.KeyValuePairControl.#ctor">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+        </member>
+        <member name="M:RandomUtils.KeyValuePairControl.#ctor(System.String,System.String)">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+        </member>
+        <member name="F:RandomUtils.KeyValuePairControl.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.KeyValuePairControl.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.KeyValuePairControl.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
         </member>
         <member name="T:RandomUtils.Hotkeys">
             <summary>
@@ -779,14 +1000,14 @@
             <para>Most common functionality is implemented and a few other features.</para>
              </summary>
         </member>
-        <member name="M:RandomUtils.LargeList.#ctor(System.Collections.Generic.List{System.Windows.Forms.Control})">
+        <member name="M:RandomUtils.LargeList.#ctor(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})">
              <summary>
             <para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
             <para>Most common functionality is implemented and a few other features.</para>
              </summary>
              <param name="controls"></param>
         </member>
-        <member name="M:RandomUtils.LargeList.#ctor(System.Collections.Generic.List{System.Collections.Generic.List{System.Windows.Forms.Control}})">
+        <member name="M:RandomUtils.LargeList.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}})">
              <summary>
             <para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
             <para>Most common functionality is implemented and a few other features.</para>
@@ -826,17 +1047,17 @@
             </summary>
             <param name="controls"></param>
         </member>
-        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.List{System.Windows.Forms.Control})">
+        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})">
             <summary>
             </summary>
             <param name="controls"></param>
         </member>
-        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.List{System.Collections.Generic.List{System.Windows.Forms.Control}})">
+        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}})">
             <summary>
             </summary>
             <param name="controls"></param>
         </member>
-        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.List{System.Collections.Generic.List{System.Windows.Forms.Control}},System.Boolean)">
+        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}},System.Boolean)">
             <summary>
             </summary>
             <param name="controls"></param>
@@ -1086,7 +1307,7 @@
             <param name="beginIndex"></param>
             <param name="endIndex"></param>
         </member>
-        <member name="M:RandomUtils.LargeList.SelectRange(System.Collections.Generic.List{System.Windows.Forms.Control})">
+        <member name="M:RandomUtils.LargeList.SelectRange(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})">
             <summary>
             Visualization of selection you must do yourself (use the SelectionChanged event).
             </summary>
@@ -1270,18 +1491,18 @@
         </member>
         <member name="M:RandomUtils.RemoteDesktop.Show(System.String,System.String,System.String,System.String)">
              <summary>
-            Not threadsafe --> Stupid credentials workaround. Do not forget to remove the credentials (RemoveCredentials(string ip)). Do not do this too fast, otherwise login will not work.
+            Stupid credentials workaround. Do not forget to remove the credentials (RemoveCredentials(string ip)). Do not do this too fast, otherwise login will not work.
              </summary>
-             <param name="ip"></param>
+             <param name="host"></param>
              <param name="username"></param>
              <param name="password"></param>
              <param name="domain"></param>
         </member>
         <member name="M:RandomUtils.RemoteDesktop.RemoveCredentials(System.String)">
             <summary>
-            I know, this sucks. Why not can't credentials be passed to mstsc.exe as arguments?...
+            I know, this sucks. Why can't credentials be passed to mstsc.exe as arguments?...
             </summary>
-            <param name="ip"></param>
+            <param name="host"></param>
         </member>
         <member name="T:RandomUtils.SerializationHelper">
             <summary>
@@ -1416,19 +1637,7 @@
             <returns></returns>
         </member>
         <member name="T:RandomUtils.StringUtil">
-            <summary></summary>
-        </member>
-        <member name="M:RandomUtils.StringUtil.IsNumeric(System.Object)">
-            <summary>
-            </summary>
-            <param name="o"></param>
-            <returns></returns>
-        </member>
-        <member name="M:RandomUtils.StringUtil.IsNumericType(System.Type)">
-            <summary>
-            </summary>
-            <param name="t"></param>
-            <returns></returns>
+            <summary>String helper class. With this you can generate names and format numeric values.</summary>
         </member>
         <member name="M:RandomUtils.StringUtil.GenerateRandomName(System.Int32)">
             <summary>
@@ -1632,12 +1841,42 @@
             <summary>
             </summary>
         </member>
-        <member name="M:RandomUtils.Tracert.Trace(System.String,System.Int32,System.Int32)">
+        <member name="P:RandomUtils.Tracert.IP">
+            <summary>
+            The IP to trace route.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.LastStatus">
+            <summary>
+            The IP status for the last hop.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.MaxHops">
+            <summary>
+            The maximum hops that may occur.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.Timeout">
+            <summary>
+            The ping timeout for a hop in ms.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.Hops">
+            <summary>
+            The numbers of hops done.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.IsDone">
             <summary>
             </summary>
-            <param name="hostNameOrIP"></param>
-            <param name="maxHops"></param>
-            <param name="timeout">in ms</param>
+        </member>
+        <member name="M:RandomUtils.Tracert.Trace(System.String,System.Int32,System.Int32)">
+            <summary>
+            Determines the trace route for a given destination host or IP.
+            </summary>
+            <param name="hostNameOrIP">The host name or IP to trace route.</param>
+            <param name="maxHops">The maximum hops that may occur.</param>
+            <param name="timeout">The ping timeout for a hop in ms.</param>
         </member>
         <member name="M:RandomUtils.Tracert.Dispose">
             <summary>
@@ -1673,6 +1912,132 @@
             <param name="hostName"></param>
             <param name="roundTripTime">in ms</param>
             <param name="status">The status of sending an Internet Control Message Protocol (ICMP) echo message to a computer.</param>
+        </member>
+        <member name="T:RandomUtils.TracertControl">
+            <summary>
+            <para>A control around Tracert --> Determines the trace route for a given destination host or IP.</para>
+            <para>Suscribe to BeforeTrace and call SetToTrace(...).</para>
+            </summary>
+        </member>
+        <member name="E:RandomUtils.TracertControl.BeforeTrace">
+            <summary>
+            You can call SetToTrace here last minute.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.TracertControl.Done">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.HostNameOrIP">
+            <summary>
+            The host name or IP to trace route.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.LastStatus">
+            <summary>
+            The IP status for the last hop.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.MaxHops">
+            <summary>
+            The maximum hops that may occur.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.Timeout">
+            <summary>
+            The ping timeout for a hop in ms.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.Hops">
+            <summary>
+            The numbers of hops done.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.IsDone">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertControl.#ctor">
+            <summary>
+            <para>A control around Tracert --> Determines the trace route for a given destination host or IP.</para>
+            <para>Suscribe to BeforeTrace and call SetToTrace(...).</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertControl.SetToTrace(System.String,System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="hostNameOrIP"></param>
+            <param name="maxHops"></param>
+            <param name="timeout"></param>
+        </member>
+        <member name="F:RandomUtils.TracertControl.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertControl.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.TracertControl.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.TracertDialog">
+            <summary>
+            
+            </summary>
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="E:RandomUtils.TracertDialog.TraceRouteCancelled">
+            <summary>
+            Fires when the cancel button is pressed.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.#ctor">
+            <summary>
+            Initiale calling SetStarted(). Finalize calling SetCompleted().
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.SetStarted">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.AddHop(System.String,System.String,System.String)">
+            <summary>
+            Add a hop to the list view.
+            </summary>
+            <param name="ip"></param>
+            <param name="hostName"></param>
+            <param name="roundtripTime">Already formatted</param>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.SetCompleted">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.TracertDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
         </member>
     </members>
 </doc>

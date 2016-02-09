@@ -28,26 +28,24 @@
             this.label1 = new System.Windows.Forms.Label();
             this.lblTests = new System.Windows.Forms.Label();
             this.lblMonitors = new System.Windows.Forms.Label();
-            this.chkTestsFastConcurrencyResults = new System.Windows.Forms.CheckBox();
-            this.chkTestsConfig = new System.Windows.Forms.CheckBox();
-            this.chkTestsFastRunResults = new System.Windows.Forms.CheckBox();
-            this.chkMonitorsConfig = new System.Windows.Forms.CheckBox();
-            this.chkMonitorsMetrics = new System.Windows.Forms.CheckBox();
-            this.chkTestsMessages = new System.Windows.Forms.CheckBox();
-            this.chkMonitorsHWConfig = new System.Windows.Forms.CheckBox();
+            this.chkTestsFastConcurrencyResults = new System.Windows.Forms.Label();
+            this.chkTestsConfig = new System.Windows.Forms.Label();
+            this.chkTestsFastRunResults = new System.Windows.Forms.Label();
+            this.chkMonitorsConfig = new System.Windows.Forms.Label();
+            this.chkMonitorsMetrics = new System.Windows.Forms.Label();
+            this.chkTestsMessages = new System.Windows.Forms.Label();
+            this.chkMonitorsHWConfig = new System.Windows.Forms.Label();
             this.btnSet = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.grp = new System.Windows.Forms.GroupBox();
-            this.chkRequestResults = new System.Windows.Forms.CheckBox();
+            this.chkRequestResults = new System.Windows.Forms.Label();
             this.txtTcpHost = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
             this.label3 = new System.Windows.Forms.Label();
             this.nudTcpPort = new System.Windows.Forms.NumericUpDown();
             this.llblDeserialize = new System.Windows.Forms.LinkLabel();
-            this.cboLogLevel = new System.Windows.Forms.ComboBox();
-            this.chkApplicationLogs = new System.Windows.Forms.CheckBox();
-            this.cboMessageLevel = new System.Windows.Forms.ComboBox();
-            this.chkTestsClientMonitoring = new System.Windows.Forms.CheckBox();
+            this.chkApplicationLogs = new System.Windows.Forms.Label();
+            this.chkTestsClientMonitoring = new System.Windows.Forms.Label();
             this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.btnEnable = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
@@ -59,12 +57,10 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.AutoSize = true;
             this.label1.Location = new System.Drawing.Point(9, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(573, 52);
+            this.label1.Size = new System.Drawing.Size(286, 42);
             this.label1.TabIndex = 0;
-            this.label1.Text = resources.GetString("label1.Text");
             // 
             // lblTests
             // 
@@ -91,70 +87,63 @@
             this.chkTestsFastConcurrencyResults.AutoSize = true;
             this.chkTestsFastConcurrencyResults.Location = new System.Drawing.Point(19, 65);
             this.chkTestsFastConcurrencyResults.Name = "chkTestsFastConcurrencyResults";
-            this.chkTestsFastConcurrencyResults.Size = new System.Drawing.Size(141, 17);
+            this.chkTestsFastConcurrencyResults.Size = new System.Drawing.Size(122, 13);
             this.chkTestsFastConcurrencyResults.TabIndex = 2;
             this.chkTestsFastConcurrencyResults.Text = "Fast concurrency results";
-            this.chkTestsFastConcurrencyResults.UseVisualStyleBackColor = true;
             // 
             // chkTestsConfig
             // 
             this.chkTestsConfig.AutoSize = true;
             this.chkTestsConfig.Location = new System.Drawing.Point(19, 42);
             this.chkTestsConfig.Name = "chkTestsConfig";
-            this.chkTestsConfig.Size = new System.Drawing.Size(88, 17);
+            this.chkTestsConfig.Size = new System.Drawing.Size(69, 13);
             this.chkTestsConfig.TabIndex = 1;
             this.chkTestsConfig.Text = "Configuration";
-            this.chkTestsConfig.UseVisualStyleBackColor = true;
             // 
             // chkTestsFastRunResults
             // 
             this.chkTestsFastRunResults.AutoSize = true;
             this.chkTestsFastRunResults.Location = new System.Drawing.Point(19, 88);
             this.chkTestsFastRunResults.Name = "chkTestsFastRunResults";
-            this.chkTestsFastRunResults.Size = new System.Drawing.Size(95, 17);
+            this.chkTestsFastRunResults.Size = new System.Drawing.Size(76, 13);
             this.chkTestsFastRunResults.TabIndex = 3;
             this.chkTestsFastRunResults.Text = "Fast run resuts";
-            this.chkTestsFastRunResults.UseVisualStyleBackColor = true;
             // 
             // chkMonitorsConfig
             // 
             this.chkMonitorsConfig.AutoSize = true;
             this.chkMonitorsConfig.Location = new System.Drawing.Point(214, 42);
             this.chkMonitorsConfig.Name = "chkMonitorsConfig";
-            this.chkMonitorsConfig.Size = new System.Drawing.Size(88, 17);
+            this.chkMonitorsConfig.Size = new System.Drawing.Size(69, 13);
             this.chkMonitorsConfig.TabIndex = 7;
             this.chkMonitorsConfig.Text = "Configuration";
-            this.chkMonitorsConfig.UseVisualStyleBackColor = true;
             // 
             // chkMonitorsMetrics
             // 
             this.chkMonitorsMetrics.AutoSize = true;
             this.chkMonitorsMetrics.Location = new System.Drawing.Point(214, 88);
             this.chkMonitorsMetrics.Name = "chkMonitorsMetrics";
-            this.chkMonitorsMetrics.Size = new System.Drawing.Size(60, 17);
+            this.chkMonitorsMetrics.Size = new System.Drawing.Size(41, 13);
             this.chkMonitorsMetrics.TabIndex = 9;
             this.chkMonitorsMetrics.Text = "Metrics";
-            this.chkMonitorsMetrics.UseVisualStyleBackColor = true;
             // 
             // chkTestsMessages
             // 
             this.chkTestsMessages.AutoSize = true;
-            this.chkTestsMessages.Location = new System.Drawing.Point(19, 165);
+            this.chkTestsMessages.Location = new System.Drawing.Point(21, 158);
             this.chkTestsMessages.Name = "chkTestsMessages";
-            this.chkTestsMessages.Size = new System.Drawing.Size(74, 17);
+            this.chkTestsMessages.Size = new System.Drawing.Size(78, 13);
             this.chkTestsMessages.TabIndex = 5;
-            this.chkTestsMessages.Text = "Messages";
-            this.chkTestsMessages.UseVisualStyleBackColor = true;
+            this.chkTestsMessages.Text = "Test messages";
             // 
             // chkMonitorsHWConfig
             // 
             this.chkMonitorsHWConfig.AutoSize = true;
             this.chkMonitorsHWConfig.Location = new System.Drawing.Point(214, 65);
             this.chkMonitorsHWConfig.Name = "chkMonitorsHWConfig";
-            this.chkMonitorsHWConfig.Size = new System.Drawing.Size(136, 17);
+            this.chkMonitorsHWConfig.Size = new System.Drawing.Size(117, 13);
             this.chkMonitorsHWConfig.TabIndex = 8;
             this.chkMonitorsHWConfig.Text = "Hardware configuration";
-            this.chkMonitorsHWConfig.UseVisualStyleBackColor = true;
             // 
             // btnSet
             // 
@@ -193,9 +182,7 @@
             this.grp.Controls.Add(this.label3);
             this.grp.Controls.Add(this.nudTcpPort);
             this.grp.Controls.Add(this.llblDeserialize);
-            this.grp.Controls.Add(this.cboLogLevel);
             this.grp.Controls.Add(this.chkApplicationLogs);
-            this.grp.Controls.Add(this.cboMessageLevel);
             this.grp.Controls.Add(this.chkTestsClientMonitoring);
             this.grp.Controls.Add(this.lblTests);
             this.grp.Controls.Add(this.lblMonitors);
@@ -219,10 +206,9 @@
             this.chkRequestResults.AutoSize = true;
             this.chkRequestResults.Location = new System.Drawing.Point(19, 111);
             this.chkRequestResults.Name = "chkRequestResults";
-            this.chkRequestResults.Size = new System.Drawing.Size(99, 17);
+            this.chkRequestResults.Size = new System.Drawing.Size(80, 13);
             this.chkRequestResults.TabIndex = 1015;
             this.chkRequestResults.Text = "Request results";
-            this.chkRequestResults.UseVisualStyleBackColor = true;
             // 
             // txtTcpHost
             // 
@@ -289,23 +275,6 @@
             this.llblDeserialize.VisitedLinkColor = System.Drawing.Color.Blue;
             this.llblDeserialize.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llblDeserialize_LinkClicked);
             // 
-            // cboLogLevel
-            // 
-            this.cboLogLevel.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
-            this.cboLogLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboLogLevel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboLogLevel.FormattingEnabled = true;
-            this.cboLogLevel.Items.AddRange(new object[] {
-            "Info",
-            "Warning",
-            "Error"});
-            this.cboLogLevel.Location = new System.Drawing.Point(520, 40);
-            this.cboLogLevel.Name = "cboLogLevel";
-            this.cboLogLevel.Size = new System.Drawing.Size(72, 21);
-            this.cboLogLevel.TabIndex = 11;
-            this.toolTip.SetToolTip(this.cboLogLevel, "Publish log entries with this log level and worst.\r\nThis setting depends on the l" +
-        "og level setting in the application logging panel.\r\nFatals cannot be published.");
-            // 
             // chkApplicationLogs
             // 
             this.chkApplicationLogs.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
@@ -313,35 +282,18 @@
             this.chkApplicationLogs.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.chkApplicationLogs.Location = new System.Drawing.Point(482, 18);
             this.chkApplicationLogs.Name = "chkApplicationLogs";
-            this.chkApplicationLogs.Size = new System.Drawing.Size(116, 17);
+            this.chkApplicationLogs.Size = new System.Drawing.Size(97, 13);
             this.chkApplicationLogs.TabIndex = 10;
             this.chkApplicationLogs.Text = "Application logs";
-            this.chkApplicationLogs.UseVisualStyleBackColor = true;
-            // 
-            // cboMessageLevel
-            // 
-            this.cboMessageLevel.DropDownStyle = System.Windows.Forms.ComboBoxStyle.DropDownList;
-            this.cboMessageLevel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.cboMessageLevel.FormattingEnabled = true;
-            this.cboMessageLevel.Items.AddRange(new object[] {
-            "Info",
-            "Warning",
-            "Error"});
-            this.cboMessageLevel.Location = new System.Drawing.Point(99, 163);
-            this.cboMessageLevel.Name = "cboMessageLevel";
-            this.cboMessageLevel.Size = new System.Drawing.Size(72, 21);
-            this.cboMessageLevel.TabIndex = 6;
-            this.toolTip.SetToolTip(this.cboMessageLevel, "Publish messages with this log level and worst.");
             // 
             // chkTestsClientMonitoring
             // 
             this.chkTestsClientMonitoring.AutoSize = true;
             this.chkTestsClientMonitoring.Location = new System.Drawing.Point(19, 134);
             this.chkTestsClientMonitoring.Name = "chkTestsClientMonitoring";
-            this.chkTestsClientMonitoring.Size = new System.Drawing.Size(103, 17);
+            this.chkTestsClientMonitoring.Size = new System.Drawing.Size(84, 13);
             this.chkTestsClientMonitoring.TabIndex = 4;
             this.chkTestsClientMonitoring.Text = "Client monitoring";
-            this.chkTestsClientMonitoring.UseVisualStyleBackColor = true;
             // 
             // btnEnable
             // 
@@ -376,7 +328,6 @@
             this.grp.PerformLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudTcpPort)).EndInit();
             this.ResumeLayout(false);
-            this.PerformLayout();
 
         }
 
@@ -385,21 +336,19 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.Label lblTests;
         private System.Windows.Forms.Label lblMonitors;
-        private System.Windows.Forms.CheckBox chkTestsFastConcurrencyResults;
-        private System.Windows.Forms.CheckBox chkTestsConfig;
-        private System.Windows.Forms.CheckBox chkTestsFastRunResults;
-        private System.Windows.Forms.CheckBox chkMonitorsConfig;
-        private System.Windows.Forms.CheckBox chkMonitorsMetrics;
-        private System.Windows.Forms.CheckBox chkTestsMessages;
-        private System.Windows.Forms.CheckBox chkMonitorsHWConfig;
+        private System.Windows.Forms.Label chkTestsFastConcurrencyResults;
+        private System.Windows.Forms.Label chkTestsConfig;
+        private System.Windows.Forms.Label chkTestsFastRunResults;
+        private System.Windows.Forms.Label chkMonitorsConfig;
+        private System.Windows.Forms.Label chkMonitorsMetrics;
+        private System.Windows.Forms.Label chkTestsMessages;
+        private System.Windows.Forms.Label chkMonitorsHWConfig;
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox grp;
         private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
-        private System.Windows.Forms.CheckBox chkTestsClientMonitoring;
-        private System.Windows.Forms.ComboBox cboMessageLevel;
-        private System.Windows.Forms.ComboBox cboLogLevel;
-        private System.Windows.Forms.CheckBox chkApplicationLogs;
+        private System.Windows.Forms.Label chkTestsClientMonitoring;
+        private System.Windows.Forms.Label chkApplicationLogs;
         private System.Windows.Forms.Button btnEnable;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.LinkLabel llblDeserialize;
@@ -407,6 +356,6 @@
         private System.Windows.Forms.NumericUpDown nudTcpPort;
         private System.Windows.Forms.TextBox txtTcpHost;
         private System.Windows.Forms.Label label4;
-        private System.Windows.Forms.CheckBox chkRequestResults;
+        private System.Windows.Forms.Label chkRequestResults;
     }
 }

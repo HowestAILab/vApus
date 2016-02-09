@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Diagnostics;
@@ -25,6 +26,10 @@ namespace vApus.Publish {
         private static TcpDestination _tcpDestination = new TcpDestination();
 
         private static string _lastGeneratedResultSetId;
+
+        private delegate void SendDelegate(PublishItem item);
+        private static BackgroundWorkQueue _sendQueue = new BackgroundWorkQueue();
+        private static SendDelegate _sendDelegate = Send;
 
         /// <summary>
         /// Use these settings to determine if a value can be published, where you want to call Post(string id, object message).
@@ -59,9 +64,11 @@ namespace vApus.Publish {
         public static void Init() {
             if (!_inited) {
                 Loggers.GetLogger<FileLogger>().LogEntryWritten += Publisher_LogEntryWritten;
+                _sendQueue.OnWorkItemProcessed += _sendQueue_OnWorkItemProcessed;
                 _inited = true;
             }
         }
+
         /// <summary>
         /// <para>Will only send if Settings.PublisherEnabled.</para> 
         /// <para>Following must be vailable in NamedObjectRegistrar: string Host, int Port, string Version, string Channel, bool IsMaster</para> 
@@ -71,7 +78,7 @@ namespace vApus.Publish {
         public static void Send(PublishItem item, string resultSetId) {
             try {
                 if (Settings.PublisherEnabled && !string.IsNullOrWhiteSpace(_settings.TcpHost))
-                    Send(InitItem(item, resultSetId));
+                    _sendQueue.EnqueueWorkItem(_sendDelegate, InitItem(item, resultSetId));
             }
             catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed sending.", ex);
@@ -107,16 +114,20 @@ namespace vApus.Publish {
             }
             return true;
         }
-        async private static void Send(PublishItem item) {
-            await Task.Run(() => {
-                _tcpDestination.Init(_settings.TcpHost, _settings.TcpPort, JSONFormatter.GetInstance());
-                _tcpDestination.Send(item);
-            });
+
+        private static void _sendQueue_OnWorkItemProcessed(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
+            if (e.Exception != null)
+                Loggers.Log(Level.Error, "Failed sending.", e.Exception);
+        }
+
+        private static void Send(PublishItem item) {
+            _tcpDestination.Init(_settings.TcpHost, _settings.TcpPort, JSONFormatter.GetInstance());
+            _tcpDestination.Send(item);
         }
 
         private static void Publisher_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
             try {
-                if (Settings.PublisherEnabled && Settings.PublishApplicationLogs && (ushort)e.Entry.Level >= Settings.LogLevel) {
+                if (Settings.PublisherEnabled) {
                     var publishItem = new ApplicationLogEntry();
                     publishItem.Level = (int)e.Entry.Level;
                     publishItem.Description = e.Entry.Description;

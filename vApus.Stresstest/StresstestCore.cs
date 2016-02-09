@@ -29,7 +29,7 @@ namespace vApus.StressTest {
         public event EventHandler<StressTestResultEventArgs> StressTestStarted;
         public event EventHandler<ConcurrencyResultEventArgs> ConcurrencyStarted, ConcurrencyStopped;
         public event EventHandler<RunResultEventArgs> RunInitializedFirstTime, RunStarted, RunStopped;
-        public event EventHandler RunDoneOnce, RerunStarted, RerunDone;
+        public event EventHandler<RunResultEventArgs> RunDoneOnce, RerunStarted, RerunDone;
         public event EventHandler<MessageEventArgs> Message;
         /// <summary>
         /// Be carefull when you use this. Only to output results to be handled elsewhere (other process).
@@ -231,7 +231,7 @@ namespace vApus.StressTest {
             if (!_runDoneOnce) {
                 _runDoneOnce = true;
                 if (!_cancel && RunDoneOnce != null) {
-                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, null); }, null);
+                    SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RunDoneOnce(this, new RunResultEventArgs(_runResult)); }, null);
                 }
                 return true;
             }
@@ -240,7 +240,7 @@ namespace vApus.StressTest {
 
         public void SetRerunStarted() {
             if (!_cancel && RerunStarted != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RerunStarted(this, null); }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RerunStarted(this, new RunResultEventArgs(_runResult)); }, null);
         }
         /// <summary>
         ///     For run sync (break on last finished)
@@ -248,7 +248,7 @@ namespace vApus.StressTest {
         /// </summary>
         private void SetRerunDone() {
             if (!_cancel && RerunDone != null)
-                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RerunDone(this, null); }, null);
+                SynchronizationContextWrapper.SynchronizationContext.Send(delegate { RerunDone(this, new RunResultEventArgs(_runResult)); }, null);
         }
 
         private void _threadPool_ThreadWorkException(object sender, MessageEventArgs e) { InvokeMessage(e.Message, e.Color, e.Level); }

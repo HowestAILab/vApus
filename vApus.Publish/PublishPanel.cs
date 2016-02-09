@@ -27,42 +27,12 @@ namespace vApus.Publish {
         }
 
         private void LoadSettings() {
-            chkTestsConfig.Checked = Publisher.Settings.PublishTestsConfiguration;
-            chkTestsFastConcurrencyResults.Checked = Publisher.Settings.PublishTestsFastConcurrencyResults;
-            chkTestsFastRunResults.Checked = Publisher.Settings.PublishTestsFastRunResults;
-            chkTestsClientMonitoring.Checked = Publisher.Settings.PublishTestsClientMonitoring;
-            chkTestsMessages.Checked = Publisher.Settings.PublishTestsMessages;
-            cboMessageLevel.SelectedIndex = (int)Publisher.Settings.MessageLevel;
-            chkRequestResults.Checked = Publisher.Settings.PublishTestRequestResults;
-
-            chkMonitorsConfig.Checked = Publisher.Settings.PublishMonitorsConfiguration;
-            chkMonitorsHWConfig.Checked = Publisher.Settings.PublishMonitorsHardwareConfiguration;
-            chkMonitorsMetrics.Checked = Publisher.Settings.PublishMonitorsMetrics;
-
-            chkApplicationLogs.Checked = Publisher.Settings.PublishApplicationLogs;
-            cboLogLevel.SelectedIndex = (int)Publisher.Settings.LogLevel;
-
             txtTcpHost.Text = Publisher.Settings.TcpHost;
             nudTcpPort.Value = Publisher.Settings.TcpPort;
 
             EnableDisable(Publisher.Settings.PublisherEnabled);
         }
         private void SaveSettings() {
-            Publisher.Settings.PublishTestsConfiguration = chkTestsConfig.Checked;
-            Publisher.Settings.PublishTestsFastConcurrencyResults = chkTestsFastConcurrencyResults.Checked;
-            Publisher.Settings.PublishTestsFastRunResults = chkTestsFastRunResults.Checked;
-            Publisher.Settings.PublishTestsClientMonitoring = chkTestsClientMonitoring.Checked;
-            Publisher.Settings.PublishTestsMessages = chkTestsMessages.Checked;
-            Publisher.Settings.MessageLevel = (ushort)cboMessageLevel.SelectedIndex;
-            Publisher.Settings.PublishTestRequestResults = chkRequestResults.Checked;
-
-            Publisher.Settings.PublishMonitorsConfiguration = chkMonitorsConfig.Checked;
-            Publisher.Settings.PublishMonitorsHardwareConfiguration = chkMonitorsHWConfig.Checked;
-            Publisher.Settings.PublishMonitorsMetrics = chkMonitorsMetrics.Checked;
-
-            Publisher.Settings.PublishApplicationLogs = chkApplicationLogs.Checked;
-            Publisher.Settings.LogLevel = (ushort)cboLogLevel.SelectedIndex;
-
             Publisher.Settings.TcpHost = txtTcpHost.Text.ToLowerInvariant().Trim();
             Publisher.Settings.TcpPort = (ushort)nudTcpPort.Value;
 

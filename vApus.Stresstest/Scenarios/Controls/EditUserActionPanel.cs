@@ -927,7 +927,7 @@ namespace vApus.StressTest {
                              customRandomParameters[i].ToString(), Color.Yellow);
         }
         private void AddKvpToFlps(string key, string value, Color backColor) {
-            var kvp = new KeyValuePairControl(key, value);
+            var kvp = new Util.KeyValuePairControl(key, value);
             kvp.BackColor = backColor;
             flpTokens.Controls.Add(kvp);
         }

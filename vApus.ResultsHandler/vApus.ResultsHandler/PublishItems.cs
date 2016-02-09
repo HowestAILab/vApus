@@ -49,7 +49,8 @@ namespace vApus.Publish {
         public bool UseRDP { get; set; }
         public string RunSynchronization { get; set; }
         public int MaximumRerunsBreakOnLast { get; set; }
-        public string[] UsedTileStressTests { get; set; }
+        public string[] SlaveHosts { get; set; }
+        public string[] TileStressTests { get; set; }
     }
     /// <summary>
     /// </summary>

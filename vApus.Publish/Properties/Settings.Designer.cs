@@ -38,144 +38,12 @@ namespace vApus.Publish.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsConfiguration {
-            get {
-                return ((bool)(this["PublishTestsConfiguration"]));
-            }
-            set {
-                this["PublishTestsConfiguration"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishMonitorsConfiguration {
-            get {
-                return ((bool)(this["PublishMonitorsConfiguration"]));
-            }
-            set {
-                this["PublishMonitorsConfiguration"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsFastConcurrencyResults {
-            get {
-                return ((bool)(this["PublishTestsFastConcurrencyResults"]));
-            }
-            set {
-                this["PublishTestsFastConcurrencyResults"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishMonitorsHardwareConfiguration {
-            get {
-                return ((bool)(this["PublishMonitorsHardwareConfiguration"]));
-            }
-            set {
-                this["PublishMonitorsHardwareConfiguration"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishMonitorsMetrics {
-            get {
-                return ((bool)(this["PublishMonitorsMetrics"]));
-            }
-            set {
-                this["PublishMonitorsMetrics"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsFastRunResults {
-            get {
-                return ((bool)(this["PublishTestsFastRunResults"]));
-            }
-            set {
-                this["PublishTestsFastRunResults"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsMessages {
-            get {
-                return ((bool)(this["PublishTestsMessages"]));
-            }
-            set {
-                this["PublishTestsMessages"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsClientMonitoring {
-            get {
-                return ((bool)(this["PublishTestsClientMonitoring"]));
-            }
-            set {
-                this["PublishTestsClientMonitoring"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
         public bool PublisherEnabled {
             get {
                 return ((bool)(this["PublisherEnabled"]));
             }
             set {
                 this["PublisherEnabled"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public ushort MessageLevel {
-            get {
-                return ((ushort)(this["MessageLevel"]));
-            }
-            set {
-                this["MessageLevel"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishApplicationLogs {
-            get {
-                return ((bool)(this["PublishApplicationLogs"]));
-            }
-            set {
-                this["PublishApplicationLogs"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public ushort LogLevel {
-            get {
-                return ((ushort)(this["LogLevel"]));
-            }
-            set {
-                this["LogLevel"] = value;
             }
         }
         
@@ -188,18 +56,6 @@ namespace vApus.Publish.Properties {
             }
             set {
                 this["TcpPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestRequestResults {
-            get {
-                return ((bool)(this["PublishTestRequestResults"]));
-            }
-            set {
-                this["PublishTestRequestResults"] = value;
             }
         }
     }
