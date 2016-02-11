@@ -6,7 +6,6 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Collections.Generic;
 using System.ComponentModel;
 using System.Runtime.Serialization;
 using vApus.SolutionTree;

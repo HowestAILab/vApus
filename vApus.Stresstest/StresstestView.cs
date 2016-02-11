@@ -500,7 +500,7 @@ namespace vApus.StressTest {
 
                 if (runningMonitors != 0 && _stressTest.MonitorBefore != 0) {
                     int countdownTime = _stressTest.MonitorBefore * 60000;
-                    _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
+                    _monitorBeforeCountDown = new Countdown();
                     _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                     _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
 
@@ -521,7 +521,7 @@ namespace vApus.StressTest {
 
                     fastResultsControl.ExpandEventPanel();
                     AddEvent("Monitoring before the test starts: " + (_stressTest.MonitorBefore * 60) + " s.");
-                    _monitorBeforeCountDown.Start();
+                    _monitorBeforeCountDown.Start(countdownTime, 5000);
                 } else {
                     MonitorBeforeDone();
                 }
@@ -758,7 +758,7 @@ namespace vApus.StressTest {
 
                 if (monitorAfter && _stressTest.MonitorAfter != 0 && runningMonitors != 0 && stressTestStatus != StressTestStatus.Cancelled && stressTestStatus != StressTestStatus.Error) {
                     int countdownTime = _stressTest.MonitorAfter * 60000;
-                    _monitorAfterCountDown = new Countdown(countdownTime, 5000);
+                    _monitorAfterCountDown = new Countdown();
                     _monitorAfterCountDown.Tick += monitorAfterCountdown_Tick;
                     _monitorAfterCountDown.Stopped += monitorAfterCountdown_Stopped;
 
@@ -777,7 +777,7 @@ namespace vApus.StressTest {
 
                     fastResultsControl.ExpandEventPanel();
                     AddEvent("Monitoring after the test is finished: " + (_stressTest.MonitorAfter * 60) + " s.");
-                    _monitorAfterCountDown.Start();
+                    _monitorAfterCountDown.Start(countdownTime, 5000);
                 } else {
                     StopMonitorsAndUnlockGui(ex, false);
                 }

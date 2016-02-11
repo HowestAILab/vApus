@@ -6,7 +6,6 @@
  *    Dieter Vandroemme
  */
 
-using RandomUtils;
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -65,7 +64,7 @@ namespace vApus.Util {
             } else if (elementType.BaseType == typeof(Enum)) {
                 column = new DataGridViewComboBoxColumn();
                 (column as DataGridViewComboBoxColumn).DataSource = Enum.GetValues(elementType);
-            } else if (elementType == typeof(string) || StringUtil.IsNumericType(elementType))
+            } else
                 column = new DataGridViewTextBoxColumn();
 
             dataGridView.Columns.Add(column);
@@ -117,10 +116,9 @@ namespace vApus.Util {
                     cboCell.Items.Add(attr.Length > 0 ? attr[0].Description : e.ToString());
                 }
                 cell = cboCell;
-            } else if (value is string || StringUtil.IsNumeric(value))
+            } else
                 cell = new DataGridViewTextBoxCell();
-            else
-                throw new InvalidCastException("elementType");
+
             cell.Value = value;
             return cell;
         }
@@ -151,7 +149,7 @@ namespace vApus.Util {
                             dataGridView.Rows.Add(char.Parse(entry));
                         else if (_elementType.BaseType == typeof(Enum))
                             dataGridView.Rows.Add(Enum.Parse(_elementType, entry));
-                        else if (_elementType == typeof(string) || StringUtil.IsNumericType(_elementType))
+                        else
                             dataGridView.Rows.Add(entry);
                     }
                 } catch {
@@ -183,15 +181,19 @@ namespace vApus.Util {
                         string s = dataGridView.Rows[i].Cells[0].Value.ToString();
                         if (s.Length == 0) arrayList.Add('\0');
                         else arrayList.Add(s[0]);
-                    } else if (elementType == typeof(string))
+                    }
+                else if (elementType == typeof(string))
                     for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
                         arrayList.Add(dataGridView.Rows[i].Cells[0].Value as string);
                 else if (elementType.BaseType == typeof(Enum))
                     for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
                         arrayList.Add(Enum.Parse(elementType, dataGridView.Rows[i].Cells[0].Value.ToString()));
-                else if (StringUtil.IsNumericType(elementType))
-                    for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
-                        arrayList.Add(ConvertToNumericValue(elementType, dataGridView.Rows[i].Cells[0].Value.ToString()));
+                else
+                    try {
+                        for (int i = 0; i < dataGridView.Rows.Count - 1; i++)
+                            arrayList.Add(ConvertToNumericValue(elementType, dataGridView.Rows[i].Cells[0].Value.ToString()));
+                    }
+                    catch { }
 
                 if (_value is Array) {
                     _value = arrayList.ToArray(elementType);

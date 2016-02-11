@@ -725,7 +725,7 @@ namespace vApus.DistributedTest {
 
                         if (runningMonitors != 0 && monitorBefore != 0) {
                             int countdownTime = monitorBefore * 60000;
-                            _monitorBeforeCountDown = new Countdown(countdownTime, 5000);
+                            _monitorBeforeCountDown = new Countdown();
                             _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                             _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
 
@@ -754,7 +754,7 @@ namespace vApus.DistributedTest {
 
                             testTreeView.SetMonitoringBeforeAfter();
                             AppendMessages("Monitoring before the test starts: " + (monitorBefore * 60) + " s.");
-                            _monitorBeforeCountDown.Start();
+                            _monitorBeforeCountDown.Start(countdownTime, 5000);
                         } else {
                             MonitorBeforeDone();
                         }
@@ -1160,7 +1160,7 @@ namespace vApus.DistributedTest {
             }
             if (monitorAfter && monitorAfterTime != 0 && runningMonitors != 0) {
                 int countdownTime = monitorAfterTime * 60000;
-                _monitorAfterCountDown = new Countdown(countdownTime, 5000);
+                _monitorAfterCountDown = new Countdown();
                 _monitorAfterCountDown.Tick += _monitorAfterCountDown_Tick;
                 _monitorAfterCountDown.Stopped += monitorAfterCountDown_Stopped;
 
@@ -1186,7 +1186,7 @@ namespace vApus.DistributedTest {
 
                 testTreeView.SetMonitoringBeforeAfter();
                 AppendMessages("Monitoring after the test is finished: " + (monitorAfterTime * 60) + " s.");
-                _monitorAfterCountDown.Start();
+                _monitorAfterCountDown.Start(countdownTime, 5000);
             } else {
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
 
