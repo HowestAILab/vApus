@@ -27,7 +27,6 @@ begin
 end;
 
 function InitializeSetup(): boolean;
-var
 begin
 	result := IsWindows8dot1_Server2012OrNewer();
 end;
