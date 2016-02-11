@@ -47,15 +47,15 @@ namespace vApus.DistributedTest {
             this.eventView = new vApus.Util.EventView();
             this.flpMetricsMaster = new System.Windows.Forms.FlowLayoutPanel();
             this.label5 = new System.Windows.Forms.Label();
-            this.kvpRunningTests = new vApus.Util.KeyValuePairControl();
-            this.kvpOK = new vApus.Util.KeyValuePairControl();
-            this.kvpCancelled = new vApus.Util.KeyValuePairControl();
-            this.kvpFailed = new vApus.Util.KeyValuePairControl();
-            this.kvmMasterCPUUsage = new vApus.Util.KeyValuePairControl();
-            this.kvmMasterMemoryUsage = new vApus.Util.KeyValuePairControl();
-            this.kvmMasterNic = new vApus.Util.KeyValuePairControl();
-            this.kvmMasterNicsSent = new vApus.Util.KeyValuePairControl();
-            this.kvmMasterNicsReceived = new vApus.Util.KeyValuePairControl();
+            this.kvpRunningTests = new RandomUtils.KeyValuePairControl();
+            this.kvpOK = new RandomUtils.KeyValuePairControl();
+            this.kvpCancelled = new RandomUtils.KeyValuePairControl();
+            this.kvpFailed = new RandomUtils.KeyValuePairControl();
+            this.kvmMasterCPUUsage = new RandomUtils.KeyValuePairControl();
+            this.kvmMasterMemoryUsage = new RandomUtils.KeyValuePairControl();
+            this.kvmMasterNic = new RandomUtils.KeyValuePairControl();
+            this.kvmMasterNicsSent = new RandomUtils.KeyValuePairControl();
+            this.kvmMasterNicsReceived = new RandomUtils.KeyValuePairControl();
             this.btnMasterExportMessages = new System.Windows.Forms.Button();
             ((System.ComponentModel.ISupportInitialize)(this.splitContainer)).BeginInit();
             this.splitContainer.Panel1.SuspendLayout();
@@ -537,11 +537,11 @@ namespace vApus.DistributedTest {
         #endregion
 
         private System.Windows.Forms.FlowLayoutPanel flpMetricsMaster;
-        private vApus.Util.KeyValuePairControl kvmMasterCPUUsage;
-        private vApus.Util.KeyValuePairControl kvmMasterMemoryUsage;
-        private vApus.Util.KeyValuePairControl kvmMasterNic;
-        private vApus.Util.KeyValuePairControl kvmMasterNicsSent;
-        private vApus.Util.KeyValuePairControl kvmMasterNicsReceived;
+        private RandomUtils.KeyValuePairControl kvmMasterCPUUsage;
+        private RandomUtils.KeyValuePairControl kvmMasterMemoryUsage;
+        private RandomUtils.KeyValuePairControl kvmMasterNic;
+        private RandomUtils.KeyValuePairControl kvmMasterNicsSent;
+        private RandomUtils.KeyValuePairControl kvmMasterNicsReceived;
         private System.Windows.Forms.Button btnMasterExportMessages;
         private System.Windows.Forms.Label label5;
         private System.Windows.Forms.Panel pnlFastResultListing;
@@ -554,10 +554,10 @@ namespace vApus.DistributedTest {
         private System.Windows.Forms.Button btnSaveDisplayedResults;
         private System.Windows.Forms.SplitContainer splitContainer;
         private System.Windows.Forms.Panel pnlBorder;
-        private Util.KeyValuePairControl kvpRunningTests;
-        private Util.KeyValuePairControl kvpOK;
-        private Util.KeyValuePairControl kvpCancelled;
-        private Util.KeyValuePairControl kvpFailed;
+        private RandomUtils.KeyValuePairControl kvpRunningTests;
+        private RandomUtils.KeyValuePairControl kvpOK;
+        private RandomUtils.KeyValuePairControl kvpCancelled;
+        private RandomUtils.KeyValuePairControl kvpFailed;
         private Util.EventView eventView;
         private System.Windows.Forms.DataGridView dgvFastResults;
         private System.Windows.Forms.CheckBox chkReadable;

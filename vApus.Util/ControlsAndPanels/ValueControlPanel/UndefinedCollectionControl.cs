@@ -6,7 +6,6 @@
  *    Dieter Vandroemme
  */
 
-using RandomUtils;
 using System;
 using System.Collections;
 using System.ComponentModel;
@@ -67,8 +66,7 @@ namespace vApus.Util {
             else if (elementType.BaseType == typeof(Enum)) {
                 column = new DataGridViewComboBoxColumn();
                 (column as DataGridViewComboBoxColumn).DataSource = Enum.GetValues(elementType);
-            }
-            else
+            } else
                 column = new DataGridViewTextBoxColumn();
 
             dataGridView.Columns.Add(column);
@@ -120,11 +118,9 @@ namespace vApus.Util {
                     cboCell.Items.Add(attr.Length > 0 ? attr[0].Description : e.ToString());
                 }
                 cell = cboCell;
-            }
-            else if (value is string || (value as string).IsNumeric())
+            } else
                 cell = new DataGridViewTextBoxCell();
-            else
-                throw new InvalidCastException("elementType");
+
             cell.Value = value;
             return cell;
         }

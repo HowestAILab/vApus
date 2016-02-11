@@ -1,4 +1,6 @@
-﻿namespace vApus.Util
+﻿using RandomUtils;
+
+namespace vApus.Util
 {
     partial class TracertControl
     {
@@ -31,8 +33,8 @@
             this.flp = new System.Windows.Forms.FlowLayoutPanel();
             this.btnTraceRoute = new System.Windows.Forms.Button();
             this.btnStatus = new System.Windows.Forms.Button();
-            this.kvpHops = new vApus.Util.KeyValuePairControl();
-            this.kvpRoundtripTime = new vApus.Util.KeyValuePairControl();
+            this.kvpHops = new RandomUtils.KeyValuePairControl();
+            this.kvpRoundtripTime = new RandomUtils.KeyValuePairControl();
             this.flp.SuspendLayout();
             this.SuspendLayout();
             // 

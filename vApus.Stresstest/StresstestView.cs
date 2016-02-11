@@ -544,7 +544,6 @@ namespace vApus.StressTest {
                     fastResultsControl.ExpandEventPanel();
                     AddEvent("Monitoring before the test starts: " + (_stressTest.MonitorBefore * 60) + " s.");
 
-
                     PublishMonitorBeforeTestStarted();
 
                     _monitorBeforeCountDown.Start(countdownTime, 5000);
