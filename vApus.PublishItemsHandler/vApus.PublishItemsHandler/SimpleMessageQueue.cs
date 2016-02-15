@@ -1,17 +1,22 @@
-﻿using System;
+﻿/*
+ * Copyright 2016 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using System;
 using System.Collections.Concurrent;
 using System.Linq;
 using System.Timers;
 using vApus.Publish;
 
-namespace vApus.ResultsHandler {
+namespace vApus.PublishItemsHandler {
     /// <summary>
     /// Dequeues every 5 seconds. FIFO.
     /// </summary>
-    public class MessageQueue {
+    public class SimpleMessageQueue {
         public event EventHandler<OnDequeueEventArgs> OnDequeue;
-
-        private readonly object _lock = new object();
 
         private ConcurrentQueue<object> _queue = new ConcurrentQueue<object>();
         private Timer _tmr;
@@ -20,29 +25,28 @@ namespace vApus.ResultsHandler {
         /// Dequeues every 5 seconds. FIFO.
         /// </summary>
         /// <param name="dequeueTimeInMs"></param>
-        public MessageQueue(int dequeueTimeInMs = 5000) {
+        public SimpleMessageQueue(int dequeueTimeInMs = 5000) {
             _tmr = new Timer(dequeueTimeInMs);
             _tmr.Elapsed += _tmr_Elapsed;
             _tmr.Start();
         }
 
         private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
-            if (OnDequeue != null)
-                lock (_lock) {
-                    var messages = new object[_queue.LongCount()];
-                    if (messages.LongLength != 0) {
-                        for (long l = 0L; l != messages.LongLength; l++) {
-                            object message;
-                            if (_queue.TryDequeue(out message)) messages[l] = message;
-                        }
-                        if (OnDequeue != null)
-                            OnDequeue.Invoke(null, new OnDequeueEventArgs(messages));
+            if (OnDequeue != null) {
+                var messages = new object[_queue.LongCount()];
+                if (messages.LongLength != 0) {
+                    for (long l = 0L; l != messages.LongLength; l++) {
+                        object message;
+                        if (_queue.TryDequeue(out message)) messages[l] = message;
                     }
+                    if (OnDequeue != null)
+                        OnDequeue.Invoke(null, new OnDequeueEventArgs(messages));
                 }
+            }
         }
 
         public void Enqueue(PublishItem item) {
-            lock (_lock) _queue.Enqueue(item);
+            _queue.Enqueue(item);
         }
 
         public class OnDequeueEventArgs : EventArgs {

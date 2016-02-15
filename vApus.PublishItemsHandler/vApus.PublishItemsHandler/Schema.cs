@@ -9,20 +9,23 @@ using System;
 using System.Data;
 using vApus.Util;
 
-namespace vApus.Results {
+namespace vApus.PublishItemsHandler {
     /// <summary>
     /// Only used for building a new results database.
     /// </summary>
     public static class Schema {
         /// <summary>
         /// </summary>
-        /// <returns>The database name.</returns>
-        public static string Build() {
-            DatabaseActions databaseActions = GetDatabaseActions();
-            string databaseName = CreateDatabase(databaseActions);
+        /// <returns>The connection string to the database.</returns>
+        public static string Build(string host, int port, string user, string password) {
+            DatabaseActions databaseActions = new DatabaseActions() {
+                ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};table cache = true;", host, port, user, password)
+            };
+            string connectionString = string.Format("Server={0};Port={1};Database={2};Uid={3};Pwd={4};table cache = true", host, port, CreateDatabase(databaseActions), user, password);
+
             ReleaseConnection(databaseActions);
 
-            databaseActions = GetDatabaseActionsUsingDatabase(databaseName);
+            databaseActions = new DatabaseActions() { ConnectionString = connectionString };
             CreateDescriptionTable(databaseActions);
             CreateTagsTable(databaseActions);
 
@@ -39,7 +42,7 @@ namespace vApus.Results {
             CreateMonitorResultsTable(databaseActions);
             ReleaseConnection(databaseActions);
 
-            return databaseName;
+            return connectionString;
         }
 
         /// <summary>
@@ -47,7 +50,7 @@ namespace vApus.Results {
         /// <param name="databaseActions"></param>
         /// <returns>Database name</returns>
         private static string CreateDatabase(DatabaseActions databaseActions) {
-            string databaseName = "vapus" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fffffff");// DateTime.Now.ToString("MM_dd_yyyy_HH_mm_ss_fffffff");
+            string databaseName = "vapus" + DateTime.Now.ToString("yyyy_MM_dd_HH_mm_ss_fffffff");
             databaseActions.ExecuteSQL("Create Database " + databaseName);
             return databaseName;
         }
@@ -132,28 +135,11 @@ ResultHeaders longtext NOT NULL) ROW_FORMAT=COMPRESSED");
 TimeStamp datetime(6) NOT NULL, Value longtext NOT NULL) ROW_FORMAT=COMPRESSED");
         }
 
-        private static DatabaseActions GetDatabaseActions() {
-            string connectionString = ConnectionStringManager.GetCurrentConnectionString();
-
-            if (string.IsNullOrEmpty(connectionString)) throw new Exception("No MySQL connection was set.");
-
-            return new DatabaseActions { ConnectionString = connectionString };
-        }
-
-        public static DatabaseActions GetDatabaseActionsUsingDatabase(string databaseName) {
-            string connectionString = ConnectionStringManager.GetCurrentConnectionString(databaseName);
-
-            if (string.IsNullOrEmpty(connectionString)) throw new Exception("No MySQL connection was set.");
-
-            var databaseActions = new DatabaseActions { ConnectionString = connectionString };
-
-            return databaseActions;
-        }
-
         private static void ReleaseConnection(DatabaseActions databaseActions) {
             try {
                 databaseActions.ReleaseConnection();
-            } catch {
+            }
+            catch {
                 //Ignore.
             }
             databaseActions = null;
@@ -165,14 +151,6 @@ TimeStamp datetime(6) NOT NULL, Value longtext NOT NULL) ROW_FORMAT=COMPRESSED")
             foreach (DataRow row in tables.Rows)
                 if (row.ItemArray[0].ToString().ToLower() == tableName) return true;
             return false;
-        }
-
-        /// <summary>
-        /// To remove a schema (after a test is cancelled or failed for instance)
-        /// </summary>
-        /// <param name="name"></param>
-        internal static void Drop(string databaseName, DatabaseActions databaseActions) {
-            databaseActions.ExecuteSQL("DROP SCHEMA " + databaseName);
         }
     }
 }

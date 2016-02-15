@@ -33,7 +33,7 @@ namespace vApus.StressTest {
         private Thread _workerThread;
         private ManualResetEvent _waitHandle = new ManualResetEvent(true);
 
-        private Util.KeyValuePairControl[] _config = new Util.KeyValuePairControl[0];
+        private KeyValuePairControl[] _config = new KeyValuePairControl[0];
         private ResultsHelper _resultsHelper;
 
         private int[] _stressTestIds = new int[0];
@@ -153,7 +153,7 @@ namespace vApus.StressTest {
                 }
 
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
-            _config = new Util.KeyValuePairControl[] { new Util.KeyValuePairControl(value, string.Empty) { BackColor = SystemColors.Control } };
+            _config = new KeyValuePairControl[] { new KeyValuePairControl(value, string.Empty) { BackColor = SystemColors.Control } };
             flpConfiguration.Controls.AddRange(_config);
 
             ExpandConfig();
@@ -174,8 +174,8 @@ namespace vApus.StressTest {
                 }
 
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
-            _config = new Util.KeyValuePairControl[values.Count];
-            for (int i = 0; i != _config.Length; i++) _config[i] = new Util.KeyValuePairControl(values[i], string.Empty) { BackColor = SystemColors.Control };
+            _config = new KeyValuePairControl[values.Count];
+            for (int i = 0; i != _config.Length; i++) _config[i] = new KeyValuePairControl(values[i], string.Empty) { BackColor = SystemColors.Control };
             flpConfiguration.Controls.AddRange(_config);
         }
         private void SetConfig(List<KeyValuePair<string, string>> keyValues) {
@@ -187,9 +187,9 @@ namespace vApus.StressTest {
                 }
 
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
-            _config = new Util.KeyValuePairControl[keyValues.Count];
+            _config = new KeyValuePairControl[keyValues.Count];
             int i = 0;
-            foreach (var kvp in keyValues) _config[i++] = new Util.KeyValuePairControl(kvp.Key, kvp.Value) { BackColor = SystemColors.Control };
+            foreach (var kvp in keyValues) _config[i++] = new KeyValuePairControl(kvp.Key, kvp.Value) { BackColor = SystemColors.Control };
             flpConfiguration.Controls.AddRange(_config);
             LockWindowUpdate(IntPtr.Zero);
         }
@@ -489,7 +489,7 @@ namespace vApus.StressTest {
 
             _cancellationTokenSource = new CancellationTokenSource();
             foreach (var v in _config) flpConfiguration.Controls.Remove(v);
-            _config = new Util.KeyValuePairControl[0];
+            _config = new KeyValuePairControl[0];
 
             dgvDetailedResults.DataSource = null;
             if (_resultsHelper != null) _resultsHelper.ClearCache(); //Keeping the cache as clean as possible.

@@ -1,4 +1,11 @@
-﻿using MySql.Data.MySqlClient;
+﻿/*
+ * Copyright 2016 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
+using MySql.Data.MySqlClient;
 using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
@@ -7,11 +14,11 @@ using System.Globalization;
 using System.Text;
 using System.Threading;
 using vApus.Publish;
-using vApus.Results;
+using vApus.PublishItemsHandler;
 using vApus.Util;
 using RandomUtils;
 
-namespace vApus.ResultsHandler {
+namespace vApus.PublishItemsHandler {
     internal static class PublishItemHandler {
         private static ConcurrentDictionary<string, HandleObject> _handleObjects = new ConcurrentDictionary<string, HandleObject>();
         private static ConcurrentDictionary<string, DatabaseActions> _databaseActions = new ConcurrentDictionary<string, DatabaseActions>();
@@ -20,15 +27,33 @@ namespace vApus.ResultsHandler {
 
         private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
 
-        static PublishItemHandler() {
-            ConnectionStringManager.AddConnectionString("root", "127.0.0.1", 3306, "BDaEWS2015!");
+        private static string _host, _user, _password;
+        private static int _port;
+
+        /// <summary>
+        /// This must be set correctly before anything else.
+        /// </summary>
+        /// <param name="host"></param>
+        /// <param name="port"></param>
+        /// <param name="user"></param>
+        /// <param name="password"></param>
+        public static void Init(string host, int port, string user, string password) {
+            var databaseActions = new DatabaseActions() { ConnectionString = string.Format("Server={0};Port={1};Uid={2};Pwd={3};table cache = true;", host, port, user, password) };
+            if (!databaseActions.CanConnect())
+                throw new Exception("The credentials are not correct.");
+
+            _host = host;
+            _port = port;
+            _user = user;
+            _password = password;
         }
 
         public static void Handle(object[] items) {
             foreach (PublishItem item in items)
                 if (!(item is Poll) && item.ResultSetId != null) {
                     if (!_databaseActions.ContainsKey(item.ResultSetId))
-                        _databaseActions.TryAdd(item.ResultSetId, Schema.GetDatabaseActionsUsingDatabase(Schema.Build()));
+                        _databaseActions.TryAdd(item.ResultSetId, new DatabaseActions() { ConnectionString = Schema.Build(_host, _port, _user, _password) });
+
                     string id = item.ResultSetId + item.vApusHost + item.vApusPort;
                     if (!_handleObjects.ContainsKey(id))
                         _handleObjects.TryAdd(id, new HandleObject(_databaseActions[item.ResultSetId]));
