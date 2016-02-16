@@ -9,10 +9,15 @@ using RandomUtils.Log;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace vApus.Publish {
     public partial class PublishPanel : Panel {
+        public bool Connected {
+            get { return Publisher.Settings.PublisherEnabled && Publisher.Poll(); }
+        }
+
         public PublishPanel() {
             InitializeComponent();
 
@@ -29,28 +34,32 @@ namespace vApus.Publish {
         private void LoadSettings() {
             txtTcpHost.Text = Publisher.Settings.TcpHost;
             nudTcpPort.Value = Publisher.Settings.TcpPort;
+            btnLaunchvApusPublishItemsHandler.Checked = Publisher.Settings.AutoLaunchvApusPublishItemsHandler;
 
             EnableDisable(Publisher.Settings.PublisherEnabled);
         }
         private void SaveSettings() {
             Publisher.Settings.TcpHost = txtTcpHost.Text.ToLowerInvariant().Trim();
             Publisher.Settings.TcpPort = (ushort)nudTcpPort.Value;
+            Publisher.Settings.AutoLaunchvApusPublishItemsHandler = btnLaunchvApusPublishItemsHandler.Checked;
 
             Publisher.Settings.Save();
         }
 
         private void btnSet_Click(object sender, EventArgs e) {
             SaveSettings();
-            if (Publisher.Poll()) {
+            if (AutoLaunchvApusPublishItemsHandler()) 
+                Thread.Sleep(2000);
+
+            if (Connected) {
                 string host = Publisher.Settings.TcpHost;
                 if ((host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "0:0:0:0:0:0:0:1"))
                     MessageBox.Show("The endpoint server must be reachable from a remote location, otherwise distributed testing won't work!\nBe sure that '" + host + "' is what you want.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
-            } else {
+            }
+            else {
                 MessageBox.Show("Failed to connect to the given endpoint.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
-
-        public override string ToString() { return "Publish values"; }
 
         private void btnEnable_Click(object sender, EventArgs e) { EnableDisable(btnEnable.Text == "Enable"); }
 
@@ -72,11 +81,27 @@ namespace vApus.Publish {
 
             try {
                 Process.Start(path);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 string error = "Failed to open PublishItems.cs";
                 Loggers.Log(Level.Error, error, ex, new object[] { sender, e });
                 MessageBox.Show(error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        public bool AutoLaunchvApusPublishItemsHandler() {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.AutoLaunchvApusPublishItemsHandler) {
+                if (Process.GetProcessesByName("vApus.PublishItemsHandler").Length == 0) {
+                    string path = Path.Combine(Application.StartupPath, "PublishItemsHandler\\vApus.PublishItemsHandler.exe");
+                    if (File.Exists(path)) {
+                        Process.Start(path);
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public override string ToString() { return "Publish values"; }
     }
 }

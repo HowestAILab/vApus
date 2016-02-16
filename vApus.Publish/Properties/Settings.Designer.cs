@@ -58,5 +58,17 @@ namespace vApus.Publish.Properties {
                 this["TcpPort"] = value;
             }
         }
+        
+        [global::System.Configuration.UserScopedSettingAttribute()]
+        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
+        [global::System.Configuration.DefaultSettingValueAttribute("False")]
+        public bool AutoLaunchvApusPublishItemsHandler {
+            get {
+                return ((bool)(this["AutoLaunchvApusPublishItemsHandler"]));
+            }
+            set {
+                this["AutoLaunchvApusPublishItemsHandler"] = value;
+            }
+        }
     }
 }

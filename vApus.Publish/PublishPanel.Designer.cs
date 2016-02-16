@@ -38,6 +38,7 @@
             this.btnSet = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.grp = new System.Windows.Forms.GroupBox();
+            this.btnLaunchvApusPublishItemsHandler = new System.Windows.Forms.CheckBox();
             this.chkRequestResults = new System.Windows.Forms.Label();
             this.txtTcpHost = new System.Windows.Forms.TextBox();
             this.label4 = new System.Windows.Forms.Label();
@@ -57,10 +58,13 @@
             // 
             this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.label1.Location = new System.Drawing.Point(9, 9);
+            this.label1.BackColor = System.Drawing.Color.White;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(12, 9);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(286, 42);
+            this.label1.Size = new System.Drawing.Size(604, 88);
             this.label1.TabIndex = 0;
+            this.label1.Text = resources.GetString("label1.Text");
             // 
             // lblTests
             // 
@@ -130,7 +134,7 @@
             // chkTestsMessages
             // 
             this.chkTestsMessages.AutoSize = true;
-            this.chkTestsMessages.Location = new System.Drawing.Point(21, 158);
+            this.chkTestsMessages.Location = new System.Drawing.Point(19, 158);
             this.chkTestsMessages.Name = "chkTestsMessages";
             this.chkTestsMessages.Size = new System.Drawing.Size(78, 13);
             this.chkTestsMessages.TabIndex = 5;
@@ -176,6 +180,7 @@
             this.grp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grp.Controls.Add(this.btnLaunchvApusPublishItemsHandler);
             this.grp.Controls.Add(this.chkRequestResults);
             this.grp.Controls.Add(this.txtTcpHost);
             this.grp.Controls.Add(this.label4);
@@ -195,11 +200,22 @@
             this.grp.Controls.Add(this.chkTestsMessages);
             this.grp.Controls.Add(this.chkMonitorsConfig);
             this.grp.Enabled = false;
-            this.grp.Location = new System.Drawing.Point(12, 64);
+            this.grp.Location = new System.Drawing.Point(12, 100);
             this.grp.Name = "grp";
-            this.grp.Size = new System.Drawing.Size(604, 384);
+            this.grp.Size = new System.Drawing.Size(604, 348);
             this.grp.TabIndex = 0;
             this.grp.TabStop = false;
+            // 
+            // btnLaunchvApusPublishItemsHandler
+            // 
+            this.btnLaunchvApusPublishItemsHandler.AutoSize = true;
+            this.btnLaunchvApusPublishItemsHandler.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnLaunchvApusPublishItemsHandler.Location = new System.Drawing.Point(54, 313);
+            this.btnLaunchvApusPublishItemsHandler.Name = "btnLaunchvApusPublishItemsHandler";
+            this.btnLaunchvApusPublishItemsHandler.Size = new System.Drawing.Size(214, 17);
+            this.btnLaunchvApusPublishItemsHandler.TabIndex = 2;
+            this.btnLaunchvApusPublishItemsHandler.Text = "Auto-launch vApus publish items handler";
+            this.btnLaunchvApusPublishItemsHandler.UseVisualStyleBackColor = false;
             // 
             // chkRequestResults
             // 
@@ -214,15 +230,15 @@
             // 
             this.txtTcpHost.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtTcpHost.Location = new System.Drawing.Point(51, 256);
+            this.txtTcpHost.Location = new System.Drawing.Point(54, 256);
             this.txtTcpHost.Name = "txtTcpHost";
-            this.txtTcpHost.Size = new System.Drawing.Size(453, 20);
-            this.txtTcpHost.TabIndex = 1014;
+            this.txtTcpHost.Size = new System.Drawing.Size(450, 20);
+            this.txtTcpHost.TabIndex = 0;
             // 
             // label4
             // 
             this.label4.AutoSize = true;
-            this.label4.Location = new System.Drawing.Point(16, 259);
+            this.label4.Location = new System.Drawing.Point(19, 259);
             this.label4.Margin = new System.Windows.Forms.Padding(6, 7, 0, 3);
             this.label4.Name = "label4";
             this.label4.Size = new System.Drawing.Size(32, 13);
@@ -252,7 +268,7 @@
             0});
             this.nudTcpPort.Name = "nudTcpPort";
             this.nudTcpPort.Size = new System.Drawing.Size(50, 20);
-            this.nudTcpPort.TabIndex = 1011;
+            this.nudTcpPort.TabIndex = 1;
             this.nudTcpPort.Value = new decimal(new int[] {
             4337,
             0,
@@ -268,7 +284,7 @@
             this.llblDeserialize.Location = new System.Drawing.Point(534, 315);
             this.llblDeserialize.Name = "llblDeserialize";
             this.llblDeserialize.Size = new System.Drawing.Size(64, 13);
-            this.llblDeserialize.TabIndex = 1009;
+            this.llblDeserialize.TabIndex = 3;
             this.llblDeserialize.TabStop = true;
             this.llblDeserialize.Text = "Deserialize?";
             this.toolTip.SetToolTip(this.llblDeserialize, resources.GetString("llblDeserialize.ToolTip"));
@@ -357,5 +373,6 @@
         private System.Windows.Forms.TextBox txtTcpHost;
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label chkRequestResults;
+        private System.Windows.Forms.CheckBox btnLaunchvApusPublishItemsHandler;
     }
 }

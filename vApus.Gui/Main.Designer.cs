@@ -75,7 +75,7 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblUpdateNotifier = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblResultsDatabase = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblPublisher = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblSpring = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblCleanTempData = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTempDataSize = new System.Windows.Forms.ToolStripStatusLabel();
@@ -277,7 +277,7 @@
             this.lupusTitaniumHTTPsProxyToolStripMenuItem,
             this.detailedResultsViewerToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // optionsToolStripMenuItem
@@ -321,7 +321,7 @@
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblUpdateNotifier,
             this.toolStripStatusLabel1,
-            this.lblResultsDatabase,
+            this.lblPublisher,
             this.lblSpring,
             this.lblCleanTempData,
             this.lblTempDataSize,
@@ -350,22 +350,22 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(10, 17);
             this.toolStripStatusLabel1.Text = "|";
             // 
-            // lblResultsDatabase
+            // lblPublisher
             // 
-            this.lblResultsDatabase.ForeColor = System.Drawing.Color.Blue;
-            this.lblResultsDatabase.IsLink = true;
-            this.lblResultsDatabase.Name = "lblResultsDatabase";
-            this.lblResultsDatabase.Size = new System.Drawing.Size(163, 17);
-            this.lblResultsDatabase.Text = "Test results database disabled";
-            this.lblResultsDatabase.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-            this.lblResultsDatabase.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lblResultsDatabase.Click += new System.EventHandler(this.lblResultsDatabase_Click);
+            this.lblPublisher.ForeColor = System.Drawing.Color.Blue;
+            this.lblPublisher.IsLink = true;
+            this.lblPublisher.Name = "lblPublisher";
+            this.lblPublisher.Size = new System.Drawing.Size(16, 17);
+            this.lblPublisher.Text = "...";
+            this.lblPublisher.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+            this.lblPublisher.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lblPublisher.Click += new System.EventHandler(this.lblPublisher_Click);
             // 
             // lblSpring
             // 
             this.lblSpring.IsLink = true;
             this.lblSpring.Name = "lblSpring";
-            this.lblSpring.Size = new System.Drawing.Size(649, 17);
+            this.lblSpring.Size = new System.Drawing.Size(796, 17);
             this.lblSpring.Spring = true;
             this.lblSpring.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblSpring.VisitedLinkColor = System.Drawing.Color.Blue;
@@ -409,7 +409,7 @@
             // tmrSetStatusStrip
             // 
             this.tmrSetStatusStrip.Enabled = true;
-            this.tmrSetStatusStrip.Interval = 300000;
+            this.tmrSetStatusStrip.Interval = 30000;
             this.tmrSetStatusStrip.Tick += new System.EventHandler(this.tmrSetStatusStrip_Tick);
             // 
             // dockPanel
@@ -533,7 +533,7 @@
         private System.Windows.Forms.ToolStripMenuItem newFromTemplateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reopenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem lupusTitaniumHTTPsProxyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel lblResultsDatabase;
+        private System.Windows.Forms.ToolStripStatusLabel lblPublisher;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
     }
 }

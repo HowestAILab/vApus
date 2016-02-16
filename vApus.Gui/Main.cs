@@ -42,11 +42,10 @@ namespace vApus.Gui {
         private LogPanel _logPanel;
         private LocalizationPanel _localizationPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
-        private SavingResultsPanel _savingResultsPanel;
         private AutoExportResultsPanel _exportingResultsPanel;
         private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
         private CleanTempDataPanel _cleanTempDataPanel;
-        private Publish.PublishPanel _outputPanel;
+        private Publish.PublishPanel _publishPanel;
         #endregion
 
         #region Constructor
@@ -112,10 +111,9 @@ namespace vApus.Gui {
                         await Task.Run(() => SynchronizationContextWrapper.SynchronizationContext.Send((state) => { Close(); }, null));
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
-                _savingResultsPanel = new SavingResultsPanel();
                 _exportingResultsPanel = new AutoExportResultsPanel();
 
-                _outputPanel = new Publish.PublishPanel();
+                _publishPanel = new Publish.PublishPanel();
 
                 _firstStepsView.LinkClicked += _firstStepsView_LinkClicked;
 
@@ -217,8 +215,7 @@ namespace vApus.Gui {
                 _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
-                _optionsDialog.AddOptionsPanel(_outputPanel);
-                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
+                _optionsDialog.AddOptionsPanel(_publishPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
                 _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
@@ -590,9 +587,17 @@ namespace vApus.Gui {
             var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
             lblUpdateNotifier.Text = attr[0].Description;
 
-            bool connected = await Task.Run(() => _savingResultsPanel.Connected);
+            if (Publish.Publisher.Settings.PublisherEnabled) {
+                _publishPanel.AutoLaunchvApusPublishItemsHandler();
 
-            lblResultsDatabase.Text = _savingResultsPanel != null && _savingResultsPanel.Connected ? "Test results database enabled" : "Test results database disabled";
+                bool connected = await Task.Run(() => _publishPanel.Connected);
+
+                lblPublisher.Text = connected ? "Publisher connected" : "Could not connect publisher";
+            }
+            else {
+                lblPublisher.Text = "Publisher disabled";
+            }
+
 
             SetWarningLabel();
 
@@ -638,7 +643,7 @@ namespace vApus.Gui {
 
         private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
 
-        private void lblResultsDatabase_Click(object sender, EventArgs e) { ShowOptionsDialog(5); }
+        private void lblPublisher_Click(object sender, EventArgs e) { ShowOptionsDialog(5); }
 
         private void _logErrorToolTip_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 

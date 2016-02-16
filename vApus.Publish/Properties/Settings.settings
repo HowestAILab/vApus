@@ -11,5 +11,8 @@
     <Setting Name="TcpPort" Type="System.UInt16" Scope="User">
       <Value Profile="(Default)">4337</Value>
     </Setting>
+    <Setting Name="AutoLaunchvApusPublishItemsHandler" Type="System.Boolean" Scope="User">
+      <Value Profile="(Default)">False</Value>
+    </Setting>
   </Settings>
 </SettingsFile>

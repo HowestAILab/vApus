@@ -10,7 +10,6 @@ using RandomUtils.Log;
 using System;
 using System.Diagnostics;
 using System.Net;
-using System.Threading.Tasks;
 using vApus.Util;
 
 namespace vApus.Publish {
@@ -27,7 +26,7 @@ namespace vApus.Publish {
 
         private static string _lastGeneratedResultSetId;
 
-        private delegate void SendDelegate(PublishItem item);
+        private delegate bool SendDelegate(PublishItem item);
         private static BackgroundWorkQueue _sendQueue = new BackgroundWorkQueue();
         private static SendDelegate _sendDelegate = Send;
 
@@ -106,13 +105,11 @@ namespace vApus.Publish {
         public static bool Poll() {
             try {
                 if (Settings.PublisherEnabled && !string.IsNullOrWhiteSpace(_settings.TcpHost))
-                    Send(InitItem(new Poll(), string.Empty));
+                    if (Send(InitItem(new Poll(), string.Empty)))
+                        return true;
             }
-            catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed polling.", ex);
-                return false;
-            }
-            return true;
+            catch { }
+            return false;
         }
 
         private static void _sendQueue_OnWorkItemProcessed(object sender, BackgroundWorkQueue.OnWorkItemProcessedEventArgs e) {
@@ -120,9 +117,9 @@ namespace vApus.Publish {
                 Loggers.Log(Level.Error, "Failed sending.", e.Exception);
         }
 
-        private static void Send(PublishItem item) {
+        private static bool Send(PublishItem item) {
             _tcpDestination.Init(_settings.TcpHost, _settings.TcpPort, JSONFormatter.GetInstance());
-            _tcpDestination.Send(item);
+            return _tcpDestination.Send(item);
         }
 
         private static void Publisher_LogEntryWritten(object sender, WriteLogEntryEventArgs e) {
