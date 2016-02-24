@@ -145,7 +145,6 @@ namespace vApus.Communication {
                 var stressTest = stressTestProject[index] as StressTest.StressTest;
 
                 StressTestView view = null;
-                string error = string.Empty;
                 SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                     view = stressTest.Activate() as StressTestView;
                     view.StartStressTest(false);

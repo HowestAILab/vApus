@@ -91,7 +91,6 @@ namespace vApus.Results {
 
             bool resultsRemoved = false;
             foreach (MetricsCacheObject removeResult in removeResults) {
-                var r = removeResult.Result as ConcurrencyResult;
                 removeResult.Result = null;
 
                 resultsRemoved = true;

@@ -588,11 +588,6 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             }
         }
 
-        private Solution(string fileName)
-            : this() {
-            FileName = fileName;
-        }
-
 
         private static void _stressTestingSolutionExplorer_DockStateChanged(object sender, EventArgs e) {
             bool mutexCreated;

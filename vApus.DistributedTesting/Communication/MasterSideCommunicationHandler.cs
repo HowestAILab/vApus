@@ -213,59 +213,6 @@ namespace vApus.DistributedTest {
             Send(socketWrapper, new Message<Key>(key, content), tempSendTimeout);
         }
         /// <summary>
-        /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <param name="key"></param>
-        /// <param name="content"></param>
-        /// <param name="exception"></param>
-        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
-        private static void Send(string ip, int port, Key key, object content, out Exception exception, int tempSendTimeout = -1) {
-            exception = null;
-            SocketWrapper socketWrapper = null;
-            try {
-                socketWrapper = Get(ip, port, out exception);
-                if (exception == null)
-                    Send(socketWrapper, key, content, tempSendTimeout);
-            } catch (Exception ex) {
-                DisconnectSlave(socketWrapper);
-                exception = ex;
-            }
-        }
-        /// <summary>
-        /// Send to all slaves.
-        /// Will connect all the slaves if not connected.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="content"></param>
-        /// <param name="exception"></param>
-        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
-        private static void Send(Key key, object content, out Exception exception, int tempSendTimeout = -1) {
-            exception = null;
-            int processID;
-            List<string> failedFor = new List<string>();
-            Dictionary<SocketWrapper, Message<Key>> dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
-            foreach (SocketWrapper slaveSocketWrapper in _connectedSlaves.Keys) {
-                try {
-                    ConnectSlave(slaveSocketWrapper, out processID, out exception);
-                    Send(slaveSocketWrapper, key, content, tempSendTimeout);
-                } catch {
-                    failedFor.Add(string.Format("{0}:{1}", slaveSocketWrapper.IP, slaveSocketWrapper.Port));
-                }
-            }
-
-            if (failedFor.Count > 0) {
-                StringBuilder sb = new StringBuilder("Failed send and receive for ");
-                for (int j = 0; j < failedFor.Count - 1; j++) {
-                    sb.Append(failedFor[j]);
-                    sb.Append(", ");
-                }
-                sb.Append(failedFor[failedFor.Count - 1]);
-                sb.Append('.');
-                exception = new Exception(sb.ToString());
-            }
-        }
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="socketWrapper"></param>

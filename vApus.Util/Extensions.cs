@@ -398,8 +398,6 @@ namespace vApus.Util {
             lock (_parents.SyncRoot) {
                 bool removed = false;
                 if (_parents.Contains(o)) {
-                    object parent = _parents[o];
-
                     _parents.Remove(o);
                     removed = true;
                 }

@@ -23,11 +23,6 @@ namespace vApus.Publish {
 
         private IFormatter _formatter;
 
-        /// <summary>
-        /// Set a formatter to format the message before it is sent.
-        /// </summary>
-        public IFormatter Formatter { get { return _formatter; } }
-
         public TcpDestination() { }
 
         /// <summary>

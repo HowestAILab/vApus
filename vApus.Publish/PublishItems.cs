@@ -291,7 +291,7 @@ namespace vApus.Publish {
     /// <summary>
     /// Belongs to the last generated result set Id if any. That way you can see what stuff went wrong during a test. Can contain false positives though.
     /// </summary>
-    internal class ApplicationLogEntry : PublishItem {
+    public class ApplicationLogEntry : PublishItem {
         /// <summary>
         /// 0 = info, 1 = warning, 2 = error, 3 = fatal
         /// </summary>

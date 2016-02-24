@@ -86,7 +86,6 @@ namespace vApus.Util {
 
             // Add a Click event handler to select the ListView row when an embedded control is clicked
             control.Click += EmbeddedControl_Click;
-            control.SizeChanged += control_SizeChanged;
 
             Controls.Add(control);
         }
@@ -258,15 +257,6 @@ namespace vApus.Util {
                     embeddedControl.Item.Selected = true;
                 }
             }
-        }
-
-        private void control_SizeChanged(object sender, EventArgs e) {
-            //this.Refresh();
-        }
-
-        private void InitializeComponent() {
-            SuspendLayout();
-            ResumeLayout(false);
         }
 
         //To sort

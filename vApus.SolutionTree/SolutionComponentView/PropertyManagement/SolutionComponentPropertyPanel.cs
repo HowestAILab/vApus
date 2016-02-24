@@ -117,7 +117,6 @@ namespace vApus.SolutionTree {
         /// <param name="collapse">not on refresh</param>
         private void SetGui() {
             if (_solutionComponent != null && IsHandleCreated) {
-                bool locked = _locked;
                 bool showHideAdvancedSettingsControl = false;
 
                 //Get and sort all valid properties.

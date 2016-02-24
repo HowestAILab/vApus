@@ -47,7 +47,6 @@
             this.llblDeserialize = new System.Windows.Forms.LinkLabel();
             this.chkApplicationLogs = new System.Windows.Forms.Label();
             this.chkTestsClientMonitoring = new System.Windows.Forms.Label();
-            this.folderBrowserDialog = new System.Windows.Forms.FolderBrowserDialog();
             this.btnEnable = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.grp.SuspendLayout();
@@ -362,7 +361,6 @@
         private System.Windows.Forms.Button btnSet;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.GroupBox grp;
-        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog;
         private System.Windows.Forms.Label chkTestsClientMonitoring;
         private System.Windows.Forms.Label chkApplicationLogs;
         private System.Windows.Forms.Button btnEnable;

@@ -165,9 +165,6 @@ namespace vApus.StressTest {
             if (InitDatabase(!allowMessageBox)) {
                 StopProgressDelayCountDown();
 
-                //Dns.GetHostName() does not always work.
-                string hostName = Dns.GetHostEntry(IPAddress.Loopback).HostName.Trim().Split('.')[0].ToLower();
-  
                 var scenarioKeys = new List<Scenario>(_stressTest.Scenarios.Length);
                 foreach (var kvp in _stressTest.Scenarios)
                     scenarioKeys.Add(kvp.Key);

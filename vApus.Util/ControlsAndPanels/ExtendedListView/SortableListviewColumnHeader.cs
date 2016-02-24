@@ -72,12 +72,9 @@ namespace vApus.Util {
                     throw new NotImplementedException("ListviewSorter is null");
                 }
 
-                // --- Get items over here ??
-
                 object left = ((ListViewItem)x).SubItems[Column];
                 object right = ((ListViewItem)y).SubItems[Column];
 
-                ListView listView = ListView;
                 return (ListviewSorter.OnSort(left, right, ListView.Sorting));
             } catch {
                 return 0;

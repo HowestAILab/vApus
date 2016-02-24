@@ -35,7 +35,6 @@ namespace vApus.StressTest {
         public ConnectionProxyPool TryCompile(bool debug) {
             Cursor = Cursors.WaitCursor;
 
-            var connection = new Connection();
             var stub = new Connection();
             stub.ConnectionProxy = ConnectionProxyCode.Parent as ConnectionProxy;
             var connectionProxyPool = new ConnectionProxyPool(stub);

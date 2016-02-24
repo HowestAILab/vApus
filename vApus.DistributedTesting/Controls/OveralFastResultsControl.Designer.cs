@@ -134,7 +134,6 @@ namespace vApus.DistributedTest {
             this.dgvFastResults.TabIndex = 3;
             this.dgvFastResults.VirtualMode = true;
             this.dgvFastResults.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvFastResults_CellValueNeeded);
-            this.dgvFastResults.Scroll += new System.Windows.Forms.ScrollEventHandler(this.dgvFastResults_Scroll);
             // 
             // pnlFastResultListing
             // 

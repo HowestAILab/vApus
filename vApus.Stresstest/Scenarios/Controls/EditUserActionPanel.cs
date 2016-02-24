@@ -122,11 +122,7 @@ namespace vApus.StressTest {
 
             cboParameterScope.SelectedIndex = 5;
 
-            //txtLabel.TextChanged -= txtLabel_TextChanged;
             txtLabel.Text = userActionTreeViewItem.UserAction.Label;
-            //txtLabel.TextChanged += txtLabel_TextChanged;
-
-            // _labelChanged.Elapsed += _labelChanged_Elapsed;
 
             if (_plainTextParameterTokenTextStyle == null) SetCodeStyle();
             SetMove();
@@ -136,23 +132,6 @@ namespace vApus.StressTest {
             SetRequests();
             LockWindowUpdate(IntPtr.Zero);
         }
-
-        //private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-        //    if (_labelChanged != null) _labelChanged.Stop();
-        //    if (!IsDisposed)
-        //        SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-        //            UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
-        //            UserActionTreeViewItem.SetLabel();
-        //            UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-        //        }, null);
-        //}
-
-        //private void txtLabel_TextChanged(object sender, EventArgs e) {
-        //if (_labelChanged != null) {
-        //    _labelChanged.Stop();
-        //    _labelChanged.Start();
-        //}
-        //}
 
         private void txtLabel_KeyUp(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) SetLabelChanged();
@@ -177,7 +156,7 @@ namespace vApus.StressTest {
         private void MoveUserAction(bool down) {
             MoveUserAction(UserActionTreeViewItem.UserAction, down, (int)nudMoveSteps.Value);
         }
-        private void MoveUserAction(UserAction userAction, bool down, int moveSteps, bool invokeEvents = true) {
+        private void MoveUserAction(UserAction userAction, bool down, int moveSteps) {
             if (moveSteps == 0) return;
 
             //use the zero based index.
