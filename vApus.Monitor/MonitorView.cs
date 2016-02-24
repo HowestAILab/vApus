@@ -1452,9 +1452,8 @@ namespace vApus.Monitor {
         public MonitorResult GetMonitorResultCache() { return monitorControl.MonitorResultCache; }
 
         public MonitorResult GetMonitorResultCache(DateTime from) {
-            MonitorResult monitorResult = monitorControl.MonitorResultCache;
+            MonitorResult monitorResult = monitorControl.MonitorResultCache; 
             var part = new MonitorResult();
-            part.MonitorConfigurationId = monitorResult.MonitorConfigurationId;
             part.Headers = monitorResult.Headers;
 
             for (int i = monitorResult.Rows.Count - 1; i != -1; i--) {

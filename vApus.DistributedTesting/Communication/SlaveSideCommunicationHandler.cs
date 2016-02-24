@@ -47,10 +47,6 @@ namespace vApus.DistributedTest {
 
         private static readonly SendPushMessageDelegate _sendPushMessageDelegate = SendQueuedPushMessage;
         private static BackgroundWorkQueue _sendQueue;
-
-        //For encrypting the mysql password of the results db server.
-        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
         #endregion
 
         #region Functions
@@ -158,13 +154,6 @@ namespace vApus.DistributedTest {
                             _tileStressTestView.ResultSetId = stressTestWrapper.PublishResultSetId;
                             _tileStressTestView.RunSynchronization = stressTestWrapper.RunSynchronization;
                             _tileStressTestView.MaxRerunsBreakOnLast = stressTestWrapper.MaxRerunsBreakOnLast;
-
-
-                            if (stressTestWrapper.StressTestIdInDb != 0 && !string.IsNullOrEmpty(stressTestWrapper.MySqlHost)) {
-                                _tileStressTestView.ConnectToExistingDatabase(stressTestWrapper.MySqlHost, stressTestWrapper.MySqlPort, stressTestWrapper.MySqlDatabaseName, stressTestWrapper.MySqlUser,
-                                    stressTestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
-                                _tileStressTestView.StressTestIdInDb = stressTestWrapper.StressTestIdInDb;
-                            }
                         } catch {
                             if (++done != 4) {
                                 Thread.Sleep(1000);

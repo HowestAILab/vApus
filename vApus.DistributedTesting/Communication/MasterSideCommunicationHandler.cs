@@ -515,7 +515,7 @@ namespace vApus.DistributedTest {
         /// 
         /// No timeouts (except for the synchronization of the buffers (30 seconds)), this can take a while.
         /// </summary>
-        public static Exception InitializeTests(Dictionary<TileStressTest, TileStressTest> dividedAndOriginalTileStressTests, List<int> stressTestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public static Exception InitializeTests(Dictionary<TileStressTest, TileStressTest> dividedAndOriginalTileStressTests, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             Exception exception = null;
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStressTests.Count];
             var functionOutputCache = new FunctionOutputCache();
@@ -541,7 +541,7 @@ namespace vApus.DistributedTest {
                         pushIPs.Add(ipAddress.ToString());
                 }
                 var initializeTestMessage = new InitializeTestMessage() {
-                    StressTestWrapper = tileStressTest.GetStressTestWrapper(functionOutputCache, stressTestIdsInDb[tileStressTestIndex], databaseName, runSynchronization, maxRerunsBreakOnLast),
+                    StressTestWrapper = tileStressTest.GetStressTestWrapper(functionOutputCache, runSynchronization, maxRerunsBreakOnLast),
                     PushIPs = pushIPs.ToArray(), PushPort = masterSocketWrapper.Port
                 };
 

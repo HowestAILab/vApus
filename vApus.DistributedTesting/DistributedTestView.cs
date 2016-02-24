@@ -38,8 +38,6 @@ namespace vApus.DistributedTest {
         private DistributedTestCore _distributedTestCore;
         private DistributedTestMode _distributedTestMode;
 
-        private ResultsHelper _resultsHelper = new ResultsHelper();
-
         /// <summary>
         ///     In seconds how fast the stress test progress will be updated.
         /// </summary>
@@ -68,12 +66,6 @@ namespace vApus.DistributedTest {
 
         private Dictionary<TileStressTest, Monitor.Monitor> _usedMonitors = new Dictionary<TileStressTest, Monitor.Monitor>();
         private int _monitorBefore = 0, _monitorAfter = 0;
-
-        private System.Timers.Timer _refreshDetailedResultsTimer = new System.Timers.Timer(1000);
-
-        //To write monitor metrics periodically to the db.
-        private DateTime _monitorMetricsWritten = DateTime.MinValue;
-
         #endregion
 
         #region Properties
@@ -255,13 +247,8 @@ namespace vApus.DistributedTest {
                         fastResultsControl.ClearFastResults();
 
                         var testProgressMessage = _distributedTestCore.GetTestProgressMessage(tstvi.TileStressTest);
-                        if (testProgressMessage.TileStressTestIndex == null) {
-                            detailedResultsControl.ClearResults();
-                            detailedResultsControl.Enabled = false;
-                        }
-                        else {
+                        if (testProgressMessage.TileStressTestIndex != null)
                             SetSlaveProgress(tstvi.TileStressTest, testProgressMessage);
-                        }
                     }
                 }
             }
@@ -272,9 +259,6 @@ namespace vApus.DistributedTest {
 
                 fastResultsControl.Visible = false;
                 distributedTestControl.Visible = true;
-
-                detailedResultsControl.ClearResults();
-                detailedResultsControl.Enabled = false;
 
                 SetOverallProgress();
             }
@@ -287,14 +271,9 @@ namespace vApus.DistributedTest {
                 fastResultsControl.Visible = false;
                 distributedTestControl.Visible = true;
 
-                detailedResultsControl.ClearResults();
-                detailedResultsControl.Enabled = false;
-
                 SetOverallProgress();
             }
-
-            //Update the detailed results in the gui if any.
-            RefreshDetailedResults();
+            
             this.Focus();
         }
         private void testTreeView_TileStressTestTreeViewItemDoubleClicked(object sender, EventArgs e) {
@@ -458,12 +437,10 @@ namespace vApus.DistributedTest {
         /// </summary>
         /// <returns></returns>
         private bool InitDatabaseBeforeStart(bool autoConfirmDialog) {
-            var dialog = new DescriptionAndTagsInputDialog { Description = _distributedTest.Description, Tags = _distributedTest.Tags, ResultsHelper = _resultsHelper, AutoConfirm = autoConfirmDialog };
-            if (dialog.ShowDialog() == DialogResult.Cancel) {
-                RemoveDatabase(false);
+            var dialog = new DescriptionAndTagsInputDialog { Description = _distributedTest.Description, Tags = _distributedTest.Tags, AutoConfirm = autoConfirmDialog };
+            if (dialog.ShowDialog() == DialogResult.Cancel) 
                 return false;
-            }
-
+            
             bool edited = false;
             if (_distributedTest.Description != dialog.Description) {
                 _distributedTest.Description = dialog.Description;
@@ -510,7 +487,6 @@ namespace vApus.DistributedTest {
                 if (_distributedTest.UseRDP) ShowRemoteDesktop();
 
                 distributedTestControl.ClearFastResults();
-                _monitorMetricsWritten = DateTime.MinValue;
 
                 //Smart update
                 UpdateNotifier.Refresh();
@@ -526,7 +502,6 @@ namespace vApus.DistributedTest {
                             Update(host, port, username, password, channel);
 
                         //In both cases the test cannot go on.
-                        RemoveDatabase(false);
                         Stop();
                         return;
                     }
@@ -563,7 +538,6 @@ namespace vApus.DistributedTest {
 
             }
             catch (Exception ex) {
-                RemoveDatabase(false);
                 Stop();
                 Loggers.Log(Level.Error, "Failed starting the test.", ex);
             }
@@ -624,7 +598,7 @@ namespace vApus.DistributedTest {
                             _distributedTestCore = null;
                         }
 
-                        _distributedTestCore = new DistributedTestCore(_distributedTest, _resultsHelper);
+                        _distributedTestCore = new DistributedTestCore(_distributedTest);
                         _distributedTestCore.Message += _distributedTestCore_Message;
                         _distributedTestCore.OnTestProgressMessageReceivedDelayed += _distributedTestCore_TestProgressMessageReceivedDelayed;
                         _distributedTestCore.OnListeningError += _distributedTestCore_OnListeningError;
@@ -645,7 +619,6 @@ namespace vApus.DistributedTest {
                             Loggers.Log(Level.Error, message, ex);
                         }
 
-                        RemoveDatabase();
                         Stop();
                     }
                 }
@@ -654,7 +627,6 @@ namespace vApus.DistributedTest {
                     string message = "Cannot start this test because another one is still running.";
                     AppendMessages(message, Level.Error);
                     Loggers.Log(Level.Error, message, ex);
-                    RemoveDatabase();
                     Stop();
                 }
             }, null);
@@ -685,8 +657,6 @@ namespace vApus.DistributedTest {
                     //Initialize the monitors.
                     _monitorViews.Clear();
                     _monitorMetricsCaches.Clear();
-                    detailedResultsControl.ClearResults();
-                    detailedResultsControl.Enabled = false;
 
                     foreach (TileStressTest tileStressTest in _distributedTest.UsedTileStressTests)
                         foreach (var monitor in tileStressTest.BasicTileStressTest.Monitors)
@@ -722,11 +692,6 @@ namespace vApus.DistributedTest {
                                 if (monitorView != null && !monitorView.IsDisposed)
                                     try {
                                         if (monitorView.Start()) {
-                                            int dbId = _distributedTestCore.GetDbId(ts);
-                                            if (dbId != -1)
-                                                monitorView.GetMonitorResultCache().MonitorConfigurationId = _resultsHelper.SetMonitor(dbId, monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
-                                                monitorView.GetConnectionString(), monitorView.HardwareConfiguration, monitorView.GetMonitorResultCache().Headers);
-
                                             AppendMessages(monitorView.Text + " is started.");
                                             ++runningMonitors;
 
@@ -808,7 +773,6 @@ namespace vApus.DistributedTest {
                     _distributedTestCore = null;
                 }
 
-                RemoveDatabase();
                 Stop();
                 Cursor = Cursors.Default;
             }, null);
@@ -822,8 +786,6 @@ namespace vApus.DistributedTest {
         private void AppendMessages(string message, Level level = Level.Info) {
             distributedTestControl.AppendMessages(message, level);
             PublishMessage((int)level, message);
-
-            _resultsHelper.AddMessageInMemory((int)level, message);
         }
 
         private void _distributedTestCore_TestProgressMessageReceivedDelayed(object sender, EventArgs e) {
@@ -1102,19 +1064,15 @@ namespace vApus.DistributedTest {
 
                 btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
-                RemoveDatabase();
             }
 
             if (monitorBeforeRunning) {
                 testTreeView.SetMonitorBeforeCancelled();
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
-                RemoveDatabase();
             }
-            if (monitorAfterRunning) {
+            if (monitorAfterRunning) 
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
-                RemoveDatabase();
-            }
-
+            
             Cursor = Cursors.Default;
         }
         private void _distributedTestCore_OnFinished(object sender, TestFinishedEventArgs e) {
@@ -1124,12 +1082,9 @@ namespace vApus.DistributedTest {
 
             if (e.Cancelled == 0 && e.Error == 0) {
                 AppendMessages("Test finished!", Level.Info);
-                _resultsHelper.DoAddMessagesToDatabase();
             }
             else {
                 AppendMessages("Test Cancelled!", Level.Warning);
-                _resultsHelper.DoAddMessagesToDatabase();
-                RemoveDatabase();
             }
         }
 
@@ -1153,17 +1108,6 @@ namespace vApus.DistributedTest {
                 Solution.ExplicitCancelFormClosing = true;
                 e.Cancel = true;
             }
-        }
-        private void RemoveDatabase(bool confirm = true) {
-            if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
-                if (!confirm || MessageBox.Show("Do you want to remove the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2)
-                    == DialogResult.Yes)
-                    try {
-                        _resultsHelper.DeleteResults();
-                    }
-                    catch (Exception ex) {
-                        Loggers.Log(Level.Error, "Failed removing the results database.", ex, new object[] { confirm });
-                    }
         }
         private void Stop(bool monitorAfter = false) {
             Cursor = Cursors.WaitCursor;
@@ -1238,72 +1182,10 @@ namespace vApus.DistributedTest {
                 _monitorAfterCountDown.Start(countdownTime, 5000);
             }
             else {
-                StopMonitorsUpdateDetailedResultsAndSetMode(false);
-
-                if (AutoExportResultsManager.Enabled)
-                    detailedResultsControl.AutoExportToExcel(AutoExportResultsManager.Folder);
-
+                StopMonitorsUpdateDetailedResultsAndSetMode(false);                
             }
 
             this.Focus();
-        }
-
-        private void RefreshDetailedResults() {
-            detailedResultsControl.Enabled = false;
-
-            if (_refreshDetailedResultsTimer != null) {
-                _refreshDetailedResultsTimer.Stop();
-                _refreshDetailedResultsTimer.Elapsed -= _rowEnterTimer_Elapsed;
-
-                _refreshDetailedResultsTimer.Elapsed += _rowEnterTimer_Elapsed;
-                _refreshDetailedResultsTimer.Start();
-            }
-        }
-
-        private void _rowEnterTimer_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-            if (_refreshDetailedResultsTimer != null) {
-                _refreshDetailedResultsTimer.Stop();
-                _refreshDetailedResultsTimer.Elapsed -= _rowEnterTimer_Elapsed;
-                try {
-                    RefreshDetailedResultsDelayed();
-                }
-                catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Failed refreshing detailed results.", ex, new object[] { sender, e });
-                }
-            }
-        }
-        private void RefreshDetailedResultsDelayed() {
-            SynchronizationContextWrapper.SynchronizationContext.Send((y) => {
-                int[] stressTestIds = null;
-                if (_resultsHelper != null && _resultsHelper.DatabaseName != null && _distributedTestMode == DistributedTestMode.Edit && _selectedTestTreeViewItem != null) {
-                    if (_selectedTestTreeViewItem is TileStressTestTreeViewItem) {
-                        var tstvi = _selectedTestTreeViewItem as TileStressTestTreeViewItem;
-                        int dbId = _distributedTestCore.GetDbId(tstvi.TileStressTest);
-                        if (dbId != -1)
-                            stressTestIds = new int[] { dbId };
-                    }
-                    else if (_selectedTestTreeViewItem is TileTreeViewItem) {
-                        var l = new List<int>();
-                        var tile = (_selectedTestTreeViewItem as TileTreeViewItem).Tile;
-                        foreach (TileStressTest ts in tile)
-                            if (ts.Use) {
-                                int dbId = _distributedTestCore.GetDbId(ts);
-                                if (dbId != -1)
-                                    l.Add(dbId);
-                            }
-                        stressTestIds = l.ToArray();
-                    }
-                    else if (_selectedTestTreeViewItem is DistributedTestTreeViewItem) {
-                        stressTestIds = new int[0];
-                    }
-                }
-                if (stressTestIds != null) {
-                    this.Enabled = false;
-                    detailedResultsControl.RefreshResults(_resultsHelper, stressTestIds);
-                    this.Enabled = true;
-                }
-                this.Show();
-            }, null);
         }
         #endregion
 
@@ -1378,7 +1260,6 @@ namespace vApus.DistributedTest {
 
                             btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
                             StopMonitorsUpdateDetailedResultsAndSetMode(false);
-                            RemoveDatabase();
                         }
                         Show();
                     }
@@ -1409,7 +1290,6 @@ namespace vApus.DistributedTest {
 
                             btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = true;
                             StopMonitorsUpdateDetailedResultsAndSetMode(false);
-                            RemoveDatabase();
                         }
                         Show();
                     }
@@ -1548,9 +1428,6 @@ namespace vApus.DistributedTest {
                 AppendMessages("Finished.");
 
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
-
-                if (AutoExportResultsManager.Enabled)
-                    detailedResultsControl.AutoExportToExcel(AutoExportResultsManager.Folder);
             }, null);
 
             PublishMonitorAfterTestDone();
@@ -1563,13 +1440,6 @@ namespace vApus.DistributedTest {
                     foreach (MonitorView view in _monitorViews[ts])
                         if (view != null && !view.IsDisposed && !validMonitorViews.Contains(view))
                             validMonitorViews.Add(view);
-
-            foreach (MonitorView view in validMonitorViews)
-                try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache(_monitorMetricsWritten)); }
-                catch (Exception e) {
-                    Loggers.Log(Level.Error, view.Text + ": Failed adding results to the database.", e);
-                }
-            _monitorMetricsWritten = DateTime.Now;
 
             validMonitorViews = null;
         }
@@ -1601,26 +1471,25 @@ namespace vApus.DistributedTest {
             }
 
             StopMonitors();
-            WriteMonitorMetricsToDatabase();
-            _monitorMetricsWritten = DateTime.MinValue;
 
             if (!disposing) {
                 SetMode(DistributedTestMode.Edit, true);
-
-                //Update the detailed results in the gui if any.
-                RefreshDetailedResults();
-
-                try {
-                    _resultsHelper.DoAddMessagesToDatabase();
-                }
-                catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Failed adding messages to database. If this happens when cancelling the test when it just started, ignore it.", ex, new object[] { disposing });
-                }
-
                 this.Focus();
             }
         }
         #endregion
+
+        private void btnDetailedResultsViewer_Click(object sender, EventArgs e) {
+            string path = Path.Combine(Application.StartupPath, "DetailedResultsViewer", "vApus.DetailedResultsViewer.exe");
+            if (File.Exists(path)) {
+                Process.Start(path);
+            }
+            else {
+                string ex = "Detailed results viewer was not found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
+        }
 
         #region Publish
         private string _resultSetId;
@@ -1684,6 +1553,7 @@ namespace vApus.DistributedTest {
                     Publisher.Send(publishItem, _resultSetId);
                 }
         }
+
         private void PublishMonitorBeforeTestDone() {
             if (Publisher.Settings.PublisherEnabled)
                 foreach (TileStressTest ts in _usedMonitors.Keys) {

@@ -53,8 +53,6 @@ namespace vApus.DistributedTest {
         private FastStressTestMetricsCache _stressTestMetricsCache;
         private StressTestStatus _stressTestStatus;
 
-        private ResultsHelper _resultsHelper = new ResultsHelper();
-
         /// <summary>
         ///     Don't send push messages anymore if it is finished (stop on form closing);
         /// </summary>
@@ -93,14 +91,6 @@ namespace vApus.DistributedTest {
         public int MaxRerunsBreakOnLast { get; set; }
         public StressTestResult StressTestResult {
             get { return _stressTestResult; }
-        }
-
-        /// <summary>
-        /// For adding results to the database.
-        /// </summary>
-        public int StressTestIdInDb {
-            get { return _resultsHelper.StressTestId; }
-            set { _resultsHelper.StressTestId = value; }
         }
         #endregion
 
@@ -141,13 +131,6 @@ namespace vApus.DistributedTest {
         #endregion
 
         #region Start
-        public void ConnectToExistingDatabase(string host, int port, string databaseName, string user, string password) {
-            try {
-                _resultsHelper.ConnectToExistingDatabase(host, port, databaseName, user, password);
-            } catch {
-                throw new Exception("MAKE SURE THAT YOU DO NOT TARGET 'localhost', '127.0.0.1', '0:0:0:0:0:0:0:1' or '::1' IN 'Options' > 'Saving Test Results' and that the connection limit (max_connections setting in my.ini) is set high enough!\nA connection to the results server could not be made!");
-            }
-        }
         /// <summary>
         ///     Thread safe
         /// </summary>
@@ -170,7 +153,6 @@ namespace vApus.DistributedTest {
 
                     _stressTestCore = new StressTestCore(_stressTest);
                     _stressTestCore.WaitWhenInitializedTheFirstRun = true;
-                    _stressTestCore.ResultsHelper = _resultsHelper;
                     _stressTestCore.RunSynchronization = RunSynchronization;
                     _stressTestCore.MaxRerunsBreakOnLast = MaxRerunsBreakOnLast;
                     _stressTestCore.StressTestStarted += _stressTestCore_StressTestStarted;
@@ -403,8 +385,6 @@ namespace vApus.DistributedTest {
 
         private void AddEvent(string message, Color color, Level level = Level.Info) {
             if (color == Color.Empty) fastResultsControl.AddEvent(message, level); else fastResultsControl.AddEvent(message, color, level);
-
-            _resultsHelper.AddMessageInMemory((int)level, message);
         }
         #endregion
 
@@ -479,8 +459,6 @@ namespace vApus.DistributedTest {
 
                 string message;
                 fastResultsControl.SetStressTestStopped(_stressTestStatus, out message);
-                _resultsHelper.AddMessageInMemory(0, message);
-                _resultsHelper.DoAddMessagesToDatabase();
 
                 if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
                     _stressTestCore.Dispose();
@@ -529,8 +507,6 @@ namespace vApus.DistributedTest {
             fastResultsControl.SetStressTestStopped();
             _stressTestResult = null;
             _canUpdateMetrics = false;
-
-            _resultsHelper.DoAddMessagesToDatabase();
         }
 
         private void StopProgressDelayCountDown() {

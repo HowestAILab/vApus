@@ -46,9 +46,7 @@
             this.tc = new vApus.Util.TabControlWithAdjustableBorders();
             this.tpConfigure = new System.Windows.Forms.TabPage();
             this.tpStressTest = new System.Windows.Forms.TabPage();
-            this.fastResultsControl = new vApus.StressTest.FastResultsControl();
             this.tpDetailedResults = new System.Windows.Forms.TabPage();
-            this.detailedResultsControl = new vApus.StressTest.DetailedResultsControl();
             this.toolStrip = new System.Windows.Forms.ToolStrip();
             this.btnSchedule = new System.Windows.Forms.ToolStripButton();
             this.btnStart = new System.Windows.Forms.ToolStripButton();
@@ -56,6 +54,9 @@
             this.tmrProgress = new System.Windows.Forms.Timer(this.components);
             this.tmrProgressDelayCountDown = new System.Windows.Forms.Timer(this.components);
             this.tmrSchedule = new System.Windows.Forms.Timer(this.components);
+            this.btnDetailedResultsViewer = new System.Windows.Forms.Button();
+            this.label1 = new System.Windows.Forms.Label();
+            this.fastResultsControl = new vApus.StressTest.FastResultsControl();
             this.tc.SuspendLayout();
             this.tpConfigure.SuspendLayout();
             this.tpStressTest.SuspendLayout();
@@ -76,8 +77,8 @@
             // 
             // tc
             // 
-            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom)
-            | System.Windows.Forms.AnchorStyles.Left)
+            this.tc.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
+            | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.tc.BottomVisible = false;
             this.tc.Controls.Add(this.tpConfigure);
@@ -107,42 +108,22 @@
             // 
             this.tpStressTest.BackColor = System.Drawing.Color.White;
             this.tpStressTest.Controls.Add(this.fastResultsControl);
-            this.tpStressTest.Location = new System.Drawing.Point(0, 19);
+            this.tpStressTest.Location = new System.Drawing.Point(0, 22);
             this.tpStressTest.Name = "tpStressTest";
-            this.tpStressTest.Size = new System.Drawing.Size(790, 497);
+            this.tpStressTest.Size = new System.Drawing.Size(790, 494);
             this.tpStressTest.TabIndex = 1;
             this.tpStressTest.Text = "Stress test";
-            // 
-            // fastResultsControl
-            // 
-            this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
-            this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.fastResultsControl.Location = new System.Drawing.Point(0, 0);
-            this.fastResultsControl.Margin = new System.Windows.Forms.Padding(0);
-            this.fastResultsControl.MonitorConfigurationControlAndKeyValuePairControlVisible = true;
-            this.fastResultsControl.Name = "fastResultsControl";
-            this.fastResultsControl.Size = new System.Drawing.Size(790, 497);
-            this.fastResultsControl.TabIndex = 0;
             // 
             // tpDetailedResults
             // 
             this.tpDetailedResults.BackColor = System.Drawing.Color.White;
-            this.tpDetailedResults.Controls.Add(this.detailedResultsControl);
-            this.tpDetailedResults.Location = new System.Drawing.Point(0, 19);
+            this.tpDetailedResults.Controls.Add(this.label1);
+            this.tpDetailedResults.Controls.Add(this.btnDetailedResultsViewer);
+            this.tpDetailedResults.Location = new System.Drawing.Point(0, 22);
             this.tpDetailedResults.Name = "tpDetailedResults";
-            this.tpDetailedResults.Size = new System.Drawing.Size(790, 497);
+            this.tpDetailedResults.Size = new System.Drawing.Size(790, 494);
             this.tpDetailedResults.TabIndex = 2;
             this.tpDetailedResults.Text = "Detailed results";
-            // 
-            // detailedResultsControl
-            // 
-            this.detailedResultsControl.BackColor = System.Drawing.SystemColors.Control;
-            this.detailedResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.detailedResultsControl.Enabled = false;
-            this.detailedResultsControl.Location = new System.Drawing.Point(0, 0);
-            this.detailedResultsControl.Name = "detailedResultsControl";
-            this.detailedResultsControl.Size = new System.Drawing.Size(790, 497);
-            this.detailedResultsControl.TabIndex = 0;
             // 
             // toolStrip
             // 
@@ -205,6 +186,44 @@
             // 
             this.tmrSchedule.Tick += new System.EventHandler(this.tmrSchedule_Tick);
             // 
+            // btnDetailedResultsViewer
+            // 
+            this.btnDetailedResultsViewer.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.btnDetailedResultsViewer.AutoSize = true;
+            this.btnDetailedResultsViewer.BackColor = System.Drawing.Color.White;
+            this.btnDetailedResultsViewer.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
+            this.btnDetailedResultsViewer.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.btnDetailedResultsViewer.ImageAlign = System.Drawing.ContentAlignment.MiddleLeft;
+            this.btnDetailedResultsViewer.Location = new System.Drawing.Point(291, 220);
+            this.btnDetailedResultsViewer.MaximumSize = new System.Drawing.Size(9999, 24);
+            this.btnDetailedResultsViewer.Name = "btnDetailedResultsViewer";
+            this.btnDetailedResultsViewer.Size = new System.Drawing.Size(209, 24);
+            this.btnDetailedResultsViewer.TabIndex = 5;
+            this.btnDetailedResultsViewer.Text = "Detailed results viewer...";
+            this.btnDetailedResultsViewer.UseVisualStyleBackColor = false;
+            this.btnDetailedResultsViewer.Click += new System.EventHandler(this.btnDetailedResultsViewer_Click);
+            // 
+            // label1
+            // 
+            this.label1.Anchor = System.Windows.Forms.AnchorStyles.None;
+            this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.label1.Location = new System.Drawing.Point(128, 80);
+            this.label1.Name = "label1";
+            this.label1.Size = new System.Drawing.Size(535, 88);
+            this.label1.TabIndex = 6;
+            this.label1.Text = resources.GetString("label1.Text");
+            // 
+            // fastResultsControl
+            // 
+            this.fastResultsControl.BackColor = System.Drawing.Color.Transparent;
+            this.fastResultsControl.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.fastResultsControl.Location = new System.Drawing.Point(0, 0);
+            this.fastResultsControl.Margin = new System.Windows.Forms.Padding(0);
+            this.fastResultsControl.MonitorConfigurationControlAndKeyValuePairControlVisible = true;
+            this.fastResultsControl.Name = "fastResultsControl";
+            this.fastResultsControl.Size = new System.Drawing.Size(790, 494);
+            this.fastResultsControl.TabIndex = 0;
+            // 
             // StressTestView
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
@@ -220,6 +239,7 @@
             this.tpConfigure.ResumeLayout(false);
             this.tpStressTest.ResumeLayout(false);
             this.tpDetailedResults.ResumeLayout(false);
+            this.tpDetailedResults.PerformLayout();
             this.toolStrip.ResumeLayout(false);
             this.toolStrip.PerformLayout();
             this.ResumeLayout(false);
@@ -242,7 +262,7 @@
         private System.Windows.Forms.Timer tmrSchedule;
         private System.Windows.Forms.TabPage tpDetailedResults;
         private FastResultsControl fastResultsControl;
-        private DetailedResultsControl detailedResultsControl;
-
+        private System.Windows.Forms.Label label1;
+        private System.Windows.Forms.Button btnDetailedResultsViewer;
     }
 }

@@ -14,10 +14,6 @@ namespace vApus.Results {
         /// </summary>
         public string Monitor { get; set; }
         /// <summary>
-        ///     For linking the right results to the right configuration.
-        /// </summary>
-        public ulong MonitorConfigurationId { get; set; }
-        /// <summary>
         ///     Set this when stress testing.
         /// </summary>
         public List<object[]> Rows { get; private set; }

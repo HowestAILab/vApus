@@ -42,7 +42,6 @@ namespace vApus.Gui {
         private LogPanel _logPanel;
         private LocalizationPanel _localizationPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
-        private AutoExportResultsPanel _exportingResultsPanel;
         private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
         private CleanTempDataPanel _cleanTempDataPanel;
         private Publish.PublishPanel _publishPanel;
@@ -111,7 +110,6 @@ namespace vApus.Gui {
                         await Task.Run(() => SynchronizationContextWrapper.SynchronizationContext.Send((state) => { Close(); }, null));
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
-                _exportingResultsPanel = new AutoExportResultsPanel();
 
                 _publishPanel = new Publish.PublishPanel();
 
@@ -212,7 +210,6 @@ namespace vApus.Gui {
                 _optionsDialog = new OptionsDialog();
                 _optionsDialog.FormClosed += _optionsDialog_FormClosed;
                 _optionsDialog.AddOptionsPanel(_logPanel);
-                _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
                 _optionsDialog.AddOptionsPanel(_publishPanel);
@@ -240,7 +237,7 @@ namespace vApus.Gui {
         }
 
         private void lupusTitaniumHTTPsProxyToolStripMenuItem_Click(object sender, EventArgs e) {
-            string path = Path.Combine(Application.StartupPath, "lupus-titanium\\lupus-titanium_gui.exe");
+            string path = Path.Combine(Application.StartupPath, "lupus-titanium", "lupus-titanium_gui.exe");
             if (File.Exists(path)) {
                 Process.Start(path);
             } else {
@@ -252,15 +249,27 @@ namespace vApus.Gui {
         }
 
         private void detailedResultsViewerToolStripMenuItem_Click(object sender, EventArgs e) {
-            string path = Path.Combine(Application.StartupPath, "vApus.DetailedResultsViewer.exe");
+            string path = Path.Combine(Application.StartupPath, "DetailedResultsViewer", "vApus.DetailedResultsViewer.exe");
             if (File.Exists(path)) {
                 Process.Start(path);
             } else {
-                string ex = "The report application could not be found!";
+                string ex = "Detailed results viewer was not found!";
                 MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
             }
         }
+        private void publishItemsHandlerToolStripMenuItem_Click(object sender, EventArgs e) {
+            string path = Path.Combine(Application.StartupPath, "PublishItemsHandler", "vApus.PublishItemsHandler.exe");
+            if (File.Exists(path)) {
+                Process.Start(path);
+            }
+            else {
+                string ex = "Publish items handler was not found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
+        }
+
 
         private void updateProcess_Exited(object sender, EventArgs e) {
             try {
@@ -641,15 +650,15 @@ namespace vApus.Gui {
 
         private void _firstStepsView_LinkClicked(object sender, FirstStepsView.LinkClickedEventArgs e) { ShowOptionsDialog(e.OptionsIndex); }
 
-        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
+        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(6); }
 
-        private void lblPublisher_Click(object sender, EventArgs e) { ShowOptionsDialog(5); }
+        private void lblPublisher_Click(object sender, EventArgs e) { ShowOptionsDialog(3); }
 
         private void _logErrorToolTip_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 
-        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
+        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(1); }
 
-        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(9); }
+        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
         #endregion
     }
 }

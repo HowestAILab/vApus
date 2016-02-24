@@ -100,9 +100,9 @@
     <Prefer32Bit>true</Prefer32Bit>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="FastColoredTextBox, Version=2.8.7.0, Culture=neutral, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
+    <Reference Include="FastColoredTextBox, Version=2.16.11.0, Culture=neutral, PublicKeyToken=fb8aa12b994ef61b, processorArchitecture=MSIL">
+      <HintPath>..\packages\FCTB.2.16.11.0\lib\FastColoredTextBox.dll</HintPath>
+      <Private>True</Private>
     </Reference>
     <Reference Include="MySql.Data, Version=6.6.5.0, Culture=neutral, PublicKeyToken=c5687fc88969c44d, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -132,6 +132,12 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="DetailedResultsControl.cs">
+      <SubType>UserControl</SubType>
+    </Compile>
+    <Compile Include="DetailedResultsControl.Designer.cs">
+      <DependentUpon>DetailedResultsControl.cs</DependentUpon>
+    </Compile>
     <Compile Include="FilterResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
@@ -164,6 +170,9 @@
     </Compile>
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <EmbeddedResource Include="DetailedResultsControl.resx">
+      <DependentUpon>DetailedResultsControl.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="FilterResultsControl.resx">
       <DependentUpon>FilterResultsControl.cs</DependentUpon>
     </EmbeddedResource>
@@ -204,18 +213,6 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\vApus.Gui\vApus.Gui.csproj">
-      <Project>{c45d47ee-85f0-4621-afeb-d4e9cadf9678}</Project>
-      <Name>vApus.Gui</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
-      <Project>{D9F1BD01-09E8-4CE9-9701-2997D420B250}</Project>
-      <Name>vApus.Results</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\vApus.Stresstest\vApus.StressTest.csproj">
-      <Project>{790522ab-42d5-4c39-83be-14244d8c3f22}</Project>
-      <Name>vApus.StressTest</Name>
-    </ProjectReference>
     <ProjectReference Include="..\vApus.Util\vApus.Util.csproj">
       <Project>{eafdf189-4d7d-4784-96bc-662d746debf8}</Project>
       <Name>vApus.Util</Name>

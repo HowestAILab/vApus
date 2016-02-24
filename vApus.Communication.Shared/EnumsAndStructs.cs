@@ -67,13 +67,6 @@ namespace vApus.Communication.Shared {
 
     [Serializable]
     public class StressTestWrapper {
-        public int StressTestIdInDb;
-        public string MySqlHost;
-        public int MySqlPort;
-        public string MySqlDatabaseName;
-        public string MySqlUser;
-        public string MySqlPassword;
-
         public string PublishResultSetId;
         public bool Publish;
         public string PublishHost;

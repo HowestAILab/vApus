@@ -52,7 +52,6 @@ namespace vApus.StressTest {
         private KeyValuePair<Scenario, KeyValuePair<Request[], float>>[] _requests;
         private TestableRequest[][] _testableRequests; //First index: user. Second: the request
 
-        private ResultsHelper _resultsHelper = new ResultsHelper();
         private StressTestResult _stressTestResult;
         /// <summary>
         /// For publisher.
@@ -93,10 +92,6 @@ namespace vApus.StressTest {
         #endregion
 
         #region Properties
-        public ResultsHelper ResultsHelper {
-            get { return _resultsHelper; }
-            set { _resultsHelper = value; }
-        }
 
         public StressTestResult StressTestResult { get { return _stressTestResult; } }
 
@@ -135,7 +130,6 @@ namespace vApus.StressTest {
         #region Eventing
         private void SetStressTestStarted() {
             _stressTestResult = new StressTestResult();
-            _resultsHelper.SetStressTestStarted(_stressTestResult);
             InvokeMessage("Starting the stress test...");
 
             if (!_cancel && StressTestStarted != null)
@@ -147,7 +141,6 @@ namespace vApus.StressTest {
             int concurrentUsers = _stressTest.Concurrencies[concurrentUsersIndex];
             _concurrencyResult = new ConcurrencyResult(concurrentUsersIndex, concurrentUsers, _stressTest.Runs);
             _stressTestResult.ConcurrencyResults.Add(_concurrencyResult);
-            _resultsHelper.SetConcurrencyStarted(_concurrencyResult);
             InvokeMessage(
                 string.Format("|-> {0} Concurrent Users... (Initializing the first run, please be patient)", concurrentUsers),
                 Color.MediumPurple);
@@ -157,8 +150,6 @@ namespace vApus.StressTest {
                     delegate { ConcurrencyStarted(this, new ConcurrencyResultEventArgs(_concurrencyResult)); }, null);
         }
         private void SetConcurrencyStopped() {
-            _resultsHelper.SetConcurrencyStopped(_concurrencyResult);
-
             if (!_cancel && ConcurrencyStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate { ConcurrencyStopped(this, new ConcurrencyResultEventArgs(_concurrencyResult)); }, null);
@@ -169,7 +160,6 @@ namespace vApus.StressTest {
         ///     The current run result (_runResult) is also given with in the event's event args.
         /// </summary>
         private void SetRunStarted() {
-            _resultsHelper.SetRunStarted(_runResult);
             if (!_cancel && RunStarted != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate { RunStarted(this, new RunResultEventArgs(_runResult)); }, null);
@@ -181,8 +171,6 @@ namespace vApus.StressTest {
         private void SetRunStopped() {
             _runResult.StoppedAt = DateTime.Now;
             InvokeMessage("|----> |Run Finished in " + (_runResult.StoppedAt - _runResult.StartedAt) + "!", Color.MediumPurple);
-            if (_resultsHelper.DatabaseName != null) InvokeMessage("|----> |Writing Results to Database...");
-            _resultsHelper.SetRunStopped(_runResult);
 
             if (!_cancel && RunStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
@@ -841,7 +829,6 @@ namespace vApus.StressTest {
                             InvokeMessage("Initializing Rerun...");
                             //Increase resultset
                             _runResult.PrepareForRerun();
-                            _resultsHelper.SetRerun(_runResult);
                             SetRerunStarted();
                             goto Rerun;
                         } else {
@@ -1051,14 +1038,11 @@ namespace vApus.StressTest {
             if (_connectionProxyPool != null) _connectionProxyPool.Dispose();
 
             if (_cancel) {
-                _resultsHelper.SetStressTestStopped(_stressTestResult, "Cancelled");
                 return StressTestStatus.Cancelled;
             }
             if (_isFailed) {
-                _resultsHelper.SetStressTestStopped(_stressTestResult, "Failed");
                 return StressTestStatus.Error;
             }
-            _resultsHelper.SetStressTestStopped(_stressTestResult);
             return StressTestStatus.Ok;
         }
         private void DisposeThreadPool() {

@@ -94,7 +94,7 @@ namespace vApus.Publish {
                 if (Process.GetProcessesByName("vApus.PublishItemsHandler").Length == 0) {
                     string path = Path.Combine(Application.StartupPath, "PublishItemsHandler\\vApus.PublishItemsHandler.exe");
                     if (File.Exists(path)) {
-                        Process.Start(path);
+                        Process.Start(path, "autohide");
                         return true;
                     }
                 }

@@ -42,8 +42,6 @@ namespace vApus.StressTest {
 
         private bool _canUpdateMetrics = false; //Can only be updated when a run is busy.
 
-        private ResultsHelper _resultsHelper = new ResultsHelper();
-
         /// <summary>
         ///     Caching the results to visualize in the fast results control.
         /// </summary>
@@ -58,10 +56,6 @@ namespace vApus.StressTest {
         private int _monitorsInitialized;
         private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
         private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
-
-
-        //To write monitor metrics periodically to the db.
-        private DateTime _monitorMetricsWritten = DateTime.MinValue;
         #endregion
 
         #region Properties
@@ -163,7 +157,7 @@ namespace vApus.StressTest {
             this.ActiveControl = tc;
             StartStressTest(true);
         }
-        async public void StartStressTest(bool allowMessageBox) {
+        public void StartStressTest(bool allowMessageBox) {
             if (fastResultsControl.HasResults && (!allowMessageBox ||
                 MessageBox.Show("Starting the test will clear the previous results.\nDo you want to continue?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.No)
                 ) return;
@@ -173,22 +167,12 @@ namespace vApus.StressTest {
 
                 //Dns.GetHostName() does not always work.
                 string hostName = Dns.GetHostEntry(IPAddress.Loopback).HostName.Trim().Split('.')[0].ToLower();
-                _resultsHelper.SetvApusInstance(hostName, string.Empty, NamedObjectRegistrar.Get<int>("Port"),
-                    NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty, NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
-                    false);
-
+  
                 var scenarioKeys = new List<Scenario>(_stressTest.Scenarios.Length);
                 foreach (var kvp in _stressTest.Scenarios)
                     scenarioKeys.Add(kvp.Key);
 
-                await Task.Run(() => {
-                    _resultsHelper.SetStressTest(_stressTest.ToString(), "None", _stressTest.Connection.ToString(), _stressTest.ConnectionProxy, _stressTest.Connection.ConnectionString,
-                         scenarioKeys.Combine(", "), _stressTest.ScenarioRuleSet, _stressTest.Concurrencies, _stressTest.Runs, _stressTest.InitialMinimumDelay, _stressTest.InitialMaximumDelay, _stressTest.MinimumDelay,
-                         _stressTest.MaximumDelay, _stressTest.Shuffle, _stressTest.ActionDistribution, _stressTest.MaximumNumberOfUserActions, _stressTest.MonitorBefore, _stressTest.MonitorAfter,
-                         _stressTest.UseParallelExecutionOfRequests, _stressTest.MaximumPersistentConnections, _stressTest.PersistentConnectionsPerHostname);
-                });
-
-
+                
                 if (_stressTest.Monitors.Length == 0) {
                     SetGuiForStart(true);
                     Start();
@@ -205,9 +189,8 @@ namespace vApus.StressTest {
         /// </summary>
         /// <returns></returns>
         private bool InitDatabase(bool autoConfirmDialog) {
-            var dialog = new DescriptionAndTagsInputDialog { Description = _stressTest.Description, Tags = _stressTest.Tags, ResultsHelper = _resultsHelper, AutoConfirm = autoConfirmDialog };
+            var dialog = new DescriptionAndTagsInputDialog { Description = _stressTest.Description, Tags = _stressTest.Tags, AutoConfirm = autoConfirmDialog };
             if (dialog.ShowDialog() == DialogResult.Cancel) {
-                RemoveDatabase(false);
                 return false;
             }
 
@@ -237,9 +220,6 @@ namespace vApus.StressTest {
             _stressTestResult = null;
             _stressTestMetricsCache = new FastStressTestMetricsCache();
             _monitorMetricsCache = new MonitorMetricsCache();
-            detailedResultsControl.ClearResults();
-            detailedResultsControl.Enabled = false;
-
 
             fastResultsControl.SetConfigurationControls(_stressTest);
 
@@ -270,7 +250,6 @@ namespace vApus.StressTest {
         /// </summary>
         private void StartStressTest() {
             Cursor = Cursors.WaitCursor;
-            _monitorMetricsWritten = DateTime.MinValue;
 
             try {
                 LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000);
@@ -284,7 +263,6 @@ namespace vApus.StressTest {
                 PublishConfiguration();
 
                 _stressTestCore = new StressTestCore(_stressTest);
-                _stressTestCore.ResultsHelper = _resultsHelper;
                 _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                 _stressTestCore.StressTestStarted += _stressTestCore_StressTestStarted;
                 _stressTestCore.ConcurrencyStarted += _stressTestCore_ConcurrentUsersStarted;
@@ -497,10 +475,6 @@ namespace vApus.StressTest {
                     if (monitorView != null && !monitorView.IsDisposed)
                         try {
                             if (monitorView.Start()) {
-                                monitorView.GetMonitorResultCache().MonitorConfigurationId =
-                                    _resultsHelper.SetMonitor(monitorView.Monitor.ToString(), monitorView.Monitor.MonitorSource.ToString(),
-                                    monitorView.GetConnectionString(), monitorView.HardwareConfiguration, monitorView.GetMonitorResultCache().Headers);
-
                                 AddEvent(monitorView.Text + " is started.");
                                 ++runningMonitors;
                             }
@@ -675,8 +649,6 @@ namespace vApus.StressTest {
 
             PublishRunStopped(e.Result.ConcurrencyId, e.Result.Run);
             PublishFastResultsAndClientMonitoring(TestEventType.RunStopped);
-
-            WriteMonitorMetricsToDatabase();
         }
 
         private void _stressTestCore_OnRequest(object sender, OnRequestEventArgs e) {
@@ -714,8 +686,6 @@ namespace vApus.StressTest {
         private void AddEvent(string message, Color color, Level level = Level.Info) {
             if (color == Color.Empty) fastResultsControl.AddEvent(message, level); else fastResultsControl.AddEvent(message, color, level);
             PublishMessage((int)level, message);
-
-            _resultsHelper.AddMessageInMemory((int)level, message);
         }
         #endregion
 
@@ -789,9 +759,6 @@ namespace vApus.StressTest {
                 string message;
                 fastResultsControl.SetStressTestStopped(stressTestStatus, out message);
                 PublishMessage(0, message);
-                _resultsHelper.AddMessageInMemory(0, message);
-                _resultsHelper.DoAddMessagesToDatabase();
-
 
                 toolStrip.Enabled = true;
 
@@ -836,21 +803,7 @@ namespace vApus.StressTest {
                     StopMonitorsAndUnlockGui(ex, false);
                 }
                 this.Focus();
-
-                if (stressTestStatus == StressTestStatus.Cancelled || stressTestStatus == StressTestStatus.Error)
-                    RemoveDatabase();
             }
-        }
-        private void RemoveDatabase(bool confirm = true) {
-            if (_resultsHelper != null && _resultsHelper.DatabaseName != null)
-                if (!confirm || MessageBox.Show("Do you want to remove the results database?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button2) == DialogResult.Yes) {
-                    try { _resultsHelper.DeleteResults(); }
-                    catch (Exception ex) {
-                        Loggers.Log(Level.Warning, "Failed deleting results.", ex, new object[] { confirm });
-                    }
-                    detailedResultsControl.ClearResults();
-                    detailedResultsControl.Enabled = false;
-                }
         }
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -940,18 +893,6 @@ namespace vApus.StressTest {
 
         }
 
-        private void WriteMonitorMetricsToDatabase() {
-            if (_monitorViews != null && _stressTest.Monitors.Length != 0)
-                foreach (MonitorView view in _monitorViews)
-                    if (view != null && !view.IsDisposed)
-                        try { _resultsHelper.SetMonitorResults(view.GetMonitorResultCache(_monitorMetricsWritten)); }
-                        catch (Exception e) {
-                            Loggers.Log(Level.Error, view.Text + ": Failed adding results to the database.", e);
-                            _stressTestStatus = StressTestStatus.Error;
-                        }
-
-            _monitorMetricsWritten = DateTime.Now;
-        }
         private void StopMonitors() {
             if (_monitorViews != null && _stressTest.Monitors.Length != 0)
                 foreach (MonitorView view in _monitorViews)
@@ -981,27 +922,12 @@ namespace vApus.StressTest {
             }
 
             StopMonitors();
-            WriteMonitorMetricsToDatabase();
-            _monitorMetricsWritten = DateTime.MinValue;
 
             if (!disposing) {
                 solutionComponentPropertyPanel.Unlock();
                 btnStop.Enabled = false;
                 btnStart.Enabled = true;
                 btnSchedule.Enabled = true;
-
-                if (_resultsHelper.DatabaseName == null) {
-                    detailedResultsControl.ClearResults();
-                    detailedResultsControl.Enabled = false;
-                }
-                else {
-                    this.Enabled = false;
-                    detailedResultsControl.RefreshResults(_resultsHelper);
-                    this.Enabled = true;
-
-                    if (AutoExportResultsManager.Enabled && _stressTestStatus == StressTestStatus.Ok)
-                        detailedResultsControl.AutoExportToExcel(AutoExportResultsManager.Folder);
-                }
 
                 if (exception == null) {
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stressTest.ToString(), " finished. Status: ", _stressTestStatus, "."));
@@ -1011,8 +937,6 @@ namespace vApus.StressTest {
                     TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(_stressTest.ToString(), " finished. Status: ", _stressTestStatus, "."), exception);
                     AddEvent(exception.ToString(), Level.Error);
                 }
-
-                _resultsHelper.DoAddMessagesToDatabase();
             }
         }
 
@@ -1030,6 +954,18 @@ namespace vApus.StressTest {
             }
         }
         #endregion
+
+        private void btnDetailedResultsViewer_Click(object sender, EventArgs e) {
+            string path = Path.Combine(Application.StartupPath, "DetailedResultsViewer", "vApus.DetailedResultsViewer.exe");
+            if (File.Exists(path)) {
+                Process.Start(path);
+            }
+            else {
+                string ex = "Detailed results viewer was not found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
+        }
 
         #region Publish
         private string _resultSetId;
@@ -1306,6 +1242,7 @@ namespace vApus.StressTest {
                     Publisher.Send(publishItem, _resultSetId);
                 }
         }
+
         private void PublishMonitorAfterTestDone() {
             if (Publisher.Settings.PublisherEnabled)
                 foreach (var monitor in _stressTest.Monitors) {
