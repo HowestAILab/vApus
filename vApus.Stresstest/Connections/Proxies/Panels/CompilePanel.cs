@@ -9,6 +9,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace vApus.StressTest {
@@ -84,6 +85,8 @@ namespace vApus.StressTest {
                 AddSuccessButton();
             else if (CompileError != null)
                 CompileError(this, null);
+
+            Thread.Sleep(100); //If trying to compile to fast it can go wrong.
 
             Cursor = Cursors.Default;
 

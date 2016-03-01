@@ -750,6 +750,10 @@ namespace vApus.Util {
                 contextMenu.MenuItems.Add(menuItem);
             }
 
+            menuItem = new MenuItem("Toggle word wrap");
+            menuItem.Click += new EventHandler((s, a) => ToggleWordWrap(fctxt));
+            contextMenu.MenuItems.Add(menuItem);
+
             fctxt.ContextMenu = contextMenu;
         }
         private static void SelectAll(FastColoredTextBox fctxt) { fctxt.SelectAll(); }
@@ -762,6 +766,7 @@ namespace vApus.Util {
             if (Clipboard.ContainsText(TextDataFormat.UnicodeText))
                 fctxt.SelectedText = Clipboard.GetData(DataFormats.UnicodeText).ToString();
         }
+        private static void ToggleWordWrap(FastColoredTextBox fctxt) { fctxt.WordWrap = !fctxt.WordWrap; }
 
     }
 }

@@ -348,10 +348,10 @@
       <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
-    <Compile Include="Controls\FastResultsControl.cs">
+    <Compile Include="FastResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\FastResultsControl.Designer.cs">
+    <Compile Include="FastResultsControl.Designer.cs">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Scenarios\RuleSets\ScenarioSyntaxItem.cs" />
@@ -452,7 +452,7 @@
     <EmbeddedResource Include="Connections\Proxies\Panels\ReferencesPanel.resx">
       <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\FastResultsControl.resx">
+    <EmbeddedResource Include="FastResultsControl.resx">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Scenarios\Controls\EditScenarioPanel.resx">

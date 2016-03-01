@@ -503,7 +503,7 @@
             this.fctxtxPlainText.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctxtxPlainText.ServiceColors")));
             this.fctxtxPlainText.Size = new System.Drawing.Size(981, 386);
             this.fctxtxPlainText.TabIndex = 1;
-            this.fctxtxPlainText.WordWrap = true;
+            this.fctxtxPlainText.WordWrap = false;
             this.fctxtxPlainText.Zoom = 100;
             this.fctxtxPlainText.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxtxPlainText_TextChanged);
             // 

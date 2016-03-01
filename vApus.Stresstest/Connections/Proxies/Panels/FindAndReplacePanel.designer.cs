@@ -86,7 +86,7 @@
             // 
             this.txtFind.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtFind.HideSelection = false;
+            this.txtFind.HideSelection = true;
             this.txtFind.Location = new System.Drawing.Point(61, 111);
             this.txtFind.Name = "txtFind";
             this.txtFind.Size = new System.Drawing.Size(291, 20);
@@ -138,7 +138,7 @@
             // 
             this.txtReplace.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtReplace.HideSelection = false;
+            this.txtReplace.HideSelection = true;
             this.txtReplace.Location = new System.Drawing.Point(153, 140);
             this.txtReplace.Name = "txtReplace";
             this.txtReplace.Size = new System.Drawing.Size(199, 20);
