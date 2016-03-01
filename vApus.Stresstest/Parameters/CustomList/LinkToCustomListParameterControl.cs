@@ -39,13 +39,14 @@ namespace vApus.StressTest {
                 cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
                 cbo.Leave += cbo_Leave;
                 cbo.KeyUp += cbo_KeyUp;
-            } else {
+
+                base.ValueControl = cbo;
+            }
+            else {
                 cbo = base.ValueControl as ComboBox;
             }
 
             SetCBO(cbo);
-
-            base.ValueControl = cbo;
         }
 
         private void SetCBO(ComboBox cbo) {

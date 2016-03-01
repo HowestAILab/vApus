@@ -51,15 +51,16 @@ namespace vApus.Util {
 
                 ucc.ValueChanged += ucc_ValueChanged;
                 ucc.Failed += ucc_Failed;
-            } else {
+
+                base.ValueControl = ucc;
+            }
+            else {
                 ucc = base.ValueControl as UndefinedCollectionControl;
             }
 
             ucc.ValueChanged -= ucc_ValueChanged;
             ucc.SetValue(ienumerable);
             ucc.ValueChanged += ucc_ValueChanged;
-
-            base.ValueControl = ucc;
         }
 
         private void SetDefinedCollectionControl() {
@@ -87,8 +88,10 @@ namespace vApus.Util {
                 //Hard coded for the purpose of simplicity.
                 dcc.Height = 170;
                 dcc.Dock = DockStyle.Top;
-
-            } else {
+                
+                base.ValueControl = dcc;
+            }
+            else {
                 if (isKVP)
                     dcc = base.ValueControl as DefinedKVPCollectionControl;
                 else
@@ -104,8 +107,6 @@ namespace vApus.Util {
                 (dcc as DefinedCollectionControl).SetValue(ienumerable);
                 (dcc as DefinedCollectionControl).ValueChanged += dcc_ValueChanged;
             }
-
-            base.ValueControl = dcc;
         }
 
         private void ucc_ValueChanged(object sender, EventArgs e) {
