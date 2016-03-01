@@ -178,7 +178,7 @@ namespace vApus.SolutionTree {
                     };
                 }
 
-                base.SetValues(values);
+                base.SetValues(false, values);
 
                 if (_locked)
                     base.Lock();
