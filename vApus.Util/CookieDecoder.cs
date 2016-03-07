@@ -33,7 +33,7 @@ namespace vApus.Util {
                 if (names.Count != 0) {
                     int i = 0, version = 0;
                     //Version is the only attribute that can appear before the name of the cookie.
-                    if (names[0].ToLower() == "version") {
+                    if (names[0].ToLowerInvariant() == "version") {
                         int.TryParse(values[0], out version);
                         i = 1;
                     }
@@ -42,7 +42,7 @@ namespace vApus.Util {
                         Cookie cookie = null;
                         for (; i != names.Count; i++) {
                             string name = names[i];
-                            string lowerCaseName = name.ToLower();
+                            string lowerCaseName = name.ToLowerInvariant();
                             string value = values[i];
                             if (value == null)
                                 value = string.Empty;
@@ -58,7 +58,7 @@ namespace vApus.Util {
 
                             for (int j = i + 1; j < names.Count; j++, i++) {
                                 name = names[j];
-                                lowerCaseName = name.ToLower();
+                                lowerCaseName = name.ToLowerInvariant();
                                 value = values[j];
 
                                 if (lowerCaseName == "discard") discard = true;
@@ -148,7 +148,7 @@ namespace vApus.Util {
                 }
 
                 if (newValue == null) {
-                    string lowerCaseName = newName.ToLower();
+                    string lowerCaseName = newName.ToLowerInvariant();
                     if (newName != "discard" && newName != "secure" && newName != "httponly") {
                         value += separator + newName;
                         separator = newSeparator;

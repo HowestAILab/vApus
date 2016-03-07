@@ -533,7 +533,7 @@ namespace vApus.Gui {
                 singleTestToolStripMenuItem.Tag = stressTestProject;
                 SetToolStripMenuItemImage(singleTestToolStripMenuItem);
                 foreach (BaseItem stressTestCandidate in stressTestProject)
-                    if (stressTestCandidate.GetType().Name.ToLower() == "stresstest") {
+                    if (stressTestCandidate.GetType().Name.ToLowerInvariant() == "stresstest") {
                         var item = new ToolStripMenuItem(stressTestCandidate.ToString());
                         item.Tag = stressTestCandidate;
                         SetToolStripMenuItemImage(item);

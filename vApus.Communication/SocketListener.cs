@@ -118,7 +118,7 @@ namespace vApus.Communication {
                     Settings.Default.Save();
                 }
 
-                string hostName = Dns.GetHostEntry(IPAddress.Loopback).HostName.Trim().Split('.')[0].ToLower();
+                string hostName = Dns.GetHostEntry(IPAddress.Loopback).HostName.Trim().Split('.')[0].ToLowerInvariant();
                 NamedObjectRegistrar.RegisterOrUpdate("Host", hostName);
                 NamedObjectRegistrar.RegisterOrUpdate("Port", _port);
             } catch {
@@ -177,7 +177,7 @@ namespace vApus.Communication {
 
                 _startTries = 0;
 
-                string hostName = Dns.GetHostEntry(IPAddress.Loopback).HostName.Trim().Split('.')[0].ToLower();
+                string hostName = Dns.GetHostEntry(IPAddress.Loopback).HostName.Trim().Split('.')[0].ToLowerInvariant();
                 NamedObjectRegistrar.RegisterOrUpdate("Host", hostName);
                 NamedObjectRegistrar.RegisterOrUpdate("Port", _port);
             } catch {

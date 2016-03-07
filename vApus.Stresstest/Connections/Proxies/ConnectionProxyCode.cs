@@ -273,7 +273,7 @@ namespace vApus.StressTest {
                 Type valueType = (rule == null) ? typeof(string) : Rule.GetType(rule.ValueType);
 
                 string name = syntaxItem.GetType().Name;
-                name = name[0].ToString().ToLower() + name.Substring(1);
+                name = name[0].ToString().ToLowerInvariant() + name.Substring(1);
 
                 bool defaultValueUsed = false;
                 string part = splitInput == null || i >= splitInput.Count ? null : splitInput[i];
@@ -291,7 +291,7 @@ namespace vApus.StressTest {
                     if (valueType == typeof(string))
                         sb.AppendFormat("{0} _{1}{2} = \"{3}\";", valueType, name, i, part);
                     else
-                        sb.AppendFormat("{0} _{1}{2} = {3};", valueType, name, i, part.ToLower());
+                        sb.AppendFormat("{0} _{1}{2} = {3};", valueType, name, i, part.ToLowerInvariant());
                 }
                 sb.AppendLine(defaultValueUsed ? " // " + syntaxItem.Label + " [The default value for this syntax item is used if no value is provided in the connection.]" : " // " + syntaxItem.Label);
             }

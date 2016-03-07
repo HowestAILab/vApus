@@ -481,7 +481,7 @@ namespace vApus.DistributedTest {
                 var pushIPs = new List<string>();
 
                 //Dns.GetHostName() does not always work.
-                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLowerInvariant();
 
                 foreach (var ipAddress in Dns.GetHostAddresses(hostName)) {
                     if (ipAddress.AddressFamily == masterSocketWrapper.IP.AddressFamily)

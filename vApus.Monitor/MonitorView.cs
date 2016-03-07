@@ -1218,7 +1218,7 @@ namespace vApus.Monitor {
 
                 var parameters = new List<KeyValuePair<string, string>>();
                 foreach (Parameter parameter in _monitorSourceClient.Parameters)
-                    if (parameter.Name.ToLower() != "password")
+                    if (parameter.Name.ToLowerInvariant() != "password")
                         parameters.Add(new KeyValuePair<string, string>(parameter.Name, parameter.Value.ToString()));
 
                 publishItem.Parameters = parameters.ToArray();

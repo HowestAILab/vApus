@@ -148,7 +148,7 @@ namespace vApus.ArgumentsAnalyzer {
                 string toLower = string.Empty;
                 for (int i = 0; i < argsCorrectSentenced.Count; i++) {
                     string s = argsCorrectSentenced[i];
-                    toLower = s.ToLower();
+                    toLower = s.ToLowerInvariant();
                     //For other arguments
                     if (_argumentsWithDelegate.ContainsKey(toLower)) {
                         argsWithParams.Add(new List<string>());
@@ -174,7 +174,7 @@ namespace vApus.ArgumentsAnalyzer {
 
                 foreach (var argWithParams in argsWithParams) {
                     string ss = argWithParams[0];
-                    toLower = ss.ToLower();
+                    toLower = ss.ToLowerInvariant();
                     if (_argumentsWithDelegate.ContainsKey(toLower) &&
                         _argumentsWithDelegate[toLower] is ArgumentsAnalyzerParametersDelegate) {
                         var parameters = new List<string>();

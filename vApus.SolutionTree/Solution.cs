@@ -628,7 +628,7 @@ See 'Tools >> Options... >> Application Logging' for details. (Log Level >= Warn
             if (typeName == null)
                 throw new ArgumentNullException(typeName);
             foreach (BaseProject project in _projects)
-                if (project.GetType().Name.ToLower() == typeName.ToLower())
+                if (project.GetType().Name.ToLowerInvariant() == typeName.ToLowerInvariant())
                     return project;
             return null;
         }
