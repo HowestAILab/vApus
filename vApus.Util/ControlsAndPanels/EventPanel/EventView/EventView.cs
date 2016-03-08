@@ -30,10 +30,12 @@ namespace vApus.Util {
         public event EventHandler<EventViewItemEventArgs> EventViewItemMouseLeave;
         #endregion
 
+        #region Fields
         private EventViewItem _userEntered;
         private int _previousHeight, _previousWidth;
 
         private Size _sizeOfI;
+        #endregion
 
         #region Properties
         public EventViewItem UserEntered { get { return _userEntered; } }
@@ -44,7 +46,9 @@ namespace vApus.Util {
         /// <summary>
         /// Can list events in a user friendly manner. Is encapsulated in the EventPanel together with the EventProgressBar.
         /// </summary>
-        public EventView() { InitializeComponent(); }
+        public EventView() {
+            InitializeComponent();
+        }
 
         #region Functions
         public EventViewItem AddEvent(string message) {
@@ -61,18 +65,20 @@ namespace vApus.Util {
 
             SetSize(item);
 
-            //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
-            bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
-
             largeList.Add(item, refreshGui && visible);
 
-            if (visible)
-                if (eventType == EventViewEventType.Error && _userEntered == null) {
+            if (refreshGui && visible) {
+                //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
+                bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
+
+                if (item.EventType == EventViewEventType.Error && _userEntered == null) {
                     largeList.ScrollIntoView(item);
                     item.PerformMouseEnter();
-                } else if (autoScroll) {
+                }
+                else if (autoScroll) {
                     largeList.ScrollIntoView(item);
                 }
+            }
 
             item.MouseHover += item_MouseHover;
             item.MouseLeave += item_MouseLeave;
@@ -182,7 +188,8 @@ namespace vApus.Util {
                         }
                         sw.Flush();
                     }
-                } catch {
+                }
+                catch {
                     MessageBox.Show("Could not write to '" + sfd.FileName + "'!", string.Empty, MessageBoxButtons.OK,
                                     MessageBoxIcon.Error);
                 }

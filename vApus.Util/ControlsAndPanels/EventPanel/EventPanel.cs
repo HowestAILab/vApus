@@ -48,14 +48,16 @@ namespace vApus.Util {
         public static void AddEvent(string message) {
             lock (_staticLock) {
                 CleanEventPanels();
-                foreach (var ep in _eventPanels)
-                    try {
-                        SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+
+                try {
+                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                        foreach (var ep in _eventPanels)
                             ep.AddEvent(EventViewEventType.Info, Color.Black, message);
-                        }, null);
-                    } catch (Exception ex) {
-                        Loggers.Log(Level.Error, "Failed to add events to an event panel from within connection proxy code.", ex, new object[] { message });
-                    }
+                    }, null);
+                }
+                catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed to add events to an event panel from within connection proxy code.", ex, new object[] { message });
+                }
             }
         }
         #endregion
@@ -112,7 +114,8 @@ namespace vApus.Util {
 
                         eventProgressBar.Width += (cboFilter.Margin.Left + cboFilter.Width);
                         cboFilter.Visible = false;
-                    } else {
+                    }
+                    else {
                         btnCollapseExpand.Text = "-";
                         MinimumSize = DefaultMinimumSize;
                         MaximumSize = DefaultMaximumSize;
@@ -158,7 +161,7 @@ namespace vApus.Util {
         public List<EventPanelEvent> GetEvents() {
             lock (_lock) {
                 int tried = 0;
-            Retry:
+                Retry:
                 try {
                     var l = new List<EventPanelEvent>(eventProgressBar.EventCount);
 
@@ -170,7 +173,8 @@ namespace vApus.Util {
                         l.Add(new EventPanelEvent(type, pe.Color, pe.Message, pe.At));
                     }
                     return l;
-                } catch {
+                }
+                catch {
                     if (++tried != 3) {
                         Thread.Sleep(tried * 100);
                         goto Retry;
