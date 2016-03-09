@@ -33,7 +33,7 @@ namespace vApus.DistributedTest {
         public static event EventHandler<NewTestEventArgs> NewTest;
 
         private delegate void SendPushMessageDelegate(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                              TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
+                                              TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
 
         #region Fields
         private static readonly object _lock = new object();
@@ -245,7 +245,7 @@ namespace vApus.DistributedTest {
         ///     Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
         /// </summary>
         public static void SendPushMessage(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
+                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
                 if (_sendQueue != null)
                     _sendQueue.EnqueueWorkItem(_sendPushMessageDelegate, tileStressTestIndex, stressTestMetricsCache,
@@ -254,7 +254,7 @@ namespace vApus.DistributedTest {
         }
 
         private static void SendQueuedPushMessage(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                                  TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
+                                                  TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (_masterSocketWrapper != null)
                 try {
                     var tpm = new TestProgressMessage();

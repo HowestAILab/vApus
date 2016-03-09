@@ -276,9 +276,6 @@
     <Compile Include="ControlsAndPanels\EventPanel\EventView\EventView.designer.cs">
       <DependentUpon>EventView.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\EventPanel\EventView\EventViewItem.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ControlsAndPanels\ExtendedListView\ExtendedListView.cs">
       <SubType>Component</SubType>
     </Compile>

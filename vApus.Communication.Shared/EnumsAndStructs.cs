@@ -90,7 +90,7 @@ namespace vApus.Communication.Shared {
     [Serializable]
     public struct TestProgressMessage {
         public float CPUUsage;
-        public List<EventPanelEvent> Events;
+        public EventPanelEvent[] Events;
         public string Exception;
 
         /// <summary>

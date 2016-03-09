@@ -140,14 +140,17 @@ namespace vApus.Util {
         [DefaultValue(typeof(EventViewEventType), "Info")]
         public EventViewEventType Filter {
             get { return (EventViewEventType)cboFilter.SelectedIndex; }
-            set { cboFilter.SelectedIndex = (int)value; }
+            set {
+                cboFilter.SelectedIndex = (int)value;
+                eventView.Filter = value;
+            }
         }
         #endregion
 
         #region Constructor
         public EventPanel() {
             InitializeComponent();
-            cboFilter.SelectedIndex = 0;
+            Filter = EventViewEventType.Info;
 
             RegisterEventPanel(this);
         }
@@ -158,21 +161,12 @@ namespace vApus.Util {
         ///     Thread safe.
         /// </summary>
         /// <returns></returns>
-        public List<EventPanelEvent> GetEvents() {
+        public EventPanelEvent[] GetEvents() {
             lock (_lock) {
                 int tried = 0;
                 Retry:
                 try {
-                    var l = new List<EventPanelEvent>(eventProgressBar.EventCount);
-
-                    List<EventViewItem> evEvents = eventView.GetEvents();
-                    List<ChartProgressEvent> epbEvents = eventProgressBar.GetEvents();
-                    for (int i = 0; i != eventProgressBar.EventCount; i++) {
-                        EventViewEventType type = evEvents[i].EventType;
-                        ChartProgressEvent pe = epbEvents[i];
-                        l.Add(new EventPanelEvent(type, pe.Color, pe.Message, pe.At));
-                    }
-                    return l;
+                    return eventView.GetEvents();                    
                 }
                 catch {
                     if (++tried != 3) {
@@ -180,7 +174,7 @@ namespace vApus.Util {
                         goto Retry;
                     }
                 }
-                return new List<EventPanelEvent>();
+                return new EventPanelEvent[0];
             }
         }
 
@@ -196,12 +190,13 @@ namespace vApus.Util {
             }
         }
         private void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at, bool refreshGui) {
-            eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at, refreshGui);
-            eventView.AddEvent(eventType, message, at, eventType >= Filter, refreshGui);
+            if (eventType > EventViewEventType.Info)
+                eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at, refreshGui);
+            eventView.AddEvent(eventType, message, at, eventPrograssBarEventColor);
 
-            if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {
-                if (_expandOnErrorEvent)
-                    Collapsed = false;
+
+            if (eventType == EventViewEventType.Error && _expandOnErrorEvent) {
+                Collapsed = false;
 
                 eventProgressBar.PerformMouseEnter(at, false);
             }
@@ -222,19 +217,18 @@ namespace vApus.Util {
                 LockWindowUpdate(IntPtr.Zero);
             }
         }
-        public void SetEvents(List<EventPanelEvent> events) {
+        public void SetEvents(EventPanelEvent[] events) {
             lock (_lock) {
                 LockWindowUpdate(Handle);
                 ClearEvents();
 
-                int count = events.Count;
-                if (count != 0) {
+                if (events.Length != 0) {
                     EventPanelEvent epe;
-                    for (int i = 0; i < count - 1; i++) {
+                    for (int i = 0; i < events.Length - 1; i++) {
                         epe = events[i];
                         AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, false);
                     }
-                    epe = events[count - 1];
+                    epe = events[events.Length - 1];
                     AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
                 }
                 LockWindowUpdate(IntPtr.Zero);
@@ -269,14 +263,6 @@ namespace vApus.Util {
             eventView.PerformMouseEnter(at);
         }
 
-        private void eventView_EventViewItemMouseEnter(object sender, EventView.EventViewItemEventArgs e) {
-            eventProgressBar.PerformMouseEnter(e.EventViewItem.At, false);
-        }
-
-        private void eventView_EventViewItemMouseLeave(object sender, EventView.EventViewItemEventArgs e) {
-            eventProgressBar.PerformMouseLeave();
-        }
-
         private void btnCollapseExpand_Click(object sender, EventArgs e) {
             Collapsed = btnCollapseExpand.Text == "-";
         }
@@ -290,10 +276,7 @@ namespace vApus.Util {
 
             LockWindowUpdate(Handle);
 
-            foreach (EventViewItem evi in eventView.GetEvents())
-                evi.Visible = evi.EventType >= Filter;
-
-            eventView.PerformLargeListResize();
+            Filter = (EventViewEventType)cboFilter.SelectedIndex;
 
             LockWindowUpdate(IntPtr.Zero);
 

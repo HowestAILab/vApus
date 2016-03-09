@@ -165,11 +165,11 @@ namespace vApus.DistributedTest {
 
             testProgressMessage.StressTestStatus = StressTestStatus.Error;
             testProgressMessage.StartedAt = DateTime.MaxValue;
-            testProgressMessage.Events = new List<EventPanelEvent>();
+            var events = new List<EventPanelEvent>();
             foreach (var tpm in toBeMerged) {
                 if (tpm.CPUUsage > testProgressMessage.CPUUsage) testProgressMessage.CPUUsage = tpm.CPUUsage;
 
-                testProgressMessage.Events.AddRange(tpm.Events);
+                events.AddRange(tpm.Events);
 
                 if (!string.IsNullOrEmpty(tpm.Exception)) {
                     if (testProgressMessage.Exception == null) testProgressMessage.Exception = string.Empty;
@@ -187,6 +187,8 @@ namespace vApus.DistributedTest {
                 testProgressMessage.TileStressTestIndex = tileStressTest.TileStressTestIndex;
                 if (tpm.TotalVisibleMemory > testProgressMessage.TotalVisibleMemory) testProgressMessage.TotalVisibleMemory = tpm.TotalVisibleMemory;
             }
+
+            testProgressMessage.Events = events.ToArray();
             //Then the test progress
             testProgressMessage.StressTestMetricsCache = FastStressTestMetricsHelper.MergeStressTestMetricsCaches(stressTestMetricsCaches, true);
 

@@ -339,8 +339,6 @@ namespace vApus.DistributedTest {
                 btnStop.Enabled = canEnableStop;
                 btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
                 if (scheduled) tmrSchedule.Start(); else btnSchedule.Text = string.Empty;
-                //tcTree.SelectedTab = tpTests;
-                fastResultsControl.SetEventFilter(EventViewEventType.Warning);
             }
             else {
                 btnStop.Enabled = false;

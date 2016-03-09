@@ -366,7 +366,7 @@ namespace vApus.DistributedTest {
         private void SendPushMessage(RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (!_finishedSent) {
                 var estimatedRuntimeLeft = FastStressTestMetricsHelper.GetEstimatedRuntimeLeft(_stressTestResult, _stressTest.Concurrencies.Length, _stressTest.Runs);
-                var events = new List<EventPanelEvent>();
+                var events = new EventPanelEvent[0];
                 try { events = fastResultsControl.GetEvents(); } catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed getting events.", ex);
                 }

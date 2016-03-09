@@ -124,8 +124,6 @@
             this.eventView.Name = "eventView";
             this.eventView.Size = new System.Drawing.Size(500, 174);
             this.eventView.TabIndex = 2;
-            this.eventView.EventViewItemMouseEnter += new System.EventHandler<vApus.Util.EventView.EventViewItemEventArgs>(this.eventView_EventViewItemMouseEnter);
-            this.eventView.EventViewItemMouseLeave += new System.EventHandler<vApus.Util.EventView.EventViewItemEventArgs>(this.eventView_EventViewItemMouseLeave);
             // 
             // EventPanel
             // 

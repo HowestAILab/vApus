@@ -223,16 +223,17 @@ namespace vApus.DistributedTest {
 
         public void ClearEvents() { eventProgressChart.ClearEvents(); }
 
-        public void SetEvents(List<EventPanelEvent> events) {
+        public void SetEvents(EventPanelEvent[] events) {
             ClearEvents();
             foreach (EventPanelEvent epe in events)
-                eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+                if (epe.EventType > EventViewEventType.Info)
+                    eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At, false);
 
             eventProgressChart.Invalidate();
 
             EventPanelEvent lastEpe = new EventPanelEvent();
             lastEpe.Message = string.Empty;
-            if (events.Count != 0) lastEpe = events[events.Count - 1];
+            if (events.Length != 0) lastEpe = events[events.Length - 1];
             if (lastEpe.Message.Contains("|----> |Run") && !lastEpe.Message.Contains("Finished")) _timeSinceStartRun = Stopwatch.StartNew();
         }
 
