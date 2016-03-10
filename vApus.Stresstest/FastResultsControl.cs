@@ -601,14 +601,14 @@ namespace vApus.StressTest {
         ///     Get all events (messages).
         /// </summary>
         /// <returns></returns>
-        public List<EventPanelEvent> GetEvents() { return epnlMessages.GetEvents(); }
+        public EventPanelEvent[] GetEvents() { return epnlMessages.GetEvents(); }
 
         /// <summary>
         ///     Set events
         /// </summary>
-        public void SetEvents(List<EventPanelEvent> events) {
+        public void SetEvents(EventPanelEvent[] events) {
             if (IsDisposed) return;
-            int toSetCount = events.Count;
+            int toSetCount = events.Length;
             int currentEventCount = epnlMessages.EventCount;
 
             if (currentEventCount == 0 || toSetCount < currentEventCount) {

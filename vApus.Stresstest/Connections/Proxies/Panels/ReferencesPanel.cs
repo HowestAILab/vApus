@@ -65,7 +65,6 @@ namespace vApus.StressTest {
                         sb.Append(';');
                     }
 
-                    int selectionStart = _codeTextBox.SelectionStart;
                     _codeTextBox.TextChangedDelayed -= _codeTextBox_TextChangedDelayed;
                     _codeTextBox.Text = split[0] + "// dllreferences:" + sb + split[1].Substring(references.Length);
                     _codeTextBox.TextChangedDelayed += _codeTextBox_TextChangedDelayed;

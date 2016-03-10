@@ -38,7 +38,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
@@ -92,13 +92,13 @@
       <Project>{d9306cdf-415e-4037-b9af-707ee208a510}</Project>
       <Name>vApus.Monitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
-      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
-      <Name>vApus.Results</Name>
-    </ProjectReference>
     <ProjectReference Include="..\vApus.Communication.Shared\vApus.Communication.Shared.csproj">
       <Project>{37420528-6c41-452c-9776-0fb147f67915}</Project>
       <Name>vApus.Communication.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
+      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
+      <Name>vApus.Results</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4a7f1649-6909-4fbc-b4e2-18cecfe5a144}</Project>

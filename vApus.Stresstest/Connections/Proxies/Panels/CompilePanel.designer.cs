@@ -28,9 +28,11 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnTryCompile = new System.Windows.Forms.Button();
             this.lblCount = new System.Windows.Forms.Label();
             this.flpCompileLog = new System.Windows.Forms.FlowLayoutPanel();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // btnTryCompile
@@ -47,6 +49,7 @@
             this.btnTryCompile.Size = new System.Drawing.Size(85, 24);
             this.btnTryCompile.TabIndex = 1;
             this.btnTryCompile.Text = "Try Compile";
+            this.toolTip.SetToolTip(this.btnTryCompile, "Ctrl+B");
             this.btnTryCompile.UseVisualStyleBackColor = false;
             this.btnTryCompile.Click += new System.EventHandler(this.btnTryCompile_Click);
             // 
@@ -74,14 +77,14 @@
             this.flpCompileLog.TabIndex = 0;
             this.flpCompileLog.SizeChanged += new System.EventHandler(this.flpCompileLog_SizeChanged);
             // 
-            // Compile
+            // CompilePanel
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.Controls.Add(this.flpCompileLog);
             this.Controls.Add(this.lblCount);
             this.Controls.Add(this.btnTryCompile);
-            this.Name = "Compile";
+            this.Name = "CompilePanel";
             this.Padding = new System.Windows.Forms.Padding(9);
             this.Size = new System.Drawing.Size(558, 173);
             this.ResumeLayout(false);
@@ -94,5 +97,6 @@
         private System.Windows.Forms.Button btnTryCompile;
         private System.Windows.Forms.Label lblCount;
         private System.Windows.Forms.FlowLayoutPanel flpCompileLog;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

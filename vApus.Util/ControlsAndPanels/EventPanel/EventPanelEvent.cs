@@ -16,11 +16,8 @@ namespace vApus.Util {
         public EventViewEventType EventType;
         public string Message;
 
-        public EventPanelEvent(EventViewEventType eventType, Color eventProgressBarEventColor, string message, DateTime at) {
-            EventType = eventType;
-            EventProgressBarEventColor = eventProgressBarEventColor;
-            Message = message;
-            At = at;
+        public override string ToString() {
+            return At.ToString("yyyy'-'MM'-'dd HH':'mm':'ss") + " " + EventType + " " + Message;
         }
     }
 }

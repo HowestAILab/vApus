@@ -134,7 +134,7 @@
             this.fctxt.Size = new System.Drawing.Size(760, 491);
             this.fctxt.TabIndex = 0;
             this.fctxt.ToolTip = null;
-            this.fctxt.WordWrap = true;
+            this.fctxt.WordWrap = false;
             this.fctxt.Zoom = 100;
             // 
             // btnApply

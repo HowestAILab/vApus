@@ -25,145 +25,13 @@ namespace vApus.Publish.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("3337")]
-        public ushort BroadcastPort {
-            get {
-                return ((ushort)(this["BroadcastPort"]));
-            }
-            set {
-                this["BroadcastPort"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string JSONFolder {
+        public string TcpHost {
             get {
-                return ((string)(this["JSONFolder"]));
+                return ((string)(this["TcpHost"]));
             }
             set {
-                this["JSONFolder"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsConfiguration {
-            get {
-                return ((bool)(this["PublishTestsConfiguration"]));
-            }
-            set {
-                this["PublishTestsConfiguration"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishMonitorsConfiguration {
-            get {
-                return ((bool)(this["PublishMonitorsConfiguration"]));
-            }
-            set {
-                this["PublishMonitorsConfiguration"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsFastConcurrencyResults {
-            get {
-                return ((bool)(this["PublishTestsFastConcurrencyResults"]));
-            }
-            set {
-                this["PublishTestsFastConcurrencyResults"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishMonitorsHardwareConfiguration {
-            get {
-                return ((bool)(this["PublishMonitorsHardwareConfiguration"]));
-            }
-            set {
-                this["PublishMonitorsHardwareConfiguration"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishMonitorsMetrics {
-            get {
-                return ((bool)(this["PublishMonitorsMetrics"]));
-            }
-            set {
-                this["PublishMonitorsMetrics"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsFastRunResults {
-            get {
-                return ((bool)(this["PublishTestsFastRunResults"]));
-            }
-            set {
-                this["PublishTestsFastRunResults"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsMessages {
-            get {
-                return ((bool)(this["PublishTestsMessages"]));
-            }
-            set {
-                this["PublishTestsMessages"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishTestsClientMonitoring {
-            get {
-                return ((bool)(this["PublishTestsClientMonitoring"]));
-            }
-            set {
-                this["PublishTestsClientMonitoring"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UseJSONFileOutput {
-            get {
-                return ((bool)(this["UseJSONFileOutput"]));
-            }
-            set {
-                this["UseJSONFileOutput"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool UseJSONBroadcastOutput {
-            get {
-                return ((bool)(this["UseJSONBroadcastOutput"]));
-            }
-            set {
-                this["UseJSONBroadcastOutput"] = value;
+                this["TcpHost"] = value;
             }
         }
         
@@ -181,37 +49,25 @@ namespace vApus.Publish.Properties {
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public ushort MessageLevel {
+        [global::System.Configuration.DefaultSettingValueAttribute("4337")]
+        public ushort TcpPort {
             get {
-                return ((ushort)(this["MessageLevel"]));
+                return ((ushort)(this["TcpPort"]));
             }
             set {
-                this["MessageLevel"] = value;
+                this["TcpPort"] = value;
             }
         }
         
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("False")]
-        public bool PublishApplicationLogs {
+        public bool AutoLaunchvApusPublishItemsHandler {
             get {
-                return ((bool)(this["PublishApplicationLogs"]));
+                return ((bool)(this["AutoLaunchvApusPublishItemsHandler"]));
             }
             set {
-                this["PublishApplicationLogs"] = value;
-            }
-        }
-        
-        [global::System.Configuration.UserScopedSettingAttribute()]
-        [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
-        [global::System.Configuration.DefaultSettingValueAttribute("1")]
-        public ushort LogLevel {
-            get {
-                return ((ushort)(this["LogLevel"]));
-            }
-            set {
-                this["LogLevel"] = value;
+                this["AutoLaunchvApusPublishItemsHandler"] = value;
             }
         }
     }

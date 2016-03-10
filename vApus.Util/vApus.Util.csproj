@@ -107,7 +107,7 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisIgnoreBuiltInRuleSets>false</CodeAnalysisIgnoreBuiltInRuleSets>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
@@ -276,9 +276,6 @@
     <Compile Include="ControlsAndPanels\EventPanel\EventView\EventView.designer.cs">
       <DependentUpon>EventView.cs</DependentUpon>
     </Compile>
-    <Compile Include="ControlsAndPanels\EventPanel\EventView\EventViewItem.cs">
-      <SubType>Component</SubType>
-    </Compile>
     <Compile Include="ControlsAndPanels\ExtendedListView\ExtendedListView.cs">
       <SubType>Component</SubType>
     </Compile>
@@ -414,7 +411,6 @@
     <Compile Include="Dialogs\ScheduleDialog.Designer.cs">
       <DependentUpon>ScheduleDialog.cs</DependentUpon>
     </Compile>
-    <Compile Include="DictionaryUtil.cs" />
     <Compile Include="Extensions.cs" />
     <Compile Include="FastSerializer.cs" />
     <Compile Include="FindAndReplace.cs" />
@@ -433,7 +429,6 @@
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
-    <Compile Include="ProxyHelper.cs" />
     <Compile Include="ObjectService\NamedObjectRegistrar.cs" />
     <Compile Include="SendMessage.cs" />
     <Compile Include="SocketWrapper\EnumsAndStructs.cs" />

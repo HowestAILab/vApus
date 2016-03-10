@@ -5,12 +5,13 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
-using System.ComponentModel;
 using System.Drawing;
 using System.IO;
-using System.Runtime.InteropServices;
+using System.Text;
+using System.Text.RegularExpressions;
 using System.Windows.Forms;
 
 namespace vApus.Util {
@@ -19,182 +20,158 @@ namespace vApus.Util {
     /// </summary>
     public partial class EventView : UserControl {
 
-        #region Events
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(IntPtr hWnd);
+        #region Fields
+        private List<EventPanelEvent> _events = new List<EventPanelEvent>();
 
-        [Description("Occurs when the cursor enters a progress event.")]
-        public event EventHandler<EventViewItemEventArgs> EventViewItemMouseEnter;
+        private Queue<string> _backlog = new Queue<string>();
+        private Timer _tmr = new Timer() { Interval = 10 };
 
-        [Description("Occurs when the cursor leaves a progress event.")]
-        public event EventHandler<EventViewItemEventArgs> EventViewItemMouseLeave;
+        private readonly object _lock = new object();
+
+        private EventViewEventType _filter = EventViewEventType.Info;
         #endregion
 
-        private EventViewItem _userEntered;
-        private int _previousHeight, _previousWidth;
-
-        private Size _sizeOfI;
-
         #region Properties
-        public EventViewItem UserEntered { get { return _userEntered; } }
 
-        public int ItemCount { get { return largeList.ControlCount; } }
+        public EventViewEventType Filter {
+            get {
+                return _filter;
+            }
+            set {
+                _filter = value;
+                SetEvents();
+            }
+        }
+
         #endregion
 
         /// <summary>
         /// Can list events in a user friendly manner. Is encapsulated in the EventPanel together with the EventProgressBar.
         /// </summary>
-        public EventView() { InitializeComponent(); }
+        public EventView() {
+            InitializeComponent();
+            _tmr.Tick += _tmr_Tick;
+            fctb.DefaultContextMenu(true);
+        }
+
+        private void _tmr_Tick(object sender, EventArgs e) {
+            if (_tmr != null)
+                lock (_lock) {
+                    _tmr.Stop();
+
+                    bool startTimer = false;
+                    int count = _backlog.Count;
+                    if (count > 1000) {
+                        count = 1000;
+                        startTimer = true;
+                    }
+
+                    var sb = new StringBuilder();
+                    for (int i = 0; i != count; i++) sb.AppendLine(_backlog.Dequeue());
+                    fctb.AppendText(sb.ToString());
+
+                    if (startTimer) _tmr.Start();
+                }
+        }
 
         #region Functions
-        public EventViewItem AddEvent(string message) {
-            return AddEvent(EventViewEventType.Info, message);
-        }
+        public void AddEvent(string message) { AddEvent(EventViewEventType.Info, message); }
 
-        public EventViewItem AddEvent(EventViewEventType eventType, string message) {
-            return AddEvent(eventType, message, DateTime.Now);
-        }
+        public void AddEvent(EventViewEventType eventType, string message) { AddEvent(eventType, message, DateTime.Now, Color.DarkGray); }
 
-        public EventViewItem AddEvent(EventViewEventType eventType, string message, DateTime at, bool visible = true, bool refreshGui = true) {
-            var item = new EventViewItem(largeList, eventType, message, at);
-            item.Visible = visible;
+        public void AddEvent(EventViewEventType eventType, string message, DateTime at, Color color) {
+            if (_tmr != null)
+                lock (_lock) {
+                    var item = new EventPanelEvent { EventType = eventType, Message = message, At = at };
 
-            SetSize(item);
+                    _events.Add(item);
 
-            //Autoscroll if a user is not viewing a progress event and if the scrollbar is at the end.
-            bool autoScroll = _userEntered == null && (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
-
-            largeList.Add(item, refreshGui && visible);
-
-            if (visible)
-                if (eventType == EventViewEventType.Error && _userEntered == null) {
-                    largeList.ScrollIntoView(item);
-                    item.PerformMouseEnter();
-                } else if (autoScroll) {
-                    largeList.ScrollIntoView(item);
+                    if (eventType >= Filter) {
+                        _backlog.Enqueue(item.ToString());
+                        _tmr.Stop();
+                        _tmr.Start();
+                    }
                 }
-
-            item.MouseHover += item_MouseHover;
-            item.MouseLeave += item_MouseLeave;
-
-            return item;
         }
 
-        private void SetSize(EventViewItem item) {
-            LockWindowUpdate(Handle);
+        private void SetEvents() {
+            if (_tmr != null)
+                lock (_lock) {
+                    _tmr.Stop();
+                    fctb.Clear();
 
-            int width = largeList.Width - largeList.Padding.Left - largeList.Padding.Right - item.Margin.Left -
-                        item.Margin.Right - 21;
+                    _backlog.Clear();
+                    foreach (var item in _events)
+                        if (item.EventType >= Filter)
+                            _backlog.Enqueue(item.ToString());
 
-            if (_sizeOfI.Height == 0)
-                _sizeOfI = TextRenderer.MeasureText("I", item.Font);
-            int height = _sizeOfI.Height + item.Padding.Top + item.Padding.Bottom;
-
-            item.MinimumSize = item.MaximumSize = new Size(width, height);
-
-            LockWindowUpdate(IntPtr.Zero);
+                    _tmr.Start();
+                }
         }
 
-        private void item_MouseHover(object sender, EventArgs e) {
-            _userEntered = sender as EventViewItem;
-
-            if (EventViewItemMouseEnter != null)
-                EventViewItemMouseEnter(this, new EventViewItemEventArgs(sender as EventViewItem));
-        }
-
-        private void item_MouseLeave(object sender, EventArgs e) {
-            _userEntered = null;
-
-            if (EventViewItemMouseLeave != null)
-                EventViewItemMouseLeave(this, new EventViewItemEventArgs(sender as EventViewItem));
-        }
-
-        public List<EventViewItem> GetEvents() {
-            var l = new List<EventViewItem>(ItemCount);
-            foreach (EventViewItem item in largeList.AllControls)
-                l.Add(item);
-            return l;
-        }
+        public EventPanelEvent[] GetEvents() { lock (_lock) return _events.ToArray(); }
 
         public void ClearEvents() {
-            largeList.RemoveAll();
+            lock (_lock) {
+                if (_tmr != null)
+                    _tmr.Stop();
+
+                _events.Clear();
+                fctb.Clear();
+                _backlog.Clear();
+            }
         }
 
-        protected override void OnResize(EventArgs e) {
-            if (this.Height == 0 || (this.Height == _previousHeight && this.Width == _previousWidth)) return;
-
-            LockWindowUpdate(Handle);
-
-            _previousHeight = Height;
-            _previousWidth = this.Width;
-
-            bool autoScroll = _userEntered == null &&
-                              (largeList.CurrentView == largeList.ViewCount - 1 || largeList.ViewCount == 1);
-
-            base.OnResize(e);
-
-            foreach (EventViewItem item in largeList.AllControls)
-                SetSize(item);
-
-            largeList.RefreshControls();
-
-            if (autoScroll && largeList.ControlCount != 0)
-                largeList.ScrollIntoView(largeList[largeList.ViewCount - 1][largeList[largeList.ViewCount - 1].Count - 1]);
-
-            LockWindowUpdate(IntPtr.Zero);
-        }
-
-        public void PerformLargeListResize() { largeList.PerformResize(true); }
         public void PerformMouseEnter(DateTime at) {
-            EventViewItem item = null;
-            foreach (EventViewItem evi in largeList.AllControls)
-                if (evi.At == at) {
-                    item = evi;
+            var events = GetEvents();
+            foreach (EventPanelEvent item in events)
+                if (item.At == at) {
+                    List<int> lines = fctb.FindLines("(\\b" + Regex.Escape(item.At.ToString("yyyy'-'MM'-'dd HH':'mm':'ss") + " " + item.EventType) + "\\b)", RegexOptions.Singleline);
+
+                    if (lines.Count != 0)
+                        SelectLine(lines[0]);
                     break;
                 }
-
-            if (item != null)
-                PerformMouseEnter(item);
         }
 
-        private void PerformMouseEnter(EventViewItem item) {
-            LockWindowUpdate(Handle);
+        private void SelectLine(int lineNumber) {
+            if (lineNumber < fctb.LinesCount) {
+                int line = 0, start = 0, stop = 0;
+                foreach (char c in fctb.Text) {
+                    ++stop;
+                    if (line < lineNumber)
+                        ++start;
+                    if (c == '\n' && ++line >= lineNumber && stop - start > 0)
+                        break;
+                }
 
-            item.PerformMouseEnter();
-            largeList.ScrollIntoView(item);
+                fctb.SelectionStart = start;
+                fctb.SelectionLength = stop - start;
 
-            LockWindowUpdate(IntPtr.Zero);
+                fctb.DoSelectionVisible();
+            }
         }
-
         public void Export() {
             if (sfd.ShowDialog() == DialogResult.OK)
                 try {
                     using (var sw = new StreamWriter(sfd.FileName)) {
-                        lock (this) {
-                            sw.WriteLine("Timestamp\tLevel\tMessage");
-                            foreach (EventViewItem item in largeList.AllControls) {
-                                sw.Write(item.At);
-                                sw.Write("\t");
-                                sw.Write((int)item.EventType);
-                                sw.Write("\t");
-                                sw.WriteLine(item.Message);
-                            }
+                        var events = GetEvents();
+
+                        sw.WriteLine("Timestamp\tLevel\tMessage");
+                        foreach (EventPanelEvent item in events) {
+                            sw.Write(item.At);
+                            sw.Write("\t");
+                            sw.Write(item.EventType);
+                            sw.Write("\t");
+                            sw.WriteLine(item.Message);
                         }
                         sw.Flush();
                     }
-                } catch {
-                    MessageBox.Show("Could not write to '" + sfd.FileName + "'!", string.Empty, MessageBoxButtons.OK,
-                                    MessageBoxIcon.Error);
+                }
+                catch {
+                    Loggers.Log(Level.Error, "Could not export event panel messages to '" + sfd.FileName + "'!");
                 }
         }
         #endregion
-
-        public class EventViewItemEventArgs : EventArgs {
-            public readonly EventViewItem EventViewItem;
-
-            public EventViewItemEventArgs(EventViewItem eventViewItem) {
-                EventViewItem = eventViewItem;
-            }
-        }
     }
 }

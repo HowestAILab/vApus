@@ -77,7 +77,19 @@ namespace vApus.DistributedTest {
         [SavableCloneable, PropertyControl(1)]
         public string[] Tags {
             get { return _tags; }
-            set { _tags = value; }
+            set {
+                if (value == null) {
+                    _tags = null;
+                }
+                else {
+                    _tags = new string[value.Length];
+                    var ss = new SortedSet<string>();
+                    for (int i = 0; i != value.Length; i++)
+                        ss.Add(value[i].ToLowerInvariant());
+
+                    ss.CopyTo(_tags);
+                }
+            }
         }
 
         public Tiles Tiles { get { return this[0] as Tiles; } }

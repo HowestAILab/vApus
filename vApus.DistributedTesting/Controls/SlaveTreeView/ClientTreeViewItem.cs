@@ -182,7 +182,7 @@ namespace vApus.DistributedTest {
             if (!IsDisposed)
                 try {
                     hostname = Dns.GetHostEntry(ip).HostName;
-                    hostname = (hostname == null) ? string.Empty : hostname.ToLower();
+                    hostname = (hostname == null) ? string.Empty : hostname.ToLowerInvariant();
                     online = true;
                 } catch {
                 //Ignore resolve issues.

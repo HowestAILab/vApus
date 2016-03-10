@@ -1,15 +1,15 @@
 [Setup]
 AppName=vApus v2
 AppVerName=vApus v2
-DefaultDirName={pf}\Sizing Servers\vApus v2
+DefaultDirName={pf}\Sizing Servers\vApus v2.1
 DefaultGroupName=Sizing Servers
 UninstallDisplayIcon={app}\vApus.exe
 Compression=lzma
 SolidCompression=true
-OutputDir=C:\jenkins\workspace\vApus v2 nightly
+OutputDir=C:\jenkins\workspace\vApus v2.1 nightly
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
-OutputBaseFilename=Setup_vApus_v2
+OutputBaseFilename=Setup_vApus_v2.1
 VersionInfoCompany=Sizing Servers
 VersionInfoCopyright=Sizing Servers
 DisableProgramGroupPage=true
@@ -23,7 +23,8 @@ Root: HKCR; Subkey: vApus Stresstesting Solution\DefaultIcon; ValueType: string;
 Root: HKCR; Subkey: vApus Stresstesting Solution\shell\open\command; ValueType: string; ValueData: """{app}\vApus.exe"" ""%1"""
 [Icons]
 Name: {group}\vApus; Filename: {app}\vApus.exe
-Name: {group}\Detailed Results Viewer; Filename: {app}\vApus.DetailedResultsViewer.exe
 Name: {group}\Lupus-Titanium HTTP(s) proxy; Filename: {app}\Lupus-Titanium\Lupus-Titanium_GUI.exe
+Name: {group}\Publish Items Handler; Filename: {app}\PublishItemsHandler\vApus.PublishItemsHandler\vApus.exe
+Name: {group}\Detailed Results Viewer; Filename: {app}\DetailedResultsViewer\vApus.DetailedResultsViewer.exe
 Name: {group}\Uninstall; Filename: {app}\unins000.exe
 Name: {commonstartup}\vApus JumpStart; Filename: {app}\vApus.JumpStart.exe

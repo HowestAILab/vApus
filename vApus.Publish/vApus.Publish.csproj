@@ -37,7 +37,7 @@
     <DebugType>full</DebugType>
     <PlatformTarget>AnyCPU</PlatformTarget>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <Optimize>false</Optimize>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'TestingBuild|AnyCPU'">
@@ -106,11 +106,13 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="IDestination.cs" />
-    <Compile Include="MulticastBlock.cs" />
-    <Compile Include="Destinations\BroadcastDestination.cs" />
-    <Compile Include="Destinations\BaseDestination.cs" />
-    <Compile Include="Destinations\FlatFileDestination.cs" />
+    <Compile Include="DescriptionAndTagsInputDialog.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="DescriptionAndTagsInputDialog.Designer.cs">
+      <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
+    </Compile>
+    <Compile Include="TcpDestination.cs" />
     <Compile Include="Formatters\IFormatter.cs" />
     <Compile Include="Formatters\JSONFormatter.cs" />
     <Compile Include="Publisher.cs" />
@@ -127,14 +129,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
     </Compile>
     <Compile Include="PublishItems.cs">
-      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
-      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
-      <Name>vApus.Results</Name>
-    </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4a7f1649-6909-4fbc-b4e2-18cecfe5a144}</Project>
       <Name>vApus.SolutionTree</Name>
@@ -145,6 +143,9 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <EmbeddedResource Include="DescriptionAndTagsInputDialog.resx">
+      <DependentUpon>DescriptionAndTagsInputDialog.cs</DependentUpon>
+    </EmbeddedResource>
     <EmbeddedResource Include="PublishPanel.resx">
       <DependentUpon>PublishPanel.cs</DependentUpon>
     </EmbeddedResource>

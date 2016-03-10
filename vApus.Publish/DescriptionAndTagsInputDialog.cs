@@ -15,7 +15,7 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Util;
 
-namespace vApus.Results {
+namespace vApus.Publish {
     /// <summary>
     ///     Adds description and tags to the results database. Do not forget to set ResultsHelper.
     /// </summary>
@@ -24,7 +24,6 @@ namespace vApus.Results {
         #region Fields
         private string _description;
         private string[] _tags;
-        private ResultsHelper _resultsHelper;
         #endregion
 
         #region Properties
@@ -48,7 +47,6 @@ namespace vApus.Results {
                 }
             }
         }
-        public ResultsHelper ResultsHelper { set { _resultsHelper = value; } }
 
         public bool AutoConfirm { get; set; }
         #endregion
@@ -65,23 +63,25 @@ namespace vApus.Results {
         #endregion
 
         #region Functions
-        //Check connectivity to mysql results db.
+        //Check connectivity to the publisher.
         async void DescriptionAndTagsInputDialog_VisibleChanged(object sender, EventArgs e) {
             this.VisibleChanged -= DescriptionAndTagsInputDialog_VisibleChanged;
 
-            var cultureInfo = Thread.CurrentThread.CurrentCulture;
-            Exception ex = await Task<Exception>.Run(() => {
-                Thread.CurrentThread.CurrentCulture = cultureInfo;
-                return _resultsHelper.BuildSchemaAndConnect();
+            if (Publisher.Settings.PublisherEnabled) {
 
-            });
+                bool connected = await Task.Run(() => Publisher.Poll());
+
+                if (!connected) {
+                    Loggers.Log(Level.Warning, "Could not connect to the publisher.", null, new object[] { sender, e });
+                    lblCouldNotConnect.Visible = true;
+                }
+            }
+            else {
+                lblCouldNotConnect.Visible = true;
+            }
 
             btnOK.Enabled = true;
             btnOK.Text = "OK";
-            if (ex != null) {
-                Loggers.Log(Level.Warning, "Could not connect to the MySQL results server.", ex, new object[] { sender, e });
-                lblCouldNotConnect.Visible = true;
-            }
 
             if (AutoConfirm) btnOK_Click(btnOK, null);
         }
@@ -111,11 +111,6 @@ namespace vApus.Results {
 
             _tags = tags.ToArray();
 
-            try {
-                _resultsHelper.SetDescriptionAndTags(Description, Tags);
-            } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Could not add the description and tags to the database.", ex, new object[] { sender, e });
-            }
             DialogResult = DialogResult.OK;
             try { Close(); } catch {
                 //Only fails on gui closed.

@@ -14,6 +14,10 @@ namespace vApus.Results {
     public class RunResult {
 
         #region Properties
+        /// <summary>
+        /// Only for publisher
+        /// </summary>
+        public int ConcurrencyId { get; private set; }
         public int Run { get; private set; }
 
         /// <summary>
@@ -34,12 +38,14 @@ namespace vApus.Results {
         /// <summary>
         /// Do not forget the prepare for rerun function.
         /// </summary>
+        /// <param name="concurrencyId"></param>
         /// <param name="run"></param>
         /// <param name="concurrentUsers"></param>
-        public RunResult(int run, int concurrentUsers) {
+        public RunResult(int concurrencyId, int run, int concurrentUsers) {
             StartedAt = DateTime.Now;
             StoppedAt = DateTime.MinValue;
             Run = run;
+            ConcurrencyId = concurrencyId;
             VirtualUserResults = new VirtualUserResult[concurrentUsers];
         }
         #endregion

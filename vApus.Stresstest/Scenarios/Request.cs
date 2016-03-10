@@ -36,8 +36,6 @@ namespace vApus.StressTest {
 
         private ASTNode _lexedRequest;
         private LexicalResult _lexicalResult = LexicalResult.Error;
-
-        private static Parameters _parameters;
         #endregion
 
         #region Properties
@@ -118,14 +116,6 @@ namespace vApus.StressTest {
             set { _sameAs = value; }
         }
 
-
-        /// <summary>
-        /// For a distributed test.
-        /// </summary>
-        internal static Parameters Parameters {
-            set { _parameters = value; }
-        }
-
         internal bool ExecuteInParallelWithPrevious { get; set; }
 
         #endregion
@@ -170,7 +160,7 @@ namespace vApus.StressTest {
                 _lexedRequest = null;
             }
 
-            _lexicalResult = (scenarioRuleSet == null) ? LexicalResult.Error : scenarioRuleSet.TryLexicalAnalysis(_requestString, _parameters, out _lexedRequest);
+            _lexicalResult = (scenarioRuleSet == null) ? LexicalResult.Error : scenarioRuleSet.TryLexicalAnalysis(_requestString, out _lexedRequest);
         }
 
         /// <summary>
@@ -297,7 +287,6 @@ namespace vApus.StressTest {
 
 
         public new void Dispose() {
-            _parameters = null;
             if (_lexedRequest != null) {
                 _lexedRequest.Dispose();
                 _lexedRequest = null;

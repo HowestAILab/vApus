@@ -95,7 +95,7 @@ namespace vApus.JumpStart {
             var smartUpdateMessage = (SmartUpdateMessage)message.Content;
             UpdateNotifier.Refresh();
             string currentVersion = UpdateNotifier.CurrentVersion;
-            string currentChannel = UpdateNotifier.CurrentChannel.ToLower();
+            string currentChannel = UpdateNotifier.CurrentChannel.ToLowerInvariant();
 
             string channel = smartUpdateMessage.Channel == 0 ? "stable" : "nightly";
             if (currentVersion != smartUpdateMessage.Version || currentChannel != channel) {

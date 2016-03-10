@@ -1,4 +1,4 @@
-﻿namespace vApus.Results {
+﻿namespace vApus.Publish {
     partial class DescriptionAndTagsInputDialog {
         /// <summary>
         /// Required designer variable.
@@ -35,19 +35,19 @@
             // 
             // label1
             // 
-            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.label1.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label1.Location = new System.Drawing.Point(16, 11);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(548, 41);
+            this.label1.Size = new System.Drawing.Size(482, 41);
             this.label1.TabIndex = 2;
-            this.label1.Text = "Add a short description and comma-seperated tags to the stress test results.\r\nThes" +
-    "e values will be stored in the generated results database for easy finding.";
+            this.label1.Text = "Add a short description and comma-seperated tags to the stress test results for e" +
+    "asy finding.";
             // 
             // btnOK
             // 
-            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left)
+            this.btnOK.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.btnOK.BackColor = System.Drawing.Color.White;
             this.btnOK.Enabled = false;
@@ -56,7 +56,7 @@
             this.btnOK.Location = new System.Drawing.Point(16, 215);
             this.btnOK.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnOK.Name = "btnOK";
-            this.btnOK.Size = new System.Drawing.Size(472, 30);
+            this.btnOK.Size = new System.Drawing.Size(406, 30);
             this.btnOK.TabIndex = 0;
             this.btnOK.Text = "Connecting to the results database server...";
             this.btnOK.UseVisualStyleBackColor = false;
@@ -70,7 +70,7 @@
             this.btnCancel.BackColor = System.Drawing.Color.White;
             this.btnCancel.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCancel.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnCancel.Location = new System.Drawing.Point(493, 215);
+            this.btnCancel.Location = new System.Drawing.Point(427, 215);
             this.btnCancel.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.btnCancel.MinimumSize = new System.Drawing.Size(0, 30);
             this.btnCancel.Name = "btnCancel";
@@ -88,28 +88,28 @@
             this.lblCouldNotConnect.ForeColor = System.Drawing.Color.Red;
             this.lblCouldNotConnect.Location = new System.Drawing.Point(15, 249);
             this.lblCouldNotConnect.Name = "lblCouldNotConnect";
-            this.lblCouldNotConnect.Size = new System.Drawing.Size(550, 13);
+            this.lblCouldNotConnect.Size = new System.Drawing.Size(483, 13);
             this.lblCouldNotConnect.TabIndex = 4;
-            this.lblCouldNotConnect.Text = "Could not connect to the results database server! Click \'OK\' to proceed anyway. D" +
-    "etailed results will be unavailable!";
+            this.lblCouldNotConnect.Text = "Could not connect to the publisher! Click \'OK\' to proceed anyway. Detailed result" +
+    "s will be unavailable!";
             this.lblCouldNotConnect.Visible = false;
             // 
             // txtTags
             // 
-            this.txtTags.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtTags.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtTags.Cue = "Comma-separated tags";
             this.txtTags.ForeColor = System.Drawing.Color.Black;
             this.txtTags.Location = new System.Drawing.Point(16, 177);
             this.txtTags.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtTags.Name = "txtTags";
-            this.txtTags.Size = new System.Drawing.Size(545, 22);
+            this.txtTags.Size = new System.Drawing.Size(479, 22);
             this.txtTags.TabIndex = 2;
             this.toolTip.SetToolTip(this.txtTags, "Comma-separated tags.");
             // 
             // txtDescription
             // 
-            this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left)
+            this.txtDescription.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.txtDescription.Cue = "Description";
             this.txtDescription.ForeColor = System.Drawing.Color.Black;
@@ -117,7 +117,7 @@
             this.txtDescription.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.txtDescription.Multiline = true;
             this.txtDescription.Name = "txtDescription";
-            this.txtDescription.Size = new System.Drawing.Size(545, 114);
+            this.txtDescription.Size = new System.Drawing.Size(479, 114);
             this.txtDescription.TabIndex = 1;
             this.toolTip.SetToolTip(this.txtDescription, "Description.");
             // 
@@ -126,7 +126,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.LightSteelBlue;
-            this.ClientSize = new System.Drawing.Size(580, 270);
+            this.ClientSize = new System.Drawing.Size(514, 270);
             this.Controls.Add(this.lblCouldNotConnect);
             this.Controls.Add(this.btnCancel);
             this.Controls.Add(this.btnOK);

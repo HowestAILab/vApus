@@ -12,6 +12,7 @@ using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Windows.Forms;
+using vApus.Util;
 
 namespace vApus.Util {
     [ToolboxItem(false)]
@@ -61,7 +62,8 @@ namespace vApus.Util {
             else if (elementType == typeof(char)) {
                 column = new DataGridViewTextBoxColumn();
                 (column as DataGridViewTextBoxColumn).MaxInputLength = 1;
-            } else if (elementType.BaseType == typeof(Enum)) {
+            }
+            else if (elementType.BaseType == typeof(Enum)) {
                 column = new DataGridViewComboBoxColumn();
                 (column as DataGridViewComboBoxColumn).DataSource = Enum.GetValues(elementType);
             } else
@@ -152,7 +154,8 @@ namespace vApus.Util {
                         else
                             dataGridView.Rows.Add(entry);
                     }
-                } catch {
+                }
+                catch {
                 }
                 dataGridView.CellValueChanged += dataGridView_CellValueChanged;
                 dataGridView.RowsRemoved += dataGridView_RowsRemoved;
@@ -197,7 +200,8 @@ namespace vApus.Util {
 
                 if (_value is Array) {
                     _value = arrayList.ToArray(elementType);
-                } else if (_value is IList) {
+                }
+                else if (_value is IList) {
                     var list = _value as IList;
                     list.Clear();
                     for (int i = 0; i < arrayList.Count; i++)
@@ -207,7 +211,8 @@ namespace vApus.Util {
 
                 if (ValueChanged != null)
                     ValueChanged(this, null);
-            } catch {
+            }
+            catch {
                 if (Failed != null)
                     Failed(this, null);
             }

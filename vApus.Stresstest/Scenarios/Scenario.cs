@@ -24,7 +24,7 @@ namespace vApus.StressTest {
     /// </summary>
     [Serializable]
     [ContextMenu(new[] { "Activate_Click", "EditPlainText_Click", "Remove_Click", "Export_Click", "ExportScenarioAndUsedParameters_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
-        new[] { "Edit/Import", "Edit plain text", "remove", "Export data structure", "Export scenario and used parameter data sstructures", "Copy", "Cut", "Duplicate" })]
+        new[] { "Edit/Import", "Edit plain text", "Remove", "Export data structure", "Export scenario and used parameter data sstructures", "Copy", "Cut", "Duplicate" })]
     [Hotkeys(new[] { "Activate_Click", "Remove_Click", "Copy_Click", "Cut_Click", "Duplicate_Click" },
         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
     public class Scenario : LabeledBaseItem, ISerializable {
@@ -88,10 +88,7 @@ namespace vApus.StressTest {
         /// <summary>
         /// </summary>
         internal static Parameters Parameters {
-            set {
-                _parameters = value;
-                Request.Parameters = _parameters;
-            }
+            set { _parameters = value; }
         }
         #endregion
 
@@ -102,7 +99,8 @@ namespace vApus.StressTest {
         public Scenario() {
             if (Solution.ActiveSolution == null) {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
-            } else {
+            }
+            else {
                 ScenarioRuleSet = GetNextOrEmptyChild(typeof(ScenarioRuleSet), Solution.ActiveSolution.GetSolutionComponent(typeof(ScenarioRuleSets))) as ScenarioRuleSet;
                 _parameters = Solution.ActiveSolution.GetSolutionComponent(typeof(Parameters)) as Parameters;
             }
@@ -226,14 +224,16 @@ namespace vApus.StressTest {
                     }
 
                     package.Flush();
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed to export the scenario + parameters", ex, new object[] { sender, e });
                 }
 
                 try {
                     if (package != null)
                         package.Close();
-                } catch {
+                }
+                catch {
                     //Ignrore. Not important.
                 }
             }
@@ -251,7 +251,8 @@ namespace vApus.StressTest {
                     request.ApplyScenarioRuleSet(ScenarioRuleSet);
                     if (request.LexicalResult == LexicalResult.Error)
                         requestsWithErrors.Add(request);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed to apply scenario rule set.", ex);
                 }
             }
@@ -293,7 +294,8 @@ namespace vApus.StressTest {
                         int offset;
                         if (string.IsNullOrEmpty(re.LexedRequest[offsetIndex].Value)) {
                             offset = 0;
-                        } else if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
+                        }
+                        else if (!int.TryParse(re.LexedRequest[offsetIndex].Value, out offset)) {
                             succes = false;
                             break;
                         }

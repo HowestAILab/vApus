@@ -2,53 +2,17 @@
 <SettingsFile xmlns="http://schemas.microsoft.com/VisualStudio/2004/01/settings" CurrentProfile="(Default)" GeneratedClassNamespace="vApus.Publish.Properties" GeneratedClassName="Settings">
   <Profiles />
   <Settings>
-    <Setting Name="BroadcastPort" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">3337</Value>
-    </Setting>
-    <Setting Name="JSONFolder" Type="System.String" Scope="User">
+    <Setting Name="TcpHost" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
-    </Setting>
-    <Setting Name="PublishTestsConfiguration" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PublishMonitorsConfiguration" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PublishTestsFastConcurrencyResults" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PublishMonitorsHardwareConfiguration" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PublishMonitorsMetrics" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PublishTestsFastRunResults" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PublishTestsMessages" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="PublishTestsClientMonitoring" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="UseJSONFileOutput" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="UseJSONBroadcastOutput" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
     </Setting>
     <Setting Name="PublisherEnabled" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
     </Setting>
-    <Setting Name="MessageLevel" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">1</Value>
+    <Setting Name="TcpPort" Type="System.UInt16" Scope="User">
+      <Value Profile="(Default)">4337</Value>
     </Setting>
-    <Setting Name="PublishApplicationLogs" Type="System.Boolean" Scope="User">
+    <Setting Name="AutoLaunchvApusPublishItemsHandler" Type="System.Boolean" Scope="User">
       <Value Profile="(Default)">False</Value>
-    </Setting>
-    <Setting Name="LogLevel" Type="System.UInt16" Scope="User">
-      <Value Profile="(Default)">1</Value>
     </Setting>
   </Settings>
 </SettingsFile>

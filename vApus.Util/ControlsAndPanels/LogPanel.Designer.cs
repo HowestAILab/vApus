@@ -27,7 +27,6 @@
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(LogPanel));
             this.flowLayoutPanel1 = new System.Windows.Forms.FlowLayoutPanel();
             this.fileLoggerPanel = new RandomUtils.Log.FileLoggerPanel();
-            this.tmr = new System.Windows.Forms.Timer(this.components);
             this.flowLayoutPanel1.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -52,11 +51,6 @@
             this.fileLoggerPanel.TabIndex = 1002;
             this.fileLoggerPanel.Text = "FileLoggerPanel";
             // 
-            // tmr
-            // 
-            this.tmr.Interval = 200;
-            this.tmr.Tick += new System.EventHandler(this.tmr_Tick);
-            // 
             // LogPanel
             // 
             this.ClientSize = new System.Drawing.Size(798, 706);
@@ -74,7 +68,5 @@
 
         private System.Windows.Forms.FlowLayoutPanel flowLayoutPanel1;
         private RandomUtils.Log.FileLoggerPanel fileLoggerPanel;
-        private System.Windows.Forms.Timer tmr;
-
     }
 }

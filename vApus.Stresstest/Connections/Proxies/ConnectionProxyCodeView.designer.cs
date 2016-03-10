@@ -38,11 +38,11 @@ namespace vApus.StressTest
             this.btnExport = new System.Windows.Forms.Button();
             this.tcTools = new System.Windows.Forms.TabControl();
             this.tpReferences = new System.Windows.Forms.TabPage();
-            this.references = new vApus.StressTest.ReferencesPanel();
+            this.referencesPanel = new vApus.StressTest.ReferencesPanel();
             this.tpFind = new System.Windows.Forms.TabPage();
-            this.find = new vApus.StressTest.FindAndReplacePanel();
+            this.findAndReplacePanel = new vApus.StressTest.FindAndReplacePanel();
             this.tpCompile = new System.Windows.Forms.TabPage();
-            this.compile = new vApus.StressTest.CompilePanel();
+            this.compilePanel = new vApus.StressTest.CompilePanel();
             this.sfd = new System.Windows.Forms.SaveFileDialog();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             ((System.ComponentModel.ISupportInitialize)(this.splitCode)).BeginInit();
@@ -97,7 +97,7 @@ namespace vApus.StressTest
             this.codeTextBox.SelectionColor = System.Drawing.Color.FromArgb(((int)(((byte)(60)))), ((int)(((byte)(0)))), ((int)(((byte)(0)))), ((int)(((byte)(255)))));
             this.codeTextBox.Size = new System.Drawing.Size(799, 344);
             this.codeTextBox.TabIndex = 1;
-            this.codeTextBox.WordWrap = true;
+            this.codeTextBox.WordWrap = false;
             this.codeTextBox.WordWrapMode = FastColoredTextBoxNS.WordWrapMode.CharWrapControlWidth;
             this.codeTextBox.Zoom = 100;
             // 
@@ -164,7 +164,7 @@ namespace vApus.StressTest
             // 
             // tpReferences
             // 
-            this.tpReferences.Controls.Add(this.references);
+            this.tpReferences.Controls.Add(this.referencesPanel);
             this.tpReferences.Location = new System.Drawing.Point(4, 22);
             this.tpReferences.Name = "tpReferences";
             this.tpReferences.Padding = new System.Windows.Forms.Padding(3);
@@ -175,17 +175,17 @@ namespace vApus.StressTest
             // 
             // references
             // 
-            this.references.CodeTextBox = null;
-            this.references.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.references.Location = new System.Drawing.Point(3, 3);
-            this.references.Name = "references";
-            this.references.Padding = new System.Windows.Forms.Padding(9);
-            this.references.Size = new System.Drawing.Size(783, 147);
-            this.references.TabIndex = 0;
+            this.referencesPanel.CodeTextBox = null;
+            this.referencesPanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.referencesPanel.Location = new System.Drawing.Point(3, 3);
+            this.referencesPanel.Name = "references";
+            this.referencesPanel.Padding = new System.Windows.Forms.Padding(9);
+            this.referencesPanel.Size = new System.Drawing.Size(783, 147);
+            this.referencesPanel.TabIndex = 0;
             // 
             // tpFind
             // 
-            this.tpFind.Controls.Add(this.find);
+            this.tpFind.Controls.Add(this.findAndReplacePanel);
             this.tpFind.Location = new System.Drawing.Point(4, 22);
             this.tpFind.Name = "tpFind";
             this.tpFind.Padding = new System.Windows.Forms.Padding(3);
@@ -196,17 +196,17 @@ namespace vApus.StressTest
             // 
             // find
             // 
-            this.find.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.find.Location = new System.Drawing.Point(3, 3);
-            this.find.Name = "find";
-            this.find.Padding = new System.Windows.Forms.Padding(9);
-            this.find.Size = new System.Drawing.Size(783, 147);
-            this.find.TabIndex = 0;
-            this.find.FoundReplacedButtonClicked += new System.EventHandler<vApus.StressTest.FindAndReplacePanel.FoundReplacedButtonClickedEventArgs>(this.find_FoundButtonClicked);
+            this.findAndReplacePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.findAndReplacePanel.Location = new System.Drawing.Point(3, 3);
+            this.findAndReplacePanel.Name = "find";
+            this.findAndReplacePanel.Padding = new System.Windows.Forms.Padding(9);
+            this.findAndReplacePanel.Size = new System.Drawing.Size(783, 147);
+            this.findAndReplacePanel.TabIndex = 0;
+            this.findAndReplacePanel.FoundReplacedButtonClicked += new System.EventHandler<vApus.StressTest.FindAndReplacePanel.FoundReplacedButtonClickedEventArgs>(this.find_FoundButtonClicked);
             // 
             // tpCompile
             // 
-            this.tpCompile.Controls.Add(this.compile);
+            this.tpCompile.Controls.Add(this.compilePanel);
             this.tpCompile.Location = new System.Drawing.Point(4, 22);
             this.tpCompile.Name = "tpCompile";
             this.tpCompile.Padding = new System.Windows.Forms.Padding(3);
@@ -217,14 +217,14 @@ namespace vApus.StressTest
             // 
             // compile
             // 
-            this.compile.Dock = System.Windows.Forms.DockStyle.Fill;
-            this.compile.Location = new System.Drawing.Point(3, 3);
-            this.compile.Name = "compile";
-            this.compile.Padding = new System.Windows.Forms.Padding(9);
-            this.compile.Size = new System.Drawing.Size(783, 147);
-            this.compile.TabIndex = 0;
-            this.compile.CompileError += new System.EventHandler(this.compile_CompileError);
-            this.compile.CompileErrorButtonClicked += new System.EventHandler<vApus.StressTest.CompilePanel.CompileErrorButtonClickedEventArgs>(this.compile_CompileErrorButtonClicked);
+            this.compilePanel.Dock = System.Windows.Forms.DockStyle.Fill;
+            this.compilePanel.Location = new System.Drawing.Point(3, 3);
+            this.compilePanel.Name = "compile";
+            this.compilePanel.Padding = new System.Windows.Forms.Padding(9);
+            this.compilePanel.Size = new System.Drawing.Size(783, 147);
+            this.compilePanel.TabIndex = 0;
+            this.compilePanel.CompileError += new System.EventHandler(this.compile_CompileError);
+            this.compilePanel.CompileErrorButtonClicked += new System.EventHandler<vApus.StressTest.CompilePanel.CompileErrorButtonClickedEventArgs>(this.compile_CompileErrorButtonClicked);
             // 
             // sfd
             // 
@@ -261,10 +261,10 @@ namespace vApus.StressTest
         private System.Windows.Forms.TabControl tcTools;
         private System.Windows.Forms.TabPage tpReferences;
         private System.Windows.Forms.TabPage tpCompile;
-        private ReferencesPanel references;
-        private CompilePanel compile;
+        private ReferencesPanel referencesPanel;
+        private CompilePanel compilePanel;
         private System.Windows.Forms.TabPage tpFind;
-        private FindAndReplacePanel find;
+        private FindAndReplacePanel findAndReplacePanel;
         private System.Windows.Forms.Button btnExport;
         private System.Windows.Forms.SaveFileDialog sfd;
         private System.Windows.Forms.Button btnCollapseExpand;

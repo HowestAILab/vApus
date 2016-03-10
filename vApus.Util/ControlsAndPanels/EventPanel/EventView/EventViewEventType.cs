@@ -11,7 +11,7 @@ namespace vApus.Util {
     [Serializable]
     public enum EventViewEventType {
         Info = 0,
-        Warning,
-        Error
+        Warning = 1,
+        Error = 2
     }
 }

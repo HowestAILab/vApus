@@ -50,6 +50,8 @@ namespace vApus.Util {
         private bool _toolTipThisShown;
 
         private bool _behaveAsBar = false;
+
+        private System.Timers.Timer _refreshGuiTmr;
         #endregion
 
         #region Constructor
@@ -65,6 +67,9 @@ namespace vApus.Util {
             SetStyle(
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.ResizeRedraw, true);
+
+            _refreshGuiTmr = new System.Timers.Timer(10);
+            _refreshGuiTmr.Elapsed += _refreshGuiTmr_Elapsed;
         }
         #endregion
 
@@ -150,12 +155,27 @@ namespace vApus.Util {
                 _sortedProgressEvents.Add(kvp);
             }
 
-            if (refreshGui) Invalidate();
+            if (refreshGui && _refreshGuiTmr != null) {
+                _refreshGuiTmr.Stop();
+                _refreshGuiTmr.Start();
+            }
+            Invalidate();
 
 
             return pe;
         }
 
+        private void _refreshGuiTmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+            try {
+                if (_refreshGuiTmr != null) {
+                    _refreshGuiTmr.Stop();
+                    Invalidate();
+                }
+            }
+            catch {
+                //Don't care.
+            }
+        }
 
         public List<ChartProgressEvent> GetEvents() {
             return _progressEvents;
@@ -167,11 +187,11 @@ namespace vApus.Util {
             Invalidate();
         }
 
-        private void pe_MouseEnter(object sender, EventArgs e) { if (EventMouseEnter != null)  EventMouseEnter(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
+        private void pe_MouseEnter(object sender, EventArgs e) { if (EventMouseEnter != null) EventMouseEnter(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
 
-        private void pe_MouseLeave(object sender, EventArgs e) { if (EventMouseLeave != null)   EventMouseLeave(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
+        private void pe_MouseLeave(object sender, EventArgs e) { if (EventMouseLeave != null) EventMouseLeave(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
 
-        private void pe_Click(object sender, EventArgs e) { if (EventClick != null)   EventClick(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
+        private void pe_Click(object sender, EventArgs e) { if (EventClick != null) EventClick(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
 
         protected override void OnPaint(PaintEventArgs e) {
             try {
@@ -184,7 +204,7 @@ namespace vApus.Util {
                 ChartProgressEvent entered = null;
 
                 //Make sure the most important events are drawn, hidden events won't be drawn.
-		//Faster contains with a hash set then with a list.
+                //Faster contains with a hash set then with a list.
                 var Xs = new HashSet<int>();
                 _sortedProgressEvents.Sort(ChartProgressEventComparer.GetInstance());
 
@@ -192,7 +212,8 @@ namespace vApus.Util {
                     foreach (var pe in kvp.Value) {
                         if (pe.Entered) {
                             entered = pe;
-                        } else {
+                        }
+                        else {
                             int x = pe.X;
                             if (x < 1073741952 && !Xs.Contains(x)) { //Max value possible, Google it if you want
                                 Xs.Add(x);
@@ -200,10 +221,11 @@ namespace vApus.Util {
                             }
                         }
                     }
-           	Xs = null;
+                Xs = null;
                 if (entered != null)
                     entered.Draw(g); //Out of bounds check is also done in the fx
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed drawing the chart.", ex, new object[] { e });
             }
         }
@@ -249,7 +271,8 @@ namespace vApus.Util {
                         toolTip.Show("Time frame: " + _beginOfTimeFrame + " - " + _endOfTimeFrame, this);
                     }
                 }
-            } else if (pe != _previouslyHovered) {
+            }
+            else if (pe != _previouslyHovered) {
                 _toolTipThisShown = false;
                 PerformMouseLeave(false);
 
@@ -277,14 +300,14 @@ namespace vApus.Util {
 
         private ChartProgressEvent GetHoveredProgressEvent() {
             Point p = PointToClient(Cursor.Position);
-	    foreach (var kvp in _sortedProgressEvents)
+            foreach (var kvp in _sortedProgressEvents)
                 foreach (ChartProgressEvent pe in kvp.Value) {
                     Point location = new Point(pe.X, 0);
                     if (p.X >= location.X &&
                         p.X <= location.X + ChartProgressEvent.WIDTH)
                         return pe;
                 }
-             return null;
+            return null;
         }
 
         public void PerformMouseLeave(bool invalidate = true) {

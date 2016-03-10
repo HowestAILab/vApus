@@ -33,7 +33,10 @@ namespace vApus.Util {
                 chk.CheckedChanged += chk_CheckedChanged;
                 chk.Leave += chk_Leave;
                 chk.KeyUp += chk_KeyUp;
-            } else {
+
+                base.ValueControl = chk;
+            }
+            else {
                 chk = base.ValueControl as CheckBox;
             }
 
@@ -41,8 +44,6 @@ namespace vApus.Util {
             chk.Checked = (bool)value.__Value;
             SetChkText(chk);
             chk.CheckedChanged += chk_CheckedChanged;
-
-            base.ValueControl = chk;
         }
 
         private void chk_CheckedChanged(object sender, EventArgs e) {

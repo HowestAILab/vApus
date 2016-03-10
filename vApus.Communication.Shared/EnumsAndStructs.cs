@@ -67,12 +67,10 @@ namespace vApus.Communication.Shared {
 
     [Serializable]
     public class StressTestWrapper {
-        public int StressTestIdInDb;
-        public string MySqlHost;
-        public int MySqlPort;
-        public string MySqlDatabaseName;
-        public string MySqlUser;
-        public string MySqlPassword;
+        public string PublishResultSetId;
+        public bool Publish;
+        public string PublishHost;
+        public ushort PublishPort;
 
         public RunSynchronization RunSynchronization;
         public int MaxRerunsBreakOnLast;
@@ -83,12 +81,16 @@ namespace vApus.Communication.Shared {
         ///     #.# (TileIndex.TileStress testIndex eg 0.0);
         /// </summary>
         public string TileStressTestIndex;
+        public string TileStressTest;
+        public string DistributedTest;
+
+        public string[] Monitors;
     }
 
     [Serializable]
     public struct TestProgressMessage {
         public float CPUUsage;
-        public List<EventPanelEvent> Events;
+        public EventPanelEvent[] Events;
         public string Exception;
 
         /// <summary>

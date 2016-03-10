@@ -9,10 +9,15 @@ using RandomUtils.Log;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace vApus.Publish {
     public partial class PublishPanel : Panel {
+        public bool Connected {
+            get { return Publisher.Settings.PublisherEnabled && Publisher.Poll(); }
+        }
+
         public PublishPanel() {
             InitializeComponent();
 
@@ -27,62 +32,35 @@ namespace vApus.Publish {
         }
 
         private void LoadSettings() {
-            chkTestsConfig.Checked = Publisher.Settings.PublishTestsConfiguration;
-            chkTestsFastConcurrencyResults.Checked = Publisher.Settings.PublishTestsFastConcurrencyResults;
-            chkTestsFastRunResults.Checked = Publisher.Settings.PublishTestsFastRunResults;
-            chkTestsClientMonitoring.Checked = Publisher.Settings.PublishTestsClientMonitoring;
-            chkTestsMessages.Checked = Publisher.Settings.PublishTestsMessages;
-            cboMessageLevel.SelectedIndex = (int)Publisher.Settings.MessageLevel;
-
-            chkMonitorsConfig.Checked = Publisher.Settings.PublishMonitorsConfiguration;
-            chkMonitorsHWConfig.Checked = Publisher.Settings.PublishMonitorsHardwareConfiguration;
-            chkMonitorsMetrics.Checked = Publisher.Settings.PublishMonitorsMetrics;
-
-            chkApplicationLogs.Checked = Publisher.Settings.PublishApplicationLogs;
-            cboLogLevel.SelectedIndex = (int)Publisher.Settings.LogLevel;
-
-            chkJSONFiles.Checked = Publisher.Settings.UseJSONFileOutput;
-            txtJSONFolder.Text = Publisher.Settings.JSONFolder;
-
-            chkJSONBroadcast.Checked = Publisher.Settings.UseJSONBroadcastOutput;
-            nudBroadcastPort.Value = Publisher.Settings.BroadcastPort;
+            txtTcpHost.Text = Publisher.Settings.TcpHost;
+            nudTcpPort.Value = Publisher.Settings.TcpPort;
+            btnLaunchvApusPublishItemsHandler.Checked = Publisher.Settings.AutoLaunchvApusPublishItemsHandler;
 
             EnableDisable(Publisher.Settings.PublisherEnabled);
         }
         private void SaveSettings() {
-            Publisher.Settings.PublishTestsConfiguration = chkTestsConfig.Checked;
-            Publisher.Settings.PublishTestsFastConcurrencyResults = chkTestsFastConcurrencyResults.Checked;
-            Publisher.Settings.PublishTestsFastRunResults = chkTestsFastRunResults.Checked;
-            Publisher.Settings.PublishTestsClientMonitoring = chkTestsClientMonitoring.Checked;
-            Publisher.Settings.PublishTestsMessages = chkTestsMessages.Checked;
-            Publisher.Settings.MessageLevel = (ushort)cboMessageLevel.SelectedIndex;
-
-            Publisher.Settings.PublishMonitorsConfiguration = chkMonitorsConfig.Checked;
-            Publisher.Settings.PublishMonitorsHardwareConfiguration = chkMonitorsHWConfig.Checked;
-            Publisher.Settings.PublishMonitorsMetrics = chkMonitorsMetrics.Checked;
-
-            Publisher.Settings.PublishApplicationLogs = chkApplicationLogs.Checked;
-            Publisher.Settings.LogLevel = (ushort)cboLogLevel.SelectedIndex;
-
-
-            Publisher.Settings.UseJSONFileOutput = chkJSONFiles.Checked;
-            Publisher.Settings.JSONFolder = txtJSONFolder.Text;
-
-            Publisher.Settings.UseJSONBroadcastOutput = chkJSONBroadcast.Checked;
-            Publisher.Settings.BroadcastPort = (ushort)nudBroadcastPort.Value;
+            Publisher.Settings.TcpHost = txtTcpHost.Text.ToLowerInvariant().Trim();
+            Publisher.Settings.TcpPort = (ushort)nudTcpPort.Value;
+            Publisher.Settings.AutoLaunchvApusPublishItemsHandler = btnLaunchvApusPublishItemsHandler.Checked;
 
             Publisher.Settings.Save();
-            Publisher.Clear();
         }
 
+        private void btnSet_Click(object sender, EventArgs e) {
+            SaveSettings();
+            if (AutoLaunchvApusPublishItemsHandler()) 
+                Thread.Sleep(2000);
 
-        private void btnBrowseJSON_Click(object sender, EventArgs e) {
-            if (folderBrowserDialog.ShowDialog() == DialogResult.OK) txtJSONFolder.Text = folderBrowserDialog.SelectedPath;
+            if (Connected) {
+                string host = Publisher.Settings.TcpHost;
+                if ((host == "localhost" || host == "127.0.0.1" || host == "::1" || host == "0:0:0:0:0:0:0:1"))
+                    MessageBox.Show("The endpoint server must be reachable from a remote location, otherwise distributed testing won't work!\nBe sure that '" + host + "' is what you want.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
+            }
+            else {
+                string warning = "Failed to connect to the given endpoint.";
+                Loggers.Log(Level.Warning, warning, null, new object[] { sender, e });
+            }
         }
-
-        private void btnSet_Click(object sender, EventArgs e) { SaveSettings(); }
-
-        public override string ToString() { return "Publish values"; }
 
         private void btnEnable_Click(object sender, EventArgs e) { EnableDisable(btnEnable.Text == "Enable"); }
 
@@ -92,25 +70,39 @@ namespace vApus.Publish {
             Publisher.Settings.PublisherEnabled = grp.Enabled = btnSet.Enabled = enable;
 
             Publisher.Settings.Save();
-            Publisher.Clear();
-
         }
 
         private void llblDeserialize_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             string path = Path.Combine(Application.StartupPath, "PublishItems.cs");
             if (!File.Exists(path)) {
                 string error = "PublishItems.cs was not found in the root directory if vApus.";
-                Loggers.Log(Level.Error, error, null, new object[]{ sender, e });
+                Loggers.Log(Level.Error, error, null, new object[] { sender, e });
                 MessageBox.Show(error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
             try {
                 Process.Start(path);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 string error = "Failed to open PublishItems.cs";
                 Loggers.Log(Level.Error, error, ex, new object[] { sender, e });
                 MessageBox.Show(error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
         }
+
+        public bool AutoLaunchvApusPublishItemsHandler() {
+            if (Publisher.Settings.PublisherEnabled && Publisher.Settings.AutoLaunchvApusPublishItemsHandler) {
+                if (Process.GetProcessesByName("vApus.PublishItemsHandler").Length == 0) {
+                    string path = Path.Combine(Application.StartupPath, "PublishItemsHandler\\vApus.PublishItemsHandler.exe");
+                    if (File.Exists(path)) {
+                        Process.Start(path, "autohide");
+                        return true;
+                    }
+                }
+            }
+            return false;
+        }
+
+        public override string ToString() { return "Publish values"; }
     }
 }

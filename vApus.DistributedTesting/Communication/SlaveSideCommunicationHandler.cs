@@ -20,6 +20,7 @@ using vApus.Communication.Shared;
 using vApus.SolutionTree;
 using vApus.StressTest;
 using vApus.Util;
+using vApus.Publish;
 
 namespace vApus.DistributedTest {
     /// <summary>
@@ -32,7 +33,7 @@ namespace vApus.DistributedTest {
         public static event EventHandler<NewTestEventArgs> NewTest;
 
         private delegate void SendPushMessageDelegate(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                              TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
+                                              TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished);
 
         #region Fields
         private static readonly object _lock = new object();
@@ -46,10 +47,6 @@ namespace vApus.DistributedTest {
 
         private static readonly SendPushMessageDelegate _sendPushMessageDelegate = SendQueuedPushMessage;
         private static BackgroundWorkQueue _sendQueue;
-
-        //For encrypting the mysql password of the results db server.
-        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
         #endregion
 
         #region Functions
@@ -93,11 +90,18 @@ namespace vApus.DistributedTest {
                         Loggers.Log(Level.Warning, "Failed hiding solution explorer.", ex, new object[] { message });
                     }
                 }, null);
+
                 //init the send queue for push messages.
                 _sendQueue = new BackgroundWorkQueue();
 
                 var initializeTestMessage = (InitializeTestMessage)message.Content;
                 var stressTestWrapper = initializeTestMessage.StressTestWrapper;
+
+                NamedObjectRegistrar.RegisterOrUpdate("IsMaster", false);
+                Publisher.Settings.PublisherEnabled = stressTestWrapper.Publish;
+                Publisher.Settings.TcpHost = stressTestWrapper.PublishHost;
+                Publisher.Settings.TcpPort = stressTestWrapper.PublishPort;
+
                 stressTestWrapper.StressTest.Connection.ConnectionProxy.ForceSettingChildsParent();
                 foreach (var kvp in stressTestWrapper.StressTest.Scenarios) {
                     kvp.Key.ScenarioRuleSet.ForceSettingChildsParent();
@@ -143,16 +147,13 @@ namespace vApus.DistributedTest {
                     Retry:
                         try {
                             _tileStressTestView = SolutionComponentViewManager.Show(stressTestWrapper.StressTest, typeof(TileStressTestView)) as TileStressTestView;
+                            _tileStressTestView.DistributedTest = stressTestWrapper.DistributedTest;
+                            _tileStressTestView.TileStressTest = stressTestWrapper.TileStressTest;
                             _tileStressTestView.TileStressTestIndex = stressTestWrapper.TileStressTestIndex;
+                            _tileStressTestView.Monitors = stressTestWrapper.Monitors;
+                            _tileStressTestView.ResultSetId = stressTestWrapper.PublishResultSetId;
                             _tileStressTestView.RunSynchronization = stressTestWrapper.RunSynchronization;
                             _tileStressTestView.MaxRerunsBreakOnLast = stressTestWrapper.MaxRerunsBreakOnLast;
-
-
-                            if (stressTestWrapper.StressTestIdInDb != 0 && !string.IsNullOrEmpty(stressTestWrapper.MySqlHost)) {
-                                _tileStressTestView.ConnectToExistingDatabase(stressTestWrapper.MySqlHost, stressTestWrapper.MySqlPort, stressTestWrapper.MySqlDatabaseName, stressTestWrapper.MySqlUser,
-                                    stressTestWrapper.MySqlPassword.Decrypt(_passwordGUID, _salt));
-                                _tileStressTestView.StressTestIdInDb = stressTestWrapper.StressTestIdInDb;
-                            }
                         } catch {
                             if (++done != 4) {
                                 Thread.Sleep(1000);
@@ -244,7 +245,7 @@ namespace vApus.DistributedTest {
         ///     Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
         /// </summary>
         public static void SendPushMessage(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
+                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
                 if (_sendQueue != null)
                     _sendQueue.EnqueueWorkItem(_sendPushMessageDelegate, tileStressTestIndex, stressTestMetricsCache,
@@ -253,7 +254,7 @@ namespace vApus.DistributedTest {
         }
 
         private static void SendQueuedPushMessage(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                                  TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, List<EventPanelEvent> events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
+                                                  TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             if (_masterSocketWrapper != null)
                 try {
                     var tpm = new TestProgressMessage();

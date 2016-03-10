@@ -144,9 +144,9 @@ namespace vApus.DistributedTest {
 
                 if (!alreadyExcludingMaster) {
                     // Dns.GetHostName() does not always work. It gets the local host name, but not the name returned from the DNS server.
-                    string masterHostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+                    string masterHostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLowerInvariant();
                     try {
-                        string slaveHostName = Dns.GetHostEntry(ip).HostName.Trim().Split('.')[0].ToLower();
+                        string slaveHostName = Dns.GetHostEntry(ip).HostName.Trim().Split('.')[0].ToLowerInvariant();
 
                         if (masterHostName == slaveHostName) exclude = Process.GetCurrentProcess().Id;
                     } catch {

@@ -23,6 +23,31 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace vApus.Util {
+    public static class DictionaryExtension {
+        public static TKey GetKeyAt<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, int index) {
+            if (index < 0)
+                throw new IndexOutOfRangeException("index < 0");
+            else if (index >= dictionary.Count)
+                throw new IndexOutOfRangeException("Index is larger or equals the count of dictionary kvps.");
+
+            IEnumerator<TKey> enumerator = dictionary.Keys.GetEnumerator();
+            enumerator.Reset();
+            int currentIndex = -1;
+            while (currentIndex++ < index)
+                enumerator.MoveNext();
+            return enumerator.Current;
+        }
+
+        public static bool TryGetKey<TKey, TValue>(this Dictionary<TKey, TValue> dictionary, TValue value, out TKey key) {
+            foreach (TKey k in dictionary.Keys)
+                if (dictionary[k].Equals(value)) {
+                    key = k;
+                    return true;
+                }
+            key = default(TKey);
+            return false;
+        }
+    }
     public static class AssemblyExtension {
         /// <summary>
         /// Gets a type by its non fully qualified name.
@@ -373,8 +398,6 @@ namespace vApus.Util {
             lock (_parents.SyncRoot) {
                 bool removed = false;
                 if (_parents.Contains(o)) {
-                    object parent = _parents[o];
-
                     _parents.Remove(o);
                     removed = true;
                 }
@@ -727,6 +750,10 @@ namespace vApus.Util {
                 contextMenu.MenuItems.Add(menuItem);
             }
 
+            menuItem = new MenuItem("Toggle word wrap");
+            menuItem.Click += new EventHandler((s, a) => ToggleWordWrap(fctxt));
+            contextMenu.MenuItems.Add(menuItem);
+
             fctxt.ContextMenu = contextMenu;
         }
         private static void SelectAll(FastColoredTextBox fctxt) { fctxt.SelectAll(); }
@@ -739,6 +766,7 @@ namespace vApus.Util {
             if (Clipboard.ContainsText(TextDataFormat.UnicodeText))
                 fctxt.SelectedText = Clipboard.GetData(DataFormats.UnicodeText).ToString();
         }
+        private static void ToggleWordWrap(FastColoredTextBox fctxt) { fctxt.WordWrap = !fctxt.WordWrap; }
 
     }
 }

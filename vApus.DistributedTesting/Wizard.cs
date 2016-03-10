@@ -337,7 +337,7 @@ namespace vApus.DistributedTest {
             foreach (DataGridViewRow row in dgvClients.Rows)
                 if (row.Cells[0].Value != row.Cells[0].DefaultNewRowValue &&
                     (row.Cells[0].Value.ToString() == ip ||
-                     row.Cells[0].Value.ToString().ToLower().Split('.')[0] == hostName.ToLower().Split('.')[0])
+                     row.Cells[0].Value.ToString().ToLowerInvariant().Split('.')[0] == hostName.ToLowerInvariant().Split('.')[0])
                     )
                     return true;
             return false;
@@ -488,9 +488,9 @@ namespace vApus.DistributedTest {
                 if (_ipsAndHostNames.ContainsKey(ipOrHostname)) {
                     client.IP = ipOrHostname;
                     client.HostName = _ipsAndHostNames[ipOrHostname];
-                } else if (_ipsAndHostNames.ContainsValue(ipOrHostname.ToLower().Split('.')[0])) {
+                } else if (_ipsAndHostNames.ContainsValue(ipOrHostname.ToLowerInvariant().Split('.')[0])) {
                     string ip;
-                    if (_ipsAndHostNames.TryGetKey(ipOrHostname.ToLower().Split('.')[0], out ip)) {
+                    if (_ipsAndHostNames.TryGetKey(ipOrHostname.ToLowerInvariant().Split('.')[0], out ip)) {
                         client.IP = ip;
                         client.HostName = ipOrHostname;
                     }
@@ -608,9 +608,9 @@ namespace vApus.DistributedTest {
                 try {
                     if (IPAddress.TryParse(ipOrHostName, out address)) {
                         ip = ipOrHostName;
-                        hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLower();
+                        hostName = Dns.GetHostEntry(ipOrHostName).HostName.ToLowerInvariant();
                     } else {
-                        ipOrHostName = ipOrHostName.ToLower().Split('.')[0];
+                        ipOrHostName = ipOrHostName.ToLowerInvariant().Split('.')[0];
                         IPHostEntry hostEntry = Dns.GetHostEntry(ipOrHostName);
                         foreach (IPAddress a in hostEntry.AddressList)
                             if (a.AddressFamily == AddressFamily.InterNetwork || a.AddressFamily == AddressFamily.InterNetworkV6) {
@@ -619,7 +619,7 @@ namespace vApus.DistributedTest {
                             }
 
                         ip = address.ToString();
-                        hostName = ipOrHostName != "localhost" ? hostEntry.HostName.ToLower() : "localhost";
+                        hostName = ipOrHostName != "localhost" ? hostEntry.HostName.ToLowerInvariant() : "localhost";
                     }
 
                     lock (_lock)

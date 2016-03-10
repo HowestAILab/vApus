@@ -84,7 +84,6 @@ namespace vApus.SolutionTree {
                     foreach (SolutionComponent component in _solutionComponentViews.GetKeys())
                         if (component is BaseItem) {
                             var item = component as BaseItem;
-                            List<BaseSolutionComponentView> views = _solutionComponentViews.GetValues(component);
                             if (item.Parent == solutionComponent)
                                 toRemove.Add(component);
                         }
@@ -248,12 +247,6 @@ namespace vApus.SolutionTree {
         public static bool ContainsKey(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent key) {
             foreach (var kvp in l)
                 if (kvp.Key == key)
-                    return true;
-            return false;
-        }
-        public static bool ContainsKVP(this List<KeyValuePair<SolutionComponent, BaseSolutionComponentView>> l, SolutionComponent key, BaseSolutionComponentView value) {
-            foreach (var kvp in l)
-                if (kvp.Key == key && kvp.Value == value)
                     return true;
             return false;
         }

@@ -31,7 +31,6 @@
             this.panel2 = new System.Windows.Forms.FlowLayoutPanel();
             this.label2 = new System.Windows.Forms.Label();
             this.panel3 = new System.Windows.Forms.Panel();
-            this.llblExportingResults = new System.Windows.Forms.LinkLabel();
             this.llblSavingResults = new System.Windows.Forms.LinkLabel();
             this.llblProgressNotification = new System.Windows.Forms.LinkLabel();
             this.llblFirewall = new System.Windows.Forms.LinkLabel();
@@ -111,7 +110,6 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.panel3.AutoScroll = true;
-            this.panel3.Controls.Add(this.llblExportingResults);
             this.panel3.Controls.Add(this.llblSavingResults);
             this.panel3.Controls.Add(this.llblProgressNotification);
             this.panel3.Controls.Add(this.llblFirewall);
@@ -124,24 +122,6 @@
             this.panel3.Size = new System.Drawing.Size(942, 378);
             this.panel3.TabIndex = 7;
             // 
-            // llblExportingResults
-            // 
-            this.llblExportingResults.ActiveLinkColor = System.Drawing.Color.Black;
-            this.llblExportingResults.AutoEllipsis = true;
-            this.llblExportingResults.AutoSize = true;
-            this.llblExportingResults.DisabledLinkColor = System.Drawing.Color.Black;
-            this.llblExportingResults.LinkColor = System.Drawing.Color.Black;
-            this.llblExportingResults.Location = new System.Drawing.Point(15, 201);
-            this.llblExportingResults.Margin = new System.Windows.Forms.Padding(3, 0, 3, 20);
-            this.llblExportingResults.Name = "llblExportingResults";
-            this.llblExportingResults.Size = new System.Drawing.Size(565, 23);
-            this.llblExportingResults.TabIndex = 4;
-            this.llblExportingResults.TabStop = true;
-            this.llblExportingResults.Tag = "1";
-            this.llblExportingResults.Text = "Set auto-export results to Excel when a test is successfully finished";
-            this.llblExportingResults.VisitedLinkColor = System.Drawing.Color.Black;
-            this.llblExportingResults.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbl_LinkClicked);
-            // 
             // llblSavingResults
             // 
             this.llblSavingResults.ActiveLinkColor = System.Drawing.Color.Black;
@@ -152,11 +132,12 @@
             this.llblSavingResults.Location = new System.Drawing.Point(15, 158);
             this.llblSavingResults.Margin = new System.Windows.Forms.Padding(3, 0, 3, 20);
             this.llblSavingResults.Name = "llblSavingResults";
-            this.llblSavingResults.Size = new System.Drawing.Size(650, 23);
+            this.llblSavingResults.Size = new System.Drawing.Size(766, 23);
             this.llblSavingResults.TabIndex = 3;
             this.llblSavingResults.TabStop = true;
-            this.llblSavingResults.Tag = "5";
-            this.llblSavingResults.Text = "Set a connection to a MySQL server for storing stress test and monitor results";
+            this.llblSavingResults.Tag = "3";
+            this.llblSavingResults.Text = "Enable publishing counters, metrics and messages for storing stress test and moni" +
+    "tor results";
             this.llblSavingResults.VisitedLinkColor = System.Drawing.Color.Black;
             this.llblSavingResults.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbl_LinkClicked);
             // 
@@ -173,7 +154,7 @@
             this.llblProgressNotification.Size = new System.Drawing.Size(642, 23);
             this.llblProgressNotification.TabIndex = 2;
             this.llblProgressNotification.TabStop = true;
-            this.llblProgressNotification.Tag = "7";
+            this.llblProgressNotification.Tag = "5";
             this.llblProgressNotification.Text = "Enable test progress notification to be notified via e-mail when you are AFK";
             this.llblProgressNotification.VisitedLinkColor = System.Drawing.Color.Black;
             this.llblProgressNotification.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbl_LinkClicked);
@@ -191,7 +172,7 @@
             this.llblFirewall.Size = new System.Drawing.Size(830, 46);
             this.llblFirewall.TabIndex = 1;
             this.llblFirewall.TabStop = true;
-            this.llblFirewall.Tag = "9";
+            this.llblFirewall.Tag = "7";
             this.llblFirewall.Text = "Disable the Windows firewall and Windows update to ensure that communication won\'" +
     "t be blocked\r\nand that the client will not restart automatically to install upda" +
     "tes";
@@ -211,7 +192,7 @@
             this.llblUpdate.Size = new System.Drawing.Size(508, 23);
             this.llblUpdate.TabIndex = 0;
             this.llblUpdate.TabStop = true;
-            this.llblUpdate.Tag = "8";
+            this.llblUpdate.Tag = "6";
             this.llblUpdate.Text = "Set an update server to be notified about new vApus updates";
             this.llblUpdate.VisitedLinkColor = System.Drawing.Color.Black;
             this.llblUpdate.LinkClicked += new System.Windows.Forms.LinkLabelLinkClickedEventHandler(this.llbl_LinkClicked);
@@ -249,7 +230,6 @@
         private System.Windows.Forms.FlowLayoutPanel panel2;
         private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel3;
-        private System.Windows.Forms.LinkLabel llblExportingResults;
         private System.Windows.Forms.LinkLabel llblSavingResults;
         private System.Windows.Forms.LinkLabel llblProgressNotification;
         private System.Windows.Forms.LinkLabel llblFirewall;

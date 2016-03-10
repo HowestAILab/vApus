@@ -9,6 +9,7 @@
 using System;
 using System.CodeDom.Compiler;
 using System.Drawing;
+using System.Threading;
 using System.Windows.Forms;
 
 namespace vApus.StressTest {
@@ -35,7 +36,6 @@ namespace vApus.StressTest {
         public ConnectionProxyPool TryCompile(bool debug) {
             Cursor = Cursors.WaitCursor;
 
-            var connection = new Connection();
             var stub = new Connection();
             stub.ConnectionProxy = ConnectionProxyCode.Parent as ConnectionProxy;
             var connectionProxyPool = new ConnectionProxyPool(stub);
@@ -85,6 +85,8 @@ namespace vApus.StressTest {
                 AddSuccessButton();
             else if (CompileError != null)
                 CompileError(this, null);
+
+            Thread.Sleep(100); //If trying to compile to fast it can go wrong.
 
             Cursor = Cursors.Default;
 

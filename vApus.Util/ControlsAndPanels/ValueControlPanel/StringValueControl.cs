@@ -37,13 +37,15 @@ namespace vApus.Util {
                 txt.Leave += txt_Leave;
                 txt.KeyUp += txt_KeyUp;
                 txt.VisibleChanged += txt_VisibleChanged;
-            } else {
+                
+                base.ValueControl = txt;
+            }
+            else {
                 txt = base.ValueControl as TextBox;
             }
 
             txt.Text = value.__Value as string;
 
-            base.ValueControl = txt;
 
             if (IsEncrypted) {
                 pic = new PictureBox();

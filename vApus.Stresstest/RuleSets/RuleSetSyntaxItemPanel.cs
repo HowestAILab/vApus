@@ -101,7 +101,7 @@ namespace vApus.StressTest {
                     }
                 }
             }
-            base.SetValues(values.ToArray());
+            base.SetValues(false, values.ToArray());
         }
 
         private BaseValueControl.Value CreateValue(SyntaxItem syntaxItem, string input) {
