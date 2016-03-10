@@ -57,7 +57,8 @@ namespace vApus.Publish {
                     MessageBox.Show("The endpoint server must be reachable from a remote location, otherwise distributed testing won't work!\nBe sure that '" + host + "' is what you want.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Warning);
             }
             else {
-                MessageBox.Show("Failed to connect to the given endpoint.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                string warning = "Failed to connect to the given endpoint.";
+                Loggers.Log(Level.Warning, warning, null, new object[] { sender, e });
             }
         }
 
