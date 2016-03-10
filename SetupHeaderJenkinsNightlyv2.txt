@@ -1,12 +1,12 @@
 [Setup]
 AppName=vApus v2
 AppVerName=vApus v2
-DefaultDirName={pf}\Sizing Servers\vApus v2.1
+DefaultDirName={pf}\Sizing Servers\vApus v2
 DefaultGroupName=Sizing Servers
 UninstallDisplayIcon={app}\vApus.exe
 Compression=lzma
 SolidCompression=true
-OutputDir=C:\jenkins\workspace\vApus v2.1 nightly
+OutputDir=C:\jenkins\workspace\vApus v2 nightly
 ArchitecturesAllowed=x64
 ArchitecturesInstallIn64BitMode=x64
 OutputBaseFilename=Setup_vApus_v2.1
