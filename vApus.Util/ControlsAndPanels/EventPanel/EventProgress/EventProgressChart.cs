@@ -68,7 +68,7 @@ namespace vApus.Util {
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.ResizeRedraw, true);
 
-            _refreshGuiTmr = new System.Timers.Timer(100);
+            _refreshGuiTmr = new System.Timers.Timer(10);
             _refreshGuiTmr.Elapsed += _refreshGuiTmr_Elapsed;
         }
         #endregion

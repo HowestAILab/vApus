@@ -5,14 +5,14 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
-using System.IO;
-using System.Runtime.InteropServices;
-using System.Windows.Forms;
-using System.Text;
 using System.Drawing;
+using System.IO;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Windows.Forms;
 
 namespace vApus.Util {
     /// <summary>
@@ -22,10 +22,9 @@ namespace vApus.Util {
 
         #region Fields
         private List<EventPanelEvent> _events = new List<EventPanelEvent>();
-        //private int _previousHeight, _previousWidth;
 
-        private StringBuilder _sb = new StringBuilder();
-        private System.Timers.Timer _tmr = new System.Timers.Timer(100);
+        private Queue<string> _backlog = new Queue<string>();
+        private Timer _tmr = new Timer() { Interval = 10 };
 
         private readonly object _lock = new object();
 
@@ -51,16 +50,27 @@ namespace vApus.Util {
         /// </summary>
         public EventView() {
             InitializeComponent();
-            _tmr.Elapsed += _tmr_Elapsed;
+            _tmr.Tick += _tmr_Tick;
             fctb.DefaultContextMenu(true);
         }
 
-        private void _tmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+        private void _tmr_Tick(object sender, EventArgs e) {
             if (_tmr != null)
                 lock (_lock) {
                     _tmr.Stop();
-                    fctb.AppendText(_sb.ToString());
-                    _sb.Clear();
+
+                    bool startTimer = false;
+                    int count = _backlog.Count;
+                    if (count > 1000) {
+                        count = 1000;
+                        startTimer = true;
+                    }
+
+                    var sb = new StringBuilder();
+                    for (int i = 0; i != count; i++) sb.AppendLine(_backlog.Dequeue());
+                    fctb.AppendText(sb.ToString());
+
+                    if (startTimer) _tmr.Start();
                 }
         }
 
@@ -77,7 +87,7 @@ namespace vApus.Util {
                     _events.Add(item);
 
                     if (eventType >= Filter) {
-                        _sb.AppendLine(item.ToString());
+                        _backlog.Enqueue(item.ToString());
                         _tmr.Stop();
                         _tmr.Start();
                     }
@@ -85,37 +95,40 @@ namespace vApus.Util {
         }
 
         private void SetEvents() {
-            lock (_lock) {
-                _sb.Clear();
-                foreach (var item in _events)
-                    if (item.EventType >= Filter)
-                        _sb.AppendLine(item.ToString());
+            if (_tmr != null)
+                lock (_lock) {
+                    _tmr.Stop();
+                    fctb.Clear();
 
-                fctb.Text = _sb.ToString();
-                _sb.Clear();
-            }
+                    _backlog.Clear();
+                    foreach (var item in _events)
+                        if (item.EventType >= Filter)
+                            _backlog.Enqueue(item.ToString());
+
+                    _tmr.Start();
+                }
         }
 
-        public EventPanelEvent[] GetEvents() {
-            lock (_lock) {
-                return _events.ToArray();
-            }
-        }
+        public EventPanelEvent[] GetEvents() { lock (_lock) return _events.ToArray(); }
 
         public void ClearEvents() {
             lock (_lock) {
+                if (_tmr != null)
+                    _tmr.Stop();
+
                 _events.Clear();
                 fctb.Clear();
-                _sb.Clear();
+                _backlog.Clear();
             }
         }
 
         public void PerformMouseEnter(DateTime at) {
-            foreach (EventPanelEvent item in _events)
+            var events = GetEvents();
+            foreach (EventPanelEvent item in events)
                 if (item.At == at) {
                     List<int> lines = fctb.FindLines("(\\b" + Regex.Escape(item.At.ToString("yyyy'-'MM'-'dd HH':'mm':'ss") + " " + item.EventType) + "\\b)", RegexOptions.Singleline);
 
-                    if (lines.Count != 0) 
+                    if (lines.Count != 0)
                         SelectLine(lines[0]);
                     break;
                 }
@@ -124,7 +137,7 @@ namespace vApus.Util {
         private void SelectLine(int lineNumber) {
             if (lineNumber < fctb.LinesCount) {
                 int line = 0, start = 0, stop = 0;
-                foreach (char c in Text) {
+                foreach (char c in fctb.Text) {
                     ++stop;
                     if (line < lineNumber)
                         ++start;
@@ -142,21 +155,21 @@ namespace vApus.Util {
             if (sfd.ShowDialog() == DialogResult.OK)
                 try {
                     using (var sw = new StreamWriter(sfd.FileName)) {
-                        lock (this) {
-                            sw.WriteLine("Timestamp\tLevel\tMessage");
-                            foreach (EventPanelEvent item in _events) {
-                                sw.Write(item.At);
-                                sw.Write("\t");
-                                sw.Write((int)item.EventType);
-                                sw.Write("\t");
-                                sw.WriteLine(item.Message);
-                            }
+                        var events = GetEvents();
+
+                        sw.WriteLine("Timestamp\tLevel\tMessage");
+                        foreach (EventPanelEvent item in events) {
+                            sw.Write(item.At);
+                            sw.Write("\t");
+                            sw.Write(item.EventType);
+                            sw.Write("\t");
+                            sw.WriteLine(item.Message);
                         }
                         sw.Flush();
                     }
                 }
                 catch {
-                    MessageBox.Show("Could not write to '" + sfd.FileName + "'!", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    Loggers.Log(Level.Error, "Could not export event panel messages to '" + sfd.FileName + "'!");
                 }
         }
         #endregion
