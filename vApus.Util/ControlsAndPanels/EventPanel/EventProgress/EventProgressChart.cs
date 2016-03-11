@@ -165,6 +165,13 @@ namespace vApus.Util {
             return pe;
         }
 
+        public void CancelAddingEventsToGui() {
+            if (_refreshGuiTmr != null) {
+                _refreshGuiTmr.Stop();
+                Invalidate();
+            }
+        }
+
         private void _refreshGuiTmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
             try {
                 if (_refreshGuiTmr != null) {

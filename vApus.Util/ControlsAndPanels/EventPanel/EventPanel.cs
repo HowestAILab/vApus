@@ -26,6 +26,8 @@ namespace vApus.Util {
         private static readonly object _staticLock = new object();
         private static List<EventPanel> _eventPanels = new List<EventPanel>();
 
+        private static volatile bool _cancelAddingStaticEvents;
+
         private static void CleanEventPanels() {
             var l = new List<EventPanel>();
             foreach (var ep in _eventPanels)
@@ -46,6 +48,8 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="message"></param>
         public static void AddEvent(string message) {
+            if (_cancelAddingStaticEvents) return;
+
             lock (_staticLock) {
                 CleanEventPanels();
 
@@ -163,7 +167,7 @@ namespace vApus.Util {
                 int tried = 0;
                 Retry:
                 try {
-                    return eventView.GetEvents();                    
+                    return eventView.GetEvents();
                 }
                 catch {
                     if (++tried != 3) {
@@ -180,7 +184,7 @@ namespace vApus.Util {
         }
 
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at) {
-            lock (_lock) 
+            lock (_lock)
                 AddEvent(eventType, eventPrograssBarEventColor, message, at, true);
         }
         private void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at, bool refreshGui) {
@@ -232,8 +236,18 @@ namespace vApus.Util {
             if (eventProgressBar.EndOfTimeFrame != dateTime) eventProgressBar.SetEndOfTimeFrameTo(dateTime);
         }
         public void ClearEvents() {
+            _cancelAddingStaticEvents = false;
             eventProgressBar.ClearEvents();
             eventView.ClearEvents();
+        }
+
+        /// <summary>
+        /// Call ClearEvents() to allow events to be added again.
+        /// </summary>
+        public void CancelAddingStaticEventsToGui() {
+            _cancelAddingStaticEvents = true;
+            eventProgressBar.CancelAddingEventsToGui();
+            eventView.CancelAddingEventsToGui();
         }
 
         public void Export() {

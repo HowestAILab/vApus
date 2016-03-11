@@ -421,6 +421,8 @@ namespace vApus.DistributedTest {
         /// </summary>
         public void PerformStopClick() {
             if (btnStop.Enabled) {
+                fastResultsControl.CancelAddingStaticEventsToGui();
+
                 int busyThreadCount = -1;
                 if (_stressTestCore != null) {
                     busyThreadCount = _stressTestCore.BusyThreadCount;
@@ -480,6 +482,7 @@ namespace vApus.DistributedTest {
         ///     Only used in stop
         /// </summary>
         private void StopStressTest(Exception ex = null) {
+            fastResultsControl.CancelAddingStaticEventsToGui();
             if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
                 try {
                     fastResultsControl.SetClientMonitoring(_stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage,

@@ -714,6 +714,9 @@ namespace vApus.StressTest {
         }
         public void StopStressTest() {
             if (!btnStop.Enabled) return;
+
+            fastResultsControl.CancelAddingStaticEventsToGui();
+
             toolStrip.Enabled = false;
             if (_stressTestCore == null || (_monitorAfterCountDown != null && _monitorAfterCountDown.CountdownTime != 0)) {
                 Stop(StressTestStatus.Cancelled);
@@ -853,6 +856,8 @@ namespace vApus.StressTest {
         ///     Only used in stop and dispose.
         /// </summary>
         private void Stop_StressTest(StressTestStatus stressTestStatus, Exception ex = null) {
+            fastResultsControl.CancelAddingStaticEventsToGui();
+
             btnSchedule.Tag = null;
             btnSchedule.Text = string.Empty;
             tmrSchedule.Stop();

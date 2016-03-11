@@ -150,7 +150,8 @@ namespace vApus.StressTest {
                 if (monitors == null || monitors.Length == 0) {
                     kvpMonitor.Key = "No monitor(s)";
                     kvpMonitor.BackColor = Color.Orange;
-                } else {
+                }
+                else {
                     lbtnStressTest.Visible = true;
                     kvpMonitor.Key = monitors.Combine(", ");
                     kvpMonitor.BackColor = Color.LightBlue;
@@ -187,7 +188,8 @@ namespace vApus.StressTest {
                 kvpParallelExecutions.Value = (maximumPersistentConnections == 0 ? "∞" : maximumPersistentConnections.ToString()) + " maximum persistent connections, ";
                 kvpParallelExecutions.Value += (persistentConnectionsPerHostname == 0 ? "∞" : persistentConnectionsPerHostname.ToString()) + " persistent connections per hostname";
 
-            } else {
+            }
+            else {
                 kvpParallelExecutions.Value = "No";
             }
 
@@ -237,7 +239,8 @@ namespace vApus.StressTest {
                 lblUpdatesIn.ForeColor = Color.SteelBlue;
                 lblUpdatesIn.Text = "updates in " + countDown;
                 lblUpdatesIn.Image = null;
-            } else {
+            }
+            else {
                 lblUpdatesIn.ForeColor = Color.DarkGray;
                 lblUpdatesIn.Text = "updates in  ";
                 lblUpdatesIn.Image = Resources.Wait;
@@ -263,12 +266,14 @@ namespace vApus.StressTest {
             kvmThreadsInUse.Value = threadsInUse.ToString();
             if (cpuUsage == -1) {
                 kvmCPUUsage.Value = "N/A";
-            } else {
+            }
+            else {
                 kvmCPUUsage.Value = Math.Round(cpuUsage, 2).ToString() + " %";
 
                 if (cpuUsage < 60) {
                     kvmCPUUsage.BackColor = Color.GhostWhite;
-                } else {
+                }
+                else {
                     kvmCPUUsage.BackColor = Color.Orange;
 
                     lastWarning = cpuUsage + " % CPU Usage";
@@ -278,11 +283,13 @@ namespace vApus.StressTest {
 
             if (memoryUsage == -1 || totalVisibleMemory == -1) {
                 kvmMemoryUsage.Value = "N/A";
-            } else {
+            }
+            else {
                 kvmMemoryUsage.Value = memoryUsage.ToString() + " / " + totalVisibleMemory + " MB";
                 if (memoryUsage < 0.9 * totalVisibleMemory) {
                     kvmMemoryUsage.BackColor = Color.GhostWhite;
-                } else if (memoryUsage != 0) {
+                }
+                else if (memoryUsage != 0) {
                     kvmMemoryUsage.BackColor = Color.Orange;
 
                     lastWarning = memoryUsage + " of " + totalVisibleMemory + " MB used";
@@ -296,11 +303,13 @@ namespace vApus.StressTest {
                 kvmNic.Value = nicBandwidth + " Mbps";
             if (nicsSent == -1) {
                 kvmNicsSent.Value = "N/A";
-            } else {
+            }
+            else {
                 kvmNicsSent.Value = Math.Round(nicsSent, 2).ToString() + " %";
                 if (nicsSent < 90) {
                     kvmNicsSent.BackColor = Color.GhostWhite;
-                } else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
+                }
+                else if (!float.IsPositiveInfinity(nicsSent) && !float.IsNegativeInfinity(nicsSent)) {
                     kvmNicsSent.BackColor = Color.Orange;
 
                     lastWarning = nicsSent + " % NIC Usage (Sent)";
@@ -309,11 +318,13 @@ namespace vApus.StressTest {
             }
             if (nicsReceived == -1) {
                 kvmNicsReceived.Value = "N/A";
-            } else {
+            }
+            else {
                 kvmNicsReceived.Value = Math.Round(nicsReceived, 2).ToString() + " %";
                 if (nicsReceived < 90) {
                     kvmNicsReceived.BackColor = Color.GhostWhite;
-                } else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
+                }
+                else if (!float.IsPositiveInfinity(nicsReceived) && !float.IsNegativeInfinity(nicsReceived)) {
                     kvmNicsReceived.BackColor = Color.Orange;
 
                     lastWarning = nicsReceived + " % NIC Usage (Received)";
@@ -412,7 +423,8 @@ namespace vApus.StressTest {
                     List<object[]> rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows);
                     if (rows.Count > e.RowIndex && rows[0].Length > e.ColumnIndex)
                         e.Value = rows[e.RowIndex][e.ColumnIndex];
-                } else {
+                }
+                else {
                     string monitorToString = null;
                     foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
                     if (monitorToString != null) {
@@ -433,7 +445,8 @@ namespace vApus.StressTest {
                         }
                     }
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed displaying cell value.", ex, new object[] { sender, e });
             }
         }
@@ -487,7 +500,10 @@ namespace vApus.StressTest {
         public void SetStressTestStopped() {
             lblUpdatesIn.Text = string.Empty;
             btnRerunning.Visible = false;
+            CancelAddingStaticEventsToGui();
         }
+
+        public void CancelAddingStaticEventsToGui() { epnlMessages.CancelAddingStaticEventsToGui(); }
 
         /// <summary>
         ///     label updates in visibility + label stopped forecolor and text.
@@ -568,7 +584,8 @@ namespace vApus.StressTest {
                         break;
                 }
                 SetMeasuredRuntime();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed setting stress test stopped.", ex, new object[] { stressTestResult, exception });
             }
         }
@@ -592,7 +609,8 @@ namespace vApus.StressTest {
         public void AddEvent(string message, Color eventColor, Level logLevel = Level.Info) {
             try {
                 epnlMessages.AddEvent((EventViewEventType)logLevel, eventColor, message);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed adding event.", ex, new object[] { message, eventColor, logLevel });
             }
         }
@@ -613,7 +631,8 @@ namespace vApus.StressTest {
 
             if (currentEventCount == 0 || toSetCount < currentEventCount) {
                 epnlMessages.SetEvents(events);
-            } else if (toSetCount > currentEventCount) {
+            }
+            else if (toSetCount > currentEventCount) {
                 var eventSubset = new List<EventPanelEvent>(toSetCount - currentEventCount);
                 for (int i = currentEventCount; i != toSetCount; i++)
                     eventSubset.Add(events[i]);
@@ -712,7 +731,8 @@ namespace vApus.StressTest {
                         sw.Write(GetDisplayedResults());
                         sw.Flush();
                     }
-                } catch {
+                }
+                catch {
                     MessageBox.Show("Could not access file: " + sfd.FileName, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 }
         }
@@ -757,7 +777,8 @@ namespace vApus.StressTest {
                 splitTop.SplitterDistance = splitTop.Panel1MinSize;
                 splitTop.IsSplitterFixed = true;
                 splitTop.BackColor = Color.White;
-            } else {
+            }
+            else {
                 btnCollapseExpand.Text = "-";
                 splitTop.SplitterDistance = 85;
                 splitTop.IsSplitterFixed = false;
@@ -782,7 +803,8 @@ namespace vApus.StressTest {
 
                 splitContainer.IsSplitterFixed = epnlMessages.Collapsed;
                 BackColor = splitContainer.IsSplitterFixed ? Color.Transparent : SystemColors.Control;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed setting collapsed or expanded.", ex, new object[] { sender, e });
             }
 

@@ -94,6 +94,12 @@ namespace vApus.Util {
                 }
         }
 
+        public void CancelAddingEventsToGui() {
+            if (_tmr != null) 
+                _tmr.Stop();
+        }
+
+
         private void SetEvents() {
             if (_tmr != null)
                 lock (_lock) {

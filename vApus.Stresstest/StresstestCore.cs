@@ -150,6 +150,7 @@ namespace vApus.StressTest {
                     delegate { ConcurrencyStarted(this, new ConcurrencyResultEventArgs(_concurrencyResult)); }, null);
         }
         private void SetConcurrencyStopped() {
+            _concurrencyResult.StoppedAt = DateTime.Now;
             if (!_cancel && ConcurrencyStopped != null)
                 SynchronizationContextWrapper.SynchronizationContext.Send(
                     delegate { ConcurrencyStopped(this, new ConcurrencyResultEventArgs(_concurrencyResult)); }, null);
