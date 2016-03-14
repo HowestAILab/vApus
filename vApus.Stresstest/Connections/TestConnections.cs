@@ -43,14 +43,15 @@ namespace vApus.StressTest {
 
                     foreach (Connection connection in connections) {
                         //Use the state object, otherwise there will be a reference mismatch.
-                        var t = new Thread(delegate(object state) {
+                        var t = new Thread(delegate (object state) {
                             try {
                                 _testWorkItem = new TestWorkItem();
                                 _testWorkItem.Message += _testWorkItem_Message;
                                 _testWorkItem.TestConnection(state as Connection);
                                 if (Interlocked.Increment(ref testedConnections) == totalNumberOfConnections)
                                     _testAutoResetEvent.Set();
-                            } catch (Exception ex) {
+                            }
+                            catch (Exception ex) {
                                 Loggers.Log(Level.Warning, "Failed testing connections.", ex, new object[] { state });
                             }
                         });
@@ -58,7 +59,8 @@ namespace vApus.StressTest {
                         t.Start(connection);
                     }
                     _testAutoResetEvent.WaitOne();
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed testing connections.", ex, new object[] { connections });
                 }
             });
@@ -109,14 +111,15 @@ namespace vApus.StressTest {
 
                     if (Message != null)
                         Message(this, new MessageEventArgs(connection, false, sb.ToString()));
-                } else {
-                    string error;
-                    connectionProxyPool.TestConnection(out error);
+                }
+                else {
+                    string error = connectionProxyPool.TestConnection();
                     SynchronizationContextWrapper.SynchronizationContext.Post(delegate {
                         if (error == null) {
                             if (Message != null)
                                 Message(this, new MessageEventArgs(connection, true, "OK"));
-                        } else {
+                        }
+                        else {
                             if (Message != null)
                                 Message(this, new MessageEventArgs(connection, false, "Failed to connect with the given credentials: " + error));
                         }

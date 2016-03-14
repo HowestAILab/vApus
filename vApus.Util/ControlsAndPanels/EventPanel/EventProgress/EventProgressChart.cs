@@ -37,6 +37,8 @@ namespace vApus.Util {
 
         private readonly ToolTip toolTip = new ToolTip();
 
+        private readonly object _lock = new object();
+
         private DateTime _beginOfTimeFrame = DateTime.MinValue, _endOfTimeFrame = DateTime.MaxValue;
         private bool _eventToolTip = true;
 
@@ -51,7 +53,7 @@ namespace vApus.Util {
 
         private bool _behaveAsBar = false;
 
-        private System.Timers.Timer _refreshGuiTmr;
+        private Timer _tmr;
         #endregion
 
         #region Constructor
@@ -68,8 +70,8 @@ namespace vApus.Util {
                 ControlStyles.AllPaintingInWmPaint | ControlStyles.UserPaint | ControlStyles.OptimizedDoubleBuffer |
                 ControlStyles.ResizeRedraw, true);
 
-            _refreshGuiTmr = new System.Timers.Timer(10);
-            _refreshGuiTmr.Elapsed += _refreshGuiTmr_Elapsed;
+            _tmr = new Timer() { Interval = 10 };
+            _tmr.Tick += _tmr_Tick;
         }
         #endregion
 
@@ -132,50 +134,49 @@ namespace vApus.Util {
         /// <param name="color"></param>
         /// <param name="message"></param>
         /// <param name="at"></param>
-        public ChartProgressEvent AddEvent(Color color, string message, DateTime at, bool refreshGui) {
-            var pe = new ChartProgressEvent(this, color, message, at);
-            pe.MouseEnter += pe_MouseEnter;
-            pe.MouseLeave += pe_MouseLeave;
-            pe.Click += pe_Click;
+        public void AddEvent(Color color, string message, DateTime at) {
+            lock (_lock) {          
+                if (_tmr != null) {
+                    _tmr.Stop();
 
-            _progressEvents.Add(pe);
+                    var pe = new ChartProgressEvent(this, color, message, at);
+                    pe.MouseEnter += pe_MouseEnter;
+                    pe.MouseLeave += pe_MouseLeave;
+                    pe.Click += pe_Click;
 
-            //Keep categorized for faster sorting.
-            bool contains = false;
-            foreach (var kvp in _sortedProgressEvents)
-                if (kvp.Key == color) {
-                    kvp.Value.Add(pe);
+                    _progressEvents.Add(pe);
 
-                    contains = true;
-                    break;
+                    //Keep categorized for faster sorting.
+                    bool contains = false;
+                    foreach (var kvp in _sortedProgressEvents)
+                        if (kvp.Key == color) {
+                            kvp.Value.Add(pe);
+
+                            contains = true;
+                            break;
+                        }
+                    if (!contains) {
+                        var kvp = new KeyValuePair<Color, HashSet<ChartProgressEvent>>(color, new HashSet<ChartProgressEvent>());
+                        kvp.Value.Add(pe);
+                        _sortedProgressEvents.Add(kvp);
+                    }
+
+                    _tmr.Start();
                 }
-            if (!contains) {
-                var kvp = new KeyValuePair<Color, HashSet<ChartProgressEvent>>(color, new HashSet<ChartProgressEvent>());
-                kvp.Value.Add(pe);
-                _sortedProgressEvents.Add(kvp);
             }
-
-            if (refreshGui && _refreshGuiTmr != null) {
-                _refreshGuiTmr.Stop();
-                _refreshGuiTmr.Start();
-            }
-            Invalidate();
-
-
-            return pe;
         }
 
         public void CancelAddingEventsToGui() {
-            if (_refreshGuiTmr != null) {
-                _refreshGuiTmr.Stop();
+            if (_tmr != null) {
+                _tmr.Stop();
                 Invalidate();
             }
         }
 
-        private void _refreshGuiTmr_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
+        private void _tmr_Tick(object sender, EventArgs e) {
             try {
-                if (_refreshGuiTmr != null) {
-                    _refreshGuiTmr.Stop();
+                if (_tmr != null) {
+                    _tmr.Stop();
                     Invalidate();
                 }
             }
@@ -184,14 +185,12 @@ namespace vApus.Util {
             }
         }
 
-        public List<ChartProgressEvent> GetEvents() {
-            return _progressEvents;
-        }
-
         public void ClearEvents() {
-            _progressEvents.Clear();
-            _sortedProgressEvents.Clear();
-            Invalidate();
+            lock (_lock) {
+                _progressEvents.Clear();
+                _sortedProgressEvents.Clear();
+                Invalidate();
+            }
         }
 
         private void pe_MouseEnter(object sender, EventArgs e) { if (EventMouseEnter != null) EventMouseEnter(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
@@ -201,40 +200,41 @@ namespace vApus.Util {
         private void pe_Click(object sender, EventArgs e) { if (EventClick != null) EventClick(this, new ProgressEventEventArgs(sender as ChartProgressEvent)); }
 
         protected override void OnPaint(PaintEventArgs e) {
-            try {
-                base.OnPaint(e);
+            lock (_lock)
+                try {
+                    base.OnPaint(e);
 
-                Graphics g = e.Graphics;
-                g.SmoothingMode = SmoothingMode.HighSpeed;
+                    Graphics g = e.Graphics;
+                    g.SmoothingMode = SmoothingMode.HighSpeed;
 
-                DrawBackground(g);
-                ChartProgressEvent entered = null;
+                    DrawBackground(g);
+                    ChartProgressEvent entered = null;
 
-                //Make sure the most important events are drawn, hidden events won't be drawn.
-                //Faster contains with a hash set then with a list.
-                var Xs = new HashSet<int>();
-                _sortedProgressEvents.Sort(ChartProgressEventComparer.GetInstance());
+                    //Make sure the most important events are drawn, hidden events won't be drawn.
+                    //Faster contains with a hash set then with a list.
+                    var Xs = new HashSet<int>();
+                    _sortedProgressEvents.Sort(ChartProgressEventComparer.GetInstance());
 
-                foreach (var kvp in _sortedProgressEvents)
-                    foreach (var pe in kvp.Value) {
-                        if (pe.Entered) {
-                            entered = pe;
-                        }
-                        else {
-                            int x = pe.X;
-                            if (x < 1073741952 && !Xs.Contains(x)) { //Max value possible, Google it if you want
-                                Xs.Add(x);
-                                pe.Draw(g);
+                    foreach (var kvp in _sortedProgressEvents)
+                        foreach (var pe in kvp.Value) {
+                            if (pe.Entered) {
+                                entered = pe;
+                            }
+                            else {
+                                int x = pe.X;
+                                if (x < 1073741952 && !Xs.Contains(x)) { //Max value possible, Google it if you want
+                                    Xs.Add(x);
+                                    pe.Draw(g);
+                                }
                             }
                         }
-                    }
-                Xs = null;
-                if (entered != null)
-                    entered.Draw(g); //Out of bounds check is also done in the fx
-            }
-            catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed drawing the chart.", ex, new object[] { e });
-            }
+                    Xs = null;
+                    if (entered != null)
+                        entered.Draw(g); //Out of bounds check is also done in the fx
+                }
+                catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed drawing the chart.", ex, new object[] { e });
+                }
         }
         /// <summary>
         /// Fill a rectangle to the now progress event location.
@@ -327,13 +327,11 @@ namespace vApus.Util {
         public void SetEndOfTimeFrameToNow() {
             _endOfTimeFrame = DateTime.Now;
             _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
+            Invalidate();
         }
         public void SetEndOfTimeFrameTo(DateTime dateTime) {
             _endOfTimeFrame = dateTime;
-            if (BehaveAsBar)
-                _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, DateTime.Now);
-            else
-                _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, _endOfTimeFrame);
+            _nowProgressEvent = new ChartProgressEvent(this, Color.Transparent, string.Empty, BehaveAsBar ? DateTime.Now : _endOfTimeFrame);
             Invalidate();
         }
         #endregion

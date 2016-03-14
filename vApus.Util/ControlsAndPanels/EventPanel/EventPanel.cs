@@ -11,9 +11,9 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
+using System.Collections.Concurrent;
 
 namespace vApus.Util {
     /// <summary>
@@ -51,12 +51,10 @@ namespace vApus.Util {
             if (_cancelAddingStaticEvents) return;
 
             lock (_staticLock) {
-                CleanEventPanels();
-
-                try {
+                try {                   
                     SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                         foreach (var ep in _eventPanels)
-                            ep.AddEvent(EventViewEventType.Info, Color.Black, message);
+                            ep.AddEvent(EventViewEventType.Info, Color.Black,  message, DateTime.Now);
                     }, null);
                 }
                 catch (Exception ex) {
@@ -64,6 +62,7 @@ namespace vApus.Util {
                 }
             }
         }
+
         #endregion
 
         public event EventHandler CollapsedChanged;
@@ -184,47 +183,51 @@ namespace vApus.Util {
         }
 
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at) {
-            lock (_lock)
-                AddEvent(eventType, eventPrograssBarEventColor, message, at, true);
-        }
-        private void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at, bool refreshGui) {
-            if (eventType > EventViewEventType.Info)
-                eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at, refreshGui);
-            eventView.AddEvent(eventType, message, at, eventPrograssBarEventColor);
+            lock (_lock) {
+                if (eventType > EventViewEventType.Info)
+                    eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
+                eventView.AddEvent(eventType, message, at, eventPrograssBarEventColor);
 
 
-            if (eventType == EventViewEventType.Error && _expandOnErrorEvent) {
-                Collapsed = false;
-
-                eventProgressBar.PerformMouseEnter(at, false);
+                if (eventType == EventViewEventType.Error && _expandOnErrorEvent) {
+                    Collapsed = false;
+                    eventProgressBar.PerformMouseEnter(at, false);
+                }
             }
         }
+
+
+
         public void AddEvents(List<EventPanelEvent> events) {
             lock (_lock) {
                 int count = events.Count;
                 if (count != 0) {
-                    EventPanelEvent epe;
-                    for (int i = 0; i < count - 1; i++) {
-                        epe = events[i];
-                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+                    for (int i = 0; i < count; i++) {
+                        var epe = events[i];
+                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At);
                     }
-                    epe = events[count - 1];
-                    AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
                 }
             }
+        }
+
+        public void AddEvents(EventPanelEvent[] events) {
+            lock (_lock) 
+                if (events.Length != 0) {
+                    for (int i = 0; i < events.Length; i++) {
+                        var epe = events[i];
+                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At);
+                    }
+                }
         }
         public void SetEvents(EventPanelEvent[] events) {
             lock (_lock) {
                 ClearEvents();
 
                 if (events.Length != 0) {
-                    EventPanelEvent epe;
-                    for (int i = 0; i < events.Length - 1; i++) {
-                        epe = events[i];
-                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+                    for (int i = 0; i < events.Length; i++) {
+                        var epe = events[i];
+                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At);
                     }
-                    epe = events[events.Length - 1];
-                    AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
                 }
             }
         }

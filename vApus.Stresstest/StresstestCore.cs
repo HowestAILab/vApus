@@ -260,13 +260,15 @@ namespace vApus.StressTest {
                         delegate {
                             try {
                                 Message(this, new MessageEventArgs(message, color, logLevel));
-                            } catch (Exception ex) {
+                            }
+                            catch (Exception ex) {
                                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
                             }
                         }, null);
 
                 Loggers.Log(logLevel, message);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Debug.WriteLine("Failed invoking message: " + message + " at log level: " + logLevel + ".\n" + ex);
             }
         }
@@ -284,7 +286,8 @@ namespace vApus.StressTest {
                 if (_cancel) return;
                 InitializeConnectionProxyPool();
                 if (_cancel) return;
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 _isFailed = true;
                 ex = e;
             }
@@ -377,7 +380,8 @@ namespace vApus.StressTest {
                                     request.ExecuteInParallelWithPrevious = true;
                                     ++parallelConnections;
                                     ++parallelThreads;
-                                } else {
+                                }
+                                else {
                                     if (string.IsNullOrWhiteSpace(request.Hostname))
                                         throw new Exception("You try to run a a test with parallel connections (specialized web test setting) but a hostname to be able to parallize correctly was not found in one or more requests.\nIf you want to use parallel connections, please make sure a hostname is present in all requests and the index of that field is defined in the Scenario Rule Set of the given scenario (double-click on it).\nWhile you are at it, check the parallel offset in ms index field and the redirects index field.\nOtherwise uncheck this feature in the advanced settings of this stress test and press 'play' again.");
                                     if (!connectionsPerHostname.ContainsKey(request.Hostname)) connectionsPerHostname.Add(request.Hostname, 0);
@@ -388,7 +392,8 @@ namespace vApus.StressTest {
                                         request.ExecuteInParallelWithPrevious = true;
                                         ++parallelConnections;
                                         ++parallelThreads;
-                                    } else {
+                                    }
+                                    else {
                                         ++parallelThreads; //Need one more. Threads used in the simulated user thread to execute.
                                         connectionsPerHostname[request.Hostname] = 0;
                                         validateRequestIndex = 1;
@@ -485,7 +490,8 @@ namespace vApus.StressTest {
 
                     if (action.LinkedToUserActionIndices.Count != 0 && !linkCloned.ContainsKey(action)) {
                         linkCloned.Add(action, actionClone);
-                    } else if (linkCloned.Count != 0) { //We can avoid the looping logic until a linkUserAction is found.
+                    }
+                    else if (linkCloned.Count != 0) { //We can avoid the looping logic until a linkUserAction is found.
                         UserAction linkUserAction;
                         if (action.IsLinked(scenario, out linkUserAction) && linkCloned.ContainsKey(linkUserAction))
                             linkCloned[linkUserAction].LinkedToUserActionIndices.Add(newScenario.Count);
@@ -518,8 +524,7 @@ namespace vApus.StressTest {
             }
 
             InvokeMessage("|->Testing the connection to the server application...");
-            string error = null;
-            _connectionProxyPool.TestConnection(out error);
+            string error = _connectionProxyPool.TestConnection();
 
             if (error == null) {
                 InvokeMessage("|-> ...Success!");
@@ -563,7 +568,8 @@ namespace vApus.StressTest {
                     Util.StringTree[] structure = null;
                     if (parameterLessStructures.ContainsKey(scenario)) {
                         structure = parameterLessStructures[scenario];
-                    } else {
+                    }
+                    else {
                         bool hasParameters;
                         structure = scenario.GetParameterizedStructure(out hasParameters);
                         if (!hasParameters) parameterLessStructures.Add(scenario, structure);
@@ -661,14 +667,16 @@ namespace vApus.StressTest {
                                 userActionStrings.TryGetValue(request, out userActionString);
 
                                 tle[i] = new TestableRequest(requestIndex, sameAsRequestIndex, parameterizedStructureArr[testPatternIndex], userActionString, request.ExecuteInParallelWithPrevious, request.ParallelOffsetInMs, _rerun);
-                            } catch (Exception ex2) {
+                            }
+                            catch (Exception ex2) {
                                 Loggers.Log(Level.Error, "Failed at determining test patterns.", ex2);
                                 loopState.Break();
                             }
                         });
 
                         testableRequests.TryUpdate(user, tle, null);
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed at determining test patterns.", ex);
                         loopState.Break();
                     }
@@ -696,7 +704,8 @@ namespace vApus.StressTest {
 
                 GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
                 GC.Collect();
-            } catch {
+            }
+            catch {
                 if (!_cancel)
                     throw;
             }
@@ -718,7 +727,8 @@ namespace vApus.StressTest {
             InvokeMessage(string.Format("       |Setting Connections for {0} Concurrent Users...", concurrentUsers));
             try {
                 _connectionProxyPool.SetAndConnectConnectionProxies(concurrentUsers, _parallelConnections * concurrentUsers);
-            } catch {
+            }
+            catch {
                 throw;
             }
         }
@@ -757,7 +767,8 @@ namespace vApus.StressTest {
 
                     if (_runDoneOnce) {
                         InvokeMessage(string.Format("|----> | Rerunning Run {0}...", run + 1), Color.LightPink);
-                    } else {
+                    }
+                    else {
                         ++_continueCounter;
 
                         //For many-to-one testing, keeping the run shared by divided tile stress test in sync.
@@ -784,7 +795,8 @@ namespace vApus.StressTest {
                     //Do the actual work and invoke when the run is finished.
                     try {
                         _threadPool.DoWorkAndWaitForIdle();
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         if (!_isDisposed)
                             InvokeMessage("|----> |Run Not Finished Succesfully!\n|Thread Pool Exception:\n" + ex, Color.Red, Level.Error);
                     }
@@ -798,7 +810,8 @@ namespace vApus.StressTest {
                             InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
                             _manyToOneWaitHandle.WaitOne();
                             InvokeMessage("Continuing...");
-                        } else {
+                        }
+                        else {
                             SetRunStopped();
                         }
                     }
@@ -832,7 +845,8 @@ namespace vApus.StressTest {
                             _runResult.PrepareForRerun();
                             SetRerunStarted();
                             goto Rerun;
-                        } else {
+                        }
+                        else {
                             SetRunStopped();
                             if (_stressTest.IsDividedStressTest) {
                                 InvokeMessage("[Many to One Waithandle after run] Waiting for Continue Message from Master...");
@@ -840,7 +854,8 @@ namespace vApus.StressTest {
                                 InvokeMessage("Continuing...");
                             }
                         }
-                    } else {
+                    }
+                    else {
                         SetRunStopped();
                     }
                 }
@@ -905,7 +920,8 @@ namespace vApus.StressTest {
                     ExecuteRequest(threadIndex, testableRequestIndex, connectionProxy, testableRequests, testableRequestIndex == 0 ? initialDelayInMilliseconds : 0, delaysInMilliseconds, out incrementIndex);
                     testableRequestIndex += incrementIndex;
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 if (!_cancel && !_break) InvokeMessage("Work failed for " + Thread.CurrentThread.Name + ".\n" + e, Color.Red, Level.Error);
             }
         }
@@ -955,7 +971,8 @@ namespace vApus.StressTest {
 
                     //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
                     _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, testableRequestIndex, testableRequest, connectionProxy, initialDelayInMilliseconds, delaysInMilliseconds[testableRequestIndex]);
-                } else {
+                }
+                else {
                     int parallelCount = exclusiveEnd - testableRequestIndex;
                     //Get the connection proxies, this first one is not a parallel one but the connection proxy for the specific user, this way data (cookies for example) can be saved for other requests.
                     IConnectionProxy[] parallelConnectionProxies = new IConnectionProxy[parallelCount];
@@ -1080,7 +1097,8 @@ namespace vApus.StressTest {
                     }
 
                     _stressTestResult = null;
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed disposing the stress test core.", ex);
                 }
             }
@@ -1198,20 +1216,24 @@ namespace vApus.StressTest {
                     else
                         connectionProxy.SendAndReceive(testableRequest.ParameterizedRequest, out sentAt, out timeToLastByte, out meta, out exception);
 
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     if (!retried && connectionProxy != null && !connectionProxy.IsDisposed) {
                         try {
                             retried = true;
                             connectionProxy.OpenConnection();
                             goto RetryOnce;
-                        } catch (Exception e) {
+                        }
+                        catch (Exception e) {
                             exception = new Exception("An error in the connection proxy has occured and is now disposed due to for instance a time out or a bug in the connection proxy code; I tried to reopen the connection so testing could continue for this simulated user including a retry (once) for the current request, but it failed; Metrics for this request (" +
                                     testableRequest.ParameterizedRequestString + ") are not correct:\n" + ex + "\n\nReconnect failure:\n" + e);
                         }
-                    } else {
+                    }
+                    else {
                         try {
                             if (connectionProxy != null) connectionProxy.Dispose();
-                        } catch (Exception exc) {
+                        }
+                        catch (Exception exc) {
                             Loggers.Log(Level.Warning, "Failed disposing connection proxy.", exc);
                         }
                         connectionProxy = null;
@@ -1219,7 +1241,8 @@ namespace vApus.StressTest {
                                 testableRequest.ParameterizedRequestString + ") are not correct:\n" + ex);
                     }
                     throw (exception);
-                } finally {
+                }
+                finally {
                     VirtualUserResult result = runResult.VirtualUserResults[threadIndex];
                     if (result.VirtualUser == null)
                         result.VirtualUser = Thread.CurrentThread.Name;

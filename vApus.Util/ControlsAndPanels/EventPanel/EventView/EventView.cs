@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -55,8 +56,8 @@ namespace vApus.Util {
         }
 
         private void _tmr_Tick(object sender, EventArgs e) {
-            if (_tmr != null)
-                lock (_lock) {
+            lock (_lock)
+                if (_tmr != null) {
                     _tmr.Stop();
 
                     bool startTimer = false;
@@ -68,7 +69,9 @@ namespace vApus.Util {
 
                     var sb = new StringBuilder();
                     for (int i = 0; i != count; i++) sb.AppendLine(_backlog.Dequeue());
+
                     fctb.AppendText(sb.ToString());
+                    fctb.VerticalScroll.Value = fctb.VerticalScroll.Maximum;
 
                     if (startTimer) _tmr.Start();
                 }
@@ -80,29 +83,29 @@ namespace vApus.Util {
         public void AddEvent(EventViewEventType eventType, string message) { AddEvent(eventType, message, DateTime.Now, Color.DarkGray); }
 
         public void AddEvent(EventViewEventType eventType, string message, DateTime at, Color color) {
-            if (_tmr != null)
-                lock (_lock) {
+            lock (_lock)
+                if (_tmr != null) {
                     var item = new EventPanelEvent { EventType = eventType, Message = message, At = at };
 
                     _events.Add(item);
 
                     if (eventType >= Filter) {
-                        _backlog.Enqueue(item.ToString());
                         _tmr.Stop();
+                        _backlog.Enqueue(item.ToString());
                         _tmr.Start();
                     }
                 }
         }
 
         public void CancelAddingEventsToGui() {
-            if (_tmr != null) 
+            if (_tmr != null)
                 _tmr.Stop();
         }
 
 
         private void SetEvents() {
-            if (_tmr != null)
-                lock (_lock) {
+            lock (_lock)
+                if (_tmr != null) {
                     _tmr.Stop();
                     fctb.Clear();
 

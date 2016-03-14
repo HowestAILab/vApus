@@ -227,7 +227,7 @@ namespace vApus.DistributedTest {
             ClearEvents();
             foreach (EventPanelEvent epe in events)
                 if (epe.EventType > EventViewEventType.Info)
-                    eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+                    eventProgressChart.AddEvent(epe.EventProgressBarEventColor, epe.Message, epe.At);
 
             eventProgressChart.Invalidate();
 

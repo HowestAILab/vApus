@@ -125,9 +125,9 @@ namespace vApus.StressTest {
                     if (allowMessageBox)
                         MessageBox.Show(this, error, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }, null);
-            } else {
-                string errorMessage;
-                connectionProxyPool.TestConnection(out errorMessage);
+            }
+            else {
+                string errorMessage = connectionProxyPool.TestConnection();
 
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                     btnTestConnection.Text = "Test connection";
@@ -138,7 +138,8 @@ namespace vApus.StressTest {
                     if (errorMessage == null) {
                         if (allowMessageBox)
                             MessageBox.Show(this, "The connection has been established! and closed again successfully.", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Information, MessageBoxDefaultButton.Button1);
-                    } else {
+                    }
+                    else {
                         error = "The connection could not be made, please make sure everything is filled in correctly.";
 
                         Loggers.Log(Level.Warning, "[" + _connection + "] " + error, new Exception(errorMessage), new object[] { allowMessageBox });

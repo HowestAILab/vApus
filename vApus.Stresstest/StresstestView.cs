@@ -270,6 +270,7 @@ namespace vApus.StressTest {
                 _stressTestCore.Message += _stressTestCore_Message;
                 _stressTestCore.OnRequest += _stressTestCore_OnRequest;
 
+                btnStop.Enabled = false;
                 ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
             }
             catch (Exception ex) {
@@ -291,6 +292,7 @@ namespace vApus.StressTest {
 
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 if (e.Exception == null) {
+                    btnStop.Enabled = true;
                     StartMonitors();
                 }
                 else {
