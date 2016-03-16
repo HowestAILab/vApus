@@ -745,7 +745,7 @@ namespace vApus.StressTest {
         /// <param name="ex">The exception if failed.</param>
         private void Stop(StressTestStatus stressTestStatus = StressTestStatus.Ok, Exception ex = null, bool monitorAfter = false) {
             _stressTestStatus = stressTestStatus;
-            if (btnStop.Enabled || !toolStrip.Enabled) {
+            if (!btnStart.Enabled || !toolStrip.Enabled) {
                 Cursor = Cursors.WaitCursor;
 
                 Stop_StressTest(stressTestStatus, ex);
