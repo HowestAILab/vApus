@@ -31,6 +31,7 @@ namespace vApus.DistributedTest {
         private readonly object _lock = new object();
 
         private readonly StressTest.StressTest _stressTest;
+
         private string _tileStressTest, _tileStressTestIndex, _resultSetId, _distributedTest;
         private string[] _monitors;
 
@@ -92,6 +93,9 @@ namespace vApus.DistributedTest {
         public StressTestResult StressTestResult {
             get { return _stressTestResult; }
         }
+
+        public ValueStore ValueStore { get; set; }
+
         #endregion
 
         #region Constructor
@@ -150,6 +154,7 @@ namespace vApus.DistributedTest {
                 _progressCountDown = PROGRESSUPDATEDELAY - 1;
                 try {
                     PublishConfiguration();
+                    ValueStore.InitForTest(_resultSetId, _tileStressTest);
 
                     _stressTestCore = new StressTestCore(_stressTest);
                     _stressTestCore.WaitWhenInitializedTheFirstRun = true;
@@ -261,10 +266,13 @@ namespace vApus.DistributedTest {
         private void tmrProgressDelayCountDown_Tick(object sender, EventArgs e) { fastResultsControl.SetCountDownProgressDelay(_progressCountDown--); }
         private void tmrProgress_Tick(object sender, ElapsedEventArgs e) {
             try {
-                fastResultsControl.SetClientMonitoring(
+                string lastWarning = fastResultsControl.SetClientMonitoring(
                     _stressTestCore == null ? 0 : _stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage, (int)LocalMonitor.MemoryUsage,
                     (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth, LocalMonitor.NicSent, LocalMonitor.NicReceived);
-            } catch { } //Exception on false WMI. 
+
+                if (lastWarning.Length != 0) PublishMessage(1, lastWarning);
+            }
+            catch { } //Exception on false WMI. 
 
             if (_canUpdateMetrics) {
                 fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults), true);
@@ -385,6 +393,7 @@ namespace vApus.DistributedTest {
 
         private void AddEvent(string message, Color color, Level level = Level.Info) {
             if (color == Color.Empty) fastResultsControl.AddEvent(message, level); else fastResultsControl.AddEvent(message, color, level);
+            PublishMessage((int)level, message);
         }
         #endregion
 
@@ -461,6 +470,7 @@ namespace vApus.DistributedTest {
 
                 string message;
                 fastResultsControl.SetStressTestStopped(_stressTestStatus, out message);
+                PublishMessage(0, message);
 
                 if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
                     _stressTestCore.Dispose();
@@ -485,11 +495,14 @@ namespace vApus.DistributedTest {
             fastResultsControl.CancelAddingStaticEventsToGui();
             if (_stressTestCore != null && !_stressTestCore.IsDisposed) {
                 try {
-                    fastResultsControl.SetClientMonitoring(_stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage,
+                    string lastWarning = fastResultsControl.SetClientMonitoring(_stressTestCore.BusyThreadCount, LocalMonitor.CPUUsage,
                                                           (int)LocalMonitor.MemoryUsage,
                                                           (int)LocalMonitor.TotalVisibleMemory, LocalMonitor.Nic, LocalMonitor.NicBandwidth,
                                                           LocalMonitor.NicSent, LocalMonitor.NicReceived);
-                } catch { } //Exception on false WMI. 
+
+                    if (lastWarning.Length != 0) PublishMessage(1, lastWarning);
+                }
+                catch { } //Exception on false WMI. 
 
                 fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(false), true);
                 fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.GetRunMetrics(false), false);

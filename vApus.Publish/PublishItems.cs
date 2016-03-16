@@ -37,7 +37,7 @@ namespace vApus.Publish {
         public bool vApusIsMaster { get; set; }
     }
     /// <summary>
-    /// To poll connections.
+    /// To poll if a connected publish items handler is responding.
     /// </summary>
     public class Poll : PublishItem { }
     /// <summary>
@@ -193,27 +193,31 @@ namespace vApus.Publish {
     public enum TestEventType {
         Unchanged = -1,
         TestMessage = 0,
-        TestInitialized = 1,
-        TestStarted = 2,
-        ConcurrencyStarted = 3,
-        RunInitializedFirstTime = 4,
-        RunStarted = 5,
+        /// <summary>
+        /// ValueStore Value.
+        /// </summary>
+        TestValue = 1,
+        TestInitialized = 2,
+        TestStarted = 3,
+        ConcurrencyStarted = 4,
+        RunInitializedFirstTime = 5,
+        RunStarted = 6,
         /// <summary>
         /// For distributed tests.
         /// </summary>
-        RunDoneOnce = 6,
+        RunDoneOnce = 7,
         /// <summary>
         /// For distributed tests.
         /// </summary>
-        RerunStarted = 7,
+        RerunStarted = 8,
         /// <summary>
         /// For distributed tests.
         /// </summary>
-        RerunDone = 8,
-        RunStopped = 9,
-        ConcurrencyStopped = 10,
-        TestStopped = 11,
-        MasterListeningError = 12
+        RerunDone = 9,
+        RunStopped = 10,
+        ConcurrencyStopped = 11,
+        TestStopped = 12,
+        MasterListeningError = 13
     }
 
     public class TestEvent : PublishItem {

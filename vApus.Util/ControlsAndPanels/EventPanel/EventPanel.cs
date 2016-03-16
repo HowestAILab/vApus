@@ -13,7 +13,6 @@ using System.ComponentModel;
 using System.Drawing;
 using System.Threading;
 using System.Windows.Forms;
-using System.Collections.Concurrent;
 
 namespace vApus.Util {
     /// <summary>
@@ -45,6 +44,8 @@ namespace vApus.Util {
 
         /// <summary>
         /// This allows us to add events from within the connection proxy code, events will be added to all available event panels.
+        /// These events will not be published, because of the stress on the GUI if this gets abused to much.
+        /// If you want to publish extra information from a Connection Proxy Code you can use a Value Store Value.
         /// </summary>
         /// <param name="message"></param>
         public static void AddEvent(string message) {
@@ -62,7 +63,6 @@ namespace vApus.Util {
                 }
             }
         }
-
         #endregion
 
         public event EventHandler CollapsedChanged;

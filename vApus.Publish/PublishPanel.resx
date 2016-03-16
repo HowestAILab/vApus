@@ -130,10 +130,4 @@ The latter stores published items in a standardized MySQL results database: a da
     <value>Click to open &lt;vApus path&gt;\PublishItems.cs which contains the classes for which instances of those are serialized to JSON.
 You can use this file to enable deserialization in your own folder watcher and/or UDP broadcast listener.</value>
   </data>
-  <metadata name="folderBrowserDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
-  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>180, 17</value>
-  </metadata>
 </root>

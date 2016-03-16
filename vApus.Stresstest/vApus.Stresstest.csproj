@@ -403,6 +403,14 @@
     <Compile Include="StressTestView.Designer.cs">
       <DependentUpon>StressTestView.cs</DependentUpon>
     </Compile>
+    <Compile Include="ValueStore\ValueStore.cs" />
+    <Compile Include="ValueStore\ValueStoreValue.cs" />
+    <Compile Include="ValueStore\ValueStoreValueView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ValueStore\ValueStoreValueView.Designer.cs">
+      <DependentUpon>ValueStoreValueView.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.Monitor\vApus.Monitor.csproj">
@@ -508,6 +516,9 @@
     <EmbeddedResource Include="StressTestView.resx">
       <DependentUpon>StressTestView.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ValueStore\ValueStoreValueView.resx">
+      <DependentUpon>ValueStoreValueView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -641,6 +652,8 @@
     <None Include="Resources\IgnoreDelay.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\ValueStoreValue.png" />
+    <None Include="Resources\ValueStore.png" />
     <None Include="Resources\Wait.gif" />
     <None Include="Resources\ScenarioSyntaxItem.png" />
     <None Include="Resources\Breakpoint.png" />

@@ -223,8 +223,17 @@ namespace vApus.DistributedTest {
                 string[] monitors = new string[BasicTileStressTest.Monitors.Length];
                 for (int i = 0; i != monitors.Length; i++) monitors[i] = BasicTileStressTest.Monitors[i].ToString();
 
+                ValueStore valueStore = null;
+                var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
+                foreach (BaseItem item in stressTestProject)
+                    if (item is ValueStore) {
+                        valueStore = item as ValueStore;
+                        break;
+                    }
+
                 return new StressTestWrapper {
                     DistributedTest = Parent.ToString(), StressTest = stressTest,
+                    ValueStore = valueStore,
                     PublishResultSetId = Publish.Publisher.LastGeneratedResultSetId,
                     Publish = Publish.Publisher.Settings.PublisherEnabled, PublishHost = Publish.Publisher.Settings.TcpHost,
                     PublishPort = Publish.Publisher.Settings.TcpPort,

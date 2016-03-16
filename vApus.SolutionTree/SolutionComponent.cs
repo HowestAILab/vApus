@@ -69,6 +69,9 @@ namespace vApus.SolutionTree {
 
         public BaseItem this[int index] { get { return _items[index]; } }
 
+        /// <summary>
+        /// Show this in the tree view or not.
+        /// </summary>
         [SavableCloneable]
         public bool ShowInGui { get { return _showInGui; } set { _showInGui = value; } }
 

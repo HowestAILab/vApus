@@ -75,6 +75,7 @@ namespace vApus.Communication.Shared {
         public RunSynchronization RunSynchronization;
         public int MaxRerunsBreakOnLast;
         public StressTest.StressTest StressTest;
+        public ValueStore ValueStore;
 
         /// <summary>
         ///     To be able to link the stress test to the right tile stress test.

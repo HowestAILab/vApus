@@ -12,10 +12,8 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
 using System.IO;
-using System.Net;
 using System.Runtime.InteropServices;
 using System.Threading;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using vApus.Monitor;
 using vApus.Publish;
@@ -28,6 +26,7 @@ namespace vApus.StressTest {
 
         #region Fields
         private StressTest _stressTest;
+        private ValueStore _valueStore;
 
         private ScheduleDialog _scheduleDialog;
 
@@ -75,6 +74,13 @@ namespace vApus.StressTest {
             : base(solutionComponent) {
             Solution.RegisterForCancelFormClosing(this);
             _stressTest = SolutionComponent as StressTest;
+
+            var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
+            foreach (BaseItem item in stressTestProject)
+                if (item is ValueStore) {
+                    _valueStore = item as ValueStore;
+                    break;
+                }
 
             InitializeComponent();
 
@@ -258,7 +264,8 @@ namespace vApus.StressTest {
             tmrProgress.Start();
             try {
                 PublishConfiguration();
-
+                _valueStore.InitForTest(_resultSetId, _stressTest.ToString());
+                
                 _stressTestCore = new StressTestCore(_stressTest);
                 _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                 _stressTestCore.StressTestStarted += _stressTestCore_StressTestStarted;

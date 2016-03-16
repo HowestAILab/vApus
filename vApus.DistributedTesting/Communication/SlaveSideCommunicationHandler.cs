@@ -107,6 +107,7 @@ namespace vApus.DistributedTest {
                     kvp.Key.ScenarioRuleSet.ForceSettingChildsParent();
                     kvp.Key.ForceSettingChildsParent();
                 }
+                stressTestWrapper.ValueStore.ForceSettingChildsParent();
 
                 try {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
@@ -154,6 +155,7 @@ namespace vApus.DistributedTest {
                             _tileStressTestView.ResultSetId = stressTestWrapper.PublishResultSetId;
                             _tileStressTestView.RunSynchronization = stressTestWrapper.RunSynchronization;
                             _tileStressTestView.MaxRerunsBreakOnLast = stressTestWrapper.MaxRerunsBreakOnLast;
+                            _tileStressTestView.ValueStore = stressTestWrapper.ValueStore;
                         } catch {
                             if (++done != 4) {
                                 Thread.Sleep(1000);

@@ -49,6 +49,7 @@
             this.chkTestsClientMonitoring = new System.Windows.Forms.Label();
             this.btnEnable = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
+            this.label5 = new System.Windows.Forms.Label();
             this.grp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudTcpPort)).BeginInit();
             this.SuspendLayout();
@@ -179,6 +180,7 @@
             this.grp.Anchor = ((System.Windows.Forms.AnchorStyles)((((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Bottom) 
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
+            this.grp.Controls.Add(this.label5);
             this.grp.Controls.Add(this.btnLaunchvApusPublishItemsHandler);
             this.grp.Controls.Add(this.chkRequestResults);
             this.grp.Controls.Add(this.txtTcpHost);
@@ -330,6 +332,15 @@
             this.toolTip.InitialDelay = 500;
             this.toolTip.ReshowDelay = 100;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(19, 181);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(62, 13);
+            this.label5.TabIndex = 1016;
+            this.label5.Text = "Test values";
+            // 
             // PublishPanel
             // 
             this.ClientSize = new System.Drawing.Size(628, 491);
@@ -372,5 +383,6 @@
         private System.Windows.Forms.Label label4;
         private System.Windows.Forms.Label chkRequestResults;
         private System.Windows.Forms.CheckBox btnLaunchvApusPublishItemsHandler;
+        private System.Windows.Forms.Label label5;
     }
 }
