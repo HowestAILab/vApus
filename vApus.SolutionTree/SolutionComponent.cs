@@ -45,7 +45,8 @@ namespace vApus.SolutionTree {
             get {
                 if (_isEmpty) {
                     return null;
-                } else {
+                }
+                else {
                     object[] attributes = GetType().GetCustomAttributes(typeof(DisplayNameAttribute), true);
                     return attributes.Length != 0 ? (attributes[0] as DisplayNameAttribute).DisplayName : GetType().Name;
                 }
@@ -183,6 +184,8 @@ namespace vApus.SolutionTree {
                 item.RemoveTag();
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Removed, item);
 
+                CloseView(item);
+
                 item = null;
 
                 return true;
@@ -211,11 +214,27 @@ namespace vApus.SolutionTree {
 
                 item.RemoveParent();
                 item.RemoveTag();
+
+                CloseView(item);
+
                 item = null;
 
                 return true;
             }
             return false;
+        }
+
+        private void CloseView(BaseItem item) {
+            foreach (var view in SolutionComponentViewManager.GetAllViews())
+                if (view.SolutionComponent == item) {
+                    try {
+                        view.Close();
+                    }
+                    catch {
+                        //Don't care.
+                    }
+                    break;
+                }
         }
 
         public IEnumerator<BaseItem> GetEnumerator() { return _items.GetEnumerator(); }
@@ -341,6 +360,8 @@ namespace vApus.SolutionTree {
             foreach (BaseItem item in _items) {
                 item.RemoveParent();
                 item.RemoveTag();
+
+                CloseView(item);
             }
             _items.Clear();
         }
@@ -394,7 +415,8 @@ namespace vApus.SolutionTree {
                                              thisType.Assembly);
                 try {
                     image = rm.GetObject(thisType.Name) as Image;
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed getting image.", ex);
                 }
                 _noImage = (image == null);
@@ -520,7 +542,8 @@ namespace vApus.SolutionTree {
             //Fairly complicated setup to avoid gui freezes.
             try {
                 BackgroundWorkQueueWrapper.BackgroundWorkQueue.EnqueueWorkItem(_invokeSolutionComponentChangedEventDelegate, doneAction, arg);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { doneAction, arg });
             }
         }
@@ -534,14 +557,17 @@ namespace vApus.SolutionTree {
                                     if (del.Target != null && del.Target is Control && !(del.Target as Control).IsDisposed)
                                         del(this, new SolutionComponentChangedEventArgs(doneAction, arg));
                                     else //If the target == null no issue, disposed => crash.
-                                        try { del(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch {
+                                        try { del(this, new SolutionComponentChangedEventArgs(doneAction, arg)); }
+                                        catch {
                                             //Ignore in this case. Do not care.
                                         }
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { this, doneAction, arg });
                         }
                     }, null);
-            } catch (Exception exc) {
+            }
+            catch (Exception exc) {
                 Loggers.Log(Level.Error, "Failed invoking solution component changed.", exc, new object[] { this, doneAction, arg });
             }
         }
