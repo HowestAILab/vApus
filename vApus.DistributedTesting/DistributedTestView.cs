@@ -1139,6 +1139,9 @@ namespace vApus.DistributedTest {
                     AppendMessages(message, Level.Error);
                     monitorAfter = false;
                 }
+                finally {
+                    PublishTestStopped();
+                }
 
             Cursor = Cursors.Default;
 
@@ -1561,7 +1564,6 @@ namespace vApus.DistributedTest {
                     Publisher.Send(publishItem, _resultSetId);
                 }
         }
-
         private void PublishMonitorBeforeTestDone() {
             if (Publisher.Settings.PublisherEnabled)
                 foreach (TileStressTest ts in _usedMonitors.Keys) {
@@ -1574,6 +1576,18 @@ namespace vApus.DistributedTest {
                     Publisher.Send(publishItem, _resultSetId);
                 }
         }
+
+        private void PublishTestStopped() {
+            if (Publisher.Settings.PublisherEnabled) {
+                var publishItem = new TestEvent();
+                publishItem.Test = _distributedTest.ToString();
+                publishItem.TestEventType = (int)TestEventType.TestStopped;
+                publishItem.Parameters = new KeyValuePair<string, string>[] { };
+
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
+
         private void PublishMonitorAfterTestStarted() {
             if (Publisher.Settings.PublisherEnabled)
                 foreach (TileStressTest ts in _usedMonitors.Keys) {
