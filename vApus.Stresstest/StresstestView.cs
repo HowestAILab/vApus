@@ -25,6 +25,7 @@ namespace vApus.StressTest {
     public partial class StressTestView : BaseSolutionComponentView {
 
         #region Fields
+        private StressTestProject _stressTestProject;
         private StressTest _stressTest;
         private ValueStore _valueStore;
 
@@ -75,8 +76,8 @@ namespace vApus.StressTest {
             Solution.RegisterForCancelFormClosing(this);
             _stressTest = SolutionComponent as StressTest;
 
-            var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
-            foreach (BaseItem item in stressTestProject)
+            _stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
+            foreach (BaseItem item in _stressTestProject)
                 if (item is ValueStore) {
                     _valueStore = item as ValueStore;
                     break;
@@ -229,6 +230,7 @@ namespace vApus.StressTest {
             _monitorViews.Clear();
 
             solutionComponentPropertyPanel.Lock();
+            _stressTestProject.Locked = true;
 
             tc.SelectedIndex = 1;
 
@@ -372,6 +374,7 @@ namespace vApus.StressTest {
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
             solutionComponentPropertyPanel.Lock();
+            _stressTestProject.Locked = true;
             tmrSchedule.Start();
         }
 
@@ -936,6 +939,7 @@ namespace vApus.StressTest {
 
             if (!disposing) {
                 solutionComponentPropertyPanel.Unlock();
+
                 btnStop.Enabled = false;
                 btnStart.Enabled = true;
                 btnSchedule.Enabled = true;
@@ -949,6 +953,7 @@ namespace vApus.StressTest {
                     AddEvent(exception.ToString(), Level.Error);
                 }
             }
+            _stressTestProject.Locked = false;
         }
 
         /// <summary>

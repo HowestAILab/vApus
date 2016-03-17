@@ -29,11 +29,20 @@ namespace vApus.SolutionTree {
 
         private delegate void InvokeSolutionComponentChangedEventDelegate(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg);
 
+        /// <summary>
+        /// <para>LockedChanged will be invoked when Locked is set or reset.</para>
+        /// <para>You can suscribe to this event to lock or unlock the views for your items.</para>
+        /// <para>Context menu's and shortcut key locking is already handled for you.</para>
+        /// </summary>
+        [field: NonSerialized]
+        public event EventHandler<LockedChangedEventArgs> LockedChanged;
+
         #region Fields
         private bool _isDefaultItem, _isEmpty;
         protected List<BaseItem> _items = new List<BaseItem>();
         private List<Type> _defaultItemTypes = new List<Type>();
         private bool _noImage, _showInGui = true;
+        private bool _locked;
 
         [NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
         private InvokeSolutionComponentChangedEventDelegate _invokeSolutionComponentChangedEventDelegate;
@@ -109,6 +118,23 @@ namespace vApus.SolutionTree {
                     ++count;
 
             return count;
+        }
+
+        /// <summary>
+        /// <para>When true, context menu enties and shortcut keys will be limited to activate for this and all sub items.</para>
+        /// <para>LockedChanged will be invoked, you can suscribe to this event to lock or unlock the views for your items.</para>
+        /// <para>You are responsible to set and reset this property.</para>
+        /// </summary>
+        public bool Locked {
+            get { return _locked; }
+            set {
+                foreach (var item in this) item.Locked = value;
+
+                if (_locked != value) {
+                    _locked = value;
+                    if (LockedChanged != null) LockedChanged(this, new LockedChangedEventArgs(_locked));
+                }
+            }
         }
         #endregion
 
@@ -396,8 +422,23 @@ namespace vApus.SolutionTree {
             var node = new TreeNode(ToString());
             node.Tag = this;
             node.ContextMenuStrip = GetContextMenuStrip();
+            if (node.ContextMenuStrip != null) {
+                node.ContextMenuStrip.Tag = this;
+                node.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+            }
             node.Nodes.AddRange(GetChildNodes().ToArray());
             return node;
+        }
+        /// <summary>
+        /// Keep locking in mind.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ContextMenuStrip_Opening(object sender, CancelEventArgs e) {
+            var menu = sender as ContextMenuStrip;
+            var target = menu.Tag as SolutionComponent;
+            foreach (ToolStripMenuItem item in menu.Items)
+                item.Enabled = (!target.Locked || (item.ShortcutKeyDisplayString != null && item.ShortcutKeyDisplayString.EndsWith("<enter>", StringComparison.InvariantCultureIgnoreCase))); //Cutting corners here.
         }
 
         /// <summary>
@@ -604,5 +645,10 @@ namespace vApus.SolutionTree {
             Arg = arg;
         }
         #endregion
+    }
+
+    public class LockedChangedEventArgs : EventArgs {
+        public bool Locked { get; private set; }
+        public LockedChangedEventArgs(bool locked) { Locked = locked; }
     }
 }

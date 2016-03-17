@@ -1,11 +1,11 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Reflection;
 using System.Windows.Forms;
@@ -184,16 +184,20 @@ namespace vApus.SolutionTree {
 
                 var contextMenuStrip = new ContextMenuStrip();
                 for (int i = 0; i < _methodNames.Length; i++) {
+                    string methodName = _methodNames[i];
+
                     var item = new ToolStripMenuItem(_labels[i]);
-                    MethodInfo info = target.GetType().GetMethod(_methodNames[i], BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
+                    MethodInfo info = target.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
 
                     if (info == null)
-                        throw new Exception(string.Format("Method '{0}' not found in {1} '{2}!", _methodNames[i], target.GetType().Name, target));
+                        throw new Exception(string.Format("Method '{0}' not found in {1} '{2}!", methodName, target.GetType().Name, target));
 
-                    item.Click += (EventHandler)Delegate.CreateDelegate(typeof(EventHandler), target, info);
+                    item.Click += (s, e) => {
+                        if (!target.Locked || methodName == "Activate_Click") info.Invoke(target, new object[] { target, e });
+                    };
                     if (hotkeysAttribute != null) {
                         Keys shortcutKey;
-                        if (hotkeysAttribute.TryGetHotkey(_methodNames[i], out shortcutKey)) {
+                        if (hotkeysAttribute.TryGetHotkey(methodName, out shortcutKey)) {
                             if (ToolStripManager.IsValidShortcut(shortcutKey))
                                 item.ShortcutKeys = shortcutKey;
                             else
@@ -203,7 +207,8 @@ namespace vApus.SolutionTree {
                     contextMenuStrip.Items.Add(item);
                 }
                 return contextMenuStrip;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed building the context menu.", ex, new object[] { target });
             }
             return null;
@@ -287,8 +292,11 @@ namespace vApus.SolutionTree {
                     break;
                 }
             if (index > -1) {
-                MethodInfo info = target.GetType().GetMethod(_methodNames[index], BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
-                info.Invoke(target, new object[info.GetParameters().Length]);
+                string methodName = _methodNames[index];
+                if (!target.Locked || methodName == "Activate_Click") {
+                    MethodInfo info = target.GetType().GetMethod(methodName, BindingFlags.Instance | BindingFlags.NonPublic | BindingFlags.IgnoreCase);
+                    info.Invoke(target, new object[info.GetParameters().Length]);
+                }
             }
         }
         #endregion

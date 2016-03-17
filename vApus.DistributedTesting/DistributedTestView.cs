@@ -34,6 +34,9 @@ namespace vApus.DistributedTest {
 
         private ITreeViewItem _selectedTestTreeViewItem;
 
+        private DistributedTestProject _distributedTestProject;
+        private StressTestProject _stressTestProject;
+
         private DistributedTest _distributedTest = new DistributedTest();
         private DistributedTestCore _distributedTestCore;
         private DistributedTestMode _distributedTestMode;
@@ -116,6 +119,9 @@ namespace vApus.DistributedTest {
         public DistributedTestView(SolutionComponent solutionComponent)
             : base(solutionComponent) {
             InitializeComponent();
+
+            _distributedTestProject = Solution.ActiveSolution.GetProject("DistributedTestProject") as DistributedTestProject;
+            _stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
 
             _msgHandler = new Win32WindowMessageHandler();
 
@@ -273,7 +279,7 @@ namespace vApus.DistributedTest {
 
                 SetOverallProgress();
             }
-            
+
             this.Focus();
         }
         private void testTreeView_TileStressTestTreeViewItemDoubleClicked(object sender, EventArgs e) {
@@ -339,6 +345,8 @@ namespace vApus.DistributedTest {
                 btnStop.Enabled = canEnableStop;
                 btnStart.Enabled = btnSchedule.Enabled = btnWizard.Enabled = false;
                 if (scheduled) tmrSchedule.Start(); else btnSchedule.Text = string.Empty;
+
+                _distributedTestProject.Locked = _stressTestProject.Locked = true;
             }
             else {
                 btnStop.Enabled = false;
@@ -351,6 +359,8 @@ namespace vApus.DistributedTest {
 
                 btnSchedule.Text = string.Empty;
                 btnSchedule.Tag = null;
+
+                _distributedTestProject.Locked = _stressTestProject.Locked = false;
             }
 
             testTreeView.SetMode(_distributedTestMode);
@@ -436,9 +446,9 @@ namespace vApus.DistributedTest {
         /// <returns></returns>
         private bool InitDatabaseBeforeStart(bool autoConfirmDialog) {
             var dialog = new DescriptionAndTagsInputDialog { Description = _distributedTest.Description, Tags = _distributedTest.Tags, AutoConfirm = autoConfirmDialog };
-            if (dialog.ShowDialog() == DialogResult.Cancel) 
+            if (dialog.ShowDialog() == DialogResult.Cancel)
                 return false;
-            
+
             bool edited = false;
             if (_distributedTest.Description != dialog.Description) {
                 _distributedTest.Description = dialog.Description;
@@ -1068,9 +1078,9 @@ namespace vApus.DistributedTest {
                 testTreeView.SetMonitorBeforeCancelled();
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
             }
-            if (monitorAfterRunning) 
+            if (monitorAfterRunning)
                 StopMonitorsUpdateDetailedResultsAndSetMode(false);
-            
+
             Cursor = Cursors.Default;
         }
         private void _distributedTestCore_OnFinished(object sender, TestFinishedEventArgs e) {
@@ -1180,7 +1190,7 @@ namespace vApus.DistributedTest {
                 _monitorAfterCountDown.Start(countdownTime, 5000);
             }
             else {
-                StopMonitorsUpdateDetailedResultsAndSetMode(false);                
+                StopMonitorsUpdateDetailedResultsAndSetMode(false);
             }
 
             this.Focus();

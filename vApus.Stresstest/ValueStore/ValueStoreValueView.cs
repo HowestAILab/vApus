@@ -43,7 +43,24 @@ namespace vApus.StressTest {
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
+            if (_valueStoreValue.Parent != null)
+                _valueStoreValue.Parent.LockedChanged += valueStore_LockedChanged;
+
             btnRefresh.PerformClick();
+        }
+
+        private void valueStore_LockedChanged(object sender, LockedChangedEventArgs e) {
+            try {
+                if (solutionComponentPropertyPanel == null && _valueStoreValue.Parent != null) {
+                    _valueStoreValue.Parent.LockedChanged -= valueStore_LockedChanged;
+
+                    if (e.Locked) solutionComponentPropertyPanel.Lock();
+                    else solutionComponentPropertyPanel.Unlock();
+                }
+            }
+            catch {
+                //Don't care.
+            }
         }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {

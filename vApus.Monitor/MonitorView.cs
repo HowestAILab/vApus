@@ -35,6 +35,7 @@ namespace vApus.Monitor {
         public event EventHandler<ErrorEventArgs> OnHandledException, OnUnhandledException;
 
         #region Fields
+        private readonly MonitorProject _monitorProject;
         private readonly Monitor _monitor;
         private string _hardwareConfiguration;
 
@@ -96,6 +97,7 @@ namespace vApus.Monitor {
             InitializeComponent();
 
             _monitor = solutionComponent as Monitor;
+            _monitorProject = Solution.ActiveSolution.GetProject("MonitorProject") as MonitorProject;
 
             _invokeChangedTmr.Elapsed += _invokeChangedTmr_Elapsed;
 
@@ -295,6 +297,8 @@ namespace vApus.Monitor {
             parameterPanel.Enabled = false;
             split.Panel2.Enabled = btnSetDefaultWiw.Enabled = false;
 
+            _monitorProject.Locked = true;
+
             tvwCounters.Nodes.Clear();
             lvwEntities.Items.Clear();
 
@@ -389,6 +393,8 @@ namespace vApus.Monitor {
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
                 parameterPanel.Enabled = true;
+
+                _monitorProject.Locked = false;
 
                 Cursor = Cursors.Default;
             }, null);
@@ -1286,6 +1292,8 @@ namespace vApus.Monitor {
             parameterPanel.Enabled = false;
             btnSetDefaultWiw.Enabled = false;
 
+            _monitorProject.Locked = true;
+
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
             btnStop.Enabled = true;
@@ -1424,6 +1432,8 @@ namespace vApus.Monitor {
                 propertyPanel.Unlock();
                 parameterPanel.Enabled = true;
                 btnSetDefaultWiw.Enabled = true;
+
+                _monitorProject.Locked = false;
 
                 if (!toolStrip.Visible) {
                     //Releasing it from stressTest if any
