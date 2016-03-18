@@ -72,7 +72,7 @@ namespace vApus.Publish {
                 bool connected = await Task.Run(() => Publisher.Poll());
 
                 if (!connected) {
-                    Loggers.Log(Level.Warning, "Could not connect to the publisher.", null, new object[] { sender, e });
+                    Loggers.Log(Level.Warning, "Could not connect to the publish items handler.", null, new object[] { sender, e });
                     lblCouldNotConnect.Visible = true;
                 }
             }

@@ -139,7 +139,7 @@ namespace vApus.Publish {
             }
             catch (Exception ex) {
                 //Can fail if not connected. Handle like ths to avoid circular error mess.
-                Debug.WriteLine("Failed publishing log entry. Is the publisher connected?" + ex.ToString());
+                Debug.WriteLine("Failed publishing log entry. Is the publish items handler connected?" + ex.ToString());
             }
         }
     }

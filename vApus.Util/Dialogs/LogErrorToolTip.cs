@@ -42,7 +42,7 @@ namespace vApus.Util {
         /// </summary>
         public void IncrementNumberOfErrorsOrFatals() {
             ++_numberOfErrorsOrFatals;
-            lblTitle.Text = _numberOfErrorsOrFatals + ((_numberOfErrorsOrFatals == 1) ? " new error or fatal!" : " new errors or fatals!");
+            lblTitle.Text = _numberOfErrorsOrFatals + ((_numberOfErrorsOrFatals == 1) ? " new error!" : " new errors!");
         }
         protected override void OnPaint(PaintEventArgs e) {
             base.OnPaint(e);

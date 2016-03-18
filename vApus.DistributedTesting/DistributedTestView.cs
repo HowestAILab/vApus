@@ -130,6 +130,9 @@ namespace vApus.DistributedTest {
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
             Shown += DistributedTestView_Shown; //if the test is empty, show the wizard.
+
+            _distributedTestProject.LockedChanged += _projects_LockedChanged;
+            _stressTestProject.LockedChanged += _projects_LockedChanged;
         }
         #endregion
 
@@ -168,6 +171,8 @@ namespace vApus.DistributedTest {
             tmr.Interval = 200;
             tmr.Tick += TmrSelectDistributedTestTreeViewItem_Tick;
             tmr.Start();
+
+            SetLockState();
         }
 
         private void TmrSelectDistributedTestTreeViewItem_Tick(object sender, EventArgs e) {
@@ -319,7 +324,7 @@ namespace vApus.DistributedTest {
             testTreeView.SetGui();
             slaveTreeView.SetGui();
 
-            if (_distributedTestMode == DistributedTestMode.Edit) btnStart.Enabled = !testTreeView.Exclamation;
+            SetLockState();
         }
         /// <summary>
         ///     Refresh some properties that are overriden in code.
@@ -368,7 +373,24 @@ namespace vApus.DistributedTest {
             configureTileStressTest.SetMode(_distributedTestMode);
             configureSlaves.SetMode(_distributedTestMode);
 
+            SetLockState();
+
             LockWindowUpdate(IntPtr.Zero);
+        }
+
+        private void _projects_LockedChanged(object sender, LockedChangedEventArgs e) { SetLockState(); }
+
+        private void SetLockState() {
+            try {
+                if (_distributedTestProject != null && _stressTestProject != null)
+                    if (_distributedTestProject.Locked || _stressTestProject.Locked)
+                        btnStart.Enabled = btnSchedule.Enabled = false;
+                    else if (_distributedTestMode == DistributedTestMode.Edit)
+                        btnStart.Enabled = btnSchedule.Enabled = !testTreeView.Exclamation;
+            }
+            catch {
+                //Don't care.
+            }
         }
         #endregion
 

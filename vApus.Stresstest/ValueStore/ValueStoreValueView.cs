@@ -34,6 +34,9 @@ namespace vApus.StressTest {
                 SetGui();
             else
                 HandleCreated += _HandleCreated;
+
+            if (_valueStoreValue.Parent != null)
+                _valueStoreValue.Parent.LockedChanged += valueStore_LockedChanged;
         }
 
         private void _HandleCreated(object sender, EventArgs e) { SetGui(); }
@@ -43,25 +46,23 @@ namespace vApus.StressTest {
 
             SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
 
-            if (_valueStoreValue.Parent != null)
-                _valueStoreValue.Parent.LockedChanged += valueStore_LockedChanged;
+            SetLockState();
 
             btnRefresh.PerformClick();
         }
 
-        private void valueStore_LockedChanged(object sender, LockedChangedEventArgs e) {
+        private void SetLockState() {
             try {
-                if (solutionComponentPropertyPanel == null && _valueStoreValue.Parent != null) {
-                    _valueStoreValue.Parent.LockedChanged -= valueStore_LockedChanged;
-
-                    if (e.Locked) solutionComponentPropertyPanel.Lock();
+                if (solutionComponentPropertyPanel == null && _valueStoreValue.Parent != null)
+                    if (_valueStoreValue.Parent.Locked) solutionComponentPropertyPanel.Lock();
                     else solutionComponentPropertyPanel.Unlock();
-                }
             }
             catch {
                 //Don't care.
             }
         }
+
+        private void valueStore_LockedChanged(object sender, LockedChangedEventArgs e) { SetLockState(); }
 
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
             if (sender == _valueStoreValue) {

@@ -25,6 +25,7 @@ namespace vApus.StressTest {
     public partial class StressTestView : BaseSolutionComponentView {
 
         #region Fields
+        private BaseProject _distributedTestProject;
         private StressTestProject _stressTestProject;
         private StressTest _stressTest;
         private ValueStore _valueStore;
@@ -76,6 +77,7 @@ namespace vApus.StressTest {
             Solution.RegisterForCancelFormClosing(this);
             _stressTest = SolutionComponent as StressTest;
 
+            _distributedTestProject = Solution.ActiveSolution.GetProject("DistributedTestProject");
             _stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
             foreach (BaseItem item in _stressTestProject)
                 if (item is ValueStore) {
@@ -89,7 +91,11 @@ namespace vApus.StressTest {
                 SetGui();
             else
                 HandleCreated += StressTestView_HandleCreated;
+
+            _distributedTestProject.LockedChanged += _projects_LockedChanged;
+            _stressTestProject.LockedChanged += _projects_LockedChanged;
         }
+
         #endregion
 
         #region Functions
@@ -110,12 +116,30 @@ namespace vApus.StressTest {
             if (_stressTest.Connection.IsEmpty || _stressTest.Connection.ConnectionProxy.IsEmpty ||
                 _stressTest.Scenarios.Length == 0 || _stressTest.Scenarios[0].Key.ScenarioRuleSet.IsEmpty)
                 btnStart.Enabled = false;
+
+            SetLockState();
         }
         public override void Refresh() {
             base.Refresh();
             SetGui();
             solutionComponentPropertyPanel.Refresh();
         }
+
+        private void _projects_LockedChanged(object sender, LockedChangedEventArgs e) { SetLockState(); }
+
+        private void SetLockState() {
+            try {
+                if (_distributedTestProject != null && _stressTestProject != null)
+                    if (_distributedTestProject.Locked || _stressTestProject.Locked)
+                        btnStart.Enabled = btnSchedule.Enabled = false;
+                    else if (!solutionComponentPropertyPanel.Locked)
+                        btnStart.Enabled = btnSchedule.Enabled = true;
+            }
+            catch {
+                //Don't care.
+            }
+        }
+
         #endregion
 
         /// <summary>

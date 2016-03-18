@@ -54,7 +54,7 @@ namespace vApus.Publish {
             }
             catch {
                 if (!_connectionErrorLogged) { //Log only once.
-                    Loggers.Log(Level.Error, "Failed to connect to the publisher's TCP endpoint.");
+                    Loggers.Log(Level.Warning, "Failed to connect to the publisher's TCP endpoint.");
                     _connectionErrorLogged = true;
                 }
             }
