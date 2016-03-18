@@ -200,7 +200,7 @@ namespace vApus.StressTest {
                 foreach (var kvp in _stressTest.Scenarios)
                     scenarioKeys.Add(kvp.Key);
 
-                
+
                 if (_stressTest.Monitors.Length == 0) {
                     SetGuiForStart(true);
                     Start();
@@ -291,7 +291,7 @@ namespace vApus.StressTest {
             try {
                 PublishConfiguration();
                 _valueStore.InitForTest(_resultSetId, _stressTest.ToString());
-                
+
                 _stressTestCore = new StressTestCore(_stressTest);
                 _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                 _stressTestCore.StressTestStarted += _stressTestCore_StressTestStarted;
@@ -932,7 +932,7 @@ namespace vApus.StressTest {
         }
 
         private void StopMonitors() {
-            if (_monitorViews != null && _stressTest.Monitors.Length != 0)
+            if (solutionComponentPropertyPanel.Locked && _monitorViews != null && _stressTest.Monitors.Length != 0)
                 foreach (MonitorView view in _monitorViews)
                     if (view != null && !view.IsDisposed && view.IsRunning) {
                         view.Stop();

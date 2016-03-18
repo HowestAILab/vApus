@@ -1478,7 +1478,7 @@ namespace vApus.DistributedTest {
         }
         private void StopMonitors() {
             var validMonitorViews = new List<MonitorView>();
-            if (_monitorViews != null)
+            if (_distributedTestMode == DistributedTestMode.Test && _monitorViews != null)
                 foreach (TileStressTest ts in _monitorViews.Keys)
                     foreach (MonitorView view in _monitorViews[ts])
                         if (view != null && !view.IsDisposed && view.IsRunning && !validMonitorViews.Contains(view)) {
