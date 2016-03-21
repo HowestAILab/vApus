@@ -23,7 +23,7 @@ namespace vApus.CommitTool {
             Console.WriteLine("*/");
             Console.WriteLine("Committing a new vApus update to the update server!");
 
-            Commit commit = Commit.GetInstance();
+            var commit = Commit.GetInstance();
 
             Exception exception;
             if (args.Length >= 8) {
@@ -35,10 +35,12 @@ namespace vApus.CommitTool {
 
                     exception = commit.Do(args[0], int.Parse(args[1]), args[2], args[3], args[4], args[5], args[6],
                                args[7], excludedFilesOrFolders);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     exception = ex;
                 }
-            } else {
+            }
+            else {
                 exception = new ArgumentException("Not enough arguments, 8 or more needed.");
             }
             if (exception != null) {
@@ -48,8 +50,11 @@ namespace vApus.CommitTool {
                     @"Example: vApus.CommitTool.exe vApusUpdateServer 5222 root pass c:\vapus\history.xml c:\vapus C:\Program Files\Git\cmd\git.cmd 20130816090800 *pdb temp*");
                 Console.WriteLine();
                 Console.WriteLine("Exception: " + exception);
+                Environment.ExitCode = -1;
             }
-            Console.WriteLine("Done!");
+            else {
+                Console.WriteLine("Done!");
+            }
         }
     }
 }

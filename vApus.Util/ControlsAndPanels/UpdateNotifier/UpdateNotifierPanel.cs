@@ -194,6 +194,7 @@ namespace vApus.Util {
             btnSet.Enabled = false;
             UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
                                           cboChannel.SelectedIndex, chkSmartUpdate.Checked);
+            btnRefresh.PerformClick();
         }
 
         private void btnClear_Click(object sender, EventArgs e) {
