@@ -821,7 +821,10 @@ namespace vApus.DistributedTest {
         }
 
         private void PublishRequest(RequestResults requestResults) {
-            if (Publisher.Settings.PublisherEnabled) Publisher.Send(requestResults, _resultSetId);
+            if (Publisher.Settings.PublisherEnabled) {
+                requestResults.Test = TileStressTest;
+                Publisher.Send(requestResults, _resultSetId);
+            }
         }
 
         #endregion

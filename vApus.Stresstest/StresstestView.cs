@@ -1311,7 +1311,10 @@ namespace vApus.StressTest {
         }
 
         private void PublishRequest(RequestResults requestResults) {
-            if (Publisher.Settings.PublisherEnabled) Publisher.Send(requestResults, _resultSetId);
+            if (Publisher.Settings.PublisherEnabled) {
+                requestResults.Test = _stressTest.ToString();
+                Publisher.Send(requestResults, _resultSetId);
+            }
         }
         #endregion
 

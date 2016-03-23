@@ -1291,6 +1291,7 @@ namespace vApus.StressTest {
                 publishItem.RequestIndex = requestResult.RequestIndex;
                 publishItem.SameAsRequestIndex = requestResult.SameAsRequestIndex;
                 publishItem.Request = requestResult.Request;
+                publishItem.InParallelWithPrevious = requestResult.InParallelWithPrevious;
                 publishItem.SentAtInMicrosecondsSinceEpochUtc = (long)(requestResult.SentAt - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.TimeToLastByteInTicks = requestResult.TimeToLastByteInTicks;
                 publishItem.Meta = requestResult.Meta;
