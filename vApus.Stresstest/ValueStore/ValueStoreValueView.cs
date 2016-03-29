@@ -111,8 +111,12 @@ Usage example in connection proxy code:
 
   // Get the 'shared' value or the value set for the current connection or for a chosen one (owner).
   // This value can be used to replace a token (a piece of text for instance " + "\"{myValue}\"" + @") in the request, coming through SendAndReceive(...).
+  // e.g. If Type is String:
   string foo = _myValue.Get<string>();
-  string bar = _myValue.Get<string>(owner e.g. " + "\"vApus Thread Pool Thread #1\"" + ");"
+  string bar = _myValue.Get<string>(owner e.g. " + "\"vApus Thread Pool Thread #1\"" + @");
+
+  //e.g. If Type is Object: 
+  object foo = _myValue.Get<object>();"
                     );
             }
             else {

@@ -177,7 +177,7 @@ namespace vApus.StressTest {
         public T Get<T>() { return Get<T>(Thread.CurrentThread.Name); }
 
         public T Get<T>(string ownerName) {
-            if (typeof(T) != typeof(object) || typeof(T) != GetType(_valueType)) throw new Exception("The given type is not " + _valueType + " or object ( value store value " + Label + ").");
+            if (typeof(T) != typeof(object) && typeof(T) != GetType(_valueType)) throw new Exception("The given type is not " + _valueType + " or object ( value store value " + Label + ").");
 
             object castedValue = null;
             try {
