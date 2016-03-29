@@ -970,7 +970,9 @@ namespace vApus.StressTest {
                         _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
 
                     //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                    _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, testableRequestIndex, testableRequest, connectionProxy, initialDelayInMilliseconds, delaysInMilliseconds[testableRequestIndex]);
+                    var result = _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, testableRequestIndex, testableRequest, connectionProxy, initialDelayInMilliseconds, delaysInMilliseconds[testableRequestIndex]);
+
+                    FireOnRequestResult(result);
                 }
                 else {
                     int parallelCount = exclusiveEnd - testableRequestIndex;
@@ -1022,10 +1024,13 @@ namespace vApus.StressTest {
                         foreach (var result in results) {
                             if (resultWithDelay == null || result.SentAt.AddTicks(result.TimeToLastByteInTicks) > resultWithDelay.SentAt.AddTicks(resultWithDelay.TimeToLastByteInTicks))
                                 resultWithDelay = result;
+
                         }
 
                         resultWithDelay.DelayInMilliseconds = delay;
                     }
+
+                    foreach (var result in results) FireOnRequestResult(result);
 
 
                     pThreadsSignalFinished.Dispose();
@@ -1271,7 +1276,6 @@ namespace vApus.StressTest {
                     if (delayInMilliseconds != 0 && !(stressTestCore._cancel || stressTestCore._break)) sleepWaitHandle.WaitOne(delayInMilliseconds);
                 }
 
-                stressTestCore.FireOnRequestResult(requestResult);
                 return requestResult;
             }
         }

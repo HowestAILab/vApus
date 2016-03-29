@@ -3,10 +3,10 @@
   <Profiles />
   <Settings>
     <Setting Name="TcpHost" Type="System.String" Scope="User">
-      <Value Profile="(Default)" />
+      <Value Profile="(Default)">127.0.0.1</Value>
     </Setting>
     <Setting Name="PublisherEnabled" Type="System.Boolean" Scope="User">
-      <Value Profile="(Default)">False</Value>
+      <Value Profile="(Default)">True</Value>
     </Setting>
     <Setting Name="TcpPort" Type="System.UInt16" Scope="User">
       <Value Profile="(Default)">4337</Value>
