@@ -38,6 +38,7 @@
             this.btnSet = new System.Windows.Forms.Button();
             this.label2 = new System.Windows.Forms.Label();
             this.grp = new System.Windows.Forms.GroupBox();
+            this.label5 = new System.Windows.Forms.Label();
             this.btnLaunchvApusPublishItemsHandler = new System.Windows.Forms.CheckBox();
             this.chkRequestResults = new System.Windows.Forms.Label();
             this.txtTcpHost = new System.Windows.Forms.TextBox();
@@ -49,7 +50,6 @@
             this.chkTestsClientMonitoring = new System.Windows.Forms.Label();
             this.btnEnable = new System.Windows.Forms.Button();
             this.toolTip = new System.Windows.Forms.ToolTip(this.components);
-            this.label5 = new System.Windows.Forms.Label();
             this.grp.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.nudTcpPort)).BeginInit();
             this.SuspendLayout();
@@ -207,6 +207,15 @@
             this.grp.TabIndex = 0;
             this.grp.TabStop = false;
             // 
+            // label5
+            // 
+            this.label5.AutoSize = true;
+            this.label5.Location = new System.Drawing.Point(19, 181);
+            this.label5.Name = "label5";
+            this.label5.Size = new System.Drawing.Size(62, 13);
+            this.label5.TabIndex = 1016;
+            this.label5.Text = "Test values";
+            // 
             // btnLaunchvApusPublishItemsHandler
             // 
             this.btnLaunchvApusPublishItemsHandler.AutoSize = true;
@@ -235,6 +244,7 @@
             this.txtTcpHost.Name = "txtTcpHost";
             this.txtTcpHost.Size = new System.Drawing.Size(450, 20);
             this.txtTcpHost.TabIndex = 0;
+            this.txtTcpHost.Text = "127.0.0.1";
             // 
             // label4
             // 
@@ -331,15 +341,6 @@
             this.toolTip.AutoPopDelay = 15000;
             this.toolTip.InitialDelay = 500;
             this.toolTip.ReshowDelay = 100;
-            // 
-            // label5
-            // 
-            this.label5.AutoSize = true;
-            this.label5.Location = new System.Drawing.Point(19, 181);
-            this.label5.Name = "label5";
-            this.label5.Size = new System.Drawing.Size(62, 13);
-            this.label5.TabIndex = 1016;
-            this.label5.Text = "Test values";
             // 
             // PublishPanel
             // 
