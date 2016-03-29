@@ -946,17 +946,14 @@ namespace vApus.StressTest {
             //If so the range will be executed multi threaded
             if (!testableRequest.ExecuteInParallelWithPrevious) {
                 int testableRequestsLength = 0, exclusiveEnd = 0;
-                List<TestableRequest> parallelTestableRequests = null;
 
                 // Make the range if following is true.
                 if (_stressTest.UseParallelExecutionOfRequests) {
                     testableRequestsLength = testableRequests.Length;
                     exclusiveEnd = testableRequestIndex + 1;
-                    parallelTestableRequests = new List<TestableRequest>();
                     //Do not go out of bounds
                     if (exclusiveEnd != testableRequestsLength)
                         while (testableRequests[exclusiveEnd].ExecuteInParallelWithPrevious) {
-                            parallelTestableRequests.Add(testableRequests[exclusiveEnd]);
                             ++exclusiveEnd;
                             ++incrementIndex;
                             if (exclusiveEnd == testableRequestsLength)
@@ -991,7 +988,7 @@ namespace vApus.StressTest {
                     int pcpIndex = -1;
                     int finished = 0;
                     int delay = 0; //Workaround for the delay after a user action.
-                    var results = new ConcurrentBag<RequestResult>();
+                    var results = new ConcurrentDictionary<int, RequestResult>(); //Keep stuff in order.
 
                     for (int i = 0; i != parallelCount; i++) {
                         _threadPool.DequeueParallelThread().Start(new object[]{ (StressTestThreadPool.WorkItemCallback)((int index) => {
@@ -1004,7 +1001,7 @@ namespace vApus.StressTest {
 
                             try {
                                 //_sleepWaitHandle can be given here without a problem, the Set and Wait functions are thread specific. 
-                              results.Add(_syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], 0, 0));
+                              results.TryAdd(index, _syncAndAsyncWorkItem.ExecuteRequest(this, _sleepWaitHandle, _runResult, threadIndex, index, testableRequests[index], parallelConnectionProxies[Interlocked.Increment(ref pcpIndex)], 0, 0));
                             } catch {
                                 //when stopping a test...
                             }
@@ -1021,16 +1018,15 @@ namespace vApus.StressTest {
                         _sleepWaitHandle.WaitOne(delay);
 
                         RequestResult resultWithDelay = null; //Only one result can store the delay in the database and fast results.
-                        foreach (var result in results) {
+                        foreach (var result in results.Values) {
                             if (resultWithDelay == null || result.SentAt.AddTicks(result.TimeToLastByteInTicks) > resultWithDelay.SentAt.AddTicks(resultWithDelay.TimeToLastByteInTicks))
                                 resultWithDelay = result;
-
                         }
 
                         resultWithDelay.DelayInMilliseconds = delay;
                     }
 
-                    foreach (var result in results) FireOnRequestResult(result);
+                    for (int i = testableRequestIndex; i != testableRequestIndex + results.Count; i++) FireOnRequestResult(results[i]);
 
 
                     pThreadsSignalFinished.Dispose();
@@ -1100,6 +1096,7 @@ namespace vApus.StressTest {
                             gen.Dispose();
                         _testPatternsAndDelaysGenerators = null;
                     }
+
 
                     _stressTestResult = null;
                 }
@@ -1281,11 +1278,11 @@ namespace vApus.StressTest {
         }
 
         /// <summary>
-        /// Fire async
+        /// Fire on a seperated thread. In order.
         /// </summary>
         /// <param name="requestResult"></param>
         internal void FireOnRequestResult(RequestResult requestResult) {
-            if (OnRequest != null) {
+            if (OnRequest != null && BackgroundWorkQueueWrapper.BackgroundWorkQueue != null && !BackgroundWorkQueueWrapper.BackgroundWorkQueue.IsDisposed) {
                 var publishItem = new RequestResults();
                 publishItem.ConcurrencyId = requestResult.ConcurrencyId;
                 publishItem.Concurrency = requestResult.Concurrency;
@@ -1303,7 +1300,7 @@ namespace vApus.StressTest {
                 publishItem.Error = requestResult.Error;
                 publishItem.Rerun = requestResult.Rerun;
 
-                OnRequest.BeginInvoke(this, new OnRequestEventArgs(publishItem), null, null);
+                BackgroundWorkQueueWrapper.BackgroundWorkQueue.EnqueueWorkItem(OnRequest, this, new OnRequestEventArgs(publishItem));
             }
         }
     }
