@@ -338,7 +338,7 @@ namespace vApus.UpdateTool {
                 //Kill other tools
                 Parallel.ForEach(Process.GetProcesses(), (p) => {
                     try {
-                        if (p != null && (p.ProcessName == "vApus.JumpStart" || p.ProcessName == "vApusSMT_GUI" || p.ProcessName == "vApus.DetailedResultsViewer"))
+                        if (p != null && (p.ProcessName == "vApus.JumpStart" || p.ProcessName == "vApus.PublishItemsHandler" || p.ProcessName == "vApus.DetailedResultsViewer" || p.ProcessName == "Lupus-Titanium_GUI"))
                             p.Kill();
                     } catch { }
                 });
