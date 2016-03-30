@@ -27,4 +27,4 @@ Name: {group}\Lupus-Titanium HTTP(s) proxy; Filename: {app}\Lupus-Titanium\Lupus
 Name: {group}\Publish Items Handler; Filename: {app}\PublishItemsHandler\vApus.PublishItemsHandler\vApus.exe
 Name: {group}\Detailed Results Viewer; Filename: {app}\DetailedResultsViewer\vApus.DetailedResultsViewer.exe
 Name: {group}\Uninstall; Filename: {app}\unins000.exe
-Name: {commonstartup}\vApus JumpStart; Filename: {app}\vApus.JumpStart.exe
+Name: {commonstartup}\vApus JumpStart; Filename: {app}\startjumpstart.cmd
