@@ -83,6 +83,14 @@ namespace vApus.StressTest {
         /// <param name="allowMessageBox"></param>
         /// <returns>An error if any.</returns>
         public string TestConnection(bool allowMessageBox) {
+            var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
+            foreach (BaseItem item in stressTestProject)
+                if (item is ValueStore) {
+                    var valueStore = item as ValueStore;
+                    valueStore.InitForTestConnection();
+                    break;
+                }
+
             string error = string.Empty;
             _testing = false;
             if (_connection.ConnectionProxy.IsEmpty) {

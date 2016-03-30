@@ -77,6 +77,14 @@ namespace vApus.StressTest {
             }
         }
 
+        public void InitForTestConnection() {
+            _valuesForCPs.Clear();
+
+            foreach (ValueStoreValue v in this) 
+                if (!string.IsNullOrWhiteSpace(v.Label))
+                    _valuesForCPs.TryAdd(v.Label, v);
+        }
+
         /// <summary>
         /// Used in CP.
         /// </summary>
