@@ -77,7 +77,8 @@ namespace vApus.StressTest {
                 fctxteditView.DefaultContextMenu(true);
                 fctxtxPlainText.DefaultContextMenu(true);
 
-            } catch {
+            }
+            catch {
                 //Should / can never happen.
             }
             this.HandleCreated += EditUserActionPanel_HandleCreated;
@@ -166,7 +167,8 @@ namespace vApus.StressTest {
                 for (int i = 0; i < moveSteps; i++)
                     if (++index + userAction.LinkedToUserActionIndices.Count < _scenario.Count)
                         MoveDownOneStep(userAction);
-            } else {
+            }
+            else {
                 //We move the previous user action(s) down, this makes the following logic easier (we don't need a 'move up' logic)
                 //linked user actions are taken into account
                 UserAction linkUserAction;
@@ -189,7 +191,8 @@ namespace vApus.StressTest {
 
                         if (index == 0) break;
                     }
-                } else if (index != 0) {
+                }
+                else if (index != 0) {
                     toMoveDown.Add(_scenario[index - 1] as UserAction);
                 }
 
@@ -216,7 +219,8 @@ namespace vApus.StressTest {
                         nextUserAction = _scenario[moveIndex] as UserAction;
                     }
                 }
-            } else if (++moveIndex < _scenario.Count) {
+            }
+            else if (++moveIndex < _scenario.Count) {
                 nextUserAction = _scenario[moveIndex] as UserAction;
             }
             if (nextUserAction == null) return;
@@ -313,7 +317,8 @@ namespace vApus.StressTest {
             if (UserActionTreeViewItem.UserAction.UseDelay) {
                 picDelay.Image = global::vApus.StressTest.Properties.Resources.Delay;
                 toolTip.SetToolTip(picDelay, "Click to NOT use delay after this user action.\nDelay is determined in the stress test settings.");
-            } else {
+            }
+            else {
                 picDelay.Image = global::vApus.StressTest.Properties.Resources.IgnoreDelay;
                 toolTip.SetToolTip(picDelay, "Click to use delay after this user action.\nDelay is determined in the stress test settings.");
             }
@@ -412,7 +417,8 @@ namespace vApus.StressTest {
 
             if (selected == null) {
                 cbo.SelectedIndex = 0;
-            } else {
+            }
+            else {
                 cbo.SelectedItem = selected;
                 cbo.Tag = selected;
             }
@@ -474,7 +480,8 @@ namespace vApus.StressTest {
                     string formattedS = request.RequestString.Replace("\n", VBLRn).Replace("\r", VBLRr);
                     AddRowToDgv(request.RequestString);
                     plainText.AppendLine(formattedS);
-                } else
+                }
+            else
                 foreach (string s in userAction.RequestStringsAsImported) {
                     string formattedS = s.Replace("\n", VBLRn).Replace("\r", VBLRr);
                     AddRowToDgv(s);
@@ -553,16 +560,11 @@ namespace vApus.StressTest {
             string delimiter = _scenario.ScenarioRuleSet.ChildDelimiter;
             var row = new List<string>();
             row.Add(string.Empty);
-            while (row.Count != _cache.Columns.Count - 1) {
-                int delimiterIndex = requestString.IndexOf(delimiter);
-                if (delimiterIndex == -1) {
-                    row.Add(string.Empty);
-                } else {
-                    row.Add(requestString.Substring(0, delimiterIndex));
-                    requestString = requestString.Substring(delimiterIndex + delimiter.Length);
-                }
-            }
-            row.Add(requestString);
+
+            row.AddRange(requestString.Split(new string[] { delimiter }, StringSplitOptions.None));
+
+            while (row.Count < _cache.Columns.Count) row.Add(string.Empty);
+
             _cache.Rows.Add(row.ToArray());
 
             return requestString.Length != 0;
@@ -574,7 +576,8 @@ namespace vApus.StressTest {
                     if (item.Optional) {
                         optional = true;
                         break;
-                    } else {
+                    }
+                    else {
                         optional = CheckOptionalSyntaxItem(subItem as SyntaxItem);
                         if (optional) break;
                     }
@@ -592,7 +595,8 @@ namespace vApus.StressTest {
                 dgvRequests.AllowUserToAddRows = true;
 
                 dgvRequests.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
-            } else {
+            }
+            else {
                 btnApply.Visible = btnRevertToImported.Visible = false;
                 dgvRequests.ReadOnly = fctxtxPlainText.ReadOnly = true;
                 dgvRequests.AllowDrop = false;
@@ -626,7 +630,8 @@ namespace vApus.StressTest {
                 // Create a rectangle using the DragSize, with the mouse position being
                 // at the center of the rectangle.
                 _dragBoxFromMouseDown = new Rectangle(new Point(e.X - (dragSize.Width / 2), e.Y - (dragSize.Height / 2)), dragSize);
-            } else
+            }
+            else
                 // Reset the rectangle if the mouse is not over an item in the ListBox.
                 _dragBoxFromMouseDown = Rectangle.Empty;
         }
@@ -687,7 +692,8 @@ namespace vApus.StressTest {
 
                 string formattedS = sb.ToString().Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                 userAction.AddWithoutInvokingEvent(new Request(formattedS));
-            } else {
+            }
+            else {
                 var row = _cache.Rows[cellRowIndex].ItemArray;
                 row[cellColumnIndex] = cellValue;
 
@@ -744,22 +750,26 @@ namespace vApus.StressTest {
                         if (request.LexicalResult == LexicalResult.OK) {
                             e.Value = null;
                             dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = null;
-                        } else {
+                        }
+                        else {
                             if (request.LexedRequest == null) {
                                 e.Value = null;
                                 dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = null;
-                            } else {
+                            }
+                            else {
                                 e.Value = global::vApus.StressTest.Properties.Resources.RequestError;
                                 int column = request.LexedRequest.Count;
                                 if (column == 0) column = 1;
                                 dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = request.LexedRequest.Error + " See column " + column + ".";
                             }
                         }
-                    } else {
+                    }
+                    else {
                         e.Value = _cache.Rows[e.RowIndex][e.ColumnIndex];
                     }
                 }
-            } catch {
+            }
+            catch {
                 //Cell is probably deleted. Logged and tested this.
             }
         }
@@ -794,7 +804,8 @@ namespace vApus.StressTest {
 
                 cboParameterScope.Refresh();
 
-            } else {
+            }
+            else {
                 btnShowHideParameterTokens.Text = "Show Parameter Tokens";
                 pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                 flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
@@ -823,7 +834,8 @@ namespace vApus.StressTest {
                         request.RequestString = formattedS;
                         changed = true;
                     }
-                } else {
+                }
+                else {
                     userAction.AddWithoutInvokingEvent(new Request(formattedS));
                     changed = true;
                 }
@@ -881,7 +893,8 @@ namespace vApus.StressTest {
                 AddKvpsToFlps(ASTNode.REQUEST_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.LEAF_NODE_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.ALWAYS_PARAMETER_SCOPE);
-            } else {
+            }
+            else {
                 AddKvpsToFlps(scopeIdentifier);
             }
         }
@@ -1064,7 +1077,8 @@ namespace vApus.StressTest {
                         SetParameters();
                         SetCodeStyle();
                         fctxteditView.Text = dgvRequests.CurrentCell.Value.ToString();
-                    } else {
+                    }
+                    else {
                         toolTip.SetToolTip(btnApplyEditView, null);
                         fctxteditView.Text = string.Empty;
                     }
@@ -1072,11 +1086,13 @@ namespace vApus.StressTest {
                     btnApplyEditView.Enabled = false;
 
                     fctxteditView.TextChanged += fctxteditView_TextChanged;
-                } else {
+                }
+                else {
                     fctxteditView.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                     splitStructured.Panel2Collapsed = true;
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed filling edit view.", ex);
             }
         }
