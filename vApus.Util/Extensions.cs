@@ -191,7 +191,7 @@ namespace vApus.Util {
         /// <param name="newChar"></param>
         /// <returns></returns>
         public static string ReplaceInvalidWindowsFilenameChars(this string s, char newChar) {
-            StringBuilder sb = new StringBuilder(s.Length);
+            var sb = new StringBuilder(s.Length);
             if (s == null)
                 throw new ArgumentNullException("s");
             foreach (char c in s)
@@ -219,18 +219,18 @@ namespace vApus.Util {
         /// <param name="salt"></param>
         /// <returns>The encrypted string.</returns>
         public static string Encrypt(this string s, string password, byte[] salt) {
-            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
+            var pdb = new PasswordDeriveBytes(password, salt);
             byte[] encrypted = Encrypt(System.Text.Encoding.Unicode.GetBytes(s), pdb.GetBytes(32), pdb.GetBytes(16));
             return Convert.ToBase64String(encrypted);
         }
         private static byte[] Encrypt(byte[] toEncrypt, byte[] key, byte[] IV) {
-            MemoryStream ms = new MemoryStream();
-            Rijndael alg = Rijndael.Create();
+            var ms = new MemoryStream();
+            var alg = Rijndael.Create();
             alg.Key = key;
             alg.IV = IV;
             //alg.Padding = PaddingMode.None;
 
-            CryptoStream cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write);
+            var cs = new CryptoStream(ms, alg.CreateEncryptor(), CryptoStreamMode.Write);
             cs.Write(toEncrypt, 0, toEncrypt.Length);
             cs.Close();
             return ms.ToArray();
@@ -244,28 +244,29 @@ namespace vApus.Util {
         /// <param name="salt"></param>
         /// <returns>The decrypted string.</returns>
         public static string Decrypt(this string s, string password, byte[] salt) {
-            PasswordDeriveBytes pdb = new PasswordDeriveBytes(password, salt);
+            var pdb = new PasswordDeriveBytes(password, salt);
             byte[] decrypted = Decrypt(Convert.FromBase64String(s), pdb.GetBytes(32), pdb.GetBytes(16));
             return System.Text.Encoding.Unicode.GetString(decrypted);
         }
         private static byte[] Decrypt(byte[] toDecrypt, byte[] Key, byte[] IV) {
-            MemoryStream ms = new MemoryStream();
-            Rijndael alg = Rijndael.Create();
+            var ms = new MemoryStream();
+            var alg = Rijndael.Create();
             alg.Key = Key;
             alg.IV = IV;
             //alg.Padding = PaddingMode.None;
 
-            CryptoStream cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
+            var cs = new CryptoStream(ms, alg.CreateDecryptor(), CryptoStreamMode.Write);
             cs.Write(toDecrypt, 0, toDecrypt.Length);
             try {
                 cs.Close();
-            } catch {
+            }
+            catch {
                 //Don't care.
             }
             return ms.ToArray();
         }
         public static string Reverse(this string s) {
-            StringBuilder sb = new StringBuilder(s.Length); ;
+            var sb = new StringBuilder(s.Length); ;
             for (int i = s.Length - 1; i != -1; i--)
                 sb.Append(s[i]);
 
@@ -286,7 +287,7 @@ namespace vApus.Util {
 
             object o = null;
             using (var ms = new MemoryStream(buffer)) {
-                BinaryFormatter bf = new BinaryFormatter();
+                var bf = new BinaryFormatter();
                 o = bf.UnsafeDeserialize(ms, null);
                 bf = null;
             }
@@ -323,11 +324,11 @@ namespace vApus.Util {
         //Do not use this for primary datatypes (strings included) except if you do something like this:
         //Object o = 1;
         [NonSerialized]
-        private static Hashtable _tags = new Hashtable();
+        private static ConcurrentDictionary<object, object> _tags = new ConcurrentDictionary<object, object>();
         [NonSerialized]
-        private static Hashtable _parents = new Hashtable();
+        private static ConcurrentDictionary<object, object> _parents = new ConcurrentDictionary<object, object>();
         [NonSerialized]
-        private static Hashtable _descriptions = new Hashtable();
+        private static ConcurrentDictionary<object, object> _descriptions = new ConcurrentDictionary<object, object>();
         /// <summary>
         ///Nifty hack to make this work everywhere (also in derived types when shallow copying).
         ///Having just a static field for tag and parent doesn't work, they will be the same for every object you assign them.
@@ -336,18 +337,9 @@ namespace vApus.Util {
         /// </summary>
         /// <param name="o"></param>
         /// <param name="tag"></param>
-        public static void SetTag(this object o, object tag) {
-            lock (_tags.SyncRoot)
-                if (o != null)
-                    if (_tags.Contains(o))
-                        if (tag == null) _tags.Remove(o); else _tags[o] = tag;
-                    else if (tag != null) _tags.Add(o, tag);
-        }
-        public static object GetTag(this object o) {
-            //Threadsafe for reader threads.
-            if (o == null) return null;
-            return _tags.Contains(o) ? _tags[o] : null;
-        }
+        public static void SetTag(this object o, object tag) { Set(_tags, o, tag); }
+        public static object GetTag(this object o) { return Get(_tags, o); }
+
         /// <summary>
         ///Nifty hack to make this work everywhere (also in derived types when shallow copying).
         ///Having just a static field for tag and parent doesn't work, they will be the same for every object you assign them.
@@ -357,106 +349,68 @@ namespace vApus.Util {
         /// <param name="o"></param>
         /// <param name="parent"></param>
         public static void SetParent(this object o, object parent) {
-            lock (_parents.SyncRoot)
-                if (o != null) {
-                    object previous = null;
+            Set(_parents, o, parent);
+        }
+        public static object GetParent(this object o) { return Get(_parents, o); }
 
-                    if (_parents.Contains(o)) {
-                        previous = _parents[o];
-                        if (parent == null) _parents.Remove(o);
-                        else if (previous != null && !previous.Equals(parent)) _parents[o] = parent; else return;
-                    } else {
-                        if (parent == null) return;
-                        _parents.Add(o, parent);
-                    }
-                }
-        }
-        public static object GetParent(this object o) {
-            //Threadsafe for reader threads.
-            if (o == null) return null;
-            return _parents.Contains(o) ? _parents[o] : null;
-        }
-
-        public static void SetDescription(this object o, string description) {
-            lock (_descriptions.SyncRoot)
-                if (o != null)
-                    if (_descriptions.Contains(o))
-                        if (description == null) _descriptions.Remove(o); else _descriptions[o] = description;
-                    else if (description != null) _descriptions.Add(o, description);
-        }
-        public static string GetDescription(this object o) {
-            //Threadsafe for reader threads.
-            if (o == null) return null;
-            return (_descriptions.Contains(o) ? _descriptions[o] : null) as string;
-        }
+        public static void SetDescription(this object o, string description) { Set(_descriptions, o, description); }
+        public static string GetDescription(this object o) { return Get(_descriptions, o) as string; }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="o">Child</param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveParent(this object o) {
-            lock (_parents.SyncRoot) {
-                bool removed = false;
-                if (_parents.Contains(o)) {
-                    _parents.Remove(o);
-                    removed = true;
-                }
-                return removed;
-            }
-        }
+        public static bool RemoveParent(this object o) { return Remove(_parents, o); }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="o"></param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveTag(this object o) {
-            lock (_tags.SyncRoot) {
-                if (_tags.Contains(o)) {
-                    _tags.Remove(o);
-                    return true;
-                }
-                return false;
-            }
-        }
+        public static bool RemoveTag(this object o) { return Remove(_tags, o); }
         /// <summary>
         /// 
         /// </summary>
         /// <param name="o"></param>
         /// <returns>True if the object was removed.</returns>
-        public static bool RemoveDescription(this object o) {
-            lock (_descriptions.SyncRoot) {
-                if (_descriptions.Contains(o)) {
-                    _descriptions.Remove(o);
-                    return true;
-                }
-                return false;
-            }
-        }
+        public static bool RemoveDescription(this object o) { return Remove(_descriptions, o); }
         /// <summary>
         /// This does not invoke parent changed.
         /// </summary>
         /// <returns>True if the cache was not empty.</returns>
         public static bool ClearCache() {
-            lock (_tags.SyncRoot) {
-                bool cleared = _tags.Count != 0 || _parents.Count != 0 || _descriptions.Count != 0;
+            bool cleared = _tags.Count != 0 || _parents.Count != 0 || _descriptions.Count != 0;
 
-                _tags.Clear();
-                _parents.Clear();
-                _descriptions.Clear();
+            _tags.Clear();
+            _parents.Clear();
+            _descriptions.Clear();
 
-                return cleared;
-            }
+            return cleared;
         }
 
-        public class ParentChangedEventArgs : EventArgs {
-            public object Child, Previous, New;
-
-            public ParentChangedEventArgs(object child, object previous, object __new) {
-                Child = child;
-                Previous = previous;
-                New = __new;
-            }
+        private static void Set(ConcurrentDictionary<object, object> dict, object key, object value) {
+            if (key != null)
+                if (value == null) {
+                    object val;
+                    dict.TryRemove(key, out val);
+                }
+                else {
+                    dict.AddOrUpdate(key, value, (k, oldvalue) => value);
+                }
         }
+
+        private static object Get(ConcurrentDictionary<object, object> dict, object key) {
+            if (key == null) return null;
+
+            object value;
+            dict.TryGetValue(key, out value);
+            return value;
+        }
+        private static bool Remove(ConcurrentDictionary<object, object> dict, object key) {
+            if (key == null) return false;
+            object val;
+            return dict.TryRemove(key, out val);
+        }
+
         /// <summary>
         /// Returns the string representation of the serialized object --> Must be serializable!
         /// </summary>
@@ -466,7 +420,7 @@ namespace vApus.Util {
         public static string ToBinaryToString(this object o, string separator = ",") {
             byte[] buffer = null;
             using (var ms = new MemoryStream(1)) {
-                BinaryFormatter bf = new BinaryFormatter();
+                var bf = new BinaryFormatter();
                 bf.Serialize(ms, o);
                 bf = null;
 
@@ -481,8 +435,7 @@ namespace vApus.Util {
     public static class DataGridViewExtension {
         public static void DoubleBuffered(this DataGridView dgv, bool doubleBuffered) {
             Type dgvType = dgv.GetType();
-            PropertyInfo pi = dgvType.GetProperty("DoubleBuffered",
-                BindingFlags.Instance | BindingFlags.NonPublic);
+            PropertyInfo pi = dgvType.GetProperty("DoubleBuffered", BindingFlags.Instance | BindingFlags.NonPublic);
             pi.SetValue(dgv, doubleBuffered, null);
         }
     }
@@ -497,7 +450,7 @@ namespace vApus.Util {
             if (row.Cells.Count == 0) return string.Empty;
             if (row.Cells.Count == 1) return row.Cells[0].Value.ToString();
 
-            StringBuilder sb = new StringBuilder();
+            var sb = new StringBuilder();
             for (int i = 0; i != row.Cells.Count - 1; i++) {
                 sb.Append(row.Cells[i].Value);
                 sb.Append(separator);
@@ -651,7 +604,8 @@ namespace vApus.Util {
             if (enable) {
                 rtxt.MouseUp += rtxt_MouseUp;
                 rtxt.Disposed += rtxt_Disposed;
-            } else {
+            }
+            else {
                 rtxt.MouseUp -= rtxt_MouseUp;
                 rtxt.Disposed -= rtxt_Disposed;
             }
@@ -715,7 +669,8 @@ namespace vApus.Util {
             if (enable) {
                 fctxt.MouseUp += fctxt_MouseUp;
                 fctxt.Disposed += fctxt_Disposed;
-            } else {
+            }
+            else {
                 fctxt.MouseUp -= fctxt_MouseUp;
                 fctxt.Disposed -= fctxt_Disposed;
             }

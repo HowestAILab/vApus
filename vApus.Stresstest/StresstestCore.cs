@@ -990,8 +990,12 @@ namespace vApus.StressTest {
                     int delay = 0; //Workaround for the delay after a user action.
                     var results = new ConcurrentDictionary<int, RequestResult>(); //Keep stuff in order.
 
+                    object parentThread = Thread.CurrentThread.Name as object;
+
                     for (int i = 0; i != parallelCount; i++) {
                         _threadPool.DequeueParallelThread().Start(new object[]{ (StressTestThreadPool.WorkItemCallback)((int index) => {
+
+                            Thread.CurrentThread.SetParent(parentThread);
 
                             if (_syncAndAsyncWorkItem == null) _syncAndAsyncWorkItem = new SyncAndAsyncWorkItem();
 
@@ -1005,6 +1009,8 @@ namespace vApus.StressTest {
                             } catch {
                                 //when stopping a test...
                             }
+
+                            Thread.CurrentThread.RemoveParent();
 
                             if (Interlocked.Increment(ref finished) == parallelCount) pThreadsSignalFinished.Set();
                         }), testableRequestIndex + i});

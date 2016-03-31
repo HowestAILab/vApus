@@ -206,9 +206,9 @@ namespace vApus.StressTest {
             return owners;
         }
 
-        public void Set(object value) { SetValue(Thread.CurrentThread.Name, value); }
+        public void Set(object value) { Set(Thread.CurrentThread.Name, value); }
 
-        private void SetValue(string threadName, object value) {
+        public void Set(string ownerName, object value) {
             bool success;
             object castedValue = CastOrParseInputToType(value, _valueType, out success);
             if (!success) throw new Exception("Value not of type " + _valueType + ".");

@@ -24,10 +24,12 @@ namespace vApus.StressTest {
     [DisplayName("Value store")]
     [Serializable]
     public class ValueStore : BaseItem, ISerializable {
+        [NonSerialized]
         private static ValueStore _valueStore;
         /// <summary>
         /// Faster than a lock around this.
         /// </summary>
+        [NonSerialized]
         private static ConcurrentDictionary<string, ValueStoreValue> _valuesForCPs = new ConcurrentDictionary<string, ValueStoreValue>();
 
         #region Constructors
