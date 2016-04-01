@@ -6,10 +6,11 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections;
 using System.Text;
 
 namespace vApus.Util {
-    public struct StringTree {
+    public struct StringTree : IEnumerable {
 
         #region Fields
         private string _value, _childDelimiter;
@@ -64,7 +65,8 @@ namespace vApus.Util {
             var sb = new StringBuilder();
             if (_childDelimiter.Length == 0) {
                 sb.Append(this[0].CombineValues());
-            } else {
+            }
+            else {
                 for (int i = 0; i < _childs.Length - 1; i++) {
                     sb.Append(this[i].CombineValues());
                     sb.Append(_childDelimiter);
@@ -73,6 +75,8 @@ namespace vApus.Util {
             }
             return sb.ToString();
         }
+
+        public IEnumerator GetEnumerator() { return _childs.GetEnumerator(); }
 
         public override string ToString() {
             return base.ToString() + (_childs.Length == 0 ? " value: " + _value : " count: " + _childs.Length);
