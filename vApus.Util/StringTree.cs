@@ -6,11 +6,11 @@
  *    Dieter Vandroemme
  */
 using System;
-using System.Collections;
+using System.Collections.Generic;
 using System.Text;
 
 namespace vApus.Util {
-    public struct StringTree : IEnumerable {
+    public struct StringTree : IEnumerable<StringTree> {
 
         #region Fields
         private string _value, _childDelimiter;
@@ -76,7 +76,13 @@ namespace vApus.Util {
             return sb.ToString();
         }
 
-        public IEnumerator GetEnumerator() { return _childs.GetEnumerator(); }
+        public IEnumerator<StringTree> GetEnumerator() {
+            return ((IEnumerable<StringTree>)_childs).GetEnumerator();
+        }
+
+        System.Collections.IEnumerator System.Collections.IEnumerable.GetEnumerator() {
+            return this.GetEnumerator();
+        }
 
         public override string ToString() {
             return base.ToString() + (_childs.Length == 0 ? " value: " + _value : " count: " + _childs.Length);
