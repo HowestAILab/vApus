@@ -255,9 +255,9 @@ namespace vApus.Publish {
         public string Request { get; set; }
         public bool InParallelWithPrevious { get; set; }
         /// <summary>
-        /// Use this for calculations instead of PublishItemTimestampInMillisecondsSinceEpochUtc. PublishItemTimestampInMillisecondsSinceEpochUtc will skew.
+        /// A tenth of a microsecond. Use this for calculations instead of PublishItemTimestampInMillisecondsSinceEpochUtc. PublishItemTimestampInMillisecondsSinceEpochUtc will skew.
         /// </summary>
-        public long SentAtInMicrosecondsSinceEpochUtc { get; set; }
+        public long SentAtInTicksSinceEpochUtc { get; set; }
         /// <summary>
         /// A tenth of a microsecond.
         /// </summary>

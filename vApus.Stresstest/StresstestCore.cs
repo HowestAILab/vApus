@@ -1299,7 +1299,7 @@ namespace vApus.StressTest {
                 publishItem.SameAsRequestIndex = requestResult.SameAsRequestIndex;
                 publishItem.Request = requestResult.Request;
                 publishItem.InParallelWithPrevious = requestResult.InParallelWithPrevious;
-                publishItem.SentAtInMicrosecondsSinceEpochUtc = (long)(requestResult.SentAt - PublishItem.EpochUtc).TotalMilliseconds;
+                publishItem.SentAtInTicksSinceEpochUtc = (long)(requestResult.SentAt - PublishItem.EpochUtc).Ticks;
                 publishItem.TimeToLastByteInTicks = requestResult.TimeToLastByteInTicks;
                 publishItem.Meta = requestResult.Meta;
                 publishItem.DelayInMilliseconds = requestResult.DelayInMilliseconds;
