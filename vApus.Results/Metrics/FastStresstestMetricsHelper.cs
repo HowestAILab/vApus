@@ -9,6 +9,7 @@ using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using vApus.Util;
+using System.Linq;
 
 namespace vApus.Results {
     /// <summary>
@@ -235,7 +236,7 @@ namespace vApus.Results {
             TimeSpan totalTimeToLastByte = new TimeSpan(), parallelRequestsAwareTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
             RequestResult prevRequestResult = null; //For parallel request calculations
 
-            foreach (RequestResult requestResult in result.RequestResults) {
+            foreach (RequestResult requestResult in result.RequestResults.OrderBy(x => x.SentAt)) {
                 if (requestResult != null && requestResult.VirtualUser != null) {
                     ++metrics.RequestsProcessed;
                     uniqueUserActions.Add(requestResult.UserAction);
