@@ -371,7 +371,7 @@
             this.dgvRequests.ColumnHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
             dataGridViewCellStyle2.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleLeft;
             dataGridViewCellStyle2.BackColor = System.Drawing.Color.White;
-            dataGridViewCellStyle2.Font = new System.Drawing.Font("Consolas", 9.75F, System.Drawing.FontStyle.Bold);
+            dataGridViewCellStyle2.Font = new System.Drawing.Font("Consolas", 9.75F);
             dataGridViewCellStyle2.ForeColor = System.Drawing.SystemColors.WindowText;
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.SystemColors.Highlight;
             dataGridViewCellStyle2.SelectionForeColor = System.Drawing.SystemColors.HighlightText;
@@ -401,6 +401,7 @@
             this.dgvRequests.CellEnter += new System.Windows.Forms.DataGridViewCellEventHandler(this.dgvRequests_CellEnter);
             this.dgvRequests.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvRequests_CellValueNeeded);
             this.dgvRequests.CellValuePushed += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvRequests_CellValuePushed);
+            this.dgvRequests.ColumnHeaderMouseClick += new System.Windows.Forms.DataGridViewCellMouseEventHandler(this.dgvRequests_ColumnHeaderMouseClick);
             this.dgvRequests.RowPostPaint += new System.Windows.Forms.DataGridViewRowPostPaintEventHandler(this.dgvRequests_RowPostPaint);
             this.dgvRequests.DragDrop += new System.Windows.Forms.DragEventHandler(this.dgvRequests_DragDrop);
             this.dgvRequests.DragOver += new System.Windows.Forms.DragEventHandler(this.dgvRequests_DragOver);
@@ -446,6 +447,7 @@
             this.fctxteditView.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxteditView.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
             this.fctxteditView.Enabled = false;
+            this.fctxteditView.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.fctxteditView.IsReplaceMode = false;
             this.fctxteditView.LineInterval = 8;
             this.fctxteditView.Location = new System.Drawing.Point(6, 0);
@@ -487,12 +489,13 @@
         '\"',
         '\'',
         '\''};
-            this.fctxtxPlainText.AutoScrollMinSize = new System.Drawing.Size(0, 22);
+            this.fctxtxPlainText.AutoScrollMinSize = new System.Drawing.Size(2, 22);
             this.fctxtxPlainText.BackBrush = null;
             this.fctxtxPlainText.CharHeight = 22;
             this.fctxtxPlainText.CharWidth = 8;
             this.fctxtxPlainText.Cursor = System.Windows.Forms.Cursors.IBeam;
             this.fctxtxPlainText.DisabledColor = System.Drawing.Color.FromArgb(((int)(((byte)(100)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))), ((int)(((byte)(180)))));
+            this.fctxtxPlainText.Font = new System.Drawing.Font("Courier New", 9.75F);
             this.fctxtxPlainText.IsReplaceMode = false;
             this.fctxtxPlainText.LineInterval = 8;
             this.fctxtxPlainText.Location = new System.Drawing.Point(3, 3);
@@ -503,7 +506,6 @@
             this.fctxtxPlainText.ServiceColors = ((FastColoredTextBoxNS.ServiceColors)(resources.GetObject("fctxtxPlainText.ServiceColors")));
             this.fctxtxPlainText.Size = new System.Drawing.Size(981, 386);
             this.fctxtxPlainText.TabIndex = 1;
-            this.fctxtxPlainText.WordWrap = false;
             this.fctxtxPlainText.Zoom = 100;
             this.fctxtxPlainText.TextChanged += new System.EventHandler<FastColoredTextBoxNS.TextChangedEventArgs>(this.fctxtxPlainText_TextChanged);
             // 

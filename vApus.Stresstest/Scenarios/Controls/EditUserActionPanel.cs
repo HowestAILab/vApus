@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -61,6 +62,13 @@ namespace vApus.StressTest {
 
         #region Properties
         public UserActionTreeViewItem UserActionTreeViewItem { get; private set; }
+
+        private ScrollBar DgvHScrollBar {
+            get {
+                return dgvRequests.GetType().GetProperty("HorizontalScrollBar", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(dgvRequests) as ScrollBar;
+            }
+        }
+
         #endregion
 
         #region Constructor
@@ -679,7 +687,7 @@ namespace vApus.StressTest {
         private void dgvRequests_CellValuePushed(object sender, DataGridViewCellValueEventArgs e) {
             PushCellValueToRequest(e.RowIndex, e.ColumnIndex, e.Value);
         }
-        private void PushCellValueToRequest(int cellRowIndex, int cellColumnIndex, object cellValue) {
+        private void PushCellValueToRequest(int cellRowIndex, int cellColumnIndex, object cellValue, bool updateGUI = true) {
             var userAction = UserActionTreeViewItem.UserAction;
 
             if (cellRowIndex >= userAction.Count) {
@@ -708,38 +716,104 @@ namespace vApus.StressTest {
                 (userAction[cellRowIndex] as Request).RequestString = formattedS;
             }
 
-            _scenario.ApplyScenarioRuleSet();
+            if (updateGUI) {
+                dgvRequests.SuspendLayout();
 
-            userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
+                ScrollBar hScrollBar = DgvHScrollBar;
 
-            SetBtnSplit();
-            SetRequests(false);
-
-            var selectedCells = new List<DataGridViewCell>(dgvRequests.SelectedCells.Count);
-            foreach (DataGridViewCell cell in dgvRequests.SelectedCells) selectedCells.Add(cell);
-            foreach (var cell in selectedCells) cell.Selected = false;
-
-            dgvRequests.Rows[cellRowIndex].Cells[cellColumnIndex].Selected = true;
-            FillEditView();
-        }
-
-        private void dgvRequests_KeyUp(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Delete && dgvRequests.SelectedRows.Count != 0) {
-                var userAction = UserActionTreeViewItem.UserAction;
-                var toRemove = new List<BaseItem>();
-                foreach (DataGridViewRow row in dgvRequests.SelectedRows) {
-                    int index = dgvRequests.Rows.IndexOf(row);
-                    if (index != userAction.Count) toRemove.Add(userAction[index]);
-                }
-                userAction.RemoveRangeWithoutInvokingEvent(toRemove);
-
-                userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
+                int prevHValue = hScrollBar.Value;
+                int firstDisplayedRow = dgvRequests.FirstDisplayedScrollingRowIndex;
 
                 _scenario.ApplyScenarioRuleSet();
 
+                userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
+
                 SetBtnSplit();
-                SetRequests();
+                SetRequests(false);
+
+                try {
+                    var selectedCells = new List<DataGridViewCell>(dgvRequests.SelectedCells.Count);
+                    foreach (DataGridViewCell cell in dgvRequests.SelectedCells) selectedCells.Add(cell);
+                    foreach (var cell in selectedCells) cell.Selected = false;
+
+                    dgvRequests.Rows[cellRowIndex].Cells[cellColumnIndex].Selected = true;
+                }
+                catch {
+                    //Don't care
+                }
+                FillEditView();
+
+                dgvRequests.HorizontalScrollingOffset = prevHValue < hScrollBar.Maximum ? prevHValue : hScrollBar.Maximum;
+
+                if (firstDisplayedRow < dgvRequests.Rows.Count) dgvRequests.FirstDisplayedScrollingRowIndex = firstDisplayedRow;
+
+                dgvRequests.ResumeLayout();
             }
+        }
+
+        private void dgvRequests_KeyUp(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Delete)
+                if (dgvRequests.SelectedRows.Count != 0) {
+                    var userAction = UserActionTreeViewItem.UserAction;
+                    var toRemove = new List<BaseItem>();
+
+                    int firstSelected = -1;
+
+                    foreach (DataGridViewRow row in dgvRequests.SelectedRows) {
+                        int index = dgvRequests.Rows.IndexOf(row);
+                        if (index < dgvRequests.Rows.Count)
+                            if (index != userAction.Count) toRemove.Add(userAction[index]);
+
+                        if (firstSelected == -1) firstSelected = index;
+                    }
+
+                    if (toRemove.Count != 0) {
+                        userAction.RemoveRangeWithoutInvokingEvent(toRemove);
+
+
+                        dgvRequests.SuspendLayout();
+
+                        ScrollBar hScrollBar = DgvHScrollBar;
+                        int prevHValue = hScrollBar.Value;
+                        int firstDisplayedRow = dgvRequests.FirstDisplayedScrollingRowIndex;
+
+
+                        userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
+
+                        _scenario.ApplyScenarioRuleSet();
+
+                        SetBtnSplit();
+                        SetRequests();
+
+                        dgvRequests.HorizontalScrollingOffset = prevHValue < hScrollBar.Maximum ? prevHValue : hScrollBar.Maximum;
+
+                        if (firstDisplayedRow < dgvRequests.Rows.Count) dgvRequests.FirstDisplayedScrollingRowIndex = firstDisplayedRow;
+
+                        dgvRequests.Rows[firstSelected].Selected = true;
+
+                        dgvRequests.ResumeLayout();
+                    }
+                }
+                else if (dgvRequests.SelectedCells.Count != 0) {
+                    var userAction = UserActionTreeViewItem.UserAction;
+                    var newRequests = new List<BaseItem>();
+
+                    var cells = new List<DataGridViewCell>();
+
+                    foreach (DataGridViewCell c in dgvRequests.SelectedCells)
+                        if (c.RowIndex < dgvRequests.Rows.Count - 1) cells.Add(c);
+
+                    if (cells.Count != 0) {
+                        DataGridViewCell cell = null;
+                        for (int i = 1; i != cells.Count; i++) {
+                            cell = cells[i];
+                            PushCellValueToRequest(cell.RowIndex, cell.ColumnIndex, string.Empty, false);
+                        }
+
+                        cell = cells[0];
+                        PushCellValueToRequest(cell.RowIndex, cell.ColumnIndex, string.Empty, true);
+                    }
+                }
         }
         private void dgvRequests_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
@@ -1041,6 +1115,12 @@ namespace vApus.StressTest {
             }
         }
 
+        private void dgvRequests_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e) {
+            dgvRequests.ClearSelection();
+            foreach (DataGridViewRow row in dgvRequests.Rows)
+                row.Cells[e.ColumnIndex].Selected = true;
+        }
+
         private void dgvRequests_CellEnter(object sender, DataGridViewCellEventArgs e) { FillEditView(); }
         private void fctxteditView_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             if (dgvRequests.CurrentCell != null) {
@@ -1099,6 +1179,5 @@ namespace vApus.StressTest {
         #endregion
 
         #endregion
-
     }
 }

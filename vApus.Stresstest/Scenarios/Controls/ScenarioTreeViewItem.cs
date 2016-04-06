@@ -93,7 +93,7 @@ namespace vApus.StressTest {
         }
         //Update the scenario rule set cbo
         private void SolutionComponent_SolutionComponentChanged(object sender, SolutionComponentChangedEventArgs e) {
-            if (sender == _scenario.ScenarioRuleSet || sender == _scenarioRuleSets || sender is ScenarioRuleSet)
+            if (sender == _scenarioRuleSets || sender is ScenarioRuleSet)
                 FillCboRuleSet();
         }
         private void FillCboRuleSet() {
