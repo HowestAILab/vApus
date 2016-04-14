@@ -236,11 +236,7 @@ namespace vApus.Results {
             TimeSpan totalTimeToLastByte = new TimeSpan(), parallelRequestsAwareTimeToLastByte = new TimeSpan(), totalDelay = new TimeSpan();
             RequestResult prevRequestResult = null; //For parallel request calculations
 
-            dynamic requestResults = null;
-            if (result.RequestResults.Contains(null)) requestResults = result.RequestResults;
-            else requestResults = result.RequestResults.OrderBy(x => x.SentAt);
-
-            foreach (RequestResult requestResult in requestResults) {
+            foreach (RequestResult requestResult in result.RequestResults) {
                 if (requestResult != null && requestResult.VirtualUser != null) {
                     ++metrics.RequestsProcessed;
                     uniqueUserActions.Add(requestResult.UserAction);
