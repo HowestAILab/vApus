@@ -572,6 +572,7 @@ namespace vApus.StressTest {
             row.AddRange(requestString.Split(new string[] { delimiter }, StringSplitOptions.None));
 
             while (row.Count < _cache.Columns.Count) row.Add(string.Empty);
+            while (row.Count > _cache.Columns.Count) row.RemoveAt(row.Count - 1);
 
             _cache.Rows.Add(row.ToArray());
 
