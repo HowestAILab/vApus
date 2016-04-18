@@ -790,7 +790,11 @@ namespace vApus.StressTest {
 
                         if (firstDisplayedRow < dgvRequests.Rows.Count) dgvRequests.FirstDisplayedScrollingRowIndex = firstDisplayedRow;
 
-                        dgvRequests.Rows[firstSelected].Selected = true;
+
+                        //if (firstSelected >= dgvRequests.Rows.Count - 1) firstSelected = dgvRequests.Rows.Count - 2;
+                        //if (firstSelected < 0) firstSelected = 0;
+
+                        //dgvRequests.Rows[firstSelected].Selected = true;
 
                         dgvRequests.ResumeLayout();
                     }
