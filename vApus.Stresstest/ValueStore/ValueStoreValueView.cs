@@ -16,7 +16,7 @@ namespace vApus.StressTest {
     public partial class ValueStoreValueView : BaseSolutionComponentView {
         private ValueStoreValue _valueStoreValue;
 
-        private ValueStoreValue.ValueStoreValueTypes _previousType;
+        private ValueStoreValueTypes _previousType;
 
         /// <summary>
         ///     Designer time constructor.
@@ -97,9 +97,14 @@ namespace vApus.StressTest {
 
 Usage example in connection proxy code:
 
-  Reference the ValueStoreValue in a field. Use the label of the ValueStoreValue as variable name.
+  Get, or add if it does not yet exists, a ValueStoreValue. Use the label of the ValueStoreValue as variable name.
+  Added values from the CP will not be visible on the GUI and are not added to the vApus solution file.
 
-    ValueStoreValue _myValue = ValueStore.GetValueStoreValue(Value store value label e.g. " + "\"myValue\"" + @");
+    ValueStoreValue _myValue = ValueStore.GetOrAdd(Value store value label e.g. " + "\"myValue\"" + @"object defaultValue = null, bool isUniqueForEachConnection = true, bool publish = false);
+  
+  If values hold 'objects', an empty default value will be an empty string (not 'null').
+  CP added values are always from the type 'object' and are always cleared before a test.
+
     var defaultValue = _myValue.DefaultValue;
 
   Respect the chosen type, otherwise setting a value will fail.

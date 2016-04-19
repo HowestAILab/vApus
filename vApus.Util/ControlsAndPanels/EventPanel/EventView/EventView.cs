@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;

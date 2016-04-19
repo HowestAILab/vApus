@@ -24,6 +24,7 @@ namespace vApus.StressTest {
     [DisplayName("Value store")]
     [Serializable]
     public class ValueStore : BaseItem, ISerializable {
+        private readonly object _lock = new object();
         [NonSerialized]
         private static ValueStore _valueStore;
         /// <summary>
@@ -66,39 +67,47 @@ namespace vApus.StressTest {
         /// Always do this before a test.
         /// </summary>
         public void InitForTest(string resultSetId, string test) {
-            _valuesForCPs.Clear();
+            lock (_lock) {
+                _valuesForCPs.Clear();
 
-            foreach (ValueStoreValue v in this) {
-                v.ResultSetId = resultSetId;
-                v.Test = test;
+                foreach (ValueStoreValue v in this) {
+                    v.ResultSetId = resultSetId;
+                    v.Test = test;
 
-                if (v.ClearBeforeTest) v.ClearValues();
+                    if (v.ClearBeforeTest) v.ClearValues();
 
-                if (!string.IsNullOrWhiteSpace(v.Label))
-                    _valuesForCPs.TryAdd(v.Label, v);
+                    if (!string.IsNullOrWhiteSpace(v.Label))
+                        _valuesForCPs.TryAdd(v.Label, v);
+                }
             }
         }
 
         public void InitForTestConnection() {
-            _valuesForCPs.Clear();
+            lock (_lock) {
+                _valuesForCPs.Clear();
 
-            foreach (ValueStoreValue v in this) 
-                if (!string.IsNullOrWhiteSpace(v.Label))
-                    _valuesForCPs.TryAdd(v.Label, v);
+                foreach (ValueStoreValue v in this)
+                    if (!string.IsNullOrWhiteSpace(v.Label))
+                        _valuesForCPs.TryAdd(v.Label, v);
+            }
         }
 
         /// <summary>
-        /// Used in CP.
+        /// Add or get a value store value from the connection proxy code.
         /// </summary>
         /// <param name="label"></param>
+        /// <param name="defaultValue"></param>
+        /// <param name="publish"></param>
         /// <returns></returns>
-        public static ValueStoreValue GetValueStoreValue(string label) {
-            ValueStoreValue valueStoreValue;
-            if (!_valuesForCPs.TryGetValue(label, out valueStoreValue))
-                throw new Exception("Value store value with label " + label + " not found.");
-            return valueStoreValue;
+        public static ValueStoreValue GetOrAdd(string label, object defaultValue = null, bool isUniqueForEachConnection = true, bool publish = false) {
+            ValueStoreValue v;
+            if (!_valuesForCPs.TryGetValue(label, out v)) {
+                v = new ValueStoreValue() { Label = label, Type = ValueStoreValueTypes.objectType, DefaultValue = defaultValue ?? string.Empty,
+                    ClearBeforeTest = true, IsUniqueForEachConnection = isUniqueForEachConnection, Publish = publish, ShowInGui = false };
+                _valuesForCPs.TryAdd(label, v);
+            }
+            return v;
         }
-
         #endregion
     }
 }

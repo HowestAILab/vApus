@@ -26,28 +26,6 @@ namespace vApus.StressTest {
     [Serializable]
     public class ValueStoreValue : LabeledBaseItem, ISerializable {
 
-        #region Enum
-
-        [Serializable]
-        public enum ValueStoreValueTypes {
-            [Description("Object")]
-            objectType = 0,
-            [Description("String")]
-            stringType,
-            [Description("32-bit integer")]
-            intType,
-            [Description("64-bit integer")]
-            longType,
-            [Description("32-bit floating point")]
-            floatType,
-            [Description("64-bit floating point")]
-            doubleType,
-            [Description("Boolean")]
-            boolType
-        }
-
-        #endregion
-
         #region Fields
         private readonly object _lock = new object();
 
@@ -174,14 +152,15 @@ namespace vApus.StressTest {
         #endregion
 
         #region Functions
+        public object Get() { return Get<object>(); }
+
         public T Get<T>() { return Get<T>(Thread.CurrentThread.Name); }
 
-        public T Get<T>(string ownerName) {
-            if (typeof(T) != typeof(object) && typeof(T) != GetType(_valueType)) throw new Exception("The given type is not " + _valueType + " or object ( value store value " + Label + ").");
+        public object Get(string ownerName) { return Get<object>(ownerName); }
 
-            object castedValue = null;
+        public T Get<T>(string ownerName) {
+            object value = null;
             try {
-                object value;
                 if (_isUniqueForEachConnection) {
                     if (!_values.TryGetValue(ownerName, out value))
                         value = _defaultValue;
@@ -190,14 +169,16 @@ namespace vApus.StressTest {
                     value = _values.Count == 0 ? _defaultValue : _values.First().Value;
                 }
 
-                bool success;
-                castedValue = CastOrParseInputToType(value, _valueType, out success);
-                if (!success) throw new Exception();
+                if (typeof(T) == GetType(_valueType)) {
+                    bool success;
+                    value = CastOrParseInputToType(value, _valueType, out success);
+                    if (!success) throw new Exception();
+                }
             }
             catch {
-                throw new Exception("Failed getting value store value " + Label  + " for " + ownerName + ".");
+                throw new Exception("Failed getting value store value " + Label  + " for " + ownerName + ". Did you cast to the right type?");
             }
-            return (T)castedValue;
+            return (T)value;
         }
 
         public string[] GetOwners() {

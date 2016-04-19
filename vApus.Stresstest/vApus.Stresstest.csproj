@@ -403,6 +403,7 @@
     <Compile Include="StressTestView.Designer.cs">
       <DependentUpon>StressTestView.cs</DependentUpon>
     </Compile>
+    <Compile Include="ValueStore\ValueStoreValueTypes.cs" />
     <Compile Include="ValueStore\ValueStore.cs" />
     <Compile Include="ValueStore\ValueStoreValue.cs" />
     <Compile Include="ValueStore\ValueStoreValueView.cs">
