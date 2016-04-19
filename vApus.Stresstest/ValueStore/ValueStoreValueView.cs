@@ -122,7 +122,7 @@ Usage example in connection proxy code:
 
     string[] owners = _myValue.GetOwners();
 
-  Get the 'shared' value or the value set for the current connection or for a chosen one (owner). (Respect the type!)
+  Get the 'shared' value or the value set for the current connection or for a chosen one (owner).
   This value can be used to replace a token (a piece of text for instance " + "\"{myValue}\"" + @") in the request, coming through SendAndReceive(...).
   e.g. If Type is String:
 
@@ -131,7 +131,7 @@ Usage example in connection proxy code:
 
   e.g. If Type is Object: 
 
-    object foo = _myValue.Get<object>();
+    object foo = _myValue.Get();
 
   Fetching data from another owner can be very handy when you are using parallel requests in your test.
   e.g. you can set the value in the CP for the 'simulated user thread' and request that data in the 'parallel request threads' (who have their own CP object):
