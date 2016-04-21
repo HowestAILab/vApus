@@ -92,7 +92,9 @@ namespace vApus.StressTest {
                     sb.AppendLine(request.RequestString.Replace("\n", VBLRn).Replace("\r", VBLRr));
             }
 
-            fctxt.Text = sb.ToString();
+            string text = sb.ToString();
+            fctxt.Text = text.Substring(0, text.Length - Environment.NewLine.Length); 
+
             fctxt.ClearUndo();
 
             fctxt.TextChanged += fctxt_TextChanged;
@@ -239,7 +241,6 @@ namespace vApus.StressTest {
 
         private void btnApply_Click(object sender, EventArgs e) {
             btnApply.Enabled = false;
-
             _scenario.ClearWithoutInvokingEvent();
 
             if (!IsDisposed && cboRuleSet.Items.Count != 0 && _scenarioRuleSets != null)
@@ -255,7 +256,7 @@ namespace vApus.StressTest {
                 if (s.StartsWith(userActionBegin) && s.EndsWith(userActionEnd)) {
                     currentUserAction = new UserAction(s.Substring(userActionBegin.Length, s.Length - 7));
                     _scenario.AddWithoutInvokingEvent(currentUserAction);
-                } else if (currentUserAction != null) {
+                } else if (currentUserAction != null && s.Trim().Length != 0) {
                     currentUserAction.AddWithoutInvokingEvent(new Request(s.Replace(VBLRn, "\n").Replace(VBLRr, "\r")));
                 }
 

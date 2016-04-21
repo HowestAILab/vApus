@@ -29,11 +29,20 @@ namespace vApus.SolutionTree {
 
         private delegate void InvokeSolutionComponentChangedEventDelegate(SolutionComponentChangedEventArgs.DoneAction doneAction, object arg);
 
+        /// <summary>
+        /// <para>LockedChanged will be invoked when Locked is set or reset.</para>
+        /// <para>You can suscribe to this event to lock or unlock the views for your items.</para>
+        /// <para>Context menu's and shortcut key locking is already handled for you.</para>
+        /// </summary>
+        [field: NonSerialized]
+        public event EventHandler<LockedChangedEventArgs> LockedChanged;
+
         #region Fields
         private bool _isDefaultItem, _isEmpty;
         protected List<BaseItem> _items = new List<BaseItem>();
         private List<Type> _defaultItemTypes = new List<Type>();
         private bool _noImage, _showInGui = true;
+        private bool _locked;
 
         [NonSerialized] //Nasty bug, this class (inheritance) would not serialize sometimes
         private InvokeSolutionComponentChangedEventDelegate _invokeSolutionComponentChangedEventDelegate;
@@ -45,7 +54,8 @@ namespace vApus.SolutionTree {
             get {
                 if (_isEmpty) {
                     return null;
-                } else {
+                }
+                else {
                     object[] attributes = GetType().GetCustomAttributes(typeof(DisplayNameAttribute), true);
                     return attributes.Length != 0 ? (attributes[0] as DisplayNameAttribute).DisplayName : GetType().Name;
                 }
@@ -69,6 +79,9 @@ namespace vApus.SolutionTree {
 
         public BaseItem this[int index] { get { return _items[index]; } }
 
+        /// <summary>
+        /// Show this in the tree view or not.
+        /// </summary>
         [SavableCloneable]
         public bool ShowInGui { get { return _showInGui; } set { _showInGui = value; } }
 
@@ -105,6 +118,23 @@ namespace vApus.SolutionTree {
                     ++count;
 
             return count;
+        }
+
+        /// <summary>
+        /// <para>When true, context menu enties and shortcut keys will be limited to activate for this and all sub items.</para>
+        /// <para>LockedChanged will be invoked, you can suscribe to this event to lock or unlock the views for your items.</para>
+        /// <para>You are responsible to set and reset this property.</para>
+        /// </summary>
+        public bool Locked {
+            get { return _locked; }
+            set {
+                foreach (var item in this) item.Locked = value;
+
+                if (_locked != value) {
+                    _locked = value;
+                    if (LockedChanged != null) LockedChanged(this, new LockedChangedEventArgs(_locked));
+                }
+            }
         }
         #endregion
 
@@ -180,6 +210,8 @@ namespace vApus.SolutionTree {
                 item.RemoveTag();
                 InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Removed, item);
 
+                CloseView(item);
+
                 item = null;
 
                 return true;
@@ -208,11 +240,27 @@ namespace vApus.SolutionTree {
 
                 item.RemoveParent();
                 item.RemoveTag();
+
+                CloseView(item);
+
                 item = null;
 
                 return true;
             }
             return false;
+        }
+
+        private void CloseView(BaseItem item) {
+            foreach (var view in SolutionComponentViewManager.GetAllViews())
+                if (view.SolutionComponent == item) {
+                    try {
+                        view.Close();
+                    }
+                    catch {
+                        //Don't care.
+                    }
+                    break;
+                }
         }
 
         public IEnumerator<BaseItem> GetEnumerator() { return _items.GetEnumerator(); }
@@ -338,6 +386,8 @@ namespace vApus.SolutionTree {
             foreach (BaseItem item in _items) {
                 item.RemoveParent();
                 item.RemoveTag();
+
+                CloseView(item);
             }
             _items.Clear();
         }
@@ -372,8 +422,23 @@ namespace vApus.SolutionTree {
             var node = new TreeNode(ToString());
             node.Tag = this;
             node.ContextMenuStrip = GetContextMenuStrip();
+            if (node.ContextMenuStrip != null) {
+                node.ContextMenuStrip.Tag = this;
+                node.ContextMenuStrip.Opening += ContextMenuStrip_Opening;
+            }
             node.Nodes.AddRange(GetChildNodes().ToArray());
             return node;
+        }
+        /// <summary>
+        /// Keep locking in mind.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ContextMenuStrip_Opening(object sender, CancelEventArgs e) {
+            var menu = sender as ContextMenuStrip;
+            var target = menu.Tag as SolutionComponent;
+            foreach (ToolStripMenuItem item in menu.Items)
+                item.Enabled = (!target.Locked || (item.ShortcutKeyDisplayString != null && item.ShortcutKeyDisplayString.EndsWith("<enter>", StringComparison.InvariantCultureIgnoreCase))); //Cutting corners here.
         }
 
         /// <summary>
@@ -391,7 +456,8 @@ namespace vApus.SolutionTree {
                                              thisType.Assembly);
                 try {
                     image = rm.GetObject(thisType.Name) as Image;
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed getting image.", ex);
                 }
                 _noImage = (image == null);
@@ -517,7 +583,8 @@ namespace vApus.SolutionTree {
             //Fairly complicated setup to avoid gui freezes.
             try {
                 BackgroundWorkQueueWrapper.BackgroundWorkQueue.EnqueueWorkItem(_invokeSolutionComponentChangedEventDelegate, doneAction, arg);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { doneAction, arg });
             }
         }
@@ -531,14 +598,17 @@ namespace vApus.SolutionTree {
                                     if (del.Target != null && del.Target is Control && !(del.Target as Control).IsDisposed)
                                         del(this, new SolutionComponentChangedEventArgs(doneAction, arg));
                                     else //If the target == null no issue, disposed => crash.
-                                        try { del(this, new SolutionComponentChangedEventArgs(doneAction, arg)); } catch {
+                                        try { del(this, new SolutionComponentChangedEventArgs(doneAction, arg)); }
+                                        catch {
                                             //Ignore in this case. Do not care.
                                         }
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             Loggers.Log(Level.Error, "Failed invoking solution component changed.", ex, new object[] { this, doneAction, arg });
                         }
                     }, null);
-            } catch (Exception exc) {
+            }
+            catch (Exception exc) {
                 Loggers.Log(Level.Error, "Failed invoking solution component changed.", exc, new object[] { this, doneAction, arg });
             }
         }
@@ -575,5 +645,10 @@ namespace vApus.SolutionTree {
             Arg = arg;
         }
         #endregion
+    }
+
+    public class LockedChangedEventArgs : EventArgs {
+        public bool Locked { get; private set; }
+        public LockedChangedEventArgs(bool locked) { Locked = locked; }
     }
 }

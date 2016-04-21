@@ -39,7 +39,10 @@ namespace vApus.Util {
                 cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
                 cbo.Leave += cbo_Leave;
                 cbo.KeyUp += cbo_KeyUp;
-            } else {
+
+                base.ValueControl = cbo;
+            }
+            else {
                 cbo = base.ValueControl as ComboBox;
             }
 
@@ -61,8 +64,6 @@ namespace vApus.Util {
             cbo.SelectedItem = attr2.Length > 0 ? attr2[0].Description : value.__Value.ToString();
 
             cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
-
-            base.ValueControl = cbo;
         }
 
         private void cbo_SelectedIndexChanged(object sender, EventArgs e) {

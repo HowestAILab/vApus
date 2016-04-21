@@ -33,7 +33,26 @@ namespace vApus.Util {
             : base() {
             this.DefaultContextMenu(true);
 
+            HotkeysMapping.Add(Keys.Y | Keys.Control, FCTBAction.Redo);
+
             this.MouseUp += CodeTextBox_MouseUp;
+        }
+
+  
+        /// <summary>
+        /// Disable for your own implementation.
+        /// </summary>
+        public void DisableFindAndReplace() {
+            HotkeysMapping.Remove(Keys.F | Keys.Control);
+            HotkeysMapping.Remove(Keys.F3);
+            HotkeysMapping.Remove(Keys.H | Keys.Control);
+        }
+
+        /// <summary>
+        /// Disable for your own implementation.
+        /// </summary>
+        public void DisableGotoLine() {
+            HotkeysMapping.Remove(Keys.G | Keys.Control);
         }
 
         public override void Paste() {
@@ -148,14 +167,16 @@ namespace vApus.Util {
 
                         line = line.Trim() + " > " + newLine.Trim();
                         didReplace = true;
-                    } else {
+                    }
+                    else {
                         if (i == arr.Length - 1)
                             sb.Append(line);
                         else
                             sb.AppendLine(line);
                     }
                     replacedOrFound.Add(i, line.Trim());
-                } else {
+                }
+                else {
                     if (i == arr.Length - 1)
                         sb.Append(line);
                     else

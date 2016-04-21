@@ -28,6 +28,7 @@
         /// </summary>
         private void InitializeComponent()
         {
+            this.components = new System.ComponentModel.Container();
             this.btnFind = new System.Windows.Forms.Button();
             this.lblCount = new System.Windows.Forms.Label();
             this.flpFoundReplaced = new System.Windows.Forms.FlowLayoutPanel();
@@ -38,6 +39,7 @@
             this.txtReplace = new System.Windows.Forms.TextBox();
             this.chkReplaceAll = new System.Windows.Forms.CheckBox();
             this.btnSwitchValues = new System.Windows.Forms.Button();
+            this.toolTip = new System.Windows.Forms.ToolTip(this.components);
             this.SuspendLayout();
             // 
             // btnFind
@@ -55,6 +57,7 @@
             this.btnFind.Size = new System.Drawing.Size(43, 24);
             this.btnFind.TabIndex = 1;
             this.btnFind.Text = "Find";
+            this.toolTip.SetToolTip(this.btnFind, "Ctrl + F");
             this.btnFind.UseVisualStyleBackColor = false;
             this.btnFind.Click += new System.EventHandler(this.btnFind_Click);
             // 
@@ -86,7 +89,6 @@
             // 
             this.txtFind.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtFind.HideSelection = false;
             this.txtFind.Location = new System.Drawing.Point(61, 111);
             this.txtFind.Name = "txtFind";
             this.txtFind.Size = new System.Drawing.Size(291, 20);
@@ -98,9 +100,9 @@
             // 
             this.chkWholeWords.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.chkWholeWords.AutoSize = true;
-            this.chkWholeWords.Location = new System.Drawing.Point(358, 113);
+            this.chkWholeWords.Location = new System.Drawing.Point(361, 113);
             this.chkWholeWords.Name = "chkWholeWords";
-            this.chkWholeWords.Size = new System.Drawing.Size(91, 17);
+            this.chkWholeWords.Size = new System.Drawing.Size(88, 17);
             this.chkWholeWords.TabIndex = 3;
             this.chkWholeWords.Text = "Whole words";
             this.chkWholeWords.UseVisualStyleBackColor = true;
@@ -109,9 +111,9 @@
             // 
             this.chkMatchCase.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.chkMatchCase.AutoSize = true;
-            this.chkMatchCase.Location = new System.Drawing.Point(463, 113);
+            this.chkMatchCase.Location = new System.Drawing.Point(464, 113);
             this.chkMatchCase.Name = "chkMatchCase";
-            this.chkMatchCase.Size = new System.Drawing.Size(83, 17);
+            this.chkMatchCase.Size = new System.Drawing.Size(82, 17);
             this.chkMatchCase.TabIndex = 4;
             this.chkMatchCase.Text = "Match case";
             this.chkMatchCase.UseVisualStyleBackColor = true;
@@ -128,7 +130,7 @@
             this.btnReplaceWith.Location = new System.Drawing.Point(12, 138);
             this.btnReplaceWith.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnReplaceWith.Name = "btnReplaceWith";
-            this.btnReplaceWith.Size = new System.Drawing.Size(135, 24);
+            this.btnReplaceWith.Size = new System.Drawing.Size(129, 24);
             this.btnReplaceWith.TabIndex = 5;
             this.btnReplaceWith.Text = "Replace found with";
             this.btnReplaceWith.UseVisualStyleBackColor = false;
@@ -138,7 +140,6 @@
             // 
             this.txtReplace.Anchor = ((System.Windows.Forms.AnchorStyles)(((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
-            this.txtReplace.HideSelection = false;
             this.txtReplace.Location = new System.Drawing.Point(153, 140);
             this.txtReplace.Name = "txtReplace";
             this.txtReplace.Size = new System.Drawing.Size(199, 20);
@@ -166,10 +167,10 @@
             this.btnSwitchValues.BackColor = System.Drawing.Color.White;
             this.btnSwitchValues.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSwitchValues.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSwitchValues.Location = new System.Drawing.Point(447, 138);
+            this.btnSwitchValues.Location = new System.Drawing.Point(448, 138);
             this.btnSwitchValues.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnSwitchValues.Name = "btnSwitchValues";
-            this.btnSwitchValues.Size = new System.Drawing.Size(99, 24);
+            this.btnSwitchValues.Size = new System.Drawing.Size(98, 24);
             this.btnSwitchValues.TabIndex = 8;
             this.btnSwitchValues.Text = "Switch values";
             this.btnSwitchValues.UseVisualStyleBackColor = false;
@@ -209,5 +210,6 @@
         private System.Windows.Forms.TextBox txtReplace;
         private System.Windows.Forms.CheckBox chkReplaceAll;
         private System.Windows.Forms.Button btnSwitchValues;
+        private System.Windows.Forms.ToolTip toolTip;
     }
 }

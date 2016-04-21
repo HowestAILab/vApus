@@ -9,7 +9,6 @@ using FastColoredTextBoxNS;
 using System;
 using System.Diagnostics;
 using System.IO;
-using System.Runtime.InteropServices;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -72,12 +71,16 @@ namespace vApus.StressTest {
             _prevCode = codeTextBox.Text;
             codeTextBox.ClearUndo();
 
-            references.CodeTextBox = codeTextBox;
-            find.CodeTextBox = codeTextBox;
-            compile.ConnectionProxyCode = _connectionProxyCode;
+            referencesPanel.CodeTextBox = codeTextBox;
+            findAndReplacePanel.CodeTextBox = codeTextBox;
+            compilePanel.ConnectionProxyCode = _connectionProxyCode;
             codeTextBox.DelayedTextChangedInterval = 1000;
-            //codeTextBox.TextChangedDelayed += codeTextBox_TextChangedDelayed;
             codeTextBox.TextChanged += codeTextBox_TextChanged;
+
+            _previousSplitterDistance = splitCode.SplitterDistance;
+
+            codeTextBox.DisableFindAndReplace();
+            codeTextBox.DisableGotoLine();
 
             codeTextBox.Leave += codeTextBox_Leave;
             FormClosing += ConnectionProxyCodeView_FormClosing;
@@ -96,7 +99,8 @@ namespace vApus.StressTest {
                     Solution.ActiveSolutionChanged -= Solution_ActiveSolutionChanged;
 
                     SetCodeChanged();
-                } catch {
+                }
+                catch {
                     //Ignore. Can happen on mdi parent close.
                 }
         }
@@ -104,25 +108,15 @@ namespace vApus.StressTest {
         private void codeTextBox_TextChanged(object sender, TextChangedEventArgs e) {
             _connectionProxyCode.Code = codeTextBox.Text;
         }
-        //private void codeTextBox_TextChangedDelayed(object sender, TextChangedEventArgs e) {
-        //    if (_codeInitialized) {
-        //        if (_connectionProxyCode.Code != codeTextBox.Text) {
-        //            _connectionProxyCode.Code = codeTextBox.Text;
-        //            _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
-        //            if (!this.IsActivated) this.Activate();
-        //            codeTextBox.Focus();
-        //        }
-        //    } else {
-        //        _codeInitialized = true;
-        //    }
-        //}
+
         private void SetCodeChanged() {
             try {
                 if (_connectionProxyCode.Code != _prevCode) {
                     _connectionProxyCode.Code = _prevCode = codeTextBox.Text;
                     _connectionProxyCode.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
                 }
-            } catch { }
+            }
+            catch { }
         }
         private void Solution_ActiveSolutionChanged(object sender, ActiveSolutionChangedEventArgs e) {
             if (Solution.ActiveSolution.IsSaved) _prevCode = _connectionProxyCode.Code;
@@ -136,7 +130,6 @@ namespace vApus.StressTest {
         }
 
         #region Tools
-
         private void find_FoundButtonClicked(object sender, FindAndReplacePanel.FoundReplacedButtonClickedEventArgs e) {
             codeTextBox.ClearSelection();
             codeTextBox.SelectLine(e.LineNumber);
@@ -161,10 +154,12 @@ namespace vApus.StressTest {
                                     MessageBoxIcon.Question) == DialogResult.Yes)
                     try {
                         Process.Start(sfd.FileName);
-                    } catch (FileNotFoundException fnfe) {
+                    }
+                    catch (FileNotFoundException fnfe) {
                         MessageBox.Show("Could not open the file!\nThe file could not be found.", string.Empty,
                                         MessageBoxButtons.OK, MessageBoxIcon.Error);
-                    } catch {
+                    }
+                    catch {
                         MessageBox.Show(
                             "Could not open the file!\nNo Application is associated with the 'cs' extension.",
                             string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
@@ -173,6 +168,10 @@ namespace vApus.StressTest {
         }
 
         private void btnCollapseExpand_Click(object sender, EventArgs e) {
+            if (btnCollapseExpand.Text == "-") Collapse();
+            else Uncollapse();
+        }
+        private void Collapse() {
             if (btnCollapseExpand.Text == "-") {
                 btnCollapseExpand.Text = "+";
                 _previousSplitterDistance = splitCode.SplitterDistance;
@@ -180,7 +179,10 @@ namespace vApus.StressTest {
                 splitCode.IsSplitterFixed = true;
 
                 tcTools.Hide();
-            } else {
+            }
+        }
+        private void Uncollapse() {
+            if (btnCollapseExpand.Text == "+") {
                 btnCollapseExpand.Text = "-";
                 splitCode.SplitterDistance = _previousSplitterDistance;
                 splitCode.IsSplitterFixed = false;
@@ -190,7 +192,22 @@ namespace vApus.StressTest {
         }
 
         private void ConnectionProxyCodeView_KeyPress(object sender, KeyPressEventArgs e) {
-            if (e.KeyChar == (char)6) tcTools.SelectedIndex = 1;
+            if (e.KeyChar == (char)2) { //ctrl+b
+                Uncollapse();
+                tcTools.SelectedIndex = 2;
+
+                compilePanel.TryCompile(true);
+            }
+            else if (e.KeyChar == (char)6) { //ctrl+f
+                Uncollapse();
+                tcTools.SelectedIndex = 1;
+
+                if (codeTextBox.SelectedText.Length != 0 && !codeTextBox.SelectedText.ContainsChars('\r', '\n'))
+                    findAndReplacePanel.Find(codeTextBox.SelectedText);
+            }
+            else if (e.KeyChar == (char)7) { //ctrl+g
+                txtGoToLine.Select();
+            }
         }
 
         private bool _handledTxtKeyDown = false;
@@ -200,7 +217,8 @@ namespace vApus.StressTest {
                 e.KeyCode == Keys.Escape ||
                 e.KeyCode == Keys.Enter) {
                 _handledTxtKeyDown = false;
-            } else {
+            }
+            else {
                 _handledTxtKeyDown = true;
             }
         }
@@ -214,7 +232,7 @@ namespace vApus.StressTest {
                 if (line < 0) line = 0;
                 if (line >= codeTextBox.LinesCount) line = codeTextBox.LinesCount - 1;
 
-                txtGoToLine.Text = (line + 1).ToString();
+                txtGoToLine.Text = string.Empty;
 
                 codeTextBox.ClearSelection();
                 codeTextBox.SelectLine(line);

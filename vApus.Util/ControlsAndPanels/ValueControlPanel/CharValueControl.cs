@@ -36,13 +36,14 @@ namespace vApus.Util {
 
                 txt.Leave += txt_Leave;
                 txt.KeyUp += txt_KeyUp;
-            } else {
+
+                base.ValueControl = txt;
+            }
+            else {
                 txt = base.ValueControl as TextBox;
             }
 
             txt.Text = value.__Value.ToString();
-
-            base.ValueControl = txt;
         }
 
         private void txt_KeyUp(object sender, KeyEventArgs e) {

@@ -118,18 +118,10 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <data name="label1.Text" xml:space="preserve">
-    <value>Publishing values comes in handy if you want to visualize such values elsewhere or for continuous integration testing.
+    <value>Following counters, metrics and messages can be published to an external processing layer.
+This layer can be your own implementation or you can use 'vApus publish items handler'.
 
-Values are published as JSON messages:
-These messages contain the Id and type of the published value, a timestamp and the PID of the current vApus instance.</value>
-  </data>
-  <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>180, 17</value>
-  </metadata>
-  <data name="chkJSONFiles.ToolTip" xml:space="preserve">
-    <value>Write JSON to file. A file contains only the last published message.
-You can write your own folder watcher to consume these files. 
-The file will be named as follows: Id_ type_PID.txt. The invalid filename characters and spaces are replaced by underscores.</value>
+The latter stores published items in a standardized MySQL results database: a database that can be accessed by the detailed results viewer. </value>
   </data>
   <metadata name="toolTip.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>180, 17</value>
@@ -138,7 +130,4 @@ The file will be named as follows: Id_ type_PID.txt. The invalid filename charac
     <value>Click to open &lt;vApus path&gt;\PublishItems.cs which contains the classes for which instances of those are serialized to JSON.
 You can use this file to enable deserialization in your own folder watcher and/or UDP broadcast listener.</value>
   </data>
-  <metadata name="folderBrowserDialog.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
-    <value>17, 17</value>
-  </metadata>
 </root>

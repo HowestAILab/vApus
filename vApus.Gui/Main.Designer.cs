@@ -75,7 +75,7 @@
             this.statusStrip = new System.Windows.Forms.StatusStrip();
             this.lblUpdateNotifier = new System.Windows.Forms.ToolStripStatusLabel();
             this.toolStripStatusLabel1 = new System.Windows.Forms.ToolStripStatusLabel();
-            this.lblResultsDatabase = new System.Windows.Forms.ToolStripStatusLabel();
+            this.lblPublisher = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblSpring = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblCleanTempData = new System.Windows.Forms.ToolStripStatusLabel();
             this.lblTempDataSize = new System.Windows.Forms.ToolStripStatusLabel();
@@ -83,6 +83,7 @@
             this.lblWarning = new System.Windows.Forms.ToolStripStatusLabel();
             this.tmrSetStatusStrip = new System.Windows.Forms.Timer(this.components);
             this.dockPanel = new WeifenLuo.WinFormsUI.Docking.DockPanel();
+            this.publishItemsHandlerToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.mainMenu.SuspendLayout();
             this.statusStrip.SuspendLayout();
             this.SuspendLayout();
@@ -275,9 +276,10 @@
             this.toolsToolStripMenuItem.DropDownItems.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.optionsToolStripMenuItem,
             this.lupusTitaniumHTTPsProxyToolStripMenuItem,
+            this.publishItemsHandlerToolStripMenuItem,
             this.detailedResultsViewerToolStripMenuItem});
             this.toolsToolStripMenuItem.Name = "toolsToolStripMenuItem";
-            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(48, 20);
+            this.toolsToolStripMenuItem.Size = new System.Drawing.Size(47, 20);
             this.toolsToolStripMenuItem.Text = "&Tools";
             // 
             // optionsToolStripMenuItem
@@ -321,13 +323,13 @@
             this.statusStrip.Items.AddRange(new System.Windows.Forms.ToolStripItem[] {
             this.lblUpdateNotifier,
             this.toolStripStatusLabel1,
-            this.lblResultsDatabase,
+            this.lblPublisher,
             this.lblSpring,
             this.lblCleanTempData,
             this.lblTempDataSize,
             this.lblPipeMicrosoftFirewallAutoUpdateEnabled,
             this.lblWarning});
-            this.statusStrip.Location = new System.Drawing.Point(0, 704);
+            this.statusStrip.Location = new System.Drawing.Point(0, 694);
             this.statusStrip.Name = "statusStrip";
             this.statusStrip.Size = new System.Drawing.Size(1184, 22);
             this.statusStrip.TabIndex = 4;
@@ -350,22 +352,22 @@
             this.toolStripStatusLabel1.Size = new System.Drawing.Size(10, 17);
             this.toolStripStatusLabel1.Text = "|";
             // 
-            // lblResultsDatabase
+            // lblPublisher
             // 
-            this.lblResultsDatabase.ForeColor = System.Drawing.Color.Blue;
-            this.lblResultsDatabase.IsLink = true;
-            this.lblResultsDatabase.Name = "lblResultsDatabase";
-            this.lblResultsDatabase.Size = new System.Drawing.Size(163, 17);
-            this.lblResultsDatabase.Text = "Test results database disabled";
-            this.lblResultsDatabase.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
-            this.lblResultsDatabase.VisitedLinkColor = System.Drawing.Color.Blue;
-            this.lblResultsDatabase.Click += new System.EventHandler(this.lblResultsDatabase_Click);
+            this.lblPublisher.ForeColor = System.Drawing.Color.Blue;
+            this.lblPublisher.IsLink = true;
+            this.lblPublisher.Name = "lblPublisher";
+            this.lblPublisher.Size = new System.Drawing.Size(16, 17);
+            this.lblPublisher.Text = "...";
+            this.lblPublisher.TextImageRelation = System.Windows.Forms.TextImageRelation.TextBeforeImage;
+            this.lblPublisher.VisitedLinkColor = System.Drawing.Color.Blue;
+            this.lblPublisher.Click += new System.EventHandler(this.lblPublisher_Click);
             // 
             // lblSpring
             // 
             this.lblSpring.IsLink = true;
             this.lblSpring.Name = "lblSpring";
-            this.lblSpring.Size = new System.Drawing.Size(649, 17);
+            this.lblSpring.Size = new System.Drawing.Size(1010, 17);
             this.lblSpring.Spring = true;
             this.lblSpring.TextAlign = System.Drawing.ContentAlignment.MiddleLeft;
             this.lblSpring.VisitedLinkColor = System.Drawing.Color.Blue;
@@ -409,7 +411,7 @@
             // tmrSetStatusStrip
             // 
             this.tmrSetStatusStrip.Enabled = true;
-            this.tmrSetStatusStrip.Interval = 300000;
+            this.tmrSetStatusStrip.Interval = 30000;
             this.tmrSetStatusStrip.Tick += new System.EventHandler(this.tmrSetStatusStrip_Tick);
             // 
             // dockPanel
@@ -421,7 +423,7 @@
             this.dockPanel.DockBackColor = System.Drawing.SystemColors.Control;
             this.dockPanel.Location = new System.Drawing.Point(0, 24);
             this.dockPanel.Name = "dockPanel";
-            this.dockPanel.Size = new System.Drawing.Size(1184, 680);
+            this.dockPanel.Size = new System.Drawing.Size(1184, 670);
             dockPanelGradient1.EndColor = System.Drawing.SystemColors.ControlLight;
             dockPanelGradient1.StartColor = System.Drawing.SystemColors.ControlLight;
             autoHideStripSkin1.DockStripGradient = dockPanelGradient1;
@@ -468,11 +470,18 @@
             this.dockPanel.Skin = dockPanelSkin1;
             this.dockPanel.TabIndex = 1;
             // 
+            // publishItemsHandlerToolStripMenuItem
+            // 
+            this.publishItemsHandlerToolStripMenuItem.Name = "publishItemsHandlerToolStripMenuItem";
+            this.publishItemsHandlerToolStripMenuItem.Size = new System.Drawing.Size(246, 22);
+            this.publishItemsHandlerToolStripMenuItem.Text = "Publish items handler...";
+            this.publishItemsHandlerToolStripMenuItem.Click += new System.EventHandler(this.publishItemsHandlerToolStripMenuItem_Click);
+            // 
             // Main
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
-            this.ClientSize = new System.Drawing.Size(1184, 726);
+            this.ClientSize = new System.Drawing.Size(1184, 716);
             this.Controls.Add(this.statusStrip);
             this.Controls.Add(this.mainMenu);
             this.Controls.Add(this.dockPanel);
@@ -533,8 +542,9 @@
         private System.Windows.Forms.ToolStripMenuItem newFromTemplateToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem reopenToolStripMenuItem;
         private System.Windows.Forms.ToolStripMenuItem lupusTitaniumHTTPsProxyToolStripMenuItem;
-        private System.Windows.Forms.ToolStripStatusLabel lblResultsDatabase;
+        private System.Windows.Forms.ToolStripStatusLabel lblPublisher;
         private System.Windows.Forms.ToolStripStatusLabel toolStripStatusLabel1;
+        private System.Windows.Forms.ToolStripMenuItem publishItemsHandlerToolStripMenuItem;
     }
 }
 

@@ -28,7 +28,6 @@ namespace vApus.DistributedTest {
 
         #region Fields
 
-        private DistributedTest _distributedTest;
         private DistributedTestMode _distributedTestMode;
 
         #endregion
@@ -49,7 +48,6 @@ namespace vApus.DistributedTest {
 
             LockWindowUpdate(Handle);
             largeList.Clear();
-            _distributedTest = distributedTest;
             var castvi = new ClientsAndSlavesTreeViewItem(distributedTest);
             castvi.AfterSelect += _AfterSelect;
             castvi.AddClientClicked += castvi_AddClientClicked;

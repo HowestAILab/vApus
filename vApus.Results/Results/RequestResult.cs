@@ -9,6 +9,10 @@ using System;
 
 namespace vApus.Results {
     public class RequestResult {
+        public int ConcurrencyId { get; set; }
+        public int Concurrency { get; set; }
+        public int Run { get; set; }
+
         /// <summary>
         /// Use this to determine that this is a filled in request result.
         /// </summary>

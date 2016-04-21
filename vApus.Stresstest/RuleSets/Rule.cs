@@ -25,7 +25,7 @@ namespace vApus.StressTest {
         #region Enum
 
         [Serializable]
-        public enum ValueTypes {
+        public enum RuleValueTypes {
             [Description("String")]
             stringType,
             [Description("Single character")]
@@ -44,7 +44,7 @@ namespace vApus.StressTest {
             ulongType,
             [Description("32-bit floating point")]
             floatType,
-            [Description("Numeric")]
+            [Description("64-bit floating point")]
             doubleType,
             [Description("Decimal")]
             decimalType,
@@ -60,7 +60,7 @@ namespace vApus.StressTest {
         private bool _ignoreCase;
         private string _regExp = string.Empty;
         private bool _displayAsPassword;
-        private ValueTypes _valueType;
+        private RuleValueTypes _valueType;
 
         #endregion
 
@@ -83,7 +83,7 @@ namespace vApus.StressTest {
 
         [SavableCloneable, PropertyControl(2)]
         [Description("The input must equal or castable/parsable to the selected type."), DisplayName("Value type")]
-        public ValueTypes ValueType {
+        public RuleValueTypes ValueType {
             get { return _valueType; }
             set { _valueType = value; }
         }
@@ -114,7 +114,7 @@ namespace vApus.StressTest {
                 ShowInGui = false;
                 _ignoreCase = sr.ReadBoolean();
                 _regExp = sr.ReadString();
-                _valueType = (ValueTypes)sr.ReadInt32();
+                _valueType = (RuleValueTypes)sr.ReadInt32();
             }
             sr = null;
         }
@@ -126,10 +126,10 @@ namespace vApus.StressTest {
             output = new ASTNode();
             output.Value = input;
 
-            bool succes;
-            CastOrParseInputToType(input, _valueType, out succes);
+            bool success;
+            CastOrParseInputToType(input, _valueType, out success);
 
-            if (!succes) {
+            if (!success) {
                 output.Error = string.Format("The input could not be parsed to {0}.", _valueType);
                 return LexicalResult.Error;
             }
@@ -141,85 +141,85 @@ namespace vApus.StressTest {
             return LexicalResult.Error;
         }
 
-        private object CastOrParseInputToType(object input, ValueTypes valueType, out bool succes) {
-            succes = true;
+        private object CastOrParseInputToType(object input, RuleValueTypes valueType, out bool success) {
+            success = true;
             switch (valueType) {
-                case ValueTypes.boolType:
+                case RuleValueTypes.boolType:
                     bool outputBool = false;
-                    if (input is bool) outputBool = (bool)input; else succes = bool.TryParse(input.ToString(), out outputBool);
+                    if (input is bool) outputBool = (bool)input; else success = bool.TryParse(input.ToString(), out outputBool);
                     return outputBool;
-                case ValueTypes.charType:
+                case RuleValueTypes.charType:
                     char outputChar = new char();
-                    if (input is char) outputChar = (char)input; else succes = char.TryParse(input.ToString(), out outputChar);
+                    if (input is char) outputChar = (char)input; else success = char.TryParse(input.ToString(), out outputChar);
                     return outputChar;
-                case ValueTypes.decimalType:
+                case RuleValueTypes.decimalType:
                     decimal outputDecimal = 0;
-                    if (input is decimal) outputDecimal = (decimal)input; else succes = decimal.TryParse(input.ToString(), out outputDecimal);
+                    if (input is decimal) outputDecimal = (decimal)input; else success = decimal.TryParse(input.ToString(), out outputDecimal);
                     return outputDecimal;
-                case ValueTypes.doubleType:
+                case RuleValueTypes.doubleType:
                     double outputDouble = 0;
-                    if (input is double) outputDouble = (double)input; else succes = double.TryParse(input.ToString(), out outputDouble);
+                    if (input is double) outputDouble = (double)input; else success = double.TryParse(input.ToString(), out outputDouble);
                     return outputDouble;
-                case ValueTypes.floatType:
+                case RuleValueTypes.floatType:
                     float outputFloat = 0;
-                    if (input is float) outputFloat = (float)input; else succes = float.TryParse(input.ToString(), out outputFloat);
+                    if (input is float) outputFloat = (float)input; else success = float.TryParse(input.ToString(), out outputFloat);
                     return outputFloat;
-                case ValueTypes.intType:
+                case RuleValueTypes.intType:
                     int outputInt = 0;
-                    if (input is int) outputInt = (int)input; else succes = int.TryParse(input.ToString(), out outputInt);
+                    if (input is int) outputInt = (int)input; else success = int.TryParse(input.ToString(), out outputInt);
                     return outputInt;
-                case ValueTypes.longType:
+                case RuleValueTypes.longType:
                     long outputLong = 0;
-                    if (input is long) outputDecimal = (long)input; else succes = long.TryParse(input.ToString(), out outputLong);
+                    if (input is long) outputLong = (long)input; else success = long.TryParse(input.ToString(), out outputLong);
                     return outputLong;
-                case ValueTypes.shortType:
+                case RuleValueTypes.shortType:
                     short outputShort = 0;
-                    if (input is short) outputShort = (short)input; else succes = short.TryParse(input.ToString(), out outputShort);
+                    if (input is short) outputShort = (short)input; else success = short.TryParse(input.ToString(), out outputShort);
                     return outputShort;
-                case ValueTypes.stringType:
+                case RuleValueTypes.stringType:
                     return input.ToString();
-                case ValueTypes.uintType:
+                case RuleValueTypes.uintType:
                     uint outputUint = 0;
-                    if (input is uint) outputUint = (uint)input; else succes = uint.TryParse(input.ToString(), out outputUint);
+                    if (input is uint) outputUint = (uint)input; else success = uint.TryParse(input.ToString(), out outputUint);
                     return outputUint;
-                case ValueTypes.ulongType:
+                case RuleValueTypes.ulongType:
                     ulong outputUlong = 0;
-                    if (input is ulong) outputUlong = (ulong)input; else succes = ulong.TryParse(input.ToString(), out outputUlong);
+                    if (input is ulong) outputUlong = (ulong)input; else success = ulong.TryParse(input.ToString(), out outputUlong);
                     return outputUlong;
-                case ValueTypes.ushortType:
+                case RuleValueTypes.ushortType:
                     ushort outputUshort = 0;
-                    if (input is ushort) outputUshort = (ushort)input; else succes = ushort.TryParse(input.ToString(), out outputUshort);
+                    if (input is ushort) outputUshort = (ushort)input; else success = ushort.TryParse(input.ToString(), out outputUshort);
                     return outputUshort;
                 default:
                     return input;
             }
         }
 
-        public static Type GetType(ValueTypes valueType) {
+        public static Type GetType(RuleValueTypes valueType) {
             switch (valueType) {
-                case ValueTypes.stringType:
+                case RuleValueTypes.stringType:
                     return typeof(string);
-                case ValueTypes.charType:
+                case RuleValueTypes.charType:
                     return typeof(char);
-                case ValueTypes.shortType:
+                case RuleValueTypes.shortType:
                     return typeof(short);
-                case ValueTypes.intType:
+                case RuleValueTypes.intType:
                     return typeof(int);
-                case ValueTypes.longType:
+                case RuleValueTypes.longType:
                     return typeof(long);
-                case ValueTypes.ushortType:
+                case RuleValueTypes.ushortType:
                     return typeof(ushort);
-                case ValueTypes.uintType:
+                case RuleValueTypes.uintType:
                     return typeof(uint);
-                case ValueTypes.ulongType:
+                case RuleValueTypes.ulongType:
                     return typeof(ulong);
-                case ValueTypes.floatType:
+                case RuleValueTypes.floatType:
                     return typeof(float);
-                case ValueTypes.doubleType:
+                case RuleValueTypes.doubleType:
                     return typeof(double);
-                case ValueTypes.decimalType:
+                case RuleValueTypes.decimalType:
                     return typeof(decimal);
-                case ValueTypes.boolType:
+                case RuleValueTypes.boolType:
                     return typeof(bool);
                 default:
                     return null;

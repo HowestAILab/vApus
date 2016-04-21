@@ -120,7 +120,7 @@ namespace vApus.CommitTool {
 
         private Exception CommitBinaries(Sftp sftp, SshStream ssh, string channel, List<string> fileList, List<string> folderList) {
             Exception exception = null;
-            string channelDir = channel.ToLower();
+            string channelDir = channel.ToLowerInvariant();
 
             try {
                 //Remake the channel dir for a clean start
@@ -373,7 +373,7 @@ namespace vApus.CommitTool {
             foreach (string fileName in Directory.GetFiles(folder, "*", SearchOption.TopDirectoryOnly)) {
                 string shortFileName = fileName.Substring(absolutePartDirectoryLength);
                 if (!IsFileOrFolderExcluded(shortFileName, excludedFilesOrFolders)) {
-                    switch (shortFileName.ToLower()) {
+                    switch (shortFileName.ToLowerInvariant()) {
                         case @"\version.ini":
                         case @"\history.xml":
                         case @"\vApus.CommitTool.exe":

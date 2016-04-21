@@ -64,7 +64,7 @@ namespace vApus.StressTest {
                     try {
                         var connectionProxy = ConnectionProxy;
                         if (value.Length != 0 && connectionProxy != null && !connectionProxy.IsEmpty && !connectionProxy.ConnectionProxyRuleSet.IsEmpty) {
-                            lexicalResult = connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, _parameters, out output);
+                            lexicalResult = connectionProxy.ConnectionProxyRuleSet.TryLexicalAnalysis(value, out output);
 
                             if (output != null) {
                                 output.Dispose();

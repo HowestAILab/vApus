@@ -1,15 +1,15 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2012 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using vApus.Util;
+using System.Linq;
 
 namespace vApus.Results {
     /// <summary>
@@ -70,7 +70,7 @@ namespace vApus.Results {
 
                 foreach (RunResult runResult in result.RunResults) {
                     StressTestMetrics runResultMetrics = GetMetrics(runResult);
-                    
+
                     metrics.StartsAndStopsRuns.Add(new KeyValuePair<DateTime, DateTime>(runResult.StartedAt, runResult.StoppedAt));
 
                     metrics.AverageResponseTime = metrics.AverageResponseTime.Add(runResultMetrics.AverageResponseTime);
@@ -266,7 +266,7 @@ namespace vApus.Results {
 
                 double div = ((double)(parallelRequestsAwareTimeToLastByte.Ticks + totalDelay.Ticks) / TimeSpan.TicksPerSecond);
                 metrics.ResponsesPerSecond = ((double)metrics.RequestsProcessed) / div;
-                metrics.UserActionsPerSecond = ((double)uniqueUserActions.Count) / div; 
+                metrics.UserActionsPerSecond = ((double)uniqueUserActions.Count) / div;
             }
             return metrics;
         }
@@ -329,7 +329,8 @@ namespace vApus.Results {
 
                                 if (requestsProcessed == 0) {
                                     ++runs;
-                                } else {
+                                }
+                                else {
                                     var measuredTime = (now - rr.StartedAt).Ticks;
                                     estimatedRuntimeLeft = (long)((measuredTime / requestsProcessed) * (requests - requestsProcessed));
                                     if (estimatedRuntimeLeft < 0) estimatedRuntimeLeft = 0;
@@ -342,7 +343,8 @@ namespace vApus.Results {
                                     }
                                 }
                                 break;
-                            } else {
+                            }
+                            else {
                                 lastStoppedRun = rr;
                             }
                         }
@@ -351,7 +353,8 @@ namespace vApus.Results {
                     if (runs > 0 && lastStoppedRun != null)
                         estimatedRuntimeLeft = (lastStoppedRun.StoppedAt - lastStoppedRun.StartedAt).Ticks * runs;
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Warning, "Failed calculating estimated runtime left.", ex);
             }
             return new TimeSpan(estimatedRuntimeLeft);

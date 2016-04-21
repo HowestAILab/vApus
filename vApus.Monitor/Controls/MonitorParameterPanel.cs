@@ -81,7 +81,7 @@ namespace vApus.Monitor {
                         AllowedMinimum = int.MinValue
                     });
                 }
-                base.SetValues(values.ToArray());
+                base.SetValues(true, values.ToArray());
             }
         }
     }

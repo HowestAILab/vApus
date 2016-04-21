@@ -114,12 +114,12 @@ namespace vApus.Util {
         ///     Object -- The given object must have a parent that is a collection (either Ilist or Array), the choice is limited to a value of that collection. (all items must have the collection for a parent)
         /// </summary>
         /// <param name="values"></param>
-        public void SetValues(params BaseValueControl.Value[] values) {
+        public void SetValues(bool forceFullRefresh, params BaseValueControl.Value[] values) {
             try {
                 _values = values;
 
                 //Recycle controls, + 1 because solution component property panel adds a control afterwards. () not the right place for tis + 1, but yeah...)
-                bool partialRefresh = _values.Length == Controls.Count || _values.Length + 1 == Controls.Count;
+                bool partialRefresh = forceFullRefresh ? false : (_values.Length == Controls.Count || _values.Length + 1 == Controls.Count);
                 AutoScroll = false;
                 SetValues(partialRefresh);
             } catch (Exception ex) {
@@ -190,7 +190,7 @@ namespace vApus.Util {
             }
         }
 
-        public void ClearValues() { SetValues(new BaseValueControl.Value[0]); }
+        public void ClearValues() { SetValues(true, new BaseValueControl.Value[0]); }
 
         /// <summary>
         ///     For dynamic descriptions, will only set it if not null and if not the same as the old one.

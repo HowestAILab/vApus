@@ -108,7 +108,7 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <CodeAnalysisIgnoreBuiltInRules>true</CodeAnalysisIgnoreBuiltInRules>
@@ -208,12 +208,6 @@
       <DependentUpon>FindAndReplacePanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\TestConnections.cs" />
-    <Compile Include="Controls\DetailedResultsControl.cs">
-      <SubType>UserControl</SubType>
-    </Compile>
-    <Compile Include="Controls\DetailedResultsControl.Designer.cs">
-      <DependentUpon>DetailedResultsControl.cs</DependentUpon>
-    </Compile>
     <Compile Include="Properties\Resources.Designer.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
@@ -354,10 +348,10 @@
       <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </Compile>
     <Compile Include="Connections\RuleSets\ConnectionProxyRuleSet.cs" />
-    <Compile Include="Controls\FastResultsControl.cs">
+    <Compile Include="FastResultsControl.cs">
       <SubType>UserControl</SubType>
     </Compile>
-    <Compile Include="Controls\FastResultsControl.Designer.cs">
+    <Compile Include="FastResultsControl.Designer.cs">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </Compile>
     <Compile Include="Scenarios\RuleSets\ScenarioSyntaxItem.cs" />
@@ -409,6 +403,15 @@
     <Compile Include="StressTestView.Designer.cs">
       <DependentUpon>StressTestView.cs</DependentUpon>
     </Compile>
+    <Compile Include="ValueStore\ValueStoreValueTypes.cs" />
+    <Compile Include="ValueStore\ValueStore.cs" />
+    <Compile Include="ValueStore\ValueStoreValue.cs" />
+    <Compile Include="ValueStore\ValueStoreValueView.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="ValueStore\ValueStoreValueView.Designer.cs">
+      <DependentUpon>ValueStoreValueView.cs</DependentUpon>
+    </Compile>
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\vApus.Monitor\vApus.Monitor.csproj">
@@ -458,10 +461,7 @@
     <EmbeddedResource Include="Connections\Proxies\Panels\ReferencesPanel.resx">
       <DependentUpon>ReferencesPanel.cs</DependentUpon>
     </EmbeddedResource>
-    <EmbeddedResource Include="Controls\DetailedResultsControl.resx">
-      <DependentUpon>DetailedResultsControl.cs</DependentUpon>
-    </EmbeddedResource>
-    <EmbeddedResource Include="Controls\FastResultsControl.resx">
+    <EmbeddedResource Include="FastResultsControl.resx">
       <DependentUpon>FastResultsControl.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="Scenarios\Controls\EditScenarioPanel.resx">
@@ -517,6 +517,9 @@
     <EmbeddedResource Include="StressTestView.resx">
       <DependentUpon>StressTestView.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="ValueStore\ValueStoreValueView.resx">
+      <DependentUpon>ValueStoreValueView.cs</DependentUpon>
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
@@ -650,6 +653,8 @@
     <None Include="Resources\IgnoreDelay.png" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="Resources\ValueStoreValue.png" />
+    <None Include="Resources\ValueStore.png" />
     <None Include="Resources\Wait.gif" />
     <None Include="Resources\ScenarioSyntaxItem.png" />
     <None Include="Resources\Breakpoint.png" />

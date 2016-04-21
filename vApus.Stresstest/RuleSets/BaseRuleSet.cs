@@ -6,6 +6,7 @@
  *    Dieter Vandroemme
  */
 using System;
+using System.Collections.Generic;
 using System.ComponentModel;
 using System.Windows.Forms;
 using vApus.SolutionTree;
@@ -19,7 +20,6 @@ namespace vApus.StressTest {
     public abstract class BaseRuleSet : LabeledBaseItem {
 
         #region Fields
-        private readonly object _lock = new object();
         private string _childDelimiter = "<16 0C 02 12$>", _description = string.Empty;
         #endregion
 
@@ -47,10 +47,9 @@ namespace vApus.StressTest {
         ///     Lexes the input if possible and builds an AST.
         /// </summary>
         /// <param name="input"></param>
-        /// <param name="parameters">Can be null.</param>
         /// <param name="output"></param>
         /// <returns></returns>
-        internal LexicalResult TryLexicalAnalysis(string input, Parameters parameters, out ASTNode output) {
+        internal LexicalResult TryLexicalAnalysis(string input, out ASTNode output) {
             output = new ASTNode(_childDelimiter);
             if (input.Length == 0) {
                 output.Error = "No input has been provided!";

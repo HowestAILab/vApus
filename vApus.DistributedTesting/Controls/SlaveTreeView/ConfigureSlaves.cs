@@ -229,13 +229,13 @@ namespace vApus.DistributedTest {
                         ip = address.ToString();
                         try {
                             hostname = Dns.GetHostEntry(ip).HostName;
-                            hostname = (hostname == null) ? string.Empty : hostname.ToLower();
+                            hostname = (hostname == null) ? string.Empty : hostname.ToLowerInvariant();
                             online = true;
                         } catch {
                             //Ignore resolve issues.
                         }
                     } else {
-                        hostname = txtHostName.Text.ToLower();
+                        hostname = txtHostName.Text.ToLowerInvariant();
                         IPAddress[] addresses = { };
                         try {
                             if (hostname.Length != 0) addresses = Dns.GetHostEntry(hostname.Split('.')[0]).AddressList;

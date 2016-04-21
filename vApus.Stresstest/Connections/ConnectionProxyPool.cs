@@ -88,27 +88,32 @@ namespace vApus.StressTest {
         }
 
         /// <summary>
-        ///     Tests if a single connection can be establisht.
+        ///     Tests if a single connection can be established.
         /// </summary>
-        /// <param name="exception"></param>
-        /// <returns></returns>
-        public void TestConnection(out string error) {
-            error = null;
+        /// <returns>Error or null.</returns>
+        public string TestConnection() {
+            string error = null;
             IConnectionProxy connectionProxy = null;
             try {
                 connectionProxy = FastObjectCreator.CreateInstance<IConnectionProxy>(_connectionProxyType);
                 connectionProxy.SetParent(this);
                 connectionProxy.TestConnection(out error);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 error = ex.ToString();
             }
             try {
                 if (connectionProxy != null)
                     connectionProxy.Dispose();
-            } catch {
+            }
+            catch {
                 //Not important. Ignore.
             }
+            if (string.IsNullOrWhiteSpace(error)) error = null;
+            return error;
         }
+
+
 
         /// <summary>
         ///     Will dispose the current connection proxies and open new ones.
@@ -162,7 +167,8 @@ namespace vApus.StressTest {
                 connectionProxy.OpenConnection();
                 if (!connectionProxy.IsConnectionOpen)
                     return ReconnectOnce(connectionProxy, index, null);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 return ReconnectOnce(connectionProxy, index, ex);
             }
             return null;
@@ -185,7 +191,8 @@ namespace vApus.StressTest {
                     Loggers.Log(Level.Error, "Reconnecting failed for connection proxy " + index + "!", null, new object[] { connectionProxy, index });
                     return ex;
                 }
-            } catch (Exception e) {
+            }
+            catch (Exception e) {
                 Loggers.Log(Level.Error, "Reconnecting failed for connection proxy " + index + "!", e, new object[] { connectionProxy, index });
                 return ex;
             }
@@ -219,7 +226,8 @@ namespace vApus.StressTest {
                     try {
                         if (cp != null && !cp.IsDisposed)
                             cp.Dispose();
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed disposing connection proxy.", ex, new object[] { _connectionProxies, cp });
                     }
                 });
@@ -230,7 +238,8 @@ namespace vApus.StressTest {
                     try {
                         if (cp != null && !cp.IsDisposed)
                             cp.Dispose();
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed disposing parallel connection proxy.", ex, new object[] { _parallelConnectionProxies, cp });
                     }
                 });
@@ -241,7 +250,8 @@ namespace vApus.StressTest {
                     try {
                         if (cp != null && !cp.IsDisposed)
                             cp.Dispose();
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed disposing parallel connection proxy.", ex, new object[] { _toDisposeParallelConnectionProxies, cp });
                     }
                 });

@@ -21,6 +21,7 @@ namespace vApus.StressTest {
         #region Constructor
         public StressTestProject() {
             AddAsDefaultItem(new Parameters());
+            AddAsDefaultItem(new ValueStore());
             AddAsDefaultItem(new Connections());
             AddAsDefaultItem(new Scenarios());
         }

@@ -33,7 +33,6 @@
             this.picClearUserActions = new System.Windows.Forms.PictureBox();
             this.picPasteUserAction = new System.Windows.Forms.PictureBox();
             this.picValid = new System.Windows.Forms.PictureBox();
-            this.label2 = new System.Windows.Forms.Label();
             this.panel1 = new System.Windows.Forms.Panel();
             this.pnlRuleSet.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.picAddUserAction)).BeginInit();
@@ -48,10 +47,10 @@
             | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlRuleSet.BackColor = System.Drawing.Color.Silver;
             this.pnlRuleSet.Controls.Add(this.cboRuleSet);
-            this.pnlRuleSet.Location = new System.Drawing.Point(115, 6);
+            this.pnlRuleSet.Location = new System.Drawing.Point(63, 6);
             this.pnlRuleSet.Margin = new System.Windows.Forms.Padding(0, 3, 3, 3);
             this.pnlRuleSet.Name = "pnlRuleSet";
-            this.pnlRuleSet.Size = new System.Drawing.Size(331, 23);
+            this.pnlRuleSet.Size = new System.Drawing.Size(383, 23);
             this.pnlRuleSet.TabIndex = 0;
             // 
             // cboRuleSet
@@ -66,7 +65,7 @@
             this.cboRuleSet.Location = new System.Drawing.Point(1, 1);
             this.cboRuleSet.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboRuleSet.Name = "cboRuleSet";
-            this.cboRuleSet.Size = new System.Drawing.Size(329, 21);
+            this.cboRuleSet.Size = new System.Drawing.Size(381, 21);
             this.cboRuleSet.TabIndex = 0;
             this.cboRuleSet.TabStop = false;
             this.cboRuleSet.SelectedIndexChanged += new System.EventHandler(this.cboRuleSet_SelectedIndexChanged);
@@ -151,17 +150,6 @@
             this.picValid.TabStop = false;
             this.picValid.Click += new System.EventHandler(this._Enter);
             // 
-            // label2
-            // 
-            this.label2.AutoSize = true;
-            this.label2.Location = new System.Drawing.Point(66, 11);
-            this.label2.Margin = new System.Windows.Forms.Padding(3, 0, 0, 0);
-            this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(49, 13);
-            this.label2.TabIndex = 22;
-            this.label2.Text = "Rule set:";
-            this.label2.Click += new System.EventHandler(this._Enter);
-            // 
             // panel1
             // 
             this.panel1.BackColor = System.Drawing.SystemColors.ControlDark;
@@ -181,7 +169,6 @@
             this.Controls.Add(this.panel1);
             this.Controls.Add(this.label1);
             this.Controls.Add(this.pnlRuleSet);
-            this.Controls.Add(this.label2);
             this.Controls.Add(this.picAddUserAction);
             this.Margin = new System.Windows.Forms.Padding(0);
             this.Name = "ScenarioTreeViewItem";
@@ -206,7 +193,6 @@
         private System.Windows.Forms.Label label1;
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.PictureBox picAddUserAction;
-        private System.Windows.Forms.Label label2;
         private System.Windows.Forms.Panel panel1;
         private System.Windows.Forms.PictureBox picClearUserActions;
         private System.Windows.Forms.PictureBox picValid;

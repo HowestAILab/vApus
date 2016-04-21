@@ -11,7 +11,6 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Drawing;
-using System.Runtime.InteropServices;
 using System.Threading;
 using System.Windows.Forms;
 
@@ -25,6 +24,8 @@ namespace vApus.Util {
         //All this to be able to add events from anywhere (for example the connection proxy code) for debugging purposes.
         private static readonly object _staticLock = new object();
         private static List<EventPanel> _eventPanels = new List<EventPanel>();
+
+        private static volatile bool _cancelAddingStaticEvents;
 
         private static void CleanEventPanels() {
             var l = new List<EventPanel>();
@@ -43,19 +44,23 @@ namespace vApus.Util {
 
         /// <summary>
         /// This allows us to add events from within the connection proxy code, events will be added to all available event panels.
+        /// These events will not be published, because of the stress on the GUI if this gets abused to much.
+        /// If you want to publish extra information from a Connection Proxy Code you can use a Value Store Value.
         /// </summary>
         /// <param name="message"></param>
         public static void AddEvent(string message) {
+            if (_cancelAddingStaticEvents) return;
+
             lock (_staticLock) {
-                CleanEventPanels();
-                foreach (var ep in _eventPanels)
-                    try {
-                        SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                            ep.AddEvent(EventViewEventType.Info, Color.Black, message);
-                        }, null);
-                    } catch (Exception ex) {
-                        Loggers.Log(Level.Error, "Failed to add events to an event panel from within connection proxy code.", ex, new object[] { message });
-                    }
+                try {                   
+                    SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                        foreach (var ep in _eventPanels)
+                            ep.AddEvent(EventViewEventType.Info, Color.Black,  message, DateTime.Now);
+                    }, null);
+                }
+                catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed to add events to an event panel from within connection proxy code.", ex, new object[] { message });
+                }
             }
         }
         #endregion
@@ -70,9 +75,6 @@ namespace vApus.Util {
         #endregion
 
         #region Properties
-        [DllImport("user32", CharSet = CharSet.Ansi, SetLastError = true, ExactSpelling = true)]
-        private static extern int LockWindowUpdate(IntPtr hWnd);
-
         [Description("The begin of the time frame when the events occured ('at').")]
         /// </summary>
         public DateTime BeginOfTimeFrame {
@@ -112,7 +114,8 @@ namespace vApus.Util {
 
                         eventProgressBar.Width += (cboFilter.Margin.Left + cboFilter.Width);
                         cboFilter.Visible = false;
-                    } else {
+                    }
+                    else {
                         btnCollapseExpand.Text = "-";
                         MinimumSize = DefaultMinimumSize;
                         MaximumSize = DefaultMaximumSize;
@@ -137,14 +140,17 @@ namespace vApus.Util {
         [DefaultValue(typeof(EventViewEventType), "Info")]
         public EventViewEventType Filter {
             get { return (EventViewEventType)cboFilter.SelectedIndex; }
-            set { cboFilter.SelectedIndex = (int)value; }
+            set {
+                cboFilter.SelectedIndex = (int)value;
+                eventView.Filter = value;
+            }
         }
         #endregion
 
         #region Constructor
         public EventPanel() {
             InitializeComponent();
-            cboFilter.SelectedIndex = 0;
+            Filter = EventViewEventType.Info;
 
             RegisterEventPanel(this);
         }
@@ -155,28 +161,20 @@ namespace vApus.Util {
         ///     Thread safe.
         /// </summary>
         /// <returns></returns>
-        public List<EventPanelEvent> GetEvents() {
+        public EventPanelEvent[] GetEvents() {
             lock (_lock) {
                 int tried = 0;
-            Retry:
+                Retry:
                 try {
-                    var l = new List<EventPanelEvent>(eventProgressBar.EventCount);
-
-                    List<EventViewItem> evEvents = eventView.GetEvents();
-                    List<ChartProgressEvent> epbEvents = eventProgressBar.GetEvents();
-                    for (int i = 0; i != eventProgressBar.EventCount; i++) {
-                        EventViewEventType type = evEvents[i].EventType;
-                        ChartProgressEvent pe = epbEvents[i];
-                        l.Add(new EventPanelEvent(type, pe.Color, pe.Message, pe.At));
-                    }
-                    return l;
-                } catch {
+                    return eventView.GetEvents();
+                }
+                catch {
                     if (++tried != 3) {
                         Thread.Sleep(tried * 100);
                         goto Retry;
                     }
                 }
-                return new List<EventPanelEvent>();
+                return new EventPanelEvent[0];
             }
         }
 
@@ -186,55 +184,51 @@ namespace vApus.Util {
 
         public void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at) {
             lock (_lock) {
-                LockWindowUpdate(Handle);
-                AddEvent(eventType, eventPrograssBarEventColor, message, at, true);
-                LockWindowUpdate(IntPtr.Zero);
-            }
-        }
-        private void AddEvent(EventViewEventType eventType, Color eventPrograssBarEventColor, string message, DateTime at, bool refreshGui) {
-            ChartProgressEvent pr = eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at, refreshGui);
-            //EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter, refreshGui);
-            EventViewItem evi = eventView.AddEvent(eventType, message, at, eventType >= Filter, refreshGui);
+                if (eventType > EventViewEventType.Info)
+                    eventProgressBar.AddEvent(eventPrograssBarEventColor, message, at);
+                eventView.AddEvent(eventType, message, at, eventPrograssBarEventColor);
 
-            if (eventType == EventViewEventType.Error && eventView.UserEntered == null) {
-                if (_expandOnErrorEvent)
+
+                if (eventType == EventViewEventType.Error && _expandOnErrorEvent) {
                     Collapsed = false;
-
-                eventProgressBar.PerformMouseEnter(at, false);
+                    eventProgressBar.PerformMouseEnter(at, false);
+                }
             }
         }
+
+
+
         public void AddEvents(List<EventPanelEvent> events) {
             lock (_lock) {
-                LockWindowUpdate(Handle);
                 int count = events.Count;
                 if (count != 0) {
-                    EventPanelEvent epe;
-                    for (int i = 0; i < count - 1; i++) {
-                        epe = events[i];
-                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+                    for (int i = 0; i < count; i++) {
+                        var epe = events[i];
+                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At);
                     }
-                    epe = events[count - 1];
-                    AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
                 }
-                LockWindowUpdate(IntPtr.Zero);
             }
         }
-        public void SetEvents(List<EventPanelEvent> events) {
+
+        public void AddEvents(EventPanelEvent[] events) {
+            lock (_lock) 
+                if (events.Length != 0) {
+                    for (int i = 0; i < events.Length; i++) {
+                        var epe = events[i];
+                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At);
+                    }
+                }
+        }
+        public void SetEvents(EventPanelEvent[] events) {
             lock (_lock) {
-                LockWindowUpdate(Handle);
                 ClearEvents();
 
-                int count = events.Count;
-                if (count != 0) {
-                    EventPanelEvent epe;
-                    for (int i = 0; i < count - 1; i++) {
-                        epe = events[i];
-                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, false);
+                if (events.Length != 0) {
+                    for (int i = 0; i < events.Length; i++) {
+                        var epe = events[i];
+                        AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At);
                     }
-                    epe = events[count - 1];
-                    AddEvent(epe.EventType, epe.EventProgressBarEventColor, epe.Message, epe.At, true);
                 }
-                LockWindowUpdate(IntPtr.Zero);
             }
         }
 
@@ -245,8 +239,18 @@ namespace vApus.Util {
             if (eventProgressBar.EndOfTimeFrame != dateTime) eventProgressBar.SetEndOfTimeFrameTo(dateTime);
         }
         public void ClearEvents() {
+            _cancelAddingStaticEvents = false;
             eventProgressBar.ClearEvents();
             eventView.ClearEvents();
+        }
+
+        /// <summary>
+        /// Call ClearEvents() to allow events to be added again.
+        /// </summary>
+        public void CancelAddingStaticEventsToGui() {
+            _cancelAddingStaticEvents = true;
+            eventProgressBar.CancelAddingEventsToGui();
+            eventView.CancelAddingEventsToGui();
         }
 
         public void Export() {
@@ -266,14 +270,6 @@ namespace vApus.Util {
             eventView.PerformMouseEnter(at);
         }
 
-        private void eventView_EventViewItemMouseEnter(object sender, EventView.EventViewItemEventArgs e) {
-            eventProgressBar.PerformMouseEnter(e.EventViewItem.At, false);
-        }
-
-        private void eventView_EventViewItemMouseLeave(object sender, EventView.EventViewItemEventArgs e) {
-            eventProgressBar.PerformMouseLeave();
-        }
-
         private void btnCollapseExpand_Click(object sender, EventArgs e) {
             Collapsed = btnCollapseExpand.Text == "-";
         }
@@ -284,16 +280,7 @@ namespace vApus.Util {
 
         private void cboFilter_SelectedIndexChanged(object sender, EventArgs e) {
             Cursor = Cursors.WaitCursor;
-
-            LockWindowUpdate(Handle);
-
-            foreach (EventViewItem evi in eventView.GetEvents())
-                evi.Visible = evi.EventType >= Filter;
-
-            eventView.PerformLargeListResize();
-
-            LockWindowUpdate(IntPtr.Zero);
-
+            Filter = (EventViewEventType)cboFilter.SelectedIndex;
             Cursor = Cursors.Default;
         }
         #endregion

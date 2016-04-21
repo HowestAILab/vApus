@@ -33,9 +33,6 @@ namespace vApus.DistributedTest {
         private StressTest.StressTest _defaultAdvancedSettingsTo;
         private bool _automaticDefaultAdvancedSettings = true;
 
-        //For encrypting the mysql password of the resuts database.
-        private static string _passwordGUID = "{51E6A7AC-06C2-466F-B7E8-4B0A00F6A21F}";
-        private static readonly byte[] _salt = { 0x49, 0x16, 0x49, 0x2e, 0x11, 0x1e, 0x45, 0x24, 0x86, 0x05, 0x01, 0x03, 0x62 };
         #endregion
 
         #region Properties
@@ -101,7 +98,7 @@ namespace vApus.DistributedTest {
 
             if (Solution.ActiveSolution != null) {
                 DefaultAdvancedSettingsTo = GetNextOrEmptyChild(typeof(StressTest.StressTest), Solution.ActiveSolution.GetSolutionComponent(typeof(StressTestProject))) as StressTest.StressTest;
-           } else {
+            } else {
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
             }
         }
@@ -172,7 +169,7 @@ namespace vApus.DistributedTest {
         /// <param name="stressTestIdInDb">-1 for none</param>
         /// <param name="runSynchronization"></param>
         /// <returns></returns>
-        public StressTestWrapper GetStressTestWrapper(FunctionOutputCache functionOutputCache, int stressTestIdInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public StressTestWrapper GetStressTestWrapper(FunctionOutputCache functionOutputCache, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             lock (_lock) {
                 string tileStressTestIndex = TileStressTestIndex;
                 var stressTest = new StressTest.StressTest();
@@ -222,15 +219,27 @@ namespace vApus.DistributedTest {
 
                 stressTest.ForceSettingChildsParent();
 
-                string user, host, password;
-                int port;
-                vApus.Results.ConnectionStringManager.GetCurrentConnectionString(out user, out host, out port, out password);
+
+                string[] monitors = new string[BasicTileStressTest.Monitors.Length];
+                for (int i = 0; i != monitors.Length; i++) monitors[i] = BasicTileStressTest.Monitors[i].ToString();
+
+                ValueStore valueStore = null;
+                var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
+                foreach (BaseItem item in stressTestProject)
+                    if (item is ValueStore) {
+                        valueStore = item as ValueStore;
+                        break;
+                    }
 
                 return new StressTestWrapper {
-                    StressTestIdInDb = stressTestIdInDb,
-                    StressTest = stressTest,
-                    TileStressTestIndex = tileStressTestIndex, RunSynchronization = runSynchronization, MaxRerunsBreakOnLast = maxRerunsBreakOnLast,
-                    MySqlHost = host, MySqlPort = port, MySqlDatabaseName = databaseName, MySqlUser = user, MySqlPassword = password == null ? null : password.Encrypt(_passwordGUID, _salt)
+                    DistributedTest = Parent.ToString(), StressTest = stressTest,
+                    ValueStore = valueStore,
+                    PublishResultSetId = Publish.Publisher.LastGeneratedResultSetId,
+                    Publish = Publish.Publisher.Settings.PublisherEnabled, PublishHost = Publish.Publisher.Settings.TcpHost,
+                    PublishPort = Publish.Publisher.Settings.TcpPort,
+                    TileStressTest = this.ToString(), TileStressTestIndex = tileStressTestIndex, RunSynchronization = runSynchronization,
+                    Monitors = monitors,
+                    MaxRerunsBreakOnLast = maxRerunsBreakOnLast
                 };
             }
         }

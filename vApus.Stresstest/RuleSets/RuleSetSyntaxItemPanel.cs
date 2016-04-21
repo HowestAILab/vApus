@@ -101,7 +101,7 @@ namespace vApus.StressTest {
                     }
                 }
             }
-            base.SetValues(values.ToArray());
+            base.SetValues(false, values.ToArray());
         }
 
         private BaseValueControl.Value CreateValue(SyntaxItem syntaxItem, string input) {
@@ -116,72 +116,72 @@ namespace vApus.StressTest {
                 isEncrypted = rule.DisplayAsPassword;
 
                 switch (rule.ValueType) {
-                    case Rule.ValueTypes.boolType:
+                    case Rule.RuleValueTypes.boolType:
                         bool b;
                         value = bool.TryParse(input, out b) ? b : false;
                         defaultValue = bool.TryParse(syntaxItem.DefaultValue, out b) ? b : false;
                         break;
-                    case Rule.ValueTypes.charType:
+                    case Rule.RuleValueTypes.charType:
                         value = input[0];
                         defaultValue = syntaxItem.DefaultValue[0];
                         break;
-                    case Rule.ValueTypes.decimalType:
+                    case Rule.RuleValueTypes.decimalType:
                         decimal dec = 0;
                         decimal.TryParse(input, out dec);
                         value = dec;
                         decimal.TryParse(syntaxItem.DefaultValue, out dec);
                         defaultValue = dec;
                         break;
-                    case Rule.ValueTypes.doubleType:
+                    case Rule.RuleValueTypes.doubleType:
                         double d = 0;
                         double.TryParse(input, out d);
                         value = d;
                         double.TryParse(syntaxItem.DefaultValue, out d);
                         defaultValue = d;
                         break;
-                    case Rule.ValueTypes.floatType:
+                    case Rule.RuleValueTypes.floatType:
                         float f = 0;
                         float.TryParse(input, out f);
                         value = f;
                         float.TryParse(syntaxItem.DefaultValue, out f);
                         defaultValue = f;
                         break;
-                    case Rule.ValueTypes.intType:
+                    case Rule.RuleValueTypes.intType:
                         int i = 0;
                         int.TryParse(input, out i);
                         value = i;
                         int.TryParse(syntaxItem.DefaultValue, out i);
                         defaultValue = i;
                         break;
-                    case Rule.ValueTypes.longType:
+                    case Rule.RuleValueTypes.longType:
                         long l = 0;
                         long.TryParse(input, out l);
                         value = l;
                         long.TryParse(syntaxItem.DefaultValue, out l);
                         defaultValue = l;
                         break;
-                    case Rule.ValueTypes.shortType:
+                    case Rule.RuleValueTypes.shortType:
                         short s = 0;
                         short.TryParse(input, out s);
                         value = s;
                         short.TryParse(syntaxItem.DefaultValue, out s);
                         defaultValue = s;
                         break;
-                    case Rule.ValueTypes.uintType:
+                    case Rule.RuleValueTypes.uintType:
                         uint ui = 0;
                         uint.TryParse(input, out ui);
                         value = ui;
                         uint.TryParse(syntaxItem.DefaultValue, out ui);
                         defaultValue = ui;
                         break;
-                    case Rule.ValueTypes.ulongType:
+                    case Rule.RuleValueTypes.ulongType:
                         ulong ul = 0;
                         ulong.TryParse(input, out ul);
                         value = ul;
                         ulong.TryParse(syntaxItem.DefaultValue, out ul);
                         defaultValue = ul;
                         break;
-                    case Rule.ValueTypes.ushortType:
+                    case Rule.RuleValueTypes.ushortType:
                         ushort us = 0;
                         ushort.TryParse(input, out us);
                         value = us;

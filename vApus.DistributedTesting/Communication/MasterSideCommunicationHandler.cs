@@ -213,59 +213,6 @@ namespace vApus.DistributedTest {
             Send(socketWrapper, new Message<Key>(key, content), tempSendTimeout);
         }
         /// <summary>
-        /// </summary>
-        /// <param name="ip"></param>
-        /// <param name="port"></param>
-        /// <param name="key"></param>
-        /// <param name="content"></param>
-        /// <param name="exception"></param>
-        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
-        private static void Send(string ip, int port, Key key, object content, out Exception exception, int tempSendTimeout = -1) {
-            exception = null;
-            SocketWrapper socketWrapper = null;
-            try {
-                socketWrapper = Get(ip, port, out exception);
-                if (exception == null)
-                    Send(socketWrapper, key, content, tempSendTimeout);
-            } catch (Exception ex) {
-                DisconnectSlave(socketWrapper);
-                exception = ex;
-            }
-        }
-        /// <summary>
-        /// Send to all slaves.
-        /// Will connect all the slaves if not connected.
-        /// </summary>
-        /// <param name="key"></param>
-        /// <param name="content"></param>
-        /// <param name="exception"></param>
-        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
-        private static void Send(Key key, object content, out Exception exception, int tempSendTimeout = -1) {
-            exception = null;
-            int processID;
-            List<string> failedFor = new List<string>();
-            Dictionary<SocketWrapper, Message<Key>> dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
-            foreach (SocketWrapper slaveSocketWrapper in _connectedSlaves.Keys) {
-                try {
-                    ConnectSlave(slaveSocketWrapper, out processID, out exception);
-                    Send(slaveSocketWrapper, key, content, tempSendTimeout);
-                } catch {
-                    failedFor.Add(string.Format("{0}:{1}", slaveSocketWrapper.IP, slaveSocketWrapper.Port));
-                }
-            }
-
-            if (failedFor.Count > 0) {
-                StringBuilder sb = new StringBuilder("Failed send and receive for ");
-                for (int j = 0; j < failedFor.Count - 1; j++) {
-                    sb.Append(failedFor[j]);
-                    sb.Append(", ");
-                }
-                sb.Append(failedFor[failedFor.Count - 1]);
-                sb.Append('.');
-                exception = new Exception(sb.ToString());
-            }
-        }
-        /// <summary>
         /// 
         /// </summary>
         /// <param name="socketWrapper"></param>
@@ -515,7 +462,7 @@ namespace vApus.DistributedTest {
         /// 
         /// No timeouts (except for the synchronization of the buffers (30 seconds)), this can take a while.
         /// </summary>
-        public static Exception InitializeTests(Dictionary<TileStressTest, TileStressTest> dividedAndOriginalTileStressTests, List<int> stressTestIdsInDb, string databaseName, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public static Exception InitializeTests(Dictionary<TileStressTest, TileStressTest> dividedAndOriginalTileStressTests, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
             Exception exception = null;
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStressTests.Count];
             var functionOutputCache = new FunctionOutputCache();
@@ -534,14 +481,14 @@ namespace vApus.DistributedTest {
                 var pushIPs = new List<string>();
 
                 //Dns.GetHostName() does not always work.
-                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLowerInvariant();
 
                 foreach (var ipAddress in Dns.GetHostAddresses(hostName)) {
                     if (ipAddress.AddressFamily == masterSocketWrapper.IP.AddressFamily)
                         pushIPs.Add(ipAddress.ToString());
                 }
                 var initializeTestMessage = new InitializeTestMessage() {
-                    StressTestWrapper = tileStressTest.GetStressTestWrapper(functionOutputCache, stressTestIdsInDb[tileStressTestIndex], databaseName, runSynchronization, maxRerunsBreakOnLast),
+                    StressTestWrapper = tileStressTest.GetStressTestWrapper(functionOutputCache, runSynchronization, maxRerunsBreakOnLast),
                     PushIPs = pushIPs.ToArray(), PushPort = masterSocketWrapper.Port
                 };
 

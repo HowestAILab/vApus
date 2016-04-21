@@ -30,11 +30,11 @@
         {
             this.groupBox = new System.Windows.Forms.GroupBox();
             this.pnlUpdate = new System.Windows.Forms.Panel();
-            this.kvpWindowsAutoUpdate = new vApus.Util.KeyValuePairControl();
+            this.kvpWindowsAutoUpdate = new RandomUtils.KeyValuePairControl();
             this.rdbUpdateOn = new System.Windows.Forms.RadioButton();
             this.rdbUpdateOff = new System.Windows.Forms.RadioButton();
             this.pnlFirewall = new System.Windows.Forms.Panel();
-            this.kvpFirewall = new vApus.Util.KeyValuePairControl();
+            this.kvpFirewall = new RandomUtils.KeyValuePairControl();
             this.rdbFirewallOn = new System.Windows.Forms.RadioButton();
             this.rdbFirewallOff = new System.Windows.Forms.RadioButton();
             this.btnDisableAll = new System.Windows.Forms.Button();
@@ -208,8 +208,8 @@
 
         #endregion
 
-        private KeyValuePairControl kvpFirewall;
-        private KeyValuePairControl kvpWindowsAutoUpdate;
+        private RandomUtils.KeyValuePairControl kvpFirewall;
+        private RandomUtils.KeyValuePairControl kvpWindowsAutoUpdate;
         private System.Windows.Forms.GroupBox groupBox;
         private System.Windows.Forms.Button btnDisableAll;
         private System.Windows.Forms.Label label1;

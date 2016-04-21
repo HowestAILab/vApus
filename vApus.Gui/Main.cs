@@ -42,11 +42,9 @@ namespace vApus.Gui {
         private LogPanel _logPanel;
         private LocalizationPanel _localizationPanel;
         private TestProgressNotifierPanel _progressNotifierPannel;
-        private SavingResultsPanel _savingResultsPanel;
-        private AutoExportResultsPanel _exportingResultsPanel;
         private WindowsFirewallAutoUpdatePanel _disableFirewallAutoUpdatePanel;
         private CleanTempDataPanel _cleanTempDataPanel;
-        private Publish.PublishPanel _outputPanel;
+        private Publish.PublishPanel _publishPanel;
         #endregion
 
         #region Constructor
@@ -112,10 +110,8 @@ namespace vApus.Gui {
                         await Task.Run(() => SynchronizationContextWrapper.SynchronizationContext.Send((state) => { Close(); }, null));
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
-                _savingResultsPanel = new SavingResultsPanel();
-                _exportingResultsPanel = new AutoExportResultsPanel();
 
-                _outputPanel = new Publish.PublishPanel();
+                _publishPanel = new Publish.PublishPanel();
 
                 _firstStepsView.LinkClicked += _firstStepsView_LinkClicked;
 
@@ -214,11 +210,9 @@ namespace vApus.Gui {
                 _optionsDialog = new OptionsDialog();
                 _optionsDialog.FormClosed += _optionsDialog_FormClosed;
                 _optionsDialog.AddOptionsPanel(_logPanel);
-                _optionsDialog.AddOptionsPanel(_exportingResultsPanel);
                 _optionsDialog.AddOptionsPanel(_cleanTempDataPanel);
                 _optionsDialog.AddOptionsPanel(_localizationPanel);
-                _optionsDialog.AddOptionsPanel(_outputPanel);
-                _optionsDialog.AddOptionsPanel(_savingResultsPanel);
+                _optionsDialog.AddOptionsPanel(_publishPanel);
                 SocketListenerLinker.AddSocketListenerManagerPanel(_optionsDialog);
                 _optionsDialog.AddOptionsPanel(_progressNotifierPannel);
                 _optionsDialog.AddOptionsPanel(_updateNotifierPanel);
@@ -243,7 +237,7 @@ namespace vApus.Gui {
         }
 
         private void lupusTitaniumHTTPsProxyToolStripMenuItem_Click(object sender, EventArgs e) {
-            string path = Path.Combine(Application.StartupPath, "lupus-titanium\\lupus-titanium_gui.exe");
+            string path = Path.Combine(Application.StartupPath, "lupus-titanium", "lupus-titanium_gui.exe");
             if (File.Exists(path)) {
                 Process.Start(path);
             } else {
@@ -255,15 +249,27 @@ namespace vApus.Gui {
         }
 
         private void detailedResultsViewerToolStripMenuItem_Click(object sender, EventArgs e) {
-            string path = Path.Combine(Application.StartupPath, "vApus.DetailedResultsViewer.exe");
+            string path = Path.Combine(Application.StartupPath, "DetailedResultsViewer", "vApus.DetailedResultsViewer.exe");
             if (File.Exists(path)) {
                 Process.Start(path);
             } else {
-                string ex = "The report application could not be found!";
+                string ex = "Detailed results viewer was not found!";
                 MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
             }
         }
+        private void publishItemsHandlerToolStripMenuItem_Click(object sender, EventArgs e) {
+            string path = Path.Combine(Application.StartupPath, "PublishItemsHandler", "vApus.PublishItemsHandler.exe");
+            if (File.Exists(path)) {
+                Process.Start(path);
+            }
+            else {
+                string ex = "Publish items handler was not found!";
+                MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
+            }
+        }
+
 
         private void updateProcess_Exited(object sender, EventArgs e) {
             try {
@@ -527,7 +533,7 @@ namespace vApus.Gui {
                 singleTestToolStripMenuItem.Tag = stressTestProject;
                 SetToolStripMenuItemImage(singleTestToolStripMenuItem);
                 foreach (BaseItem stressTestCandidate in stressTestProject)
-                    if (stressTestCandidate.GetType().Name.ToLower() == "stresstest") {
+                    if (stressTestCandidate.GetType().Name.ToLowerInvariant() == "stresstest") {
                         var item = new ToolStripMenuItem(stressTestCandidate.ToString());
                         item.Tag = stressTestCandidate;
                         SetToolStripMenuItemImage(item);
@@ -590,9 +596,17 @@ namespace vApus.Gui {
             var attr = typeof(UpdateNotifierState).GetField(UpdateNotifier.UpdateNotifierState.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false) as DescriptionAttribute[];
             lblUpdateNotifier.Text = attr[0].Description;
 
-            bool connected = await Task.Run(() => _savingResultsPanel.Connected);
+            if (Publish.Publisher.Settings.PublisherEnabled) {
+                _publishPanel.AutoLaunchvApusPublishItemsHandler();
 
-            lblResultsDatabase.Text = _savingResultsPanel != null && _savingResultsPanel.Connected ? "Test results database enabled" : "Test results database disabled";
+                bool connected = await Task.Run(() => _publishPanel.Connected);
+
+                lblPublisher.Text = connected ? "Publisher connected" : "Could not connect publisher";
+            }
+            else {
+                lblPublisher.Text = "Publisher disabled";
+            }
+
 
             SetWarningLabel();
 
@@ -636,15 +650,15 @@ namespace vApus.Gui {
 
         private void _firstStepsView_LinkClicked(object sender, FirstStepsView.LinkClickedEventArgs e) { ShowOptionsDialog(e.OptionsIndex); }
 
-        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
+        private void lblUpdateNotifier_Click(object sender, EventArgs e) { ShowOptionsDialog(6); }
 
-        private void lblResultsDatabase_Click(object sender, EventArgs e) { ShowOptionsDialog(5); }
+        private void lblPublisher_Click(object sender, EventArgs e) { ShowOptionsDialog(3); }
 
         private void _logErrorToolTip_Click(object sender, EventArgs e) { ShowOptionsDialog(0); }
 
-        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(8); }
+        private void lblCleanTempData_Click(object sender, EventArgs e) { ShowOptionsDialog(1); }
 
-        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(9); }
+        private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
         #endregion
     }
 }

@@ -158,7 +158,7 @@ namespace vApus.Util {
                 }
 
                 //Dns.GetHostName() does not always work.
-                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+                string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLowerInvariant();
 
                 var msg = new MailMessage("vapus@sizingservers.be", txtEmailaddress.Text, "A test mail", string.Concat("from vApus@", hostName, ":", NamedObjectRegistrar.Get<int>("Port")));
                 msg.SubjectEncoding = msg.BodyEncoding = UTF8Encoding.UTF8;

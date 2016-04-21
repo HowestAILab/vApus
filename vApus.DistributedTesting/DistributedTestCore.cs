@@ -39,8 +39,6 @@ namespace vApus.DistributedTest {
 
         #region Fields
         private readonly DistributedTest _distributedTest;
-        // For adding and getting results.
-        private Dictionary<TileStressTest, int> _tileStressTestsWithDbIds;
 
         private volatile string[] _cancelled = new string[] { };
         private readonly object _communicationLock = new object();
@@ -70,8 +68,6 @@ namespace vApus.DistributedTest {
         private Dictionary<TileStressTest, TileStressTest> _usedTileStressTests = new Dictionary<TileStressTest, TileStressTest>(); //the divided stress tests and the originals
         private int _totalTestCount = 0; //This way we do not need a lock to get the count.
 
-        private ResultsHelper _resultsHelper;
-
         private System.Timers.Timer _tmrOnInvokeTestProgressMessageReceivedDelayed = new System.Timers.Timer(500);
         #endregion
 
@@ -80,15 +76,6 @@ namespace vApus.DistributedTest {
         /// Key = divided stress test, Value = original
         /// </summary>
         public Dictionary<TileStressTest, TileStressTest> UsedTileStressTests { get { return _usedTileStressTests; } }
-
-        /// <returns>-1 if not found or the first Id if the given is a divided tile stress test.</returns>
-        public int GetDbId(TileStressTest tileStressTest) {
-            string tileStressTestToString = ReaderAndCombiner.GetCombinedStressTestToString(tileStressTest.ToString());
-            foreach (TileStressTest ts in _tileStressTestsWithDbIds.Keys)
-                if (tileStressTestToString == ReaderAndCombiner.GetCombinedStressTestToString(ts.ToString()))
-                    return _tileStressTestsWithDbIds[ts];
-            return -1;
-        }
 
         public bool IsDisposed { get { return _isDisposed; } }
 
@@ -118,12 +105,11 @@ namespace vApus.DistributedTest {
         /// </summary>
         /// <param name="distributedTest"></param>
         /// <param name="resultsHelper"></param>
-        public DistributedTestCore(DistributedTest distributedTest, ResultsHelper resultsHelper) {
+        public DistributedTestCore(DistributedTest distributedTest) {
             ObjectRegistrar.MaxRegistered = 1;
             ObjectRegistrar.Register(this);
 
             _distributedTest = distributedTest;
-            _resultsHelper = resultsHelper;
             MasterSideCommunicationHandler.ListeningError += _masterCommunication_ListeningError;
             MasterSideCommunicationHandler.OnTestProgressMessageReceived += _masterCommunication_OnTestProgressMessageReceived;
 
@@ -201,7 +187,6 @@ namespace vApus.DistributedTest {
             InvokeMessage("Initializing the test.");
 
             Connect(out notACleanDivision);
-            SetvApusInstancesAndStressTestsInDb();
             SendAndReceiveInitializeTest();
         }
         private void Connect(out bool notACleanDivision) {
@@ -247,39 +232,10 @@ namespace vApus.DistributedTest {
             }
         }
 
-        private void SetvApusInstancesAndStressTestsInDb() {
-            _tileStressTestsWithDbIds = new Dictionary<TileStressTest, int>(_usedTileStressTests.Count);
-            foreach (TileStressTest ts in _usedTileStressTests.Keys) {
-                var slave = ts.BasicTileStressTest.Slaves[0];
-                _resultsHelper.SetvApusInstance(slave.HostName, slave.IP, slave.Port, string.Empty, string.Empty, false);
-
-                var scenarioKeys = new List<Scenario>(ts.AdvancedTileStressTest.Scenarios.Length);
-                foreach (var kvp in ts.AdvancedTileStressTest.Scenarios)
-                    scenarioKeys.Add(kvp.Key);
-
-                int id = _resultsHelper.SetStressTest(ts.ToString(), _distributedTest.RunSynchronization.ToString(), ts.BasicTileStressTest.Connection.ToString(), ts.BasicTileStressTest.ConnectionProxy,
-                        ts.BasicTileStressTest.Connection.ConnectionString, scenarioKeys.Combine(", "), ts.AdvancedTileStressTest.ScenarioRuleSet, ts.AdvancedTileStressTest.Concurrencies,
-                        ts.AdvancedTileStressTest.Runs, ts.AdvancedTileStressTest.InitialMinimumDelay, ts.AdvancedTileStressTest.InitialMaximumDelay, ts.AdvancedTileStressTest.MinimumDelay, ts.AdvancedTileStressTest.MaximumDelay, 
-                        ts.AdvancedTileStressTest.Shuffle, ts.AdvancedTileStressTest.ActionDistribution, ts.AdvancedTileStressTest.MaximumNumberOfUserActions, ts.AdvancedTileStressTest.MonitorBefore, ts.AdvancedTileStressTest.MonitorAfter,
-                        ts.AdvancedTileStressTest.UseParallelExecutionOfRequests, ts.AdvancedTileStressTest.MaximumPersistentConnections, ts.AdvancedTileStressTest.PersistentConnectionsPerHostname);
-
-                _tileStressTestsWithDbIds.Add(ts, id);
-            }
-
-            //Dns.GetHostName() does not always work.
-            string hostName = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
-            _resultsHelper.SetvApusInstance(hostName, string.Empty, NamedObjectRegistrar.Get<int>("Port"),
-                    NamedObjectRegistrar.Get<string>("vApusVersion") ?? string.Empty, NamedObjectRegistrar.Get<string>("vApusChannel") ?? string.Empty,
-                    true);
-        }
         private void SendAndReceiveInitializeTest() {
             InvokeMessage("Initializing tests on slaves, please, be patient...");
 
-            List<int> stressTestIdsInDb = new List<int>(_usedTileStressTests.Count);
-            foreach (var ts in _usedTileStressTests.Keys)
-                stressTestIdsInDb.Add(_tileStressTestsWithDbIds.ContainsKey(ts) ? _tileStressTestsWithDbIds[ts] : 0);
-
-            Exception exception = MasterSideCommunicationHandler.InitializeTests(_usedTileStressTests, stressTestIdsInDb, _resultsHelper.DatabaseName, _distributedTest.RunSynchronization, _distributedTest.MaxRerunsBreakOnLast);
+            Exception exception = MasterSideCommunicationHandler.InitializeTests(_usedTileStressTests, _distributedTest.RunSynchronization, _distributedTest.MaxRerunsBreakOnLast);
             if (exception != null) {
                 var ex = new Exception("Could not initialize one or more tests!\n" + exception);
                 InvokeMessage(ex.ToString(), Level.Error);
@@ -559,8 +515,6 @@ namespace vApus.DistributedTest {
                 ObjectRegistrar.Unregister(this);
 
                 InvokeOnFinished();
-
-                _resultsHelper.DoAddMessagesToDatabase();
             }
         }
 

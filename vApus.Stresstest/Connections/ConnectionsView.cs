@@ -13,7 +13,6 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
 using vApus.SolutionTree;
 using vApus.Util;
@@ -104,6 +103,15 @@ namespace vApus.StressTest {
         }
 
         private void btnTest_Click(object sender, EventArgs e) {
+            var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject") as StressTestProject;
+            foreach (BaseItem item in stressTestProject)
+                if (item is ValueStore) {
+                    var valueStore = item as ValueStore;
+                    valueStore.InitForTestConnection();
+                    break;
+                }
+
+
             btnTest.Text = "Busy...";
             btnTest.Enabled = btnEdit.Enabled = btnUndo.Enabled = false;
 

@@ -12,6 +12,7 @@ using System.Collections.Generic;
 using System.Data;
 using System.Drawing;
 using System.Linq;
+using System.Reflection;
 using System.Runtime.InteropServices;
 using System.Text;
 using System.Windows.Forms;
@@ -61,6 +62,13 @@ namespace vApus.StressTest {
 
         #region Properties
         public UserActionTreeViewItem UserActionTreeViewItem { get; private set; }
+
+        private ScrollBar DgvHScrollBar {
+            get {
+                return dgvRequests.GetType().GetProperty("HorizontalScrollBar", BindingFlags.Instance | BindingFlags.NonPublic).GetValue(dgvRequests) as ScrollBar;
+            }
+        }
+
         #endregion
 
         #region Constructor
@@ -77,7 +85,8 @@ namespace vApus.StressTest {
                 fctxteditView.DefaultContextMenu(true);
                 fctxtxPlainText.DefaultContextMenu(true);
 
-            } catch {
+            }
+            catch {
                 //Should / can never happen.
             }
             this.HandleCreated += EditUserActionPanel_HandleCreated;
@@ -122,11 +131,7 @@ namespace vApus.StressTest {
 
             cboParameterScope.SelectedIndex = 5;
 
-            //txtLabel.TextChanged -= txtLabel_TextChanged;
             txtLabel.Text = userActionTreeViewItem.UserAction.Label;
-            //txtLabel.TextChanged += txtLabel_TextChanged;
-
-            // _labelChanged.Elapsed += _labelChanged_Elapsed;
 
             if (_plainTextParameterTokenTextStyle == null) SetCodeStyle();
             SetMove();
@@ -136,23 +141,6 @@ namespace vApus.StressTest {
             SetRequests();
             LockWindowUpdate(IntPtr.Zero);
         }
-
-        //private void _labelChanged_Elapsed(object sender, System.Timers.ElapsedEventArgs e) {
-        //    if (_labelChanged != null) _labelChanged.Stop();
-        //    if (!IsDisposed)
-        //        SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-        //            UserActionTreeViewItem.UserAction.Label = txtLabel.Text;
-        //            UserActionTreeViewItem.SetLabel();
-        //            UserActionTreeViewItem.UserAction.InvokeSolutionComponentChangedEvent(SolutionTree.SolutionComponentChangedEventArgs.DoneAction.Edited);
-        //        }, null);
-        //}
-
-        //private void txtLabel_TextChanged(object sender, EventArgs e) {
-        //if (_labelChanged != null) {
-        //    _labelChanged.Stop();
-        //    _labelChanged.Start();
-        //}
-        //}
 
         private void txtLabel_KeyUp(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) SetLabelChanged();
@@ -177,7 +165,7 @@ namespace vApus.StressTest {
         private void MoveUserAction(bool down) {
             MoveUserAction(UserActionTreeViewItem.UserAction, down, (int)nudMoveSteps.Value);
         }
-        private void MoveUserAction(UserAction userAction, bool down, int moveSteps, bool invokeEvents = true) {
+        private void MoveUserAction(UserAction userAction, bool down, int moveSteps) {
             if (moveSteps == 0) return;
 
             //use the zero based index.
@@ -187,7 +175,8 @@ namespace vApus.StressTest {
                 for (int i = 0; i < moveSteps; i++)
                     if (++index + userAction.LinkedToUserActionIndices.Count < _scenario.Count)
                         MoveDownOneStep(userAction);
-            } else {
+            }
+            else {
                 //We move the previous user action(s) down, this makes the following logic easier (we don't need a 'move up' logic)
                 //linked user actions are taken into account
                 UserAction linkUserAction;
@@ -210,7 +199,8 @@ namespace vApus.StressTest {
 
                         if (index == 0) break;
                     }
-                } else if (index != 0) {
+                }
+                else if (index != 0) {
                     toMoveDown.Add(_scenario[index - 1] as UserAction);
                 }
 
@@ -237,7 +227,8 @@ namespace vApus.StressTest {
                         nextUserAction = _scenario[moveIndex] as UserAction;
                     }
                 }
-            } else if (++moveIndex < _scenario.Count) {
+            }
+            else if (++moveIndex < _scenario.Count) {
                 nextUserAction = _scenario[moveIndex] as UserAction;
             }
             if (nextUserAction == null) return;
@@ -334,7 +325,8 @@ namespace vApus.StressTest {
             if (UserActionTreeViewItem.UserAction.UseDelay) {
                 picDelay.Image = global::vApus.StressTest.Properties.Resources.Delay;
                 toolTip.SetToolTip(picDelay, "Click to NOT use delay after this user action.\nDelay is determined in the stress test settings.");
-            } else {
+            }
+            else {
                 picDelay.Image = global::vApus.StressTest.Properties.Resources.IgnoreDelay;
                 toolTip.SetToolTip(picDelay, "Click to use delay after this user action.\nDelay is determined in the stress test settings.");
             }
@@ -433,7 +425,8 @@ namespace vApus.StressTest {
 
             if (selected == null) {
                 cbo.SelectedIndex = 0;
-            } else {
+            }
+            else {
                 cbo.SelectedItem = selected;
                 cbo.Tag = selected;
             }
@@ -495,7 +488,8 @@ namespace vApus.StressTest {
                     string formattedS = request.RequestString.Replace("\n", VBLRn).Replace("\r", VBLRr);
                     AddRowToDgv(request.RequestString);
                     plainText.AppendLine(formattedS);
-                } else
+                }
+            else
                 foreach (string s in userAction.RequestStringsAsImported) {
                     string formattedS = s.Replace("\n", VBLRn).Replace("\r", VBLRr);
                     AddRowToDgv(s);
@@ -574,16 +568,12 @@ namespace vApus.StressTest {
             string delimiter = _scenario.ScenarioRuleSet.ChildDelimiter;
             var row = new List<string>();
             row.Add(string.Empty);
-            while (row.Count != _cache.Columns.Count - 1) {
-                int delimiterIndex = requestString.IndexOf(delimiter);
-                if (delimiterIndex == -1) {
-                    row.Add(string.Empty);
-                } else {
-                    row.Add(requestString.Substring(0, delimiterIndex));
-                    requestString = requestString.Substring(delimiterIndex + delimiter.Length);
-                }
-            }
-            row.Add(requestString);
+
+            row.AddRange(requestString.Split(new string[] { delimiter }, StringSplitOptions.None));
+
+            while (row.Count < _cache.Columns.Count) row.Add(string.Empty);
+            while (row.Count > _cache.Columns.Count) row.RemoveAt(row.Count - 1);
+
             _cache.Rows.Add(row.ToArray());
 
             return requestString.Length != 0;
@@ -595,7 +585,8 @@ namespace vApus.StressTest {
                     if (item.Optional) {
                         optional = true;
                         break;
-                    } else {
+                    }
+                    else {
                         optional = CheckOptionalSyntaxItem(subItem as SyntaxItem);
                         if (optional) break;
                     }
@@ -613,7 +604,8 @@ namespace vApus.StressTest {
                 dgvRequests.AllowUserToAddRows = true;
 
                 dgvRequests.ColumnHeadersDefaultCellStyle.ForeColor = SystemColors.ControlText;
-            } else {
+            }
+            else {
                 btnApply.Visible = btnRevertToImported.Visible = false;
                 dgvRequests.ReadOnly = fctxtxPlainText.ReadOnly = true;
                 dgvRequests.AllowDrop = false;
@@ -647,7 +639,8 @@ namespace vApus.StressTest {
                 // Create a rectangle using the DragSize, with the mouse position being
                 // at the center of the rectangle.
                 _dragBoxFromMouseDown = new Rectangle(new Point(e.X - (dragSize.Width / 2), e.Y - (dragSize.Height / 2)), dragSize);
-            } else
+            }
+            else
                 // Reset the rectangle if the mouse is not over an item in the ListBox.
                 _dragBoxFromMouseDown = Rectangle.Empty;
         }
@@ -695,7 +688,7 @@ namespace vApus.StressTest {
         private void dgvRequests_CellValuePushed(object sender, DataGridViewCellValueEventArgs e) {
             PushCellValueToRequest(e.RowIndex, e.ColumnIndex, e.Value);
         }
-        private void PushCellValueToRequest(int cellRowIndex, int cellColumnIndex, object cellValue) {
+        private void PushCellValueToRequest(int cellRowIndex, int cellColumnIndex, object cellValue, bool updateGUI = true) {
             var userAction = UserActionTreeViewItem.UserAction;
 
             if (cellRowIndex >= userAction.Count) {
@@ -708,7 +701,8 @@ namespace vApus.StressTest {
 
                 string formattedS = sb.ToString().Replace(VBLRn, "\n").Replace(VBLRr, "\r");
                 userAction.AddWithoutInvokingEvent(new Request(formattedS));
-            } else {
+            }
+            else {
                 var row = _cache.Rows[cellRowIndex].ItemArray;
                 row[cellColumnIndex] = cellValue;
 
@@ -723,38 +717,108 @@ namespace vApus.StressTest {
                 (userAction[cellRowIndex] as Request).RequestString = formattedS;
             }
 
-            _scenario.ApplyScenarioRuleSet();
+            if (updateGUI) {
+                dgvRequests.SuspendLayout();
 
-            userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
+                ScrollBar hScrollBar = DgvHScrollBar;
 
-            SetBtnSplit();
-            SetRequests(false);
-
-            var selectedCells = new List<DataGridViewCell>(dgvRequests.SelectedCells.Count);
-            foreach (DataGridViewCell cell in dgvRequests.SelectedCells) selectedCells.Add(cell);
-            foreach (var cell in selectedCells) cell.Selected = false;
-
-            dgvRequests.Rows[cellRowIndex].Cells[cellColumnIndex].Selected = true;
-            FillEditView();
-        }
-
-        private void dgvRequests_KeyUp(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Delete && dgvRequests.SelectedRows.Count != 0) {
-                var userAction = UserActionTreeViewItem.UserAction;
-                var toRemove = new List<BaseItem>();
-                foreach (DataGridViewRow row in dgvRequests.SelectedRows) {
-                    int index = dgvRequests.Rows.IndexOf(row);
-                    if (index != userAction.Count) toRemove.Add(userAction[index]);
-                }
-                userAction.RemoveRangeWithoutInvokingEvent(toRemove);
-
-                userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
+                int prevHValue = hScrollBar.Value;
+                int firstDisplayedRow = dgvRequests.FirstDisplayedScrollingRowIndex;
 
                 _scenario.ApplyScenarioRuleSet();
 
+                userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
+
                 SetBtnSplit();
-                SetRequests();
+                SetRequests(false);
+
+                try {
+                    var selectedCells = new List<DataGridViewCell>(dgvRequests.SelectedCells.Count);
+                    foreach (DataGridViewCell cell in dgvRequests.SelectedCells) selectedCells.Add(cell);
+                    foreach (var cell in selectedCells) cell.Selected = false;
+
+                    dgvRequests.Rows[cellRowIndex].Cells[cellColumnIndex].Selected = true;
+                }
+                catch {
+                    //Don't care
+                }
+                FillEditView();
+
+                dgvRequests.HorizontalScrollingOffset = prevHValue < hScrollBar.Maximum ? prevHValue : hScrollBar.Maximum;
+
+                if (firstDisplayedRow < dgvRequests.Rows.Count) dgvRequests.FirstDisplayedScrollingRowIndex = firstDisplayedRow;
+
+                dgvRequests.ResumeLayout();
             }
+        }
+
+        private void dgvRequests_KeyUp(object sender, KeyEventArgs e) {
+            if (e.KeyCode == Keys.Delete)
+                if (dgvRequests.SelectedRows.Count != 0) {
+                    var userAction = UserActionTreeViewItem.UserAction;
+                    var toRemove = new List<BaseItem>();
+
+                    int firstSelected = -1;
+
+                    foreach (DataGridViewRow row in dgvRequests.SelectedRows) {
+                        int index = dgvRequests.Rows.IndexOf(row);
+                        if (index < dgvRequests.Rows.Count)
+                            if (index != userAction.Count) toRemove.Add(userAction[index]);
+
+                        if (firstSelected == -1) firstSelected = index;
+                    }
+
+                    if (toRemove.Count != 0) {
+                        userAction.RemoveRangeWithoutInvokingEvent(toRemove);
+
+
+                        dgvRequests.SuspendLayout();
+
+                        ScrollBar hScrollBar = DgvHScrollBar;
+                        int prevHValue = hScrollBar.Value;
+                        int firstDisplayedRow = dgvRequests.FirstDisplayedScrollingRowIndex;
+
+
+                        userAction.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited, true);
+
+                        _scenario.ApplyScenarioRuleSet();
+
+                        SetBtnSplit();
+                        SetRequests();
+
+                        dgvRequests.HorizontalScrollingOffset = prevHValue < hScrollBar.Maximum ? prevHValue : hScrollBar.Maximum;
+
+                        if (firstDisplayedRow < dgvRequests.Rows.Count) dgvRequests.FirstDisplayedScrollingRowIndex = firstDisplayedRow;
+
+
+                        //if (firstSelected >= dgvRequests.Rows.Count - 1) firstSelected = dgvRequests.Rows.Count - 2;
+                        //if (firstSelected < 0) firstSelected = 0;
+
+                        //dgvRequests.Rows[firstSelected].Selected = true;
+
+                        dgvRequests.ResumeLayout();
+                    }
+                }
+                else if (dgvRequests.SelectedCells.Count != 0) {
+                    var userAction = UserActionTreeViewItem.UserAction;
+                    var newRequests = new List<BaseItem>();
+
+                    var cells = new List<DataGridViewCell>();
+
+                    foreach (DataGridViewCell c in dgvRequests.SelectedCells)
+                        if (c.RowIndex < dgvRequests.Rows.Count - 1) cells.Add(c);
+
+                    if (cells.Count != 0) {
+                        DataGridViewCell cell = null;
+                        for (int i = 1; i != cells.Count; i++) {
+                            cell = cells[i];
+                            PushCellValueToRequest(cell.RowIndex, cell.ColumnIndex, string.Empty, false);
+                        }
+
+                        cell = cells[0];
+                        PushCellValueToRequest(cell.RowIndex, cell.ColumnIndex, string.Empty, true);
+                    }
+                }
         }
         private void dgvRequests_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
@@ -765,22 +829,26 @@ namespace vApus.StressTest {
                         if (request.LexicalResult == LexicalResult.OK) {
                             e.Value = null;
                             dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = null;
-                        } else {
+                        }
+                        else {
                             if (request.LexedRequest == null) {
                                 e.Value = null;
                                 dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = null;
-                            } else {
+                            }
+                            else {
                                 e.Value = global::vApus.StressTest.Properties.Resources.RequestError;
                                 int column = request.LexedRequest.Count;
                                 if (column == 0) column = 1;
                                 dgvRequests.Rows[e.RowIndex].Cells[0].ToolTipText = request.LexedRequest.Error + " See column " + column + ".";
                             }
                         }
-                    } else {
+                    }
+                    else {
                         e.Value = _cache.Rows[e.RowIndex][e.ColumnIndex];
                     }
                 }
-            } catch {
+            }
+            catch {
                 //Cell is probably deleted. Logged and tested this.
             }
         }
@@ -815,7 +883,8 @@ namespace vApus.StressTest {
 
                 cboParameterScope.Refresh();
 
-            } else {
+            }
+            else {
                 btnShowHideParameterTokens.Text = "Show Parameter Tokens";
                 pnlBorderTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                 flpTokens.Anchor = AnchorStyles.Left | AnchorStyles.Top;
@@ -844,7 +913,8 @@ namespace vApus.StressTest {
                         request.RequestString = formattedS;
                         changed = true;
                     }
-                } else {
+                }
+                else {
                     userAction.AddWithoutInvokingEvent(new Request(formattedS));
                     changed = true;
                 }
@@ -902,7 +972,8 @@ namespace vApus.StressTest {
                 AddKvpsToFlps(ASTNode.REQUEST_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.LEAF_NODE_PARAMETER_SCOPE);
                 AddKvpsToFlps(ASTNode.ALWAYS_PARAMETER_SCOPE);
-            } else {
+            }
+            else {
                 AddKvpsToFlps(scopeIdentifier);
             }
         }
@@ -1049,6 +1120,12 @@ namespace vApus.StressTest {
             }
         }
 
+        private void dgvRequests_ColumnHeaderMouseClick(object sender, DataGridViewCellMouseEventArgs e) {
+            dgvRequests.ClearSelection();
+            foreach (DataGridViewRow row in dgvRequests.Rows)
+                row.Cells[e.ColumnIndex].Selected = true;
+        }
+
         private void dgvRequests_CellEnter(object sender, DataGridViewCellEventArgs e) { FillEditView(); }
         private void fctxteditView_TextChanged(object sender, FastColoredTextBoxNS.TextChangedEventArgs e) {
             if (dgvRequests.CurrentCell != null) {
@@ -1085,7 +1162,8 @@ namespace vApus.StressTest {
                         SetParameters();
                         SetCodeStyle();
                         fctxteditView.Text = dgvRequests.CurrentCell.Value.ToString();
-                    } else {
+                    }
+                    else {
                         toolTip.SetToolTip(btnApplyEditView, null);
                         fctxteditView.Text = string.Empty;
                     }
@@ -1093,17 +1171,18 @@ namespace vApus.StressTest {
                     btnApplyEditView.Enabled = false;
 
                     fctxteditView.TextChanged += fctxteditView_TextChanged;
-                } else {
+                }
+                else {
                     fctxteditView.Anchor = AnchorStyles.Left | AnchorStyles.Top;
                     splitStructured.Panel2Collapsed = true;
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed filling edit view.", ex);
             }
         }
         #endregion
 
         #endregion
-
     }
 }

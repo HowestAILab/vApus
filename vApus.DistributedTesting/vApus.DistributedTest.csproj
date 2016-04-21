@@ -106,7 +106,7 @@
     <CodeAnalysisUseTypeNameInSuppression>true</CodeAnalysisUseTypeNameInSuppression>
     <CodeAnalysisModuleSuppressionsFile>GlobalSuppressions.cs</CodeAnalysisModuleSuppressionsFile>
     <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
+    <CodeAnalysisRuleSet>..\DeadCode.ruleset</CodeAnalysisRuleSet>
     <CodeAnalysisRuleSetDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\\Rule Sets</CodeAnalysisRuleSetDirectories>
     <CodeAnalysisRuleDirectories>;C:\Program Files (x86)\Microsoft Visual Studio 10.0\Team Tools\Static Analysis Tools\FxCop\\Rules</CodeAnalysisRuleDirectories>
     <Prefer32Bit>false</Prefer32Bit>
@@ -341,13 +341,13 @@
       <Project>{D9306CDF-415E-4037-B9AF-707EE208A510}</Project>
       <Name>vApus.Monitor</Name>
     </ProjectReference>
-    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
-      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
-      <Name>vApus.Results</Name>
-    </ProjectReference>
     <ProjectReference Include="..\vApus.Communication.Shared\vApus.Communication.Shared.csproj">
       <Project>{37420528-6c41-452c-9776-0fb147f67915}</Project>
       <Name>vApus.Communication.Shared</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\vApus.Results\vApus.Results.csproj">
+      <Project>{d9f1bd01-09e8-4ce9-9701-2997d420b250}</Project>
+      <Name>vApus.Results</Name>
     </ProjectReference>
     <ProjectReference Include="..\vApus.SolutionTree\vApus.SolutionTree.csproj">
       <Project>{4A7F1649-6909-4FBC-B4E2-18CECFE5A144}</Project>

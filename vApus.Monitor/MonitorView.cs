@@ -35,12 +35,13 @@ namespace vApus.Monitor {
         public event EventHandler<ErrorEventArgs> OnHandledException, OnUnhandledException;
 
         #region Fields
+        private readonly MonitorProject _monitorProject;
         private readonly Monitor _monitor;
         private string _hardwareConfiguration;
 
         private int _refreshTimeInMS;
 
-        private bool _forStressTest;
+        private string _test;
         private string _previousFilter;
         private MonitorSourceClient _previousMonitorSourceForParameters;
 
@@ -69,7 +70,8 @@ namespace vApus.Monitor {
                     SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                         isRunning = btnStop.Enabled;
                     }, null);
-                } catch {
+                }
+                catch {
                     //Ignore.
                 }
                 return isRunning;
@@ -95,6 +97,7 @@ namespace vApus.Monitor {
             InitializeComponent();
 
             _monitor = solutionComponent as Monitor;
+            _monitorProject = Solution.ActiveSolution.GetProject("MonitorProject") as MonitorProject;
 
             _invokeChangedTmr.Elapsed += _invokeChangedTmr_Elapsed;
 
@@ -155,7 +158,8 @@ namespace vApus.Monitor {
                 if (_monitorSourceClient != null) {
                     try {
                         _monitorSourceClient.Stop();
-                    } catch (Exception exc) {
+                    }
+                    catch (Exception exc) {
                         Loggers.Log(Level.Warning, "Failed stopping the monitor source client.", exc);
                     }
                     _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
@@ -166,7 +170,8 @@ namespace vApus.Monitor {
                 _monitor.InitMonitorSourceClients();
 
                 _monitorSourceClient = ClientFactory.Create(_monitor.MonitorSource.Type);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 exception = ex;
             }
 
@@ -188,7 +193,8 @@ namespace vApus.Monitor {
                     lblMonitorSourceMismatch.Visible = false;
 
                     btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.GetSubs().Count != 0;
-                } else {
+                }
+                else {
                     split.Panel2.Enabled = btnSetDefaultWiw.Enabled = false;
                     lblMonitorSourceMismatch.Visible = true;
 
@@ -261,7 +267,8 @@ namespace vApus.Monitor {
                         if (endsAt <= DateTime.Now)
                             Stop();
                     }
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Monitor proxy on monitor failed.", ex, new object[] { _monitor.ToString() });
                 }
             }, null);
@@ -290,6 +297,8 @@ namespace vApus.Monitor {
             parameterPanel.Enabled = false;
             split.Panel2.Enabled = btnSetDefaultWiw.Enabled = false;
 
+            _monitorProject.Locked = true;
+
             tvwCounters.Nodes.Clear();
             lvwEntities.Items.Clear();
 
@@ -308,7 +317,8 @@ namespace vApus.Monitor {
                 if (_monitor.Wiw.GetDeepCount() == 0)
                     errorMessage = Text + ": No counters were chosen.";
 
-            } else {
+            }
+            else {
                 errorMessage = Text + ": Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
             }
 
@@ -343,15 +353,18 @@ namespace vApus.Monitor {
                                 sb.AppendLine(node.InnerText);
 
                             config = sb.ToString().Trim();
-                        } catch {
+                        }
+                        catch {
                             //No xml after all.
                         }
                     }
                     isConnected = true;
-                } else {
+                }
+                else {
                     exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".");
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 exception = new Exception("Failed to connect to " + _monitorSourceClient.Name + ".", ex);
             }
 
@@ -370,15 +383,18 @@ namespace vApus.Monitor {
                     string message = "Entities and counters could not be retrieved!\nHave you filled in the right credentials?";
                     Loggers.Log(Level.Error, message, exception);
 
-                    if (!_forStressTest) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
+                    if (_test == null) MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
 
                     btnSetDefaultWiw.Enabled = false;
-                } else {
+                }
+                else {
                     btnSetDefaultWiw.Enabled = true;
                 }
                 split.Panel2.Enabled = btnGetCounters.Enabled = true;
                 propertyPanel.Unlock();
                 parameterPanel.Enabled = true;
+
+                _monitorProject.Locked = false;
 
                 Cursor = Cursors.Default;
             }, null);
@@ -493,9 +509,11 @@ namespace vApus.Monitor {
                 btnStart.Enabled = btnSchedule.Enabled = lvwEntities.Items.Count != 0 && _monitor.Wiw.GetSubs().Count != 0;
 
                 InvokeChanged();
-            } catch {
+            }
+            catch {
                 throw;
-            } finally {
+            }
+            finally {
                 LockWindowUpdate(IntPtr.Zero);
             }
         }
@@ -553,7 +571,9 @@ namespace vApus.Monitor {
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
-            } catch { throw; } finally { LockWindowUpdate(IntPtr.Zero); }
+            }
+            catch { throw; }
+            finally { LockWindowUpdate(IntPtr.Zero); }
         }
 
         private void llblUncheckAllVisible_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
@@ -582,9 +602,11 @@ namespace vApus.Monitor {
 
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
-            } catch {
+            }
+            catch {
                 throw;
-            } finally {
+            }
+            finally {
                 LockWindowUpdate(IntPtr.Zero);
             }
         }
@@ -608,9 +630,11 @@ namespace vApus.Monitor {
                         tvwCounters.TreeViewNodeSorter = CountersTreeNodeTextComparer.GetInstance();
 
                     node.Expand();
-                } catch {
+                }
+                catch {
                     throw;
-                } finally {
+                }
+                finally {
                     LockWindowUpdate(IntPtr.Zero);
                 }
             }
@@ -639,7 +663,8 @@ namespace vApus.Monitor {
                         node.Checked = counterNode.Checked;
                 }
                 ApplyToWIW(counterNode);
-            } else {
+            }
+            else {
                 counterNode.Parent.Checked = false;
                 foreach (TreeNode node in counterNode.Parent.Nodes)
                     if (node.Checked) {
@@ -716,7 +741,8 @@ namespace vApus.Monitor {
 
                         entity.GetSubs().Add(newCounterInfo);
                     }
-                } else {
+                }
+                else {
                     var newCounterInfo = new CounterInfo(counterNode.Text);
 
                     foreach (TreeNode node in counterNode.Nodes)
@@ -735,7 +761,8 @@ namespace vApus.Monitor {
                     entity = new Entity(entityName, true);
                     _monitor.Wiw.GetSubs().Add(entity);
                 }
-            } else {
+            }
+            else {
                 _monitor.Wiw.GetSubs().Remove(entity);
             }
 
@@ -754,7 +781,7 @@ namespace vApus.Monitor {
                      "Are you sure you want to start a new monitor?\nThis will clear the previous measured performance counters.",
                      string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Question, MessageBoxDefaultButton.Button1) ==
                  DialogResult.Yes)) {
-                _forStressTest = false;
+                _test = null;
                 Start();
             }
         }
@@ -769,7 +796,8 @@ namespace vApus.Monitor {
                     btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt;
                     btnSchedule.Text += GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                     btnSchedule.Tag = schedule;
-                } else {
+                }
+                else {
                     btnSchedule.Text = "Not scheduled" + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                     btnSchedule.Tag = schedule;
                 }
@@ -826,7 +854,8 @@ namespace vApus.Monitor {
             try {
                 btnSaveFilteredMonitoredCounters.Enabled = monitorControl.ColumnCount != 0 &&
                                                            txtFilterMonitorControlColumns.Text.Length != 0;
-            } catch {
+            }
+            catch {
                 //Ignore. Only happens on gui disposed.
             }
         }
@@ -1046,12 +1075,14 @@ namespace vApus.Monitor {
 
                                 newEntity.GetSubs().Add(newInfo);
 
-                            } else {
+                            }
+                            else {
                                 foreach (TreeNode child in node.Nodes)
                                     child.Checked = false;
                             }
                         }
-                    } else {
+                    }
+                    else {
                         foreach (TreeNode node in nodes) {
                             node.Checked = false;
                             foreach (TreeNode child in node.Nodes)
@@ -1148,7 +1179,8 @@ namespace vApus.Monitor {
                 txtFilter.Text = _monitor.Filter.Combine(", ");
                 llblUncheckAllVisible.Enabled = HasCheckedNodes();
                 llblCheckAllVisible.Enabled = HasUncheckedNodes();
-            } catch {
+            }
+            catch {
                 //Ignore. Only on gui disposed.
             }
         }
@@ -1163,7 +1195,8 @@ namespace vApus.Monitor {
                 if (chkGroupChecked.Checked) {
                     tvwCounters.TreeViewNodeSorter = CountersReverseTreeNodeTextComparer.GetInstance(); //Sorting in tvws is strange.
                     tvwCounters.TreeViewNodeSorter = CountersTreeNodeCheckedComparer.GetInstance();
-                } else {
+                }
+                else {
                     tvwCounters.TreeViewNodeSorter = CountersTreeNodeTextComparer.GetInstance();
 
                     foreach (TreeNode node in tvwCounters.Nodes)
@@ -1179,15 +1212,37 @@ namespace vApus.Monitor {
         #endregion
 
         #region Publish
+        private string _resultSetId;
         private bool CanPublish() { return Publisher.Settings.PublisherEnabled && _monitorSourceClient != null; }
 
+        private void PublishConfiguration() {
+            if (CanPublish()) {
+                var publishItem = new MonitorConfiguration();
+                publishItem.Test = _test ?? string.Empty;
+                publishItem.Monitor = Monitor.ToString();
+                publishItem.MonitorSource = _monitor.MonitorSourceName;
+
+                var parameters = new List<KeyValuePair<string, string>>();
+                foreach (Parameter parameter in _monitorSourceClient.Parameters)
+                    if (parameter.Name.ToLowerInvariant() != "password")
+                        parameters.Add(new KeyValuePair<string, string>(parameter.Name, parameter.Value.ToString()));
+
+                publishItem.Parameters = parameters.ToArray();
+                publishItem.HardwareConfiguration = _hardwareConfiguration;
+
+                //Do not generate if a parent test generated one already.
+                _resultSetId = _test == null ? Publisher.GenerateResultSetId() : Publisher.LastGeneratedResultSetId;
+                Publisher.Send(publishItem, _resultSetId);
+            }
+        }
+
         private void PublishProgress() {
-            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsMetrics) {
+            if (CanPublish()) {
                 MonitorResult monitorResult = GetMonitorResultCache();
 
                 if (monitorResult.Rows.Count != 0) {
                     var publishItem = new Publish.MonitorMetrics();
-                    publishItem.Init();
+                    publishItem.Monitor = _monitor.ToString();
                     publishItem.Headers = monitorResult.Headers;
                     publishItem.Headers[0] = "TimestampInMillisecondsSinceEpoch";
 
@@ -1201,37 +1256,11 @@ namespace vApus.Monitor {
 
                     publishItem.Values = row;
 
-                    Publish.Publisher.Post(_monitor.ToString(), publishItem);
+                    Publisher.Send(publishItem, _resultSetId);
                 }
             }
         }
 
-        private void PublishConfiguration() {
-            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsConfiguration) {
-                var publishItem = new MonitorConfiguration();
-                publishItem.Init();
-                publishItem.MonitorSource = _monitor.MonitorSourceName;
-
-                var parameters = new List<KeyValuePair<string, string>>();
-                foreach (Parameter parameter in _monitorSourceClient.Parameters)
-                    if (parameter.Name.ToLower() != "password")
-                        parameters.Add(new KeyValuePair<string, string>(parameter.Name, parameter.Value.ToString()));
-
-                publishItem.Parameters = parameters.ToArray();
-
-                Publish.Publisher.Post(_monitor.ToString(), publishItem);
-            }
-        }
-
-        private void PublishHardwareConfiguration() {
-            if (CanPublish() && Publish.Publisher.Settings.PublishMonitorsHardwareConfiguration) {
-                var publishItem = new MonitorHardwareConfiguration();
-                publishItem.Init();
-                publishItem.HardwareConfiguration = _hardwareConfiguration;
-
-                Publish.Publisher.Post(_monitor.ToString(), publishItem);
-            }
-        }
 
         #endregion
 
@@ -1242,8 +1271,9 @@ namespace vApus.Monitor {
         /// <summary>
         ///     Will stop the previous one first.
         /// </summary>
-        public void InitializeForStressTest() {
-            _forStressTest = true;
+        /// <param name="test">StressTest- or TileStressTest.ToString()</param>
+        public void InitializeForStressTest(string test) {
+            _test = test;
 
             Stop();
 
@@ -1261,6 +1291,8 @@ namespace vApus.Monitor {
             propertyPanel.Lock();
             parameterPanel.Enabled = false;
             btnSetDefaultWiw.Enabled = false;
+
+            _monitorProject.Locked = true;
 
             btnStart.Enabled = false;
             btnSchedule.Enabled = false;
@@ -1288,10 +1320,12 @@ namespace vApus.Monitor {
                                    GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                 tmrSchedule.Stop();
                 StartMonitor();
-            } else {
+            }
+            else {
                 if (btnSchedule.Text.StartsWith("Not scheduled")) {
                     btnSchedule.Text = "Not scheduled" + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
-                } else {
+                }
+                else {
                     TimeSpan dt = schedule.ScheduledAt - DateTime.Now;
                     if (dt.Milliseconds != 0) {
                         dt = new TimeSpan(dt.Ticks - (dt.Ticks % TimeSpan.TicksPerSecond));
@@ -1340,27 +1374,29 @@ namespace vApus.Monitor {
                     throw new Exception("The monitor did not start.");
                 }
 
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 string message = "Could not connect to the monitor!";
-                if (_forStressTest)
+                if (_test != null)
                     if (OnUnhandledException != null) {
                         var e = new Exception(message);
                         var invocationList = OnHandledException.GetInvocationList();
                         Parallel.For(0, invocationList.Length, (i) => {
                             (invocationList[i] as EventHandler<ErrorEventArgs>).Invoke(this, new ErrorEventArgs(e));
                         });
-                    } else {
+                    }
+                    else {
                         MessageBox.Show(message, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                     }
                 Loggers.Log(Level.Error, message, ex, new object[] { _monitor.ToString() });
 
                 return false;
-            } finally {
+            }
+            finally {
                 Cursor = Cursors.Default;
             }
 
             PublishConfiguration();
-            PublishHardwareConfiguration();
 
             return true;
         }
@@ -1374,7 +1410,8 @@ namespace vApus.Monitor {
                     try {
                         _monitorSourceClient.Stop();
                         _monitorSourceClient.OnMonitor -= _monitorSourceClient_OnMonitor;
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         Loggers.Log(Level.Error, "Failed stopping the monitor.", ex);
                     }
 
@@ -1383,7 +1420,8 @@ namespace vApus.Monitor {
                     btnSchedule.Text = "Schedule...";
                     if (schedule != null)
                         btnSchedule.Text += GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
-                } else if (btnSchedule.Text.StartsWith("Scheduled at")) {
+                }
+                else if (btnSchedule.Text.StartsWith("Scheduled at")) {
                     btnSchedule.Text = "Scheduled at " + schedule.ScheduledAt + GetEndsAtFormatted(schedule.ScheduledAt, schedule.Duration);
                 }
                 tmrSchedule.Stop();
@@ -1395,9 +1433,11 @@ namespace vApus.Monitor {
                 parameterPanel.Enabled = true;
                 btnSetDefaultWiw.Enabled = true;
 
+                _monitorProject.Locked = false;
+
                 if (!toolStrip.Visible) {
                     //Releasing it from stressTest if any
-                    _forStressTest = false;
+                    _test = null;
 
                     toolStrip.Visible = true;
                     tc.Top = toolStrip.Bottom;
@@ -1411,7 +1451,8 @@ namespace vApus.Monitor {
                 lblCountDown.ForeColor = Color.Black;
                 lblCountDown.BackColor = Color.Orange;
                 lblCountDown.Text = "Stopped!";
-            } catch (Exception exc) {
+            }
+            catch (Exception exc) {
                 Loggers.Log(Level.Error, "Failed stopping the monitor.", exc);
             }
 
@@ -1421,9 +1462,8 @@ namespace vApus.Monitor {
         public MonitorResult GetMonitorResultCache() { return monitorControl.MonitorResultCache; }
 
         public MonitorResult GetMonitorResultCache(DateTime from) {
-            MonitorResult monitorResult = monitorControl.MonitorResultCache;
+            MonitorResult monitorResult = monitorControl.MonitorResultCache; 
             var part = new MonitorResult();
-            part.MonitorConfigurationId = monitorResult.MonitorConfigurationId;
             part.Headers = monitorResult.Headers;
 
             for (int i = monitorResult.Rows.Count - 1; i != -1; i--) {

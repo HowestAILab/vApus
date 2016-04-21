@@ -138,7 +138,7 @@ namespace vApus.DistributedTest {
                 TreeNode tileNode = AddNewTileNode();
                 for (int ts = 0; ts != _numberOfTestsPerNewTile; ts++) {
                     defaultTo = GetNextDefaultToStressTest(defaultTo);
-                    TreeNode testNode = AddNewTestNode(tileNode, defaultTo, ToAssignConnections[connectionIndex++]);
+                    AddNewTestNode(tileNode, defaultTo, ToAssignConnections[connectionIndex++]);
                 }
             }
             tvw.ExpandAll();

@@ -5,13 +5,9 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using RandomUtils;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
-using vApus.SolutionTree;
-using vApus.Util;
 
 namespace vApus.StressTest {
     internal class ASTNode : IDisposable {

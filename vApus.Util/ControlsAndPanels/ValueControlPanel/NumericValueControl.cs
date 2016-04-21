@@ -34,22 +34,28 @@ namespace vApus.Util {
                 if (value.__Value is short) {
                     _nud.Minimum = short.MinValue;
                     _nud.Maximum = short.MaxValue;
-                } else if (value.__Value is int) {
+                }
+                else if (value.__Value is int) {
                     _nud.Minimum = value.AllowedMinimum;
                     _nud.Maximum = value.AllowedMaximum;
-                } else if (value.__Value is long) {
+                }
+                else if (value.__Value is long) {
                     _nud.Minimum = long.MinValue;
                     _nud.Maximum = long.MaxValue;
-                } else if (value.__Value is ushort) {
+                }
+                else if (value.__Value is ushort) {
                     _nud.Minimum = ushort.MinValue;
                     _nud.Maximum = ushort.MaxValue;
-                } else if (value.__Value is uint) {
+                }
+                else if (value.__Value is uint) {
                     _nud.Minimum = uint.MinValue;
                     _nud.Maximum = uint.MaxValue;
-                } else if (value.__Value is ulong) {
+                }
+                else if (value.__Value is ulong) {
                     _nud.Minimum = ulong.MinValue;
                     _nud.Maximum = ulong.MaxValue;
-                } else {
+                }
+                else {
                     _nud.Minimum = decimal.MinValue;
                     _nud.Maximum = decimal.MaxValue;
 
@@ -61,12 +67,14 @@ namespace vApus.Util {
                 _nud.KeyUp += nud_KeyUp;
 
                 HandleCreated += NumericValueControl_HandleCreated;
-            } else {
+
+                base.ValueControl = _nud;
+            }
+            else {
                 _nud = base.ValueControl as FixedNumericUpDown;
             }
 
             _nud.Value = Convert.ToDecimal(value.__Value);
-            base.ValueControl = _nud;
         }
 
         private void NumericValueControl_HandleCreated(object sender, EventArgs e) {
@@ -95,7 +103,8 @@ namespace vApus.Util {
                     Leave -= NumericValueControl_Leave;
 
                     HandleValueChangedOnLeave();
-                } catch { }
+                }
+                catch { }
         }
 
         private void HandleValueChangedOnLeave() {
@@ -106,7 +115,8 @@ namespace vApus.Util {
                     base.HandleValueChanged(value);
 
                 _prevValue = __Value.__Value;
-            } catch {
+            }
+            catch {
             }
         }
         private void HandleValueChangedAndFocusLoss() {
@@ -129,18 +139,21 @@ namespace vApus.Util {
                             ParentForm.TopMost = true;
                             ParentForm.TopMost = false;
                             ParentForm.Activate();
-                        } else {
+                        }
+                        else {
                             ParentForm.MdiParent.TopMost = true;
                             ParentForm.MdiParent.TopMost = false;
                             ParentForm.MdiParent.Activate();
                         }
-                    } catch {
+                    }
+                    catch {
                     }
 
                     Application.DoEvents();
                     _nud.Select();
                 }
-            } catch {
+            }
+            catch {
             }
         }
 

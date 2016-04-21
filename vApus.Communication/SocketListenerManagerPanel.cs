@@ -114,7 +114,7 @@ namespace vApus.Communication {
                 lblStatus.Text = "Status: started";
 
                 //Dns.GetHostName() does not always work.
-                txtHost.Text = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLower();
+                txtHost.Text = Dns.GetHostEntry("127.0.0.1").HostName.Trim().Split('.')[0].ToLowerInvariant();
 
                 nudPort.Value = _socketListener.Port;
                 nudPort.Enabled = true;

@@ -47,7 +47,7 @@ namespace vApus.Util {
             private set {
                 if (_currentVersion != value) {
                     _currentVersion = value;
-                    NamedObjectRegistrar.RegisterOrUpdate("vApusVersion", _currentVersion);
+                    NamedObjectRegistrar.RegisterOrUpdate("Version", _currentVersion);
                 }
             }
         }
@@ -56,7 +56,7 @@ namespace vApus.Util {
             private set {
                 if (_currentChannel != value) {
                     _currentChannel = value;
-                    NamedObjectRegistrar.RegisterOrUpdate("vApusChannel", _currentChannel);
+                    NamedObjectRegistrar.RegisterOrUpdate("Channel", _currentChannel);
                 }
             }
         }

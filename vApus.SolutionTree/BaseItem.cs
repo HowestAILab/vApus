@@ -117,7 +117,8 @@ namespace vApus.SolutionTree {
                         if (value is BaseItem) {
                             if (!(value as BaseItem).IsEmpty)
                                 childElement.InnerText = BranchedIndex(value as BaseItem);
-                        } else {
+                        }
+                        else {
                             string thisBranchedIndex = BranchedIndex(this);
                             var valueParent = value.GetParent() as IEnumerable;
                             IEnumerator enumerator = valueParent.GetEnumerator();
@@ -138,7 +139,8 @@ namespace vApus.SolutionTree {
                             }
                             childElement.InnerText = string.Format("{0}.{1}.{2}", thisBranchedIndex, parentName, valueIndex);
                         }
-                    } else if (value is ICollection) {
+                    }
+                    else if (value is ICollection) {
                         var sb = new StringBuilder();
                         var collection = value as ICollection;
                         Type elementType = collection.AsQueryable().ElementType;
@@ -148,7 +150,8 @@ namespace vApus.SolutionTree {
                             while (enumerator.MoveNext()) {
                                 sb.Append(Enum.GetName(elementType, enumerator.Current));
                                 sb.Append(';');
-                            } else
+                            }
+                        else
                             while (enumerator.MoveNext())
                                 if (enumerator.Current != null) {
                                     sb.Append(enumerator.Current);
@@ -168,7 +171,8 @@ namespace vApus.SolutionTree {
                                                                    });
                             childElement.SetAttribute("args", "Encrypted");
                         }
-                    } else if (value != null) {
+                    }
+                    else if (value != null) {
                         childElement.InnerText = (value is Enum) ? Enum.GetName(value.GetType(), value) : value.ToString();
                         if (savableCloneableAttribute.Encrypt) {
                             childElement.InnerText = childElement.InnerText.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
@@ -229,7 +233,8 @@ namespace vApus.SolutionTree {
 
                             sb.Append(childErrorMessage);
                             AddWhileLoading(item);
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             string s = "[" + this + "] " + childNode.Name;
                             Loggers.Log(Level.Warning, "Failed loading " + s +
                                 " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stress testing works."
@@ -237,7 +242,8 @@ namespace vApus.SolutionTree {
                             sb.Append(s);
                             sb.Append(";");
                         }
-                    } else
+                    }
+                else
                     foreach (PropertyInfo info in type.GetProperties(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic)) {
                         if (cancellationToken.IsCancellationRequested) break;
                         if (info.Name == childNode.Name) {
@@ -251,7 +257,8 @@ namespace vApus.SolutionTree {
                                         if (attribute.Value == "vApus.BranchedIndexType") {
                                             branchedIndexType = true;
                                             break;
-                                        } else if (attribute.Value == "Encrypted") {
+                                        }
+                                        else if (attribute.Value == "Encrypted") {
                                             encrypted = true;
                                             break;
                                         }
@@ -260,7 +267,8 @@ namespace vApus.SolutionTree {
 
                                 if (branchedIndexType) {
                                     _branchedInfos.Add(info, childNode.InnerText);
-                                } else {
+                                }
+                                else {
                                     var collection = info.GetValue(this, null) as ICollection;
                                     if (collection == null) {
                                         string innerText = childNode.InnerText;
@@ -271,13 +279,15 @@ namespace vApus.SolutionTree {
 
                                         if (info.PropertyType.BaseType == typeof(Enum)) {
                                             info.SetValue(this, Enum.Parse(info.PropertyType, innerText), null);
-                                        } else {
+                                        }
+                                        else {
                                             object o = Convert.ChangeType(innerText, info.PropertyType);
                                             if (o == null)
                                                 throw new Exception();
                                             info.SetValue(this, o, null);
                                         }
-                                    } else {
+                                    }
+                                    else {
                                         string[] array = childNode.InnerText.Split(';');
                                         var arrayList = new ArrayList(array.Length);
                                         Type elementType = collection.AsQueryable().ElementType;
@@ -292,7 +302,8 @@ namespace vApus.SolutionTree {
                                                                                   0x64, 0x76, 0x65, 0x64, 0x65, 0x76 });
 
                                                 arrayList.Add(Enum.Parse(elementType, value));
-                                            } else
+                                            }
+                                        else
                                             foreach (string s in array) {
                                                 if (cancellationToken.IsCancellationRequested) break;
                                                 string value = s;
@@ -311,7 +322,8 @@ namespace vApus.SolutionTree {
                                         if (childNode.InnerText.Length > 0)
                                             if (collection is Array) {
                                                 info.SetValue(this, arrayList.ToArray(elementType), null);
-                                            } else {
+                                            }
+                                            else {
                                                 var list = collection as IList;
                                                 list.Clear();
                                                 for (int i = 0; i < arrayList.Count; i++)
@@ -319,7 +331,8 @@ namespace vApus.SolutionTree {
                                             }
                                     }
                                 }
-                            } catch (Exception ex) {
+                            }
+                            catch (Exception ex) {
                                 string s = "[" + this + "] " + childNode.Name;
                                 Loggers.Log(Level.Warning, "Failed loading " + s +
                                     " from .vass\nThis is usally not a problem: Changes in functionality for this version of vApus that are not in the opened .vass file.\nTake a copy of the file to be sure and test if stress testing works."
@@ -349,7 +362,8 @@ namespace vApus.SolutionTree {
                     if (value != null)
                         try {
                             info.SetValue(this, value, null);
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             Loggers.Log(Level.Error, "Failed resolving branch indices.", ex);
                         }
                 }
@@ -376,10 +390,12 @@ namespace vApus.SolutionTree {
                     if (o is int) {
                         try {
                             item = item[(int)o];
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             Loggers.Log(Level.Error, "Failed resolving branch index.", ex, new object[] { branchedIndex });
                         }
-                    } else {
+                    }
+                    else {
                         foreach (FieldInfo info in item.GetType().GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic))
                             if (info.Name == o as string) {
                                 IEnumerator enumerator = (info.GetValue(item) as IEnumerable).GetEnumerator();
@@ -462,7 +478,8 @@ namespace vApus.SolutionTree {
                 if (!validStructureFound)
                     errors.Append(stream + " contains no valid structure to load;");
 
-            } catch {
+            }
+            catch {
                 errors.Append("Unknown or non-existing item found in " + stream + ";");
             }
         }
@@ -500,7 +517,8 @@ namespace vApus.SolutionTree {
                             PasteXmlStructure(xmlDocument);
                         }
                     }
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Warning, "Failed pasting base item.", ex);
                 }
             }
@@ -530,7 +548,8 @@ namespace vApus.SolutionTree {
                 if (xmlDocument.FirstChild.Name == GetType().Name && xmlDocument.FirstChild.FirstChild.Name == "Items") {
                     CancellationToken cancellationToken = new CancellationToken(false);
                     LoadFromXml(xmlDocument.FirstChild, cancellationToken, out errorMessage);
-                } else {
+                }
+                else {
                     return;
                 }
                 if (errorMessage.Length == 0) {
@@ -549,7 +568,8 @@ namespace vApus.SolutionTree {
             xmlDocument.AppendChild(parent);
             if (Parent is BaseProject) {
                 GetXmlToSave(xmlDocument, parent);
-            } else {
+            }
+            else {
                 XmlElement items = xmlDocument.CreateElement("Items");
                 parent.AppendChild(items);
                 GetXmlToSave(xmlDocument, items);

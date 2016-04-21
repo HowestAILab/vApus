@@ -1,11 +1,11 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2009 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+ using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -48,7 +48,6 @@ namespace vApus.DistributedTest {
         #endregion
 
         #region Functions
-
         public void ClearFastResults() {
             dgvFastResults.RowCount = 0;
 
@@ -287,11 +286,6 @@ namespace vApus.DistributedTest {
             }
         }
 
-        private void dgvFastResults_Scroll(object sender, ScrollEventArgs e) {
-            var verticalScrollBar = typeof(DataGridView).GetProperty("VerticalScrollBar", BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.Static)
-                                                        .GetValue(dgvFastResults) as ScrollBar;
-        }
-
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
             var sfd = new SaveFileDialog();
             sfd.Title = "Where do you want to save the displayed results?";
@@ -322,15 +316,8 @@ namespace vApus.DistributedTest {
             sb.AppendLine();
 
             //Select and write rows.
-            List<object[]> rows = new List<object[]>();
-            //if (lbtnStressTest.Active)
-            rows = cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows;
-            //else {
-            //    string monitorToString = null;
-            //    foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
-            //    if (monitorToString != null)
-            //        rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString];
-            //}
+            var rows = cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows;
+
             foreach (var row in rows) {
                 sb.Append(row.Combine("\t"));
                 sb.AppendLine();
@@ -339,7 +326,7 @@ namespace vApus.DistributedTest {
             return sb.ToString();
         }
 
-        public List<EventViewItem> GetEvents() { return eventView.GetEvents(); }
+        public EventPanelEvent[] GetEvents() { return eventView.GetEvents(); }
         public void AppendMessages(string message, Level logLevel = Level.Info) {
             try {
                 eventView.AddEvent((EventViewEventType)logLevel, message);
