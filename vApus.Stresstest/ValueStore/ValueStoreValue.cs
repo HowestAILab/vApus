@@ -194,7 +194,7 @@ namespace vApus.StressTest {
             object castedValue = CastOrParseInputToType(value, _valueType, out success);
             if (!success) throw new Exception("Value not of type " + _valueType + ".");
 
-            string key = _isUniqueForEachConnection ? Thread.CurrentThread.Name : "shared";
+            string key = _isUniqueForEachConnection ? ownerName : "shared";
             if (key != null) {
                 _values.AddOrUpdate(key, castedValue, (k, oldValue) => castedValue);
 
