@@ -250,11 +250,6 @@ namespace vApus.StressTest {
         /// <param name="logLevel"></param>
         private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
             try {
-                if (logLevel == Level.Error) {
-                    string[] split = message.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
-                    message = split[0] + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
-                }
-
                 if (Message != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(
                         delegate {
@@ -370,7 +365,7 @@ namespace vApus.StressTest {
 
                             request.ExecuteInParallelWithPrevious = false;
                             if (request.Redirects) {
-                                //Does not apply for parallelization.
+                                ++parallelThreads;
                                 continue;
                             }
 
@@ -394,7 +389,6 @@ namespace vApus.StressTest {
                                         ++parallelThreads;
                                     }
                                     else {
-                                        ++parallelThreads; //Need one more. Threads used in the simulated user thread to execute.
                                         connectionsPerHostname[request.Hostname] = 0;
                                         validateRequestIndex = 1;
                                     }
@@ -406,7 +400,7 @@ namespace vApus.StressTest {
                         }
 
                         _parallelConnections += parallelConnections;
-                        if (_stressTest.UseParallelExecutionOfRequests) _parallelThreads += parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
+                        if (_stressTest.UseParallelExecutionOfRequests) _parallelThreads += parallelThreads;
 
                         parallelConnections = parallelThreads = 0;
 
@@ -977,8 +971,9 @@ namespace vApus.StressTest {
                     IConnectionProxy[] parallelConnectionProxies = new IConnectionProxy[parallelCount];
                     parallelConnectionProxies[0] = connectionProxy;
 
-                    for (int i = 1; i != parallelCount; i++)
+                    for (int i = 1; i != parallelCount; i++) {
                         parallelConnectionProxies[i] = _connectionProxyPool.DequeueParallelConnectionProxy();
+                    }
 
                     //Make a mini thread pool (Thread pools in thread pools, what it this madness?! :p)
 
