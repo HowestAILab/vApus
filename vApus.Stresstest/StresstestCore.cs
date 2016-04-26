@@ -389,6 +389,7 @@ namespace vApus.StressTest {
                                         ++parallelThreads;
                                     }
                                     else {
+                                        ++parallelThreads;
                                         connectionsPerHostname[request.Hostname] = 0;
                                         validateRequestIndex = 1;
                                     }
@@ -399,8 +400,10 @@ namespace vApus.StressTest {
                             ++validateRequestIndex;
                         }
 
-                        _parallelConnections += parallelConnections;
-                        if (_stressTest.UseParallelExecutionOfRequests) _parallelThreads += parallelThreads;
+                        if (_stressTest.UseParallelExecutionOfRequests) {
+                            _parallelConnections += parallelConnections;
+                            _parallelThreads += parallelThreads;
+                        }
 
                         parallelConnections = parallelThreads = 0;
 
