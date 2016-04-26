@@ -351,7 +351,6 @@ namespace vApus.StressTest {
                     //Parallel connections, check per user action. Execute with previous is set correctly according to the stress test settings.
                     var connectionsPerHostname = new Dictionary<string, int>();
                     int parallelConnections = 0;
-                    int parallelThreads = 0;
 
                     var l = new List<Request>();
 
@@ -361,11 +360,13 @@ namespace vApus.StressTest {
                         foreach (Request request in ua) {
                             if (_cancel) return;
 
+                            if (_stressTest.UseParallelExecutionOfRequests) 
+                                ++_parallelThreads;
+
                             l.Add(request);
 
                             request.ExecuteInParallelWithPrevious = false;
                             if (request.Redirects) {
-                                ++parallelThreads;
                                 continue;
                             }
 
@@ -374,7 +375,6 @@ namespace vApus.StressTest {
                                 if (_stressTest.PersistentConnectionsPerHostname == 0) {
                                     request.ExecuteInParallelWithPrevious = true;
                                     ++parallelConnections;
-                                    ++parallelThreads;
                                 }
                                 else {
                                     if (string.IsNullOrWhiteSpace(request.Hostname))
@@ -386,10 +386,8 @@ namespace vApus.StressTest {
                                     if (connectionsPerHostname[request.Hostname] < _stressTest.PersistentConnectionsPerHostname) {
                                         request.ExecuteInParallelWithPrevious = true;
                                         ++parallelConnections;
-                                        ++parallelThreads;
                                     }
                                     else {
-                                        ++parallelThreads;
                                         connectionsPerHostname[request.Hostname] = 0;
                                         validateRequestIndex = 1;
                                     }
@@ -400,12 +398,10 @@ namespace vApus.StressTest {
                             ++validateRequestIndex;
                         }
 
-                        if (_stressTest.UseParallelExecutionOfRequests) {
+                        if (_stressTest.UseParallelExecutionOfRequests) 
                             _parallelConnections += parallelConnections;
-                            _parallelThreads += parallelThreads;
-                        }
 
-                        parallelConnections = parallelThreads = 0;
+                        parallelConnections = 0;
 
                         //Cps and threads are dequeued when used. Make sure that we have enough.
                         connectionsPerHostname.Clear();
