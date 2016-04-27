@@ -72,8 +72,12 @@ namespace vApus.Util {
 
             var ienumerable = base.__Value.__Value as IEnumerable;
             Type elementType = ienumerable.AsQueryable().ElementType;
-            if (elementType.IsGenericTypeDefinition)
+            try {
                 isKVP = elementType.GetGenericTypeDefinition() == typeof(KeyValuePair<,>);
+            }
+            catch {
+                //It is not a kvp.
+            }
 
             if (base.ValueControl == null || !(base.ValueControl is DefinedCollectionControl)) {
 

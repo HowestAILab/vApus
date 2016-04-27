@@ -250,11 +250,6 @@ namespace vApus.StressTest {
         /// <param name="logLevel"></param>
         private void InvokeMessage(string message, Color color, Level logLevel = Level.Info) {
             try {
-                if (logLevel == Level.Error) {
-                    string[] split = message.Split(new[] { '\n', '\r' }, StringSplitOptions.None);
-                    message = split[0] + "\n\nSee " + Loggers.GetLogger<FileLogger>().CurrentLogFile;
-                }
-
                 if (Message != null)
                     SynchronizationContextWrapper.SynchronizationContext.Send(
                         delegate {
@@ -356,7 +351,6 @@ namespace vApus.StressTest {
                     //Parallel connections, check per user action. Execute with previous is set correctly according to the stress test settings.
                     var connectionsPerHostname = new Dictionary<string, int>();
                     int parallelConnections = 0;
-                    int parallelThreads = 0;
 
                     var l = new List<Request>();
 
@@ -366,11 +360,13 @@ namespace vApus.StressTest {
                         foreach (Request request in ua) {
                             if (_cancel) return;
 
+                            if (_stressTest.UseParallelExecutionOfRequests) 
+                                ++_parallelThreads;
+
                             l.Add(request);
 
                             request.ExecuteInParallelWithPrevious = false;
                             if (request.Redirects) {
-                                //Does not apply for parallelization.
                                 continue;
                             }
 
@@ -379,7 +375,6 @@ namespace vApus.StressTest {
                                 if (_stressTest.PersistentConnectionsPerHostname == 0) {
                                     request.ExecuteInParallelWithPrevious = true;
                                     ++parallelConnections;
-                                    ++parallelThreads;
                                 }
                                 else {
                                     if (string.IsNullOrWhiteSpace(request.Hostname))
@@ -391,10 +386,8 @@ namespace vApus.StressTest {
                                     if (connectionsPerHostname[request.Hostname] < _stressTest.PersistentConnectionsPerHostname) {
                                         request.ExecuteInParallelWithPrevious = true;
                                         ++parallelConnections;
-                                        ++parallelThreads;
                                     }
                                     else {
-                                        ++parallelThreads; //Need one more. Threads used in the simulated user thread to execute.
                                         connectionsPerHostname[request.Hostname] = 0;
                                         validateRequestIndex = 1;
                                     }
@@ -405,10 +398,10 @@ namespace vApus.StressTest {
                             ++validateRequestIndex;
                         }
 
-                        _parallelConnections += parallelConnections;
-                        if (_stressTest.UseParallelExecutionOfRequests) _parallelThreads += parallelThreads + 1; //Need one more. Threads used in the simulated user thread to execute.
+                        if (_stressTest.UseParallelExecutionOfRequests) 
+                            _parallelConnections += parallelConnections;
 
-                        parallelConnections = parallelThreads = 0;
+                        parallelConnections = 0;
 
                         //Cps and threads are dequeued when used. Make sure that we have enough.
                         connectionsPerHostname.Clear();
@@ -977,8 +970,9 @@ namespace vApus.StressTest {
                     IConnectionProxy[] parallelConnectionProxies = new IConnectionProxy[parallelCount];
                     parallelConnectionProxies[0] = connectionProxy;
 
-                    for (int i = 1; i != parallelCount; i++)
+                    for (int i = 1; i != parallelCount; i++) {
                         parallelConnectionProxies[i] = _connectionProxyPool.DequeueParallelConnectionProxy();
+                    }
 
                     //Make a mini thread pool (Thread pools in thread pools, what it this madness?! :p)
 
