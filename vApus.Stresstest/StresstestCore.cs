@@ -279,7 +279,6 @@ namespace vApus.StressTest {
             Exception ex = null;
             try {
                 InvokeMessage("Initializing the Test.");
-                _valueStore.InitForTestRun();
                 InitializeScenarios();
                 if (_cancel) return;
                 InitializeConnectionProxyPool();
@@ -752,6 +751,7 @@ namespace vApus.StressTest {
                     Rerun:
                     //Initialize all for a new test.
                     if (_cancel) break;
+                    _valueStore.InitForTestRun();
                     //Initialize the requests and delays (every time so the tests for different runs are not the same)
                     DetermineTestableRequestsAndDelays(concurrentUsers);
                     if (_cancel) break;
