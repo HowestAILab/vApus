@@ -156,7 +156,7 @@ namespace vApus.DistributedTest {
                     PublishConfiguration();
                     ValueStore.InitForTest(_resultSetId, _tileStressTest);
 
-                    _stressTestCore = new StressTestCore(_stressTest);
+                    _stressTestCore = new StressTestCore(_stressTest, ValueStore);
                     _stressTestCore.WaitWhenInitializedTheFirstRun = true;
                     _stressTestCore.RunSynchronization = RunSynchronization;
                     _stressTestCore.MaxRerunsBreakOnLast = MaxRerunsBreakOnLast;

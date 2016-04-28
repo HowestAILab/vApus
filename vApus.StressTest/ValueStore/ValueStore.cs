@@ -74,14 +74,17 @@ namespace vApus.StressTest {
                     v.ResultSetId = resultSetId;
                     v.Test = test;
 
-                    if (v.ClearBeforeTest) v.ClearValues();
+                    if (v.ClearBeforeTestRun) v.ClearValues();
 
                     if (!string.IsNullOrWhiteSpace(v.Label))
                         _valuesForCPs.TryAdd(v.Label, v);
                 }
             }
         }
-
+        public void InitForTestRun() {
+            foreach (ValueStoreValue v in _valuesForCPs.Values)
+                if (v.ClearBeforeTestRun) v.ClearValues();
+        }
         public void InitForTestConnection() {
             lock (_lock) {
                 _valuesForCPs.Clear();
@@ -102,8 +105,15 @@ namespace vApus.StressTest {
         public static ValueStoreValue GetOrAdd(string label, object defaultValue = null, bool isUniqueForEachConnection = true, bool publish = false) {
             ValueStoreValue v;
             if (!_valuesForCPs.TryGetValue(label, out v)) {
-                v = new ValueStoreValue() { Label = label, Type = ValueStoreValueTypes.objectType, DefaultValue = defaultValue ?? string.Empty,
-                    ClearBeforeTest = true, IsUniqueForEachConnection = isUniqueForEachConnection, Publish = publish, ShowInGui = false };
+                v = new ValueStoreValue() {
+                    Label = label,
+                    Type = ValueStoreValueTypes.objectType,
+                    DefaultValue = defaultValue ?? string.Empty,
+                    ClearBeforeTestRun = true,
+                    IsUniqueForEachConnection = isUniqueForEachConnection,
+                    Publish = publish,
+                    ShowInGui = false
+                };
                 _valuesForCPs.TryAdd(label, v);
             }
             return v;

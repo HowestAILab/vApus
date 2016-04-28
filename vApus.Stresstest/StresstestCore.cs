@@ -45,6 +45,7 @@ namespace vApus.StressTest {
         private static SyncAndAsyncWorkItem _syncAndAsyncWorkItem;
 
         private readonly StressTest _stressTest;
+        private ValueStore _valueStore;
 
         /// <summary>
         /// Multiple scenarios can occur in one test, the (incremental) percentage division is kept here also.
@@ -114,11 +115,12 @@ namespace vApus.StressTest {
         /// Don't forget to set the resultshelper if need be
         /// </summary>
         /// <param name="stressTest"></param>
-        public StressTestCore(StressTest stressTest) {
+        public StressTestCore(StressTest stressTest, ValueStore valueStore) {
             ObjectRegistrar.MaxRegistered = 1;
             ObjectRegistrar.Register(this);
 
             _stressTest = stressTest;
+            _valueStore = valueStore;
         }
         ~StressTestCore() {
             Dispose();
@@ -277,6 +279,7 @@ namespace vApus.StressTest {
             Exception ex = null;
             try {
                 InvokeMessage("Initializing the Test.");
+                _valueStore.InitForTestRun();
                 InitializeScenarios();
                 if (_cancel) return;
                 InitializeConnectionProxyPool();

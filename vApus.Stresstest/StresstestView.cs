@@ -292,7 +292,7 @@ namespace vApus.StressTest {
                 PublishConfiguration();
                 _valueStore.InitForTest(_resultSetId, _stressTest.ToString());
 
-                _stressTestCore = new StressTestCore(_stressTest);
+                _stressTestCore = new StressTestCore(_stressTest, _valueStore);
                 _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                 _stressTestCore.StressTestStarted += _stressTestCore_StressTestStarted;
                 _stressTestCore.ConcurrencyStarted += _stressTestCore_ConcurrentUsersStarted;
