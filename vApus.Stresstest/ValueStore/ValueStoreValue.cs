@@ -113,8 +113,8 @@ namespace vApus.StressTest {
             }
         }
 
-        [DisplayName("Clear value before test"), SavableCloneable, PropertyControl(4)]
-        public bool ClearBeforeTest {
+        [DisplayName("Clear value before each test run"), SavableCloneable, PropertyControl(4)]
+        public bool ClearBeforeTestRun {
             get { return _clearBeforeTest; }
             set { _clearBeforeTest = value; }
         }
