@@ -1,18 +1,17 @@
-﻿using RandomUtils.Log;
-/*
+﻿/*
  * Copyright 2010 (c) Sizing Servers Lab
  * University College of West-Flanders, Department GKG
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
+using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Management;
 using System.Net.NetworkInformation;
 using System.Timers;
-using vApus.Util;
 
 namespace vApus.Monitor {
     /// <summary>
@@ -105,11 +104,9 @@ namespace vApus.Monitor {
                         bool down = false;
                         foreach (NetworkInterface nic in nics) {
                             string description = nic.Description;
-                            description = description.Replace("\\", "_");
-                            description = description.Replace("/", "_");
-                            description = description.Replace("(", "[");
-                            description = description.Replace(")", "]");
-                            description = description.Replace("#", "_");
+                            description = description.Replace("\\", "_")
+                                .Replace("/", "_").Replace("(", "[")
+                                .Replace(")", "]").Replace("#", "_");
                             if (description == instance) {
                                 nicName = nic.Name;
                                 if (nic.OperationalStatus != OperationalStatus.Up) {
@@ -166,7 +163,8 @@ namespace vApus.Monitor {
                     NicReceived = NicSent = -1;
                 }
 
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed getting WMI counters.", ex);
             }
         }
