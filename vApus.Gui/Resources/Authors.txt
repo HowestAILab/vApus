@@ -1,6 +1,6 @@
 <Authors>
 	<Author name="Dieter Vandroemme" email="dieter@sizingservers.be" period="2007-Present" linkedInID="dietervandroemme" />
-	<Author name="Philip Dubois" email="philip@sizingservers.be" period="2012-Present" linkedInID="philipdubois" />
+	<Author name="Philip Dubois" email="philip@sizingservers.be" period="2012-2016" linkedInID="philipdubois" />
 	<Author name="Glenn Desmadryl" email="glenn@sizingservers.be" period="2009-2012" linkedInID="glenndesmadryl" />
 	<Author name="Liz van Dijk" email="liz@sizingservers.be" period="2011-2012" linkedInID="lizvandijk" />
 </Authors>

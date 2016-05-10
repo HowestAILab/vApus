@@ -707,7 +707,7 @@ namespace vApus.DistributedTest {
         private void StartTestAndMonitors() {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                    try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { AppendMessages("Could not initialize the local monitor, something is wrong with your WMI service.", Level.Error); }
+                    try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", Level.Error); }
 
                     _usedMonitors = new Dictionary<TileStressTest, Monitor.Monitor>();
                     _monitorBefore = 0;
