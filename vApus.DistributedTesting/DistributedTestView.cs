@@ -67,7 +67,7 @@ namespace vApus.DistributedTest {
         private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
         private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
 
-        private Dictionary<TileStressTest, Monitor.Monitor> _usedMonitors = new Dictionary<TileStressTest, Monitor.Monitor>();
+        private Dictionary<TileStressTest, List<Monitor.Monitor>> _usedMonitors = new Dictionary<TileStressTest, List<Monitor.Monitor>>();
         private int _monitorBefore = 0, _monitorAfter = 0;
         #endregion
 
@@ -709,7 +709,7 @@ namespace vApus.DistributedTest {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                     try { LocalMonitor.StartMonitoring(PROGRESSUPDATEDELAY * 1000); } catch { AppendMessages("Could not initialize the local monitor, something is wrong with your WMI.", Level.Error); }
 
-                    _usedMonitors = new Dictionary<TileStressTest, Monitor.Monitor>();
+                    _usedMonitors = new Dictionary<TileStressTest, List<Monitor.Monitor>>();
                     _monitorBefore = 0;
                     _monitorAfter = 0;
                     if (_monitorViews != null) {
@@ -725,7 +725,8 @@ namespace vApus.DistributedTest {
                                             AppendMessages(monitorView.Text + " is started.");
                                             ++runningMonitors;
 
-                                            _usedMonitors.Add(ts, monitorView.Monitor);
+                                            if (!_usedMonitors.ContainsKey(ts)) _usedMonitors.Add(ts, new List<Monitor.Monitor>());
+                                            _usedMonitors[ts].Add(monitorView.Monitor);
                                         }
                                         else {
                                             try { monitorView.Stop(); } catch { }
@@ -1574,29 +1575,31 @@ namespace vApus.DistributedTest {
 
         private void PublishMonitorBeforeTestStarted() {
             if (Publisher.Settings.PublisherEnabled)
-                foreach (TileStressTest ts in _usedMonitors.Keys) {
-                    var publishItem = new MonitorEvent();
-                    publishItem.Test = ts.ToString();
-                    publishItem.Monitor = _usedMonitors[ts].ToString();
-                    publishItem.MonitorEventType = (int)MonitorEventType.MonitorBeforeTestStarted;
-                    publishItem.Parameters = new KeyValuePair<string, string>[] {
+                foreach (TileStressTest ts in _usedMonitors.Keys)
+                    foreach (Monitor.Monitor monitor in _usedMonitors[ts]) {
+                        var publishItem = new MonitorEvent();
+                        publishItem.Test = ts.ToString();
+                        publishItem.Monitor = monitor.ToString();
+                        publishItem.MonitorEventType = (int)MonitorEventType.MonitorBeforeTestStarted;
+                        publishItem.Parameters = new KeyValuePair<string, string>[] {
                         new KeyValuePair<string, string>("TimeToMonitorInMinutes", _monitorBefore.ToString())
                     };
 
-                    Publisher.Send(publishItem, _resultSetId);
-                }
+                        Publisher.Send(publishItem, _resultSetId);
+                    }
         }
         private void PublishMonitorBeforeTestDone() {
             if (Publisher.Settings.PublisherEnabled)
-                foreach (TileStressTest ts in _usedMonitors.Keys) {
-                    var publishItem = new MonitorEvent();
-                    publishItem.Test = ts.ToString();
-                    publishItem.Monitor = _usedMonitors[ts].ToString();
-                    publishItem.MonitorEventType = (int)MonitorEventType.MonitorBeforeTestDone;
-                    publishItem.Parameters = new KeyValuePair<string, string>[0];
+                foreach (TileStressTest ts in _usedMonitors.Keys)
+                    foreach (Monitor.Monitor monitor in _usedMonitors[ts]) {
+                        var publishItem = new MonitorEvent();
+                        publishItem.Test = ts.ToString();
+                        publishItem.Monitor = monitor.ToString();
+                        publishItem.MonitorEventType = (int)MonitorEventType.MonitorBeforeTestDone;
+                        publishItem.Parameters = new KeyValuePair<string, string>[0];
 
-                    Publisher.Send(publishItem, _resultSetId);
-                }
+                        Publisher.Send(publishItem, _resultSetId);
+                    }
         }
 
         private void PublishTestStopped() {
@@ -1612,29 +1615,31 @@ namespace vApus.DistributedTest {
 
         private void PublishMonitorAfterTestStarted() {
             if (Publisher.Settings.PublisherEnabled)
-                foreach (TileStressTest ts in _usedMonitors.Keys) {
-                    var publishItem = new MonitorEvent();
-                    publishItem.Test = ts.ToString();
-                    publishItem.Monitor = _usedMonitors[ts].ToString();
-                    publishItem.MonitorEventType = (int)MonitorEventType.MonitorAfterTestStarted;
-                    publishItem.Parameters = new KeyValuePair<string, string>[] {
+                foreach (TileStressTest ts in _usedMonitors.Keys)
+                    foreach (Monitor.Monitor monitor in _usedMonitors[ts]) {
+                        var publishItem = new MonitorEvent();
+                        publishItem.Test = ts.ToString();
+                        publishItem.Monitor = monitor.ToString();
+                        publishItem.MonitorEventType = (int)MonitorEventType.MonitorAfterTestStarted;
+                        publishItem.Parameters = new KeyValuePair<string, string>[] {
                         new KeyValuePair<string, string>("TimeToMonitorInMinutes", _monitorAfter.ToString())
                     };
 
-                    Publisher.Send(publishItem, _resultSetId);
-                }
+                        Publisher.Send(publishItem, _resultSetId);
+                    }
         }
         private void PublishMonitorAfterTestDone() {
             if (Publisher.Settings.PublisherEnabled)
-                foreach (TileStressTest ts in _usedMonitors.Keys) {
-                    var publishItem = new MonitorEvent();
-                    publishItem.Test = ts.ToString();
-                    publishItem.Monitor = _usedMonitors[ts].ToString();
-                    publishItem.MonitorEventType = (int)MonitorEventType.MonitorAfterTestDone;
-                    publishItem.Parameters = new KeyValuePair<string, string>[0];
+                foreach (TileStressTest ts in _usedMonitors.Keys)
+                    foreach (Monitor.Monitor monitor in _usedMonitors[ts]) {
+                        var publishItem = new MonitorEvent();
+                        publishItem.Test = ts.ToString();
+                        publishItem.Monitor = monitor.ToString();
+                        publishItem.MonitorEventType = (int)MonitorEventType.MonitorAfterTestDone;
+                        publishItem.Parameters = new KeyValuePair<string, string>[0];
 
-                    Publisher.Send(publishItem, _resultSetId);
-                }
+                        Publisher.Send(publishItem, _resultSetId);
+                    }
         }
 
         /// <summary>
