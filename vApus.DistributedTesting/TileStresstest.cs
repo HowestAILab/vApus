@@ -217,6 +217,9 @@ namespace vApus.DistributedTest {
 
                 stressTest.SimplifiedFastResults = AdvancedTileStressTest.SimplifiedFastResults;
 
+                stressTest.MonitorBefore = AdvancedTileStressTest.MonitorBefore;
+                stressTest.MonitorAfter = AdvancedTileStressTest.MonitorAfter;
+
                 stressTest.ForceSettingChildsParent();
 
 
