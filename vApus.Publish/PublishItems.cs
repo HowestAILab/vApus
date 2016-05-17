@@ -229,6 +229,7 @@ namespace vApus.Publish {
         /// 'Cast' to the TestEvents enum to know what event it is.
         /// </summary>
         public int TestEventType { get; set; }
+        public long AtInMillisecondsSinceEpochUtc { get; set; }
         public KeyValuePair<string, string>[] Parameters { get; set; }
     }
     /// <summary>
