@@ -1607,6 +1607,7 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _distributedTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestStopped;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] { };
 
                 Publisher.Send(publishItem, _resultSetId);
@@ -1653,6 +1654,7 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _distributedTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestMessage;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("Level", level.ToString()),
                     new KeyValuePair<string, string>("Message", message)

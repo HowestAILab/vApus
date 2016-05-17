@@ -276,6 +276,7 @@ namespace vApus.StressTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = Test;
                 publishItem.TestEventType = (int)TestEventType.TestValue;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("Label", Label),
                     new KeyValuePair<string, string>("Owner", owner),

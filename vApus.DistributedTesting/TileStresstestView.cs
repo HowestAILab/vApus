@@ -293,7 +293,7 @@ namespace vApus.DistributedTest {
             _stressTestResult = e.StressTestResult;
             fastResultsControl.SetStressTestStarted(e.StressTestResult.StartedAt);
 
-            PublishTestStarted();
+            PublishTestStarted(e.StressTestResult.StartedAt);
             PublishFastResultsAndClientMonitoring(TestEventType.TestStarted);
         }
 
@@ -304,13 +304,13 @@ namespace vApus.DistributedTest {
             fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result, _stressTest.SimplifiedFastResults), true);
             fastResultsControl.SetRerunning(false);
 
-            PublishConcurrencyStarted(e.Result.ConcurrencyId, e.Result.Concurrency);
+            PublishConcurrencyStarted(e.Result.ConcurrencyId, e.Result.Concurrency, e.Result.StartedAt);
             PublishFastResultsAndClientMonitoring(TestEventType.ConcurrencyStarted);
         }
         private void _stressTestCore_ConcurrencyStopped(object sender, ConcurrencyResultEventArgs e) {
             SendPushMessage(RunStateChange.None, false, true);
 
-            PublishConcurrencyStopped(e.Result.ConcurrencyId);
+            PublishConcurrencyStopped(e.Result.ConcurrencyId, e.Result.StoppedAt);
             PublishFastResultsAndClientMonitoring(TestEventType.ConcurrencyStopped);
         }
 
@@ -337,7 +337,7 @@ namespace vApus.DistributedTest {
         private void _stressTestCore_RunStarted(object sender, RunResultEventArgs e) {
             _canUpdateMetrics = true;
 
-            PublishRunStarted(e.Result.ConcurrencyId, e.Result.Run);
+            PublishRunStarted(e.Result.ConcurrencyId, e.Result.Run, e.Result.StartedAt);
             PublishFastResultsAndClientMonitoring(TestEventType.RunStarted);
         }
         private void _stressTestCore_RunDoneOnce(object sender, RunResultEventArgs e) {
@@ -360,7 +360,7 @@ namespace vApus.DistributedTest {
             _canUpdateMetrics = false;
             SendPushMessage(RunStateChange.None, true, false);
 
-            PublishRunStopped(e.Result.ConcurrencyId, e.Result.Run);
+            PublishRunStopped(e.Result.ConcurrencyId, e.Result.Run, e.Result.StoppedAt);
             PublishFastResultsAndClientMonitoring(TestEventType.RunStopped);
         }
 
@@ -672,26 +672,29 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestInitialized;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[0];
 
                 Publisher.Send(publishItem, _resultSetId);
             }
         }
-        private void PublishTestStarted() {
+        private void PublishTestStarted(DateTime at) {
             if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestStarted;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(at.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[0];
 
                 Publisher.Send(publishItem, _resultSetId);
             }
         }
-        private void PublishConcurrencyStarted(int concurrencyId, int concurrency) {
+        private void PublishConcurrencyStarted(int concurrencyId, int concurrency, DateTime at) {
             if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.ConcurrencyStarted;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(at.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
                     new KeyValuePair<string, string>("Concurrency", concurrency.ToString())
@@ -705,6 +708,7 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RunInitializedFirstTime;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
                     new KeyValuePair<string, string>("Run", run.ToString())
@@ -713,11 +717,12 @@ namespace vApus.DistributedTest {
                 Publisher.Send(publishItem, _resultSetId);
             }
         }
-        private void PublishRunStarted(int concurrencyId, int run) {
+        private void PublishRunStarted(int concurrencyId, int run, DateTime at) {
             if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RunStarted;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(at.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
                     new KeyValuePair<string, string>("Run", run.ToString())
@@ -731,6 +736,7 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RunDoneOnce;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
                     new KeyValuePair<string, string>("Run", run.ToString())
@@ -744,6 +750,7 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RerunStarted;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
                     new KeyValuePair<string, string>("Run", run.ToString()),
@@ -758,6 +765,7 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RerunDone;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
                     new KeyValuePair<string, string>("Run", run.ToString()),
@@ -767,11 +775,12 @@ namespace vApus.DistributedTest {
                 Publisher.Send(publishItem, _resultSetId);
             }
         }
-        private void PublishRunStopped(int concurrencyId, int run) {
+        private void PublishRunStopped(int concurrencyId, int run, DateTime at) {
             if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.RunStopped;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(at.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
                     new KeyValuePair<string, string>("Run", run.ToString()),
@@ -780,11 +789,12 @@ namespace vApus.DistributedTest {
                 Publisher.Send(publishItem, _resultSetId);
             }
         }
-        private void PublishConcurrencyStopped(int concurrencyId) {
+        private void PublishConcurrencyStopped(int concurrencyId, DateTime at) {
             if (Publisher.Settings.PublisherEnabled) {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.ConcurrencyStopped;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(at.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("ConcurrencyId", concurrencyId.ToString()),
                 };
@@ -797,6 +807,7 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _stressTest.ToString();
                 publishItem.TestEventType = (int)TestEventType.TestStopped;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("Status", stressTestStatus.ToString()),
                     new KeyValuePair<string, string>("StatusMessage", ex == null ? string.Empty : ex.ToString())
@@ -811,6 +822,7 @@ namespace vApus.DistributedTest {
                 var publishItem = new TestEvent();
                 publishItem.Test = _tileStressTest;
                 publishItem.TestEventType = (int)TestEventType.TestMessage;
+                publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                 publishItem.Parameters = new KeyValuePair<string, string>[] {
                     new KeyValuePair<string, string>("Level", level.ToString()),
                     new KeyValuePair<string, string>("Message", message)
