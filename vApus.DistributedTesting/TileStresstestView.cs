@@ -543,6 +543,7 @@ namespace vApus.DistributedTest {
 
                 publishItem.DistributedTest = _distributedTest;
                 publishItem.TileStressTest = _tileStressTest;
+                publishItem.RunSynchronization = RunSynchronization.ToString();
                 publishItem.Connection = _stressTest.Connection.ToString();
                 publishItem.ConnectionProxy = _stressTest.ConnectionProxy;
 

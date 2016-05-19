@@ -63,7 +63,7 @@ namespace vApus.DistributedTest {
             processID = -1;
             exception = null;
             int retry = 1;
-        Retry:
+            Retry:
             try {
                 exception = null;
                 if (!slaveSocketWrapper.Connected) {
@@ -78,14 +78,17 @@ namespace vApus.DistributedTest {
                         lock (_lock)
                             if (!_connectedSlaves.ContainsKey(slaveSocketWrapper))
                                 _connectedSlaves.Add(slaveSocketWrapper, masterSocketWrapper);
-                    } else {
+                    }
+                    else {
                         throw (new Exception(string.Format("Could not connect {0}:{1}.", slaveSocketWrapper.IP.ToString(), slaveSocketWrapper.Port.ToString())));
                     }
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 if (++retry != 4) {
                     goto Retry;
-                } else {
+                }
+                else {
                     exception = ex;
                 }
             }
@@ -118,7 +121,8 @@ namespace vApus.DistributedTest {
                         StartListening(masterSocketWrapper);
                         exception = null;
                         break;
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         exception = ex;
                     }
                 }
@@ -140,13 +144,15 @@ namespace vApus.DistributedTest {
                                 var masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
                                 masterSocketWrapper.Close();
                                 masterSocketWrapper = null;
-                            } catch {
+                            }
+                            catch {
                                 //Don't care.
                             }
 
                             try {
                                 slaveSocketWrapper.Close();
-                            } catch {
+                            }
+                            catch {
                                 //Don't care.
                             }
                         }
@@ -154,7 +160,8 @@ namespace vApus.DistributedTest {
                         slaveSocketWrapper = null;
                         break;
                     }
-            } catch {
+            }
+            catch {
                 //Don't care.
             }
         }
@@ -256,7 +263,8 @@ namespace vApus.DistributedTest {
                 socketWrapper = Get(ip, port, out exception);
                 if (exception == null)
                     return SendAndReceive(socketWrapper, key, content, tempSendReceiveTimeout);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 DisconnectSlave(socketWrapper);
                 exception = ex;
             }
@@ -278,7 +286,8 @@ namespace vApus.DistributedTest {
                 Message<Key> message = new Message<Key>();
                 try {
                     message = SendAndReceive(slaveSocketWrapper, key, content, tempSendReceiveTimeout);
-                } catch {
+                }
+                catch {
                     failedFor.Add(string.Format("{0}:{1}", slaveSocketWrapper.IP, slaveSocketWrapper.Port));
                 }
                 dictionary.Add(slaveSocketWrapper, message);
@@ -316,7 +325,8 @@ namespace vApus.DistributedTest {
                 socketWrapper.SetTag(masterSocketWrapper.Port);
                 BeginReceive(socketWrapper);
                 masterSocketWrapper.Socket.BeginAccept(new AsyncCallback(OnAccept), masterSocketWrapper);
-            } catch {
+            }
+            catch {
                 //Not important, happens when starting a new test after one was run.
             }
             //(Exception ex) {
@@ -329,9 +339,11 @@ namespace vApus.DistributedTest {
                     _onReceiveCallBack = new AsyncCallback(OnReceive);
                 socketWrapper.Buffer = new byte[socketWrapper.ReceiveBufferSize];
                 socketWrapper.Socket.BeginReceive(socketWrapper.Buffer, 0, socketWrapper.ReceiveBufferSize, SocketFlags.None, _onReceiveCallBack, socketWrapper);
-            } catch (SocketException soe) {
+            }
+            catch (SocketException soe) {
                 InvokeListeningError(socketWrapper, soe);
-            } catch {
+            }
+            catch {
                 if (socketWrapper != null && socketWrapper.Socket != null && socketWrapper.Connected)
                     BeginReceive(socketWrapper);
             }
@@ -347,14 +359,17 @@ namespace vApus.DistributedTest {
                     socketWrapper.Socket.ReceiveBufferSize = ((SynchronizeBuffersMessage)message.Content).BufferSize;
                     BeginReceive(socketWrapper);
                     socketWrapper.Socket.SendBufferSize = socketWrapper.ReceiveBufferSize;
-                } else if (message.Key == Key.Push) {
+                }
+                else if (message.Key == Key.Push) {
                     BeginReceive(socketWrapper);
                     if (OnTestProgressMessageReceived != null)
                         OnTestProgressMessageReceived(null, new TestProgressMessageReceivedEventArgs((TestProgressMessage)message.Content));
                 }
-            } catch (SocketException soe) {
+            }
+            catch (SocketException soe) {
                 InvokeListeningError(socketWrapper, soe);
-            } catch {
+            }
+            catch {
                 if (socketWrapper != null && socketWrapper.Socket != null && socketWrapper.Connected)
                     BeginReceive(socketWrapper);
             }
@@ -377,7 +392,8 @@ namespace vApus.DistributedTest {
 
                     if (ListeningError != null)
                         ListeningError.Invoke(null, new ListeningErrorEventArgs(slaveSocketWrapper.IP.ToString(), slaveSocketWrapper.Port, ex));
-                } catch {
+                }
+                catch {
                     //If not handled later on, the gui was closed.
                 }
             }
@@ -421,7 +437,8 @@ namespace vApus.DistributedTest {
                     socketWrapper = new SocketWrapper(address, port, socket, SocketFlags.None, SocketFlags.None);
                 }
                 ConnectSlave(socketWrapper, out processID, out exception);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 exception = ex;
             }
             return socketWrapper;
@@ -436,13 +453,15 @@ namespace vApus.DistributedTest {
                         var masterSocketWrapper = _connectedSlaves[slaveSocketWrapper];
                         masterSocketWrapper.Close();
                         masterSocketWrapper = null;
-                    } catch {
+                    }
+                    catch {
                         //Don't care.
                     }
 
                     try {
                         slaveSocketWrapper.Close();
-                    } catch {
+                    }
+                    catch {
                         //Don't care.
                     }
 
@@ -467,6 +486,14 @@ namespace vApus.DistributedTest {
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStressTests.Count];
             var functionOutputCache = new FunctionOutputCache();
 
+            int monitorBefore =0, monitorAfter = 0;
+            foreach (var tileStressTest in dividedAndOriginalTileStressTests.Keys)
+                if (tileStressTest.BasicTileStressTest.Monitors.Length != 0) {
+                    var atst = tileStressTest.AdvancedTileStressTest;
+                    if (atst.MonitorBefore > monitorBefore) monitorBefore = atst.MonitorBefore;
+                    if (atst.MonitorAfter > monitorAfter) monitorAfter = atst.MonitorAfter;
+                }
+
             int tileStressTestIndex = 0;
             foreach (var tileStressTest in dividedAndOriginalTileStressTests.Keys) {
                 var slave = tileStressTest.BasicTileStressTest.Slaves[0];
@@ -488,8 +515,9 @@ namespace vApus.DistributedTest {
                         pushIPs.Add(ipAddress.ToString());
                 }
                 var initializeTestMessage = new InitializeTestMessage() {
-                    StressTestWrapper = tileStressTest.GetStressTestWrapper(functionOutputCache, runSynchronization, maxRerunsBreakOnLast),
-                    PushIPs = pushIPs.ToArray(), PushPort = masterSocketWrapper.Port
+                    StressTestWrapper = tileStressTest.GetStressTestWrapper(functionOutputCache, runSynchronization, maxRerunsBreakOnLast, monitorBefore, monitorAfter),
+                    PushIPs = pushIPs.ToArray(),
+                    PushPort = masterSocketWrapper.Port
                 };
 
                 initializeTestData[tileStressTestIndex] = new InitializeTestWorkItem.InitializeTestData() { SocketWrapper = socketWrapper, InitializeTestMessage = initializeTestMessage };
@@ -503,7 +531,7 @@ namespace vApus.DistributedTest {
                 int count = initializeTestData.Length;
                 int done = 0;
                 for (int i = 0; i != count; i++) {
-                    Thread t = new Thread(delegate(object parameter) {
+                    Thread t = new Thread(delegate (object parameter) {
                         try {
                             int index = (int)parameter;
 
@@ -513,16 +541,19 @@ namespace vApus.DistributedTest {
                             lock (_lock) {
                                 if (ex == null) {
                                     ++done;
-                                } else {
+                                }
+                                else {
                                     exception = ex;
                                     done = count;
                                 }
                             }
                             if (done >= count && waitHandle != null)
-                                try { waitHandle.Set(); } catch {
+                                try { waitHandle.Set(); }
+                                catch {
                                     //Handled later on.
                                 }
-                        } catch {
+                        }
+                        catch {
                             //Handled later on.
                         }
                     });
@@ -547,7 +578,7 @@ namespace vApus.DistributedTest {
         /// <param name="exception"></param>
         public static void StartTest(out Exception exception) {
             Exception e = null;
-            Parallel.ForEach(_connectedSlaves.Keys, delegate(SocketWrapper socketWrapper) {
+            Parallel.ForEach(_connectedSlaves.Keys, delegate (SocketWrapper socketWrapper) {
                 for (int i = 1; i != 4; i++)
                     try {
                         Message<Key> message = SendAndReceive(socketWrapper, Key.StartTest, 30000);
@@ -557,7 +588,8 @@ namespace vApus.DistributedTest {
                             throw new Exception(startMessage.Exception);
                         e = null;
                         break;
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         e = new Exception("Failed to start the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex);
                     }
             });
@@ -605,18 +637,21 @@ namespace vApus.DistributedTest {
 
                         foreach (SocketWrapper socketWrapper in _connectedSlaves.Keys)
                             if (!stopped.Contains(socketWrapper)) {
-                                Thread t = new Thread(delegate(object parameter) {
+                                Thread t = new Thread(delegate (object parameter) {
                                     try {
                                         if (_stopTestWorkItem == null) _stopTestWorkItem = new StopTestWorkItem();
                                         _stopTestWorkItem.StopTest(parameter as SocketWrapper, ref exceptions, ref stopped);
 
                                         if (Interlocked.Increment(ref handled) == length && waitHandle != null)
-                                            try { waitHandle.Set(); } catch {
+                                            try { waitHandle.Set(); }
+                                            catch {
                                                 //Ignore.
                                             }
-                                    } catch (Exception ex) {
+                                    }
+                                    catch (Exception ex) {
                                         Loggers.Log(Level.Error, "Failed stopping test.", ex);
-                                    } finally {
+                                    }
+                                    finally {
                                         _stopTestWorkItem = null;
                                     }
                                 });
@@ -673,7 +708,8 @@ namespace vApus.DistributedTest {
                     GC.Collect();
 
                     if (initializeTestMessage.Exception != null) throw new Exception(initializeTestMessage.Exception);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     exception = ex;
                 }
                 // InvokeTestInitialized(tileStressTest, exception);
@@ -753,7 +789,8 @@ namespace vApus.DistributedTest {
 
                         if (!stopped.Contains(socketWrapper))
                             stopped.Add(socketWrapper);
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         exceptions.Add(new Exception("Failed to stop the test on " + socketWrapper.IP + ":" + socketWrapper.Port + ":\n" + ex));
                     }
             }
