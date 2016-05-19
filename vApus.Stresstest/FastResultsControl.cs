@@ -297,10 +297,15 @@ namespace vApus.StressTest {
                 }
             }
             kvmNic.Key = nic;
-            if (nicBandwidth == -1)
-                kvmNic.Value = "N/A";
-            else
-                kvmNic.Value = nicBandwidth + " Mbps";
+            if (nic.Length == 0) {
+                kvmNic.Value = string.Empty;
+            }
+            else {
+                if (nicBandwidth == -1)
+                    kvmNic.Value = "N/A";
+                else
+                    kvmNic.Value = nicBandwidth + " Mbps";
+            }
             if (nicsSent == -1) {
                 kvmNicsSent.Value = "N/A";
             }
