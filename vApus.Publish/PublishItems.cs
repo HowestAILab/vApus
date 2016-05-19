@@ -81,6 +81,7 @@ namespace vApus.Publish {
     public class TileStressTestConfiguration : PublishItem {
         public string DistributedTest { get; set; }
         public string TileStressTest { get; set; }
+        public string RunSynchronization { get; set; }
         public string Connection { get; set; }
         public string ConnectionProxy { get; set; }
         public KeyValuePair<string, uint>[] ScenariosAndWeights { get; set; }

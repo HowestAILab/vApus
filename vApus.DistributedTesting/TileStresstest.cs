@@ -169,7 +169,7 @@ namespace vApus.DistributedTest {
         /// <param name="stressTestIdInDb">-1 for none</param>
         /// <param name="runSynchronization"></param>
         /// <returns></returns>
-        public StressTestWrapper GetStressTestWrapper(FunctionOutputCache functionOutputCache, RunSynchronization runSynchronization, int maxRerunsBreakOnLast) {
+        public StressTestWrapper GetStressTestWrapper(FunctionOutputCache functionOutputCache, RunSynchronization runSynchronization, int maxRerunsBreakOnLast, int monitorBefore, int monitorAfter) {
             lock (_lock) {
                 string tileStressTestIndex = TileStressTestIndex;
                 var stressTest = new StressTest.StressTest();
@@ -217,8 +217,8 @@ namespace vApus.DistributedTest {
 
                 stressTest.SimplifiedFastResults = AdvancedTileStressTest.SimplifiedFastResults;
 
-                stressTest.MonitorBefore = AdvancedTileStressTest.MonitorBefore;
-                stressTest.MonitorAfter = AdvancedTileStressTest.MonitorAfter;
+                stressTest.MonitorBefore = monitorBefore;
+                stressTest.MonitorAfter = monitorAfter;
 
                 stressTest.ForceSettingChildsParent();
 
