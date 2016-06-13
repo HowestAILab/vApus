@@ -141,7 +141,7 @@ namespace vApus.Communication {
         private static string StartStressTest(string message) {
             try {
                 var stressTestProject = Solution.ActiveSolution.GetProject("StressTestProject");
-                int index = int.Parse(message.Split('/')[2]) + 2;
+                int index = int.Parse(message.Split('/')[2]) + 3;
                 var stressTest = stressTestProject[index] as StressTest.StressTest;
 
                 StressTestView view = null;
