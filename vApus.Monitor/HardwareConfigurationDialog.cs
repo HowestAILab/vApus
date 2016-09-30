@@ -5,16 +5,30 @@
  * Author(s):
  *    Vandroemme Dieter
  */
+using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.IO;
 using System.Windows.Forms;
 using vApus.Util;
+using System.Collections.Generic;
 
 namespace vApus.Monitor {
     public partial class HardwareConfigurationDialog : Form {
 
         public HardwareConfigurationDialog(string configuration) {
             InitializeComponent();
+
+            if (configuration.StartsWith("{\"") && configuration.EndsWith("]}")) {
+                var dic = JsonConvert.DeserializeObject<Dictionary<string, string[]>>(configuration);
+                configuration = string.Empty;
+                foreach (var k in dic.Keys) {
+                    configuration += k + "\n";
+                    foreach (var v in dic[k]) configuration += "  " + v + "\n";
+                    configuration += "\n";
+                }               
+            }
+
             rtxt.Text = configuration.Trim();
 
             rtxt.DefaultContextMenu(true);
