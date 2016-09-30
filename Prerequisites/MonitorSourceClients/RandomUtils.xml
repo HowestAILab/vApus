@@ -1,0 +1,435 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RandomUtils</name>
+    </assembly>
+    <members>
+        <member name="T:RandomUtils.BackgroundWorkQueue">
+            <summary>
+            To offload work to a background thread and keeping that work in a synchronized order.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._processWorkQueueWaitHandle">
+            <summary>
+            If this is set all items in the work queue will be processed, except if this processing is paused.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._continueWaitHandle">
+            <summary>
+            Used for pausing and continuing processing the work queue.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._idleWaitHandle">
+            <summary>
+            Used for pausing and continuing processing the work queue.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.#ctor">
+            <summary>
+            To offload work to a background thread and keeping that work in a synchronized order.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Finalize">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Dispose">
+            <summary>
+            Releases all resources used.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Dispose(System.Int32)">
+            <summary>
+            <para>Releases all resources used.</para>
+            <para>Waits the given timeout before disposing (0 is acceptable, , smaller than 0 is indefinetly), if the work is not done it will be aborted.</para>
+            </summary>
+            <param name="millisecondsTimeout"></param>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.PauseProcessingWorkQueue">
+            <summary>
+            <para>Pauses the processing of the work queue and blocks until the processing is effectively paused.</para>
+            <para>Continue this processing calling 'ContinueProcessingWorkQueue()'.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.ContinueProcessingWorkQueue">
+            <summary>
+            Resumes the processing of the work queue.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.EnqueueWorkItem(System.Delegate,System.Object[])">
+            <summary>
+            <para>Adds a delegate on the work queue, that work queue is processed by a background thread, threadsafe.</para>
+            <para>The delegates on that queue are invoked in a synchronized order.</para>
+            <para></para>
+            <para>Define your delegate like so:</para>
+            <para>  <code>delegate T del(T, out T);</code> (Action or Func is also possible.)</para>
+            <para>then pass your function using this signature:</para>
+            <para>  <code>BackgroundWorkQueue.Send(new del(function), value, value);</code></para>
+            <para>The return type may be void and args are not obligatory.</para>
+            <para>Make sure you provide the right amount of args, even if it are out parameters (yes that is possible too).</para>
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Flush">
+            <summary>
+            Wait untill all work queue items are processed.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessed">
+            <summary>
+            Invoked if an enqueued work item (function) was invoked successfully or unsuccessfully.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.BackgroundWorkQueue.IsDisposed">
+            <summary> </summary>
+        </member>
+        <member name="T:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs">
+            <summary>
+            The result of a called function or the exception thrown.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Delegate">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Parameters">
+            <summary>
+                Out parameters are stored here too.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.ReturnValue">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Exception">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.#ctor(System.Delegate,System.Object[],System.Object,System.Exception)">
+            <summary>
+            The result of a called function or the exception thrown.
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+            <param name="returnValue"></param>
+            <param name="exception"></param>
+        </member>
+        <member name="T:RandomUtils.FastObjectCreator">
+            <summary>
+            <para>To creates a new instance of a type using an empty public constructor and Intermediate Language. This should be faster than Activator.CreateInstance(...);</para>
+            <para>However, for primitives and structs Activator is used since they cannot have a explicit parameterless constructor.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FastObjectCreator.CreateInstance``1(System.Type)">
+            <summary>
+            <para>Creates a new instance of a type using an empty public constructor and Intermediate Language. This should be faster than Activator.CreateInstance(...);</para>
+            <para>However, for primitives and structs Activator is used since they cannot have a explicit parameterless constructor.</para>
+            This is thread-safe.
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.FunctionOutputCache">
+            <summary>
+            <para>A thread-safe way to cache the calling function's return value / output arguments.</para>
+            <para>This should only be used for output that always stays the same, but takes long to calculate. S</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.GetOrAdd(System.Reflection.MethodBase,System.Object[])">
+            <summary>
+            <para>Returns the entry if it was found in cache. Otherwise a new one is added to the cache and returned.</para>
+            <para>Store the return value and/or output arguments for the calling function in that new entry.</para>
+            <para>This is thread-safe.</para>
+            </summary>
+            <param name="method">e.g. MethodInfo.GetCurrentMethod()</param>
+            <param name="inputArguments">
+            <para>Primitives, objects that are not a collection of any sort, arrays and ILists are supported. Array / IList members are compared for equality.</para>
+            <para>Edit this if you want to for instance support dictionaries.</para>
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.Dispose">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.IsDisposed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.Size">
+            <summary>
+            The current size of the cache.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.FunctionOutputCache.CacheEntry">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.CacheEntry.#ctor(System.Reflection.MethodBase,System.Object[])">
+            <summary>
+            </summary>
+            <param name="method"></param>
+            <param name="inputArguments"></param>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.CacheEntry.Method">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.CacheEntry.InputArguments">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.CacheEntry.OutputArguments">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.CacheEntry.ReturnValue">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:RandomUtils.ObjectCache">
+            <summary>
+            Serves at registring an object so you can get the properties anywhere in the application.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.ObjectCache.AddOrUpdate(System.Object)">
+            <summary>
+            Uses the hashcode of the object for a name.
+            </summary>
+            <param name="obj"></param>
+            <returns>The name.</returns>
+        </member>
+        <member name="M:RandomUtils.ObjectCache.AddOrUpdate(System.String,System.Object)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <param name="obj"></param>
+        </member>
+        <member name="M:RandomUtils.ObjectCache.Remove(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.ObjectCache.Clear">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:RandomUtils.ObjectCache.Get``1(System.String)">
+            <summary>
+            
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="name"></param>
+            <returns></returns>
+        </member>
+        <member name="P:RandomUtils.ObjectCache.Size">
+            <summary>
+            The current size of the cache.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.ObjectCache.RegisteredNames">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:RandomUtils.SerializationHelper">
+            <summary>
+            Helper class for 'serializing / deserializing' strings, objects (gzip and deflate compression included) and structures.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.Encode(System.String,RandomUtils.SerializationHelper.TextEncoding)">
+            <summary>
+            Encodes a string to a byte[] using the given encoding.
+            </summary>
+            <param name="text"></param>
+            <param name="encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.Decode(System.Byte[],RandomUtils.SerializationHelper.TextEncoding)">
+            <summary>
+            Decodes a byte[] to a string using the given encoding.
+            </summary>
+            <param name="arr"></param>
+            <param name="encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.Serialize(System.Object)">
+            <summary>
+            Converts an object to a byte[] uncompressed.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.SerializeDeflate(System.Object,System.IO.Compression.CompressionLevel)">
+            <summary>
+            <para>Converts an object to a byte[] using deflate compression.</para>
+            <para>Use gzip only for text, since it is optimized for that stuff according to wikipedia. Use deflate for everything else.</para>
+            </summary>
+            <param name="obj"></param>
+            <param name="compressionLevel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.SerializeGZip(System.Object,System.IO.Compression.CompressionLevel)">
+            <summary>
+            <para>Converts an object to a byte[] using gzip compression.</para>
+            <para>Use gzip only for text, since it is optimized for that stuff according to wikipedia. Use deflate for everything else.</para>
+            </summary>
+            <param name="obj"></param>
+            <param name="compressionLevel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.Deserialize``1(System.Byte[])">
+            <summary>
+            <para>Converts a byte[] to an object.</para>
+            <para>Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.</para>
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.DeserializeDeflate``1(System.Byte[])">
+            <summary>
+            <para>Converts a byte[] to an object. Decompressed using deflate.</para>
+            <para>Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.</para>
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.DeserializeGzip``1(System.Byte[])">
+            <summary>
+            <para>Converts a byte[] to an object. Decompressed using gzip.</para>
+            <para>Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.</para>
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.MarshalStructToBytes``1(``0)">
+            <summary>
+            <para>Handy for stuff from the clr / interop.</para>
+            <para>Use this only for structs that contains only primitives!</para>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.MarshalBytesToStruct``1(System.Byte[])">
+            <summary>
+            <para>Handy for stuff from the clr / interop.</para>
+            <para>Use this only for structs that contains only primitives!</para>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.SerializationHelper.TextEncoding">
+            <summary>
+            Used in the Encode and Decode fx. UTF8 is advised.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.ASCII">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.BigEndianUnicode">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.Default">
+            <summary>
+            Default system encoding, depends on your settings. Use UTF8 instead.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.Unicode">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.UTF32">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.UTF7">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.UTF8">
+            <summary></summary>
+        </member>
+        <member name="T:RandomUtils.StringUtil">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.StringUtil.IsNumeric(System.Object)">
+            <summary>
+            </summary>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.IsNumericType(System.Type)">
+            <summary>
+            </summary>
+            <param name="t"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.GenerateRandomName(System.Int32)">
+            <summary>
+                Generates a random name.
+            </summary>
+            <param name="len"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.GenerateRandomName(System.Int32,System.Int32)">
+            <summary>
+                Generates a random name with a random length.
+            </summary>
+            <param name="min"></param>
+            <param name="max">exclusive</param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.GenerateRandomPattern(System.String)">
+            <summary>
+                generates a random word via the given pattern.
+                0 = 1 numeric char (obligatory)
+                9 = 1 numeric char (optional)
+                A = 1 capital (obligatory)
+                a = 1 non-capital (obligatory)
+                B = 1 capital (optional)
+                b = 1 non)capital (optional)
+                # = 1 random char (obligatory)
+                ? = 1 random char (optional)
+                all other chars are fixed.
+            </summary>
+            <param name="pattern"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.FloatToLongString(System.Single,System.Boolean)">
+            <summary>
+                No Scientific notation ToString().
+            </summary>
+            <param name="f"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.DoubleToLongString(System.Double,System.Boolean)">
+            <summary>
+                No Scientific notation ToString().
+            </summary>
+            <param name="f"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.NumberToLongString(System.Object,System.Boolean)">
+            <summary>
+                No Scientific notation ToString().
+            </summary>
+            <param name="o"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.SynchronizationContextWrapper">
+            <summary>
+            <para>A wrapper for SynchronizationContext, so SynchronizationContext is available throughout the entire application.</para>
+            <para>A SynchronizationContext is for synchronizing data to another thread, for instance to the main thread.</para>
+            <para>Handy if you want to update a System.Windows.Forms.Label from another thread. It is the most reliable way to do something like that IMHO.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.SynchronizationContextWrapper.SynchronizationContext">
+            <summary>
+            <para>Set this to System.Threading.SynchronizationContext.Current in the constructor below 'InitializeComponent();' of a WPF main form or when the handle is created for a WinForms main form.</para>
+            <para>e.g. If you want to update a System.Windows.Forms.Label form another thread: SynchronizationContextWrapper.SynchronizationContext.Current.Send((state) => { lblFoo.Text = "bar"; }, null)</para>
+            </summary>
+        </member>
+    </members>
+</doc>
