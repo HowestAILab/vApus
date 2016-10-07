@@ -6,12 +6,11 @@
  *    Vandroemme Dieter
  */
 using Newtonsoft.Json;
-using Newtonsoft.Json.Linq;
 using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Windows.Forms;
 using vApus.Util;
-using System.Collections.Generic;
 
 namespace vApus.Monitor {
     public partial class HardwareConfigurationDialog : Form {

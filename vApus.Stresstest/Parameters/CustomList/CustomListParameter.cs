@@ -54,7 +54,7 @@ namespace vApus.StressTest {
                 }
                 if ((!this.IsEmpty && _linkTo == null) || _linkTo.Parent == null || _linkTo.LinkToIndex != Parent.IndexOf(this)) { //Links should work in both directions. if the other becomes empty or not this than this should be cleared.
                     _linkToIndex = -1;
-                    
+
                     //Clean up to be sure
                     if (_linkTo != null) {
                         _linkTo._linkTo = null;
@@ -81,7 +81,8 @@ namespace vApus.StressTest {
                 _linkTo.SetTag(this);
                 if (_linkTo.IsEmpty) {
                     _linkToIndex = -1;
-                } else {
+                }
+                else {
                     _linkTo._linkTo = this;
                     _linkTo._linkToIndex = Parent.IndexOf(this); //Make a link from the other side.
                     _linkTo._linkTo.SetTag(_linkTo);
@@ -106,11 +107,13 @@ namespace vApus.StressTest {
                     this[0].IsEmpty = false;
                     this[1].IsEmpty = true;
                     this[2].IsEmpty = true;
-                } else if (value is TextParameter) {
+                }
+                else if (value is TextParameter) {
                     this[0].IsEmpty = true;
                     this[1].IsEmpty = false;
                     this[2].IsEmpty = true;
-                } else {
+                }
+                else {
                     this[0].IsEmpty = true;
                     this[1].IsEmpty = true;
                     this[2].IsEmpty = false;
@@ -156,14 +159,14 @@ namespace vApus.StressTest {
 
         #region Functions
         public override void Next() {
-            if (_chosenValues.Count == _customList.Length)
-                _chosenValues.Clear();
+            if (_chosenValues.Count >= _customList.Length) _chosenValues.Clear(); //#941
 
             Random random = null;
             if (_random) {
                 random = new Random(Guid.NewGuid().GetHashCode());
                 _currentValueIndex = random.Next(_customList.Length);
-            } else {
+            }
+            else {
                 _currentValueIndex = _chosenValues.Count;
             }
 
@@ -171,8 +174,7 @@ namespace vApus.StressTest {
             while (!_chosenValues.Add(_currentValueIndex)) {
                 _currentValueIndex = _random ? random.Next(_customList.Length) : _chosenValues.Count;
 
-                if (_chosenValues.Count == _customList.Length)
-                    _chosenValues.Clear();
+                if (_chosenValues.Count == _customList.Length) _chosenValues.Clear();
             }
 
             Value = _customList[_currentValueIndex];
@@ -184,18 +186,15 @@ namespace vApus.StressTest {
         /// <param name="index"></param>
         public void SetValueAt(int index) {
             _currentValueIndex = index;
-            while (_currentValueIndex >= _customList.Length)
-                _currentValueIndex -= _customList.Length;
+            while (_currentValueIndex >= _customList.Length) _currentValueIndex -= _customList.Length;
 
             _chosenValues.Add(_currentValueIndex);
-            if (_chosenValues.Count == _customList.Length)
-                _chosenValues.Clear();
+            if (_chosenValues.Count >= _customList.Length) _chosenValues.Clear(); //#941
             Value = _customList[_currentValueIndex];
         }
 
         public override void ResetValue() {
-            if (_customList.Length > 0)
-                Value = _customList[0];
+            if (_customList.Length > 0) Value = _customList[0];
             _chosenValues.Clear();
         }
 

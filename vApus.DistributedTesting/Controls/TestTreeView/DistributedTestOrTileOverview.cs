@@ -27,11 +27,11 @@ namespace vApus.DistributedTest.Controls.TestTreeView {
 
         public DistributedTestOrTileOverview() {
             InitializeComponent();
-            tlvw.CanExpandGetter = delegate(object x) {
+            tlvw.CanExpandGetter = delegate (object x) {
                 var item = x as TLVWItem;
                 return item.Children != null && item.Children.Count != 0;
             };
-            tlvw.ChildrenGetter = delegate(object x) { return (x as TLVWItem).Children; };
+            tlvw.ChildrenGetter = delegate (object x) { return (x as TLVWItem).Children; };
 
             SolutionTree.SolutionComponent.SolutionComponentChanged += SolutionComponent_SolutionComponentChanged;
         }
@@ -48,8 +48,9 @@ namespace vApus.DistributedTest.Controls.TestTreeView {
                         _item = null;
                     Init(_item);
                 }
-            } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed refreshing tile overview.", ex);
+            }
+            catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed refreshing distributed test, tile overview.", ex);
             }
         }
 
@@ -68,23 +69,29 @@ namespace vApus.DistributedTest.Controls.TestTreeView {
 
                 if (item is DistributedTest) {
                     splitContainer.Panel2Collapsed = false;
-                    var tmr = new Timer() {  Interval = 200 };
+                    var tmr = new Timer() { Interval = 200 };
                     tmr.Tick += tmr_Tick;
                     tmr.Start();
-                } else {
+                }
+                else {
                     splitContainer.Panel2Collapsed = true;
                 }
 
-            } catch (Exception ex) {
-                Loggers.Log(Level.Error, "Failed initing tile overview.", ex);
-            } finally {
+            }
+            catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed initing distributed test, tile overview.", ex);
+            }
+            finally {
                 try { LockWindowUpdate(IntPtr.Zero); } catch { }
             }
         }
 
         private void tmr_Tick(object sender, EventArgs e) {
             (sender as Timer).Stop();
-            solutionComponentPropertyPanel.SolutionComponent = _item;
+            if (_item is DistributedTest) {
+                solutionComponentPropertyPanel.SolutionComponent = _item;
+                solutionComponentPropertyPanel.Refresh();
+            }
         }
 
         private List<TLVWItem> GetOverview() {
@@ -97,7 +104,8 @@ namespace vApus.DistributedTest.Controls.TestTreeView {
 
             if (_item is Tile) {
                 items = GetTileOverview(_item as Tile);
-            } else if (_item is DistributedTest) {
+            }
+            else if (_item is DistributedTest) {
                 var test = _item as DistributedTest;
                 foreach (Tile tile in test.Tiles) {
                     bool use = tile.Use;
@@ -127,7 +135,8 @@ namespace vApus.DistributedTest.Controls.TestTreeView {
                         if (_connectionStrings.ContainsKey(connectionString))
                             ++_connectionStrings[connectionString];
                         else _connectionStrings.Add(connectionString, 1);
-                    } else {
+                    }
+                    else {
                         connectionString = new string('•', connectionString.Length);
                     }
 
@@ -142,7 +151,8 @@ namespace vApus.DistributedTest.Controls.TestTreeView {
                             if (_monitorStrings.ContainsKey(monitorString))
                                 ++_monitorStrings[monitorString];
                             else _monitorStrings.Add(monitorString, 1);
-                        } else {
+                        }
+                        else {
                             monitorString = new string('•', monitorString.Length);
                         }
 
@@ -170,7 +180,8 @@ namespace vApus.DistributedTest.Controls.TestTreeView {
                         _connectionStrings.TryGetValue(item.ConnectionString, out i);
 
                 if (i > 1) e.Item.BackColor = Color.LightYellow;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed formatting the TreeListView rows.", ex);
             }
         }
