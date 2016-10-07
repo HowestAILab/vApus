@@ -40,6 +40,11 @@ namespace vApus.Util {
         /// Auto remove the empty lines when OK is clicked.
         /// </summary>
         public bool AutoRemoveEmptyLines { get; set; }
+
+        public bool ShowLineNumbers {
+            get { return fctxt.ShowLineNumbers; }
+            set { fctxt.ShowLineNumbers = value; }
+        }
         #endregion
 
         #region Constructor

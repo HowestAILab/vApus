@@ -93,7 +93,8 @@ namespace vApus.StressTest {
             }
 
             string text = sb.ToString();
-            fctxt.Text = text.Substring(0, text.Length - Environment.NewLine.Length); 
+            if (text.EndsWith(Environment.NewLine)) text.Substring(0, text.Length - Environment.NewLine.Length);
+            fctxt.Text = text; 
 
             fctxt.ClearUndo();
 

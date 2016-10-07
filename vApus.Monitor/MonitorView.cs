@@ -766,6 +766,13 @@ namespace vApus.Monitor {
                 _monitor.Wiw.GetSubs().Remove(entity);
             }
 
+            _monitor.Wiw.GetSubs().Sort(EntityComparer.GetInstance());
+            foreach (var e in _monitor.Wiw.GetSubs()) {
+                e.GetSubs().Sort(CounterInfoComparer.GetInstance());
+
+                foreach (var ci in e.GetSubs()) ci.GetSubs().Sort(CounterInfoComparer.GetInstance());
+            }
+
             lvwEntities.ItemChecked += lvwEntities_ItemChecked;
         }
 
@@ -1462,7 +1469,7 @@ namespace vApus.Monitor {
         public MonitorResult GetMonitorResultCache() { return monitorControl.MonitorResultCache; }
 
         public MonitorResult GetMonitorResultCache(DateTime from) {
-            MonitorResult monitorResult = monitorControl.MonitorResultCache; 
+            MonitorResult monitorResult = monitorControl.MonitorResultCache;
             var part = new MonitorResult();
             part.Headers = monitorResult.Headers;
 
@@ -1526,6 +1533,18 @@ namespace vApus.Monitor {
             }
             private CountersTreeNodeCheckedComparer() { }
             public static CountersTreeNodeCheckedComparer GetInstance() { return _instance; }
+        }
+
+        private class EntityComparer : Comparer<Entity> {
+            private static EntityComparer _instance = new EntityComparer();
+            public static EntityComparer GetInstance() { return _instance; }
+            public override int Compare(Entity x, Entity y) { return x.GetName().CompareTo(y.GetName()); }
+        }
+
+        private class CounterInfoComparer : Comparer<CounterInfo> {
+            private static CounterInfoComparer _instance = new CounterInfoComparer();
+            public static CounterInfoComparer GetInstance() { return _instance; }
+            public override int Compare(CounterInfo x, CounterInfo y) { return x.GetName().CompareTo(y.GetName()); }
         }
     }
 }

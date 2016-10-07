@@ -126,7 +126,7 @@ namespace vApus.Util {
         }
 
         private void btnEdit_Click(object sender, EventArgs e) {
-            var fromTextDialog = new FromTextDialog() { AutoRemoveEmptyLines = _elementType != typeof(string) };
+            var fromTextDialog = new FromTextDialog() { AutoRemoveEmptyLines = _elementType != typeof(string), ShowLineNumbers = true };
 
             var sb = new StringBuilder();
             if (Truncated)
