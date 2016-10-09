@@ -46,6 +46,7 @@ namespace vApus.StressTest {
 
         private readonly StressTest _stressTest;
         private ValueStore _valueStore;
+        private Scenarios _scenariosStub = new Scenarios(); //For distributed tests.
 
         /// <summary>
         /// Multiple scenarios can occur in one test, the (incremental) percentage division is kept here also.
@@ -305,6 +306,8 @@ namespace vApus.StressTest {
                 Loggers.Log(Level.Error, ex.ToString());
                 throw ex;
             }
+
+            _scenariosStub = new Scenarios();
             foreach (var kvp in _stressTest.Scenarios) {
                 if (_cancel) return;
 
@@ -313,6 +316,8 @@ namespace vApus.StressTest {
                     Loggers.Log(Level.Error, ex.ToString());
                     throw ex;
                 }
+
+                if (kvp.Key.GetParent() == null) _scenariosStub.Add(kvp.Key); // Only the case when distributed testing.
             }
 
             float totalScenarioWeight = 0; //To calculate the percentage distribution
