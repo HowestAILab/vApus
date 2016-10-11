@@ -415,6 +415,7 @@
     <Compile Include="FastSerializer.cs" />
     <Compile Include="FindAndReplace.cs" />
     <Compile Include="FunctionOutputCache.cs" />
+    <Compile Include="GCD.cs" />
     <Compile Include="HighResolutionDateTime.cs" />
     <Compile Include="JSONObjectTree.cs" />
     <Compile Include="DistributionCalculator.cs" />

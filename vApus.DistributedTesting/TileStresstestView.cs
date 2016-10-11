@@ -126,6 +126,7 @@ namespace vApus.DistributedTest {
         private void SetGui() {
             Text = SolutionComponent.ToString();
             // fastResultsControl.ResultsHelper = _resultsHelper;
+            fastResultsControl.SetEventFilter(EventViewEventType.Warning);
         }
 
         public override void Refresh() {
@@ -174,7 +175,8 @@ namespace vApus.DistributedTest {
 
                     _stressTestCore.TestInitialized += _stressTestCore_TestInitialized;
                     ThreadPool.QueueUserWorkItem((state) => { _stressTestCore.InitializeTest(); }, null);
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Stop(ex);
 
                     if (TestInitialized != null) TestInitialized(this, new StressTest.TestInitializedEventArgs(ex));
@@ -193,8 +195,10 @@ namespace vApus.DistributedTest {
                                                               (int)LocalMonitor.MemoryUsage, (int)LocalMonitor.TotalVisibleMemory,
                                                               LocalMonitor.Nic, LocalMonitor.NicBandwidth,
                                                               LocalMonitor.NicSent, LocalMonitor.NicReceived);
-                    } catch { } //Exception on false WMI. 
-                } else {
+                    }
+                    catch { } //Exception on false WMI. 
+                }
+                else {
                     Stop(e.Exception);
                 }
                 Cursor = Cursors.Default;
@@ -218,7 +222,9 @@ namespace vApus.DistributedTest {
                     try {
                         _stressTestStatus = _stressTestCore.ExecuteStressTest();
                         _stressTestResult = _stressTestCore.StressTestResult;
-                    } catch (Exception e) { ex = e; } finally {
+                    }
+                    catch (Exception e) { ex = e; }
+                    finally {
                         if (_stressTestCore != null && !_stressTestCore.IsDisposed)
                             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                                 Stop(ex);
@@ -375,7 +381,8 @@ namespace vApus.DistributedTest {
             if (!_finishedSent) {
                 var estimatedRuntimeLeft = FastStressTestMetricsHelper.GetEstimatedRuntimeLeft(_stressTestResult, _stressTest.Concurrencies.Length, _stressTest.Runs);
                 var events = new EventPanelEvent[0];
-                try { events = fastResultsControl.GetEvents(); } catch (Exception ex) {
+                try { events = fastResultsControl.GetEvents(); }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed getting events.", ex);
                 }
                 SlaveSideCommunicationHandler.SendPushMessage(_tileStressTestIndex, _stressTestMetricsCache, _stressTestStatus, fastResultsControl.StressTestStartedAt,
@@ -513,7 +520,8 @@ namespace vApus.DistributedTest {
                 if (_stressTestCore != null && !_stressTestCore.IsDisposed)
                     try {
                         _stressTestCore.Cancel();
-                    } catch (Exception e) {
+                    }
+                    catch (Exception e) {
                         Loggers.Log(Level.Error, "Failed cancelling the test.", e);
                     }
 
@@ -530,7 +538,8 @@ namespace vApus.DistributedTest {
                 tmrProgressDelayCountDown.Stop();
                 if (fastResultsControl != null && !fastResultsControl.IsDisposed)
                     fastResultsControl.SetCountDownProgressDelay(-1);
-            } catch {
+            }
+            catch {
                 //Don't care.
             }
         }

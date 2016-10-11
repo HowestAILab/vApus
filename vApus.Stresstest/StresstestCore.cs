@@ -320,12 +320,17 @@ namespace vApus.StressTest {
                 if (kvp.Key.GetParent() == null) _scenariosStub.Add(kvp.Key); // Only the case when distributed testing.
             }
 
+
+            var allWeights = new List<float>();//To determine if all scenarios will be used in the test --> if the concurrency is big enough.
             float totalScenarioWeight = 0; //To calculate the percentage distribution
             var scenariosSortedByWeight = new List<KeyValuePair<Scenario, uint>>(); //for easy determining incremental percentages
             foreach (var kvp in _stressTest.Scenarios) {
                 if (_cancel) return;
 
-                totalScenarioWeight += Convert.ToSingle(kvp.Value);
+                float weight = Convert.ToSingle(kvp.Value);
+                if (weight > 0) allWeights.Add(weight);
+
+                totalScenarioWeight += weight;
 
                 bool added = false;
                 for (int i = 0; i != scenariosSortedByWeight.Count; i++) {
@@ -340,6 +345,22 @@ namespace vApus.StressTest {
                 if (!added)
                     scenariosSortedByWeight.Add(kvp);
             }
+
+            if (totalScenarioWeight == 0) {
+                var ex = new Exception("At least one scenario should have a weight greater then 0.");
+                Loggers.Log(Level.Error, ex.ToString());
+                throw ex;
+            }
+
+            //Find the greatest common divisor tot determine the smallest allowed concurrency.
+            float smallestAllowedConcurrency = totalScenarioWeight / GCD.Get(allWeights.ToArray());
+
+            foreach (int concurrency in _stressTest.Concurrencies)
+                if (Convert.ToSingle(concurrency) < smallestAllowedConcurrency) {
+                    var ex = new Exception("Make sure that all scenarios can be used by all concurrencies.\nThe smallest concurrency must be greater than or equal to the total scenario wheight divided by the greatest common divisor of the weights: " + smallestAllowedConcurrency + ".");
+                    Loggers.Log(Level.Error, ex.ToString());
+                    throw ex;
+                }
 
             uint incrementedWeight = 0;
             var scenarios = new List<KeyValuePair<Scenario, KeyValuePair<Request[], float>>>();
@@ -367,7 +388,7 @@ namespace vApus.StressTest {
                         foreach (Request request in ua) {
                             if (_cancel) return;
 
-                            if (_stressTest.UseParallelExecutionOfRequests) 
+                            if (_stressTest.UseParallelExecutionOfRequests)
                                 ++_parallelThreads;
 
                             l.Add(request);
@@ -405,7 +426,7 @@ namespace vApus.StressTest {
                             ++validateRequestIndex;
                         }
 
-                        if (_stressTest.UseParallelExecutionOfRequests) 
+                        if (_stressTest.UseParallelExecutionOfRequests)
                             _parallelConnections += parallelConnections;
 
                         parallelConnections = 0;
