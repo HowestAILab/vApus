@@ -296,11 +296,11 @@ namespace vApus.StressTest {
                     AddEvent(lastWarning, Level.Warning);
                 }
             }
-            kvmNic.Key = nic;
-            if (nic.Length == 0) {
-                kvmNic.Value = string.Empty;
+            if (string.IsNullOrEmpty(nic)) {
+                kvmNic.Key = kvmNic.Value = string.Empty;
             }
             else {
+                kvmNic.Key = nic;
                 if (nicBandwidth == -1)
                     kvmNic.Value = "N/A";
                 else
