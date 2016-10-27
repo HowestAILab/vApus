@@ -1581,6 +1581,7 @@ namespace vApus.DistributedTest {
                         publishItem.Test = ts.ToString();
                         publishItem.Monitor = monitor.ToString();
                         publishItem.MonitorEventType = (int)MonitorEventType.MonitorBeforeTestStarted;
+                        publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                         publishItem.Parameters = new KeyValuePair<string, string>[] {
                         new KeyValuePair<string, string>("TimeToMonitorInMinutes", _monitorBefore.ToString())
                     };
@@ -1596,6 +1597,7 @@ namespace vApus.DistributedTest {
                         publishItem.Test = ts.ToString();
                         publishItem.Monitor = monitor.ToString();
                         publishItem.MonitorEventType = (int)MonitorEventType.MonitorBeforeTestDone;
+                        publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                         publishItem.Parameters = new KeyValuePair<string, string>[0];
 
                         Publisher.Send(publishItem, _resultSetId);
@@ -1622,6 +1624,7 @@ namespace vApus.DistributedTest {
                         publishItem.Test = ts.ToString();
                         publishItem.Monitor = monitor.ToString();
                         publishItem.MonitorEventType = (int)MonitorEventType.MonitorAfterTestStarted;
+                        publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                         publishItem.Parameters = new KeyValuePair<string, string>[] {
                         new KeyValuePair<string, string>("TimeToMonitorInMinutes", _monitorAfter.ToString())
                     };
@@ -1637,6 +1640,7 @@ namespace vApus.DistributedTest {
                         publishItem.Test = ts.ToString();
                         publishItem.Monitor = monitor.ToString();
                         publishItem.MonitorEventType = (int)MonitorEventType.MonitorAfterTestDone;
+                        publishItem.AtInMillisecondsSinceEpochUtc = (long)(DateTime.UtcNow - PublishItem.EpochUtc).TotalMilliseconds;
                         publishItem.Parameters = new KeyValuePair<string, string>[0];
 
                         Publisher.Send(publishItem, _resultSetId);

@@ -1250,16 +1250,17 @@ namespace vApus.Monitor {
                 if (monitorResult.Rows.Count != 0) {
                     var publishItem = new Publish.MonitorMetrics();
                     publishItem.Monitor = _monitor.ToString();
-                    publishItem.Headers = monitorResult.Headers;
-                    publishItem.Headers[0] = "TimestampInMillisecondsSinceEpoch";
+
+                    publishItem.Headers = new string[monitorResult.Headers.Length - 1];
+                    Array.Copy(monitorResult.Headers, 1, publishItem.Headers, 0, publishItem.Headers.Length);
 
                     object[] candidate = monitorResult.Rows[monitorResult.Rows.Count - 1];
 
-                    var row = new object[candidate.Length];
-                    candidate.CopyTo(row, 0);
+                    var row = new object[candidate.Length - 1];
+                    Array.Copy(candidate, 1, row, 0, row.Length);
 
-                    DateTime timestamp = (DateTime)row[0];
-                    row[0] = (long)(timestamp.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
+                    DateTime timestamp = (DateTime)candidate[0];
+                    publishItem.AtInMillisecondsSinceEpochUtc = (long)(timestamp.ToUniversalTime() - PublishItem.EpochUtc).TotalMilliseconds;
 
                     publishItem.Values = row;
 
