@@ -351,12 +351,14 @@ namespace vApus.Publish {
         /// 'Cast' to the MonitorEvents enum to know what event it is.
         /// </summary>
         public int MonitorEventType { get; set; }
+        public long AtInMillisecondsSinceEpochUtc { get; set; }
         public KeyValuePair<string, string>[] Parameters { get; set; }
     }
     /// <summary>
     /// </summary>
     public class MonitorMetrics : PublishItem {
         public string Monitor { get; set; }
+        public long AtInMillisecondsSinceEpochUtc { get; set; }
         public string[] Headers { get; set; }
         public object[] Values { get; set; }
     }
