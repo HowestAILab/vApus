@@ -24,7 +24,8 @@ namespace vApus.Publish {
         public long PublishItemTimestampInMillisecondsSinceEpochUtc { get; set; }
 
         /// <summary>
-        /// A unique Id to bind all PublishItems that belong to each other.
+        /// <para>A unique Id to bind all PublishItems that belong to each other.</para>
+        /// <para>Generated like this: Dns.GetHostEntry(IPAddress.Loopback).HostName + Process.GetCurrentProcess().Id + HighResolutionDateTime.UtcNow.Ticks;</para>
         /// </summary>
         public string ResultSetId { get; set; }
 
