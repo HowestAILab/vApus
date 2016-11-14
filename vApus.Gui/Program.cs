@@ -27,6 +27,8 @@ namespace vApus.Gui {
         /// </summary>
         [STAThread]
         private static void Main(string[] args) {
+          //  if (Environment.OSVersion.Version.Major > 5) SetProcessDPIAware();
+
             ProfileOptimization.SetProfileRoot(Application.StartupPath);
             ProfileOptimization.StartProfile("Startup.Profile");
 
@@ -76,5 +78,8 @@ namespace vApus.Gui {
             Loggers.Log("Bye");
             Loggers.Flush();
         }
+
+        [System.Runtime.InteropServices.DllImport("user32.dll")]
+        private static extern bool SetProcessDPIAware();
     }
 }

@@ -48,7 +48,7 @@
             this.label1.ForeColor = System.Drawing.Color.White;
             this.label1.Location = new System.Drawing.Point(165, 30);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(636, 36);
+            this.label1.Size = new System.Drawing.Size(790, 45);
             this.label1.TabIndex = 1;
             this.label1.Text = "Virtualized Application Unique Stress Testing";
             // 
@@ -68,7 +68,7 @@
             this.lblCopyright.AutoSize = true;
             this.lblCopyright.Location = new System.Drawing.Point(3, 0);
             this.lblCopyright.Name = "lblCopyright";
-            this.lblCopyright.Size = new System.Drawing.Size(596, 19);
+            this.lblCopyright.Size = new System.Drawing.Size(653, 44);
             this.lblCopyright.TabIndex = 3;
             this.lblCopyright.Text = "Copyright 2007- 2015 © Sizing Servers Lab at HoWest, the university-college of We" +
     "st-Flanders.";
@@ -76,9 +76,9 @@
             // llblContact
             // 
             this.llblContact.AutoSize = true;
-            this.llblContact.Location = new System.Drawing.Point(605, 0);
+            this.llblContact.Location = new System.Drawing.Point(3, 44);
             this.llblContact.Name = "llblContact";
-            this.llblContact.Size = new System.Drawing.Size(57, 19);
+            this.llblContact.Size = new System.Drawing.Size(70, 22);
             this.llblContact.TabIndex = 4;
             this.llblContact.TabStop = true;
             this.llblContact.Text = "Contact";
@@ -100,7 +100,7 @@
             this.label2.Font = new System.Drawing.Font("Times New Roman", 21.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.Location = new System.Drawing.Point(24, 112);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(142, 32);
+            this.label2.Size = new System.Drawing.Size(179, 42);
             this.label2.TabIndex = 6;
             this.label2.Text = "First steps";
             // 
@@ -132,7 +132,7 @@
             this.llblSavingResults.Location = new System.Drawing.Point(15, 158);
             this.llblSavingResults.Margin = new System.Windows.Forms.Padding(3, 0, 3, 20);
             this.llblSavingResults.Name = "llblSavingResults";
-            this.llblSavingResults.Size = new System.Drawing.Size(766, 23);
+            this.llblSavingResults.Size = new System.Drawing.Size(1004, 31);
             this.llblSavingResults.TabIndex = 3;
             this.llblSavingResults.TabStop = true;
             this.llblSavingResults.Tag = "3";
@@ -151,7 +151,7 @@
             this.llblProgressNotification.Location = new System.Drawing.Point(15, 115);
             this.llblProgressNotification.Margin = new System.Windows.Forms.Padding(3, 0, 3, 20);
             this.llblProgressNotification.Name = "llblProgressNotification";
-            this.llblProgressNotification.Size = new System.Drawing.Size(642, 23);
+            this.llblProgressNotification.Size = new System.Drawing.Size(844, 31);
             this.llblProgressNotification.TabIndex = 2;
             this.llblProgressNotification.TabStop = true;
             this.llblProgressNotification.Tag = "5";
@@ -169,7 +169,7 @@
             this.llblFirewall.Location = new System.Drawing.Point(15, 49);
             this.llblFirewall.Margin = new System.Windows.Forms.Padding(3, 0, 3, 20);
             this.llblFirewall.Name = "llblFirewall";
-            this.llblFirewall.Size = new System.Drawing.Size(830, 46);
+            this.llblFirewall.Size = new System.Drawing.Size(1097, 62);
             this.llblFirewall.TabIndex = 1;
             this.llblFirewall.TabStop = true;
             this.llblFirewall.Tag = "7";
@@ -189,7 +189,7 @@
             this.llblUpdate.Location = new System.Drawing.Point(15, 6);
             this.llblUpdate.Margin = new System.Windows.Forms.Padding(3, 0, 3, 20);
             this.llblUpdate.Name = "llblUpdate";
-            this.llblUpdate.Size = new System.Drawing.Size(508, 23);
+            this.llblUpdate.Size = new System.Drawing.Size(675, 31);
             this.llblUpdate.TabIndex = 0;
             this.llblUpdate.TabStop = true;
             this.llblUpdate.Tag = "6";

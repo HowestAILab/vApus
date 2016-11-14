@@ -12,7 +12,7 @@
     <AssemblyName>vApus</AssemblyName>
     <TargetFrameworkVersion>v4.6</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
-    <ApplicationIcon>Icon.32x32.vApus.ico</ApplicationIcon>
+    <ApplicationIcon>Icon.128x128.vApus.ico</ApplicationIcon>
     <FileUpgradeFlags>
     </FileUpgradeFlags>
     <UpgradeBackupLocation>
@@ -262,7 +262,7 @@
       <SubType>Designer</SubType>
     </EmbeddedResource>
     <EmbeddedResource Include="Properties\Resources.resx">
-      <Generator>ResXFileCodeGenerator</Generator>
+      <Generator>PublicResXFileCodeGenerator</Generator>
       <LastGenOutput>Resources.Designer.cs</LastGenOutput>
       <SubType>Designer</SubType>
     </EmbeddedResource>
@@ -298,7 +298,8 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
-    <Content Include="Icon.32x32.vApus.ico" />
+    <Content Include="Icon.128x128.vApus.ico" />
+    <None Include="Icon.128x128.vApus.png" />
     <Content Include="Resources\dataGridViewCellStyle11.NullValue.png" />
     <None Include="app.manifest" />
     <None Include="packages.config" />

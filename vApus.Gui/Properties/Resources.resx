@@ -118,11 +118,17 @@
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
   <assembly alias="System.Windows.Forms" name="System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089" />
-  <data name="Icon_16x16_Solution" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\icon_16x16_solution.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Icon_16x16_Refresh" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\icon_16x16_refresh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Philip_Dubois" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Philip_Dubois.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="RecycleBin" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\RecycleBin.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Icon_16x16_Solution" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\resources\icon_16x16_solution.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Authors" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Authors.txt;System.String, mscorlib, Version=2.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089;Windows-1252</value>
@@ -133,17 +139,17 @@
   <data name="Glenn_Desmadryl" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Glenn_Desmadryl.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Icon_16x16_Refresh" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\resources\icon_16x16_refresh.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
   <data name="Warning" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Warning.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="Error" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\Error.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Icon_32x32_vApus" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Icon.32x32.vApus.ico;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Dieter_Vandroemme" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Dieter_Vandroemme.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  </data>
+  <data name="Liz_van_Dijk" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Resources\Liz_van_Dijk.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
   <data name="OK" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\OK.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
@@ -151,13 +157,7 @@
   <data name="linkedIn" type="System.Resources.ResXFileRef, System.Windows.Forms">
     <value>..\Resources\linkedIn.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
-  <data name="Liz_van_Dijk" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Liz_van_Dijk.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Philip_Dubois" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Philip_Dubois.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
-  </data>
-  <data name="Dieter_Vandroemme" type="System.Resources.ResXFileRef, System.Windows.Forms">
-    <value>..\Resources\Dieter_Vandroemme.jpg;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
+  <data name="Icon_128x128_vApus" type="System.Resources.ResXFileRef, System.Windows.Forms">
+    <value>..\Icon.128x128.vApus.png;System.Drawing.Bitmap, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a</value>
   </data>
 </root>
