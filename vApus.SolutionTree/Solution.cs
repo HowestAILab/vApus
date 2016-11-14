@@ -244,20 +244,26 @@ namespace vApus.SolutionTree {
         /// </summary>
         /// <returns></returns>
         public static bool SaveActiveSolution() {
-            if (_activeSolution.FileName == null)
-                return SaveActiveSolutionAs();
-            else {
-                _activeSolution.Save();
-                _activeSolution.IsSaved = true;
-                if (ActiveSolutionChanged != null)
-                    ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(false, false));
+            try {
+                if (_activeSolution.FileName == null)
+                    return SaveActiveSolutionAs();
+                else {
+                    _activeSolution.Save();
+                    _activeSolution.IsSaved = true;
+                    if (ActiveSolutionChanged != null)
+                        ActiveSolutionChanged.Invoke(null, new ActiveSolutionChangedEventArgs(false, false));
 
-                RegisterActiveSolutionAsRecent();
+                    RegisterActiveSolutionAsRecent();
 
-                GC.WaitForPendingFinalizers();
-                GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
-                GC.Collect();
-                return true;
+                    GC.WaitForPendingFinalizers();
+                    GCSettings.LargeObjectHeapCompactionMode = GCLargeObjectHeapCompactionMode.CompactOnce;
+                    GC.Collect();
+                    return true;
+                }
+            }
+            catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed saving the solution.", ex);
+                return false;
             }
         }
 
