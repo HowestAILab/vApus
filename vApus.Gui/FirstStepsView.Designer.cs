@@ -70,7 +70,7 @@
             this.lblCopyright.Name = "lblCopyright";
             this.lblCopyright.Size = new System.Drawing.Size(653, 44);
             this.lblCopyright.TabIndex = 3;
-            this.lblCopyright.Text = "Copyright 2007- 2015 © Sizing Servers Lab at HoWest, the university-college of We" +
+            this.lblCopyright.Text = "Copyright 2007- 2015 © Sizing Servers Lab at Howest, the university-college of We" +
     "st-Flanders.";
             // 
             // llblContact

@@ -94,7 +94,7 @@ However, if you wish to use this code in a commercial application, please contac
 
 --------------------------------------------------
 
-RandomUtils
+sizingservers.log, sizingservers.ipc and sizingservers.util
 
 The MIT License (MIT)
 Copyright (c) 2009 - now Dieter Vandroemme

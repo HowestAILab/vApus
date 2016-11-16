@@ -21,7 +21,7 @@ namespace vApus.Gui {
         public FirstStepsView() {
             InitializeComponent();
 
-            lblCopyright.Text = "Copyright 2007-" + DateTime.Now.Year + " © Sizing Servers Lab at HoWest, the university-college of West-Flanders.";
+            lblCopyright.Text = "Copyright 2007-" + DateTime.Now.Year + " © Sizing Servers Lab at Howest, the university-college of West-Flanders.";
         }
 
         public void DisableFormClosingEventHandling() {
