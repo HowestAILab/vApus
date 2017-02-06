@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using IntelliLock.Licensing;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -13,7 +12,6 @@ using System.Diagnostics;
 using System.Drawing;
 using System.IO;
 using System.Reflection;
-using System.Text;
 using System.Windows.Forms;
 using System.Xml;
 using vApus.Gui.Properties;
@@ -68,7 +66,8 @@ namespace vApus.Gui {
         public AboutDialog() {
             InitializeComponent();
 
-            lblLicense.Text = LicenseChecker.Status;
+            lblLicense.Text = LicenseChecker.StatusMessage;
+            LicenseChecker.LicenseCheckFinished += LicenseChecker_LicenseCheckFinished;
 
             lblDescription.Text = AssemblyDescription;
             txtCopyright.Text = AssemblyCopyright;
@@ -86,11 +85,15 @@ namespace vApus.Gui {
         }
 
         #region Functions
+        private void LicenseChecker_LicenseCheckFinished(object sender, LicenseChecker.LicenseCheckEventArgs e) {
+            lblLicense.Text = LicenseChecker.StatusMessage;
+        }
         private void btnActivateLicense_Click(object sender, EventArgs e) {
             if (ofd.ShowDialog() == DialogResult.OK) {
                 try {
-                    File.Copy(ofd.FileName, Path.Combine(Application.StartupPath, "license.license"), true);
-                    LicenseChecker.CheckLicense();
+                    if (Path.Combine(Application.StartupPath, "license.license") != ofd.FileName)
+                        File.Copy(ofd.FileName, Path.Combine(Application.StartupPath, "license.license"), true);
+                    LicenseChecker.ActivateLicense();
                 }
                 catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed to activate the license. The original file at '" + Application.StartupPath + "' is in use.", ex);

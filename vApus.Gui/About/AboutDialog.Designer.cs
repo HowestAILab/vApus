@@ -290,7 +290,8 @@
             // 
             // ofd
             // 
-            this.ofd.FileName = "License files|*.license";
+            this.ofd.Filter = "License files|*.license";
+            this.ofd.InitialDirectory = ".";
             // 
             // AboutDialog
             // 

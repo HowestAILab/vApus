@@ -49,6 +49,7 @@ namespace vApus.Gui {
 
         #region Constructor
         public Main(string[] args = null) {
+            LicenseChecker.LicenseCheckFinished += LicenseChecker_LicenseCheckFinished;
             _args = args;
             Init();
         }
@@ -72,6 +73,17 @@ namespace vApus.Gui {
 
         async private void SetGui() {
             try {
+                if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) {
+                    _aboutDialog.ShowInTaskbar = true;
+                    _aboutDialog.StartPosition = FormStartPosition.CenterScreen;
+
+                    _aboutDialog.ShowDialog();
+
+                    _aboutDialog.ShowInTaskbar = false;
+                    _aboutDialog.StartPosition = FormStartPosition.CenterParent;
+                    if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) Application.Exit();
+                }
+
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
                 Solution.ActiveSolutionChanged += Solution_ActiveSolutionChanged;
@@ -116,8 +128,25 @@ namespace vApus.Gui {
                 _firstStepsView.LinkClicked += _firstStepsView_LinkClicked;
 
                 SetStatusStrip();
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed initializing GUI.", ex);
+            }
+        }
+
+        private void LicenseChecker_LicenseCheckFinished(object sender, LicenseChecker.LicenseCheckEventArgs e) {
+            if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) {
+                if (!_aboutDialog.Visible) {
+                    if (!this.Visible) {
+                        _aboutDialog.ShowInTaskbar = true;
+                        _aboutDialog.StartPosition = FormStartPosition.CenterScreen;
+                    }
+                    _aboutDialog.ShowDialog();
+                    if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) Application.Exit();
+
+                    _aboutDialog.ShowInTaskbar = false;
+                    _aboutDialog.StartPosition = FormStartPosition.CenterParent;
+                }
             }
         }
         #endregion
@@ -137,7 +166,8 @@ namespace vApus.Gui {
 
                     _logErrorToolTip.Location = new Point(x, y);
                 }
-            } catch {
+            }
+            catch {
                 //Not important. Ignore.
             }
         }
@@ -182,7 +212,8 @@ namespace vApus.Gui {
                     launchedNewUpdater = process.Start();
                     if (launchedNewUpdater)
                         process.Exited += updateProcess_Exited;
-                } else {
+                }
+                else {
                     MessageBox.Show("vApus could not be updated because the update tool was not found!", string.Empty,
                                     MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
@@ -231,7 +262,8 @@ namespace vApus.Gui {
             try {
                 Settings.Default.LogLevel = (int)Loggers.GetLogger<FileLogger>().CurrentLevel;
                 Settings.Default.Save();
-            } catch {
+            }
+            catch {
                 //Dont't care.
             }
         }
@@ -240,7 +272,8 @@ namespace vApus.Gui {
             string path = Path.Combine(Application.StartupPath, "lupus-titanium", "lupus-titanium_gui.exe");
             if (File.Exists(path)) {
                 Process.Start(path);
-            } else {
+            }
+            else {
                 string ex = "Lupus-Titanium was not found!";
                 MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
@@ -252,7 +285,8 @@ namespace vApus.Gui {
             string path = Path.Combine(Application.StartupPath, "DetailedResultsViewer", "vApus.DetailedResultsViewer.exe");
             if (File.Exists(path)) {
                 Process.Start(path);
-            } else {
+            }
+            else {
                 string ex = "Detailed results viewer was not found!";
                 MessageBox.Show(ex, string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
                 Loggers.Log(Level.Error, ex, null, new object[] { sender, e });
@@ -277,16 +311,19 @@ namespace vApus.Gui {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         try {
                             Enabled = true;
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             Loggers.Log(Level.Error, "Failed enabeling the GUI.", ex, new object[] { sender, e });
                         }
                         try {
                             _msgHandler.PostMessage();
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             Loggers.Log(Level.Error, "Failed notifying update complete.", ex, new object[] { sender, e });
                         }
                     }, null);
-            } catch (Exception exc) {
+            }
+            catch (Exception exc) {
                 Loggers.Log(Level.Error, "Failed notifying update complete.", exc, new object[] { sender, e });
             }
         }
@@ -312,11 +349,13 @@ namespace vApus.Gui {
                             _optionsDialog.Close();
 
                         _firstStepsView.DisableFormClosingEventHandling();
-                    } else {
+                    }
+                    else {
                         _firstStepsView.CancelFormClosing(); //Let the parentform decide.
                     }
                 }
-            } catch {
+            }
+            catch {
                 //Don't care
             }
             base.WndProc(ref m);
@@ -332,7 +371,8 @@ namespace vApus.Gui {
         private void OnActiveSolutionChanged(ActiveSolutionChangedEventArgs e) {
             if (Solution.ActiveSolution == null) {
                 Text = "vApus";
-            } else {
+            }
+            else {
                 saveToolStripMenuItem.Enabled = true;
                 saveAsToolStripMenuItem.Enabled = true;
                 distributedToolStripMenuItem.Visible = true;
@@ -342,7 +382,8 @@ namespace vApus.Gui {
                 if (e.ToBeSaved) {
                     sb = new StringBuilder("*");
                     sb.Append(Solution.ActiveSolution.Name);
-                } else {
+                }
+                else {
                     sb = new StringBuilder(Solution.ActiveSolution.Name);
                 }
 
@@ -374,11 +415,13 @@ namespace vApus.Gui {
                     _firstStepsView.Close();
                     SolutionComponentViewManager.DisposeViews();
                     e.Cancel = false;
-                } else if (result == DialogResult.Cancel) {
+                }
+                else if (result == DialogResult.Cancel) {
                     e.Cancel = true;
                     return;
                 }
-            } else {
+            }
+            else {
                 tmrSetStatusStrip.Stop();
 
                 _firstStepsView.DisableFormClosingEventHandling();
@@ -396,7 +439,8 @@ namespace vApus.Gui {
             if (_firstStepsView != null)
                 try {
                     _firstStepsView.Close();
-                } catch { }
+                }
+                catch { }
         }
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e) {
@@ -443,7 +487,8 @@ namespace vApus.Gui {
             if (recentSolutions.Count > 0) {
                 clearToolStripMenuItem.Enabled = true;
                 openRecentToolStripMenuItem.DropDownItems.AddRange(recentSolutions.ToArray());
-            } else {
+            }
+            else {
                 clearToolStripMenuItem.Enabled = false;
                 var emptyItem = new ToolStripMenuItem("<empty>");
                 emptyItem.Enabled = false;
@@ -572,12 +617,14 @@ namespace vApus.Gui {
                                 _logErrorToolTip.Show(this, x, y);
                             }
 
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             Loggers.Log(Level.Error, "Failed displaying the error log tooltip.", ex, new object[] { sender, e });
                         }
                     }, null);
 
-            } catch (Exception exc) {
+            }
+            catch (Exception exc) {
                 Loggers.Log(Level.Error, "Failed displaying the error log tooltip.", exc, new object[] { sender, e });
             }
         }
@@ -587,7 +634,8 @@ namespace vApus.Gui {
                     reopenToolStripMenuItem.Enabled =
                         (Solution.ActiveSolution != null && Solution.ActiveSolution.FileName != null && !Solution.ActiveSolution.IsSaved);
                     SetStatusStrip();
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed setting the status strip.", ex, new object[] { sender, e });
                 }
         }
