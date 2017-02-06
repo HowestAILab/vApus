@@ -93,7 +93,7 @@ namespace vApus.Gui {
                 try {
                     if (Path.Combine(Application.StartupPath, "license.license") != ofd.FileName)
                         File.Copy(ofd.FileName, Path.Combine(Application.StartupPath, "license.license"), true);
-                    LicenseChecker.ActivateLicense();
+                    Application.Restart();
                 }
                 catch (Exception ex) {
                     Loggers.Log(Level.Error, "Failed to activate the license. The original file at '" + Application.StartupPath + "' is in use.", ex);
