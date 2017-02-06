@@ -206,7 +206,7 @@ namespace vApus.DistributedTest {
         /// <param name="socketWrapper"></param>
         /// <param name="message"></param>
         private static void Send(SocketWrapper socketWrapper, Message<Key> message) {
-            for (int i = 10; ; i+=10)
+            for (int i = 10; ; i += 10)
                 try {
                     socketWrapper.SendTimeout = 1000 * i;
                     socketWrapper.Send(message, SendType.Binary);
@@ -232,7 +232,7 @@ namespace vApus.DistributedTest {
         /// <param name="tempReceiveTimeout">A temporarly timeout for the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
         private static Message<Key> Receive(SocketWrapper socketWrapper) {
-            for (int i = 10; ; i+=10)
+            for (int i = 10; ; i += 10)
                 try {
                     socketWrapper.ReceiveTimeout = 1000 * i;
                     return (Message<Key>)socketWrapper.Receive(SendType.Binary);
@@ -300,7 +300,7 @@ namespace vApus.DistributedTest {
                 catch (Exception ex) {
                     string s = string.Format("{0}:{1}", slaveSocketWrapper.IP, slaveSocketWrapper.Port);
                     failedFor.Add(s);
-                    Loggers.Log(Level.Error, "Failed send and receive for " + s, ex,new object[] { key });
+                    Loggers.Log(Level.Error, "Failed send and receive for " + s, ex, new object[] { key });
                 }
                 dictionary.Add(slaveSocketWrapper, message);
             }
@@ -379,9 +379,21 @@ namespace vApus.DistributedTest {
                 }
             }
             catch (SocketException soe) {
+                Loggers.Log(Level.Info, "Slave listening error. If this happens during a test this is considered an error. Otherwise it works as intended.", soe);
                 InvokeListeningError(socketWrapper, soe);
             }
-            catch {
+            catch (Exception ex) {
+
+                dynamic buffer = socketWrapper.Buffer;
+                try {
+                    buffer = System.Text.Encoding.UTF8.GetString(socketWrapper.Buffer).Trim('\0');
+                }
+                catch {
+                    buffer = socketWrapper.Buffer.Combine(",");
+                }
+
+                Loggers.Log(Level.Info, "Slave communication error. If this happens during a test this is considered an error. Otherwise it works as intended.", ex, new object[] { socketWrapper.Buffer.Length, buffer });
+
                 if (socketWrapper != null && socketWrapper.Socket != null && socketWrapper.Connected)
                     BeginReceive(socketWrapper);
             }
@@ -757,7 +769,7 @@ namespace vApus.DistributedTest {
                 socketWrapper.ReceiveBufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
                 SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
                 synchronizeBuffersMessage.BufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
-                
+
                 SendAndReceive(socketWrapper, Key.SynchronizeBuffers, synchronizeBuffersMessage);
             }
 

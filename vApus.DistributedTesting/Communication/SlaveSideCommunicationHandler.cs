@@ -256,11 +256,14 @@ namespace vApus.DistributedTest {
         ///     Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
         /// </summary>
         public static void SendPushMessage(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
+                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
-                if (_sendQueue != null)
+                if (runStateChange != RunStateChange.None)
+                    Loggers.Log(Level.Info, "Queueing test progress message for " + tileStressTestIndex + ", run state change " + Enum.GetName(typeof(RunStateChange), runStateChange));
+                if (_sendQueue != null) {
                     _sendQueue.EnqueueWorkItem(_sendPushMessageDelegate, tileStressTestIndex, stressTestMetricsCache,
-                        stressTestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stressTestCore, events, concurrentUsersStateChange, runFinished, concurrencyFinished);
+                        stressTestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stressTestCore, events, runStateChange, runFinished, concurrencyFinished);
+                }
             }
         }
 
@@ -318,6 +321,12 @@ namespace vApus.DistributedTest {
                                 byte[] buffer = SynchronizeBuffers(message);
                                 _masterSocketWrapper.SendTimeout = 1000 * i;
                                 _masterSocketWrapper.SendBytes(buffer);
+
+                                if (runStateChange != RunStateChange.None)
+                                    Loggers.Log(Level.Info, "Sent test progress message for " + tpm.TileStressTestIndex + ", run state change " + Enum.GetName(typeof(RunStateChange), runStateChange));
+
+
+                                break;
                             }
                         }
                         catch {
@@ -336,6 +345,8 @@ namespace vApus.DistributedTest {
             byte[] buffer = _masterSocketWrapper.ObjectToByteArray(toSend);
             int bufferSize = buffer.Length;
             if (bufferSize > _masterSocketWrapper.SendBufferSize) {
+                Loggers.Log(Level.Info, "Synchronizing buffers from slave to server.");
+
                 _masterSocketWrapper.SendBufferSize = bufferSize;
                 _masterSocketWrapper.ReceiveBufferSize = _masterSocketWrapper.SendBufferSize;
                 var synchronizeBuffersMessage = new SynchronizeBuffersMessage();

@@ -45,7 +45,6 @@ namespace vApus.Communication.Shared {
     [Serializable]
     public struct SynchronizeBuffersMessage {
         public int BufferSize;
-        public string Exception;
     }
 
     [Serializable]
