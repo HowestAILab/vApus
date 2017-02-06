@@ -5,6 +5,7 @@
  * Author(s):
  *    Dieter Vandroemme
  */
+using IntelliLock.Licensing;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -67,6 +68,8 @@ namespace vApus.Gui {
         public AboutDialog() {
             InitializeComponent();
 
+            lblLicense.Text = LicenseChecker.Status;
+
             lblDescription.Text = AssemblyDescription;
             txtCopyright.Text = AssemblyCopyright;
 
@@ -83,6 +86,21 @@ namespace vApus.Gui {
         }
 
         #region Functions
+        private void btnActivateLicense_Click(object sender, EventArgs e) {
+            if (ofd.ShowDialog() == DialogResult.OK) {
+                try {
+                    File.Copy(ofd.FileName, Path.Combine(Application.StartupPath, "license.license"), true);
+                    LicenseChecker.CheckLicense();
+                }
+                catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed to activate the license. The original file at '" + Application.StartupPath + "' is in use.", ex);
+                }
+            }
+        }
+        private void btnRequestLicense_Click(object sender, EventArgs e) {
+            (new RequestLicense()).ShowDialog();
+        }
+
         private void ReadVersionIni() {
             string ini = Path.Combine(Application.StartupPath, "version.ini");
             string line = string.Empty;
@@ -111,22 +129,26 @@ namespace vApus.Gui {
                     if (historyFound) {
                         FillHistory(line);
                         break;
-                    } else if (channelFound) {
+                    }
+                    else if (channelFound) {
                         txtChannel.Text = "Channel: " + line;
                         channelFound = false;
-                    } else if (versionFound) {
+                    }
+                    else if (versionFound) {
                         txtVersion.Text = "Version: " + line;
                         versionFound = false;
                     }
                 }
                 try {
                     sr.Close();
-                } catch {
+                }
+                catch {
                     //Failed closing the stream reader. Ignore.
                 }
                 try {
                     sr.Dispose();
-                } catch {
+                }
+                catch {
                     //Failed disposing the stream reader. Ignore.
                 }
                 sr = null;
@@ -195,10 +217,12 @@ namespace vApus.Gui {
         private void lblWebsite_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             try {
                 Process.Start("http://www.sizingservers.be");
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed browsing sizingservers.be.", ex, new object[] { sender, e });
             }
         }
         #endregion
+
     }
 }

@@ -177,6 +177,9 @@
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\Prerequisites\FastColoredTextBox\FastColoredTextBox.dll</HintPath>
     </Reference>
+    <Reference Include="IntelliLock.Licensing">
+      <HintPath>..\Prerequisites\IntelliLock.Licensing.dll</HintPath>
+    </Reference>
     <Reference Include="Newtonsoft.Json, Version=8.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
       <HintPath>..\packages\Newtonsoft.Json.8.0.2\lib\net45\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
@@ -212,6 +215,13 @@
       <DependentUpon>AuthorGrid.cs</DependentUpon>
     </Compile>
     <Compile Include="About\HistoryPart.cs" />
+    <Compile Include="About\LicenseChecker.cs" />
+    <Compile Include="About\RequestLicense.cs">
+      <SubType>Form</SubType>
+    </Compile>
+    <Compile Include="About\RequestLicense.designer.cs">
+      <DependentUpon>RequestLicense.cs</DependentUpon>
+    </Compile>
     <Compile Include="FirstStepsView.cs">
       <SubType>Form</SubType>
     </Compile>
@@ -249,6 +259,9 @@
     <EmbeddedResource Include="About\AuthorGrid.resx">
       <DependentUpon>AuthorGrid.cs</DependentUpon>
       <SubType>Designer</SubType>
+    </EmbeddedResource>
+    <EmbeddedResource Include="About\RequestLicense.resx">
+      <DependentUpon>RequestLicense.cs</DependentUpon>
     </EmbeddedResource>
     <EmbeddedResource Include="FirstStepsView.resx">
       <DependentUpon>FirstStepsView.cs</DependentUpon>
