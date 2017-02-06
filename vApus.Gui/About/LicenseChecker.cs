@@ -33,26 +33,9 @@ namespace vApus.Gui {
         public static string StatusMessage { get; private set; }
 
         static LicenseChecker() {
-            EvaluationMonitor.LicenseCheckFinished += EvaluationMonitor_LicenseCheckFinished;
-            if (File.Exists(_licenseFile)) {
-                CheckCurrentLicense();
-            }
-            else {
-                Status = __Status.NotLicensed;
-                StatusMessage = "No license file found. vApus will not run without a valid license.";
-                if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
-            }
-        }
-        /// <summary>
-        /// Explicitely activate the license file, if any, located in the vApus dir.
-        /// </summary>
-        public static void ActivateLicense() {
             Status = __Status.CheckingLicense;
-            StatusMessage = "Checking license...";
-            if (File.Exists(_licenseFile)) {
-                EvaluationMonitor.LoadLicense(_licenseFile);
-            }
-            else {
+            EvaluationMonitor.LicenseCheckFinished += EvaluationMonitor_LicenseCheckFinished;
+            if (!File.Exists(_licenseFile)) {
                 Status = __Status.NotLicensed;
                 StatusMessage = "No license file found. vApus will not run without a valid license.";
                 if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
@@ -61,6 +44,8 @@ namespace vApus.Gui {
 
         private static void CheckCurrentLicense() {
             try {
+                Status = __Status.CheckingLicense;
+
                 if (EvaluationMonitor.CurrentLicense == null) {
                     Status = __Status.NotLicensed;
                     StatusMessage = "No license file found. vApus will not run without a valid license.";
