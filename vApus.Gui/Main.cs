@@ -141,9 +141,8 @@ namespace vApus.Gui {
 
                         _aboutDialog.ShowInTaskbar = false;
                         _aboutDialog.StartPosition = FormStartPosition.CenterParent;
-
-                        break;
                     }
+                    break;
                 }
                 catch {
                     if (i == 3) throw;
