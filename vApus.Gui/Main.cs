@@ -129,19 +129,24 @@ namespace vApus.Gui {
             HandleLicenseCheck();
         }
         private void HandleLicenseCheck() {
-            if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) {
-                if (!_aboutDialog.Visible) {
-                    if (!this.Visible) {
-                        _aboutDialog.ShowInTaskbar = true;
-                        _aboutDialog.StartPosition = FormStartPosition.CenterScreen;
-                    }
-                    _aboutDialog.ShowDialog();
-                    if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) Application.Exit();
+            if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed && !_aboutDialog.Visible)
+                for (int i = 1; ; i++) //Modal form managemant can be a bit buggy in winforms.
+                    try {
+                        if (!this.Visible) {
+                            _aboutDialog.ShowInTaskbar = true;
+                            _aboutDialog.StartPosition = FormStartPosition.CenterScreen;
+                        }
+                        _aboutDialog.ShowDialog();
+                        if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) Application.Exit();
 
-                    _aboutDialog.ShowInTaskbar = false;
-                    _aboutDialog.StartPosition = FormStartPosition.CenterParent;
-                }
-            }
+                        _aboutDialog.ShowInTaskbar = false;
+                        _aboutDialog.StartPosition = FormStartPosition.CenterParent;
+
+                        break;
+                    }
+                    catch {
+                        if (i == 3) throw;
+                    }
         }
         #endregion
 
