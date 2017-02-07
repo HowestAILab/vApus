@@ -10,7 +10,6 @@ using RandomUtils.Log;
 using System;
 using System.IO;
 using System.Net;
-using System.Net.NetworkInformation;
 using System.Windows.Forms;
 
 namespace vApus.Gui {

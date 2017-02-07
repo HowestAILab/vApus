@@ -1,10 +1,15 @@
-﻿using IntelliLock.Licensing;
+﻿/*
+ * Copyright 2017 (c) Sizing Servers Lab
+ * University College of West-Flanders, Department GKG
+ * 
+ * Author(s):
+ *    Dieter Vandroemme
+ */
 using RandomUtils.Log;
 using System;
 using System.Drawing;
 using System.Net;
 using System.Net.Mail;
-using System.Text;
 using System.Text.RegularExpressions;
 using System.Windows.Forms;
 using vApus.Util;
