@@ -9,6 +9,7 @@ using IntelliLock.Licensing;
 using RandomUtils.Log;
 using System;
 using System.IO;
+using System.Net;
 using System.Net.NetworkInformation;
 using System.Windows.Forms;
 
@@ -41,8 +42,14 @@ namespace vApus.Gui {
             StatusMessage = "Checking license...";
 
             try {
-                if ((new Ping()).Send("license.vapus.be").Status != IPStatus.Success)
-                    throw new Exception("Failed to ping the license server.");
+                var webrequest = HttpWebRequest.CreateHttp("http://license.vapus.be/ValidationService.asmx");
+                webrequest.Method = "GET";
+                webrequest.Accept = "text/html";
+                webrequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
+
+                var webresponse = webrequest.GetResponse() as HttpWebResponse;
+                if (webresponse.StatusCode != HttpStatusCode.OK)
+                    throw new Exception(Enum.GetName(typeof(HttpStatusCode), webresponse.StatusCode) + " " + webresponse.StatusDescription);
             }
             catch (Exception ex) {
                 Status = __Status.NotLicensed;
