@@ -9,6 +9,7 @@ using IntelliLock.Licensing;
 using RandomUtils.Log;
 using System;
 using System.IO;
+using System.Net.NetworkInformation;
 using System.Windows.Forms;
 
 namespace vApus.Gui {
@@ -64,6 +65,9 @@ namespace vApus.Gui {
                     //This can be an expired license. In that case vApus will run for 10 minutes.
                 }
                 else {
+                    //var p = new Ping();
+                    //p.Send(EvaluationMonitor.CurrentLicense.LicenseServer);
+
                     StatusMessage = "License status: ";
 
                     if (EvaluationMonitor.CurrentLicense.ExpirationDate_Enabled) {
@@ -74,6 +78,7 @@ namespace vApus.Gui {
                         if (EvaluationMonitor.CurrentLicense.ExpirationDate < DateTime.Now) {
                             Status = __Status.NotLicensed;
                             StatusMessage += "Expired. vApus will not run without a valid license.\n\n";
+                            StatusMessage += "License valid until " + EvaluationMonitor.CurrentLicense.ExpirationDate + "\n\n";
                         }
                         else {
                             if (EvaluationMonitor.CurrentLicense.LicenseStatus == LicenseStatus.Licensed) {
@@ -84,8 +89,8 @@ namespace vApus.Gui {
                                 Status = __Status.NotLicensed;
                                 StatusMessage += LicenseStatusses[(int)EvaluationMonitor.CurrentLicense.LicenseStatus] + ". vApus will not run without a valid license.\n\n";
                             }
+                            StatusMessage += "License valid until " + EvaluationMonitor.CurrentLicense.ExpirationDate + "\n\n";
                         }
-                        StatusMessage += "License valid until " + EvaluationMonitor.CurrentLicense.ExpirationDate + "\n\n";
                     }
                     else {
                         if (EvaluationMonitor.CurrentLicense.LicenseStatus == LicenseStatus.Licensed) {
@@ -110,6 +115,9 @@ namespace vApus.Gui {
                 StatusMessage = "Checking license failed! vApus will not run without a valid license.";
                 Loggers.Log(Level.Error, StatusMessage, ex);
             }
+
+            StatusMessage += "\n\n" + EvaluationMonitor.CurrentLicense.LicenseServer + "\n\n";
+
 
             if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
         }
