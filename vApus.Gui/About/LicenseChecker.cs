@@ -67,6 +67,10 @@ namespace vApus.Gui {
                     StatusMessage = "License status: ";
 
                     if (EvaluationMonitor.CurrentLicense.ExpirationDate_Enabled) {
+                        if (EvaluationMonitor.CurrentLicense.ExpirationDate.Year == 1970) {
+                            Status = __Status.NotLicensed;
+                            StatusMessage = "No license file found. vApus will not run without a valid license.";
+                        }
                         if (EvaluationMonitor.CurrentLicense.ExpirationDate < DateTime.Now) {
                             Status = __Status.NotLicensed;
                             StatusMessage += "Expired. vApus will not run without a valid license.\n\n";
