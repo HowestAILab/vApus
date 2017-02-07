@@ -40,6 +40,21 @@ namespace vApus.Gui {
             Status = __Status.CheckingLicense;
             StatusMessage = "Checking license...";
 
+            try {
+                if ((new Ping()).Send("license.vapus.be").Status != IPStatus.Success)
+                    throw new Exception("Failed to ping the license server.");
+            }
+            catch (Exception ex) {
+                Status = __Status.NotLicensed;
+                StatusMessage = "Checking license failed, because the license server did not reply! vApus will not run without a valid license.";
+                Loggers.Log(Level.Error, StatusMessage, ex);
+
+                if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
+
+                return;
+            }
+
+
             EvaluationMonitor.LicenseCheckFinished += EvaluationMonitor_LicenseCheckFinished;
             if (!File.Exists(_licenseFile)) {
                 Status = __Status.NotLicensed;
@@ -55,9 +70,6 @@ namespace vApus.Gui {
             try {
                 Status = __Status.CheckingLicense;
                 StatusMessage = "Checking license...";
-
-                if ((new Ping()).Send("license.vapus.be").Status != IPStatus.Success)
-                    throw new Exception("Failed to ping the license server.");
 
                 if (EvaluationMonitor.CurrentLicense == null) {
                     Status = __Status.NotLicensed;
@@ -115,7 +127,7 @@ namespace vApus.Gui {
                 StatusMessage = "Checking license failed! vApus will not run without a valid license.";
                 Loggers.Log(Level.Error, StatusMessage, ex);
             }
-            
+
             if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
         }
 
