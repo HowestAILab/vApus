@@ -1,4 +1,5 @@
 ﻿using IntelliLock.Licensing;
+using RandomUtils.Log;
 using System;
 using System.Drawing;
 using System.Net;
@@ -19,33 +20,41 @@ namespace vApus.Gui {
             ctxtPhoneNumber.Text = Properties.Settings.Default.PhoneNumber;
             ctxtEmailAddress.Text = Properties.Settings.Default.EmailAddress;
             ctxtComments.Text = Properties.Settings.Default.Comments;
-           
+
             ValidateForm();
         }
 
         private void btnSendRequest_Click(object sender, EventArgs e) {
-            string body = "First name: " + ctxtFirstName.Text +
-                "\nLast name: " + ctxtLastName.Text +
-                "\nCompany: " + ctxtCompany.Text +
-                "\nPhone number:" + ctxtPhoneNumber.Text +
-                "\nE-mail address: " + ctxtEmailAddress.Text +
-                "\nComments: " + ctxtComments.Text;
+            try {
+                string body = "First name: " + ctxtFirstName.Text +
+                    "\nLast name: " + ctxtLastName.Text +
+                    "\nCompany: " + ctxtCompany.Text +
+                    "\nPhone number:" + ctxtPhoneNumber.Text +
+                    "\nE-mail address: " + ctxtEmailAddress.Text +
+                    "\nComments: " + ctxtComments.Text;
 
-            var msg = new MailMessage(ctxtEmailAddress.Text, "info@sizingservers.be", "vApus License Request", body);
-            msg.SubjectEncoding = msg.BodyEncoding = System.Text.Encoding.UTF8;
-            msg.Priority = MailPriority.High;
-            msg.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
+                var msg = new MailMessage(ctxtEmailAddress.Text, "info@sizingservers.be", "vApus License Request", body);
+                msg.SubjectEncoding = msg.BodyEncoding = System.Text.Encoding.UTF8;
+                msg.Priority = MailPriority.High;
+                msg.DeliveryNotificationOptions = DeliveryNotificationOptions.OnFailure;
 
-            var client = new SmtpClient("smtp.gmail.com", 587);
-            client.EnableSsl = true;
-            client.Timeout = 10000;
-            client.DeliveryMethod = SmtpDeliveryMethod.Network;
+                var client = new SmtpClient("smtp.gmail.com", 587);
+                client.EnableSsl = true;
+                client.Timeout = 10000;
+                client.DeliveryMethod = SmtpDeliveryMethod.Network;
 
 
-            client.UseDefaultCredentials = false;
-            client.Credentials = new NetworkCredential("licenseactivator.sizingservers@gmail.com", "BunGk4kW!T%GplCDc1U2TUQK&y4mJ2nW&%0E*IsFR!Z%aHWWBOo1CSh*h1vA@2@R7qkNmWWZgTDO#OO60uBM4eixyVoavJ2u@hc!");
+                client.UseDefaultCredentials = false;
+                client.Credentials = new NetworkCredential("licenseactivator.sizingservers@gmail.com", "BunGk4kW!T%GplCDc1U2TUQK&y4mJ2nW&%0E*IsFR!Z%aHWWBOo1CSh*h1vA@2@R7qkNmWWZgTDO#OO60uBM4eixyVoavJ2u@hc!");
 
-            client.Send(msg);
+                client.Send(msg);
+
+                MessageBox.Show("Request sent", "", MessageBoxButtons.OK);
+            }
+            catch (Exception ex) {
+                Loggers.Log(Level.Error, "Failed sending request.", ex);
+                MessageBox.Show("Failed sending request. Please e-mail info@sizingservers.be directly.", "", MessageBoxButtons.OK, MessageBoxIcon.Error);
+            }
         }
 
         private bool CheckTextbox(CueTextBox ctxt, bool extraCheck = true) {
