@@ -56,6 +56,9 @@ namespace vApus.Gui {
                 Status = __Status.CheckingLicense;
                 StatusMessage = "Checking license...";
 
+                if ((new Ping()).Send("license.vapus.be").Status != IPStatus.Success)
+                    throw new Exception("Failed to ping the license server.");
+
                 if (EvaluationMonitor.CurrentLicense == null) {
                     Status = __Status.NotLicensed;
                     StatusMessage = "No license file found. vApus will not run without a valid license.";
@@ -65,9 +68,6 @@ namespace vApus.Gui {
                     //This can be an expired license. In that case vApus will run for 10 minutes.
                 }
                 else {
-                    //var p = new Ping();
-                    //p.Send(EvaluationMonitor.CurrentLicense.LicenseServer);
-
                     StatusMessage = "License status: ";
 
                     if (EvaluationMonitor.CurrentLicense.ExpirationDate_Enabled) {
@@ -75,7 +75,7 @@ namespace vApus.Gui {
                             Status = __Status.NotLicensed;
                             StatusMessage = "No license file found. vApus will not run without a valid license.";
                         }
-                        if (EvaluationMonitor.CurrentLicense.ExpirationDate < DateTime.Now) {
+                        else if (EvaluationMonitor.CurrentLicense.ExpirationDate < DateTime.Now) {
                             Status = __Status.NotLicensed;
                             StatusMessage += "Expired. vApus will not run without a valid license.\n\n";
                             StatusMessage += "License valid until " + EvaluationMonitor.CurrentLicense.ExpirationDate + "\n\n";
@@ -115,10 +115,7 @@ namespace vApus.Gui {
                 StatusMessage = "Checking license failed! vApus will not run without a valid license.";
                 Loggers.Log(Level.Error, StatusMessage, ex);
             }
-
-            StatusMessage += "\n\n" + EvaluationMonitor.CurrentLicense.LicenseServer + "\n\n";
-
-
+            
             if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
         }
 
