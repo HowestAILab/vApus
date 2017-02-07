@@ -73,16 +73,7 @@ namespace vApus.Gui {
 
         async private void SetGui() {
             try {
-                if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) {
-                    _aboutDialog.ShowInTaskbar = true;
-                    _aboutDialog.StartPosition = FormStartPosition.CenterScreen;
-
-                    _aboutDialog.ShowDialog();
-
-                    _aboutDialog.ShowInTaskbar = false;
-                    _aboutDialog.StartPosition = FormStartPosition.CenterParent;
-                    if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) Application.Exit();
-                }
+                HandleLicenseCheck();
 
                 SynchronizationContextWrapper.SynchronizationContext = SynchronizationContext.Current;
                 Solution.RegisterDockPanel(dockPanel);
@@ -135,6 +126,9 @@ namespace vApus.Gui {
         }
 
         private void LicenseChecker_LicenseCheckFinished(object sender, LicenseChecker.LicenseCheckEventArgs e) {
+            HandleLicenseCheck();
+        }
+        private void HandleLicenseCheck() {
             if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed) {
                 if (!_aboutDialog.Visible) {
                     if (!this.Visible) {
