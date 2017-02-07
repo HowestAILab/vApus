@@ -49,7 +49,7 @@ namespace vApus.Gui {
 
                 client.Send(msg);
 
-                MessageBox.Show("Request sent", "", MessageBoxButtons.OK);
+                MessageBox.Show("Request sent!", "", MessageBoxButtons.OK);
             }
             catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed sending request.", ex);
