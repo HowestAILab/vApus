@@ -46,6 +46,7 @@ namespace vApus.Gui {
                 webrequest.Method = "GET";
                 webrequest.Accept = "text/html";
                 webrequest.UserAgent = "Mozilla/5.0 (Windows NT 10.0; WOW64; Trident/7.0; rv:11.0) like Gecko";
+                webrequest.Timeout = webrequest.ReadWriteTimeout = 30000; //Should be enough.
 
                 var webresponse = webrequest.GetResponse() as HttpWebResponse;
                 if (webresponse.StatusCode != HttpStatusCode.OK)
