@@ -70,7 +70,8 @@ namespace vApus.DistributedTest {
                     case Key.StopTest:
                         return HandleStopTest(message);
                 }
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Communication error.", ex);
             }
             return message;
@@ -86,7 +87,8 @@ namespace vApus.DistributedTest {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                     try {
                         Solution.HideStressTestingSolutionExplorer();
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         Loggers.Log(Level.Warning, "Failed hiding solution explorer.", ex, new object[] { message });
                     }
                 }, null);
@@ -113,7 +115,8 @@ namespace vApus.DistributedTest {
                     SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                         try {
                             SolutionComponentViewManager.DisposeViews();
-                        } catch (Exception ex) {
+                        }
+                        catch (Exception ex) {
                             Loggers.Log(Level.Warning, "Failed disposing views.", ex, new object[] { message });
                         }
                     }, null);
@@ -125,10 +128,11 @@ namespace vApus.DistributedTest {
                             var address = IPAddress.Parse(pushIP);
                             var socket = new Socket(address.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
                             _masterSocketWrapper = new SocketWrapper(address, initializeTestMessage.PushPort, socket);
-                            _masterSocketWrapper.Connect(3000, 3);
+                            _masterSocketWrapper.Connect(30000, 3);
                             pushIPException = null;
                             break;
-                        } catch (Exception e) {
+                        }
+                        catch (Exception e) {
                             pushIPException = e;
                         }
                     }
@@ -156,13 +160,15 @@ namespace vApus.DistributedTest {
                             _tileStressTestView.RunSynchronization = stressTestWrapper.RunSynchronization;
                             _tileStressTestView.MaxRerunsBreakOnLast = stressTestWrapper.MaxRerunsBreakOnLast;
                             _tileStressTestView.ValueStore = stressTestWrapper.ValueStore;
-                        } catch {
+                        }
+                        catch {
                             if (++done != 4) {
                                 Thread.Sleep(1000);
 
                                 try {
                                     SolutionComponentViewManager.DisposeViews();
-                                } catch (Exception ex) {
+                                }
+                                catch (Exception ex) {
                                     Loggers.Log(Level.Warning, "Failed disposing views.", ex, new object[] { message });
                                 }
 
@@ -179,14 +185,16 @@ namespace vApus.DistributedTest {
                     _testInitializedWaitHandle.WaitOne();
 
                     if (_testInitializedException != null) throw _testInitializedException;
-                } catch (Exception ex) {
+                }
+                catch (Exception ex) {
                     initializeTestMessage.Exception = ex.ToString();
                     Loggers.Log(Level.Error, "Failed initializing test.", ex);
                 }
 
                 initializeTestMessage.StressTestWrapper = null;
                 message.Content = initializeTestMessage;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                     System.Windows.Forms.MessageBox.Show(ex.ToString());
                 }, null);
@@ -205,7 +213,8 @@ namespace vApus.DistributedTest {
             else try {
                     startMessage.TileStressTestIndex = _tileStressTestView.TileStressTestIndex;
                     _tileStressTestView.StartTest();
-                } catch (Exception ex) { startMessage.Exception = ex.ToString(); }
+                }
+                catch (Exception ex) { startMessage.Exception = ex.ToString(); }
 
             message.Content = startMessage;
             return message;
@@ -247,11 +256,14 @@ namespace vApus.DistributedTest {
         ///     Note: this does not take into account / know if the socket on the other end is ready (to receive) or not.
         /// </summary>
         public static void SendPushMessage(string tileStressTestIndex, FastStressTestMetricsCache stressTestMetricsCache, StressTestStatus stressTestStatus, DateTime startedAt, TimeSpan measuredRuntime,
-                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange concurrentUsersStateChange, bool runFinished, bool concurrencyFinished) {
+                                           TimeSpan estimatedRuntimeLeft, StressTestCore stressTestCore, EventPanelEvent[] events, RunStateChange runStateChange, bool runFinished, bool concurrencyFinished) {
             lock (_lock) {
-                if (_sendQueue != null)
+                if (runStateChange != RunStateChange.None)
+                    Loggers.Log(Level.Info, "Queueing test progress message for " + tileStressTestIndex + ", run state change " + Enum.GetName(typeof(RunStateChange), runStateChange));
+                if (_sendQueue != null) {
                     _sendQueue.EnqueueWorkItem(_sendPushMessageDelegate, tileStressTestIndex, stressTestMetricsCache,
-                        stressTestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stressTestCore, events, concurrentUsersStateChange, runFinished, concurrencyFinished);
+                        stressTestStatus, startedAt, measuredRuntime, estimatedRuntimeLeft, stressTestCore, events, runStateChange, runFinished, concurrencyFinished);
+                }
             }
         }
 
@@ -271,7 +283,8 @@ namespace vApus.DistributedTest {
                         tpm.NicSent = LocalMonitor.NicSent;
                         tpm.NicReceived = LocalMonitor.NicReceived;
                         tpm.NicBandwidth = LocalMonitor.NicBandwidth;
-                    } catch {
+                    }
+                    catch {
                     } //Exception on false WMI. 
 
 
@@ -286,28 +299,44 @@ namespace vApus.DistributedTest {
                     tpm.RunFinished = runFinished;
                     tpm.ConcurrencyFinished = concurrencyFinished;
 
-                    if (!_masterSocketWrapper.Connected) {
+                    bool reconnect = false;
+                    for (int i = 10; ; i += 10)
                         try {
-                            if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose();
-                        } catch {
-                            //Don't care.
+                            if (!_masterSocketWrapper.Connected || reconnect) {
+                                try {
+                                    if (_masterSocketWrapper.Socket != null) _masterSocketWrapper.Socket.Dispose();
+                                }
+                                catch {
+                                    //Don't care.
+                                }
+
+                                var socket = new Socket(_masterSocketWrapper.IP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
+                                _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
+
+                                _masterSocketWrapper.Connect(3000, 1);
+                            }
+
+                            if (_masterSocketWrapper.Connected) {
+                                var message = new Message<Key>(Key.Push, tpm);
+                                byte[] buffer = SynchronizeBuffers(message);
+                                _masterSocketWrapper.SendTimeout = 1000 * i;
+                                _masterSocketWrapper.SendBytes(buffer);
+
+                                if (runStateChange != RunStateChange.None)
+                                    Loggers.Log(Level.Info, "Sent test progress message for " + tpm.TileStressTestIndex + ", run state change " + Enum.GetName(typeof(RunStateChange), runStateChange));
+
+
+                                break;
+                            }
                         }
-
-                        var socket = new Socket(_masterSocketWrapper.IP.AddressFamily, SocketType.Stream, ProtocolType.Tcp);
-                        _masterSocketWrapper = new SocketWrapper(_masterSocketWrapper.IP, _masterSocketWrapper.Port, socket);
-
-                        try { _masterSocketWrapper.Connect(1000, 3); } catch {
-                            //Master could be not available. Ignore.
+                        catch {
+                            reconnect = true;
+                            if (i == 100) throw;
                         }
-                    }
-
-                    if (_masterSocketWrapper.Connected) {
-                        var message = new Message<Key>(Key.Push, tpm);
-                        byte[] buffer = SynchronizeBuffers(message);
-                        _masterSocketWrapper.SendBytes(buffer);
-                    }
-                } catch {
+                }
+                catch (Exception ex) {
                     //Master not available. Ignore.
+                    Loggers.Log(Level.Info, "Master became unavailable. If this happens during a test this is considered an error. Otherwise it works as intended.", ex);
                 }
         }
         #endregion
@@ -316,15 +345,14 @@ namespace vApus.DistributedTest {
             byte[] buffer = _masterSocketWrapper.ObjectToByteArray(toSend);
             int bufferSize = buffer.Length;
             if (bufferSize > _masterSocketWrapper.SendBufferSize) {
+                Loggers.Log(Level.Info, "Synchronizing buffers from slave to server.");
+
                 _masterSocketWrapper.SendBufferSize = bufferSize;
                 _masterSocketWrapper.ReceiveBufferSize = _masterSocketWrapper.SendBufferSize;
                 var synchronizeBuffersMessage = new SynchronizeBuffersMessage();
                 synchronizeBuffersMessage.BufferSize = _masterSocketWrapper.SendBufferSize;
 
-                var message = new Message<Key>();
-                message.Key = Key.SynchronizeBuffers;
-                message.Content = synchronizeBuffersMessage;
-                _masterSocketWrapper.Send(message, SendType.Binary);
+                _masterSocketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage), SendType.Binary);
             }
             return buffer;
         }

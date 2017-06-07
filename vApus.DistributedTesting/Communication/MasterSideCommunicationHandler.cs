@@ -63,15 +63,16 @@ namespace vApus.DistributedTest {
             processID = -1;
             exception = null;
             int retry = 1;
-            Retry:
+        Retry:
             try {
                 exception = null;
                 if (!slaveSocketWrapper.Connected) {
-                    slaveSocketWrapper.Connect(30000, 3);
+                    slaveSocketWrapper.SendTimeout = slaveSocketWrapper.ReceiveTimeout = 360000;
+                    slaveSocketWrapper.Connect(120000, 3);
                     if (slaveSocketWrapper.Connected) {
                         var masterSocketWrapper = GetMasterSocketWrapper(slaveSocketWrapper);
 
-                        Message<Key> message = SendAndReceive(slaveSocketWrapper, Key.Poll, null, 30000);
+                        Message<Key> message = SendAndReceive(slaveSocketWrapper, Key.Poll, null);
                         PollMessage pollMessage = (PollMessage)message.Content;
                         processID = pollMessage.ProcessID;
 
@@ -204,11 +205,16 @@ namespace vApus.DistributedTest {
         /// </summary>
         /// <param name="socketWrapper"></param>
         /// <param name="message"></param>
-        /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
-        private static void Send(SocketWrapper socketWrapper, Message<Key> message, int tempSendTimeout = -1) {
-            socketWrapper.SendTimeout = tempSendTimeout;
-            socketWrapper.Send(message, SendType.Binary);
-            socketWrapper.SendTimeout = -1;
+        private static void Send(SocketWrapper socketWrapper, Message<Key> message) {
+            for (int i = 10; ; i += 10)
+                try {
+                    socketWrapper.SendTimeout = 1000 * i;
+                    socketWrapper.Send(message, SendType.Binary);
+                    break;
+                }
+                catch {
+                    if (i == 100) throw;
+                }
         }
         /// <summary>
         /// </summary>
@@ -216,8 +222,8 @@ namespace vApus.DistributedTest {
         /// <param name="key"></param>
         /// <param name="content"></param>
         /// <param name="tempSendTimeout">A temporarly timeout for the send, it will be reset to -1 afterwards.</param>
-        private static void Send(SocketWrapper socketWrapper, Key key, object content, int tempSendTimeout = -1) {
-            Send(socketWrapper, new Message<Key>(key, content), tempSendTimeout);
+        private static void Send(SocketWrapper socketWrapper, Key key, object content) {
+            Send(socketWrapper, new Message<Key>(key, content));
         }
         /// <summary>
         /// 
@@ -225,11 +231,15 @@ namespace vApus.DistributedTest {
         /// <param name="socketWrapper"></param>
         /// <param name="tempReceiveTimeout">A temporarly timeout for the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Message<Key> Receive(SocketWrapper socketWrapper, int tempReceiveTimeout = -1) {
-            socketWrapper.ReceiveTimeout = tempReceiveTimeout;
-            var message = (Message<Key>)socketWrapper.Receive(SendType.Binary);
-            socketWrapper.ReceiveTimeout = -1;
-            return message;
+        private static Message<Key> Receive(SocketWrapper socketWrapper) {
+            for (int i = 10; ; i += 10)
+                try {
+                    socketWrapper.ReceiveTimeout = 1000 * i;
+                    return (Message<Key>)socketWrapper.Receive(SendType.Binary);
+                }
+                catch {
+                    if (i == 100) throw;
+                }
         }
 
         /// <summary>
@@ -240,10 +250,10 @@ namespace vApus.DistributedTest {
         /// <param name="content"></param>
         /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Key key, object content = null, int tempSendReceiveTimeout = -1) {
+        private static Message<Key> SendAndReceive(SocketWrapper socketWrapper, Key key, object content = null) {
             lock (_lock) {
-                Send(socketWrapper, key, content, tempSendReceiveTimeout);
-                return Receive(socketWrapper, tempSendReceiveTimeout);
+                Send(socketWrapper, key, content);
+                return Receive(socketWrapper);
             }
         }
         /// <summary>
@@ -256,13 +266,13 @@ namespace vApus.DistributedTest {
         /// <param name="exception"></param>
         /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Message<Key> SendAndReceive(string ip, int port, Key key, object content, out Exception exception, int tempSendReceiveTimeout = -1) {
+        private static Message<Key> SendAndReceive(string ip, int port, Key key, object content, out Exception exception) {
             exception = null;
             SocketWrapper socketWrapper = null;
             try {
                 socketWrapper = Get(ip, port, out exception);
                 if (exception == null)
-                    return SendAndReceive(socketWrapper, key, content, tempSendReceiveTimeout);
+                    return SendAndReceive(socketWrapper, key, content);
             }
             catch (Exception ex) {
                 DisconnectSlave(socketWrapper);
@@ -278,17 +288,19 @@ namespace vApus.DistributedTest {
         /// <param name="exception"></param>
         /// <param name="tempSendReceiveTimeout">A temporarly timeout for the send and the receive, it will be reset to -1 afterwards.</param>
         /// <returns></returns>
-        private static Dictionary<SocketWrapper, Message<Key>> SendAndReceive(Key key, object content, out Exception exception, int tempSendReceiveTimeout = -1) {
+        private static Dictionary<SocketWrapper, Message<Key>> SendAndReceive(Key key, object content, out Exception exception) {
             exception = null;
             List<string> failedFor = new List<string>();
             Dictionary<SocketWrapper, Message<Key>> dictionary = new Dictionary<SocketWrapper, Message<Key>>(_connectedSlaves.Count);
             foreach (SocketWrapper slaveSocketWrapper in _connectedSlaves.Keys) {
                 Message<Key> message = new Message<Key>();
                 try {
-                    message = SendAndReceive(slaveSocketWrapper, key, content, tempSendReceiveTimeout);
+                    message = SendAndReceive(slaveSocketWrapper, key, content);
                 }
-                catch {
-                    failedFor.Add(string.Format("{0}:{1}", slaveSocketWrapper.IP, slaveSocketWrapper.Port));
+                catch (Exception ex) {
+                    string s = string.Format("{0}:{1}", slaveSocketWrapper.IP, slaveSocketWrapper.Port);
+                    failedFor.Add(s);
+                    Loggers.Log(Level.Error, "Failed send and receive for " + s, ex, new object[] { key });
                 }
                 dictionary.Add(slaveSocketWrapper, message);
             }
@@ -367,9 +379,21 @@ namespace vApus.DistributedTest {
                 }
             }
             catch (SocketException soe) {
+                Loggers.Log(Level.Info, "Slave listening error. If this happens during a test this is considered an error. Otherwise it works as intended.", soe);
                 InvokeListeningError(socketWrapper, soe);
             }
-            catch {
+            catch (Exception ex) {
+
+                dynamic buffer = socketWrapper.Buffer;
+                try {
+                    buffer = System.Text.Encoding.UTF8.GetString(socketWrapper.Buffer).Trim('\0');
+                }
+                catch {
+                    buffer = socketWrapper.Buffer.Combine(",");
+                }
+
+                Loggers.Log(Level.Info, "Slave communication error. If this happens during a test this is considered an error. Otherwise it works as intended.", ex, new object[] { socketWrapper.Buffer.Length, buffer });
+
                 if (socketWrapper != null && socketWrapper.Socket != null && socketWrapper.Connected)
                     BeginReceive(socketWrapper);
             }
@@ -486,7 +510,7 @@ namespace vApus.DistributedTest {
             var initializeTestData = new InitializeTestWorkItem.InitializeTestData[dividedAndOriginalTileStressTests.Count];
             var functionOutputCache = new FunctionOutputCache();
 
-            int monitorBefore =0, monitorAfter = 0;
+            int monitorBefore = 0, monitorAfter = 0;
             foreach (var tileStressTest in dividedAndOriginalTileStressTests.Keys)
                 if (tileStressTest.BasicTileStressTest.Monitors.Length != 0) {
                     var atst = tileStressTest.AdvancedTileStressTest;
@@ -598,14 +622,14 @@ namespace vApus.DistributedTest {
         }
         public static void SendBreak() {
             Exception exception = null;
-            SendAndReceive(Key.Break, null, out exception, 30000);
+            SendAndReceive(Key.Break, null, out exception);
         }
         public static void SendContinue() {
             Exception exception = null;
             ContinueMessage continueMessage;
             continueMessage.ContinueCounter = ++_continueCounter;
 
-            SendAndReceive(Key.Continue, continueMessage, out exception, 30000);
+            SendAndReceive(Key.Continue, continueMessage, out exception);
         }
 
         public static void SendDividedContinue(Slave[] slaves) {
@@ -718,9 +742,7 @@ namespace vApus.DistributedTest {
             }
 
             /// <summary>
-            /// Increases the buffer size if needed, never decreases it. Use ResetBuffers for that.
-            /// 
-            /// This has a timout of 30 seconds.
+            /// Increases the buffer size if needed, never decreases it. Use ResetBuffers for that.            /// 
             /// </summary>
             /// <param name="socketWrapper"></param>
             /// <param name="toSend"></param>
@@ -733,21 +755,13 @@ namespace vApus.DistributedTest {
                     SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
                     synchronizeBuffersMessage.BufferSize = socketWrapper.SendBufferSize;
 
-                    //Sync the buffers with a temp receive timeout.
-                    int receiveTimeout = socketWrapper.ReceiveTimeout;
-                    int tempReceiveTimeout = 30000;
-                    socketWrapper.ReceiveTimeout = tempReceiveTimeout;
-                    socketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage), SendType.Binary);
-                    socketWrapper.Receive(SendType.Binary);
-                    socketWrapper.ReceiveTimeout = receiveTimeout;
+                    SendAndReceive(socketWrapper, Key.SynchronizeBuffers, synchronizeBuffersMessage);
                 }
                 return buffer;
             }
             /// <summary>
             /// Set the buffer size to the default buffer size (SocketWrapper.DEFAULTBUFFERSIZE).
             /// This will set the buffer size of the socket on the other end too.
-            ///
-            /// This has a timout of 30 seconds.
             /// </summary>
             /// <param name="socketWrapper"></param>
             private void ResetBuffers(SocketWrapper socketWrapper) {
@@ -756,14 +770,7 @@ namespace vApus.DistributedTest {
                 SynchronizeBuffersMessage synchronizeBuffersMessage = new SynchronizeBuffersMessage();
                 synchronizeBuffersMessage.BufferSize = SocketWrapper.DEFAULTBUFFERSIZE;
 
-
-                //Sync the buffers with a temp receive timeout.
-                int receiveTimeout = socketWrapper.ReceiveTimeout;
-                int tempReceiveTimeout = 30000;
-                socketWrapper.ReceiveTimeout = tempReceiveTimeout;
-                socketWrapper.Send(new Message<Key>(Key.SynchronizeBuffers, synchronizeBuffersMessage), SendType.Binary);
-                socketWrapper.Receive(SendType.Binary);
-                socketWrapper.ReceiveTimeout = receiveTimeout;
+                SendAndReceive(socketWrapper, Key.SynchronizeBuffers, synchronizeBuffersMessage);
             }
 
             public class InitializeTestData {

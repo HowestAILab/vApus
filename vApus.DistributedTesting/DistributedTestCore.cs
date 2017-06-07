@@ -12,9 +12,7 @@ using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Drawing;
-using System.Net;
 using System.Threading;
-using vApus.Results;
 using vApus.Communication.Shared;
 using vApus.StressTest;
 using vApus.Util;
@@ -315,6 +313,10 @@ namespace vApus.DistributedTest {
                     _hasResults = true;
 
                     TestProgressMessage tpm = e.TestProgressMessage;
+
+                    if (tpm.RunStateChange != RunStateChange.None)
+                        Loggers.Log(Level.Info, "Message received for " + tpm.TileStressTestIndex + ", run state change " + Enum.GetName(typeof(RunStateChange), tpm.RunStateChange));
+
                     TileStressTest originalTileStressTest = DivideEtImpera.GetOriginalTileStressTest(tpm.TileStressTestIndex, _usedTileStressTests);
                     RunStateChange combinedRunStateChanged = DivideEtImpera.PreProcessTestProgressMessage(_distributedTest.RunSynchronization, originalTileStressTest, tpm,
                         _testProgressMessages, _usedTileStressTests, _dividedRunInitializedOrDoneOnce);
