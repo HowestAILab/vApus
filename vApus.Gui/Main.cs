@@ -129,6 +129,8 @@ namespace vApus.Gui {
             HandleLicenseCheck();
         }
         private void HandleLicenseCheck() {
+            return; //Not used ATM.
+
             for (int i = 1; ; i++) //Modal form managemant can be a bit buggy in winforms.
                 try {
                     if (LicenseChecker.Status == LicenseChecker.__Status.NotLicensed && !_aboutDialog.Visible) {
