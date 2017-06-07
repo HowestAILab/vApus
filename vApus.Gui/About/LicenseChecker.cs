@@ -36,7 +36,16 @@ namespace vApus.Gui {
         public static __Status Status { get; private set; }
         public static string StatusMessage { get; private set; }
 
+        /// <summary>
+        /// Not used ATM.
+        /// </summary>
         static LicenseChecker() {
+            Status = __Status.Licensed;
+            StatusMessage = "Licensed";
+
+            if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
+
+            /*
             Status = __Status.CheckingLicense;
             StatusMessage = "Checking license...";
 
@@ -68,6 +77,7 @@ namespace vApus.Gui {
                 StatusMessage = "No license file found. vApus will not run without a valid license.";
                 if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
             }
+            */
         }
 
         /// <summary>

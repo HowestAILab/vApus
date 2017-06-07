@@ -68,7 +68,7 @@ namespace vApus.DistributedTest {
                 exception = null;
                 if (!slaveSocketWrapper.Connected) {
                     slaveSocketWrapper.SendTimeout = slaveSocketWrapper.ReceiveTimeout = 360000;
-                    slaveSocketWrapper.Connect(360000, 3);
+                    slaveSocketWrapper.Connect(120000, 3);
                     if (slaveSocketWrapper.Connected) {
                         var masterSocketWrapper = GetMasterSocketWrapper(slaveSocketWrapper);
 
