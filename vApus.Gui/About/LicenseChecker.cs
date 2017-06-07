@@ -84,6 +84,11 @@ namespace vApus.Gui {
         /// Check the current license, if any (license.license located in the vApus dir), and invoke LicenseCheckFinished.
         /// </summary>
         public static void CheckCurrentLicense() {
+            Status = __Status.Licensed;
+            StatusMessage = "Licensed";
+
+            if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
+            /*
             try {
                 Status = __Status.CheckingLicense;
                 StatusMessage = "Checking license...";
@@ -146,6 +151,7 @@ namespace vApus.Gui {
             }
 
             if (LicenseCheckFinished != null) LicenseCheckFinished(null, new LicenseCheckEventArgs(Status, StatusMessage));
+            */
         }
 
         private static void EvaluationMonitor_LicenseCheckFinished() {
