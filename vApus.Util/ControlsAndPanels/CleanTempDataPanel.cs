@@ -53,7 +53,8 @@ namespace vApus.Util {
         private void _tmr_Elapsed(object sender, ElapsedEventArgs e) {
             try {
                 SynchronizationContextWrapper.SynchronizationContext.Send(delegate { GetAndStoreAllSizes(); }, null);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Warning, "Failed getting temp files.", ex);
             }
         }
@@ -96,7 +97,8 @@ namespace vApus.Util {
 
             try {
                 sizeInMB = Directory.Exists(d2) ? DirSize(new DirectoryInfo(d2)) : 0;
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Warning, "Failed getting dir size.", ex);
             }
 
@@ -131,6 +133,7 @@ namespace vApus.Util {
         }
 
         private void Delete(string d) {
+            bool error = false;
             d = Path.Combine(Application.StartupPath, d);
             if (Directory.Exists(d))
                 try {
@@ -138,13 +141,16 @@ namespace vApus.Util {
                     foreach (string f in files)
                         try {
                             File.Delete(f);
-                        } catch (Exception ex) {
-                            Loggers.Log(Level.Error, "Failed deleting file.", ex);
+                        }
+                        catch {
+                            error = false;
                         }
                     Directory.Delete(d, true);
-                } catch (Exception ex) {
-                    Loggers.Log(Level.Error, "Failed deleting the temp dir.", ex);
                 }
+                catch {
+                }
+            if (error)
+                Loggers.Log(Level.Warning, "Failed to delete one or more files that are in use. Probably these are files generated for a stress test.");
         }
 
         private void btnDeleteAll_Click(object sender, EventArgs e) {

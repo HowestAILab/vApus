@@ -28,8 +28,8 @@ namespace vApus.StressTest {
     public class StressTest : LabeledBaseItem, ISerializable {
 
         #region Fields
-        private int _runs = 1, _initialMinimumDelay = 900, _initialMaximumDelay = 1100, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore, _monitorAfter;
-        private int[] _concurrencies = { 5, 5, 10, 25, 50, 100 };
+        private int _runs = 2, _initialMinimumDelay = 0, _initialMaximumDelay = 20000, _minimumDelay = 900, _maximumDelay = 1100, _monitorBefore = 1, _monitorAfter = 1;
+        private int[] _concurrencies = { 5, 5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100 };
         private bool _shuffle = true;
         private bool _actionDistribution;
         private int _maximumNumberOfUserActions;
@@ -69,7 +69,7 @@ namespace vApus.StressTest {
 
         private Parameters _parameters; //Kept here for a distributed test
 
-        private bool _simplifiedFastResults;
+        private bool _simplifiedFastResults = true;
         #endregion
 
         #region Properties
