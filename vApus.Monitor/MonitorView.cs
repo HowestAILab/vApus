@@ -1140,11 +1140,16 @@ namespace vApus.Monitor {
             tmr.Start();
         }
         private void btnSetDefaultWiw_Click(object sender, EventArgs e) {
-            _monitor.Wiw.GetSubs().Clear();
-            DefaultWIWs.Set(_monitor, _wdyh);
-            PushSavedWiW();
-            if (GroupChecked)
-                GroupChecked = true;
+            try {
+                _monitor.Wiw.GetSubs().Clear();
+                DefaultWIWs.Set(_monitor, _wdyh);
+                PushSavedWiW();
+                if (GroupChecked)
+                    GroupChecked = true;
+            }
+            catch {
+                //UI error can enable this button too soon. Clicking this when loading counters will result in a crash.
+            }
         }
 
         /// <summary>
