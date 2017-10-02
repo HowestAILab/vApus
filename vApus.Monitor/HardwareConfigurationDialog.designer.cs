@@ -35,9 +35,9 @@ namespace vApus.Monitor {
             | System.Windows.Forms.AnchorStyles.Right)));
             this.rtxt.BackColor = System.Drawing.Color.White;
             this.rtxt.BorderStyle = System.Windows.Forms.BorderStyle.None;
-            this.rtxt.Font = new System.Drawing.Font("Consolas", 10.15F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
+            this.rtxt.Font = new System.Drawing.Font("Consolas", 9F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.rtxt.Location = new System.Drawing.Point(0, 0);
-            this.rtxt.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.rtxt.Margin = new System.Windows.Forms.Padding(4);
             this.rtxt.Name = "rtxt";
             this.rtxt.ReadOnly = true;
             this.rtxt.Size = new System.Drawing.Size(789, 545);
@@ -52,7 +52,7 @@ namespace vApus.Monitor {
             this.btnSave.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSave.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnSave.Location = new System.Drawing.Point(0, 546);
-            this.btnSave.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.btnSave.Margin = new System.Windows.Forms.Padding(4);
             this.btnSave.Name = "btnSave";
             this.btnSave.Size = new System.Drawing.Size(789, 28);
             this.btnSave.TabIndex = 3;
@@ -74,7 +74,7 @@ namespace vApus.Monitor {
             this.ClientSize = new System.Drawing.Size(789, 574);
             this.Controls.Add(this.rtxt);
             this.Controls.Add(this.btnSave);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.Margin = new System.Windows.Forms.Padding(4);
             this.MinimizeBox = false;
             this.MinimumSize = new System.Drawing.Size(794, 605);
             this.Name = "HardwareConfigurationDialog";
