@@ -294,3 +294,18 @@ For Dstat first run the *Dstat_charts_delete_proc_and_system* macro followed by 
 For WMI you need to remove all network ups and downs except for one pair and run the *Wmi_charts_make* macro. Do not forget to fill in the total amount of RAM .
 
 If you manually selected process counters you have to run *WMI_process_charts_make* and fill in the number of (v)CPU cores.
+
+# Update vApus from within vApus
+Zorg dat je op het Sizing Servers netwerk zit (evt. via VPN).
+
+Open vApus. Click 'Tools' > 'Options...' > 'Update notifier'
+
+Fill in:
+* Host: update.vapus.be
+* Port: 22
+* Username: see Drive Vault
+* Password: see Drive Vault
+* Channel: ideally 'Stable'
+* Smart update slaves: only needed for distributed testing
+
+Click 'Set'.
