@@ -34,7 +34,6 @@ namespace vApus.DistributedTest {
             this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
             this.lblFastResults = new System.Windows.Forms.Label();
             this.lblUpdatesIn = new System.Windows.Forms.Label();
-            this.lbtnStressTests = new vApus.Util.LinkButton();
             this.flpFastMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
             this.pnlBorder = new System.Windows.Forms.Panel();
@@ -155,7 +154,6 @@ namespace vApus.DistributedTest {
             this.flpFastResultsHeader.AutoScroll = true;
             this.flpFastResultsHeader.Controls.Add(this.lblFastResults);
             this.flpFastResultsHeader.Controls.Add(this.lblUpdatesIn);
-            this.flpFastResultsHeader.Controls.Add(this.lbtnStressTests);
             this.flpFastResultsHeader.Location = new System.Drawing.Point(0, 0);
             this.flpFastResultsHeader.Margin = new System.Windows.Forms.Padding(0);
             this.flpFastResultsHeader.Name = "flpFastResultsHeader";
@@ -185,29 +183,6 @@ namespace vApus.DistributedTest {
             this.lblUpdatesIn.Name = "lblUpdatesIn";
             this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
             this.lblUpdatesIn.TabIndex = 9999;
-            // 
-            // lbtnStressTests
-            // 
-            this.lbtnStressTests.Active = true;
-            this.lbtnStressTests.ActiveLinkColor = System.Drawing.Color.Black;
-            this.lbtnStressTests.AutoSize = true;
-            this.lbtnStressTests.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbtnStressTests.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.lbtnStressTests.ForeColor = System.Drawing.Color.Black;
-            this.lbtnStressTests.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.lbtnStressTests.LinkColor = System.Drawing.Color.Black;
-            this.lbtnStressTests.Location = new System.Drawing.Point(111, 9);
-            this.lbtnStressTests.Margin = new System.Windows.Forms.Padding(5, 6, 0, 3);
-            this.lbtnStressTests.Name = "lbtnStressTests";
-            this.lbtnStressTests.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.lbtnStressTests.RadioButtonBehavior = true;
-            this.lbtnStressTests.Size = new System.Drawing.Size(105, 22);
-            this.lbtnStressTests.TabIndex = 0;
-            this.lbtnStressTests.TabStop = true;
-            this.lbtnStressTests.Text = "The stress tests";
-            this.lbtnStressTests.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnStressTests.Visible = false;
-            this.lbtnStressTests.VisitedLinkColor = System.Drawing.Color.Black;
             // 
             // flpFastMetrics
             // 
@@ -563,6 +538,5 @@ namespace vApus.DistributedTest {
         private System.Windows.Forms.FlowLayoutPanel flpFastResultsHeader;
         private System.Windows.Forms.Label lblFastResults;
         private System.Windows.Forms.Label lblUpdatesIn;
-        private Util.LinkButton lbtnStressTests;
     }
 }

@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using vApus.Util;
 
 namespace vApus.Results {
+#warning OBSOLETE
     /// <summary>
     /// Gets metrics from results or cache. Those are added to the cache if not already present.
     /// </summary>
