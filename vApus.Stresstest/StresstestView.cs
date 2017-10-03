@@ -51,9 +51,12 @@ namespace vApus.StressTest {
         private StressTestResult _stressTestResult;
         private StressTestStatus _stressTestStatus; //Set on calling Stop(...);
 
+        private MonitorMetricsCache _monitorMetricsCache;
         private readonly List<MonitorView> _monitorViews = new List<MonitorView>();
         private Countdown _monitorBeforeCountDown, _monitorAfterCountDown;
         private int _monitorsInitialized;
+        private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
+        private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
         #endregion
 
         #region Properties
@@ -138,6 +141,16 @@ namespace vApus.StressTest {
         }
 
         #endregion
+
+        /// <summary>
+        /// Get all monitor result caches for al the running monitors.
+        /// </summary>
+        /// <returns></returns>
+        private List<MonitorResult> GetMonitorResultCaches() {
+            var l = new List<MonitorResult>();
+            if (_monitorViews != null) foreach (var view in _monitorViews) l.Add(view.GetMonitorResultCache());
+            return l;
+        }
 
         #region Start
         /// <summary>
@@ -234,6 +247,7 @@ namespace vApus.StressTest {
 
             _stressTestResult = null;
             _stressTestMetricsCache = new FastStressTestMetricsCache();
+            _monitorMetricsCache = new MonitorMetricsCache();
 
             fastResultsControl.SetConfigurationControls(_stressTest);
 
@@ -517,7 +531,23 @@ namespace vApus.StressTest {
                     int countdownTime = _stressTest.MonitorBefore * 60000;
                     _monitorBeforeCountDown = new Countdown();
                     _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
-                    _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;       
+                    _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
+
+                    _monitorBeforeBogusConcurrencyResult = new ConcurrencyResult(-1, -1, 1);
+                    _monitorBeforeBogusRunResult = new RunResult(-1, -1, 0);
+                    _monitorBeforeBogusConcurrencyResult.RunResults.Add(_monitorBeforeBogusRunResult);
+
+                    _monitorAfterBogusConcurrencyResult = null;
+                    _monitorAfterBogusRunResult = null;
+
+                    try {
+                        foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                            fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache));
+                            fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusRunResult, monitorResultCache));
+                        }
+                    }
+                    catch {
+                    }
 
                     fastResultsControl.ExpandEventPanel();
                     AddEvent("Monitoring before the test starts: " + (_stressTest.MonitorBefore * 60) + " s.");
@@ -536,6 +566,12 @@ namespace vApus.StressTest {
         }
         private void monitorBeforeCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                if (_monitorBeforeBogusConcurrencyResult != null)
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+
                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
                 AddEvent("Monitoring before the test starts: " + ts.ToShortFormattedString(true, "0 s") + ".");
@@ -557,6 +593,21 @@ namespace vApus.StressTest {
                 _monitorBeforeCountDown.Dispose();
                 _monitorBeforeCountDown = null;
             }
+            SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                if (_monitorBeforeBogusConcurrencyResult != null) {
+                    var stoppedAt = DateTime.Now;
+                    TimeSpan difference = stoppedAt - _monitorBeforeBogusConcurrencyResult.StartedAt;
+                    _monitorBeforeBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+
+                    difference = stoppedAt - _monitorBeforeBogusRunResult.StartedAt;
+                    _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+                }
+            }, null);
 
             MonitorBeforeDone();
 
@@ -586,6 +637,8 @@ namespace vApus.StressTest {
 
             //Update the metrics.
             fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.AddOrUpdate(e.Result, _stressTest.SimplifiedFastResults), true);
+            foreach (var monitorResultCache in GetMonitorResultCaches())
+                fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
 
             PublishConcurrencyStarted(e.Result.ConcurrencyId, e.Result.Concurrency, e.Result.StartedAt);
             PublishFastResultsAndClientMonitoring(TestEventType.ConcurrencyStarted);
@@ -602,7 +655,10 @@ namespace vApus.StressTest {
 
             fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.AddOrUpdate(e.Result, _stressTest.SimplifiedFastResults), true);
             fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults), false);
-           
+            foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(e.Result, monitorResultCache));
+                fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+            }
             PublishRunInitializedFirstTime(e.Result.ConcurrencyId, e.Result.Run);
             PublishFastResultsAndClientMonitoring(TestEventType.RunInitializedFirstTime);
 
@@ -646,6 +702,10 @@ namespace vApus.StressTest {
                 if (_canUpdateMetrics) {
                     fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults), true);
                     fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.GetRunMetrics(_stressTest.SimplifiedFastResults), false);
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
                 }
                 _progressCountDown = PROGRESSUPDATEDELAY;
 
@@ -754,6 +814,20 @@ namespace vApus.StressTest {
                     _monitorAfterCountDown.Tick += monitorAfterCountdown_Tick;
                     _monitorAfterCountDown.Stopped += monitorAfterCountdown_Stopped;
 
+                    _monitorAfterBogusConcurrencyResult = new ConcurrencyResult(-1, -1, 1);
+                    _monitorAfterBogusRunResult = new RunResult(-1, -1, 0);
+                    _monitorAfterBogusConcurrencyResult.RunResults.Add(_monitorAfterBogusRunResult);
+
+                    try {
+                        foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                            fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorAfterBogusConcurrencyResult, monitorResultCache));
+                            fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.AddOrUpdate(_monitorAfterBogusRunResult, monitorResultCache));
+                        }
+                    }
+                    catch {
+                        Loggers.Log(Level.Error, "Failed updating fast monitor results.", ex, new object[] { stressTestStatus, ex, monitorAfter });
+                    }
+
                     fastResultsControl.ExpandEventPanel();
                     AddEvent("Monitoring after the test is finished: " + (_stressTest.MonitorAfter * 60) + " s.");
 
@@ -769,6 +843,12 @@ namespace vApus.StressTest {
         }
         private void monitorAfterCountdown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                if (_monitorAfterBogusConcurrencyResult != null)
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+
                 var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
                 AddEvent("Monitoring after the test is finished: " + ts.ToShortFormattedString(true, "0 s") + ".");
 
@@ -790,6 +870,20 @@ namespace vApus.StressTest {
                 StopMonitorsAndUnlockGui(null, false);
 
                 this.Focus();
+
+                if (_monitorAfterBogusConcurrencyResult != null) {
+                    var stoppedAt = DateTime.Now;
+                    var difference = stoppedAt - _monitorAfterBogusConcurrencyResult.StartedAt;
+                    _monitorAfterBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
+
+                    difference = stoppedAt - _monitorAfterBogusRunResult.StartedAt;
+                    _monitorAfterBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
+
+                    foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+                }
             }, null);
             PublishMonitorAfterTestDone();
         }
@@ -815,6 +909,10 @@ namespace vApus.StressTest {
 
                 fastResultsControl.UpdateFastConcurrencyResults(_stressTestMetricsCache.GetConcurrencyMetrics(_stressTest.SimplifiedFastResults), true);
                 fastResultsControl.UpdateFastRunResults(_stressTestMetricsCache.GetRunMetrics(_stressTest.SimplifiedFastResults), false);
+                foreach (var monitorResultCache in GetMonitorResultCaches()) {
+                    fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, _monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                    fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, _monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                }
 
                 // Can only be cancelled once, calling multiple times is not a problem.
                 if (_stressTestCore != null && !_stressTestCore.IsDisposed)

@@ -60,6 +60,7 @@
             this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.lblUpdatesIn = new System.Windows.Forms.Label();
+            this.lbtnStressTest = new vApus.Util.LinkButton();
             this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.flpFastMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
@@ -105,7 +106,6 @@
             this.splitContainer.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitContainer.FixedPanel = System.Windows.Forms.FixedPanel.Panel2;
             this.splitContainer.Location = new System.Drawing.Point(0, 0);
-            this.splitContainer.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.splitContainer.Name = "splitContainer";
             this.splitContainer.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -118,9 +118,8 @@
             this.splitContainer.Panel2.Controls.Add(this.epnlMessages);
             this.splitContainer.Panel2.Controls.Add(this.flpMetrics);
             this.splitContainer.Panel2MinSize = 63;
-            this.splitContainer.Size = new System.Drawing.Size(1196, 786);
-            this.splitContainer.SplitterDistance = 594;
-            this.splitContainer.SplitterWidth = 5;
+            this.splitContainer.Size = new System.Drawing.Size(897, 639);
+            this.splitContainer.SplitterDistance = 448;
             this.splitContainer.TabIndex = 2;
             // 
             // splitTop
@@ -129,7 +128,6 @@
             this.splitTop.Dock = System.Windows.Forms.DockStyle.Fill;
             this.splitTop.FixedPanel = System.Windows.Forms.FixedPanel.Panel1;
             this.splitTop.Location = new System.Drawing.Point(0, 0);
-            this.splitTop.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.splitTop.Name = "splitTop";
             this.splitTop.Orientation = System.Windows.Forms.Orientation.Horizontal;
             // 
@@ -144,9 +142,8 @@
             // 
             this.splitTop.Panel2.BackColor = System.Drawing.Color.White;
             this.splitTop.Panel2.Controls.Add(this.pnlFastResults);
-            this.splitTop.Size = new System.Drawing.Size(1196, 594);
+            this.splitTop.Size = new System.Drawing.Size(897, 448);
             this.splitTop.SplitterDistance = 85;
-            this.splitTop.SplitterWidth = 5;
             this.splitTop.TabIndex = 1;
             this.splitTop.Text = "[Put title here]";
             // 
@@ -155,10 +152,9 @@
             this.pnlBorderCollapse.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Top | System.Windows.Forms.AnchorStyles.Right)));
             this.pnlBorderCollapse.BackColor = System.Drawing.Color.Silver;
             this.pnlBorderCollapse.Controls.Add(this.btnCollapseExpand);
-            this.pnlBorderCollapse.Location = new System.Drawing.Point(1163, 7);
-            this.pnlBorderCollapse.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pnlBorderCollapse.Location = new System.Drawing.Point(872, 6);
             this.pnlBorderCollapse.Name = "pnlBorderCollapse";
-            this.pnlBorderCollapse.Size = new System.Drawing.Size(29, 28);
+            this.pnlBorderCollapse.Size = new System.Drawing.Size(22, 23);
             this.pnlBorderCollapse.TabIndex = 2;
             // 
             // btnCollapseExpand
@@ -168,9 +164,9 @@
             this.btnCollapseExpand.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnCollapseExpand.Font = new System.Drawing.Font("Microsoft Sans Serif", 9F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.btnCollapseExpand.Location = new System.Drawing.Point(1, 1);
-            this.btnCollapseExpand.Margin = new System.Windows.Forms.Padding(0, 0, 4, 0);
+            this.btnCollapseExpand.Margin = new System.Windows.Forms.Padding(0, 0, 3, 0);
             this.btnCollapseExpand.Name = "btnCollapseExpand";
-            this.btnCollapseExpand.Size = new System.Drawing.Size(27, 26);
+            this.btnCollapseExpand.Size = new System.Drawing.Size(20, 21);
             this.btnCollapseExpand.TabIndex = 18;
             this.btnCollapseExpand.TabStop = false;
             this.btnCollapseExpand.Text = "-";
@@ -204,9 +200,8 @@
             this.flpConfiguration.Controls.Add(this.kvpMonitorAfter);
             this.flpConfiguration.Controls.Add(this.kvpParallelExecutions);
             this.flpConfiguration.Location = new System.Drawing.Point(0, 0);
-            this.flpConfiguration.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.flpConfiguration.Name = "flpConfiguration";
-            this.flpConfiguration.Size = new System.Drawing.Size(1155, 85);
+            this.flpConfiguration.Size = new System.Drawing.Size(866, 85);
             this.flpConfiguration.TabIndex = 0;
             // 
             // pnlScrollConfigTo
@@ -222,10 +217,10 @@
             this.lblConfiguration.AutoSize = true;
             this.lblConfiguration.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblConfiguration.ForeColor = System.Drawing.Color.Black;
-            this.lblConfiguration.Location = new System.Drawing.Point(4, 7);
-            this.lblConfiguration.Margin = new System.Windows.Forms.Padding(4, 7, 8, 4);
+            this.lblConfiguration.Location = new System.Drawing.Point(3, 6);
+            this.lblConfiguration.Margin = new System.Windows.Forms.Padding(3, 6, 6, 3);
             this.lblConfiguration.Name = "lblConfiguration";
-            this.lblConfiguration.Size = new System.Drawing.Size(128, 25);
+            this.lblConfiguration.Size = new System.Drawing.Size(104, 20);
             this.lblConfiguration.TabIndex = 16;
             this.lblConfiguration.Text = "Configuration";
             // 
@@ -233,10 +228,10 @@
             // 
             this.kvpStressTest.BackColor = System.Drawing.Color.LightBlue;
             this.kvpStressTest.Key = "Stress test";
-            this.kvpStressTest.Location = new System.Drawing.Point(144, 7);
-            this.kvpStressTest.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpStressTest.Location = new System.Drawing.Point(116, 6);
+            this.kvpStressTest.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpStressTest.Name = "kvpStressTest";
-            this.kvpStressTest.Size = new System.Drawing.Size(124, 30);
+            this.kvpStressTest.Size = new System.Drawing.Size(73, 24);
             this.kvpStressTest.TabIndex = 14;
             this.kvpStressTest.TabStop = false;
             this.kvpStressTest.Tooltip = "";
@@ -246,10 +241,10 @@
             // 
             this.kvpConnection.BackColor = System.Drawing.Color.LightBlue;
             this.kvpConnection.Key = "Connection";
-            this.kvpConnection.Location = new System.Drawing.Point(272, 7);
-            this.kvpConnection.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpConnection.Location = new System.Drawing.Point(192, 6);
+            this.kvpConnection.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpConnection.Name = "kvpConnection";
-            this.kvpConnection.Size = new System.Drawing.Size(128, 30);
+            this.kvpConnection.Size = new System.Drawing.Size(77, 24);
             this.kvpConnection.TabIndex = 8;
             this.kvpConnection.TabStop = false;
             this.kvpConnection.Tooltip = "The connection to the application to test.";
@@ -259,10 +254,10 @@
             // 
             this.kvpConnectionProxy.BackColor = System.Drawing.SystemColors.Control;
             this.kvpConnectionProxy.Key = "Connection proxy";
-            this.kvpConnectionProxy.Location = new System.Drawing.Point(404, 7);
-            this.kvpConnectionProxy.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpConnectionProxy.Location = new System.Drawing.Point(272, 6);
+            this.kvpConnectionProxy.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpConnectionProxy.Name = "kvpConnectionProxy";
-            this.kvpConnectionProxy.Size = new System.Drawing.Size(187, 30);
+            this.kvpConnectionProxy.Size = new System.Drawing.Size(111, 24);
             this.kvpConnectionProxy.TabIndex = 15;
             this.kvpConnectionProxy.TabStop = false;
             this.kvpConnectionProxy.Tooltip = "This is used in and defines the connection.";
@@ -272,10 +267,10 @@
             // 
             this.kvpScenario.BackColor = System.Drawing.Color.LightBlue;
             this.kvpScenario.Key = "Scenario(s)";
-            this.kvpScenario.Location = new System.Drawing.Point(595, 7);
-            this.kvpScenario.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpScenario.Location = new System.Drawing.Point(386, 6);
+            this.kvpScenario.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpScenario.Name = "kvpScenario";
-            this.kvpScenario.Size = new System.Drawing.Size(132, 30);
+            this.kvpScenario.Size = new System.Drawing.Size(77, 24);
             this.kvpScenario.TabIndex = 8;
             this.kvpScenario.TabStop = false;
             this.kvpScenario.Tooltip = "The scenario(s) used to test the application.";
@@ -285,10 +280,10 @@
             // 
             this.kvpScenarioRuleSet.BackColor = System.Drawing.SystemColors.Control;
             this.kvpScenarioRuleSet.Key = "Scenario rule set";
-            this.kvpScenarioRuleSet.Location = new System.Drawing.Point(731, 7);
-            this.kvpScenarioRuleSet.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpScenarioRuleSet.Location = new System.Drawing.Point(466, 6);
+            this.kvpScenarioRuleSet.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpScenarioRuleSet.Name = "kvpScenarioRuleSet";
-            this.kvpScenarioRuleSet.Size = new System.Drawing.Size(185, 30);
+            this.kvpScenarioRuleSet.Size = new System.Drawing.Size(109, 24);
             this.kvpScenarioRuleSet.TabIndex = 17;
             this.kvpScenarioRuleSet.TabStop = false;
             this.kvpScenarioRuleSet.Tooltip = "This is used in and defines the requests.";
@@ -298,10 +293,10 @@
             // 
             this.kvpMonitor.BackColor = System.Drawing.Color.LightBlue;
             this.kvpMonitor.Key = "Monitor(s)";
-            this.kvpMonitor.Location = new System.Drawing.Point(920, 7);
-            this.kvpMonitor.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpMonitor.Location = new System.Drawing.Point(578, 6);
+            this.kvpMonitor.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitor.Name = "kvpMonitor";
-            this.kvpMonitor.Size = new System.Drawing.Size(119, 30);
+            this.kvpMonitor.Size = new System.Drawing.Size(69, 24);
             this.kvpMonitor.TabIndex = 22;
             this.kvpMonitor.TabStop = false;
             this.kvpMonitor.Tooltip = "The monitors used to link stress test results to performance counters.";
@@ -311,10 +306,10 @@
             // 
             this.kvpConcurrencies.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpConcurrencies.Key = "Concurrencies";
-            this.kvpConcurrencies.Location = new System.Drawing.Point(16, 48);
-            this.kvpConcurrencies.Margin = new System.Windows.Forms.Padding(16, 7, 0, 4);
+            this.kvpConcurrencies.Location = new System.Drawing.Point(659, 6);
+            this.kvpConcurrencies.Margin = new System.Windows.Forms.Padding(12, 6, 0, 3);
             this.kvpConcurrencies.Name = "kvpConcurrencies";
-            this.kvpConcurrencies.Size = new System.Drawing.Size(159, 30);
+            this.kvpConcurrencies.Size = new System.Drawing.Size(94, 24);
             this.kvpConcurrencies.TabIndex = 8;
             this.kvpConcurrencies.TabStop = false;
             this.kvpConcurrencies.Tooltip = "The count(s) of the concurrent users generated, the minimum given value equals on" +
@@ -325,10 +320,10 @@
             // 
             this.kvpRuns.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpRuns.Key = "Runs";
-            this.kvpRuns.Location = new System.Drawing.Point(179, 48);
-            this.kvpRuns.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpRuns.Location = new System.Drawing.Point(756, 6);
+            this.kvpRuns.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpRuns.Name = "kvpRuns";
-            this.kvpRuns.Size = new System.Drawing.Size(69, 30);
+            this.kvpRuns.Size = new System.Drawing.Size(42, 24);
             this.kvpRuns.TabIndex = 8;
             this.kvpRuns.TabStop = false;
             this.kvpRuns.Tooltip = "A static multiplier of the runtime for each concurrency level. Must be greater th" +
@@ -339,10 +334,10 @@
             // 
             this.kvpInitialDelay.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpInitialDelay.Key = "Initial delay";
-            this.kvpInitialDelay.Location = new System.Drawing.Point(252, 48);
-            this.kvpInitialDelay.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpInitialDelay.Location = new System.Drawing.Point(3, 39);
+            this.kvpInitialDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpInitialDelay.Name = "kvpInitialDelay";
-            this.kvpInitialDelay.Size = new System.Drawing.Size(101, 30);
+            this.kvpInitialDelay.Size = new System.Drawing.Size(76, 24);
             this.kvpInitialDelay.TabIndex = 9;
             this.kvpInitialDelay.TabStop = false;
             this.kvpInitialDelay.Tooltip = "The minimum delay in milliseconds before the execution of the first requests per " +
@@ -354,10 +349,10 @@
             // 
             this.kvpDelay.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpDelay.Key = "Delay";
-            this.kvpDelay.Location = new System.Drawing.Point(357, 48);
-            this.kvpDelay.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpDelay.Location = new System.Drawing.Point(82, 39);
+            this.kvpDelay.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpDelay.Name = "kvpDelay";
-            this.kvpDelay.Size = new System.Drawing.Size(75, 30);
+            this.kvpDelay.Size = new System.Drawing.Size(45, 24);
             this.kvpDelay.TabIndex = 10;
             this.kvpDelay.TabStop = false;
             this.kvpDelay.Tooltip = "The delay in milliseconds between the execution of requests per user.\r\nKeep this " +
@@ -368,10 +363,10 @@
             // 
             this.kvpShuffle.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpShuffle.Key = "Shuffle";
-            this.kvpShuffle.Location = new System.Drawing.Point(436, 48);
-            this.kvpShuffle.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpShuffle.Location = new System.Drawing.Point(130, 39);
+            this.kvpShuffle.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpShuffle.Name = "kvpShuffle";
-            this.kvpShuffle.Size = new System.Drawing.Size(88, 30);
+            this.kvpShuffle.Size = new System.Drawing.Size(53, 24);
             this.kvpShuffle.TabIndex = 11;
             this.kvpShuffle.TabStop = false;
             this.kvpShuffle.Tooltip = "The user actions will be shuffled for each concurrent user when testing.";
@@ -381,10 +376,10 @@
             // 
             this.kvpActionDistribution.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpActionDistribution.Key = "Action distribution";
-            this.kvpActionDistribution.Location = new System.Drawing.Point(528, 48);
-            this.kvpActionDistribution.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpActionDistribution.Location = new System.Drawing.Point(186, 39);
+            this.kvpActionDistribution.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpActionDistribution.Name = "kvpActionDistribution";
-            this.kvpActionDistribution.Size = new System.Drawing.Size(195, 30);
+            this.kvpActionDistribution.Size = new System.Drawing.Size(115, 24);
             this.kvpActionDistribution.TabIndex = 12;
             this.kvpActionDistribution.TabStop = false;
             this.kvpActionDistribution.Tooltip = "\"When this is used, user actions are executed X times its occurance. You can use " +
@@ -396,10 +391,10 @@
             // 
             this.kvpMaximumNumberOfUserActions.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMaximumNumberOfUserActions.Key = "Maximum number of user actions";
-            this.kvpMaximumNumberOfUserActions.Location = new System.Drawing.Point(727, 48);
-            this.kvpMaximumNumberOfUserActions.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpMaximumNumberOfUserActions.Location = new System.Drawing.Point(304, 39);
+            this.kvpMaximumNumberOfUserActions.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMaximumNumberOfUserActions.Name = "kvpMaximumNumberOfUserActions";
-            this.kvpMaximumNumberOfUserActions.Size = new System.Drawing.Size(336, 30);
+            this.kvpMaximumNumberOfUserActions.Size = new System.Drawing.Size(197, 24);
             this.kvpMaximumNumberOfUserActions.TabIndex = 13;
             this.kvpMaximumNumberOfUserActions.TabStop = false;
             this.kvpMaximumNumberOfUserActions.Tooltip = "The maximum number of user actions that a test pattern for a user can contain. Pi" +
@@ -410,10 +405,10 @@
             // 
             this.kvpMonitorBefore.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorBefore.Key = "Monitor before";
-            this.kvpMonitorBefore.Location = new System.Drawing.Point(4, 89);
-            this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpMonitorBefore.Location = new System.Drawing.Point(504, 39);
+            this.kvpMonitorBefore.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorBefore.Name = "kvpMonitorBefore";
-            this.kvpMonitorBefore.Size = new System.Drawing.Size(161, 30);
+            this.kvpMonitorBefore.Size = new System.Drawing.Size(95, 24);
             this.kvpMonitorBefore.TabIndex = 19;
             this.kvpMonitorBefore.TabStop = false;
             this.kvpMonitorBefore.Tooltip = "Start monitoring before the test starts, expressed in minutes with a max of 60.";
@@ -423,10 +418,10 @@
             // 
             this.kvpMonitorAfter.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpMonitorAfter.Key = "Monitor after";
-            this.kvpMonitorAfter.Location = new System.Drawing.Point(169, 89);
-            this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpMonitorAfter.Location = new System.Drawing.Point(602, 39);
+            this.kvpMonitorAfter.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpMonitorAfter.Name = "kvpMonitorAfter";
-            this.kvpMonitorAfter.Size = new System.Drawing.Size(144, 30);
+            this.kvpMonitorAfter.Size = new System.Drawing.Size(85, 24);
             this.kvpMonitorAfter.TabIndex = 20;
             this.kvpMonitorAfter.TabStop = false;
             this.kvpMonitorAfter.Tooltip = "Continue monitoring after the test is finished, expressed in minutes with a max o" +
@@ -437,10 +432,10 @@
             // 
             this.kvpParallelExecutions.BackColor = System.Drawing.Color.GhostWhite;
             this.kvpParallelExecutions.Key = "Parallel executions";
-            this.kvpParallelExecutions.Location = new System.Drawing.Point(317, 89);
-            this.kvpParallelExecutions.Margin = new System.Windows.Forms.Padding(4, 7, 0, 4);
+            this.kvpParallelExecutions.Location = new System.Drawing.Point(690, 39);
+            this.kvpParallelExecutions.Margin = new System.Windows.Forms.Padding(3, 6, 0, 3);
             this.kvpParallelExecutions.Name = "kvpParallelExecutions";
-            this.kvpParallelExecutions.Size = new System.Drawing.Size(203, 30);
+            this.kvpParallelExecutions.Size = new System.Drawing.Size(120, 24);
             this.kvpParallelExecutions.TabIndex = 21;
             this.kvpParallelExecutions.TabStop = false;
             this.kvpParallelExecutions.Tooltip = "Parallel executions of requests.";
@@ -456,9 +451,8 @@
             this.pnlFastResults.Controls.Add(this.dgvFastResults);
             this.pnlFastResults.Controls.Add(this.flpFastMetrics);
             this.pnlFastResults.Location = new System.Drawing.Point(0, 0);
-            this.pnlFastResults.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.pnlFastResults.Name = "pnlFastResults";
-            this.pnlFastResults.Size = new System.Drawing.Size(1196, 504);
+            this.pnlFastResults.Size = new System.Drawing.Size(897, 359);
             this.pnlFastResults.TabIndex = 1;
             this.pnlFastResults.Text = "Fast results";
             // 
@@ -469,11 +463,12 @@
             this.flpFastResultsHeader.AutoScroll = true;
             this.flpFastResultsHeader.Controls.Add(this.label4);
             this.flpFastResultsHeader.Controls.Add(this.lblUpdatesIn);
+            this.flpFastResultsHeader.Controls.Add(this.lbtnStressTest);
             this.flpFastResultsHeader.Location = new System.Drawing.Point(0, 0);
             this.flpFastResultsHeader.Margin = new System.Windows.Forms.Padding(0);
             this.flpFastResultsHeader.Name = "flpFastResultsHeader";
-            this.flpFastResultsHeader.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
-            this.flpFastResultsHeader.Size = new System.Drawing.Size(1196, 49);
+            this.flpFastResultsHeader.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.flpFastResultsHeader.Size = new System.Drawing.Size(897, 40);
             this.flpFastResultsHeader.TabIndex = 0;
             // 
             // label4
@@ -481,10 +476,10 @@
             this.label4.AutoSize = true;
             this.label4.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label4.ForeColor = System.Drawing.Color.Black;
-            this.label4.Location = new System.Drawing.Point(4, 11);
-            this.label4.Margin = new System.Windows.Forms.Padding(4, 7, 7, 4);
+            this.label4.Location = new System.Drawing.Point(3, 9);
+            this.label4.Margin = new System.Windows.Forms.Padding(3, 6, 5, 3);
             this.label4.Name = "label4";
-            this.label4.Size = new System.Drawing.Size(112, 25);
+            this.label4.Size = new System.Drawing.Size(92, 20);
             this.label4.TabIndex = 17;
             this.label4.Text = "Fast results";
             // 
@@ -493,11 +488,35 @@
             this.lblUpdatesIn.AutoSize = true;
             this.lblUpdatesIn.Font = new System.Drawing.Font("Consolas", 11.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.lblUpdatesIn.ImageAlign = System.Drawing.ContentAlignment.MiddleRight;
-            this.lblUpdatesIn.Location = new System.Drawing.Point(123, 13);
-            this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 9, 8, 4);
+            this.lblUpdatesIn.Location = new System.Drawing.Point(100, 10);
+            this.lblUpdatesIn.Margin = new System.Windows.Forms.Padding(0, 7, 6, 3);
             this.lblUpdatesIn.Name = "lblUpdatesIn";
-            this.lblUpdatesIn.Size = new System.Drawing.Size(0, 22);
+            this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
             this.lblUpdatesIn.TabIndex = 9999;
+            // 
+            // lbtnStressTest
+            // 
+            this.lbtnStressTest.Active = true;
+            this.lbtnStressTest.ActiveLinkColor = System.Drawing.Color.Black;
+            this.lbtnStressTest.AutoSize = true;
+            this.lbtnStressTest.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
+            this.lbtnStressTest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
+            this.lbtnStressTest.ForeColor = System.Drawing.Color.Black;
+            this.lbtnStressTest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
+            this.lbtnStressTest.LinkColor = System.Drawing.Color.Black;
+            this.lbtnStressTest.Location = new System.Drawing.Point(111, 9);
+            this.lbtnStressTest.Margin = new System.Windows.Forms.Padding(5, 6, 0, 3);
+            this.lbtnStressTest.Name = "lbtnStressTest";
+            this.lbtnStressTest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
+            this.lbtnStressTest.RadioButtonBehavior = true;
+            this.lbtnStressTest.Size = new System.Drawing.Size(99, 22);
+            this.lbtnStressTest.TabIndex = 0;
+            this.lbtnStressTest.TabStop = true;
+            this.lbtnStressTest.Text = "The stress test";
+            this.lbtnStressTest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
+            this.lbtnStressTest.Visible = false;
+            this.lbtnStressTest.VisitedLinkColor = System.Drawing.Color.Black;
+            this.lbtnStressTest.ActiveChanged += new System.EventHandler(this.lbtnStressTest_ActiveChanged);
             // 
             // dgvFastResults
             // 
@@ -524,8 +543,7 @@
             this.dgvFastResults.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dgvFastResults.EnableHeadersVisualStyles = false;
             this.dgvFastResults.Font = new System.Drawing.Font("Consolas", 9.75F);
-            this.dgvFastResults.Location = new System.Drawing.Point(0, 124);
-            this.dgvFastResults.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.dgvFastResults.Location = new System.Drawing.Point(0, 101);
             this.dgvFastResults.Name = "dgvFastResults";
             this.dgvFastResults.ReadOnly = true;
             this.dgvFastResults.RowHeadersBorderStyle = System.Windows.Forms.DataGridViewHeaderBorderStyle.None;
@@ -540,7 +558,7 @@
             this.dgvFastResults.RowHeadersWidthSizeMode = System.Windows.Forms.DataGridViewRowHeadersWidthSizeMode.DisableResizing;
             dataGridViewCellStyle4.BackColor = System.Drawing.Color.FromArgb(((int)(((byte)(250)))), ((int)(((byte)(250)))), ((int)(((byte)(250)))));
             this.dgvFastResults.RowsDefaultCellStyle = dataGridViewCellStyle4;
-            this.dgvFastResults.Size = new System.Drawing.Size(1196, 380);
+            this.dgvFastResults.Size = new System.Drawing.Size(897, 258);
             this.dgvFastResults.TabIndex = 2;
             this.dgvFastResults.VirtualMode = true;
             this.dgvFastResults.CellValueNeeded += new System.Windows.Forms.DataGridViewCellValueEventHandler(this.dgvFastResults_CellValueNeeded);
@@ -558,20 +576,19 @@
             this.flpFastMetrics.Controls.Add(this.lblStopped);
             this.flpFastMetrics.Controls.Add(this.chkReadable);
             this.flpFastMetrics.Controls.Add(this.btnSaveDisplayedResults);
-            this.flpFastMetrics.Location = new System.Drawing.Point(-1, 49);
-            this.flpFastMetrics.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.flpFastMetrics.Location = new System.Drawing.Point(-1, 40);
             this.flpFastMetrics.Name = "flpFastMetrics";
-            this.flpFastMetrics.Size = new System.Drawing.Size(1199, 74);
+            this.flpFastMetrics.Size = new System.Drawing.Size(899, 60);
             this.flpFastMetrics.TabIndex = 1;
             // 
             // label1
             // 
             this.label1.AutoSize = true;
             this.label1.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.label1.Location = new System.Drawing.Point(7, 7);
-            this.label1.Margin = new System.Windows.Forms.Padding(7, 7, 0, 0);
+            this.label1.Location = new System.Drawing.Point(5, 6);
+            this.label1.Margin = new System.Windows.Forms.Padding(5, 6, 0, 0);
             this.label1.Name = "label1";
-            this.label1.Size = new System.Drawing.Size(103, 20);
+            this.label1.Size = new System.Drawing.Size(80, 16);
             this.label1.TabIndex = 1;
             this.label1.Text = "Drill down to";
             // 
@@ -579,10 +596,9 @@
             // 
             this.pnlBorderDrillDown.BackColor = System.Drawing.Color.Silver;
             this.pnlBorderDrillDown.Controls.Add(this.cboDrillDown);
-            this.pnlBorderDrillDown.Location = new System.Drawing.Point(114, 4);
-            this.pnlBorderDrillDown.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
+            this.pnlBorderDrillDown.Location = new System.Drawing.Point(88, 3);
             this.pnlBorderDrillDown.Name = "pnlBorderDrillDown";
-            this.pnlBorderDrillDown.Size = new System.Drawing.Size(169, 28);
+            this.pnlBorderDrillDown.Size = new System.Drawing.Size(127, 23);
             this.pnlBorderDrillDown.TabIndex = 0;
             // 
             // cboDrillDown
@@ -596,9 +612,9 @@
             "Concurrencies",
             "Runs"});
             this.cboDrillDown.Location = new System.Drawing.Point(1, 1);
-            this.cboDrillDown.Margin = new System.Windows.Forms.Padding(4, 5, 4, 4);
+            this.cboDrillDown.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboDrillDown.Name = "cboDrillDown";
-            this.cboDrillDown.Size = new System.Drawing.Size(165, 25);
+            this.cboDrillDown.Size = new System.Drawing.Size(125, 21);
             this.cboDrillDown.TabIndex = 0;
             this.cboDrillDown.SelectedIndexChanged += new System.EventHandler(this.cboDrillDown_SelectedIndexChanged);
             // 
@@ -606,20 +622,20 @@
             // 
             this.lblStarted.AutoSize = true;
             this.lblStarted.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStarted.Location = new System.Drawing.Point(287, 7);
-            this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 7, 0, 0);
+            this.lblStarted.Location = new System.Drawing.Point(218, 6);
+            this.lblStarted.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblStarted.Name = "lblStarted";
-            this.lblStarted.Size = new System.Drawing.Size(0, 20);
+            this.lblStarted.Size = new System.Drawing.Size(0, 16);
             this.lblStarted.TabIndex = 0;
             // 
             // lblMeasuredRuntime
             // 
             this.lblMeasuredRuntime.AutoSize = true;
             this.lblMeasuredRuntime.Font = new System.Drawing.Font("Microsoft Sans Serif", 9.75F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblMeasuredRuntime.Location = new System.Drawing.Point(287, 7);
-            this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 7, 0, 0);
+            this.lblMeasuredRuntime.Location = new System.Drawing.Point(218, 6);
+            this.lblMeasuredRuntime.Margin = new System.Windows.Forms.Padding(0, 6, 0, 0);
             this.lblMeasuredRuntime.Name = "lblMeasuredRuntime";
-            this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 20);
+            this.lblMeasuredRuntime.Size = new System.Drawing.Size(0, 16);
             this.lblMeasuredRuntime.TabIndex = 0;
             // 
             // btnRerunning
@@ -630,12 +646,11 @@
             this.btnRerunning.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRerunning.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
             this.btnRerunning.ForeColor = System.Drawing.Color.White;
-            this.btnRerunning.Location = new System.Drawing.Point(291, 4);
-            this.btnRerunning.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.btnRerunning.MaximumSize = new System.Drawing.Size(119, 30);
-            this.btnRerunning.MinimumSize = new System.Drawing.Size(119, 30);
+            this.btnRerunning.Location = new System.Drawing.Point(221, 3);
+            this.btnRerunning.MaximumSize = new System.Drawing.Size(89, 24);
+            this.btnRerunning.MinimumSize = new System.Drawing.Size(89, 24);
             this.btnRerunning.Name = "btnRerunning";
-            this.btnRerunning.Size = new System.Drawing.Size(119, 30);
+            this.btnRerunning.Size = new System.Drawing.Size(89, 24);
             this.btnRerunning.TabIndex = 2;
             this.btnRerunning.Text = "Rerunning...";
             this.btnRerunning.UseVisualStyleBackColor = false;
@@ -647,10 +662,10 @@
             this.lblStopped.AutoSize = true;
             this.lblStopped.BackColor = System.Drawing.SystemColors.Control;
             this.lblStopped.Font = new System.Drawing.Font("Consolas", 12.75F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.lblStopped.Location = new System.Drawing.Point(422, 4);
-            this.lblStopped.Margin = new System.Windows.Forms.Padding(8, 4, 8, 0);
+            this.lblStopped.Location = new System.Drawing.Point(319, 3);
+            this.lblStopped.Margin = new System.Windows.Forms.Padding(6, 3, 6, 0);
             this.lblStopped.Name = "lblStopped";
-            this.lblStopped.Size = new System.Drawing.Size(0, 26);
+            this.lblStopped.Size = new System.Drawing.Size(0, 20);
             this.lblStopped.TabIndex = 0;
             // 
             // chkReadable
@@ -659,10 +674,10 @@
             this.chkReadable.Checked = true;
             this.chkReadable.CheckState = System.Windows.Forms.CheckState.Checked;
             this.chkReadable.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
-            this.chkReadable.Location = new System.Drawing.Point(434, 9);
-            this.chkReadable.Margin = new System.Windows.Forms.Padding(4, 9, 0, 4);
+            this.chkReadable.Location = new System.Drawing.Point(328, 7);
+            this.chkReadable.Margin = new System.Windows.Forms.Padding(3, 7, 0, 3);
             this.chkReadable.Name = "chkReadable";
-            this.chkReadable.Size = new System.Drawing.Size(87, 21);
+            this.chkReadable.Size = new System.Drawing.Size(69, 17);
             this.chkReadable.TabIndex = 3;
             this.chkReadable.Text = "Readable";
             this.toolTip.SetToolTip(this.chkReadable, "Uncheck this if you want results you can calculate with.");
@@ -678,11 +693,10 @@
             this.btnSaveDisplayedResults.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnSaveDisplayedResults.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnSaveDisplayedResults.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(525, 4);
-            this.btnSaveDisplayedResults.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
-            this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(220, 30);
+            this.btnSaveDisplayedResults.Location = new System.Drawing.Point(400, 3);
+            this.btnSaveDisplayedResults.MaximumSize = new System.Drawing.Size(165, 24);
             this.btnSaveDisplayedResults.Name = "btnSaveDisplayedResults";
-            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(199, 29);
+            this.btnSaveDisplayedResults.Size = new System.Drawing.Size(158, 24);
             this.btnSaveDisplayedResults.TabIndex = 4;
             this.btnSaveDisplayedResults.Text = "Save displayed results...";
             this.btnSaveDisplayedResults.UseVisualStyleBackColor = false;
@@ -698,11 +712,11 @@
             this.epnlMessages.Collapsed = false;
             this.epnlMessages.Cursor = System.Windows.Forms.Cursors.Default;
             this.epnlMessages.ExpandOnErrorEvent = true;
-            this.epnlMessages.Location = new System.Drawing.Point(0, 75);
+            this.epnlMessages.Location = new System.Drawing.Point(0, 61);
             this.epnlMessages.Margin = new System.Windows.Forms.Padding(0);
             this.epnlMessages.Name = "epnlMessages";
             this.epnlMessages.ProgressBarColor = System.Drawing.Color.SteelBlue;
-            this.epnlMessages.Size = new System.Drawing.Size(1196, 112);
+            this.epnlMessages.Size = new System.Drawing.Size(897, 126);
             this.epnlMessages.TabIndex = 3;
             this.epnlMessages.CollapsedChanged += new System.EventHandler(this.epnlMessages_CollapsedChanged);
             // 
@@ -723,8 +737,8 @@
             this.flpMetrics.Location = new System.Drawing.Point(0, 0);
             this.flpMetrics.Margin = new System.Windows.Forms.Padding(0);
             this.flpMetrics.Name = "flpMetrics";
-            this.flpMetrics.Padding = new System.Windows.Forms.Padding(0, 4, 0, 0);
-            this.flpMetrics.Size = new System.Drawing.Size(1196, 75);
+            this.flpMetrics.Padding = new System.Windows.Forms.Padding(0, 3, 0, 0);
+            this.flpMetrics.Size = new System.Drawing.Size(897, 61);
             this.flpMetrics.TabIndex = 2;
             // 
             // label2
@@ -732,10 +746,10 @@
             this.label2.AutoSize = true;
             this.label2.Font = new System.Drawing.Font("Microsoft Sans Serif", 12F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.label2.ForeColor = System.Drawing.Color.Black;
-            this.label2.Location = new System.Drawing.Point(4, 8);
-            this.label2.Margin = new System.Windows.Forms.Padding(4, 4, 8, 4);
+            this.label2.Location = new System.Drawing.Point(3, 6);
+            this.label2.Margin = new System.Windows.Forms.Padding(3, 3, 6, 3);
             this.label2.Name = "label2";
-            this.label2.Size = new System.Drawing.Size(157, 25);
+            this.label2.Size = new System.Drawing.Size(127, 20);
             this.label2.TabIndex = 9;
             this.label2.Text = "Client monitoring";
             // 
@@ -743,10 +757,10 @@
             // 
             this.kvmCPUUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmCPUUsage.Key = "CPU";
-            this.kvmCPUUsage.Location = new System.Drawing.Point(173, 11);
-            this.kvmCPUUsage.Margin = new System.Windows.Forms.Padding(4, 7, 0, 0);
+            this.kvmCPUUsage.Location = new System.Drawing.Point(139, 9);
+            this.kvmCPUUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmCPUUsage.Name = "kvmCPUUsage";
-            this.kvmCPUUsage.Size = new System.Drawing.Size(103, 25);
+            this.kvmCPUUsage.Size = new System.Drawing.Size(65, 16);
             this.kvmCPUUsage.TabIndex = 8;
             this.kvmCPUUsage.TabStop = false;
             this.kvmCPUUsage.Tooltip = "Try to keep this below 60 % to ensure that the client is not the bottleneck.";
@@ -756,10 +770,10 @@
             // 
             this.kvmMemoryUsage.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmMemoryUsage.Key = "Memory";
-            this.kvmMemoryUsage.Location = new System.Drawing.Point(280, 11);
-            this.kvmMemoryUsage.Margin = new System.Windows.Forms.Padding(4, 7, 0, 0);
+            this.kvmMemoryUsage.Location = new System.Drawing.Point(207, 9);
+            this.kvmMemoryUsage.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmMemoryUsage.Name = "kvmMemoryUsage";
-            this.kvmMemoryUsage.Size = new System.Drawing.Size(136, 25);
+            this.kvmMemoryUsage.Size = new System.Drawing.Size(83, 16);
             this.kvmMemoryUsage.TabIndex = 8;
             this.kvmMemoryUsage.TabStop = false;
             this.kvmMemoryUsage.Tooltip = "Make sure you have sufficient memory to ensure that the client is not the bottlen" +
@@ -770,10 +784,10 @@
             // 
             this.kvmThreadsInUse.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmThreadsInUse.Key = "Threads";
-            this.kvmThreadsInUse.Location = new System.Drawing.Point(420, 11);
-            this.kvmThreadsInUse.Margin = new System.Windows.Forms.Padding(4, 7, 0, 0);
+            this.kvmThreadsInUse.Location = new System.Drawing.Point(293, 9);
+            this.kvmThreadsInUse.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmThreadsInUse.Name = "kvmThreadsInUse";
-            this.kvmThreadsInUse.Size = new System.Drawing.Size(121, 25);
+            this.kvmThreadsInUse.Size = new System.Drawing.Size(72, 16);
             this.kvmThreadsInUse.TabIndex = 8;
             this.kvmThreadsInUse.TabStop = false;
             this.kvmThreadsInUse.Tooltip = "The number of threads in use should remain equal to the concurrent users just unt" +
@@ -784,10 +798,10 @@
             // 
             this.kvmNic.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmNic.Key = "NIC";
-            this.kvmNic.Location = new System.Drawing.Point(545, 11);
-            this.kvmNic.Margin = new System.Windows.Forms.Padding(4, 7, 0, 0);
+            this.kvmNic.Location = new System.Drawing.Point(368, 9);
+            this.kvmNic.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNic.Name = "kvmNic";
-            this.kvmNic.Size = new System.Drawing.Size(95, 25);
+            this.kvmNic.Size = new System.Drawing.Size(61, 16);
             this.kvmNic.TabIndex = 10;
             this.kvmNic.TabStop = false;
             this.kvmNic.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -797,10 +811,10 @@
             // 
             this.kvmNicsSent.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmNicsSent.Key = "Tx";
-            this.kvmNicsSent.Location = new System.Drawing.Point(644, 11);
-            this.kvmNicsSent.Margin = new System.Windows.Forms.Padding(4, 7, 0, 0);
+            this.kvmNicsSent.Location = new System.Drawing.Point(432, 9);
+            this.kvmNicsSent.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNicsSent.Name = "kvmNicsSent";
-            this.kvmNicsSent.Size = new System.Drawing.Size(84, 25);
+            this.kvmNicsSent.Size = new System.Drawing.Size(54, 16);
             this.kvmNicsSent.TabIndex = 10;
             this.kvmNicsSent.TabStop = false;
             this.kvmNicsSent.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -810,10 +824,10 @@
             // 
             this.kvmNicsReceived.BackColor = System.Drawing.Color.GhostWhite;
             this.kvmNicsReceived.Key = "Rx";
-            this.kvmNicsReceived.Location = new System.Drawing.Point(732, 11);
-            this.kvmNicsReceived.Margin = new System.Windows.Forms.Padding(4, 7, 0, 0);
+            this.kvmNicsReceived.Location = new System.Drawing.Point(489, 9);
+            this.kvmNicsReceived.Margin = new System.Windows.Forms.Padding(3, 6, 0, 0);
             this.kvmNicsReceived.Name = "kvmNicsReceived";
-            this.kvmNicsReceived.Size = new System.Drawing.Size(85, 25);
+            this.kvmNicsReceived.Size = new System.Drawing.Size(55, 16);
             this.kvmNicsReceived.TabIndex = 11;
             this.kvmNicsReceived.TabStop = false;
             this.kvmNicsReceived.Tooltip = "Make sure that the NIC is not the bottleneck (Most used displayed).";
@@ -827,11 +841,11 @@
             this.btnExport.FlatAppearance.BorderColor = System.Drawing.Color.DimGray;
             this.btnExport.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnExport.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
-            this.btnExport.Location = new System.Drawing.Point(833, 4);
-            this.btnExport.Margin = new System.Windows.Forms.Padding(16, 0, 4, 4);
-            this.btnExport.MaximumSize = new System.Drawing.Size(169, 30);
+            this.btnExport.Location = new System.Drawing.Point(556, 3);
+            this.btnExport.Margin = new System.Windows.Forms.Padding(12, 0, 3, 3);
+            this.btnExport.MaximumSize = new System.Drawing.Size(127, 24);
             this.btnExport.Name = "btnExport";
-            this.btnExport.Size = new System.Drawing.Size(158, 29);
+            this.btnExport.Size = new System.Drawing.Size(126, 24);
             this.btnExport.TabIndex = 12;
             this.btnExport.Text = "Export messages...";
             this.btnExport.UseVisualStyleBackColor = false;
@@ -839,13 +853,12 @@
             // 
             // FastResultsControl
             // 
-            this.AutoScaleDimensions = new System.Drawing.SizeF(8F, 16F);
+            this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.SystemColors.Control;
             this.Controls.Add(this.splitContainer);
-            this.Margin = new System.Windows.Forms.Padding(4, 4, 4, 4);
             this.Name = "FastResultsControl";
-            this.Size = new System.Drawing.Size(1196, 786);
+            this.Size = new System.Drawing.Size(897, 639);
             this.SizeChanged += new System.EventHandler(this.FastResultsControl_SizeChanged);
             this.splitContainer.Panel1.ResumeLayout(false);
             this.splitContainer.Panel2.ResumeLayout(false);
@@ -916,6 +929,7 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkReadable;
         private System.Windows.Forms.DataGridView dgvFastResults;
+        private Util.LinkButton lbtnStressTest;
         private System.Windows.Forms.FlowLayoutPanel flpFastResultsHeader;
         private System.Windows.Forms.Panel pnlBorderCollapse;
         private System.Windows.Forms.Button btnCollapseExpand;

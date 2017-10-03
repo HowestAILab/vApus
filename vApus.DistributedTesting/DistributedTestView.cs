@@ -60,8 +60,12 @@ namespace vApus.DistributedTest {
         ///     The monitors for the tests if any.
         /// </summary>
         private readonly Dictionary<TileStressTest, List<MonitorView>> _monitorViews = new Dictionary<TileStressTest, List<MonitorView>>();
+        private Dictionary<TileStressTest, MonitorMetricsCache> _monitorMetricsCaches = new Dictionary<TileStressTest, MonitorMetricsCache>();
 
         private readonly AutoResetEvent _monitorViewsInitializedWaitHandle = new AutoResetEvent(false);
+
+        private ConcurrencyResult _monitorBeforeBogusConcurrencyResult, _monitorAfterBogusConcurrencyResult;
+        private RunResult _monitorBeforeBogusRunResult, _monitorAfterBogusRunResult;
 
         private Dictionary<TileStressTest, List<Monitor.Monitor>> _usedMonitors = new Dictionary<TileStressTest, List<Monitor.Monitor>>();
         private int _monitorBefore = 0, _monitorAfter = 0;
@@ -241,7 +245,7 @@ namespace vApus.DistributedTest {
                 string tileStressTestToString = tstvi.TileStressTest.ToString();
                 if (!wasSelectedBefore) {
 
-                    fastResultsControl.SetConfigurationControls(tileStressTestToString, tstvi.TileStressTest.BasicTileStressTest.Connection,
+                    fastResultsControl.SetConfigurationControlsAndMonitorLinkButtons(tileStressTestToString, tstvi.TileStressTest.BasicTileStressTest.Connection,
                        tstvi.TileStressTest.BasicTileStressTest.ConnectionProxy, tstvi.TileStressTest.AdvancedTileStressTest.Scenarios, tstvi.TileStressTest.AdvancedTileStressTest.ScenarioRuleSet,
                        tstvi.TileStressTest.BasicTileStressTest.Monitors, tstvi.TileStressTest.AdvancedTileStressTest.Concurrencies, tstvi.TileStressTest.AdvancedTileStressTest.Runs,
                        tstvi.TileStressTest.AdvancedTileStressTest.InitialMinimumDelay, tstvi.TileStressTest.AdvancedTileStressTest.InitialMaximumDelay,
@@ -682,6 +686,7 @@ namespace vApus.DistributedTest {
 
                     //Initialize the monitors.
                     _monitorViews.Clear();
+                    _monitorMetricsCaches.Clear();
 
                     foreach (TileStressTest tileStressTest in _distributedTest.UsedTileStressTests)
                         foreach (var monitor in tileStressTest.BasicTileStressTest.Monitors)
@@ -747,7 +752,31 @@ namespace vApus.DistributedTest {
                             _monitorBeforeCountDown = new Countdown();
                             _monitorBeforeCountDown.Tick += monitorBeforeCountDown_Tick;
                             _monitorBeforeCountDown.Stopped += monitorBeforeCountDown_Stopped;
-                                  
+
+                            _monitorBeforeBogusConcurrencyResult = new ConcurrencyResult(-1, -1, 1);
+                            _monitorBeforeBogusRunResult = new RunResult(-1, -1, 0);
+                            _monitorBeforeBogusConcurrencyResult.RunResults.Add(_monitorBeforeBogusRunResult);
+
+                            _monitorAfterBogusConcurrencyResult = null;
+                            _monitorAfterBogusRunResult = null;
+
+                            try {
+                                foreach (var tileStressTest in _monitorMetricsCaches.Keys)
+                                    foreach (var monitorResultCache in GetMonitorResultCaches(tileStressTest)) {
+                                        var monitorMetricsCache = _monitorMetricsCaches[tileStressTest];
+                                        monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache);
+                                        monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusRunResult, monitorResultCache);
+
+                                        if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStressTestTreeViewItem && (_selectedTestTreeViewItem as TileStressTestTreeViewItem).TileStressTest == tileStressTest) {
+                                            fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                            fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                                        }
+                                    }
+                            }
+                            catch (Exception ex) {
+                                Loggers.Log(Level.Error, "Failed updating metrics.", ex);
+                            }
+
                             testTreeView.SetMonitoringBeforeAfter();
                             AppendMessages("Monitoring before the test starts: " + (_monitorBefore * 60) + " s.");
                             _monitorBeforeCountDown.Start(countdownTime, 5000);
@@ -853,6 +882,8 @@ namespace vApus.DistributedTest {
                     tileStressTest = ts;
                     testProgressMessage = testProgressMessages[ts];
 
+                    UpdateMonitorMetricsCaches(tileStressTest, testProgressMessage);
+
                     SetSlaveProgressInTreeView(tileStressTest, testProgressMessage);
 
                     //Notify by mail if set in the options panel.
@@ -874,6 +905,32 @@ namespace vApus.DistributedTest {
                         TestProgressNotifier.Notify(TestProgressNotifier.What.TestFinished, string.Concat(tileStressTest.ToString(), " finished. Status: ", testProgressMessage.StressTestStatus, "."));
                     }
                 }
+        }
+
+        private void UpdateMonitorMetricsCaches(TileStressTest tileStressTest, TestProgressMessage testProgressMessage) {
+            if (_monitorViews.ContainsKey(tileStressTest)) {
+                _monitorMetricsCaches[tileStressTest] = new MonitorMetricsCache();
+                var monitorMetricsCache = _monitorMetricsCaches[tileStressTest];
+
+                foreach (var monitorResultCache in GetMonitorResultCaches(tileStressTest)) {
+                    if (_monitorBeforeBogusConcurrencyResult != null)
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorBeforeBogusConcurrencyResult, monitorResultCache));
+                    foreach (var concurrencyMetrics in testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics(true))
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetConcurrencyMetrics(monitorResultCache.Monitor, concurrencyMetrics, monitorResultCache));
+
+                    if (_monitorAfterCountDown == null && _monitorAfterBogusConcurrencyResult != null)
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorAfterBogusConcurrencyResult, monitorResultCache));
+
+
+                    if (_monitorBeforeBogusRunResult != null)
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorBeforeBogusRunResult, monitorResultCache));
+                    foreach (var runMetrics in testProgressMessage.StressTestMetricsCache.GetRunMetrics(true))
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetRunMetrics(monitorResultCache.Monitor, runMetrics, monitorResultCache));
+
+                    if (_monitorAfterCountDown == null && _monitorAfterBogusRunResult != null)
+                        monitorMetricsCache.Add(MonitorMetricsHelper.GetMetrics(_monitorAfterBogusRunResult, monitorResultCache));
+                }
+            }
         }
 
         private void SetOverallProgress() {
@@ -924,7 +981,15 @@ namespace vApus.DistributedTest {
                     fastResultsControl.UpdateFastConcurrencyResults(testProgressMessage.StressTestMetricsCache.GetConcurrencyMetrics(true), true);
                     fastResultsControl.UpdateFastRunResults(testProgressMessage.StressTestMetricsCache.GetRunMetrics(true), false);
                 }
-  
+                var monitorResultCaches = GetMonitorResultCaches(tileStressTest);
+                foreach (var monitorResultCache in monitorResultCaches) {
+                    if (_monitorMetricsCaches.ContainsKey(tileStressTest)) {
+                        var monitorMetricsCache = _monitorMetricsCaches[tileStressTest];
+                        fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                        fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                    }
+                }
+
                 if (testProgressMessage.Events == null) fastResultsControl.ClearEvents();
                 else fastResultsControl.SetEvents(testProgressMessage.Events);
 
@@ -1124,6 +1189,27 @@ namespace vApus.DistributedTest {
                 _monitorAfterCountDown.Tick += _monitorAfterCountDown_Tick;
                 _monitorAfterCountDown.Stopped += monitorAfterCountDown_Stopped;
 
+                _monitorAfterBogusConcurrencyResult = new ConcurrencyResult(-1, -1, 1);
+                _monitorAfterBogusRunResult = new RunResult(-1, -1, 0);
+                _monitorAfterBogusConcurrencyResult.RunResults.Add(_monitorAfterBogusRunResult);
+
+                try {
+                    foreach (var tileStressTest in _monitorMetricsCaches.Keys)
+                        foreach (var monitorResultCache in GetMonitorResultCaches(tileStressTest)) {
+                            var monitorMetricsCache = _monitorMetricsCaches[tileStressTest];
+                            monitorMetricsCache.AddOrUpdate(_monitorAfterBogusConcurrencyResult, monitorResultCache);
+                            monitorMetricsCache.AddOrUpdate(_monitorAfterBogusRunResult, monitorResultCache);
+
+                            if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStressTestTreeViewItem && (_selectedTestTreeViewItem as TileStressTestTreeViewItem).TileStressTest == tileStressTest) {
+                                fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                            }
+                        }
+                }
+                catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed setting metrics.", ex, new object[] { monitorAfter });
+                }
+
                 testTreeView.SetMonitoringBeforeAfter();
 
                 AppendMessages("Monitoring after the test is finished: " + (_monitorAfter * 60) + " s.");
@@ -1158,6 +1244,9 @@ namespace vApus.DistributedTest {
             if (!_monitorViews.ContainsKey(tileStressTest))
                 _monitorViews.Add(tileStressTest, new List<MonitorView>());
             _monitorViews[tileStressTest].Add(monitorView);
+
+            if (!_monitorMetricsCaches.ContainsKey(tileStressTest))
+                _monitorMetricsCaches.Add(tileStressTest, new MonitorMetricsCache());
         }
 
         /// <summary>
@@ -1243,9 +1332,41 @@ namespace vApus.DistributedTest {
                 }, null);
         }
 
+        /// <summary>
+        /// Get all monitor result caches for al the running monitors.
+        /// </summary>
+        /// <returns></returns>
+        private List<MonitorResult> GetMonitorResultCaches(TileStressTest tileStressTest) {
+            var l = new List<MonitorResult>();
+            if (_monitorViews != null)
+                foreach (var ts in _monitorViews.Keys)
+                    if (tileStressTest == ts)
+                        foreach (var view in _monitorViews[ts])
+                            l.Add(view.GetMonitorResultCache());
+            return l;
+        }
+
         private void monitorBeforeCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
-                 int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
+                try {
+                    if (_monitorBeforeBogusConcurrencyResult != null)
+                        foreach (var tileStressTest in _monitorMetricsCaches.Keys)
+                            foreach (var monitorResultCache in GetMonitorResultCaches(tileStressTest)) {
+                                var monitorMetricsCache = _monitorMetricsCaches[tileStressTest];
+                                monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusConcurrencyResult, monitorResultCache);
+                                monitorMetricsCache.AddOrUpdate(_monitorBeforeBogusRunResult, monitorResultCache);
+
+                                if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStressTestTreeViewItem && (_selectedTestTreeViewItem as TileStressTestTreeViewItem).TileStressTest == tileStressTest) {
+                                    fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                    fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                                }
+                            }
+                }
+                catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed setting metrics.", ex, new object[] { sender, e });
+                }
+
+                int countdowntime = _monitorBeforeCountDown == null ? 0 : _monitorBeforeCountDown.CountdownTime;
                 var ts = new TimeSpan(countdowntime * TimeSpan.TicksPerMillisecond);
                 AppendMessages("Monitoring before the test starts: " + ts.ToShortFormattedString(true, "0 s") + ".");
 
@@ -1268,6 +1389,15 @@ namespace vApus.DistributedTest {
                 _monitorBeforeCountDown = null;
             }
 
+            if (_monitorBeforeBogusConcurrencyResult != null) {
+                var stoppedAt = DateTime.Now;
+                TimeSpan difference = stoppedAt - _monitorBeforeBogusConcurrencyResult.StartedAt;
+                _monitorBeforeBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+
+                difference = stoppedAt - _monitorBeforeBogusRunResult.StartedAt;
+                _monitorBeforeBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan(difference.Milliseconds * TimeSpan.TicksPerMillisecond));
+            }
+
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => MonitorBeforeDone(), null);
             PublishMonitorBeforeTestDone();
         }
@@ -1286,6 +1416,24 @@ namespace vApus.DistributedTest {
 
         private void _monitorAfterCountDown_Tick(object sender, EventArgs e) {
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
+                try {
+                    if (_monitorAfterBogusConcurrencyResult != null)
+                        foreach (var tileStressTest in _monitorMetricsCaches.Keys)
+                            foreach (var monitorResultCache in GetMonitorResultCaches(tileStressTest)) {
+                                var monitorMetricsCache = _monitorMetricsCaches[tileStressTest];
+                                monitorMetricsCache.AddOrUpdate(_monitorAfterBogusConcurrencyResult, monitorResultCache);
+                                monitorMetricsCache.AddOrUpdate(_monitorAfterBogusRunResult, monitorResultCache);
+
+                                if (_selectedTestTreeViewItem != null && _selectedTestTreeViewItem is TileStressTestTreeViewItem && (_selectedTestTreeViewItem as TileStressTestTreeViewItem).TileStressTest == tileStressTest) {
+                                    fastResultsControl.UpdateFastConcurrencyResults(monitorResultCache.Monitor, monitorMetricsCache.GetConcurrencyMetrics(monitorResultCache.Monitor));
+                                    fastResultsControl.UpdateFastRunResults(monitorResultCache.Monitor, monitorMetricsCache.GetRunMetrics(monitorResultCache.Monitor));
+                                }
+                            }
+                }
+                catch (Exception ex) {
+                    Loggers.Log(Level.Error, "Failed setting metrics.", ex, new object[] { sender, e });
+                }
+
                 var ts = new TimeSpan(_monitorAfterCountDown.CountdownTime * TimeSpan.TicksPerMillisecond);
                 AppendMessages("Monitoring after the test is finished: " + ts.ToShortFormattedString(true, "0 s") + ".");
 
@@ -1302,6 +1450,14 @@ namespace vApus.DistributedTest {
             }, null);
         }
         private void monitorAfterCountDown_Stopped(object sender, EventArgs e) {
+            if (_monitorAfterBogusConcurrencyResult != null) {
+                var stoppedAt = DateTime.Now;
+                var difference = stoppedAt - _monitorAfterBogusConcurrencyResult.StartedAt;
+                _monitorAfterBogusConcurrencyResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
+
+                difference = stoppedAt - _monitorAfterBogusRunResult.StartedAt;
+                _monitorAfterBogusRunResult.StoppedAt = stoppedAt.Subtract(new TimeSpan((long)(difference.Milliseconds * TimeSpan.TicksPerMillisecond)));
+            }
             SynchronizationContextWrapper.SynchronizationContext.Send(delegate {
                 AppendMessages("Finished.");
 

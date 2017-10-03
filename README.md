@@ -1,4 +1,5 @@
 # Technical manual
+
 ## Preface
 This is a short manual to guide you through the vApus Visual Studio solution.
 
@@ -63,7 +64,7 @@ For debugging ConnectionProxyCode you can call EventPanel.AddEvent(string messag
 
 When starting a test a ConnectionProxyCode is compiled using *vApus.Util.CompilerUnit* with the v4.0 option (.Net version, this is the same option for 4.6 which is a drop in replacement for 4.0). Note that the ConnectionProxyCode implements IConnectionProxy; the compiled class is casted to this because it is easier and probably more performant to do direct function calls instead of using reflection.
 
-The main control at the front-end is a FastColoredTextbox, which is fantastic (thanks to Pavel Torgashov http://www.codeproject.com/Articles/161871/Fast-Colored-TextBox-for-syntax-highlighting). Otherwise no notable controls.
+The main control at the front-end is a FastColoredTextbox, which is fantastic (thanks to Pavel Torgashov <http://www.codeproject.com/Articles/161871/Fast-Colored-TextBox-for-syntax-highlighting>). Otherwise no notable controls.
 
 #### Scenario
 The code for this can be found in *vApus.StressTest.Scenarios*. If you create a new vass in vApus you can import a ScenarioRuleSet that was preinstalled with vApus; if you want to look around in it.
@@ -254,26 +255,27 @@ that this approach works (according to the Internet).
 
 This, however, is not yet tested. We must run a vApus physical and virtualized and cross-reference stress test results and behavior to check if they are equal to one-another. And this under heavy load, for example ASAP, high concurrency, distributed with a lot of slaves,...
 
-Documented details are about virtualising using VMware software. Running on Xen or Hyper-V should not be a problem since the TSC Invariant MSR is available through the Hypervisor<ref name="Xen" /><ref name="HyperV" />.
+Documented details are about virtualising using VMware software. Running on Xen or Hyper-V should not be a problem since the TSC Invariant MSR is available through the Hypervisor ([1][1], [2][2]).
 
-= Practical =
+# Practical
 
 The VM must be a Windows 8.1 or a Windows Server 2012 or newer.
 
-Download CoreInfo from SysInternals<ref name="Sysinternals Coreinfo" /> and run it from cmd on the VM (Administrator rights required).
+Download CoreInfo from [SysInternals][3] and run it from cmd on the VM (Administrator rights required).
 
-The Machine Specific Register TSC-INVARIANT must be available (A * means available)<ref name="Microsoft Operating System Time Sources and Virtual Hardware 10" />. Make sure that you’ve installed the VM''...''tools (vmware tools for example).
+The Machine Specific Register [TSC-INVARIANT][4] must be available (A * means available). Make sure that you’ve installed the VM''...''tools (vmware tools for example).
 
 Install vApus and happy testing.
 
-= In depth =
+## In depth
 
-== Windows ==
+### Windows
 
-From Microsecond Resolution Time Services for Windows<ref name="Microsecond Resolution Time Services for Windows, v1.80" /> and confirmed by Microsoft<ref name="Acquiring high-resolution time stamps" />:
+From Microsecond Resolution Time Services for [Windows][5] and confirmed by [Microsoft][6]:
 
 <blockquote>''Windows 8.1 goes back to the roots; it goes back to 156250. The TSC frequency is calibrated against HPET periods to finally get proper timekeeping.''
 </blockquote>
+
 And
 
 <blockquote>''Since Windows 7, the operating system runs tests on the underlying hardware to see which hardware is best used for timekeeping. When the processors Time Stamp Counter (TSC) is suitable, the operating system uses the TSC for timekeeping. If the TSC cannot be used for timekeeping the operating system reverts to the High Precision Event Timer (HPET). If that does not exist it reverts to the ACPI PM timer. For performance reasons it shall be noted that HPET and ACPI PM timer cause IPC overhead, while the use of the TSC does not. The evolution of TSC shows a variety of capabilities:
@@ -282,48 +284,46 @@ And
 * Invariant: The TSC increments at a constant rate in all ACPI P-, C- and T-states.
 * Nonstop: The TSC has the properties of both Constant and Invariant TSC''
 </blockquote>
+
 This means that the Stopwatch class used for time measurements in vApus ’s Connection Proxies, when vApus runs on Windows 7 / 8 can be correct and on =&gt; Windows 8.1, always work.
 
-The Stopwatch class uses the QueryPerformanceCounter win32 API function internally. QPC uses TSC if the TSC-INVARIANT MSR (Machine Specific Register) is available, or falls back to HPET or PM timer (outdated, slower and not correct on VMs obviously)<ref name="Acquiring high-resolution time stamps" />.
+The Stopwatch class uses the QueryPerformanceCounter win32 API function internally. QPC uses TSC if the [TSC-INVARIANT MSR][6] (Machine Specific Register) is available, or falls back to HPET or PM timer (outdated, slower and not correct on VMs obviously).
 
-If we need more precision we can use the GetSystemTimePreciseAsFileTime function on Windows 8.1<ref name="Microsecond Resolution Time Services for Windows, v1.80" />. But I think that the Stopwatch class should be precise enough. This depends on the hardware <ref name="Microsecond Resolution Time Services for Windows, v1.80" /><ref name="Stopwatch.Frequency Field, .Net Framework 4.5" />.
+If we need more precision we can use the GetSystemTimePreciseAsFileTime function on [Windows 8.1][5]. But I think that the Stopwatch class should be precise enough. This depends on the [hardware][7].
 
 <blockquote>''Windows 8 introduces the function GetSystemTimePreciseAsFileTime() “with the highest possible level of precision (&lt;1us)”. This seems the counterpart to the linux gettimeofday() function.''
 </blockquote>
 
-== (Virtualized) Hardware ==
+### (Virtualized) Hardware
 
-From Microsoft<ref name="Acquiring high-resolution time stamps" />:
+From [Microsoft][6]:
 
-<blockquote>…you can determine whether your processor has an invariant TSC by using one of these: the Coreinfo.exe utility from Windows Sysinternals checking the values returned by the CPUID instruction pertaining to the TSC characteristics the processor manufacturer’s documentation The following shows the '''TSC-INVARIANT''' info that is provided by the Windows Sysinternals Coreinfo.exe utility (www.sysinternals.com). An asterisk means “True”.
+<blockquote>…you can determine whether your processor has an invariant TSC by using one of these: the Coreinfo.exe utility from Windows Sysinternals checking the values returned by the CPUID instruction pertaining to the TSC characteristics the processor manufacturer’s documentation The following shows the **TSC-INVARIANT** info that is provided by the Windows Sysinternals Coreinfo.exe utility (www.sysinternals.com). An asterisk means “True”.
 </blockquote>
 The TSC-INVARIANT MSR (a hardware counter for CPUs) must be available. This must be supported by the used virualisation software<ref name="GetSystemTimePreciseAsFileTime on pre-Windows 8" />. Presumably you must have the VM''...''tools installed for correct virtualization.
 
-Check if TSC-INVARIANT is available using CoreInfo<ref name="Sysinternals Coreinfo" />.
+Check if TSC-INVARIANT is available using [CoreInfo][8].
 
-= References =
-<references>
-<ref name="Xen"> Magenheimer, D. [http://xenbits.xen.org/docs/4.3-testing/misc/tscmode.txt Xen 4.3 TSC_MODE HOW-TO]. Retrieved on 2015, January, 2</ref>
-<ref name="HyperV">Microsoft (2013, June,19). [http://www.microsoft.com/en-us/download/details.aspx?id=39289 Hypervisor Top-Level Functional Specification 3.0a: Windows Server 2012]</ref>
-<ref name="Sysinternals Coreinfo">Russinovich, M (2014, August, 18). [http://technet.microsoft.com/en-us/sysinternals/cc835722.aspx CoreInfo v3.31]</ref>
-<ref name="Microsecond Resolution Time Services for Windows, v1.80">Lentfer, A (2014, October). [http://www.windowstimestamp.com/description Microsecond Resolution Time Services for Windows, v1.80]</ref>
-<ref name="Acquiring high-resolution time stamps">Briggs, E (Presumed) (2014, September, 30). [http://msdn.microsoft.com/en-us/library/windows/desktop/dn553408%28v=vs.85%29aspx Acquiring high-resolution time stamps]</ref>
-<ref name="GetSystemTimePreciseAsFileTime on pre-Windows 8">Vinschen, C (2012, June, 15). [http://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/b0df67d7-8151-4ee3-9c58-343004243c1b/getsystemtimepreciseasfiletime-on-prewindows-8?forum=windowsgeneraldevelopmetissues GetSystemTimePreciseAsFileTime on pre-Windows 8?]</ref>
-<ref name="Microsoft Operating System Time Sources and Virtual Hardware 10"> Achtemichuk, M (2013, October, 18). [http://blogs.vmware.com/vsphere/2013/10/microsoft-operating-system-time-sources-and-virtual-hardware-10.html Microsoft Operating System Time Sources and Virtual Hardware 10]</ref>
-<ref name="Stopwatch.Frequency Field, .Net Framework 4.5">Microsoft. [http://msdn.microsoft.com/en-us/library/system.diagnostics.stopwatch.frequency(v=vs.110).aspx Stopwatch.Frequency Field, .Net Framework 4.5]</ref>
-</references>
-<br />
+[1]: http://xenbits.xen.org/docs/4.3-testing/misc/tscmode.txt "Xen 4.3 TSC_MODE HOW-TO by Magenheimer, D. Retrieved on 2015, January, 2"
+[2]: http://www.microsoft.com/en-us/download/details.aspx?id=39289 "Hypervisor Top-Level Functional Specification 3.0a: Windows Server 2012 by Microsoft (2013, June,19)"
+[3]: http://technet.microsoft.com/en-us/sysinternals/cc835722.aspx "CoreInfo v3.31 by Russinovich, M (2014, August, 18)"
+[4]: http://www.windowstimestamp.com/description "Microsecond Resolution Time Services for Windows, v1.80 by Lentfer, A (2014, October)"
+[5]: http://msdn.microsoft.com/en-us/library/windows/desktop/dn553408%28v=vs.85%29aspx "Acquiring high-resolution time stamps by Briggs, E (Presumed) (2014, September, 30)"
+[6]: http://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/b0df67d7-8151-4ee3-9c58-343004243c1b/getsystemtimepreciseasfiletime-on-prewindows-8?forum=windowsgeneraldevelopmetissues "GetSystemTimePreciseAsFileTime on pre-Windows 8? by Vinschen, C (2012, June, 15)."
+[7]: http://blogs.vmware.com/vsphere/2013/10/microsoft-operating-system-time-sources-and-virtual-hardware-10.html "Microsoft Operating System Time Sources and Virtual Hardware 10 by Achtemichuk, M (2013, October, 18)"
+[8]: http://msdn.microsoft.com/en-us/library/system.diagnostics.stopwatch.frequency(v=vs.110).aspx "Stopwatch.Frequency Field, .Net Framework 4.5 by Microsoft"
 
-= vApus virtual vs vApus physical in numbers =
-== Introduction ==
+## vApus virtual vs vApus physical in numbers 
+
+### Introduction 
 
 One physical Windows client / one or more virtual Windows clients where used to run vApus. This to check if the above is actually correct.
 The virtual client(s) run in our own production to simulate hardware usage in the real world (e.g. Amazon), where hardware is shared among a lot of VMs. Or on AWS.
 
-==Local==
+### Local
 Each test was executed twice.
 
-===Test setup===
+#### Test setup
 
 Virtual client:
 * Windows Server 2012 R2 @ [Istanbul (production) (ESXi 5.5)
@@ -336,84 +336,75 @@ Physical client:
 * 32 GB RAM
 
 Test 1:
-* Tales Anziplast ([[Tales Liquifi|Liquifi]])
+* Tales Anziplast (CMS from a Flemish small business)
 * Users: 5, 5, ..., 100 in steps of 5
 * 2 runs
 * Delay: 900 - 1100 ms
 * The client is self-monitored to make sure that it is not the bottleneck
-
-Used vass:
-[[Bestand:Tales_Anziplast.zip|miniatuur|Used vass]]
 
 
 Test 2:
 * A Break on First Run Sync Distributed test
-* 3 tile stress tests: benchdb, phpbb and nieuws.be
+* 3 tile stress tests: benchdb, phpbb and nieuws.be (last one is a db from a Flemish small business)
 * Users: 5, 5, ..., 100 in steps of 5
 * 2 runs
 * Delay: 900 - 1100 ms
 * The client is self-monitored to make sure that it is not the bottleneck
 
-Used vass:
-[[Bestand:Dev and testing 20141027.zip|miniatuur|Used vass]]
 
 Test results on their own are irrelevant: The result with the virtual vApus must match (+/-) those with the physical vApus.
 
-=== Results ===
-==== Test 1====
-Both tests gave consistent results. Specifically the '''throughput''' for the concurrency where the server was not yet saturated was compared: Results for a saturated server will fluctuate more.
+#### Results
+
+##### Test 1
+Both tests gave consistent results. Specifically the **throughput** for the concurrency where the server was not yet saturated was compared: Results for a saturated server will fluctuate more.
 
 <table>
 <tr>
 <td></td>
-<td>'''vApus physical'''</td>
-<td>'''vApus virtual'''</td>
+<td>vApus physical</td>
+<td>vApus virtual</td>
 </tr>
 <tr>
-<td>'''Execution 1 Concurrency 15'''</td>
+<td>Execution 1 Concurrency 15</td>
 <td>68,87</td>
 <td>67,24</td>
 </tr>
 <tr>
-<td>'''Execution 2 Concurrency 15'''</td>
+<td>Execution 2 Concurrency 15</td>
 <td>72,19</td>
 <td>71,4</td>
 </tr>
 </table>
 
 
-[[Bestand:VApus virtual vs physical Test 1.zip|miniatuur|Results in Excel]]
-
-====Test 2====
-Both tests gave consistent results. Specifically the '''throughput''' for the concurrency where the server was not yet saturated was compared: Results for a saturated server will fluctuate more.
+##### Test 2
+Both tests gave consistent results. Specifically the **throughput** for the concurrency where the server was not yet saturated was compared: Results for a saturated server will fluctuate more.
 
 Results of the slowest test:
 
 <table>
 <tr>
 <td></td>
-<td>'''vApus physical'''</td>
-<td>'''vApus virtual'''</td>
+<td>vApus physical</td>
+<td>vApus virtual</td>
 </tr>
 <tr>
-<td>'''phpbb Execution 1 Concurrency 45'''</td>
+<td>phpbb Execution 1 Concurrency 45</td>
 <td>341,04</td>
 <td>334,17</td>
 </tr>
 <tr>
-<td>'''phpbb Execution 2 Concurrency 45'''</td>
+<td>phpbb Execution 2 Concurrency 45</td>
 <td>332,31</td>
 <td>340,31</td>
 </tr>
 </table>
 
+### AWS
 
-[[Bestand:VApus virtual vs physical Test 2.zip|miniatuur|Results in Excel]]
-
-==AWS==
-
-===Test setup===
-A more simple approach was chosen since there is already enough jitter on AWS: www.sizingservers.be was tested using only a single vApus instance.
+#### Test setup
+A more simple approach was chosen since there is already enough jitter on AWS: <https://www.sizingservers.be> was tested using only a single vApus instance.
 
 Test 2 was executed trice to ensure that there are no big differences in the results.
 
@@ -437,23 +428,14 @@ Test 2:
 * Delay: 900 - 1100 ms
 * The client is self-monitored to make sure that it is not the bottleneck
 
-Used vass:
-[[Bestand:vApus v2 AWS.zip|miniatuur|Used vass]]
-
 Test results on their own are irrelevant: The result with the virtual vApus must match (+/-) those with the physical vApus.
 
-===Results===
+#### Results
 As you can clearly see in the spreadsheets results are as they should be. Testing from AWS is a bit slower because there is a latency of 22 ms to www.sizingservers.be.
 
-www. sizingservers.be is located in our own network. You can find this latency back in the average response times.
+www.sizingservers.be is located in our own network. You can find this latency back in the average response times.
 
-Excel spreadsheets:
-
-[[Bestand:From Dell-r815.xlsx|miniatuur|From Dell-r815]]
-
-[[Bestand:From AWS.xlsx|miniatuur|From AWS]]
-
-==Conclusion==
+### Conclusion
 It is safe to say that vApus can be used on VMs and in the cloud.
 
 
