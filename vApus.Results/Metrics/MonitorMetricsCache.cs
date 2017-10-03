@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using System.Runtime;
 
 namespace vApus.Results {
+# warning OBSOLETE
     /// <summary>
     ///     Serves at caching monitor metrics so they do not need to be calculated from the monitor results every time if metrics are asked.
     ///     Should be kept where the results are visualized (rows in a datagridview) and used together with MonitorMetricsHelper.

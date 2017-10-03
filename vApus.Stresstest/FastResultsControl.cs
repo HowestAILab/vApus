@@ -5,7 +5,6 @@
  * Author(s):
  *    Dieter Vandroemme
  */
-using RandomUtils;
 using RandomUtils.Log;
 using System;
 using System.Collections.Generic;
@@ -27,16 +26,6 @@ namespace vApus.StressTest {
         private List<StressTestMetrics> _runStressTestMetrics = new List<StressTestMetrics>();
         private List<object[]> _runStressTestMetricsRows = new List<object[]>();
 
-        private Dictionary<string, List<MonitorMetrics>> _concurrencyMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
-        private Dictionary<string, List<object[]>> _concurrencyMonitorMetricsRows = new Dictionary<string, List<object[]>>();
-        private Dictionary<string, List<MonitorMetrics>> _runMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
-        private Dictionary<string, List<object[]>> _runMonitorMetricsRows = new Dictionary<string, List<object[]>>();
-
-        /// <summary>
-        /// To switch the stress test fast results to monitor fast results.
-        /// </summary>
-        private List<LinkButton> _monitorLinkButtons = new List<LinkButton>();
-
         /// <summary>
         ///     Enables Auto scroll to end of fast results when appropriate.
         /// </summary>
@@ -45,10 +34,6 @@ namespace vApus.StressTest {
         /// Not visible on a slave in a distributed test.
         /// </summary>
         private bool _monitorConfigurationControlAndKeyValuePairControlVisible;
-        /// <summary>
-        /// Normally columns are only added to the datagrid view on gui interaction. For monitors this fails if the monitors are not yet initialized.
-        /// </summary>
-        private bool _trySettingDataGridViewColumnsOnNextMonitorUpdate;
 
         //For distributed test
         private DateTime _stressTestStartedAt = DateTime.Now;
@@ -118,7 +103,7 @@ namespace vApus.StressTest {
         }
 
         public void SetConfigurationControls(StressTest stressTest) {
-            SetConfigurationControlsAndMonitorLinkButtons(stressTest.ToString(), stressTest.Connection, stressTest.ConnectionProxy,
+            SetConfigurationControls(stressTest.ToString(), stressTest.Connection, stressTest.ConnectionProxy,
                                      stressTest.Scenarios, stressTest.ScenarioRuleSet,
                                      stressTest.Monitors, stressTest.Concurrencies, stressTest.Runs,
                                      stressTest.InitialMinimumDelay, stressTest.InitialMaximumDelay,
@@ -127,7 +112,7 @@ namespace vApus.StressTest {
                                      stressTest.MonitorBefore, stressTest.MonitorAfter, stressTest.UseParallelExecutionOfRequests,
                                      stressTest.MaximumPersistentConnections, stressTest.PersistentConnectionsPerHostname);
         }
-        public void SetConfigurationControlsAndMonitorLinkButtons(string stressTest, Connection connection, string connectionProxy, KeyValuePair<Scenario, uint>[] scenarios, string scenarioRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
+        public void SetConfigurationControls(string stressTest, Connection connection, string connectionProxy, KeyValuePair<Scenario, uint>[] scenarios, string scenarioRuleSet, Monitor.Monitor[] monitors, int[] concurrencies,
                                              int runs, int initialMinimumDelay, int initialMaximumDelay, int minimumDelay, int maximumDelay, bool shuffle, bool actionDistribution, int maximumNumberOfUserActions, int monitorBefore, int monitorAfter,
                                              bool useParallelExecutionOfRequests, int maximumPersistentConnections, int persistentConnectionsPerHostname) {
             kvpStressTest.Key = stressTest;
@@ -141,18 +126,12 @@ namespace vApus.StressTest {
             kvpScenario.Key = scenarioKeys.Combine(", ");
             kvpScenarioRuleSet.Key = scenarioRuleSet;
 
-            lbtnStressTest.Visible = false;
-            lbtnStressTest.Active = true;
-            foreach (var lbtnMonitor in _monitorLinkButtons) flpFastResultsHeader.Controls.Remove(lbtnMonitor);
-            _monitorLinkButtons.Clear();
-
             if (_monitorConfigurationControlAndKeyValuePairControlVisible) {
                 if (monitors == null || monitors.Length == 0) {
                     kvpMonitor.Key = "No monitor(s)";
                     kvpMonitor.BackColor = Color.Orange;
                 }
                 else {
-                    lbtnStressTest.Visible = true;
                     kvpMonitor.Key = monitors.Combine(", ");
                     kvpMonitor.BackColor = Color.LightBlue;
 
@@ -163,7 +142,6 @@ namespace vApus.StressTest {
                         lbtnMonitor.Margin = new Padding(3, 6, 0, 3);
                         lbtnMonitor.ActiveChanged += lbtnMonitor_ActiveChanged;
 
-                        _monitorLinkButtons.Add(lbtnMonitor);
                         flpFastResultsHeader.Controls.Add(lbtnMonitor);
                     }
                 }
@@ -222,11 +200,6 @@ namespace vApus.StressTest {
             _concurrencyStressTestMetricsRows = new List<object[]>();
             _runStressTestMetrics = new List<StressTestMetrics>();
             _runStressTestMetricsRows = new List<object[]>();
-
-            _concurrencyMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
-            _concurrencyMonitorMetricsRows = new Dictionary<string, List<object[]>>();
-            _runMonitorMetrics = new Dictionary<string, List<MonitorMetrics>>();
-            _runMonitorMetricsRows = new Dictionary<string, List<object[]>>();
 
             _keepFastResultsAtEnd = true;
         }
@@ -347,39 +320,13 @@ namespace vApus.StressTest {
         public void UpdateFastConcurrencyResults(List<StressTestMetrics> metrics, bool setMeasuredRunTime = true) {
             _concurrencyStressTestMetrics = metrics;
             _concurrencyStressTestMetricsRows = FastStressTestMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
-            if (cboDrillDown.SelectedIndex == 0 && lbtnStressTest.Active) {
+            if (cboDrillDown.SelectedIndex == 0) {
                 int count = _concurrencyStressTestMetricsRows.Count;
                 if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
                 dgvFastResults.AutoResizeColumns();
                 KeepFastResultsAtEnd();
             }
             if (setMeasuredRunTime) SetMeasuredRuntime();
-        }
-        /// <summary>
-        /// Uses the monitor.ToString as an identifier.
-        /// </summary>
-        /// <param name="monitorToString"></param>
-        /// <param name="metrics"></param>
-        public void UpdateFastConcurrencyResults(string monitorToString, List<MonitorMetrics> metrics) {
-            if (monitorToString == null) return;
-            if (_concurrencyMonitorMetrics.ContainsKey(monitorToString)) _concurrencyMonitorMetrics[monitorToString] = metrics;
-            else _concurrencyMonitorMetrics.Add(monitorToString, metrics);
-
-            var concurrencyMonitorMetricsRows = MonitorMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
-            if (_concurrencyMonitorMetricsRows.ContainsKey(monitorToString)) _concurrencyMonitorMetricsRows[monitorToString] = concurrencyMonitorMetricsRows;
-            else _concurrencyMonitorMetricsRows.Add(monitorToString, concurrencyMonitorMetricsRows);
-
-            LinkButton lbtnMonitor = null;
-            foreach (var lbtn in _monitorLinkButtons) if (lbtn.Text == monitorToString) { lbtnMonitor = lbtn; break; }
-
-            if (cboDrillDown.SelectedIndex == 0 && lbtnMonitor != null && lbtnMonitor.Active) {
-                int count = concurrencyMonitorMetricsRows.Count;
-                if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
-                dgvFastResults.AutoResizeColumns();
-                KeepFastResultsAtEnd();
-            }
-
-            if (_trySettingDataGridViewColumnsOnNextMonitorUpdate) RefreshFastResults();
         }
 
         /// <summary>
@@ -397,59 +344,12 @@ namespace vApus.StressTest {
             }
             if (setMeasuredRunTime) SetMeasuredRuntime();
         }
-        /// <summary>
-        /// Uses the monitor.ToString as an identifier.
-        /// </summary>
-        /// <param name="monitorToString"></param>
-        /// <param name="metrics"></param>
-        public void UpdateFastRunResults(string monitorToString, List<MonitorMetrics> metrics) {
-            if (monitorToString == null) return;
-            if (_runMonitorMetrics.ContainsKey(monitorToString)) _runMonitorMetrics[monitorToString] = metrics;
-            else _runMonitorMetrics.Add(monitorToString, metrics);
 
-            var runMonitorMetricsRows = MonitorMetricsHelper.MetricsToRows(metrics, chkReadable.Checked);
-            if (_runMonitorMetricsRows.ContainsKey(monitorToString)) _runMonitorMetricsRows[monitorToString] = runMonitorMetricsRows;
-            else _runMonitorMetricsRows.Add(monitorToString, runMonitorMetricsRows);
-
-            LinkButton lbtnMonitor = null;
-            foreach (var lbtn in _monitorLinkButtons) if (lbtn.Text == monitorToString) { lbtnMonitor = lbtn; break; }
-
-            if (cboDrillDown.SelectedIndex == 1 && lbtnMonitor != null && lbtnMonitor.Active) {
-                int count = runMonitorMetricsRows.Count;
-                if (dgvFastResults.RowCount == count && count != 0) dgvFastResults.InvalidateRow(count - 1); else dgvFastResults.RowCount = count;
-                dgvFastResults.AutoResizeColumns();
-                KeepFastResultsAtEnd();
-            }
-            if (_trySettingDataGridViewColumnsOnNextMonitorUpdate) RefreshFastResults();
-        }
         private void dgvFastResults_CellValueNeeded(object sender, DataGridViewCellValueEventArgs e) {
             try {
-                if (lbtnStressTest.Active) {
-                    List<object[]> rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows);
-                    if (rows.Count > e.RowIndex && rows[0].Length > e.ColumnIndex)
-                        e.Value = rows[e.RowIndex][e.ColumnIndex];
-                }
-                else {
-                    string monitorToString = null;
-                    foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
-                    if (monitorToString != null) {
-                        List<object[]> rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString];
-                        if (rows.Count > e.RowIndex) {
-                            object[] row = rows[e.RowIndex];
-                            if (row.Length > e.ColumnIndex) {
-                                e.Value = (e.ColumnIndex < row.Length) ? row[e.ColumnIndex] : "--";
-
-                                string valueString = e.Value.ToString();
-                                if (valueString == "0" || valueString == "-1")
-                                    e.Value = "--";
-                                else if (e.Value is float)
-                                    e.Value = StringUtil.FloatToLongString((float)e.Value);
-                                else if (e.Value is double)
-                                    e.Value = StringUtil.DoubleToLongString((double)e.Value);
-                            }
-                        }
-                    }
-                }
+                List<object[]> rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows);
+                if (rows.Count > e.RowIndex && rows[0].Length > e.ColumnIndex)
+                    e.Value = rows[e.RowIndex][e.ColumnIndex];
             }
             catch (Exception ex) {
                 Loggers.Log(Level.Error, "Failed displaying cell value.", ex, new object[] { sender, e });
@@ -654,9 +554,6 @@ namespace vApus.StressTest {
         /// <param name="at"></param>
         public void ShowEvent(DateTime at) { epnlMessages.ShowEvent(at); }
 
-        private void lbtnStressTest_ActiveChanged(object sender, EventArgs e) {
-            if (lbtnStressTest.Active) RefreshFastResults();
-        }
         private void lbtnMonitor_ActiveChanged(object sender, EventArgs e) {
             if ((sender as LinkButton).Active) RefreshFastResults();
         }
@@ -676,25 +573,8 @@ namespace vApus.StressTest {
             //Set the headers.
             dgvFastResults.Columns.Clear();
 
-            string monitorToString = null;
-            string[] columnHeaders = null;
-            if (lbtnStressTest.Active)
-                columnHeaders = cboDrillDown.SelectedIndex == 0 ? FastStressTestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked) : FastStressTestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
-            else {
-                foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
-                if (monitorToString != null)
-                    if (cboDrillDown.SelectedIndex == 0 && _concurrencyMonitorMetrics.ContainsKey(monitorToString) && _concurrencyMonitorMetrics[monitorToString].Count != 0)
-                        columnHeaders = MonitorMetricsHelper.GetMetricsHeadersConcurrency(_concurrencyMonitorMetrics[monitorToString][0].Headers, chkReadable.Checked);
-                    else if (cboDrillDown.SelectedIndex == 1 && _runMonitorMetrics.ContainsKey(monitorToString) && _runMonitorMetrics[monitorToString].Count != 0)
-                        columnHeaders = MonitorMetricsHelper.GetMetricsHeadersRun(_runMonitorMetrics[monitorToString][0].Headers, chkReadable.Checked);
-            }
-            //For when the selected monitor is not initialized yet.
-            if (columnHeaders == null) {
-                _trySettingDataGridViewColumnsOnNextMonitorUpdate = true;
-                return;
-            }
-            _trySettingDataGridViewColumnsOnNextMonitorUpdate = false;
-
+            string[] columnHeaders = cboDrillDown.SelectedIndex == 0 ? FastStressTestMetricsHelper.GetMetricsHeadersConcurrency(chkReadable.Checked) : FastStressTestMetricsHelper.GetMetricsHeadersRun(chkReadable.Checked);
+            
             var clms = new DataGridViewColumn[columnHeaders.Length];
             string clmPrefix = ToString() + "clm";
             for (int headerIndex = 0; headerIndex != columnHeaders.Length; headerIndex++) {
@@ -713,16 +593,10 @@ namespace vApus.StressTest {
             dgvFastResults.Columns.AddRange(clms);
 
             //Set the rows.
-            if (lbtnStressTest.Active)
-                if (cboDrillDown.SelectedIndex == 0)
-                    UpdateFastConcurrencyResults(_concurrencyStressTestMetrics, false);
-                else
-                    UpdateFastRunResults(_runStressTestMetrics, false);
-            else if (monitorToString != null)
-                if (cboDrillDown.SelectedIndex == 0)
-                    UpdateFastConcurrencyResults(monitorToString, _concurrencyMonitorMetrics[monitorToString]);
-                else
-                    UpdateFastRunResults(monitorToString, _runMonitorMetrics[monitorToString]);
+            if (cboDrillDown.SelectedIndex == 0)
+                UpdateFastConcurrencyResults(_concurrencyStressTestMetrics, false);
+            else
+                UpdateFastRunResults(_runStressTestMetrics, false);
         }
 
         private void btnSaveDisplayedResults_Click(object sender, EventArgs e) {
@@ -756,15 +630,7 @@ namespace vApus.StressTest {
             sb.AppendLine();
 
             //Select and write rows.
-            List<object[]> rows = new List<object[]>();
-            if (lbtnStressTest.Active)
-                rows = cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows;
-            else {
-                string monitorToString = null;
-                foreach (var lbtnMonitor in _monitorLinkButtons) if (lbtnMonitor.Active) { monitorToString = lbtnMonitor.Text; break; }
-                if (monitorToString != null)
-                    rows = (cboDrillDown.SelectedIndex == 0 ? _concurrencyMonitorMetricsRows : _runMonitorMetricsRows)[monitorToString];
-            }
+            List<object[]> rows =  cboDrillDown.SelectedIndex == 0 ? _concurrencyStressTestMetricsRows : _runStressTestMetricsRows;
             foreach (var row in rows) {
                 sb.Append(row.Combine("\t"));
                 sb.AppendLine();
