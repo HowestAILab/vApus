@@ -50,7 +50,8 @@ namespace vApus.DistributedTest {
             var dividedTileStressTestsAndOriginal = new Dictionary<TileStressTest, TileStressTest>(slaves);
             if (slaves == 1) {
                 dividedTileStressTestsAndOriginal.Add(tileStressTest, tileStressTest);
-            } else if (slaves != 0) {
+            }
+            else if (slaves != 0) {
                 var addOnesPerConcurrency = new List<bool[]>();
 
                 var concurrencies = new int[tileStressTest.AdvancedTileStressTest.Concurrencies.Length];
@@ -97,11 +98,11 @@ namespace vApus.DistributedTest {
 
         public static RunStateChange PreProcessTestProgressMessage(RunSynchronization runSynchronization, TileStressTest originalTileStressTest, TestProgressMessage tpm, Dictionary<TileStressTest, Dictionary<string, TestProgressMessage>> testProgressMessages,
             Dictionary<TileStressTest, TileStressTest> usedTileStressTests, Dictionary<TileStressTest, List<string>> dividedRunInitializedOrDoneOnce) {
-            lock (_usedTileStressTestsLock) {                
+            lock (_usedTileStressTestsLock) {
                 var dictParts = testProgressMessages[originalTileStressTest];
                 dictParts[tpm.TileStressTestIndex] = tpm;
-                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime || 
-                    ((runSynchronization == RunSynchronization.None || runSynchronization == RunSynchronization.BreakOnFirstFinished) && tpm.RunStateChange == RunStateChange.ToRunDoneOnce) || 
+                if (tpm.RunStateChange == RunStateChange.ToRunInitializedFirstTime ||
+                    ((runSynchronization == RunSynchronization.None || runSynchronization == RunSynchronization.BreakOnFirstFinished) && tpm.RunStateChange == RunStateChange.ToRunDoneOnce) ||
                     (runSynchronization == RunSynchronization.BreakOnLastFinished && tpm.RunFinished)) {
                     if (!dividedRunInitializedOrDoneOnce.ContainsKey(originalTileStressTest)) dividedRunInitializedOrDoneOnce.Add(originalTileStressTest, new List<string>());
                     if (!dividedRunInitializedOrDoneOnce[originalTileStressTest].Contains(tpm.TileStressTestIndex)) dividedRunInitializedOrDoneOnce[originalTileStressTest].Add(tpm.TileStressTestIndex);
@@ -125,7 +126,11 @@ namespace vApus.DistributedTest {
         /// <returns></returns>
         public static TileStressTest GetOriginalTileStressTest(string dividedTileStressTestIndex, Dictionary<TileStressTest, TileStressTest> usedTileStressTests) {
             foreach (TileStressTest ts in usedTileStressTests.Values)
-                if (dividedTileStressTestIndex.StartsWith(ts.TileStressTestIndex)) //Take divided stress tests into account.
+                if (dividedTileStressTestIndex.Split('.').Length == 2) {
+                    if (dividedTileStressTestIndex == ts.TileStressTestIndex)
+                        return ts;
+                }
+                else if (dividedTileStressTestIndex.StartsWith(ts.TileStressTestIndex)) //Take divided stress tests into account.
                     return ts;
             return null;
         }
@@ -137,7 +142,11 @@ namespace vApus.DistributedTest {
         private static int GetDividedCount(string originalTileStressTestIndex, Dictionary<TileStressTest, TileStressTest> usedTileStressTests) {
             int count = 0;
             foreach (TileStressTest ts in usedTileStressTests.Keys)
-                if (ts.TileStressTestIndex.StartsWith(originalTileStressTestIndex)) //Take divided stress tests into account.
+                if (ts.TileStressTestIndex.Split('.').Length == 2) {
+                    if (ts.TileStressTestIndex == originalTileStressTestIndex)
+                        ++count;
+                }
+                else if (ts.TileStressTestIndex.StartsWith(originalTileStressTestIndex)) //Take divided stress tests into account.
                     ++count;
             return count;
         }
