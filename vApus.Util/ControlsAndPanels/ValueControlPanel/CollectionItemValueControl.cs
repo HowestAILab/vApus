@@ -17,6 +17,7 @@ namespace vApus.Util {
     public partial class CollectionItemValueControl : BaseValueControl, IValueControl {
         public CollectionItemValueControl() {
             InitializeComponent();
+            base.SyncGuiWithValueRequested += _SyncGuiWithValueRequested;
         }
 
         public void Init(Value value) {
@@ -46,7 +47,9 @@ namespace vApus.Util {
 
             SetCBO(cbo);
         }
-
+        private void _SyncGuiWithValueRequested(object sender, EventArgs e) {
+            //Probably not needed. Not implemented --> too much overhead.
+        }
         private void SetCBO(ComboBox cbo) {
             cbo.SelectedIndexChanged -= cbo_SelectedIndexChanged;
 

@@ -15,6 +15,7 @@ namespace vApus.Util {
     public partial class BoolValueControl : BaseValueControl, IValueControl {
         public BoolValueControl() {
             InitializeComponent();
+            base.SyncGuiWithValueRequested += _SyncGuiWithValueRequested;
         }
 
         /// <summary>
@@ -45,7 +46,19 @@ namespace vApus.Util {
             SetChkText(chk);
             chk.CheckedChanged += chk_CheckedChanged;
         }
+        private void _SyncGuiWithValueRequested(object sender, EventArgs e) {
+            if (base.ValueControl != null) {
+                bool value = (bool)base.__Value.__Value;
+                var chk = base.ValueControl as CheckBox;
 
+                if (chk.Checked != value) {
+                    chk.CheckedChanged -= chk_CheckedChanged;
+                    chk.Checked = value;
+                    SetChkText(chk);
+                    chk.CheckedChanged += chk_CheckedChanged;
+                }
+            }
+        }
         private void chk_CheckedChanged(object sender, EventArgs e) {
             var chk = ValueControl as CheckBox;
             SetChkText(chk);
@@ -65,7 +78,8 @@ namespace vApus.Util {
                     SetChkText(chk);
                     base.HandleValueChanged(chk.Checked);
                 }
-            } catch {
+            }
+            catch {
             }
         }
 

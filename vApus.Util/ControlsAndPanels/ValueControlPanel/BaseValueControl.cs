@@ -24,6 +24,10 @@ namespace vApus.Util {
     [ToolboxItem(false)]
     public abstract partial class BaseValueControl : UserControl {
         public event EventHandler<ValueChangedEventArgs> ValueChanged;
+        /// <summary>
+        /// To make sure the gui always resembles the property value. Obligatory subscription in derived classes. Fires every second, but only when the control does not contain the focus.
+        /// </summary>
+        protected event EventHandler SyncGuiWithValueRequested;
 
         #region Enums
 
@@ -40,6 +44,8 @@ namespace vApus.Util {
         private bool _locked;
         private ToggleState _toggleState = ToggleState.Collapse;
         private Value _value;
+
+        private Timer _syncGuiWithValueTimer = new Timer() { Enabled = true, Interval = 100 };
 
         #endregion
 
@@ -100,7 +106,8 @@ namespace vApus.Util {
                 if (IsEncrypted && _value.__Value is string) {
                     if (value is TextBox)
                         (value as TextBox).UseSystemPasswordChar = true;
-                } else {
+                }
+                else {
                     _value.IsEncrypted = false;
                 }
 
@@ -120,6 +127,19 @@ namespace vApus.Util {
             InitializeComponent();
 
             rtxtDescription.DefaultContextMenu(true);
+
+            _syncGuiWithValueTimer.Tick += _syncGuiWithValueTimer_Tick;
+        }
+
+        private void _syncGuiWithValueTimer_Tick(object sender, EventArgs e) {
+            if (IsHandleCreated && !ContainsFocus && _value.__Value != null)
+                try {
+                    SyncGuiWithValueRequested(this, null);
+                    SetCollapsedTextBoxText();
+                }
+                catch (Exception ex) {
+                    throw (new Exception("Make sure that derived classes handle the SyncGuiWithValueRequested event.", ex));
+                }
         }
 
         #endregion
@@ -156,7 +176,8 @@ namespace vApus.Util {
                 try {
                     if (ValueChanged != null)
                         ValueChanged(this, new ValueChangedEventArgs(oldValue, value));
-                } catch {
+                }
+                catch {
                     if (ValueChanged != null)
                         ValueChanged(this, new ValueChangedEventArgs(oldValue, oldValue));
                 }
@@ -195,7 +216,8 @@ namespace vApus.Util {
                         split.Panel1.Controls.Add(_collapsedTextBox);
                     splitterDistance = _collapsedTextBox.Height + split.Panel1.Padding.Top + split.Panel1.Padding.Bottom +
                                        _collapsedTextBox.Margin.Bottom + _collapsedTextBox.Margin.Top;
-                } else {
+                }
+                else {
                     split.Panel1.Controls.Remove(_collapsedTextBox);
                     split.Panel2Collapsed = (rtxtDescription.Text.Length == 0);
                     ValueControl.Visible = true;
@@ -209,19 +231,22 @@ namespace vApus.Util {
                                 ParentForm.TopMost = true;
                                 ParentForm.TopMost = false;
                                 ParentForm.Activate();
-                            } else {
+                            }
+                            else {
                                 ParentForm.MdiParent.TopMost = true;
                                 ParentForm.MdiParent.TopMost = false;
                                 ParentForm.MdiParent.Activate();
                             }
-                        } catch {
+                        }
+                        catch {
                         }
 
                     lblLabel.Select();
                     Application.DoEvents();
                     ValueControl.Select();
                 }
-            } else {
+            }
+            else {
                 BackColor = Color.FromArgb(240, 240, 240);
                 ValueControl.Visible = false;
                 SetCollapsedTextBoxText();
@@ -267,14 +292,18 @@ namespace vApus.Util {
                     value.GetType().GetField(value.ToString()).GetCustomAttributes(typeof(DescriptionAttribute), false)
                     as DescriptionAttribute[];
                 text = attr.Length != 0 ? attr[0].Description : value.ToString();
-            } else if (ValueControl is ComboBox) {
+            }
+            else if (ValueControl is ComboBox) {
                 try {
                     text = value.ToString();
-                } catch {
                 }
-            } else if (value is string) {
+                catch {
+                }
+            }
+            else if (value is string) {
                 text = value as string;
-            } else if (value is IEnumerable) {
+            }
+            else if (value is IEnumerable) {
                 var collection = value as IEnumerable;
                 IEnumerator enumerator = collection.GetEnumerator();
 
@@ -287,10 +316,12 @@ namespace vApus.Util {
                 text = sb.ToString();
                 if (text.Length != 0)
                     text = text.Substring(0, text.Length - 2);
-            } else {
+            }
+            else {
                 text = value.ToString();
             }
-            _collapsedTextBox.Text = text;
+            if (_collapsedTextBox.Text != text)
+                _collapsedTextBox.Text = text;
         }
 
         #endregion

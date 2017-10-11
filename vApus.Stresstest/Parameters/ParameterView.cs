@@ -111,6 +111,10 @@ namespace vApus.StressTest {
             SolutionComponent.InvokeSolutionComponentChangedEvent(SolutionComponentChangedEventArgs.DoneAction.Edited);
             solutionComponentPropertyPanel.Refresh();
         }
+        private void solutionComponentPropertyPanel_ValueChanged(object sender, ValueControlPanel.ValueChangedEventArgs e) {
+            solutionComponentPropertyPanel.Refresh();
+        }
         #endregion
+
     }
 }

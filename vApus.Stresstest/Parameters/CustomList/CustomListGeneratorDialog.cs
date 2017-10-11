@@ -9,7 +9,6 @@ using System;
 using System.Collections.Generic;
 using System.Windows.Forms;
 using vApus.SolutionTree;
-using vApus.Util;
 
 namespace vApus.StressTest {
     /// <summary>
@@ -32,7 +31,9 @@ namespace vApus.StressTest {
         public CustomListGeneratorDialog() {
             InitializeComponent();
             _parameterTypeSolutionComponentPropertyPanel.AllowInvokingSolutionComponentChangedEvent = false;
+            _parameterTypeSolutionComponentPropertyPanel.ValueChanged += (s,e) => { timer.Start(); }; //Workaround for refreshing the property values on the GUI. For some reason the default sync way does not work.
         }
+
         /// <summary>
         /// To generate a list of parameters of a given type. Those are added to the given CustomListParameter.
         /// </summary>
@@ -49,9 +50,7 @@ namespace vApus.StressTest {
                         cboParameterType.SelectedIndex = 1;
                     else
                         cboParameterType.SelectedIndex = 2;
-                } else {
-                    timer.Start();
-                }
+                } 
             } else {
                 HandleCreated += CustomListGenerator_HandleCreated;
             }
@@ -67,8 +66,6 @@ namespace vApus.StressTest {
                     cboParameterType.SelectedIndex = 1;
                 else
                     cboParameterType.SelectedIndex = 2;
-            } else {
-                timer.Start();
             }
         }
 
@@ -102,13 +99,10 @@ namespace vApus.StressTest {
             }
         }
         private void timer_Tick(object sender, EventArgs e) {
-            if (!IsDisposed && IsHandleCreated && Visible)
-                foreach (BaseValueControl ctrl in _parameterTypeSolutionComponentPropertyPanel.ValueControls)
-                    if (ctrl.Label == "Label") {
-                        ctrl.Visible = false;
-                        timer.Stop();
-                        break;
-                    }
+            if (!IsDisposed && IsHandleCreated && Visible) {
+                _parameterTypeSolutionComponentPropertyPanel.Refresh();
+                timer.Stop();
+            }
         }
 
         private void btnOK_Click(object sender, EventArgs e) {
