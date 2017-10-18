@@ -10,6 +10,11 @@
             The socket communicates over TCP, but this can be changed if you want to.
             </summary>
         </member>
+        <member name="E:vApus.Monitor.Sources.Base.BaseClient.OnMonitor">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="P:vApus.Monitor.Sources.Base.BaseClient.Name">
             <summary>
             This is actualy the Title from the assembly properties.
@@ -77,8 +82,7 @@
             The number of values cannot be greater than the number of parameters.
             The type of the values must be the same as the type of the default values in the parameters.
             </summary>
-            <param name="value1"></param>
-            <param name="otherValues"></param>
+            <param name="values"></param>
         </member>
         <member name="M:vApus.Monitor.Sources.Base.BaseClient.Connect">
             <summary>
@@ -244,6 +248,11 @@
             <summary>
             Handles start and stop for you (you can override this for the slim chance you have to send something to the device first).
             Has a timer that reports on another thread.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BasePollingClient._sleepWaitHandle">
+            <summary>
+            For functionality testing.
             </summary>
         </member>
         <member name="F:vApus.Monitor.Sources.Base.BasePollingClient._wih">
@@ -848,9 +857,19 @@
             Stores a parameter for a client, for example IP or username.
             </summary>
         </member>
+        <member name="P:vApus.Monitor.Sources.Base.Parameter.Optional">
+            <summary>
+            
+            </summary>
+        </member>
         <member name="P:vApus.Monitor.Sources.Base.Parameter.Value">
             <summary>
             Gets the default value if value is null.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Parameter.DefaultValue">
+            <summary>
+            
             </summary>
         </member>
         <member name="P:vApus.Monitor.Sources.Base.Parameter.Encrypted">
