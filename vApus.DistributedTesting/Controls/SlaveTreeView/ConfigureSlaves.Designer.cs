@@ -164,6 +164,7 @@
             this.txtIP.TabIndex = 1;
             this.toolTip.SetToolTip(this.txtIP, "Make sure this IP is in the same range as one of the IPs of the master!");
             this.txtIP.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtIP_KeyUp);
+            this.txtIP.Leave += this.txtIP_Leave;
             // 
             // lblHostName
             // 
@@ -190,6 +191,7 @@
             this.txtHostName.Size = new System.Drawing.Size(200, 20);
             this.txtHostName.TabIndex = 0;
             this.txtHostName.KeyUp += new System.Windows.Forms.KeyEventHandler(this.txtHostName_KeyUp);
+            this.txtHostName.Leave += this.txtHostName_Leave;
             // 
             // lblRDCredentials
             // 

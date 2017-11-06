@@ -74,7 +74,8 @@ namespace vApus.DistributedTest {
             if (_clientTreeViewItem.Online) {
                 picStatus.Image = Resources.OK;
                 toolTip.SetToolTip(picStatus, "Client online.");
-            } else {
+            }
+            else {
                 picStatus.Image = Resources.Cancelled;
                 toolTip.SetToolTip(picStatus, "Client offline.");
             }
@@ -101,7 +102,8 @@ namespace vApus.DistributedTest {
                 for (int i = 0; i != slaveTiles.Length; i++)
                     slaveTiles[i] = CreateSlaveTile();
                 flp.Controls.AddRange(slaveTiles);
-            } else {
+            }
+            else {
                 var slaveTiles = new Control[flp.Controls.Count - _clientTreeViewItem.Client.Count];
                 for (int i = _clientTreeViewItem.Client.Count; i != flp.Controls.Count; i++)
                     slaveTiles[i - _clientTreeViewItem.Client.Count] = flp.Controls[i];
@@ -187,11 +189,12 @@ namespace vApus.DistributedTest {
         private void txtHostName_KeyUp(object sender, KeyEventArgs e) {
             if (e.KeyCode == Keys.Enter) SetHostNameAndIP();
         }
+        private void txtHostName_Leave(object sender, EventArgs e) { SetHostNameAndIP(); }
 
         private void txtIP_KeyUp(object sender, KeyEventArgs e) {
-            if (e.KeyCode == Keys.Enter) SetHostNameAndIP();
+            if (e.KeyCode == Keys.Enter || e.KeyCode == Keys.Tab) SetHostNameAndIP();
         }
-
+        private void txtIP_Leave(object sender, EventArgs e) { SetHostNameAndIP(); }
         private void picStatus_Click(object sender, EventArgs e) { SetHostNameAndIP(); }
 
         /// <summary>
@@ -231,15 +234,18 @@ namespace vApus.DistributedTest {
                             hostname = Dns.GetHostEntry(ip).HostName;
                             hostname = (hostname == null) ? string.Empty : hostname.ToLowerInvariant();
                             online = true;
-                        } catch {
+                        }
+                        catch {
                             //Ignore resolve issues.
                         }
-                    } else {
+                    }
+                    else {
                         hostname = txtHostName.Text.ToLowerInvariant();
                         IPAddress[] addresses = { };
                         try {
                             if (hostname.Length != 0) addresses = Dns.GetHostEntry(hostname.Split('.')[0]).AddressList;
-                        } catch {
+                        }
+                        catch {
                             //Ignore resolve issues.
                         }
 
@@ -248,7 +254,8 @@ namespace vApus.DistributedTest {
                             online = true;
                         }
                     }
-                } catch {
+                }
+                catch {
                     //Ignore. If you did not type stuff right this obviously fails.
                 }
         }
@@ -275,7 +282,8 @@ namespace vApus.DistributedTest {
 
                         _clientTreeViewItem.SettingHostNameAndIP(true, online);
                         SettingHostNameAndIP(true, online);
-                    } catch {
+                    }
+                    catch {
                         //Ignore.
                     }
             }, null);
@@ -291,11 +299,13 @@ namespace vApus.DistributedTest {
                 if (online) {
                     picStatus.Image = Resources.OK;
                     toolTip.SetToolTip(picStatus, "Client online.");
-                } else {
+                }
+                else {
                     picStatus.Image = Resources.Cancelled;
                     toolTip.SetToolTip(picStatus, "Client offline.");
                 }
-            } else {
+            }
+            else {
                 picStatus.Image = Resources.Busy;
             }
 
