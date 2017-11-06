@@ -15,6 +15,7 @@ namespace vApus.Util {
     public partial class CharValueControl : BaseValueControl, IValueControl {
         public CharValueControl() {
             InitializeComponent();
+            base.SyncGuiWithValueRequested += _SyncGuiWithValueRequested;
         }
 
         /// <summary>
@@ -45,7 +46,13 @@ namespace vApus.Util {
 
             txt.Text = value.__Value.ToString();
         }
-
+        private void _SyncGuiWithValueRequested(object sender, EventArgs e) {
+            if (base.ValueControl != null) {
+                string value = base.__Value.__Value.ToString();
+                var txt = base.ValueControl as TextBox;
+                if (txt.Text != value) txt.Text = base.__Value.__Value.ToString();
+            }
+        }
         private void txt_KeyUp(object sender, KeyEventArgs e) {
             var txt = sender as TextBox;
             if (txt.Text.Length != 0)
@@ -59,7 +66,8 @@ namespace vApus.Util {
                     txt.Text = base.__Value.__Value.ToString();
                 else
                     base.HandleValueChanged(txt.Text[0]);
-            } catch {
+            }
+            catch {
             }
         }
 

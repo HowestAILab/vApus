@@ -48,6 +48,7 @@
             this.solutionComponentPropertyPanel.Size = new System.Drawing.Size(784, 501);
             this.solutionComponentPropertyPanel.SolutionComponent = null;
             this.solutionComponentPropertyPanel.TabIndex = 0;
+            this.solutionComponentPropertyPanel.ValueChanged += new System.EventHandler<vApus.Util.ValueControlPanel.ValueChangedEventArgs>(this.solutionComponentPropertyPanel_ValueChanged);
             // 
             // btnGenerate
             // 

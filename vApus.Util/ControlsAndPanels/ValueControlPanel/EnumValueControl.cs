@@ -16,6 +16,7 @@ namespace vApus.Util {
         [ToolboxItem(false)]
         public EnumValueControl() {
             InitializeComponent();
+            base.SyncGuiWithValueRequested += _SyncGuiWithValueRequested;
         }
 
         /// <summary>
@@ -65,7 +66,9 @@ namespace vApus.Util {
 
             cbo.SelectedIndexChanged += cbo_SelectedIndexChanged;
         }
-
+        private void _SyncGuiWithValueRequested(object sender, EventArgs e) {
+            //Probably not needed. Not implemented --> too much overhead.
+        }
         private void cbo_SelectedIndexChanged(object sender, EventArgs e) {
             var cbo = base.ValueControl as ComboBox;
             base.HandleValueChanged(ExtractValue(cbo));

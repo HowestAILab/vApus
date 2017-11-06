@@ -7,7 +7,6 @@
  */
 
 using System;
-using System.Collections;
 using System.ComponentModel;
 using System.Drawing;
 using System.Windows.Forms;
@@ -19,6 +18,7 @@ namespace vApus.StressTest {
     public partial class LinkToCustomListParameterControl : BaseValueControl, IValueControl {
         public LinkToCustomListParameterControl() {
             InitializeComponent();
+            base.SyncGuiWithValueRequested += _SyncGuiWithValueRequested;
         }
 
         public void Init(Value value) {
@@ -48,7 +48,9 @@ namespace vApus.StressTest {
 
             SetCBO(cbo);
         }
-
+        private void _SyncGuiWithValueRequested(object sender, EventArgs e) {
+            //Probably not needed. Not implemented --> too much overhead.
+        }
         private void SetCBO(ComboBox cbo) {
             cbo.SelectedIndexChanged -= cbo_SelectedIndexChanged;
 

@@ -17,6 +17,7 @@ namespace vApus.Util {
 
         public StringValueControl() {
             InitializeComponent();
+            base.SyncGuiWithValueRequested += _SyncGuiWithValueRequested;
         }
 
         /// <summary>
@@ -63,7 +64,13 @@ namespace vApus.Util {
                 txt.Width = pic.Left - 9;
             }
         }
-
+        private void _SyncGuiWithValueRequested(object sender, EventArgs e) {
+            if (base.ValueControl != null) {
+                string value = base.__Value.__Value.ToString();
+                var txt = base.ValueControl as TextBox;
+                if (txt.Text != value) txt.Text = base.__Value.__Value.ToString();
+            }
+        }
 
         private void txt_KeyUp(object sender, KeyEventArgs e) {
             var txt = sender as TextBox;

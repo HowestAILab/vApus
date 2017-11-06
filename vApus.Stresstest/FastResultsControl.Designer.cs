@@ -60,7 +60,6 @@
             this.flpFastResultsHeader = new System.Windows.Forms.FlowLayoutPanel();
             this.label4 = new System.Windows.Forms.Label();
             this.lblUpdatesIn = new System.Windows.Forms.Label();
-            this.lbtnStressTest = new vApus.Util.LinkButton();
             this.dgvFastResults = new System.Windows.Forms.DataGridView();
             this.flpFastMetrics = new System.Windows.Forms.FlowLayoutPanel();
             this.label1 = new System.Windows.Forms.Label();
@@ -463,7 +462,6 @@
             this.flpFastResultsHeader.AutoScroll = true;
             this.flpFastResultsHeader.Controls.Add(this.label4);
             this.flpFastResultsHeader.Controls.Add(this.lblUpdatesIn);
-            this.flpFastResultsHeader.Controls.Add(this.lbtnStressTest);
             this.flpFastResultsHeader.Location = new System.Drawing.Point(0, 0);
             this.flpFastResultsHeader.Margin = new System.Windows.Forms.Padding(0);
             this.flpFastResultsHeader.Name = "flpFastResultsHeader";
@@ -493,30 +491,6 @@
             this.lblUpdatesIn.Name = "lblUpdatesIn";
             this.lblUpdatesIn.Size = new System.Drawing.Size(0, 18);
             this.lblUpdatesIn.TabIndex = 9999;
-            // 
-            // lbtnStressTest
-            // 
-            this.lbtnStressTest.Active = true;
-            this.lbtnStressTest.ActiveLinkColor = System.Drawing.Color.Black;
-            this.lbtnStressTest.AutoSize = true;
-            this.lbtnStressTest.BorderStyle = System.Windows.Forms.BorderStyle.FixedSingle;
-            this.lbtnStressTest.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.lbtnStressTest.ForeColor = System.Drawing.Color.Black;
-            this.lbtnStressTest.LinkBehavior = System.Windows.Forms.LinkBehavior.NeverUnderline;
-            this.lbtnStressTest.LinkColor = System.Drawing.Color.Black;
-            this.lbtnStressTest.Location = new System.Drawing.Point(111, 9);
-            this.lbtnStressTest.Margin = new System.Windows.Forms.Padding(5, 6, 0, 3);
-            this.lbtnStressTest.Name = "lbtnStressTest";
-            this.lbtnStressTest.Padding = new System.Windows.Forms.Padding(3, 4, 3, 3);
-            this.lbtnStressTest.RadioButtonBehavior = true;
-            this.lbtnStressTest.Size = new System.Drawing.Size(99, 22);
-            this.lbtnStressTest.TabIndex = 0;
-            this.lbtnStressTest.TabStop = true;
-            this.lbtnStressTest.Text = "The stress test";
-            this.lbtnStressTest.TextAlign = System.Drawing.ContentAlignment.TopCenter;
-            this.lbtnStressTest.Visible = false;
-            this.lbtnStressTest.VisitedLinkColor = System.Drawing.Color.Black;
-            this.lbtnStressTest.ActiveChanged += new System.EventHandler(this.lbtnStressTest_ActiveChanged);
             // 
             // dgvFastResults
             // 
@@ -929,7 +903,6 @@
         private System.Windows.Forms.ToolTip toolTip;
         private System.Windows.Forms.CheckBox chkReadable;
         private System.Windows.Forms.DataGridView dgvFastResults;
-        private Util.LinkButton lbtnStressTest;
         private System.Windows.Forms.FlowLayoutPanel flpFastResultsHeader;
         private System.Windows.Forms.Panel pnlBorderCollapse;
         private System.Windows.Forms.Button btnCollapseExpand;

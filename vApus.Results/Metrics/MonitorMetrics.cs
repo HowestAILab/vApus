@@ -8,6 +8,7 @@
 using System;
 
 namespace vApus.Results {
+#warning OBSOLETE
     public class MonitorMetrics {
         #region Properties
         /// <summary>

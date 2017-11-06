@@ -18,6 +18,7 @@ namespace vApus.Util {
 
         public NumericValueControl() {
             InitializeComponent();
+            base.SyncGuiWithValueRequested += _SyncGuiWithValueRequested;
         }
 
         public void Init(Value value) {
@@ -76,7 +77,13 @@ namespace vApus.Util {
 
             _nud.Value = Convert.ToDecimal(value.__Value);
         }
-
+        private void _SyncGuiWithValueRequested(object sender, EventArgs e) {
+            if (_nud != null) {
+                decimal value = Convert.ToDecimal(base.__Value.__Value);
+                if (_nud.Value != value)
+                    _nud.Value = value;
+            }
+        }
         private void NumericValueControl_HandleCreated(object sender, EventArgs e) {
             HandleCreated -= NumericValueControl_HandleCreated;
 

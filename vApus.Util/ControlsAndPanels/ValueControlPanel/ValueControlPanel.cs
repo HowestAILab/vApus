@@ -73,10 +73,7 @@ namespace vApus.Util {
         private static extern int LockWindowUpdate(IntPtr hWnd);
 
         private void ValueControlPanel_HandleCreated(object sender, EventArgs e) {
-            if (_locked)
-                Lock();
-            else
-                Unlock();
+            if (_locked) Lock(); else Unlock();
         }
 
         private void FillControlTypes() {
@@ -118,11 +115,12 @@ namespace vApus.Util {
             try {
                 _values = values;
 
-                //Recycle controls, + 1 because solution component property panel adds a control afterwards. () not the right place for tis + 1, but yeah...)
+                //Recycle controls, + 1 because solution component property panel adds a control afterwards. () not the right place for this + 1, but yeah...)
                 bool partialRefresh = forceFullRefresh ? false : (_values.Length == Controls.Count || _values.Length + 1 == Controls.Count);
                 AutoScroll = false;
                 SetValues(partialRefresh);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 Loggers.Log(Level.Error, "Generating GUI failed.", ex);
             }
             AutoScroll = true;
@@ -137,7 +135,8 @@ namespace vApus.Util {
                 for (int i = 0; i != _values.Length; i++)
                     try {
                         (Controls[i] as IValueControl).Init(_values[i]);
-                    } catch {
+                    }
+                    catch {
                         //It is not a real problem if this fails. It is most likely due to a data type mismatch when recycling controls.
                         LockWindowUpdate(IntPtr.Zero);
                         SetValues(false);
@@ -147,7 +146,8 @@ namespace vApus.Util {
                 //SendMessageWrapper.SetWindowRedraw(Handle, true);
                 LockWindowUpdate(IntPtr.Zero);
                 Invalidate();
-            } else {
+            }
+            else {
                 LockWindowUpdate(Handle);
 
                 //Keep the values here before adding them.
@@ -181,7 +181,8 @@ namespace vApus.Util {
                     if (control.IsHandleCreated && control.Visible) {
                         control.Focus();
                         control.Select();
-                    } else {
+                    }
+                    else {
                         control.VisibleChanged += ValueControl_VisibleChanged;
                     }
                 }
@@ -238,7 +239,8 @@ namespace vApus.Util {
                             (control as BaseValueControl).Lock();
                         else
                             control.HandleCreated += control_lock_HandleCreated;
-                    } else
+                    }
+                    else
                         HandleCreated += ValueControlPanel_lock_HandleCreated;
         }
 
@@ -271,7 +273,8 @@ namespace vApus.Util {
                             (control as BaseValueControl).Unlock();
                         else
                             control.HandleCreated += control_unlock_HandleCreated;
-                    } else
+                    }
+                    else
                         HandleCreated += ValueControlPanel_unlock_HandleCreated;
         }
 

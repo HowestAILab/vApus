@@ -138,7 +138,7 @@ Usage example in connection proxy code:
 
     if(Thread.CurrentThread.GetParent() == null) {
       // I am a 'simulated user thread'.
-      _myValue.Set("+ "\"foobar\""+ @");
+      _myValue.Set(" + "\"foobar\"" + @");
     }
     string owner = Thread.CurrentThread.GetParent() as string;
     if (owner == null) {
@@ -148,34 +148,42 @@ Usage example in connection proxy code:
     EventPanel.AddEvent(string.Empty + _myValue.Get<object>(owner));");
             }
             else {
+                if (_valueStoreValue.IsUniqueForEachConnection) {
+                    //Sort stuff.
+                    string prefix = "vApus Thread Pool Thread #";
+                    var dic = new SortedDictionary<string, object>(KeyComparer.GetInstance());
+                    KeyValuePair<string, object> kvp;
 
-                //Sort stuff.
-                string prefix = "vApus Thread Pool Thread #";
-                var dic = new SortedDictionary<string, object>(KeyComparer.GetInstance());
-                KeyValuePair<string, object> kvp;
+                    for (int i = 0; i != values.Length; i++) {
+                        kvp = values[i];
+                        dic.Add(kvp.Key.Substring(prefix.Length), kvp.Value);
+                    }
+                    dic.CopyTo(values, 0);
 
-                for (int i = 0; i != values.Length; i++) {
-                    kvp = values[i];
-                    dic.Add(kvp.Key.Substring(prefix.Length), kvp.Value);
-                }
-                dic.CopyTo(values, 0);
+                    //Print stuff.
+                    sb.AppendLine(prefix);
 
-                //Print stuff.
-                sb.AppendLine(prefix);
+                    for (int i = 0; i != values.Length - 1; i++) {
+                        kvp = values[i];
+                        sb.Append("  ");
+                        sb.Append(kvp.Key);
+                        sb.Append(":\t");
+                        sb.AppendLine(kvp.Value.ToString());
+                    }
 
-                for (int i = 0; i != values.Length - 1; i++) {
-                    kvp = values[i];
+                    kvp = values.Last();
                     sb.Append("  ");
                     sb.Append(kvp.Key);
                     sb.Append(":\t");
-                    sb.AppendLine(kvp.Value.ToString());
+                    sb.Append(kvp.Value.ToString());
                 }
+                else {
+                    sb.Append("Shared value for all vApus Thread Pool Threads: ");
 
-                kvp = values.Last();
-                sb.Append("  ");
-                sb.Append(kvp.Key);
-                sb.Append(":\t");
-                sb.Append(kvp.Value.ToString());
+                    if (values.Length != 0) {
+                        sb.Append(values[0].Value);
+                    }
+                }
             }
 
             fctb.Text = sb.ToString().Trim();
