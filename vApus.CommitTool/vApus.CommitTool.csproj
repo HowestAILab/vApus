@@ -110,23 +110,14 @@
     <StartupObject />
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="DiffieHellman, Version=0.0.0.0, Culture=neutral">
-      <HintPath>..\packages\DiffieHellman.1.0.0\lib\net40\DiffieHellman.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
-    <Reference Include="Org.Mentalis.Security, Version=1.0.13.715, Culture=neutral">
-      <HintPath>..\packages\Org.Mentalis.Security.1.0.0\lib\net40\Org.Mentalis.Security.dll</HintPath>
-      <Private>True</Private>
+    <Reference Include="Renci.SshNet, Version=2016.1.0.0, Culture=neutral, PublicKeyToken=1cee9f8bde3db106, processorArchitecture=MSIL">
+      <HintPath>..\packages\SSH.NET.2016.1.0\lib\net40\Renci.SshNet.dll</HintPath>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core">
       <RequiredTargetFramework>3.5</RequiredTargetFramework>
     </Reference>
     <Reference Include="System.Windows.Forms" />
-    <Reference Include="Tamir.SharpSSH, Version=1.1.1.13, Culture=neutral">
-      <HintPath>..\packages\Tamir.SharpSSH.1.1.1.13\lib\Tamir.SharpSSH.dll</HintPath>
-      <Private>True</Private>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Commit.cs" />

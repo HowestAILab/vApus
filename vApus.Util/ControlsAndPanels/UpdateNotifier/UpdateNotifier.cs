@@ -11,7 +11,7 @@ using System.ComponentModel;
 using System.IO;
 using System.Threading;
 using System.Windows.Forms;
-using Tamir.SharpSsh;
+using Renci.SshNet;
 using vApus.Util.Properties;
 
 namespace vApus.Util {
@@ -75,7 +75,8 @@ namespace vApus.Util {
 
                 if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
                     return UpdateNotifierState.Disabled;
-                } else if (_refreshed) {
+                }
+                else if (_refreshed) {
                     if (_versionChanged)
                         return UpdateNotifierState.NewUpdateFound;
                     return UpdateNotifierState.UpToDate;
@@ -160,37 +161,39 @@ namespace vApus.Util {
                         _refreshed = false;
                         return;
                     }
-
-                    var sftp = new Sftp(host, username, password);
-                    sftp.Connect(port);
-
                     try {
                         if (Directory.Exists(tempFolder) &&
                         Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                             Directory.Delete(tempFolder, true);
-                    } catch (Exception ex) {
+                    }
+                    catch (Exception ex) {
                         Loggers.Log(Level.Warning, "Failed deleting the temp dir.", ex);
                     }
 
                     Directory.CreateDirectory(tempFolder);
 
-                    string tempVersion = Path.Combine(tempFolder, "version.ini");
 
+                    string tempVersionPath = Path.Combine(tempFolder, "version.ini");
                     try {
-                        if (File.Exists(tempVersion)) File.Delete(tempVersion);
-                    } catch (Exception ex) {
+                        if (File.Exists(tempVersionPath)) File.Delete(tempVersionPath);
+                    }
+                    catch (Exception ex) {
                         Loggers.Log(Level.Warning, "Failed deleting the temp version.", ex);
                     }
 
-                    string channelDir = channel == 0 ? "stable" : "nightly";
-                    sftp.Get(channelDir + "/version.ini", tempVersion);
+                    using (var sftp = new SftpClient(host, port, username, password)) {
+                        sftp.Connect();           
+                         
+                        string channelDir = channel == 0 ? "stable" : "nightly";
 
-                    try { sftp.Close(); } finally { sftp = null; }
+                        using (var str = File.Create(tempVersionPath))
+                            sftp.DownloadFile(channelDir + "/version.ini", str);
+                    }
 
-                    _newVersion = GetVersion(tempVersion);
-                    _newChannel = GetChannel(tempVersion);
+                    _newVersion = GetVersion(tempVersionPath);
+                    _newChannel = GetChannel(tempVersionPath);
 
-                    _newHistory = GetHistory(tempVersion);
+                    _newHistory = GetHistory(tempVersionPath);
 
                     if (_newVersion.Length == 0 || _newChannel.Length == 0 || _newHistory.Length == 0)
                         throw new Exception("Could not fetch the versioning data.");
@@ -198,14 +201,17 @@ namespace vApus.Util {
                     _versionChanged = (CurrentVersion != _newVersion) || (CurrentChannel != _newChannel);
 
                     _refreshed = true;
-                } catch {
+                }
+                catch (Exception ex) {
                     _failedRefresh = true;
                     _refreshed = false;
-                } finally {
+                }
+                finally {
                     try {
                         if (Directory.Exists(tempFolder))
                             Directory.Delete(tempFolder, true);
-                    } finally {
+                    }
+                    finally {
                         canRefreshNamedMutex.ReleaseMutex();
                     }
                 }
@@ -225,7 +231,7 @@ namespace vApus.Util {
 
         private static string Get(string versionIniPath, string part) {
             int retry = 0;
-        Retry:
+            Retry:
             if (File.Exists(versionIniPath))
                 try {
                     using (var sr = new StreamReader(versionIniPath)) {
@@ -239,11 +245,13 @@ namespace vApus.Util {
                                 found = true;
                         }
                     }
-                } catch {
+                }
+                catch {
                     if (++retry != 101) {
                         Thread.Sleep(retry * 10);
                         goto Retry;
-                    } else throw;
+                    }
+                    else throw;
                 }
             return string.Empty;
         }
