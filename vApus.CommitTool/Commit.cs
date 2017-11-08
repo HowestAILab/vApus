@@ -13,7 +13,7 @@ using System.Security.Cryptography;
 using System.Text;
 using System.Threading;
 using System.Windows.Forms;
-using Tamir.SharpSsh;
+using Renci.SshNet;
 
 namespace vApus.CommitTool {
     public class Commit {
@@ -42,8 +42,8 @@ namespace vApus.CommitTool {
             Exception exception = null;
 
             try {
-                Sftp sftp;
-                SshStream ssh;
+                SftpClient sftp;
+                SshClient ssh;
                 exception = Connect(host, port, username, password, out sftp, out ssh);
                 if (exception == null) {
                     string channel;
@@ -75,7 +75,7 @@ namespace vApus.CommitTool {
         /// <param name="sftp">For putting binaries</param>
         /// <param name="ssh">For removing folders that are not empty</param>
         /// <param name="exception"></param>
-        private Exception Connect(string host, int port, string username, string password, out Sftp sftp, out SshStream ssh) {
+        private Exception Connect(string host, int port, string username, string password, out SftpClient sftp, out SshClient ssh) {
             Exception exception = null;
             sftp = null;
             ssh = null;
@@ -83,10 +83,11 @@ namespace vApus.CommitTool {
                 if (port == 0)
                     port = 22;
 
-                sftp = new Sftp(host, username, password);
-                sftp.Connect(port);
+                sftp = new SftpClient(host, port, username, password);
+                sftp.Connect();
 
-                ssh = new SshStream(host, username, password);
+                ssh = new SshClient(host, port, username, password);
+                ssh.Connect();
             } catch (Exception ex) {
                 Disconnect(sftp, ssh);
                 exception = ex;
@@ -99,10 +100,10 @@ namespace vApus.CommitTool {
         /// </summary>
         /// <param name="sftp"></param>
         /// <param name="ssh"></param>
-        private void Disconnect(Sftp sftp, SshStream ssh) {
+        private void Disconnect(SftpClient sftp, SshClient ssh) {
             if (sftp != null) {
                 try {
-                    sftp.Close();
+                    sftp.Dispose();
                 } catch {
                     //Ignore.
                 }
@@ -110,7 +111,7 @@ namespace vApus.CommitTool {
             }
             if (ssh != null) {
                 try {
-                    ssh.Close();
+                    ssh.Dispose();
                 } catch {
                     //Ignore.
                 }
@@ -118,24 +119,22 @@ namespace vApus.CommitTool {
             }
         }
 
-        private Exception CommitBinaries(Sftp sftp, SshStream ssh, string channel, List<string> fileList, List<string> folderList) {
+        private Exception CommitBinaries(SftpClient sftp, SshClient ssh, string channel, List<string> fileList, List<string> folderList) {
             Exception exception = null;
             string channelDir = channel.ToLowerInvariant();
 
             try {
                 //Remake the channel dir for a clean start
-                ssh.Write("rm -rf " + channelDir);
-                ssh.ReadResponse();
-                //A bit sad, but otherwise the following command doesn't work (1 minute should be okay, just being sure)
-                Thread.Sleep(60000);
-                sftp.Mkdir(channelDir);
+                ssh.RunCommand("rm -rf " + channelDir);           
+                sftp.CreateDirectory(channelDir);
 
                 int startupPathLength = Application.StartupPath.Length;
                 foreach (string folder in folderList)
-                    sftp.Mkdir(channelDir + folder.Substring(startupPathLength).Replace('\\', '/'));
+                    sftp.CreateDirectory(channelDir + folder.Substring(startupPathLength).Replace('\\', '/'));
 
                 foreach (string file in fileList)
-                    sftp.Put(file, channelDir + file.Substring(startupPathLength).Replace('\\', '/'));
+                    using(var str = File.OpenRead(file))
+                    sftp.UploadFile(str, channelDir + file.Substring(startupPathLength).Replace('\\', '/'));
 
             } catch (Exception ex) {
                 exception = ex;
