@@ -39,6 +39,9 @@ namespace vApus.CommitTool {
             Exception exception = null;
 
             try {
+                if (Directory.Exists(_updateTempFilesPath)) Directory.Delete(_updateTempFilesPath, true);
+                Directory.CreateDirectory(_updateTempFilesPath);
+
                 string version = GetVersion(localGitRepository, gitCmd);
 
                 if (timeStamp.Length != 0)
@@ -62,6 +65,8 @@ namespace vApus.CommitTool {
 
                     sw.Flush();
                 }
+
+                File.Copy(Path.Combine(Application.StartupPath, "version.ini"), Path.Combine(_updateTempFilesPath, "version.ini"));
             }
             catch (Exception ex) {
                 exception = ex;
@@ -179,8 +184,6 @@ namespace vApus.CommitTool {
         /// <param name="excludedFilesOrFolders"></param>
         /// <returns>The files section of the version.ini: short filename + md5 hash.</returns>
         private string StoreAndGetFiles(string[] excludedFilesOrFolders) {
-            Directory.CreateDirectory(_updateTempFilesPath);
-
             var sb = new StringBuilder();
             using (var md5 = new MD5CryptoServiceProvider()) {
                 foreach (string line in StoreAndGetFilesFromFolderFormatted(Application.StartupPath, Application.StartupPath, excludedFilesOrFolders, md5))
@@ -213,20 +216,18 @@ namespace vApus.CommitTool {
             int absolutePartDirectoryLength = absolutePartFolder.Length;
 
             //Create a directory in the temp folder.
-            Directory.CreateDirectory(Path.Combine(_updateTempFilesPath, folder.Substring(absolutePartDirectoryLength)));
+            Directory.CreateDirectory(_updateTempFilesPath + folder.Substring(absolutePartDirectoryLength));
 
             foreach (string fileName in Directory.GetFiles(folder, "*", SearchOption.TopDirectoryOnly)) {
                 string shortFileName = fileName.Substring(absolutePartDirectoryLength);
                 if (!IsFileOrFolderExcluded(shortFileName, excludedFilesOrFolders)) {
                     switch (shortFileName.ToLowerInvariant()) {
                         case @"\version.ini":
-                            File.Copy(fileName, Path.Combine(_updateTempFilesPath, shortFileName));
-                            break;
                         case @"\history.xml":
                         case @"\vApus.CommitTool.exe":
                             break;
                         default:
-                            File.Copy(fileName, Path.Combine(_updateTempFilesPath, shortFileName));
+                            File.Copy(fileName, _updateTempFilesPath + shortFileName);
                             formatted.Add(shortFileName + ":" + GetMD5HashFromFile(fileName, md5));
                             break;
                     }

@@ -27,7 +27,7 @@ namespace vApus.CommitTool {
             var commit = Commit.GetInstance();
 
             Exception exception;
-            if (args.Length >= 8) {
+            if (args.Length >= 4) {
                 try {
                     var excludedFilesOrFolders = new string[args.Length - 4];
                     int j = 0;
