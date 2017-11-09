@@ -11,15 +11,16 @@ using System.Diagnostics;
 using System.IO;
 using System.Security.Cryptography;
 using System.Text;
-using System.Threading;
 using System.Windows.Forms;
-using Renci.SshNet;
 
 namespace vApus.CommitTool {
     public class Commit {
         private static Commit _commit;
 
+        private static string _updateTempFilesPath;
+
         private Commit() {
+            _updateTempFilesPath = Path.Combine(Application.StartupPath, "UpdateTempFiles");
         }
 
         public static Commit GetInstance() {
@@ -27,159 +28,43 @@ namespace vApus.CommitTool {
         }
 
         /// <summary>
+        /// All files are stored in a folder UpdateTempFiles, together with a version.ini for version checking. Those files should be copied over to a remote location by hand or using a CI service. 
         /// </summary>
-        /// <param name="host"></param>
-        /// <param name="port">Default = 5222 for extern users, 22 for intern users</param>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
         /// <param name="localGitRepository">The folder containing all the source files (and the .git folder).</param>
-        /// <param name="exception"></param>
         /// <param name="gitCmd">eg C:\Program Files (x86)\Git\cmd\git.cmd</param>
         /// <param name="historyXml">The path to the history.xml</param>
         /// <param name="timeStamp">Give the timestamp that is appended to the package name that all files are put into, if Any. For example, if you zip the files and put them elsewhere, or make an installer. Then the time stamp is the same everywhere.</param>
         /// <param name="excludedFilesOrFolders"></param>
-        public Exception Do(string host, int port, string username, string password, string historyXml, string localGitRepository, string gitCmd, string timeStamp, params string[] excludedFilesOrFolders) {
+        public Exception Do(string historyXml, string localGitRepository, string gitCmd, string timeStamp, params string[] excludedFilesOrFolders) {
             Exception exception = null;
 
             try {
-                SftpClient sftp;
-                SshClient ssh;
-                exception = Connect(host, port, username, password, out sftp, out ssh);
-                if (exception == null) {
-                    string channel;
-                    List<string> fileList, folderList;
+                string version = GetVersion(localGitRepository, gitCmd);
 
-                    //Version ini contains the version number needed for the updater, the history of changes and a list of included files and checksums (to be able to update only changed files)
-                    exception = MakeVersionIni(historyXml, localGitRepository, gitCmd, timeStamp, excludedFilesOrFolders, out channel, out fileList, out folderList);
-                    if (exception == null)
-                        exception = CommitBinaries(sftp, ssh, channel, fileList, folderList);
+                if (timeStamp.Length != 0)
+                    version += " " + timeStamp;
+
+                string channel = GetChannel(localGitRepository, gitCmd);
+
+                string history = GetHistory(historyXml);
+
+                string files = StoreAndGetFiles(excludedFilesOrFolders);
+
+                using (var sw = new StreamWriter(Path.Combine(Application.StartupPath, "version.ini"))) {
+                    sw.WriteLine("[VERSION]");
+                    sw.WriteLine(version);
+                    sw.WriteLine("[CHANNEL]");
+                    sw.WriteLine(channel);
+                    sw.WriteLine("[HISTORY]");
+                    sw.WriteLine(history);
+                    sw.WriteLine("[FILES]");
+                    sw.WriteLine(files);
+
+                    sw.Flush();
                 }
-
-                //This does a null check also.
-                Disconnect(sftp, ssh);
-            } catch (Exception ex) {
+            }
+            catch (Exception ex) {
                 exception = ex;
-            }
-
-            return exception;
-        }
-
-        #region Communication
-
-        /// <summary>
-        /// </summary>
-        /// <param name="host"></param>
-        /// <param name="port"></param>
-        /// <param name="username"></param>
-        /// <param name="password"></param>
-        /// <param name="sftp">For putting binaries</param>
-        /// <param name="ssh">For removing folders that are not empty</param>
-        /// <param name="exception"></param>
-        private Exception Connect(string host, int port, string username, string password, out SftpClient sftp, out SshClient ssh) {
-            Exception exception = null;
-            sftp = null;
-            ssh = null;
-            try {
-                if (port == 0)
-                    port = 22;
-
-                sftp = new SftpClient(host, port, username, password);
-                sftp.Connect();
-
-                ssh = new SshClient(host, port, username, password);
-                ssh.Connect();
-            } catch (Exception ex) {
-                Disconnect(sftp, ssh);
-                exception = ex;
-            }
-            return exception;
-        }
-
-        /// <summary>
-        ///     Does a null check, closes the connection, disposes the object.
-        /// </summary>
-        /// <param name="sftp"></param>
-        /// <param name="ssh"></param>
-        private void Disconnect(SftpClient sftp, SshClient ssh) {
-            if (sftp != null) {
-                try {
-                    sftp.Dispose();
-                } catch {
-                    //Ignore.
-                }
-                sftp = null;
-            }
-            if (ssh != null) {
-                try {
-                    ssh.Dispose();
-                } catch {
-                    //Ignore.
-                }
-                ssh = null;
-            }
-        }
-
-        private Exception CommitBinaries(SftpClient sftp, SshClient ssh, string channel, List<string> fileList, List<string> folderList) {
-            Exception exception = null;
-            string channelDir = channel.ToLowerInvariant();
-
-            try {
-                //Remake the channel dir for a clean start
-                ssh.RunCommand("rm -rf " + channelDir);           
-                sftp.CreateDirectory(channelDir);
-
-                int startupPathLength = Application.StartupPath.Length;
-                foreach (string folder in folderList)
-                    sftp.CreateDirectory(channelDir + folder.Substring(startupPathLength).Replace('\\', '/'));
-
-                foreach (string file in fileList)
-                    using(var str = File.OpenRead(file))
-                    sftp.UploadFile(str, channelDir + file.Substring(startupPathLength).Replace('\\', '/'));
-
-            } catch (Exception ex) {
-                exception = ex;
-            }
-            return exception;
-        }
-
-        #endregion
-
-        #region Make the version.ini and get files and folder to commit to the server
-
-        private Exception MakeVersionIni(string historyXml, string localGitRepository, string gitCmd, string timeStamp,
-                                    string[] excludedFilesOrFolders, out string channel, out List<string> fileList,
-                                    out List<string> folderList) {
-            Exception exception = null;
-            channel = null;
-            fileList = null;
-            folderList = null;
-
-            string version = GetVersion(localGitRepository, gitCmd, out exception);
-            if (exception != null) return exception;
-
-            if (timeStamp.Length != 0)
-                version += " " + timeStamp;
-
-            channel = GetChannel(localGitRepository, gitCmd, out exception);
-            if (exception != null) return exception;
-
-            string history = GetHistory(historyXml, out exception);
-            if (exception != null) return exception;
-
-            string files = GetFiles(excludedFilesOrFolders, out fileList, out folderList, out exception);
-            if (exception != null) return exception;
-
-            using (var sw = new StreamWriter(Path.Combine(Application.StartupPath, "version.ini"))) {
-                sw.WriteLine("[VERSION]");
-                sw.WriteLine(version);
-                sw.WriteLine("[CHANNEL]");
-                sw.WriteLine(channel);
-                sw.WriteLine("[HISTORY]");
-                sw.WriteLine(history);
-                sw.WriteLine("[FILES]");
-                sw.WriteLine(files);
-
-                sw.Flush();
             }
 
             return exception;
@@ -190,19 +75,13 @@ namespace vApus.CommitTool {
         /// </summary>
         /// <param name="localGitRepository"></param>
         /// <param name="gitCmd"></param>
-        /// <param name="exception"></param>
         /// <returns>git tag (latest tag) </returns>
-        private string GetVersion(string localGitRepository, string gitCmd, out Exception exception) {
-            string version = null;
-            try {
-                exception = null;
-                List<string> output = GetCMDOutput(localGitRepository,
-                                                   "\"" + gitCmd + "\" describe \"--abbrev=0\" --tags");
-                version = output[output.Count - 1];
-                version = version.Replace('_', ' ');
-            } catch (Exception ex) {
-                exception = ex;
-            }
+        private string GetVersion(string localGitRepository, string gitCmd) {
+            List<string> output = GetCMDOutput(localGitRepository,
+                                               "\"" + gitCmd + "\" describe \"--abbrev=0\" --tags");
+            string version = output[output.Count - 1];
+            version = version.Replace('_', ' ');
+
             return version;
         }
 
@@ -210,50 +89,39 @@ namespace vApus.CommitTool {
         /// </summary>
         /// <param name="localGitRepository"></param>
         /// <param name="gitCmd"></param>
-        /// <param name="exception"></param>
         /// <returns>If the branch equals "* stable2" "Stable" is returned, otherwise "Nightly".</returns>
-        private string GetChannel(string localGitRepository, string gitCmd, out Exception exception) {
+        private string GetChannel(string localGitRepository, string gitCmd) {
             string channel = null;
-            try {
-                exception = null;
-                string input = "\"" + gitCmd + "\" branch";
-                List<string> output = GetCMDOutput(localGitRepository, input);
-                var branches = new List<string>();
+            string input = "\"" + gitCmd + "\" branch";
+            List<string> output = GetCMDOutput(localGitRepository, input);
+            var branches = new List<string>();
 
-                bool canAddToBranches = false;
-                foreach (string line in output) {
-                    if (canAddToBranches)
-                        branches.Add(line);
+            bool canAddToBranches = false;
+            foreach (string line in output) {
+                if (canAddToBranches)
+                    branches.Add(line);
 
-                    if (line.Contains(input))
-                        canAddToBranches = true;
+                if (line.Contains(input))
+                    canAddToBranches = true;
+            }
+
+            channel = "Nightly";
+            foreach (string branch in branches)
+                if (branch == "* stable2") {
+                    channel = "Stable";
+                    break;
                 }
 
-                channel = "Nightly";
-                foreach (string branch in branches)
-                    if (branch == "* stable2") {
-                        channel = "Stable";
-                        break;
-                    }
-            } catch (Exception ex) {
-                exception = ex;
-            }
             return channel;
         }
 
         /// <summary>
         /// </summary>
-        /// <param name="exception"></param>
         /// <returns>The history from the history.xml in the start up folder of the commit tool.</returns>
-        private string GetHistory(string historyXml, out Exception exception) {
+        private string GetHistory(string historyXml) {
             string history = null;
-            try {
-                exception = null;
-                using (var sr = new StreamReader(historyXml))
-                    history = sr.ReadToEnd();
-            } catch (Exception ex) {
-                exception = ex;
-            }
+            using (var sr = new StreamReader(historyXml))
+                history = sr.ReadToEnd();
             return history;
         }
 
@@ -286,8 +154,7 @@ namespace vApus.CommitTool {
             p.StandardInput.WriteLine(localGitRepository.Split('\\')[0]);
             p.StandardInput.WriteLine("cd \"" + localGitRepository + "\"");
             p.StandardInput.WriteLine(gitbash);
-
-
+            
             p.WaitForExit();
             p = null;
 
@@ -307,49 +174,25 @@ namespace vApus.CommitTool {
         }
 
         /// <summary>
+        /// Stores files in a folder UpdateTempFiles
         /// </summary>
         /// <param name="excludedFilesOrFolders"></param>
-        /// <param name="fileList">All the files needed to be commit (absolute paths)</param>
-        /// <param name="folderList">All the folders needed to be made serverside (absolute paths)</param>
-        /// <param name="exception"></param>
-        /// <returns>The files section of the version.ini</returns>
-        private string GetFiles(string[] excludedFilesOrFolders, out List<string> fileList, out List<string> folderList,
-                                out Exception exception) {
-            exception = null;
-            folderList = new List<string>();
-            fileList = new List<string>();
+        /// <returns>The files section of the version.ini: short filename + md5 hash.</returns>
+        private string StoreAndGetFiles(string[] excludedFilesOrFolders) {
+            Directory.CreateDirectory(_updateTempFilesPath);
 
-            string files = null;
-            try {
-                var sb = new StringBuilder();
-                using (var md5 = new MD5CryptoServiceProvider()) {
-                    foreach (
-                        string line in
-                            GetFilesFromFolderFormatted(Application.StartupPath, Application.StartupPath,
-                                                        excludedFilesOrFolders, md5, out fileList))
-                        sb.AppendLine(line);
+            var sb = new StringBuilder();
+            using (var md5 = new MD5CryptoServiceProvider()) {
+                foreach (string line in StoreAndGetFilesFromFolderFormatted(Application.StartupPath, Application.StartupPath, excludedFilesOrFolders, md5))
+                    sb.AppendLine(line);
 
-                    foreach (
-                        string folder in
-                            Directory.GetDirectories(Application.StartupPath, "*", SearchOption.AllDirectories))
-                        if (!IsFileOrFolderExcluded(folder, excludedFilesOrFolders)) {
-                            List<string> tempFileList;
-                            foreach (
-                                string line in
-                                    GetFilesFromFolderFormatted(Application.StartupPath, folder, excludedFilesOrFolders,
-                                                                md5, out tempFileList))
-                                sb.AppendLine(line);
-                            fileList.AddRange(tempFileList);
-                            folderList.Add(folder);
-                        }
-                }
-                //No hash for this, but it doesn't matter, this always needs to be updated.
-                fileList.Add(Path.Combine(Application.StartupPath, "version.ini"));
-                files = sb.ToString();
-            } catch (Exception ex) {
-                exception = ex;
+                foreach (string folder in Directory.GetDirectories(Application.StartupPath, "*", SearchOption.AllDirectories))
+                    if (!IsFileOrFolderExcluded(folder, excludedFilesOrFolders))                        
+                        foreach (string line in StoreAndGetFilesFromFolderFormatted(Application.StartupPath, folder, excludedFilesOrFolders, md5))
+                            sb.AppendLine(line);
             }
-            return files;
+
+            return sb.ToString();
         }
 
         /// <summary>
@@ -357,28 +200,33 @@ namespace vApus.CommitTool {
         /// <param name="absolutePartFolder">The startup path of the commit tool</param>
         /// <param name="folder">Where to get the files from</param>
         /// <param name="excludedFilesOrFolders"></param>
-        /// <param name="fileList"></param>
+        /// <param name="md5"></param>
+        /// <param name="currentDirectory"></param>
         /// <returns>
-        ///     The files section of the version.ini. List of relativefilename:md5hash,
-        ///     version.ini, history.xml and vApus.CommitTool.Xml are automatically excluded in the version.ini text,
-        ///     however version.ini will always be sent to the server.
+        /// The files section of the version.ini. List of relativefilename:md5hash,
+        /// version.ini, history.xml and vApus.CommitTool.Xml are automatically excluded in the version.ini text,
+        /// however version.ini will always be sent to the server.
         /// </returns>
-        private List<string> GetFilesFromFolderFormatted(string absolutePartFolder, string folder,
-                                                         string[] excludedFilesOrFolders, MD5CryptoServiceProvider md5,
-                                                         out List<string> fileList) {
+        private List<string> StoreAndGetFilesFromFolderFormatted(string absolutePartFolder, string folder, string[] excludedFilesOrFolders, MD5CryptoServiceProvider md5) {
             var formatted = new List<string>();
-            fileList = new List<string>();
+
             int absolutePartDirectoryLength = absolutePartFolder.Length;
+
+            //Create a directory in the temp folder.
+            Directory.CreateDirectory(Path.Combine(_updateTempFilesPath, folder.Substring(absolutePartDirectoryLength)));
+
             foreach (string fileName in Directory.GetFiles(folder, "*", SearchOption.TopDirectoryOnly)) {
                 string shortFileName = fileName.Substring(absolutePartDirectoryLength);
                 if (!IsFileOrFolderExcluded(shortFileName, excludedFilesOrFolders)) {
                     switch (shortFileName.ToLowerInvariant()) {
                         case @"\version.ini":
+                            File.Copy(fileName, Path.Combine(_updateTempFilesPath, shortFileName));
+                            break;
                         case @"\history.xml":
                         case @"\vApus.CommitTool.exe":
                             break;
                         default:
-                            fileList.Add(fileName);
+                            File.Copy(fileName, Path.Combine(_updateTempFilesPath, shortFileName));
                             formatted.Add(shortFileName + ":" + GetMD5HashFromFile(fileName, md5));
                             break;
                     }
@@ -414,6 +262,5 @@ namespace vApus.CommitTool {
             return sb.ToString();
         }
 
-        #endregion
     }
 }
