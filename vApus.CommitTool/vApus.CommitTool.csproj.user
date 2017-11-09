@@ -12,6 +12,7 @@
     <ProjectView>ProjectFiles</ProjectView>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'DevelopmentBuild|AnyCPU'">
-    <StartArguments>"C:\Users\Didjeeh\Sizing Servers Repositories\vapus\history.xml" "C:\Users\Didjeeh\Sizing Servers Repositories\vapus" "c:\git\bin\git.exe" "blaat" Logs REST %2avshost%2a %2aCommit%2a SizingServersLab.ilproj Lock%2a vApus.UpdateTool.exe.config vApus.DetailedResultsViewer.exe.config "Setup_vApus_v2.exe" Startup.Profile %2aUpdateToolLoader%2a</StartArguments>
+    <StartArguments>
+    </StartArguments>
   </PropertyGroup>
 </Project>
