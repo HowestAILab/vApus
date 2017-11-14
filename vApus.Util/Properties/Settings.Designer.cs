@@ -74,12 +74,12 @@ namespace vApus.Util.Properties {
         [global::System.Configuration.UserScopedSettingAttribute()]
         [global::System.Diagnostics.DebuggerNonUserCodeAttribute()]
         [global::System.Configuration.DefaultSettingValueAttribute("")]
-        public string UNPassword {
+        public string UNPrivateRSAKeyPath {
             get {
-                return ((string)(this["UNPassword"]));
+                return ((string)(this["UNPrivateRSAKeyPath"]));
             }
             set {
-                this["UNPassword"] = value;
+                this["UNPrivateRSAKeyPath"] = value;
             }
         }
         

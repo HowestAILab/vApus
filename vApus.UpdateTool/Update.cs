@@ -20,6 +20,7 @@ namespace vApus.UpdateTool {
     public partial class Update : Form {
 
         #region Fields
+        private const string UPDATETEMPFILESDIR = "__UpdateTempFiles__";
 
         private const int MAXRETRY = 3;
         private readonly int _channel;
@@ -28,26 +29,25 @@ namespace vApus.UpdateTool {
         private readonly string _solution;
 
         /// <summary>
-        ///     To auto connect.
+        /// To auto connect.
         /// </summary>
         private readonly string _host;
 
         /// <summary>
-        ///     To auto connect.
+        /// To auto connect.
         /// </summary>
-        private readonly string _password;
+        private readonly string _privateRSAKeyPath;
 
         private readonly int _port = 22; //External port 5222
         private readonly string _startupPath;
 
         /// <summary>
-        ///     To auto connect.
+        /// To auto connect.
         /// </summary>
         private readonly string _userName;
 
         private List<string[]> _currentVersions;
         private Win32WindowMessageHandler _msgHandler;
-        //private Win32WindowMessageHandler _vApusMsgHandler;
         private SftpClient _sftp;
         private bool _updating;
 
@@ -57,16 +57,17 @@ namespace vApus.UpdateTool {
 
         /// <summary>
         /// </summary>
-        /// <param name="args">If contains GUID, host, port, username, password in that order it will auto connect.</param>
+        /// <param name="args">If contains GUID, host, port, username, privateRSAKeyPath in that order it will auto connect.</param>
         public Update(string[] args) {
             InitializeComponent();
+
             _startupPath = Directory.GetParent(Application.StartupPath).FullName;
 
             if (args.Length > 7) {
                 _host = args[1];
                 _port = int.Parse(args[2]);
                 _userName = args[3];
-                _password = args[4];
+                _privateRSAKeyPath = args[4].Replace('_', ' ');
                 _channel = int.Parse(args[5]);
                 _force = bool.Parse(args[6]);
                 _silent = bool.Parse(args[7]);
@@ -110,14 +111,14 @@ namespace vApus.UpdateTool {
             Cursor = Cursors.WaitCursor;
 
             try {
-                _sftp = new SftpClient(_host, _port, _userName, _password);
+                _sftp = new SftpClient(_host, _port, _userName, new PrivateKeyFile(_privateRSAKeyPath));
                 _sftp.Connect();
 
                 GetFilesToUpdate();
 
                 connected = true;
             }
-            catch {
+            catch (Exception ex) {
                 MessageBox.Show("Failed to connect!\nAre your credentials correct?", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
@@ -136,7 +137,7 @@ namespace vApus.UpdateTool {
                 lvwUpdate.ClearEmbeddedControls();
                 lvwUpdate.Items.Clear();
 
-                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
                 string tempVersion = Path.Combine(tempFolder, "version.ini");
                 try {
                     if (File.Exists(tempVersion))
@@ -191,26 +192,19 @@ namespace vApus.UpdateTool {
 
         private void GetFilesToUpdate() {
             try {
-                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
                 if (Directory.Exists(tempFolder) &&
                     Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
 
                 Directory.CreateDirectory(tempFolder);
-                string readme = Path.Combine(tempFolder, "README.TXT");
-                if (!File.Exists(readme))
-                    using (var sw = new StreamWriter(readme)) {
-                        sw.Write(
-                            "All new files are found here (except this readme which is generated), for a manual update you have to overwrite the files in the upper folder with these.\nThis folder has no use when empty so it can be removed safely.");
-                        sw.Flush();
-                    }
-
+                
                 string tempVersionPath = Path.Combine(tempFolder, "version.ini");
 
                 string channelDir = _channel == 0 ? "stable" : "nightly";
 
                 using (var str = File.Create(tempVersionPath))
-                    _sftp.DownloadFile(channelDir + "/version.ini", str);
+                    _sftp.DownloadFile("vApusUpdate/" + channelDir + "/version.ini", str);
 
                 List<string[]> serverVersions = LoadVersion(tempVersionPath);
 
@@ -252,7 +246,7 @@ namespace vApus.UpdateTool {
 
         private void DoUpdate() {
             string exception = "Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.";
-            string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+            string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
 
             try {
                 string possibleNonExistingFolder;
@@ -269,14 +263,18 @@ namespace vApus.UpdateTool {
                         Directory.CreateDirectory(possibleNonExistingFolder);
 
                     lvwi.Tag = tempFolder + lvwi.SubItems[0].Text;
-                    toUpdate.Add(channelDir + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
+                    toUpdate.Add("vApusUpdate/" + channelDir + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
                 }
 
                 var t = new Thread(delegate () {
                     try {
-                        foreach (string key in toUpdate.Keys)
-                            using (var str = File.Create(toUpdate[key]))
-                                _sftp.DownloadFile(key, str);
+                        foreach (string source in toUpdate.Keys) //Download from source to destination and show it on the GUI.
+                            using (var str = File.Create(toUpdate[source])) {
+                                string destination = toUpdate[source];
+                                FileDownLoadStarted(destination);
+                                _sftp.DownloadFile(source, str);
+                                FileDownLoadFinished(destination);
+                            }
 
                         SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                             OverwriteFiles();
@@ -380,7 +378,7 @@ namespace vApus.UpdateTool {
                 }
 
                 //Place files from the temp folder in the vApus folder.
-                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
                 TryOverwriteDirectoriesAndFiles(tempFolder, _startupPath);
 
                 foreach (string d in Directory.GetDirectories(_startupPath, "*", SearchOption.AllDirectories))
@@ -408,7 +406,7 @@ namespace vApus.UpdateTool {
                 }
                 else {
                     MessageBox.Show(
-                        "Not all files where updated due to access or authorization errors!\nThose files are stored in the 'UpdateTempFiles' folder located in the top directory of vApus, so you can put them at the right place manually.",
+                        "Not all files where updated due to access or authorization errors!\nThose files are stored in the '__UpdateTempFiles__' folder located in the top directory of vApus, so you can put them at the right place manually.",
                         "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
             }
@@ -455,33 +453,31 @@ namespace vApus.UpdateTool {
             }
         }
 
-        private void _sftp_OnTransferEnd(string src, string dst, int transferredBytes, int totalBytes, string msg) {
+        private void FileDownLoadStarted(string destination) {
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 for (int i = 0; i < lvwUpdate.Items.Count; i++)
-                    if (lvwUpdate.Items[i].Tag as string == dst) {
+                    if (lvwUpdate.Items[i].Tag as string == destination) {
                         lvwUpdate.Items[i].Selected = true;
                         lvwUpdate.SelectedItems[0].EnsureVisible();
                         var pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
+                        pb.Style = ProgressBarStyle.Marquee;
+                        break;
+                    }
+            }, null);
+        }
+        private void FileDownLoadFinished(string destination) {
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                for (int i = 0; i < lvwUpdate.Items.Count; i++)
+                    if (lvwUpdate.Items[i].Tag as string == destination) {
+                        lvwUpdate.Items[i].Selected = true;
+                        lvwUpdate.SelectedItems[0].EnsureVisible();
+                        var pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
+                        pb.Style = ProgressBarStyle.Continuous;
                         pb.Value = pb.Maximum;
                         break;
                     }
             }, null);
         }
-
-        private void _sftp_OnTransferProgress(string src, string dst, int transferredBytes, int totalBytes, string msg) {
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                for (int i = 0; i < lvwUpdate.Items.Count; i++)
-                    if (lvwUpdate.Items[i].Tag as string == dst) {
-                        lvwUpdate.Items[i].Selected = true;
-                        lvwUpdate.SelectedItems[0].EnsureVisible();
-                        var pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
-                        pb.Maximum = totalBytes;
-                        pb.Value = transferredBytes;
-                        break;
-                    }
-            }, null);
-        }
-
         #endregion
 
         #region Other
@@ -511,7 +507,7 @@ namespace vApus.UpdateTool {
             else if (_sftp != null) {
                 try { _sftp.Dispose(); } catch { }
                 _sftp = null;
-                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
                 if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
             }

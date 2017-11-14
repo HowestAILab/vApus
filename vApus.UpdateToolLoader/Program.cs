@@ -22,10 +22,8 @@ namespace vApus.UpdateToolLoader {
                 var from = new[]
                     {
                         Path.Combine(Application.StartupPath, "vApus.UpdateTool.exe"),
-                        Path.Combine(Application.StartupPath, "DiffieHellman.dll"),
-                        Path.Combine(Application.StartupPath, "Org.Mentalis.Security.dll"),
-                        Path.Combine(Application.StartupPath, "Tamir.SharpSSH.dll"),
                         Path.Combine(Application.StartupPath, "vApus.Util.dll"),
+                        Path.Combine(Application.StartupPath, "Renci.SshNet.dll"),
                         Path.Combine(Application.StartupPath, "RandomUtils.dll")
                     };
 
@@ -34,10 +32,8 @@ namespace vApus.UpdateToolLoader {
                 var to = new[]
                     {
                         Path.Combine(cachePath, "vApus.UpdateTool.exe"),
-                        Path.Combine(cachePath, "DiffieHellman.dll"),
-                        Path.Combine(cachePath, "Org.Mentalis.Security.dll"),
-                        Path.Combine(cachePath, "Tamir.SharpSSH.dll"),
                         Path.Combine(cachePath, "vApus.Util.dll"),
+                        Path.Combine(cachePath, "Renci.SshNet.dll"),
                         Path.Combine(cachePath, "RandomUtils.dll")
                     };
 

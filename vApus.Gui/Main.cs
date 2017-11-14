@@ -99,17 +99,17 @@ namespace vApus.Gui {
                 //When this vApus is used for a slave, the title bar will change.
                 SocketListenerLinker.NewTest += SocketListenerLinker_NewTest;
 
-                string host, username, password;
+                string host, username, privateRSAKeyPath;
                 int port, channel;
                 bool smartUpdate;
-                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                UpdateNotifier.GetCredentials(out host, out port, out username, out privateRSAKeyPath, out channel, out smartUpdate);
 
                 UpdateNotifier.Refresh();
 
                 if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound &&
                     UpdateNotifier.GetUpdateNotifierDialog().ShowDialog() == DialogResult.OK)
                     //Doing stuff automatically
-                    if (Update(host, port, username, password, channel))
+                    if (Update(host, port, username, privateRSAKeyPath, channel))
                         await Task.Run(() => SynchronizationContextWrapper.SynchronizationContext.Send((state) => { Close(); }, null));
 
                 _progressNotifierPannel = new TestProgressNotifierPanel();
@@ -192,9 +192,9 @@ namespace vApus.Gui {
         /// <param name="host"></param>
         /// <param name="port"></param>
         /// <param name="username"></param>
-        /// <param name="password"></param>
+        /// <param name="privateRSAKeyPath"></param>
         /// <returns>true if a new updater is launched.</returns>
-        private bool Update(string host, int port, string username, string password, int channel) {
+        private bool Update(string host, int port, string username, string privateRSAKeyPath, int channel) {
             bool launchedNewUpdater = false;
 
             if (host != null) {
@@ -206,7 +206,7 @@ namespace vApus.Gui {
                     process.EnableRaisingEvents = true;
                     string solution = Solution.ActiveSolution == null ? string.Empty : " \"" + Solution.ActiveSolution.FileName + "\"";
                     string arguments = "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " +
-                                                             port + " " + username + " " + password + " " + channel +
+                                                             port + " " + username + " " + privateRSAKeyPath.Replace(' ', '_') + " " + channel +
                                                              " " + false + " " + false + solution;
                     process.StartInfo = new ProcessStartInfo(path, arguments);
 

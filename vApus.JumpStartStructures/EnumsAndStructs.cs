@@ -49,7 +49,7 @@ namespace vApus.JumpStartStructures {
 
     [Serializable]
     public struct SmartUpdateMessage {
-        public string Version, Host, Username, Password; //Credentials vApus update server.
+        public string Version, Host, Username, PrivateRSAKeyPath; //Credentials vApus update server.
         public int Port, Channel;
     }
 }
