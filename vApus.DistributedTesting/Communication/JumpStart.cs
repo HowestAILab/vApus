@@ -52,11 +52,11 @@ namespace vApus.DistributedTest {
                                             ips.Add(ip);
                                     }
 
-                    string version, host, username, password;
+                    string version, host, username, privateRSAKeyPath;
                     int port, channel;
                     bool smartUpdate;
                     version = UpdateNotifier.CurrentVersion;
-                    UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                    UpdateNotifier.GetCredentials(out host, out port, out username, out privateRSAKeyPath, out channel, out smartUpdate);
 
                     var exs = new ConcurrentBag<Exception>();
                     int count = ips.Count;
@@ -67,7 +67,7 @@ namespace vApus.DistributedTest {
                         foreach (string ip in ips) {
                             var t = new Thread(delegate(object state) {
                                 _workItem = new WorkItem();
-                                exs.Add(_workItem.DoSmartUpdate(state as string, version, host, username, password, port, channel));
+                                exs.Add(_workItem.DoSmartUpdate(state as string, version, host, username, privateRSAKeyPath, port, channel));
 
                                 if (Interlocked.Increment(ref i) == count) waithandle.Set();
                             });
@@ -240,24 +240,17 @@ namespace vApus.DistributedTest {
             /// <param name="version"></param>
             /// <param name="host"></param>
             /// <param name="username"></param>
-            /// <param name="password"></param>
+            /// <param name="privateRSAKeyPath"></param>
             /// <param name="port"></param>
             /// <param name="channel"></param>
             /// <returns></returns>
-            public Exception DoSmartUpdate(string ip, string version, string host, string username, string password, int port, int channel) {
+            public Exception DoSmartUpdate(string ip, string version, string host, string username, string privateRSAKeyPath, int port, int channel) {
                 SocketWrapper socketWrapper = null;
                 Exception exception = null;
                 try {
                     socketWrapper = Connect(ip);
                     if (socketWrapper == null) throw new Exception("Could not connect to the vApus Jump Start Service!");
-
-                    password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
-                                                               new byte[]
-                                                                   {
-                                                                       0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76
-                                                                       , 0x65, 0x64, 0x65, 0x76
-                                                                   });
-                    var smartUpdateMessage = new SmartUpdateMessage() { Version = version, Host = host, Username = username, Password = password, Channel = channel, Port = port };
+                    var smartUpdateMessage = new SmartUpdateMessage() { Version = version, Host = host, Username = username, PrivateRSAKeyPath = privateRSAKeyPath, Channel = channel, Port = port };
                     var message = new Message<JumpStartStructures.Key>(JumpStartStructures.Key.SmartUpdate, smartUpdateMessage);
 
                     socketWrapper.Send(message, SendType.Binary);

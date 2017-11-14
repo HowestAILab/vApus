@@ -516,16 +516,16 @@ namespace vApus.DistributedTest {
 
                 //Smart update
                 UpdateNotifier.Refresh();
-                string host, username, password;
+                string host, username, privateRSAKeyPath;
                 int port, channel;
                 bool smartUpdate;
-                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                UpdateNotifier.GetCredentials(out host, out port, out username, out privateRSAKeyPath, out channel, out smartUpdate);
 
                 if (smartUpdate) {
                     if (UpdateNotifier.UpdateNotifierState == UpdateNotifierState.NewUpdateFound) {
                         if (MessageBox.Show("In order to be able to update the used slaves the master must be up to date as well.\nDo you want to do this now?", "Smart Update Slaves",
                             MessageBoxButtons.YesNo, MessageBoxIcon.Warning) == DialogResult.Yes)
-                            Update(host, port, username, password, channel);
+                            Update(host, port, username, privateRSAKeyPath, channel);
 
                         //In both cases the test cannot go on.
                         Stop();
@@ -569,7 +569,7 @@ namespace vApus.DistributedTest {
             }
         }
 
-        private void Update(string host, int port, string username, string password, int channel) {
+        private void Update(string host, int port, string username, string privateRSAKeyPath, int channel) {
             Cursor = Cursors.WaitCursor;
             string path = Path.Combine(Application.StartupPath, "vApus.UpdateToolLoader.exe");
             if (File.Exists(path)) {
@@ -577,7 +577,7 @@ namespace vApus.DistributedTest {
                 process.EnableRaisingEvents = true;
                 string solution = Solution.ActiveSolution == null ? string.Empty : " \"" + Solution.ActiveSolution.FileName + "\"";
                 string arguments = "{A84E447C-3734-4afd-B383-149A7CC68A32} " + host + " " + port + " " +
-                                    username + " " + password + " " + channel + " " + false + " " + false + solution;
+                                    username + " " + privateRSAKeyPath.Replace(' ', '_') + " " + channel + " " + false + " " + false + solution;
                 process.StartInfo = new ProcessStartInfo(path, arguments);
 
                 Enabled = false;

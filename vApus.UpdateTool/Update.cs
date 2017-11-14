@@ -28,26 +28,25 @@ namespace vApus.UpdateTool {
         private readonly string _solution;
 
         /// <summary>
-        ///     To auto connect.
+        /// To auto connect.
         /// </summary>
         private readonly string _host;
 
         /// <summary>
-        ///     To auto connect.
+        /// To auto connect.
         /// </summary>
-        private readonly string _password;
+        private readonly string _privateRSAKeyPath;
 
         private readonly int _port = 22; //External port 5222
         private readonly string _startupPath;
 
         /// <summary>
-        ///     To auto connect.
+        /// To auto connect.
         /// </summary>
         private readonly string _userName;
 
         private List<string[]> _currentVersions;
         private Win32WindowMessageHandler _msgHandler;
-        //private Win32WindowMessageHandler _vApusMsgHandler;
         private SftpClient _sftp;
         private bool _updating;
 
@@ -57,16 +56,17 @@ namespace vApus.UpdateTool {
 
         /// <summary>
         /// </summary>
-        /// <param name="args">If contains GUID, host, port, username, password in that order it will auto connect.</param>
+        /// <param name="args">If contains GUID, host, port, username, privateRSAKeyPath in that order it will auto connect.</param>
         public Update(string[] args) {
             InitializeComponent();
+           
             _startupPath = Directory.GetParent(Application.StartupPath).FullName;
 
             if (args.Length > 7) {
                 _host = args[1];
                 _port = int.Parse(args[2]);
                 _userName = args[3];
-                _password = args[4];
+                _privateRSAKeyPath = args[4].Replace('_', ' ');
                 _channel = int.Parse(args[5]);
                 _force = bool.Parse(args[6]);
                 _silent = bool.Parse(args[7]);
@@ -110,14 +110,14 @@ namespace vApus.UpdateTool {
             Cursor = Cursors.WaitCursor;
 
             try {
-                _sftp = new SftpClient(_host, _port, _userName, _password);
+                _sftp = new SftpClient(_host, _port, _userName, new PrivateKeyFile(_privateRSAKeyPath));
                 _sftp.Connect();
 
                 GetFilesToUpdate();
 
                 connected = true;
             }
-            catch {
+            catch (Exception ex) {
                 MessageBox.Show("Failed to connect!\nAre your credentials correct?", string.Empty, MessageBoxButtons.OK, MessageBoxIcon.Error);
             }
 
@@ -210,7 +210,7 @@ namespace vApus.UpdateTool {
                 string channelDir = _channel == 0 ? "stable" : "nightly";
 
                 using (var str = File.Create(tempVersionPath))
-                    _sftp.DownloadFile(channelDir + "/version.ini", str);
+                    _sftp.DownloadFile("vApusUpdate/" + channelDir + "/version.ini", str);
 
                 List<string[]> serverVersions = LoadVersion(tempVersionPath);
 
@@ -269,14 +269,18 @@ namespace vApus.UpdateTool {
                         Directory.CreateDirectory(possibleNonExistingFolder);
 
                     lvwi.Tag = tempFolder + lvwi.SubItems[0].Text;
-                    toUpdate.Add(channelDir + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
+                    toUpdate.Add("vApusUpdate/" + channelDir + lvwi.SubItems[0].Text.Replace('\\', '/'), lvwi.Tag as string);
                 }
 
                 var t = new Thread(delegate () {
                     try {
-                        foreach (string key in toUpdate.Keys)
-                            using (var str = File.Create(toUpdate[key]))
-                                _sftp.DownloadFile(key, str);
+                        foreach (string source in toUpdate.Keys) //Download from source to destination and show it on the GUI.
+                            using (var str = File.Create(toUpdate[source])) {
+                                string destination = toUpdate[source];
+                                FileDownLoadStarted(destination);
+                                _sftp.DownloadFile(source, str);
+                                FileDownLoadFinished(destination);
+                            }
 
                         SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                             OverwriteFiles();
@@ -455,33 +459,31 @@ namespace vApus.UpdateTool {
             }
         }
 
-        private void _sftp_OnTransferEnd(string src, string dst, int transferredBytes, int totalBytes, string msg) {
+        private void FileDownLoadStarted(string destination) {
             SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
                 for (int i = 0; i < lvwUpdate.Items.Count; i++)
-                    if (lvwUpdate.Items[i].Tag as string == dst) {
+                    if (lvwUpdate.Items[i].Tag as string == destination) {
                         lvwUpdate.Items[i].Selected = true;
                         lvwUpdate.SelectedItems[0].EnsureVisible();
                         var pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
+                        pb.Style = ProgressBarStyle.Marquee;
+                        break;
+                    }
+            }, null);
+        }
+        private void FileDownLoadFinished(string destination) {
+            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
+                for (int i = 0; i < lvwUpdate.Items.Count; i++)
+                    if (lvwUpdate.Items[i].Tag as string == destination) {
+                        lvwUpdate.Items[i].Selected = true;
+                        lvwUpdate.SelectedItems[0].EnsureVisible();
+                        var pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
+                        pb.Style = ProgressBarStyle.Continuous;
                         pb.Value = pb.Maximum;
                         break;
                     }
             }, null);
         }
-
-        private void _sftp_OnTransferProgress(string src, string dst, int transferredBytes, int totalBytes, string msg) {
-            SynchronizationContextWrapper.SynchronizationContext.Send((state) => {
-                for (int i = 0; i < lvwUpdate.Items.Count; i++)
-                    if (lvwUpdate.Items[i].Tag as string == dst) {
-                        lvwUpdate.Items[i].Selected = true;
-                        lvwUpdate.SelectedItems[0].EnsureVisible();
-                        var pb = lvwUpdate.EmbeddedControls[i] as ProgressBar;
-                        pb.Maximum = totalBytes;
-                        pb.Value = transferredBytes;
-                        break;
-                    }
-            }, null);
-        }
-
         #endregion
 
         #region Other

@@ -68,12 +68,12 @@ namespace vApus.Util {
                 if (_failedRefresh)
                     return UpdateNotifierState.FailedConnectingToTheUpdateServer;
 
-                string host, username, password;
+                string host, username, privateRSAKeyPath;
                 int port, channel;
                 bool smartUpdate;
-                GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                GetCredentials(out host, out port, out username, out privateRSAKeyPath, out channel, out smartUpdate);
 
-                if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
+                if (host.Length == 0 || username.Length == 0 || privateRSAKeyPath.Length == 0) {
                     return UpdateNotifierState.Disabled;
                 }
                 else if (_refreshed) {
@@ -86,18 +86,11 @@ namespace vApus.Util {
             }
         }
 
-        public static void SetCredentials(string host, int port, string username, string password, int channel, bool smartUpdate) {
+        public static void SetCredentials(string host, int port, string username, string privateRSAKeyPath, int channel, bool smartUpdate) {
             Settings.Default.UNHost = host;
             Settings.Default.UNPort = port;
             Settings.Default.UNUsername = username;
-
-            password = password.Encrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
-                                        new byte[]
-                                            {
-                                                0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65,
-                                                0x76
-                                            });
-            Settings.Default.UNPassword = password;
+            Settings.Default.UNPrivateRSAKeyPath = privateRSAKeyPath;
             Settings.Default.UNChannel = channel;
             Settings.Default.UNSmartUpdate = smartUpdate;
             Settings.Default.Save();
@@ -110,19 +103,13 @@ namespace vApus.Util {
         /// <param name="host"></param>
         /// <param name="port"></param>
         /// <param name="username"></param>
-        /// <param name="password"></param>
+        /// <param name="privateRSAKeyPath"></param>
         /// <param name="channel">0 == Stable; 1 == Nightly</param>
-        public static void GetCredentials(out string host, out int port, out string username, out string password, out int channel, out bool smartUpdate) {
+        public static void GetCredentials(out string host, out int port, out string username, out string privateRSAKeyPath, out int channel, out bool smartUpdate) {
             host = Settings.Default.UNHost;
             port = Settings.Default.UNPort;
             username = Settings.Default.UNUsername;
-            password = Settings.Default.UNPassword;
-            password = password.Decrypt("{A84E447C-3734-4afd-B383-149A7CC68A32}",
-                                        new byte[]
-                                            {
-                                                0x49, 0x76, 0x61, 0x6e, 0x20, 0x4d, 0x65, 0x64, 0x76, 0x65, 0x64, 0x65,
-                                                0x76
-                                            });
+            privateRSAKeyPath = Settings.Default.UNPrivateRSAKeyPath;
             channel = Settings.Default.UNChannel;
 
             //If there is no channel set get it from the version.ini.
@@ -150,13 +137,13 @@ namespace vApus.Util {
                     CurrentVersion = GetVersion(currentVersionIni);
                     CurrentChannel = GetChannel(currentVersionIni);
 
-                    string host, username, password;
+                    string host, username, privateRSAKeyPath;
                     int port, channel;
                     bool smartUpdate;
-                    GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                    GetCredentials(out host, out port, out username, out privateRSAKeyPath, out channel, out smartUpdate);
 
                     _failedRefresh = false;
-                    if (host.Length == 0 || username.Length == 0 || password.Length == 0) {
+                    if (host.Length == 0 || username.Length == 0 || privateRSAKeyPath.Length == 0) {
                         _versionChanged = false;
                         _refreshed = false;
                         return;
@@ -181,13 +168,13 @@ namespace vApus.Util {
                         Loggers.Log(Level.Warning, "Failed deleting the temp version.", ex);
                     }
 
-                    using (var sftp = new SftpClient(host, port, username, password)) {
+                    using (var sftp = new SftpClient(host, port, username, new PrivateKeyFile(privateRSAKeyPath))) {
                         sftp.Connect();           
                          
                         string channelDir = channel == 0 ? "stable" : "nightly";
 
                         using (var str = File.Create(tempVersionPath))
-                            sftp.DownloadFile(channelDir + "/version.ini", str);
+                            sftp.DownloadFile("vApusUpdate/" + channelDir + "/version.ini", str);
                     }
 
                     _newVersion = GetVersion(tempVersionPath);

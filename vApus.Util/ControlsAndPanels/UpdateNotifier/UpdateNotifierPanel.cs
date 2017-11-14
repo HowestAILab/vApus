@@ -43,14 +43,14 @@ namespace vApus.Util {
         private void UpdateNotifierPanel_HandleCreated(object sender, EventArgs e) {
             _msgHandler = new Win32WindowMessageHandler();
 
-            string host, username, password;
+            string host, username, privateRSAKeyPath;
             int port, channel;
             bool smartUpdate;
-            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+            UpdateNotifier.GetCredentials(out host, out port, out username, out privateRSAKeyPath, out channel, out smartUpdate);
             txtHost.Text = host;
             nudPort.Value = port;
             txtUsername.Text = username;
-            txtPassword.Text = password;
+            txtPrivateRSAKey.Text = privateRSAKeyPath;
             cboChannel.SelectedIndex = channel;
             chkSmartUpdate.Checked = smartUpdate;
 
@@ -58,17 +58,11 @@ namespace vApus.Util {
             SetUpdatePanel(true);
         }
 
-        private void txtUsername_TextChanged(object sender, EventArgs e) {
-            txtPassword.Enabled = txtUsername.Text.Length > 0;
-            if (!txtPassword.Enabled)
-                txtPassword.Text = string.Empty;
-        }
-
         private void cboChannel_SelectedIndexChanged(object sender, EventArgs e) {
-            string host, username, password;
+            string host, username, privateRSAKeyPath;
             int port, channel;
             bool smartUpdate;
-            UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+            UpdateNotifier.GetCredentials(out host, out port, out username, out privateRSAKeyPath, out channel, out smartUpdate);
 
             if (cboChannel.SelectedIndex != channel)
                 if (MessageBox.Show("Are you sure you want to change the channel?", string.Empty, MessageBoxButtons.YesNo, MessageBoxIcon.Warning, MessageBoxDefaultButton.Button2) == DialogResult.Yes)
@@ -78,26 +72,33 @@ namespace vApus.Util {
         }
 
         private void _KeyUp(object sender, KeyEventArgs e) { SetEnabled(); }
+        private void btnBrowseRSAPrivateKey_Click(object sender, EventArgs e) {
+            openFileDialog.FileName = (txtPrivateRSAKey.Text.Length != 0 && File.Exists(txtPrivateRSAKey.Text)) ? txtPrivateRSAKey.Text : string.Empty;
+            if (openFileDialog.ShowDialog() == DialogResult.OK)
+                txtPrivateRSAKey.Text = openFileDialog.FileName;
+            SetEnabled();
+        }
         private void chkSmartUpdate_CheckedChanged(object sender, EventArgs e) { SetEnabled(); }
 
         private void SetEnabled() {
             if (txtHost.Text.Length != 0 &&
-                txtUsername.Text.Length != 0 && txtPassword.Text.Length != 0) {
-                string host, username, password;
+                txtUsername.Text.Length != 0 && txtPrivateRSAKey.Text.Length != 0) {
+                string host, username, privateRSAKeyPath;
                 int port, channel;
                 bool smartUpdate;
-                UpdateNotifier.GetCredentials(out host, out port, out username, out password, out channel, out smartUpdate);
+                UpdateNotifier.GetCredentials(out host, out port, out username, out privateRSAKeyPath, out channel, out smartUpdate);
 
                 pnlRefresh.Enabled = btnForceUpdate.Enabled = true;
                 btnSet.Enabled = (txtHost.Text != host || nudPort.Value != port ||
-                                  txtUsername.Text != username || txtPassword.Text != password ||
+                                  txtUsername.Text != username || txtPrivateRSAKey.Text != privateRSAKeyPath ||
                                   cboChannel.SelectedIndex != channel || chkSmartUpdate.Checked != smartUpdate);
-            } else {
+            }
+            else {
                 pnlRefresh.Enabled = btnForceUpdate.Enabled = false;
                 btnSet.Enabled = false;
             }
             btnClear.Enabled = (txtHost.Text.Length != 0 ||
-                                txtUsername.Text.Length != 0 || txtPassword.Text.Length != 0);
+                                txtUsername.Text.Length != 0 || txtPrivateRSAKey.Text.Length != 0);
         }
 
         private void btnRefresh_Click(object sender, EventArgs e) {
@@ -108,7 +109,7 @@ namespace vApus.Util {
             pic.Image = Resources.Warning;
             lbl.Text = "Working...";
 
-            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
+            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPrivateRSAKey.Text,
                                           cboChannel.SelectedIndex, chkSmartUpdate.Checked);
 
             BackgroundWorkQueueWrapper.BackgroundWorkQueue.OnWorkItemProcessed += BackgroundWorkQueue_OnWorkItemProcessed;
@@ -156,14 +157,15 @@ namespace vApus.Util {
 
                 string solution = string.IsNullOrWhiteSpace(CurrentSolutionFileName) ? string.Empty : " \"" + CurrentSolutionFileName + "\"";
                 string arguments = "{A84E447C-3734-4afd-B383-149A7CC68A32} " + txtHost.Text + " " + port + " " +
-                    txtUsername.Text + " " + txtPassword.Text + " " + cboChannel.SelectedIndex + " " + forceUpdate + " " + false + solution;
+                    txtUsername.Text + " " + txtPrivateRSAKey.Text.Replace(' ', '_') + " " + cboChannel.SelectedIndex + " " + forceUpdate + " " + false + solution;
                 process.StartInfo = new ProcessStartInfo(path, arguments);
 
                 Enabled = false;
 
                 process.Exited += updateProcess_Exited;
                 process.Start();
-            } else {
+            }
+            else {
                 MessageBox.Show("vApus could not be updated because the update tool was not found!", string.Empty,
                                 MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
             }
@@ -184,7 +186,7 @@ namespace vApus.Util {
         private void btnUpdateManually_Click(object sender, EventArgs e) {
             if (btnSet.Enabled) {
                 btnSet.Enabled = false;
-                UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
+                UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPrivateRSAKey.Text,
                                               cboChannel.SelectedIndex, chkSmartUpdate.Checked);
             }
             ShowUpdateDialog(true);
@@ -192,7 +194,7 @@ namespace vApus.Util {
 
         private void btnSet_Click(object sender, EventArgs e) {
             btnSet.Enabled = false;
-            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
+            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPrivateRSAKey.Text,
                                           cboChannel.SelectedIndex, chkSmartUpdate.Checked);
             btnRefresh.PerformClick();
         }
@@ -201,9 +203,9 @@ namespace vApus.Util {
             txtHost.Text = string.Empty;
             nudPort.Value = 22; //External port 5222
             txtUsername.Text = string.Empty;
-            txtPassword.Text = string.Empty;
+            txtPrivateRSAKey.Text = string.Empty;
 
-            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPassword.Text,
+            UpdateNotifier.SetCredentials(txtHost.Text, (int)nudPort.Value, txtUsername.Text, txtPrivateRSAKey.Text,
                                           cboChannel.SelectedIndex, chkSmartUpdate.Checked);
 
             pnlRefresh.Enabled = btnForceUpdate.Enabled = false;

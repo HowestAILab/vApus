@@ -14,7 +14,7 @@
     <Setting Name="UNUsername" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
-    <Setting Name="UNPassword" Type="System.String" Scope="User">
+    <Setting Name="UNPrivateRSAKeyPath" Type="System.String" Scope="User">
       <Value Profile="(Default)" />
     </Setting>
     <Setting Name="UNChannel" Type="System.Int32" Scope="User">
