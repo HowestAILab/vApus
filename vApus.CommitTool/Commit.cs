@@ -190,10 +190,13 @@ namespace vApus.CommitTool {
                 foreach (string line in StoreAndGetFilesFromFolderFormatted(Application.StartupPath, Application.StartupPath, excludedFilesOrFolders, md5))
                     sb.AppendLine(line);
 
-                foreach (string folder in Directory.GetDirectories(Application.StartupPath, "*", SearchOption.AllDirectories))
-                    if (!IsFileOrFolderExcluded(folder, excludedFilesOrFolders))                        
+                foreach (string folder in Directory.GetDirectories(Application.StartupPath, "*", SearchOption.AllDirectories)) {
+                    if (folder == _updateTempFilesPath) continue; //Do not at this one to the list. This will give problems for the updater.
+
+                    if (!IsFileOrFolderExcluded(folder, excludedFilesOrFolders))
                         foreach (string line in StoreAndGetFilesFromFolderFormatted(Application.StartupPath, folder, excludedFilesOrFolders, md5))
                             sb.AppendLine(line);
+                }
             }
 
             return sb.ToString();
@@ -244,8 +247,6 @@ namespace vApus.CommitTool {
         /// <param name="excludedFilesOrFolders"></param>
         /// <returns></returns>
         private bool IsFileOrFolderExcluded(string name, string[] excludedFilesOrFolders) {
-            if (name == UPDATETEMPFILESDIR) return true; //Do not at this one to the list. This will give problems for the updater.
-
             string[] splittedName = name.Split('\\');
             name = splittedName[splittedName.Length - 1];
             foreach (string s in excludedFilesOrFolders)
