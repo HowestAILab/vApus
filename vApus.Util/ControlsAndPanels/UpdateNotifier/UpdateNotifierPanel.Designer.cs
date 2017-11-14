@@ -193,7 +193,7 @@
             this.btnBrowseRSAPrivateKey.MaximumSize = new System.Drawing.Size(1000, 24);
             this.btnBrowseRSAPrivateKey.Name = "btnBrowseRSAPrivateKey";
             this.btnBrowseRSAPrivateKey.Size = new System.Drawing.Size(35, 24);
-            this.btnBrowseRSAPrivateKey.TabIndex = 5;
+            this.btnBrowseRSAPrivateKey.TabIndex = 4;
             this.btnBrowseRSAPrivateKey.Text = "...";
             this.toolTip.SetToolTip(this.btnBrowseRSAPrivateKey, "Update all files regardless if they need to be updated.");
             this.btnBrowseRSAPrivateKey.UseVisualStyleBackColor = false;
@@ -207,7 +207,8 @@
             this.txtPrivateRSAKey.Margin = new System.Windows.Forms.Padding(0, 5, 6, 6);
             this.txtPrivateRSAKey.Name = "txtPrivateRSAKey";
             this.txtPrivateRSAKey.Size = new System.Drawing.Size(822, 22);
-            this.txtPrivateRSAKey.TabIndex = 9;
+            this.txtPrivateRSAKey.TabIndex = 3;
+            this.toolTip.SetToolTip(this.txtPrivateRSAKey, "Path to a passwordless private RSA key.");
             this.txtPrivateRSAKey.KeyUp += new System.Windows.Forms.KeyEventHandler(this._KeyUp);
             // 
             // cboChannel
@@ -226,7 +227,7 @@
             this.cboChannel.Margin = new System.Windows.Forms.Padding(3, 4, 3, 3);
             this.cboChannel.Name = "cboChannel";
             this.cboChannel.Size = new System.Drawing.Size(818, 25);
-            this.cboChannel.TabIndex = 0;
+            this.cboChannel.TabIndex = 5;
             this.cboChannel.SelectedIndexChanged += new System.EventHandler(this.cboChannel_SelectedIndexChanged);
             // 
             // label9
@@ -328,12 +329,10 @@
             this.chkSmartUpdate.Location = new System.Drawing.Point(12, 167);
             this.chkSmartUpdate.Name = "chkSmartUpdate";
             this.chkSmartUpdate.Padding = new System.Windows.Forms.Padding(0, 6, 0, 0);
-            this.chkSmartUpdate.Size = new System.Drawing.Size(623, 27);
+            this.chkSmartUpdate.Size = new System.Drawing.Size(159, 27);
             this.chkSmartUpdate.TabIndex = 5;
-            this.chkSmartUpdate.Text = "Smart update slaves (RSA key has to be at the same path given here at the remote " +
-    "machines)";
-            this.toolTip.SetToolTip(this.chkSmartUpdate, "Enabling this will update the master and the slaves when starting a distributed t" +
-        "est, if the filled in credentials are correct.");
+            this.chkSmartUpdate.Text = "Smart update slaves";
+            this.toolTip.SetToolTip(this.chkSmartUpdate, resources.GetString("chkSmartUpdate.ToolTip"));
             this.chkSmartUpdate.UseVisualStyleBackColor = true;
             this.chkSmartUpdate.CheckedChanged += new System.EventHandler(this.chkSmartUpdate_CheckedChanged);
             // 
@@ -362,12 +361,13 @@
             // 
             // UpdateNotifierPanel
             // 
+            this.ClientSize = new System.Drawing.Size(1068, 580);
             this.Controls.Add(this.pnlConnectTo);
             this.Controls.Add(this.btnClear);
             this.Controls.Add(this.btnSet);
             this.Controls.Add(this.groupBox1);
             this.Controls.Add(this.btnForceUpdate);
-            this.Size = new System.Drawing.Size(1086, 627);
+            this.Name = "UpdateNotifierPanel";
             this.groupBox1.ResumeLayout(false);
             this.pnlRefresh.ResumeLayout(false);
             this.pnlRefresh.PerformLayout();

@@ -60,7 +60,7 @@ namespace vApus.UpdateTool {
         /// <param name="args">If contains GUID, host, port, username, privateRSAKeyPath in that order it will auto connect.</param>
         public Update(string[] args) {
             InitializeComponent();
-           
+
             _startupPath = Directory.GetParent(Application.StartupPath).FullName;
 
             if (args.Length > 7) {
