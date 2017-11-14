@@ -20,6 +20,7 @@ namespace vApus.UpdateTool {
     public partial class Update : Form {
 
         #region Fields
+        private const string UPDATETEMPFILESDIR = "__UpdateTempFiles__";
 
         private const int MAXRETRY = 3;
         private readonly int _channel;
@@ -136,7 +137,7 @@ namespace vApus.UpdateTool {
                 lvwUpdate.ClearEmbeddedControls();
                 lvwUpdate.Items.Clear();
 
-                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
                 string tempVersion = Path.Combine(tempFolder, "version.ini");
                 try {
                     if (File.Exists(tempVersion))
@@ -191,7 +192,7 @@ namespace vApus.UpdateTool {
 
         private void GetFilesToUpdate() {
             try {
-                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
                 if (Directory.Exists(tempFolder) &&
                     Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
@@ -245,7 +246,7 @@ namespace vApus.UpdateTool {
 
         private void DoUpdate() {
             string exception = "Failed to update or reinstall.\nThe connection to the server was broken or the existing vApus files could not be overwritten.";
-            string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+            string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
 
             try {
                 string possibleNonExistingFolder;
@@ -377,7 +378,7 @@ namespace vApus.UpdateTool {
                 }
 
                 //Place files from the temp folder in the vApus folder.
-                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
                 TryOverwriteDirectoriesAndFiles(tempFolder, _startupPath);
 
                 foreach (string d in Directory.GetDirectories(_startupPath, "*", SearchOption.AllDirectories))
@@ -405,7 +406,7 @@ namespace vApus.UpdateTool {
                 }
                 else {
                     MessageBox.Show(
-                        "Not all files where updated due to access or authorization errors!\nThose files are stored in the 'UpdateTempFiles' folder located in the top directory of vApus, so you can put them at the right place manually.",
+                        "Not all files where updated due to access or authorization errors!\nThose files are stored in the '__UpdateTempFiles__' folder located in the top directory of vApus, so you can put them at the right place manually.",
                         "Error!", MessageBoxButtons.OK, MessageBoxIcon.Error, MessageBoxDefaultButton.Button1);
                 }
             }
@@ -506,7 +507,7 @@ namespace vApus.UpdateTool {
             else if (_sftp != null) {
                 try { _sftp.Dispose(); } catch { }
                 _sftp = null;
-                string tempFolder = Path.Combine(_startupPath, "UpdateTempFiles");
+                string tempFolder = Path.Combine(_startupPath, UPDATETEMPFILESDIR);
                 if (Directory.Exists(tempFolder) && Directory.GetFiles(tempFolder, "*", SearchOption.AllDirectories).Length == 0)
                     Directory.Delete(tempFolder, true);
             }

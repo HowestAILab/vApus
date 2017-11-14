@@ -1,2 +1,0 @@
-All new files are found here (except this readme which is generated), for a manual update you have to overwrite the files in the upper folder with these.
-This folder has no use when empty so it can be removed safely.
