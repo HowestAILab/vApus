@@ -197,14 +197,7 @@ namespace vApus.UpdateTool {
                     Directory.Delete(tempFolder, true);
 
                 Directory.CreateDirectory(tempFolder);
-                string readme = Path.Combine(tempFolder, "README.TXT");
-                if (!File.Exists(readme))
-                    using (var sw = new StreamWriter(readme)) {
-                        sw.Write(
-                            "All new files are found here (except this readme which is generated), for a manual update you have to overwrite the files in the upper folder with these.\nThis folder has no use when empty so it can be removed safely.");
-                        sw.Flush();
-                    }
-
+                
                 string tempVersionPath = Path.Combine(tempFolder, "version.ini");
 
                 string channelDir = _channel == 0 ? "stable" : "nightly";

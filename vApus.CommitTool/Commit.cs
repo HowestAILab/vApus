@@ -17,10 +17,11 @@ namespace vApus.CommitTool {
     public class Commit {
         private static Commit _commit;
 
+        private const string UPDATETEMPFILESDIR = "__UpdateTempFiles__";
         private static string _updateTempFilesPath;
 
         private Commit() {
-            _updateTempFilesPath = Path.Combine(Application.StartupPath, "UpdateTempFiles");
+            _updateTempFilesPath = Path.Combine(Application.StartupPath, UPDATETEMPFILESDIR);
         }
 
         public static Commit GetInstance() {
@@ -28,7 +29,7 @@ namespace vApus.CommitTool {
         }
 
         /// <summary>
-        /// All files are stored in a folder UpdateTempFiles, together with a version.ini for version checking. Those files should be copied over to a remote location by hand or using a CI service. 
+        /// All files are stored in a folder __UpdateTempFiles__, together with a version.ini for version checking. Those files should be copied over to a remote location by hand or using a CI service. 
         /// </summary>
         /// <param name="localGitRepository">The folder containing all the source files (and the .git folder).</param>
         /// <param name="gitCmd">eg C:\Program Files (x86)\Git\cmd\git.cmd</param>
@@ -243,6 +244,8 @@ namespace vApus.CommitTool {
         /// <param name="excludedFilesOrFolders"></param>
         /// <returns></returns>
         private bool IsFileOrFolderExcluded(string name, string[] excludedFilesOrFolders) {
+            if (name == UPDATETEMPFILESDIR) return true; //Do not at this one to the list. This will give problems for the updater.
+
             string[] splittedName = name.Split('\\');
             name = splittedName[splittedName.Length - 1];
             foreach (string s in excludedFilesOrFolders)
