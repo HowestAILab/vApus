@@ -41,7 +41,7 @@ begin
 		end
 	else 
 		begin
-			Exec(ExpandConstant('{app}\NDP462-KB3151802-Web.exe'), '', '', SW_SHOW, ewWaitUntilTerminated, ResultCode)			
+			Exec(ExpandConstant('{app}\NDP47-KB3186500-Web.exe'), '', '', SW_SHOW, ewWaitUntilTerminated, ResultCode)			
 		end;
 	Exec(ExpandConstant('{app}\vApus.JumpStart.exe'), '', '', SW_SHOW, ewNoWait, ResultCode);
 end;
