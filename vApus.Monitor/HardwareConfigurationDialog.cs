@@ -25,7 +25,10 @@ namespace vApus.Monitor {
                     configuration += k + "\n";
                     foreach (var v in dic[k]) configuration += "  " + v + "\n";
                     configuration += "\n";
-                }               
+                }
+            }
+            else if (configuration.StartsWith("<lines>")) { //Backwards compatible
+                configuration = configuration.Replace("<lines>", "\n").Replace("</lines>", "").Replace("<line>", "").Replace("<\line>", "\n");
             }
 
             rtxt.Text = configuration.Trim();
