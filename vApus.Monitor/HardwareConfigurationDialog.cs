@@ -28,7 +28,7 @@ namespace vApus.Monitor {
                 }
             }
             else if (configuration.StartsWith("<lines>")) { //Backwards compatible
-                configuration = configuration.Replace("<lines>", "\n").Replace("</lines>", "").Replace("<line>", "").Replace("<\line>", "\n");
+                configuration = configuration.Replace("<lines>", "\n").Replace("</lines>", "").Replace("<line>", "").Replace("</line>", "\n");
             }
 
             rtxt.Text = configuration.Trim();
