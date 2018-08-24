@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("vApus")]
 [assembly: AssemblyDescription("vApus: Virtualized Application Unique Stress Testing")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Sizing Servers Lab (http://www.sizingservers.be)")]
+[assembly: AssemblyCompany("Sizing Servers Lab @ NMCT (www.sizingservers.be www.nmct.be)")]
 [assembly: AssemblyProduct("vApus")]
-[assembly: AssemblyCopyright("Copyright © Sizing Servers Lab")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

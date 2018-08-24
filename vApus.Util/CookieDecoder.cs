@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright 2012 (c) Vandroemme Dieter
- * University College of West-Flanders, Department GKG
+ * 2012 (c) Vandroemme Dieter
+ * University College of West-Flanders, Department GKG (www.sizingservers.be, www.nmct.be, www.howest.be/en)
  * 
  * Author(s):
  *    Vandroemme Dieter

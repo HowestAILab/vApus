@@ -1,13 +1,15 @@
 ﻿/*
- * Copyright 2015 (c) Sizing Servers Lab
- * University College of West-Flanders, Department GKG
+ * 2015 Sizing Servers Lab, affiliated with IT bachelor degree NMCT
+ * University College of West-Flanders, Department GKG (www.sizingservers.be, www.nmct.be, www.howest.be/en)
  * 
  * Author(s):
  *    Dieter Vandroemme
  */
 
+using RandomUtils.Log;
 using System;
 using System.Diagnostics;
+using System.IO;
 using System.Windows.Forms;
 using vApus.Gui.Properties;
 using WeifenLuo.WinFormsUI.Docking;
@@ -20,8 +22,6 @@ namespace vApus.Gui {
 
         public FirstStepsView() {
             InitializeComponent();
-
-            lblCopyright.Text = "Copyright 2007-" + DateTime.Now.Year + " © Sizing Servers Lab at Howest, the university-college of West-Flanders.";
         }
 
         public void DisableFormClosingEventHandling() {
@@ -53,6 +53,15 @@ namespace vApus.Gui {
             Process.Start("mailto:info@sizingservers.be");
         }
 
+        private void llblHelp_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
+            try {
+                Process.Start(Path.Combine(Application.StartupPath, "Help\\Help.htm"));
+            }
+            catch {
+                Loggers.Log(Level.Error, "Help file not found.");
+            }
+        }
+
         private void llbl_LinkClicked(object sender, LinkLabelLinkClickedEventArgs e) {
             if (LinkClicked != null) {
                 var llbl = sender as LinkLabel;
@@ -62,6 +71,18 @@ namespace vApus.Gui {
 
                 LinkClicked(this, new LinkClickedEventArgs(options));
             }
+        }
+
+        private void picNMCT_Click(object sender, EventArgs e) {
+            Process.Start("https://www.nmct.be");
+        }
+
+        private void picSSL_Click(object sender, EventArgs e) {
+            Process.Start("https://www.sizingservers.be");
+        }
+
+        private void picHowest_Click(object sender, EventArgs e) {
+            Process.Start("https://www.howest.be/en");
         }
 
         public class LinkClickedEventArgs : EventArgs {

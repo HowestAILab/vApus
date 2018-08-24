@@ -311,7 +311,73 @@
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
+    <Content Include="Help\help.htm">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\Connection proxies stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\Lupus-Titanium stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\Scenario rule sets stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\vApus stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\vApus-agent config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\vApus-hmt stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\vApus-proc stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\vApus-wmi-net stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\vApus.DetailedResultsViewer stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\vApus.Monitor.Sources stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\Jenkins 2.88 build jobs\vApus.PublishItemsHandler stable config.xml">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\vApus stress testing intro 201802\NDP47-KB3186500-Web.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Icon.128x128.vApus.ico" />
+    <None Include="Help\version.ini">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Resources\howest.png" />
+    <None Include="Resources\SSL.png" />
+    <None Include="Resources\NMCT.png" />
+    <None Include="Help\README.md">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Help\README.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Help\vApus stress testing intro 201802\2015-07 Running vApus virtualised.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Help\vApus stress testing intro 201802\2018-02 vApus stress testing intro.docx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Help\vApus stress testing intro 201802\Sizing_Servers_-_Example_report.pdf">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Help\vApus stress testing intro 201802\vApus-proc.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Include="Help\vApus stress testing intro 201802\vApus-wmi-net.zip">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Include="Icon.128x128.vApus.png" />
     <Content Include="Resources\dataGridViewCellStyle11.NullValue.png" />
     <None Include="app.manifest" />
@@ -361,6 +427,7 @@
       <Install>true</Install>
     </BootstrapperPackage>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <PropertyGroup>
     <PostBuildEvent>

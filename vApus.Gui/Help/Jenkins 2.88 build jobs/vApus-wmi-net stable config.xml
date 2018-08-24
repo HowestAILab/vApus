@@ -1,0 +1,75 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>git@bitbucket.org:howestsslab/vapus-wmi-net.git</url>
+        <credentialsId>7b3825bd-72f4-4b1e-b4ee-1fe6518e71e8</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.WipeWorkspace/>
+      <hudson.plugins.git.extensions.impl.LocalBranch>
+        <localBranch>master</localBranch>
+      </hudson.plugins.git.extensions.impl.LocalBranch>
+    </extensions>
+  </scm>
+  <assignedNode>winbuilder</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>true</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.msbuild.MsBuildBuilder plugin="msbuild@1.25">
+      <msBuildName>.NET v4.0.30319 x64</msBuildName>
+      <msBuildFile>vApus-wmi-net.sln</msBuildFile>
+      <cmdLineArgs>/nologo /verbosity:quiet /p:Configuration=Debug /p:Platform=&quot;Any CPU&quot;</cmdLineArgs>
+      <buildVariablesAsProperties>false</buildVariablesAsProperties>
+      <continueOnBuildFailure>false</continueOnBuildFailure>
+      <unstableIfWarnings>false</unstableIfWarnings>
+    </hudson.plugins.msbuild.MsBuildBuilder>
+    <hudson.tasks.BatchFile>
+      <command>REM Package the files&#xd;
+cd &quot;%WORKSPACE%\Build&#xd;
+REM Get the version from the tags&#xd;
+FOR /F &quot;usebackq&quot; %%t IN (`git describe &quot;--abbrev=0&quot; --tags`) DO SET VERSION=%%t&#xd;
+&#xd;
+md &quot;..\vApus-wmi-net-%VERSION%&quot;&#xd;
+xcopy * &quot;..\vApus-wmi-net-%VERSION%&quot; /s /e&#xd;
+cd ..&#xd;
+&#xd;
+7z a -tzip &quot;vApus-wmi-net-%VERSION%.zip&quot; &quot;vApus-wmi-net-%VERSION%&quot;&#xd;
+&#xd;
+rd /s /q &quot;vApus-wmi-net-%VERSION%&quot;&#xd;
+&#xd;
+REM Scp zip to packages&#xd;
+c:\Git\usr\bin\scp.exe &quot;vApus-wmi-net-%VERSION%.zip&quot; user@endpoint:/srv/software/vApus-wmi-net/stable&#xd;
+&#xd;
+del &quot;vApus-wmi-net-%VERSION%.zip&quot;</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.17">
+      <recipients>someone@sizingservers.be</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

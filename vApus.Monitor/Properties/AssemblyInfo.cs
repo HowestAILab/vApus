@@ -8,9 +8,9 @@ using System.Runtime.InteropServices;
 [assembly: AssemblyTitle("vApus.Monitor")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
-[assembly: AssemblyCompany("Sizing Servers Lab")]
+[assembly: AssemblyCompany("Sizing Servers Lab @ NMCT (www.sizingservers.be www.nmct.be)")]
 [assembly: AssemblyProduct("vApus.Monitor")]
-[assembly: AssemblyCopyright("Copyright © Sizing Servers Lab 2009")]
+[assembly: AssemblyCopyright("")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
 

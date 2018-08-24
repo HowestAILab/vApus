@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright 2009 (c) Sizing Servers Lab
- * University College of West-Flanders, Department GKG
+ * 2009 Sizing Servers Lab, affiliated with IT bachelor degree NMCT
+ * University College of West-Flanders, Department GKG (www.sizingservers.be, www.nmct.be, www.howest.be/en)
  * 
  * Author(s):
  *    Dieter Vandroemme
@@ -15,8 +15,8 @@ namespace vApus.CommitTool {
         [STAThread]
         private static void Main(string[] args) {
             Console.WriteLine("/*");
-            Console.WriteLine("* Copyright 2017 - Present (c) Sizing Servers Lab");
-            Console.WriteLine("* University College of West-Flanders, Department GKG");
+            Console.WriteLine("* 2017 - Present Sizing Servers Lab, affiliated with IT bachelor degree NMCT");
+            Console.WriteLine("* University College of West-Flanders, Department GKG (www.sizingservers.be, www.nmct.be, www.howest.be/en)");
             Console.WriteLine("*");
             Console.WriteLine(" * Author(s):");
             Console.WriteLine("*    Dieter Vandroemme");

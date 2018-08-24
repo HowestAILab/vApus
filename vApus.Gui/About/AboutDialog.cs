@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright 2009 (c) Sizing Servers Lab
- * University College of West-Flanders, Department GKG
+ * 2009 Sizing Servers Lab, affiliated with IT bachelor degree NMCT
+ * University College of West-Flanders, Department GKG (www.sizingservers.be, www.nmct.be, www.howest.be/en)
  * 
  * Author(s):
  *    Dieter Vandroemme
@@ -66,11 +66,10 @@ namespace vApus.Gui {
         public AboutDialog() {
             InitializeComponent();
 
-            lblLicense.Text = LicenseChecker.StatusMessage;
+            lblLicense.Text = LicenseChecker.StatusMessage + " (Licensing not used anymore)";
             LicenseChecker.LicenseCheckFinished += LicenseChecker_LicenseCheckFinished;
 
             lblDescription.Text = AssemblyDescription;
-            txtCopyright.Text = AssemblyCopyright;
 
             _titleFont = new Font(rtxtHistory.Font, FontStyle.Bold);
             _dateFont = new Font(rtxtHistory.Font, FontStyle.Italic);
@@ -227,5 +226,16 @@ namespace vApus.Gui {
         }
         #endregion
 
+        private void picNMCT_Click(object sender, EventArgs e) {
+            Process.Start("https://www.nmct.be");
+        }
+
+        private void picSSL_Click(object sender, EventArgs e) {
+            Process.Start("https://www.sizingservers.be");
+        }
+
+        private void picHowest_Click(object sender, EventArgs e) {
+            Process.Start("https://www.howest.be/en");
+        }
     }
 }

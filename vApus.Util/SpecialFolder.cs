@@ -1,8 +1,8 @@
 ﻿//http://www.gotdotnet.ru/Forums/Common/130375.aspx
 
 /*
- * Copyright 2008 (c) Vandroemme Dieter 
- * University College of West-Flanders, Department GKG
+ * 2008 (c) Vandroemme Dieter 
+ * University College of West-Flanders, Department GKG (www.sizingservers.be, www.nmct.be, www.howest.be/en)
  * 
  * Author(s):
  *    Dieter Vandroemme

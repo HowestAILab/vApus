@@ -1,5 +1,5 @@
 ﻿/*
- * Copyright 2010 (c) Sizing Servers Lab
+ * 2010 Sizing Servers Lab, affiliated with IT bachelor degree NMCT
  * Technical University Kortrijk, Department GKG
  *  
  * Author(s):

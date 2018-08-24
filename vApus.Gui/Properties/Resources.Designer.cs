@@ -62,10 +62,8 @@ namespace vApus.Gui.Properties {
         
         /// <summary>
         ///   Looks up a localized string similar to &lt;Authors&gt;
-        ///	&lt;Author name=&quot;Dieter Vandroemme&quot; email=&quot;dieter@sizingservers.be&quot; period=&quot;2007-Present&quot; linkedInID=&quot;dietervandroemme&quot; /&gt;
-        ///	&lt;Author name=&quot;Philip Dubois&quot; email=&quot;philip@sizingservers.be&quot; period=&quot;2012-2016&quot; linkedInID=&quot;philipdubois&quot; /&gt;
-        ///	&lt;Author name=&quot;Glenn Desmadryl&quot; email=&quot;glenn@sizingservers.be&quot; period=&quot;2009-2012&quot; linkedInID=&quot;glenndesmadryl&quot; /&gt;
-        ///	&lt;Author name=&quot;Liz van Dijk&quot; email=&quot;liz@sizingservers.be&quot; period=&quot;2011-2012&quot; linkedInID=&quot;lizvandijk&quot; /&gt;
+        ///	&lt;Author name=&quot;Dieter Vandroemme&quot; email=&quot;&quot; period=&quot;2007-2018&quot; linkedInID=&quot;dietervandroemme&quot; /&gt;
+        ///	&lt;Author name=&quot;Glenn Desmadryl&quot; email=&quot;&quot; period=&quot;2009-2012&quot; linkedInID=&quot;glenndesmadryl&quot; /&gt;
         ///&lt;/Authors&gt;.
         /// </summary>
         public static string Authors {
@@ -100,6 +98,16 @@ namespace vApus.Gui.Properties {
         public static System.Drawing.Bitmap Glenn_Desmadryl {
             get {
                 object obj = ResourceManager.GetObject("Glenn_Desmadryl", resourceCulture);
+                return ((System.Drawing.Bitmap)(obj));
+            }
+        }
+        
+        /// <summary>
+        ///   Looks up a localized resource of type System.Drawing.Bitmap.
+        /// </summary>
+        public static System.Drawing.Bitmap howest {
+            get {
+                object obj = ResourceManager.GetObject("howest", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -167,9 +175,9 @@ namespace vApus.Gui.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap Liz_van_Dijk {
+        public static System.Drawing.Bitmap NMCT {
             get {
-                object obj = ResourceManager.GetObject("Liz_van_Dijk", resourceCulture);
+                object obj = ResourceManager.GetObject("NMCT", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -187,9 +195,9 @@ namespace vApus.Gui.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap Philip_Dubois {
+        public static System.Drawing.Bitmap RecycleBin {
             get {
-                object obj = ResourceManager.GetObject("Philip_Dubois", resourceCulture);
+                object obj = ResourceManager.GetObject("RecycleBin", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }
@@ -197,9 +205,9 @@ namespace vApus.Gui.Properties {
         /// <summary>
         ///   Looks up a localized resource of type System.Drawing.Bitmap.
         /// </summary>
-        public static System.Drawing.Bitmap RecycleBin {
+        public static System.Drawing.Bitmap SSL {
             get {
-                object obj = ResourceManager.GetObject("RecycleBin", resourceCulture);
+                object obj = ResourceManager.GetObject("SSL", resourceCulture);
                 return ((System.Drawing.Bitmap)(obj));
             }
         }

@@ -117,6 +117,13 @@
   <resheader name="writer">
     <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
   </resheader>
+  <data name="rtxtHistory.Text" xml:space="preserve">
+    <value>History is read from version.ini. version.ini is generated, using history.xml in the vApus sources,
+when vApus is build using a Jenkins build job.
+
+You can find an example version.ini in the Help folder.
+</value>
+  </data>
   <metadata name="ofd.TrayLocation" type="System.Drawing.Point, System.Drawing, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a">
     <value>17, 17</value>
   </metadata>

@@ -1,5 +1,5 @@
 /*
- * Copyright 2015 (c) Vandroemme Dieter
+ * 2015 (c) Vandroemme Dieter
  * Technical University Kortrijk, department PIH
  *  
  * Author(s):

@@ -1,6 +1,6 @@
 ﻿/*
- * Copyright 2009 (c) Sizing Servers Lab
- * University College of West-Flanders, Department GKG
+ * 2009 Sizing Servers Lab, affiliated with IT bachelor degree NMCT
+ * University College of West-Flanders, Department GKG (www.sizingservers.be, www.nmct.be, www.howest.be/en)
  * 
  * Author(s):
  *    Dieter Vandroemme
@@ -598,6 +598,14 @@ namespace vApus.Gui {
         private void aboutToolStripMenuItem_Click(object sender, EventArgs e) {
             _aboutDialog.ShowDialog();
         }
+        private void helpToolStripMenuItem1_Click(object sender, EventArgs e) {
+            try {
+                Process.Start(Path.Combine(Application.StartupPath, "Help\\Help.htm"));
+            }
+            catch {
+                Loggers.Log(Level.Error, "Help file not found.");
+            }
+        }
         #endregion
 
         #endregion
@@ -709,5 +717,6 @@ namespace vApus.Gui {
 
         private void lblWarning_Click(object sender, EventArgs e) { ShowOptionsDialog(7); }
         #endregion
+
     }
 }
