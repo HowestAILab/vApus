@@ -379,6 +379,9 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Include="Icon.128x128.vApus.png" />
+    <Content Include="license.txt">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Resources\dataGridViewCellStyle11.NullValue.png" />
     <None Include="app.manifest" />
     <None Include="packages.config" />

@@ -40,7 +40,7 @@
             this.tbpHistory = new System.Windows.Forms.TabPage();
             this.rtxtHistory = new System.Windows.Forms.RichTextBox();
             this.tbpLicense = new System.Windows.Forms.TabPage();
-            this.lblLicense = new System.Windows.Forms.Label();
+            this.lblLicense = new System.Windows.Forms.RichTextBox();
             this.btnActivateLicense = new System.Windows.Forms.Button();
             this.btnRequestLicense = new System.Windows.Forms.Button();
             this.tbpLicenses = new System.Windows.Forms.TabPage();
@@ -196,7 +196,7 @@
             this.tbpLicense.Location = new System.Drawing.Point(4, 22);
             this.tbpLicense.Margin = new System.Windows.Forms.Padding(2);
             this.tbpLicense.Name = "tbpLicense";
-            this.tbpLicense.Size = new System.Drawing.Size(737, 283);
+            this.tbpLicense.Size = new System.Drawing.Size(737, 274);
             this.tbpLicense.TabIndex = 3;
             this.tbpLicense.Text = "License";
             this.tbpLicense.UseVisualStyleBackColor = true;
@@ -207,10 +207,11 @@
             | System.Windows.Forms.AnchorStyles.Left) 
             | System.Windows.Forms.AnchorStyles.Right)));
             this.lblLicense.BackColor = System.Drawing.Color.White;
+            this.lblLicense.BorderStyle = System.Windows.Forms.BorderStyle.None;
             this.lblLicense.Location = new System.Drawing.Point(5, 10);
             this.lblLicense.Margin = new System.Windows.Forms.Padding(2);
             this.lblLicense.Name = "lblLicense";
-            this.lblLicense.Size = new System.Drawing.Size(575, 252);
+            this.lblLicense.Size = new System.Drawing.Size(727, 231);
             this.lblLicense.TabIndex = 5;
             this.lblLicense.Text = "Checking license...";
             // 
@@ -219,10 +220,11 @@
             this.btnActivateLicense.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnActivateLicense.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnActivateLicense.BackColor = System.Drawing.Color.White;
+            this.btnActivateLicense.Enabled = false;
             this.btnActivateLicense.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.btnActivateLicense.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnActivateLicense.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.btnActivateLicense.Location = new System.Drawing.Point(466, 266);
+            this.btnActivateLicense.Location = new System.Drawing.Point(620, 245);
             this.btnActivateLicense.Margin = new System.Windows.Forms.Padding(2);
             this.btnActivateLicense.Name = "btnActivateLicense";
             this.btnActivateLicense.Size = new System.Drawing.Size(112, 24);
@@ -236,10 +238,11 @@
             this.btnRequestLicense.Anchor = ((System.Windows.Forms.AnchorStyles)((System.Windows.Forms.AnchorStyles.Bottom | System.Windows.Forms.AnchorStyles.Right)));
             this.btnRequestLicense.AutoSizeMode = System.Windows.Forms.AutoSizeMode.GrowAndShrink;
             this.btnRequestLicense.BackColor = System.Drawing.Color.White;
+            this.btnRequestLicense.Enabled = false;
             this.btnRequestLicense.FlatAppearance.BorderColor = System.Drawing.Color.Black;
             this.btnRequestLicense.FlatStyle = System.Windows.Forms.FlatStyle.Flat;
             this.btnRequestLicense.Font = new System.Drawing.Font("Microsoft Sans Serif", 8.25F, System.Drawing.FontStyle.Bold);
-            this.btnRequestLicense.Location = new System.Drawing.Point(342, 266);
+            this.btnRequestLicense.Location = new System.Drawing.Point(496, 245);
             this.btnRequestLicense.Margin = new System.Windows.Forms.Padding(2);
             this.btnRequestLicense.Name = "btnRequestLicense";
             this.btnRequestLicense.Size = new System.Drawing.Size(120, 24);
@@ -254,7 +257,7 @@
             this.tbpLicenses.Location = new System.Drawing.Point(4, 22);
             this.tbpLicenses.Name = "tbpLicenses";
             this.tbpLicenses.Padding = new System.Windows.Forms.Padding(3);
-            this.tbpLicenses.Size = new System.Drawing.Size(737, 283);
+            this.tbpLicenses.Size = new System.Drawing.Size(737, 274);
             this.tbpLicenses.TabIndex = 2;
             this.tbpLicenses.Text = "Third-party licenses";
             this.tbpLicenses.UseVisualStyleBackColor = true;
@@ -267,7 +270,7 @@
             this.rtxtLicenses.Location = new System.Drawing.Point(3, 3);
             this.rtxtLicenses.Name = "rtxtLicenses";
             this.rtxtLicenses.ReadOnly = true;
-            this.rtxtLicenses.Size = new System.Drawing.Size(731, 277);
+            this.rtxtLicenses.Size = new System.Drawing.Size(731, 268);
             this.rtxtLicenses.TabIndex = 0;
             this.rtxtLicenses.Text = "";
             // 
@@ -342,7 +345,7 @@
         private AuthorGrid authorGrid;
         private System.Windows.Forms.TextBox txtChannel;
         private System.Windows.Forms.TabPage tbpLicense;
-        private System.Windows.Forms.Label lblLicense;
+        private System.Windows.Forms.RichTextBox lblLicense;
         private System.Windows.Forms.Button btnActivateLicense;
         private System.Windows.Forms.Button btnRequestLicense;
         private System.Windows.Forms.OpenFileDialog ofd;
