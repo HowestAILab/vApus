@@ -7,7 +7,12 @@ It assumes that you know what vApus is (experience, read the user manual, not ye
 
 If you want more details, you can look at the code that is fairly well structured and commented. In fact, it is recommended doing this while reading this manual.
 
-vApus builds using .Net 4.7/Visual Studio 2017 and runs only on a 64 bit Windows. This is automated using [jenkins.sizingservers.be](https://jenkins.sizingservers.be).
+vApus builds using .Net 4.7/Visual Studio 2017 and runs only on a 64 bit Windows. Builds are is automated using Jenkins.
+
+If building yourself, please note that for vApus as a whole to work It needs to have the tools and other builds in its own build folder (ConnectionProxies, DetailedResultsViewer, Lupus-Titanium, MonitorSourceClients, PublishItemsHandler and ScnerioRuleSets).
+
+Take a look at the folder structure of an installed vApus (Setup_vApus-2.4.2.exe) and the Jenkins build job exports in vApus.Gui/Help.
+
 
 ## vApus Stress testing Solution (vass) Framework
 vApus is a stress testing framework for the user (more on that later), but it is also a framework for the developer.
