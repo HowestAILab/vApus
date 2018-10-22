@@ -1,13 +1,45 @@
+# vApus
+![C:\Users\Didjeeh\Sizing Servers Repositories\vapus\vApusFrontEnd.png.png](vApusFrontEnd.png)
+
+The vApus stress testing framework is mostly build for testing web services while mimicking real users (a user browses to the homepage, logs in,...).
+Because vApus is a framework it is possible to test any application that has a server socket (in theory) e.g. MySQL, Elasticsearch, ...
+
+Stress testing is more complex than just pressing the Go button. Therefore some documentation is in place: See the Help folder in Build and / or install vApus using **Setup_vApus-2.4.2.exe**.
+
+For specific questions, you can try to e-mail info@sizingservers.be. Keep in mind that support is not guaranteed, since active development is halted.
+
+In the help folder:
+* **vApus stress testing intro 201802** gives a good basic overview about how to stress test with vApus and analyze the results.
+* Sizing Servers Lab builds, in the same folder, for the last stable vApus (and tools) + monitors.
+* **README** contains a technical overview of the vApus source code.
+* An example **version.ini**: a version .ini is generated using a Jenkins build job using history.xml in the sources and listing file hashes for version control.
+* **Jenkins 2.88 build jobs** for vApus, monitors and others, but only stable git branches, to illustrate how Sizing Servers implemented continuous integration
+
+The vApus stress testing suite consists out of a few different git repositories. You can find them all here on GitHub.
+
+![C:\Users\Didjeeh\Sizing Servers Repositories\vapus\vApus projects.png](vApus%20projects.png)
+
+See the installation folder / the Build folder for an example.
+
+Furthermore, you can do anything you like with the software in respect to the MIT license.
+
+Hereunder a technical manual.
+
 # Technical manual
 
 ## Preface
 This is a short manual to guide you through the vApus Visual Studio solution.
 
-It assumes that you know what vApus is (experience, read the user manual, not yet available). This manual is not intended to explain each piece of code in detail, it is more of a guide to see the large picture.
+It assumes that you know what vApus is (See the Help folder / Help in vApus, not yet available). This manual is not intended to explain each piece of code in detail, it is more of a guide to see the large picture.
 
 If you want more details, you can look at the code that is fairly well structured and commented. In fact, it is recommended doing this while reading this manual.
 
-vApus builds using .Net 4.7/Visual Studio 2017 and runs only on a 64 bit Windows. This is automated using [jenkins.sizingservers.be](https://jenkins.sizingservers.be).
+vApus builds using .Net 4.7/Visual Studio 2017 and runs only on a 64 bit Windows. Builds are is automated using Jenkins.
+
+If building yourself, please note that for vApus as a whole to work It needs to have the tools and other builds in its own build folder (ConnectionProxies, DetailedResultsViewer, Lupus-Titanium, MonitorSourceClients, PublishItemsHandler and ScnerioRuleSets).
+
+Take a look at the folder structure of an installed vApus (Setup_vApus-2.4.2.exe) and the Jenkins build job exports in vApus.Gui/Help.
+
 
 ## vApus Stress testing Solution (vass) Framework
 vApus is a stress testing framework for the user (more on that later), but it is also a framework for the developer.
@@ -171,9 +203,9 @@ Now you understand that TileStressTests run more or less like a regular stress t
 
 
 The front-end is much like the front-end for a regular stress test, there are a few notable extras though: 
-*The Wizard (re)builds a distributed test for you and is shown automatically when opening an empty distributed test. It looks at the regular stress tests in the vass to build TileStressTests and order them in a Tile.
+* The Wizard (re)builds a distributed test for you and is shown automatically when opening an empty distributed test. It looks at the regular stress tests in the vass to build TileStressTests and order them in a Tile.
 
-*A Remote Desktop Client: *vApus.Jumpstart* (see Tools) will only work if a user session (remote or local) is running on a test client. You can choose if you want vApus to connect via remote desktop to the client if you like.
+* A Remote Desktop Client: *vApus.Jumpstart* (see Tools) will only work if a user session (remote or local) is running on a test client. You can choose if you want vApus to connect via remote desktop to the client if you like.
 ### Monitor
 The code for this can be found in *vApus.Monitor*.
 
@@ -219,7 +251,9 @@ Following issues/bugs are known, but will most probably not be fixed because of 
 
 * Minor flickering when doing something on the GUI when there are a lot of tabs (Mdi childs) open 
 
-* Parallel requests in a single stress test do not work well (simulating web browsers LINK TO RESEARCH)  
+* Do not use parallel requests for web stress tests. Web tests will work just fine without this (only a bit less realistic).
+
+Parallel requests in a single stress test do not work well (simulating web browsers)  
 If too many threads are created thread contention will occur. In the current implementation this can be the case quite rapidly: Before each test run the thread pool is initialized for the 'Main User threads' and the 'Parallel request threads' as well.
 
 By default, there are 6 static content requests (img, js, css) that are fetched in parallel (the 'Main user thread' + 5 'Parallel Request threads'). 'Parallel Request threads' are not reused in vApus, meaning that for each group of statics to be fetched in parallel 5 'Parallel Request threads' are created.
@@ -228,7 +262,7 @@ This is highly inefficient since even when idle the OS needs to schedule them. B
 
 Possible workaround: Make a homogeneous distributed test with slaves on the same test client. This will work since .Net threads are scheduled per process. Ideally, we should have this built into vApus that it does this automatically.
 
-* Parallel requests in a distributed homogeneous test over different test clients do not work   
+Parallel requests in a distributed homogeneous test over different test clients do not work   
 Only for tests with parallel requests the time right before sending a request is taken into account to calculate user action response times (how long it takes to get the html and all statics for a certain web page).
 
 To determine this start time the TSC Invariant kernel function GetSystemTimePreciseAsFileTime is used ([[Running_vApus_virtualized]]), which works fine. However, time skew between the different test clients clocks in a homogeneous distributed test is not taken into account. Furthermore, we have to deal with network latency.
@@ -236,7 +270,6 @@ To determine this start time the TSC Invariant kernel function GetSystemTimePrec
 This renders 'Parallel Request testing' completely useless in this setup.
 
 * When removing a slave that is assigned to a tile stress test from the 'Slaves tab page' on the Distributed Test GUI it is not update on the 'Configure tab page'
-
 
 * Break on first distributed testing fails sometimes  
 Is reproducible, but not easily fixed. The master-slaves communication layer should be rewritten.
@@ -316,6 +349,7 @@ Check if TSC-INVARIANT is available using [CoreInfo][8].
 ## vApus virtual vs vApus physical in numbers 
 
 ### Introduction 
+Research from a few years back. But still true.
 
 One physical Windows client / one or more virtual Windows clients where used to run vApus. This to check if the above is actually correct.
 The virtual client(s) run in our own production to simulate hardware usage in the real world (e.g. Amazon), where hardware is shared among a lot of VMs. Or on AWS.
@@ -404,7 +438,7 @@ Results of the slowest test:
 ### AWS
 
 #### Test setup
-A more simple approach was chosen since there is already enough jitter on AWS: <https://www.sizingservers.be> was tested using only a single vApus instance.
+A more simple approach was chosen since there is already enough jitter on AWS: <https://www.sizingservers.be> (first version of our website) was tested using only a single vApus instance.
 
 Test 2 was executed trice to ensure that there are no big differences in the results.
 
@@ -439,22 +473,33 @@ www.sizingservers.be is located in our own network. You can find this latency ba
 It is safe to say that vApus can be used on VMs and in the cloud.
 
 
-# Generating charts for Dstat and WMI monitor metrics
+# Generating charts for Proc and WMI-net monitor metrics
 Make sure you have Excel >=2016 installed. Copy personal.xlsm from the vApus installation folder to the XLSTART folder (e.g. C:\Program Files (x86)\Microsoft Office\Office15\XLSTART).
 
 When setting the monitors click the 'Use defaults' button in vApus.
 
-For Dstat following counters are chosen:
+For Proc following counters are chosen:
 
-* procs
-* memory usage
-* paging
-* dsk/total
-* system
-* total cpu usage
-* net/total
+* cpu.
+  * user
+  * nice
+  * system
+  * idle
+  * iowait
+  * irq
+  * softirq
+  * steal
+* disk.
+  * read
+  * write
+  * average_queue_size
+* memory
+* network.
+  * rx 
+  * tx
+* swap
 
-For WMI:
+For WMI-net:
 
 * Memory.
   * Available Bytes
@@ -487,23 +532,15 @@ Export the monitor metrics for a test using the detailed results viewer and open
 
 Click, in the Ribbon, *View* > *Macros*.
 
-For Dstat first run the *Dstat_charts_delete_proc_and_system* macro followed by the *Dstat_charts_make* macro.
+For Proc first run the *Proc_charts_make* macro.
 
 For WMI you need to remove all network ups and downs except for one pair and run the *Wmi_charts_make* macro. Do not forget to fill in the total amount of RAM .
 
 If you manually selected process counters you have to run *WMI_process_charts_make* and fill in the number of (v)CPU cores.
 
 # Update vApus from within vApus
-Zorg dat je op het Sizing Servers netwerk zit (evt. via VPN).
-
 Open vApus. Click 'Tools' > 'Options...' > 'Update notifier'
 
-Fill in:
-* Host: update.vapus.be
-* Port: 22
-* Username: see Drive Vault
-* Password: see Drive Vault
-* Channel: ideally 'Stable'
-* Smart update slaves: only needed for distributed testing
+Fill in.
 
 Click 'Set'.

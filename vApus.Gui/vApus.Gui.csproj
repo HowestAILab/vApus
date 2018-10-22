@@ -347,10 +347,16 @@
     <Content Include="Help\Jenkins 2.88 build jobs\vApus.PublishItemsHandler stable config.xml">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
+    <Content Include="Help\vApus projects.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
     <Content Include="Help\vApus stress testing intro 201802\NDP47-KB3186500-Web.exe">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Help\vApus stress testing intro 201802\Setup_vApus-2.4.2.exe">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Content>
+    <Content Include="Help\vApusFrontEnd.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
     <Content Include="Icon.128x128.vApus.ico" />
