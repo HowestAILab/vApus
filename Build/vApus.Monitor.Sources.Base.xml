@@ -1,0 +1,1032 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>vApus.Monitor.Sources.Base</name>
+    </assembly>
+    <members>
+        <member name="T:vApus.Monitor.Sources.Base.BaseClient">
+            <summary>
+            The base to all vApus monitor source clients implementations. A monitor source can be a in house or a third party agent or a device (like a power meter).
+            The socket communicates over TCP, but this can be changed if you want to.
+            </summary>
+        </member>
+        <member name="E:vApus.Monitor.Sources.Base.BaseClient.OnMonitor">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Name">
+            <summary>
+            This is actualy the Title from the assembly properties.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Description">
+            <summary>
+            This is actualy the Description from the assembly properties.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Parameters">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.Config">
+            <summary>
+            The hardware configuration of the monitored machine if applicable.
+            Returns N/A.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.RefreshCountersInterval">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.DecimalSeparator">
+            <summary>
+            Can be . or , because of for instance the locale settings. 
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WDYH">
+            <summary>
+            What do you have: the available counters, override to determine the value first in the getter.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WDYHRepresentation">
+            <summary>
+            Get: Json serialized what do you have: the available counters. Returns null if _wdyh == null.
+            Set: Serialized the given value and stores it in _wdyh.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WIW">
+            <summary>
+            What I want, override if you want to determine the value first in the getter or set the value to an agent in the setter.
+            For non-agent clients this should not be overriden.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClient.WIWRepresentation">
+            <summary>
+            Get: Json serialized what I want. Returns null if _wiw == null.
+            Set: Serialized the given value and stores it in _wiw.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.GetParameter(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <returns>The parameter, if found or null.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.SetParameterValues(System.Object[])">
+            <summary>
+            
+            Set the values in the parameters.
+            The number of values cannot be greater than the number of parameters.
+            The type of the values must be the same as the type of the default values in the parameters.
+            </summary>
+            <param name="values"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.Connect">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.Start">
+            <summary>
+            Use the bool _started to determine if applicable. After started the client should listen for counters, if is is not a polling monitor. (use InvokeOnMonitor()).
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.InvokeOnMonitor(vApus.Monitor.Sources.Base.Entities)">
+            <summary>
+            
+            </summary>
+            <param name="counters"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.Stop">
+            <summary>
+            Use the bool _started to determine if applicable.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.Disconnect">
+            <summary>
+            Stops and disconnects, do all other cleanup stuff in Stop().
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.Dispose">
+            <summary>
+            Stops and disconnects, do all other cleanup stuff in Stop().
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.Test(System.Boolean,System.Int32,System.Object[])">
+            <summary>
+            A test should be as complete as possible. All possible RPCs must be done; returned messages must be validated.
+            </summary>
+            <param name="verboseConsoleOutput"></param>
+            <param name="id">Should be unique.</param>
+            <param name="parameterValues"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.DetermineRandomWiwEntities">
+            <summary>
+            Use this in a test, throws an exception if fails.
+            Random entities are determined based on WDYH.
+            Only available antities are chosen if any.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClient.ValidateCounters(vApus.Monitor.Sources.Base.Entities)">
+            <summary>
+            Checks if the counters are valid against wiw. Throws an exception if not.
+            In case of warnings, thos are written to the console if _verboseConsoleOutput == true.
+            </summary>
+            <param name="counters"></param>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.BaseClientSwitcher">
+            <summary>
+            <para>Use this if you want one client that supports multiple protocols.</para>
+            <para>This should only be done if you have multiple versions of the same agent or monitor source.</para>
+            <para>In the connect you must determine the client to use (internal class, so it is not visible to the outside.)</para>
+            <para>Do not forget to subscribe to the clients' OnMonitor and re invoke it.</para>
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.Name">
+            <summary>
+            This is actualy the Title from the assembly properties.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.Description">
+            <summary>
+            This is actualy the Description from the assembly properties.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.Parameters">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.Config">
+            <summary>
+            The hardware configuration of the monitored machine if applicable.
+            Fails if not connected.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.RefreshCountersInterval">
+            <summary>
+            In ms. Fails if not connected.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.DecimalSeparator">
+            <summary>
+            Can be . or , because of for instance the locale settings. Fails if not connected.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.WDYH">
+            <summary>
+            What do you have: the available counters
+            Fails if not connected.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.WDYHRepresentation">
+            <summary>
+            Get: Json serialized what do you have: the available counters. Returns null if _wdyh == null.
+            Set: Serialized the given value and stores it in _wdyh.
+            Fails if not connected.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.WIW">
+            <summary>
+            What I want
+            Fails if not connected
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseClientSwitcher.WIWRepresentation">
+            <summary>
+            Get: Json serialized what I want. Returns null if _wiw == null.
+            Set: Serialized the given value and stores it in _wiw.
+            Fails if not connected.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.GetParameter(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <returns>The parameter, if found or null.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.SetParameterValues(System.Object[])">
+            <summary>
+            
+            Set the values in the parameters.
+            The number of values cannot be greater than the number of parameters.
+            The type of the values must be the same as the type of the default values in the parameters.
+            </summary>
+            <param name="value1"></param>
+            <param name="otherValues"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.Connect">
+            <summary>
+            Implement this and call TryConnectClient() for each client you want to connect.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.TryConnect(vApus.Monitor.Sources.Base.IClient)">
+            <summary>
+            
+            </summary>
+            <param name="client"></param>
+            <returns>The client if it connects or null (the client gets disposed.) Store this in _client.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.InvokeOnMonitor(vApus.Monitor.Sources.Base.Entities)">
+            <summary>
+            
+            </summary>
+            <param name="counters"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseClientSwitcher.Dispose">
+            <summary>
+            Stops and disconnects, do all other cleanup stuff in Stop().
+            </summary>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.BasePollingClient">
+            <summary>
+            Handles start and stop for you (you can override this for the slim chance you have to send something to the device first).
+            Has a timer that reports on another thread.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BasePollingClient._sleepWaitHandle">
+            <summary>
+            For functionality testing.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BasePollingClient._wih">
+            <summary>
+            Store what you received from the polled source in here.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BasePollingClient._wiwWithCounters">
+            <summary>
+            (Hint) Basically a clone of wiw with the counters in wih set to this object (_wiwWithCounters.SetCounters(_wih);). 
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BasePollingClient.Start">
+            <summary>
+            Start polling.
+            </summary>
+            <returns>True if started.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BasePollingClient.PollCounters">
+            <summary>
+            <para>Poll and transform counters in here. The timer will call this fx periodically.</para> 
+            <para>Example:</para>
+            <para>RMCPCounters counters = RMCPHelper.GetCounters(HostNameOrIPAddress);</para>
+            <para>protected override Entities PollCounters() {</para>
+            <para>if (_wih == null) _wih = WDYH.Clone();</para>
+            <para>for (int i = 0; i != 8; i++) {</para>
+            <para>int outlet = i + 1;</para>
+            <para>var entity = _wih[i];</para>
+            <para>entity.GetSubs()[0].SetCounter(counters.Available[i]);</para>
+            <para>}</para>
+            <para>if (_wiwWithCounters == null) _wiwWithCounters = base._wiw.Clone();</para>
+            <para>_wiwWithCounters.SetCounters(_wih);</para>
+            <para> return _wiwWithCounters;</para>
+            <para>}</para>
+            </summary>
+            <returns>_wihWithCounters</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BasePollingClient.Stop">
+            <summary>
+            Stop polling.
+            </summary>
+            <returns>True if stopped.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BasePollingClient.Test(System.Boolean,System.Int32,System.Object[])">
+            <summary>
+            Function for the client tester.
+            </summary>
+            <param name="verboseConsoleOutput"></param>
+            <param name="id"></param>
+            <param name="parameterValues"></param>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.BaseSocketClient`1">
+            <summary>
+            Holds a socket. No polling logic implemented, since data can also be pushed from the server.
+            </summary>
+            <typeparam name="T">The type of the messages send between agent / device and client. For instance: string or custom type.
+            Such a message must be parsed to an Entities object in case of wdyh, wiw and received counters.</typeparam>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BaseSocketClient`1.CONNECTTIMEOUT">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BaseSocketClient`1._socket">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BaseSocketClient`1._socketType">
+            <summary>
+            Only set on connect to the socket.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BaseSocketClient`1._protocolType">
+            <summary>
+            Only set on connect to the socket.
+            </summary>
+        </member>
+        <member name="F:vApus.Monitor.Sources.Base.BaseSocketClient`1._bufferSize">
+            <summary>
+            Only set on connect to the socket.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IPAddresses">
+            <summary>
+            Reverse lookups the hostname if possible.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.Port">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.BaseSocketClient`1.IsConnected">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.#ctor">
+            <summary>
+            Call this in your implementations' constructor.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Connect">
+            <summary>
+            Tries to connect to the host name or ip address in parameter "Host Name or IP address" with the port in parameter "Port".
+            There is a connect timeout of 2 seconds for each host entry found in dns.
+            The send- and receive timeout is  60 seconds.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Connect(System.Net.Sockets.Socket,System.Net.IPAddress,System.Int32,System.Int32,System.Int32)">
+            <summary>
+                Connects to a socket.
+                Throws an exception if it is not able too.
+                You must check the connected property first before calling this.
+            </summary>
+            <param name="socket"></param>
+            <param name="ipAddress"></param>
+            <param name="port"></param>
+            <param name="connectTimeout">In ms. If smaller then or equals 0, the timeout is infinite. If a timeout is given, connecting will happen async</param>
+            <param name="retries">If the timeout isn't sufficient you can set a retry count.</param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.ConnectCallback(System.IAsyncResult)">
+            <summary>
+            </summary>
+            <param name="ar"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.WriteRead(`0)">
+            <summary>
+            Write to / read from the socket. Calls Write(write) and then returns Read(write as expected response).
+            </summary>
+            <param name="write"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Write(`0)">
+            <summary>
+            Write to a socket. Used in WriteRead(write).  Serialization stuff must be done here.
+            Also add Console.WriteLine stuff to be used when testing. Check using CanConsoleWriteLine if there should be outputted.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="write"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Read(`0)">
+            <summary>
+            Read from the socket, use this in WriteRead(T) or in Start() for getting the counters back.
+            </summary>
+            <param name="expectedResponse">When called in WriteRead(T) this should be the value of write.</param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.BaseSocketClient`1.Disconnect">
+            <summary>
+            Stops and disconnects, do all other cleanup stuff in Stop().
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.CounterInfo">
+            <summary>
+            A wdyh (what do you have) counterInfo to serialize from and to (used lib:
+            Newtonsoft.Json). Sub CounterInfos
+            can be added. If a CounterInfo is a 'leafnode', it can have a counter value (type
+            String to be able to deserialize).
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.name">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.counter">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.CounterInfo.subs">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.#ctor">
+            <summary>
+            For serialization only.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.#ctor(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name">Should be unique for the level this CounterInfo is at. The name should have the unit in it, if applicable, like this: name + " (" + unit + ")".</param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.#ctor(System.String,System.Object)">
+            <summary>
+            
+            </summary>
+            <param name="name">Should be unique for the level this CounterInfo is at. The name should have the unit in it, if applicable, like this: name + " (" + unit + ")".</param>
+            <param name="counter">The ToString() is stored (ToString() for easy / lazy serialization).</param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.GetName">
+            <summary>
+            Should be unique for the level this CounterInfo is at. The name should have the unit in it, if applicable, like this: name + " (" + unit + ")".
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.GetCounter">
+            <summary>
+            This is the ToString() of counter value (ToString() for easy / lazy serialization).
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.SetCounter(System.Object)">
+            <summary>
+            
+            </summary>
+            <param name="counter">The ToString() is used</param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.GetSubs">
+            <summary>
+            Initiates the internal List if it is null.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.Match(vApus.Monitor.Sources.Base.CounterInfo,System.Boolean)">
+            <summary>
+            Match the name and the subs if any with the given CounterInfo. The order of
+            CounterInfos in both collections is not important. You can choose not to match
+            the counter.
+            </summary>
+            <param name="counterInfo"></param>
+            <param name="matchCounter"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.SetCounters(vApus.Monitor.Sources.Base.CounterInfo)">
+            <summary>
+            Set the counters for the CounterInfo with the same name to this.
+            </summary>
+            <param name="counterInfo"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.GetCounterInfos(System.Int32)">
+            <summary>
+            Throws a NullReferenceException if CounterInfos does not exist at the given level.
+            Can happen if not all subheaders have the same number of levels.
+            </summary>
+            <param name="level">Throws an exception if the given level is smaller than 0.</param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.GetLevelCount">
+            <summary>
+            Providing that all sub CounterInfos have the same number of levels.
+            </summary>
+            <returns>0 if no subs.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.GetDeepCount">
+            <summary>
+            The count of all CounterInfos on all levels.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.CounterInfo.HasDuplicateNames">
+            <summary>
+            Duplicate CounterInfo names on the same level should not occur.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.Entities">
+            <summary>
+            Holds all entities with their counter infos.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entities.timestamp">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entities.subs">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.SetTimestamp">
+            <summary>
+            Do not forget to call this. Stores milliseconds since epoch (utc).
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetTimestamp">
+            <summary>
+            Returns the milliseconds since epoch (1970/1/1).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetSubs">
+            <summary>
+            Initiates the internal List if it is null.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.#ctor">
+            <summary>
+            For serialization only.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.Match(vApus.Monitor.Sources.Base.Entities,System.Boolean)">
+            <summary>
+            Match the name and the Entities if any with the given Entities. The order
+            of Entities and CounterInfos in both collections is not important. You
+            can choose not to match the counters.
+            </summary>
+            <param name="entities"></param>
+            <param name="matchCounters"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetCountersAtLastLevel">
+            <summary>
+            Gets the counter values for the CounterInfos at a last level. Null values are
+            included to preserver order, but should not be mixed with real values:
+            use -1 instead if the counter becomes unavailable or invalid. (Counters
+            should only be in leaf nodes.)
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetCounters(System.Int32)">
+            <summary>
+            Gets the counter values for the CounterInfos at a given level. Null values are
+            included to preserver order, but should not be mixed with real values:
+            use -1 instead if the counter becomes unavailable or invalid. (Counters
+            should only be in leaf nodes.)
+            </summary>
+            <param name="level">Throws an exception it the level is smaller than 1.</param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.SetCountersAtLastLevel(System.Object[])">
+            <summary>
+            Set counters at the deepest level.
+            </summary>
+            <param name="counters"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.SetCounters(vApus.Monitor.Sources.Base.Entities)">
+            <summary>
+            Set the counters for the CounterInfos with the same name to the
+            CounterInfos in this. This will happen on all the levels.
+            </summary>
+            <param name="entities"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetEntity(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <returns>If not fount: null.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetCounterInfo(System.Int32,System.String)">
+            <summary>
+            
+            </summary>
+            <param name="level">Throws an exception if the given level is smaller than 1.</param>
+            <param name="name"></param>
+            <returns>If not fount: null.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetCounterInfosAtLastLevel">
+            <summary>
+            Throws a NullReferenceException if the entity does not be exist at the given
+            level. Can happen if not all sub CounterInfo have the same number of
+            levels.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetCounterInfos(System.Int32)">
+            <summary>
+            Throws a NullReferenceException if CounterInfos does not exist at the given
+            level. Can happen if not all sub CounterInfos have the same number of
+            levels.
+            Throws an exception if the given level is smaller than 1.
+            </summary>
+            <param name="level">The minimum level == 1, since level 0 == the root level.</param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetLevelCount">
+            <summary>
+            Providing that all subs have the same number of levels.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.GetDeepCount">
+            <summary>
+            The count of all CounterInfos on all levels.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.ValidateCounters">
+            <summary>
+            Validates the counters in all CounterInfos. Returns warnings or throws an
+            Exception if counter values are mixed with null values in the
+            CounterInfos of the last level.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.HasDuplicateNames">
+            <summary>
+            Duplicate Entity names and CounterInfos names on the same level should
+            not occur.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entities.Clone">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.Entity">
+            <summary>
+            A device, client, outlet for whom counters are applicable.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entity.name">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entity.isAvailable">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Entity.subs">
+            <summary>
+            For serialization only; use the appropriate get and or set function.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.#ctor">
+            <summary>
+            For serialization only.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.#ctor(System.String,System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="name">Should be unique. Is for instance a machine name.</param>
+            <param name="isAvailable">Ex: Is the machine to monitor powered on.</param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.GetName">
+            <summary>
+            Should be unique. Is for instance a machine name.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.IsAvailable">
+            <summary>
+            Ex: Is the machine to monitor powered on.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.GetSubs">
+            <summary>
+            Initiates the internal List if it is null.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.Match(vApus.Monitor.Sources.Base.Entity,System.Boolean)">
+            <summary>     
+            Match the name and the subs if any with the given CounterInfos. The order
+            of CounterInfos in both collections is not important. You can choose not
+            to match the counters.
+            </summary>
+            <param name="entity"></param>
+            <param name="matchCounters"></param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.SetCounters(vApus.Monitor.Sources.Base.Entity)">
+            <summary>     
+            Set the counters for the CounterInfos with the same name to the
+            CounterInfos in this. This will happen on all the levels.
+            </summary>
+            <param name="entity"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.GetCounterInfos(System.Int32)">
+            <summary>
+            Throws a NullReferenceException if CounterInfos does not exist at the given level.
+            Can happen if not all subheaders have the same number of levels.
+            </summary>
+            <param name="level">Throws an exception if the given level is smaller than 0.</param>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.GetLevelCount">
+            <summary>
+            Providing that all sub CounterInfos have the same number of levels.
+            </summary>
+            <returns>0 if no subs.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.GetDeepCount">
+            <summary>
+            The count of all CounterInfos on all levels.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.Entity.HasDuplicateNames">
+            <summary>
+            Duplicate CounterInfo names on the same level should not occur.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.IClient">
+            <summary>
+            Implemented by BaseClient
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.Config">
+            <summary>
+            The hardware configuration of the monitored machine if applicable.
+            Returns N/A
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.RefreshCountersInterval">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.DecimalSeparator">
+            <summary>
+            Can be . or , because of for instance the locale settings. 
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.WDYH">
+            <summary>
+            What do you have: the available counters
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.WDYHRepresentation">
+            <summary>
+            Get: Json serialized what do you have: the available counters. Returns null if _wdyh == null.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.WIW">
+            <summary>
+            What I want
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.IClient.WIWRepresentation">
+            <summary>
+            Get: Json serialized what I want. Returns null if _wiw == null.
+            Set: Serialized the given value and stores it in _wiw.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.GetParameter(System.String)">
+            <summary>
+            
+            </summary>
+            <param name="name"></param>
+            <returns>The parameter, if found or null.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.SetParameterValues(System.Object[])">
+            <summary>
+            Set the values in the parameters.
+            The number of values cannot be greater than the number of parameters.
+            The type of the values must be the same as the type of the default values in the parameters.
+            </summary>
+            <param name="value1"></param>
+            <param name="otherValues"></param>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Connect">
+            <summary>
+            
+            </summary>
+            <returns>If connected.</returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Start">
+            <summary>
+            Use the bool _started to determine if applicable. After started the client should listen for counters, if is is not a polling monitor. (use InvokeOnMonitor()).
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Stop">
+            <summary>
+            Use the bool _started to determine if applicable.
+            </summary>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Disconnect">
+            <summary>
+            Disconnect and clean up resources here.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:vApus.Monitor.Sources.Base.IClient.Test(System.Boolean,System.Int32,System.Object[])">
+            <summary>
+            A test should be as complete as possible. All possible RPCs must be done; returned messages must be validated.
+            </summary>
+            <param name="verboseConsoleOutput"></param>
+            <param name="id">Should be unique.</param>
+            <param name="parameterValues"></param>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.ClientFactory">
+            <summary>
+            With this you can get the available clients and create a new one using the given type using a public parameterless constructor.
+            Monitor source client dlls must reside in a subfolder MonitorSourceClients.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.ClientFactory.Clients">
+            <summary>
+            Gets the available monitor source clients. Key == name.
+            Throws an exception if the folder MonitorSourceClients could not be scanned.
+            </summary>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.OnMonitorEventArgs">
+            <summary>
+            Reports counters.
+            </summary>
+        </member>
+        <member name="T:vApus.Monitor.Sources.Base.Parameter">
+            <summary>
+            Stores a parameter for a client, for example IP or username.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Parameter.Optional">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Parameter.Value">
+            <summary>
+            Gets the default value if value is null.
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Parameter.DefaultValue">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:vApus.Monitor.Sources.Base.Parameter.Encrypted">
+            <summary>
+            For passwords.
+            </summary>
+        </member>
+        <member name="T:Multimedia.TimerMode">
+            <summary>
+            Defines constants for the multimedia Timer's event types.
+            </summary>
+        </member>
+        <member name="F:Multimedia.TimerMode.OneShot">
+            <summary>
+            Timer event occurs once.
+            </summary>
+        </member>
+        <member name="F:Multimedia.TimerMode.Periodic">
+            <summary>
+            Timer event occurs periodically.
+            </summary>
+        </member>
+        <member name="T:Multimedia.TimerCaps">
+            <summary>
+            Represents information about the multimedia Timer's capabilities.
+            </summary>
+        </member>
+        <member name="F:Multimedia.TimerCaps.periodMin">
+            <summary>
+            Minimum supported period in milliseconds.
+            </summary>
+        </member>
+        <member name="F:Multimedia.TimerCaps.periodMax">
+            <summary>
+            Maximum supported period in milliseconds.
+            </summary>
+        </member>
+        <member name="T:Multimedia.Timer">
+            <summary>
+            Represents the Windows multimedia timer.
+            </summary>
+        </member>
+        <member name="E:Multimedia.Timer.Started">
+            <summary>
+            Occurs when the Timer has started;
+            </summary>
+        </member>
+        <member name="E:Multimedia.Timer.Stopped">
+            <summary>
+            Occurs when the Timer has stopped;
+            </summary>
+        </member>
+        <member name="E:Multimedia.Timer.Tick">
+            <summary>
+            Occurs when the time period has elapsed.
+            </summary>
+        </member>
+        <member name="M:Multimedia.Timer.#cctor">
+            <summary>
+            Initialize class.
+            </summary>
+        </member>
+        <member name="M:Multimedia.Timer.#ctor(System.ComponentModel.IContainer)">
+            <summary>
+            Initializes a new instance of the Timer class with the specified IContainer.
+            </summary>
+            <param name="container">
+            The IContainer to which the Timer will add itself.
+            </param>
+        </member>
+        <member name="M:Multimedia.Timer.#ctor">
+            <summary>
+            Initializes a new instance of the Timer class.
+            </summary>
+        </member>
+        <member name="M:Multimedia.Timer.Start">
+            <summary>
+            Starts the timer.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">
+            The timer has already been disposed.
+            </exception>
+            <exception cref="T:Multimedia.TimerStartException">
+            The timer failed to start.
+            </exception>
+        </member>
+        <member name="M:Multimedia.Timer.Stop">
+            <summary>
+            Stops timer.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">
+            If the timer has already been disposed.
+            </exception>
+        </member>
+        <member name="P:Multimedia.Timer.SynchronizingObject">
+            <summary>
+            Gets or sets the object used to marshal event-handler calls.
+            </summary>
+        </member>
+        <member name="P:Multimedia.Timer.Period">
+            <summary>
+            Gets or sets the time between Tick events.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">
+            If the timer has already been disposed.
+            </exception>   
+        </member>
+        <member name="P:Multimedia.Timer.Resolution">
+            <summary>
+            Gets or sets the timer resolution.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">
+            If the timer has already been disposed.
+            </exception>        
+            <remarks>
+            The resolution is in milliseconds. The resolution increases 
+            with smaller values; a resolution of 0 indicates periodic events 
+            should occur with the greatest possible accuracy. To reduce system 
+            overhead, however, you should use the maximum value appropriate 
+            for your application.
+            </remarks>
+        </member>
+        <member name="P:Multimedia.Timer.Mode">
+            <summary>
+            Gets the timer mode.
+            </summary>
+            <exception cref="T:System.ObjectDisposedException">
+            If the timer has already been disposed.
+            </exception>
+        </member>
+        <member name="P:Multimedia.Timer.IsRunning">
+            <summary>
+            Gets a value indicating whether the Timer is running.
+            </summary>
+        </member>
+        <member name="P:Multimedia.Timer.Capabilities">
+            <summary>
+            Gets the timer capabilities.
+            </summary>
+        </member>
+        <member name="M:Multimedia.Timer.Dispose">
+            <summary>
+            Frees timer resources.
+            </summary>
+        </member>
+        <member name="T:Multimedia.TimerStartException">
+            <summary>
+            The exception that is thrown when a timer fails to start.
+            </summary>
+        </member>
+        <member name="M:Multimedia.TimerStartException.#ctor(System.String)">
+            <summary>
+            Initializes a new instance of the TimerStartException class.
+            </summary>
+            <param name="message">
+            The error message that explains the reason for the exception. 
+            </param>
+        </member>
+    </members>
+</doc>

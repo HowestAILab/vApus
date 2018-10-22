@@ -1,0 +1,398 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SizingServers.Util.Winforms</name>
+    </assembly>
+    <members>
+        <member name="T:SizingServers.Util.WinForms.DataGridViewImageCellBlank">
+            <summary>
+            Draws a blank image for replacing the ugly, unneeded 'no image' image if no image is set.
+            Put an instance of this in the CellTemplate of a DataGridViewImageColumn.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.DataGridViewImageCellBlank.#ctor">
+            <summary>
+            Draws a blank image for replacing the ugly, unneeded 'no image' image if no image is set.
+            Put an instance of this in the CellTemplate of a DataGridViewImageColumn.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.DataGridViewImageCellBlank.#ctor(System.Boolean)">
+            <summary>
+            Draws a blank image for replacing the ugly, unneeded 'no image' image if no image is set.
+            Put an instance of this in the CellTemplate of a DataGridViewImageColumn.
+            </summary>
+            <param name="valueIsIcon"></param>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.DataGridViewImageCellBlank.DefaultNewRowValue">
+            <summary> </summary>
+        </member>
+        <member name="T:SizingServers.Util.WinForms.FindAndReplaceControl">
+            <summary>
+            A GUI wrapper for FindAndReplace. 
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.FindAndReplaceControl.FindTextChanged">
+            <summary>
+            Occures when the find text is changed.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.FindAndReplaceControl.ReplaceTextChanged">
+            <summary>
+            Occures when the replace text is changed.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.FindAndReplaceControl.FindClicked">
+            <summary>
+            Occures when the find button is clicked.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.FindAndReplaceControl.ReplaceClicked">
+            <summary>
+            Occures when the replace button is clicked.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.FindAndReplaceControl.WholeWordsChanged">
+            <summary>
+            Occures when whole words is (un)checked.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.FindAndReplaceControl.MatchCaseChanged">
+            <summary>
+            Occures when match case is (un)checked.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.FindAndReplaceControl.ReplaceAllChanged">
+            <summary>
+            Occures when replace all is (un)checked.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.FindAndReplaceControl.#ctor">
+            <summary>
+            A GUI wrapper for FindAndReplace. 
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.FindAndReplaceControl.Find">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.FindAndReplaceControl.FindWholeWords">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.FindAndReplaceControl.FindMatchCase">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.FindAndReplaceControl.ReplaceWith">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.FindAndReplaceControl.ReplaceAll">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.FindAndReplaceControl.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.FindAndReplaceControl.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.FindAndReplaceControl.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.WinForms.InputDialog">
+            <summary>
+            An implementation of the old VB6 input dialog.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.InputDialog.MinimumInputLength">
+            <summary>
+            The minimum allowed length in the textbox. Call SetInputLength(...) to set this.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.InputDialog.MaximumInputLength">
+            <summary>
+            The minimum allowed length in the textbox. Call SetInputLength(...) to set this.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.InputDialog.Input">
+            <summary>
+            Set or get the input text.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.InputDialog.MessageBoxButtons">
+            <summary>
+            Default: MessageBoxButtons.OKCancel
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.InputDialog.#ctor(System.String,System.String,System.String)">
+            <summary>
+            An implementation of the old VB6 input dialog.
+            </summary>
+            <param name="question">The question asked to the user.</param>
+            <param name="caption"></param>
+            <param name="defaultInput">The default value for the input textbox.</param>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.InputDialog.SetInputLength(System.Int32,System.Int32)">
+            <summary>
+            Set the input length for the textbox.
+            </summary>
+            <param name="min"></param>
+            <param name="max"></param>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.InputDialog.OnShown(System.EventArgs)">
+            <summary></summary>
+            <param name="e"></param>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.InputDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.InputDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.InputDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.InputDialog.lblQuestion">
+            <summary></summary>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.InputDialog.txtInput">
+            <summary></summary>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.InputDialog.btnCancel">
+            <summary></summary>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.InputDialog.btnOK">
+            <summary></summary>
+        </member>
+        <member name="T:SizingServers.Util.WinForms.KeyValuePairControl">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.KeyValuePairControl.Key">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.KeyValuePairControl.Value">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.KeyValuePairControl.Tooltip">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.KeyValuePairControl.#ctor">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.KeyValuePairControl.#ctor(System.String,System.String)">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.KeyValuePairControl.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.KeyValuePairControl.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.KeyValuePairControl.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.WinForms.TabControlWithAdjustableBorders">
+            <summary>
+            When using multiple (encapsulated) tab controls a form can look very messy. Removing borders makes the form look cleaner.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TabControlWithAdjustableBorders.BottomVisible">
+            <summary> </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TabControlWithAdjustableBorders.LeftVisible">
+            <summary> </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TabControlWithAdjustableBorders.RightVisible">
+            <summary> </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TabControlWithAdjustableBorders.TopVisible">
+            <summary> </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TabControlWithAdjustableBorders.WndProc(System.Windows.Forms.Message@)">
+            <summary></summary>
+        </member>
+        <member name="T:SizingServers.Util.WinForms.TracertControl">
+            <summary>
+            <para>A control around Tracert --> Determines the trace route for a given destination host or IP.</para>
+            <para>Suscribe to BeforeTrace and call SetToTrace(...).</para>
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.TracertControl.BeforeTrace">
+            <summary>
+            You can call SetToTrace here last minute.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.TracertControl.Done">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TracertControl.HostNameOrIP">
+            <summary>
+            The host name or IP to trace route.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TracertControl.LastStatus">
+            <summary>
+            The IP status for the last hop.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TracertControl.MaxHops">
+            <summary>
+            The maximum hops that may occur.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TracertControl.Timeout">
+            <summary>
+            The ping timeout for a hop in ms.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TracertControl.Hops">
+            <summary>
+            The numbers of hops done.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.WinForms.TracertControl.IsDone">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertControl.#ctor">
+            <summary>
+            <para>A control around Tracert --> Determines the trace route for a given destination host or IP.</para>
+            <para>Suscribe to BeforeTrace and call SetToTrace(...).</para>
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertControl.SetToTrace(System.String,System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="hostNameOrIP"></param>
+            <param name="maxHops"></param>
+            <param name="timeout"></param>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.TracertControl.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertControl.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertControl.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.WinForms.TracertDialog">
+            <summary>
+            
+            </summary>
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.WinForms.TracertDialog.TraceRouteCancelled">
+            <summary>
+            Fires when the cancel button is pressed.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertDialog.#ctor">
+            <summary>
+            Initiale calling SetStarted(). Finalize calling SetCompleted().
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertDialog.SetStarted">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertDialog.AddHop(System.String,System.String,System.String)">
+            <summary>
+            Add a hop to the list view.
+            </summary>
+            <param name="ip"></param>
+            <param name="hostName"></param>
+            <param name="roundtripTime">Already formatted</param>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertDialog.SetCompleted">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.WinForms.TracertDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:SizingServers.Util.WinForms.TracertDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.Winforms.Properties.Resources">
+            <summary>
+              A strongly-typed resource class, for looking up localized strings, etc.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Winforms.Properties.Resources.ResourceManager">
+            <summary>
+              Returns the cached ResourceManager instance used by this class.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Winforms.Properties.Resources.Culture">
+            <summary>
+              Overrides the current thread's CurrentUICulture property for all
+              resource lookups using this strongly typed resource class.
+            </summary>
+        </member>
+    </members>
+</doc>

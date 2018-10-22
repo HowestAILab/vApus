@@ -1,0 +1,1221 @@
+<ConnectionProxies>
+  <Items>
+    <ConnectionProxy>
+      <Items>
+        <ConnectionProxyRuleSet>
+          <Items>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>www.webpagetest.org</DefaultValue>
+              <Description>Provide the hostname, an IPv4 address, or an IPv6 address enclosed in "[ ]". Examples: www.cooldomain.com, 192.168.2.3 or [2001:db8:85a3:8d3:1319:8a2e:370:7348]. This value is overriden with the log's value when #MULTICONNECTION is used.</Description>
+              <Label>WebPageTest host</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>http</DefaultValue>
+              <Description>Fill in https for example. If nothing is filled in, http is used. This value is overriden with the log's value when #MULTICONNECTION is used.</Description>
+              <Label>Protocol</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>ushortType</ValueType>
+                  <DisplayAsPassword>False</DisplayAsPassword>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>80</DefaultValue>
+              <Description>Port used to connect to the webserver.By default this is set to 80 (use 443 for https). Beware to update the used port to match the protocol. This value is overriden with the log's value when #MULTICONNECTION is used.</Description>
+              <Label>Port</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>stringType</ValueType>
+                  <DisplayAsPassword>True</DisplayAsPassword>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>
+              </DefaultValue>
+              <Description>API Key (if assigned) - applies only to runtest.php calls. Contact the site owner for a key if required (http://www.webpagetest.org/getkey.php for the public instance)</Description>
+              <Label>API key</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>
+              </DefaultValue>
+              <Description>Space-delimited list of urls to block (substring match)</Description>
+              <Label>Block</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>
+              </DefaultValue>
+              <Description>User name to use for authenticated tests (http authentication)</Description>
+              <Label>Login</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>stringType</ValueType>
+                  <DisplayAsPassword>True</DisplayAsPassword>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>
+              </DefaultValue>
+              <Description>Password to use for authenticated tests (http authentication)</Description>
+              <Label>Password</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>Basic</DefaultValue>
+              <Description>Type of authentication to use: Basic or SNS</Description>
+              <Label>Authentication type</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>Dulles:Firefox</DefaultValue>
+              <Description>Check the available public ones for your key here http://www.webpagetest.org/getLocations.php?f=html&amp;k=A.****</Description>
+              <Label>Location</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>Cable</DefaultValue>
+              <Description>DSL - 1.5 Mbps down, 384 Kbps up, 50 ms first-hop RTT, 0% packet loss. Cable - 5 Mbps down, 1 Mbps up, 28ms first-hop RTT, 0% packet loss. FIOS - 20 Mbps down, 5 Mbps up, 4 ms first-hop RTT, 0% packet loss (not all locations will get the full bandwidth). Dial - 49 Kbps down, 30 Kbps up, 120 ms first-hop RTT, 0% packet loss. 3G - 1.6 Mbps down, 768 Kbps up, 300 ms first-hop RTT, 0% packet loss. 3GFast - 1.6 Mbps down, 768 Kbps up, 150 ms first-hop RTT, 0% packet loss. Native - No synthetic traffic shaping applied. custom - Custom profile, bandwidth and latency must also be specified using the bwIn, bwOut, latency and plr parameters.</Description>
+              <Label>Connectivity</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>
+              </DefaultValue>
+              <Description>When Connectivity is set to 'custom'. bwDown=&amp;bwUp=&amp;latency=&amp;plr=</Description>
+              <Label>Custom connectivity parameters</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>boolType</ValueType>
+                  <DisplayAsPassword>False</DisplayAsPassword>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>False</DefaultValue>
+              <Description>Set to True to have Chrome emulate a mobile browser (screen resolution, UA string, fixed viewport). </Description>
+              <Label>Mobile Chrome</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+          </Items>
+          <Connected>False</Connected>
+          <TracertField>1</TracertField>
+          <ChildDelimiter>&lt;16 0C 02 12$&gt;</ChildDelimiter>
+          <Description>https://sites.google.com/a/webpagetest.org/docs/advanced-features/webpagetest-restful-apis</Description>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ConnectionProxyRuleSet>
+        <ConnectionProxyCode>
+          <Items />
+          <Code>/*
+    ConnectionProxy generated by vApus
+    vApus is Copyrighted by Sizing Servers Lab
+    University College of West-Flanders, Department GKG
+    
+    Note: If you want to edit this connection proxy code you need to know what you are doing. You might break your stresstest.
+    
+    VERSION STABLE-20171109165852
+*/
+
+// The following line is used to add references when compiling, you can edit this here or in the references tab page. Please use the 'Browse...' button for dlls that are not in the GAC.
+// dllreferences:System.Core.dll;System.Data.dll;System.dll;System.Web.dll;System.Windows.Forms.dll;vApus.SolutionTree.dll;vApus.Stresstest.dll;vApus.Util.dll;Newtonsoft.Json.dll;Microsoft.CSharp.dll;
+
+#region Preprocessors
+    // Enable debug mode
+    //#define DEBUGMODE
+    //Enable progress indication. Should only be enabled when testing with one concurrency. (And you should test only with one concurrency!)
+    #define INDICATETESTPROGRESS
+#endregion // Preprocessors
+
+#region Usings
+    using System;
+    using System.Collections.Generic;
+    using System.Data;
+    using System.Diagnostics;
+    using System.IO;
+    using System.IO.Compression;
+    using System.Linq;
+    using System.Net;
+    using System.Net.NetworkInformation;
+    using System.Net.Security;
+    using System.Reflection;
+    using System.Text;
+    using System.Threading;
+    using System.Web;
+    using System.Windows.Forms;
+    using System.Security.Cryptography.X509Certificates;
+    using vApus.Util;
+    using Newtonsoft.Json;
+    using Newtonsoft.Json.Linq;
+#endregion // Usings
+
+namespace vApus.StressTest {
+    public class ConnectionProxy : IConnectionProxy {
+        
+        #region Fields
+            Stopwatch _stopwatch = new Stopwatch();
+            bool _isDisposed;
+            // Please do not edit the following lines (RuleSetFields).
+            // -- RuleSetFields --
+            System.String _connectionProxySyntaxItem0 = "www.webpagetest.org"; // WebPageTest host [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem1 = "http"; // Protocol [The default value for this syntax item is used if no value is provided in the connection.]
+            System.UInt16 _connectionProxySyntaxItem2 = 80; // Port [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem3 = string.Empty; // API key
+            System.String _connectionProxySyntaxItem4 = string.Empty; // Block
+            System.String _connectionProxySyntaxItem5 = string.Empty; // Login
+            System.String _connectionProxySyntaxItem6 = string.Empty; // Password
+            System.String _connectionProxySyntaxItem7 = "Basic"; // Authentication type [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem8 = "Dulles:Firefox"; // Location [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem9 = "Cable"; // Connectivity [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem10 = string.Empty; // Custom connectivity parameters
+            System.Boolean _connectionProxySyntaxItem11 = false; // Mobile Chrome [The default value for this syntax item is used if no value is provided in the connection.]
+            // -- RuleSetFields --
+            
+            string _connection;
+            StringTree _parameterizedRequest;
+            HttpWebRequest _httpWebRequest;
+            HttpWebResponse _httpWebResponse;
+            StreamReader _streamReader;
+            
+            
+            AutoResetEvent _waitForTestCompleteWaitHandle = new AutoResetEvent(false);
+            
+            // A 60 seconds timeout should be reasonable.
+            const int REQUEST_TIMEOUT_IN_MS = 60000;
+            
+            //Check the test status every 5 seconds with a test complete timeout of 10 minutes.
+            const int TEST_POLL_STATUS_DELAY = 5000;
+            const int TEST_COMPLETE_TIMEOUT_IN_MS = 600000;
+            
+            #if (DEBUGMODE || INDICATETESTPROGRESS)
+                const int TEST_NOTIFY_PROGRESS_DELAY = 20000;
+            #endif
+            
+            // Labels, for the index values of the StringTree nodes (eg. int ip = 0).
+            enum SyntaxItem {
+                Url = 0, DomElement, Script
+            }
+        #endregion // Fields
+        
+        #region Properties
+            public bool IsConnectionOpen { get { return true; } }
+            public bool IsDisposed { get { return _isDisposed; } }
+        #endregion // Properties
+        
+        public ConnectionProxy() {
+            // Trust all certificates for https testing.
+            ServicePointManager.ServerCertificateValidationCallback = (object sender, X509Certificate cert, X509Chain chain, SslPolicyErrors errors) =&gt; { return true; };
+            
+            #if DEBUGMODE
+                EventPanel.AddEvent("ConnectionProxy Syntax Items:"
+                + "\n  0: " + _connectionProxySyntaxItem0
+                + "\n  1: " + _connectionProxySyntaxItem1
+                + "\n  2: " + _connectionProxySyntaxItem2);
+            #endif
+        }
+        
+        #region Functions
+            public void TestConnection(out string error) {
+                error = null;
+                
+                try {
+                    _httpWebRequest                   = (HttpWebRequest)WebRequest.Create(new Uri(string.Format("{0}://{1}:{2}", _connectionProxySyntaxItem1, _connectionProxySyntaxItem0, _connectionProxySyntaxItem2)));
+                    _httpWebRequest.UserAgent         = "vApus - Test connection function";
+                    _httpWebRequest.Timeout           = REQUEST_TIMEOUT_IN_MS;
+                    _httpWebRequest.ReadWriteTimeout  = _httpWebRequest.Timeout;
+                    _httpWebRequest.AllowAutoRedirect = false;
+                    _httpWebRequest.Method            = "GET";
+                    _httpWebRequest.ContentLength     = 0;
+                    
+                    _httpWebResponse = _httpWebRequest.GetResponse() as HttpWebResponse;
+                }
+                catch (Exception ex) {
+                    error = ex.ToString();
+                }
+            }
+            
+            public void OpenConnection() { }
+            
+            public void CloseConnection() { }
+            
+            public void SendAndReceive(StringTree parameterizedRequest, out DateTime sentAt, out TimeSpan timeToLastByte, out string meta, out Exception exception) {
+                _parameterizedRequest = parameterizedRequest;
+                sentAt                = HighResolutionDateTime.UtcNow;
+                meta                  = null;
+                exception             = null;
+                
+                //
+                // parameterizedRequest is the request parsed to a String Tree using the Scenario Rule Set.
+                // String Tree is a simple class: it can have either a value (property: string Value) or childs who are also String Trees (e.g. StringTree foo = parameterizedRequest[n] where n is an integer value).
+                // You can get the combined value of the childs using the function CombineValues() (not shallow, returns a string), this uses the child delimiters in the rule set to glue these values together.
+                //
+                
+                if (_isDisposed) {
+                    timeToLastByte = new TimeSpan();
+                    return;
+                }
+                try {
+                    _stopwatch.Start();
+                    try {
+                        string response = Browse(CreateRunTestUri());
+                        
+                        #if (DEBUGMODE || INDICATETESTPROGRESS)
+                            EventPanel.AddEvent("Start info: " + response);
+                        #endif
+                        
+                        string testId = FetchTestId(response);
+                        
+                        WaitForTestComplete(testId);
+                        
+                        meta = GetTestResults(testId, out timeToLastByte);
+                    }
+                    catch (Exception ex) {
+                        exception = ex;
+                        #if (DEBUGMODE || INDICATETESTPROGRESS)
+                            EventPanel.AddEvent("SendAndReceive Exception: " + parameterizedRequest.CombineValues() + " " + exception);
+                        #endif
+                    }
+                }
+                catch {
+                    //
+                    // Always throw the exception, if any, if 'stuff' cannot be closed.
+                    // vApus will handle it as a connection problem.
+                    //
+                    
+                    throw;
+                }
+                finally {
+                    _stopwatch.Stop();
+                    timeToLastByte = _stopwatch.Elapsed;
+                    _stopwatch.Reset();
+                }
+            }
+            
+            public void Dispose() {
+                if (!_isDisposed) {
+                    _isDisposed = true;
+                    try {
+                        // Timeout immediately.
+                        if(_httpWebRequest != null){
+                            _httpWebRequest.Abort();
+                        }
+                    } 
+                    catch { }
+                    _httpWebRequest  = null;
+                    _httpWebResponse = null;
+                    if (_streamReader != null) {
+                        try {
+                            _streamReader.Close();
+                            _streamReader.Dispose();
+                            _streamReader = null;
+                        } 
+                        catch {
+                        }
+                    }
+                    
+                    if(_waitForTestCompleteWaitHandle != null){
+                        _waitForTestCompleteWaitHandle.Set();
+                        _waitForTestCompleteWaitHandle.Dispose();
+                        _waitForTestCompleteWaitHandle = null;
+                    }
+                }
+            }
+        #endregion // Functions
+        
+        #region Free Coding
+            //Returns the response
+            private string Browse(Uri uri) {
+                try{
+                    _httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
+                    // Set the HTTP request method (GET/POST).
+                    _httpWebRequest.Method = "GET";
+                    // Set the User Agent.
+                    _httpWebRequest.UserAgent        = "vApus";            
+                    _httpWebRequest.Timeout          = REQUEST_TIMEOUT_IN_MS;
+                    _httpWebRequest.ReadWriteTimeout = _httpWebRequest.Timeout;
+                    // Allow keepalive.
+                    _httpWebRequest.KeepAlive = true;
+                    // Allow compression.
+                    _httpWebRequest.Headers.Add("Accept-Encoding: gzip, deflate");
+                    // Set the Accept-Language header.
+                    _httpWebRequest.Headers.Add("Accept-Language: en-US");
+                    // Don't autoredirect: redirects are already recorded.
+                    _httpWebRequest.AllowAutoRedirect = false;
+                    // Set the initial content length to 0.
+                    _httpWebRequest.ContentLength = 0;
+                    // Send post data with the same request.
+                    _httpWebRequest.ServicePoint.Expect100Continue = false;
+                    // Set the connection limit to our concurrency.
+                    _httpWebRequest.ServicePoint.ConnectionLimit = (this.GetParent() as ConnectionProxyPool).PoolSize;
+                    
+                    
+                    _httpWebResponse = _httpWebRequest.GetResponse() as HttpWebResponse;
+                    
+                    if (_httpWebResponse.ContentEncoding.ToLower().Contains("gzip")) {
+                        _streamReader = new StreamReader(new GZipStream(_httpWebResponse.GetResponseStream(), CompressionMode.Decompress));
+                    }
+                    else if(_httpWebResponse.ContentEncoding.ToLower().Contains("deflate")){
+                        _streamReader = new StreamReader(new DeflateStream(_httpWebResponse.GetResponseStream(), CompressionMode.Decompress));
+                    }
+                    else {
+                        _streamReader = new StreamReader(_httpWebResponse.GetResponseStream(), _httpWebResponse.ContentEncoding.Length != 0 ?
+                        System.Text.Encoding.GetEncoding(_httpWebResponse.ContentEncoding) : System.Text.Encoding.GetEncoding(1252));
+                    }
+                    
+                    
+                    return _streamReader.ReadToEnd();
+                }
+                finally {
+                    if (_streamReader != null) {
+                        try {
+                            _streamReader.Close();
+                            _streamReader.Dispose();
+                        }
+                        finally {
+                            _streamReader = null;
+                        }
+                    }
+                }
+            }
+            private byte[] BrowseRaw(Uri uri){
+                _httpWebRequest = (HttpWebRequest)WebRequest.Create(uri);
+                // Set the HTTP request method (GET/POST).
+                _httpWebRequest.Method = "GET";
+                // Set the User Agent.
+                _httpWebRequest.UserAgent        = "vApus";            
+                _httpWebRequest.Timeout          = REQUEST_TIMEOUT_IN_MS;
+                _httpWebRequest.ReadWriteTimeout = _httpWebRequest.Timeout;
+                // Allow keepalive.
+                _httpWebRequest.KeepAlive = true;
+                // Allow compression.
+                _httpWebRequest.Headers.Add("Accept-Encoding: gzip, deflate");
+                // Set the Accept-Language header.
+                _httpWebRequest.Headers.Add("Accept-Language: en-US");
+                // Don't autoredirect: redirects are already recorded.
+                _httpWebRequest.AllowAutoRedirect = false;
+                // Set the initial content length to 0.
+                _httpWebRequest.ContentLength = 0;
+                // Send post data with the same request.
+                _httpWebRequest.ServicePoint.Expect100Continue = false;
+                // Set the connection limit to our concurrency.
+                _httpWebRequest.ServicePoint.ConnectionLimit = (this.GetParent() as ConnectionProxyPool).PoolSize;
+                
+                
+                _httpWebResponse = _httpWebRequest.GetResponse() as HttpWebResponse;
+                
+                byte[] raw = null;
+                
+                using(var ms = new MemoryStream()){
+                    _httpWebResponse.GetResponseStream().CopyTo(ms);
+                    
+                    if (_httpWebResponse.ContentEncoding.ToLower().Contains("gzip")) {
+                        using (var gzipStream = new GZipStream(ms, CompressionMode.Decompress)){
+                            using(var ms2 =new MemoryStream()){
+                                gzipStream.CopyTo(ms2);
+                                raw = ms2.ToArray();
+                            }
+                        }
+                    }
+                    else if(_httpWebResponse.ContentEncoding.ToLower().Contains("deflate")){
+                        using (var dfStream = new DeflateStream(ms, CompressionMode.Decompress)){
+                            using(var ms2 =new MemoryStream()){
+                                dfStream.CopyTo(ms2);
+                                raw = ms2.ToArray();
+                            }
+                        }
+                    }
+                    else {
+                        raw = ms.ToArray();
+                    }
+                }
+                
+                
+                
+                
+                return raw;
+            }
+            
+            private string GetConnection(){
+                return _connection ?? (_connection = string.Format("{0}://{1}:{2}", _connectionProxySyntaxItem1, _connectionProxySyntaxItem0, _connectionProxySyntaxItem2)); //procol, host, port.
+            }
+            
+            private Uri CreateRunTestUri() {
+                StringBuilder sb = new StringBuilder(GetConnection());
+                sb.Append("/runtest.php?private=1&amp;f=json&amp;video=1"); //Do not show in the log, return json, make video.
+                
+                ExclusiveAppend(sb, "k",_connectionProxySyntaxItem3); //API key
+                InclusiveAppend(sb, "url", _parameterizedRequest[(int)SyntaxItem.Url].Value); //Url to test
+                ExclusiveAppend(sb, "domelement", _parameterizedRequest[(int)SyntaxItem.DomElement].Value); //Dom element to set that can be used in the script
+                ExclusiveAppend(sb, "script", _parameterizedRequest[(int)SyntaxItem.Script].Value); //Scripted test to execute. https://sites.google.com/a/webpagetest.org/docs/using-webpagetest/scripting
+                
+                ExclusiveAppend(sb, "block", _connectionProxySyntaxItem4); //block urls
+                
+                if(!string.IsNullOrEmpty(_connectionProxySyntaxItem5)){ //login
+                    ExclusiveAppend(sb, "login", _connectionProxySyntaxItem5);
+                    ExclusiveAppend(sb, "password", _connectionProxySyntaxItem6);
+                    ExclusiveAppend(sb, "authType", _connectionProxySyntaxItem7);
+                }
+                
+                if(!string.IsNullOrEmpty(_connectionProxySyntaxItem8)){ //location + browser + connectivity
+                    ExclusiveAppend(sb, "location", _connectionProxySyntaxItem8);
+                    if(!string.IsNullOrEmpty(_connectionProxySyntaxItem9)){
+                        sb.Append(".");
+                        sb.Append(_connectionProxySyntaxItem9);
+                        
+                        if(_connectionProxySyntaxItem8 == "custom" &amp;&amp; !string.IsNullOrEmpty(_connectionProxySyntaxItem10)) {
+                            sb.Append(_connectionProxySyntaxItem10);
+                        }
+                    }
+                }
+                
+                ExclusiveAppend(sb, "mobile", _connectionProxySyntaxItem11 ? "1" : "0");
+                
+                string uri = sb.ToString();
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("Run test request: " + uri);
+                #endif
+                
+                return new Uri(uri);
+            }
+            
+            
+            private void InclusiveAppend(StringBuilder sb, string key, string value, bool escape = false){
+                if(string.IsNullOrWhiteSpace(value)){
+                    throw new Exception("No value given for " + key);
+                }
+                sb.Append("&amp;");
+                sb.Append(key);
+                sb.Append("=");
+                
+                if(escape){
+                    value = Uri.EscapeUriString(value);
+                }
+                sb.Append(value);
+            }
+            private void ExclusiveAppend(StringBuilder sb, string key, string value, bool escape = false){
+                if(!string.IsNullOrWhiteSpace(value)){
+                    sb.Append("&amp;");
+                    sb.Append(key);
+                    sb.Append("=");
+                    
+                    if(escape){
+                        value = Uri.EscapeUriString(value);
+                    }
+                    sb.Append(value);
+                }
+            }
+            
+            private string FetchTestId(string response){
+                var info = JObject.Parse(response);
+                
+                if((int)info["statusCode"] != 200) {
+                    throw new Exception("Failed to start the WebPageTest. " + ((string)info["statusText"]));
+                }
+                
+                return (string)info["data"]["testId"]; 
+            }
+            
+            private void WaitForTestComplete(string testId){
+                var uri = CreateTestStatusUri(testId);
+                int waitedMs = 0;
+                while(!_isDisposed){
+                    string response = Browse(uri);
+                    
+                    var info = JObject.Parse(response);
+                    
+                    int statusCode = (int)info["statusCode"];
+                    
+                    #if (DEBUGMODE || INDICATETESTPROGRESS)
+                        if((((double)waitedMs) % TEST_NOTIFY_PROGRESS_DELAY) == 0) {
+                            EventPanel.AddEvent((string)info["statusText"]);
+                        }
+                    #endif 
+                    
+                    if(statusCode &lt; 200) {
+                        if(waitedMs &gt;= TEST_COMPLETE_TIMEOUT_IN_MS) {
+                            throw new Exception("Waiting for the test to complete timed out. (timeout = " + (TEST_COMPLETE_TIMEOUT_IN_MS / 60000) + " minutes)");
+                        }
+                        
+                        _waitForTestCompleteWaitHandle.WaitOne(TEST_POLL_STATUS_DELAY);
+                        waitedMs += TEST_POLL_STATUS_DELAY;
+                    }
+                    else if (statusCode &gt; 200){
+                        throw new Exception("The WebPageTest threw an exception. " + ((string)info["statusText"]));
+                    }
+                    else {
+                        break;
+                    }
+                }
+            }
+            
+            private Uri CreateTestStatusUri(string testId){
+                StringBuilder sb = new StringBuilder(GetConnection());
+                sb.Append("/testStatus.php?f=json&amp;test=");
+                sb.Append(testId);
+                
+                string uri = sb.ToString();
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("Test status request: " + uri);
+                #endif
+                
+                return new Uri(uri);
+            }
+            
+            private string GetTestResults(string testId, out TimeSpan timeToLastByte){
+                string response = Browse(CreateJsonResultUri(testId));
+                
+                var info = JObject.Parse(response);
+                
+                var ttlbs = new long[2];
+                ttlbs[0] = (long)info["data"]["average"]["firstView"]["fullyLoaded"];
+                ttlbs[1] = (long)info["data"]["average"]["repeatView"]["fullyLoaded"];
+                
+                timeToLastByte = new TimeSpan((long)(ttlbs.Average() * TimeSpan.TicksPerMillisecond));
+                
+                dynamic meta = new JObject();
+                meta.type              = "WebPageTest"; //Define the type for correct vizualization of the meta.
+                
+                JObject page, cachedPage;
+                GetPages(testId, out page, out cachedPage);
+                meta.page       = page;
+                meta.cachedPage = cachedPage;
+                
+                JArray requests, cachedRequests;
+                GetRequests(testId, out requests, out cachedRequests);
+                meta.requests       = requests;
+                meta.cachedRequests = cachedRequests;
+                
+                meta.har               = JObject.Parse(Browse(CreateHarUri(testId)));
+                
+                JArray utilization, cachedUtilization;
+                GetUtilizations(testId, out utilization, out cachedUtilization);
+                meta.utilization       = utilization;
+                meta.cachedUtilization = cachedUtilization;
+                
+                JArray videoFrames, cachedVideoFrames;
+                GetVideoFrames(info, out videoFrames, out cachedVideoFrames);
+                meta.videoFrames       = videoFrames;
+                meta.cachedVideoFrames = cachedVideoFrames;
+                
+                return meta.ToString();
+            }
+            
+            private void GetPages(string testId, out JObject page, out JObject cachedPage){
+                SV sv = new SV(Browse(CreatePageCsvUri(testId)));
+                var rawPageType = typeof(RawPage);
+                
+                RawPage rp = new RawPage();
+                RawPage crp = new RawPage();
+                TypedReference rawPageRef = __makeref(rp);
+                TypedReference cachedRawPageRef = __makeref(crp);                
+                
+                foreach (string header in sv.Headers) {
+                    string propertyName = RawPage.GetPropertyName(header);
+                    PropertyInfo pi = rawPageType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    if (pi != null) {
+                        string[] values = sv.GetValues(header);
+                        pi.SetValue(rp, Parse(values[0], pi.PropertyType, false));
+                        if (values.Length != 1) pi.SetValue(crp, Parse(values[1], pi.PropertyType, false));
+                    }
+                }
+                
+                page       = JObject.Parse(JsonConvert.SerializeObject(rp));
+                cachedPage = JObject.Parse(JsonConvert.SerializeObject(crp));
+            }
+            
+            private void GetRequests(string testId, out JArray requests, out JArray cachedRequests){
+                var sv = new SV(Browse(CreateRequestsCsvUri(testId)));
+                var rawRequestType = typeof(RawRequest);
+                
+                var l = new List&lt;RawRequest&gt;();
+                
+                foreach (string header in sv.Headers) {
+                    string propertyName = RawRequest.GetPropertyName(header);
+                    PropertyInfo pi= rawRequestType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    if (pi != null) {
+                        string[] values = sv.GetValues(header);
+                        for (int i = 0; i != values.Length; i++) {
+                            if (i == l.Count) l.Add(new RawRequest());
+                            var rawRequest = l[i];
+                            pi.SetValue(rawRequest, Parse(values[i], pi.PropertyType, false));
+                        }
+                    }
+                }
+                
+                requests       = new JArray();
+                cachedRequests = new JArray();
+                
+                var correctRequests = requests; //Put requests in the right list based on the sequence number.
+                int sequenceNumber = 0;
+                foreach (var rawRequest in l) {
+                    if (rawRequest.sequenceNumber &lt; sequenceNumber) correctRequests = cachedRequests;
+                    sequenceNumber = rawRequest.sequenceNumber;
+                    correctRequests.Add(CreateRequest(rawRequest));
+                }
+            }
+            private JObject CreateRequest(RawRequest rr){
+                dynamic request = new JObject();
+                request.method      = rr.action;
+                request.result      = rr.responseCode;
+                request.host        = rr.host;
+                request.url         = rr.url;
+                long dnsInMs        = rr.dnsEndInMs - rr.dnsStartInMs;
+                long connectInMs    = rr.connectEndInMs - rr.connectStartInMs;
+                long sslInMs        = rr.sslNegotiationEndInMs - rr.sslNegotiationStartInMs;
+                request.requestOffsetInMs       = rr.sequenceNumber == 1 ? 0L : rr.startTimeInMs - dnsInMs - connectInMs - sslInMs;
+                request.dnsInMs                 = dnsInMs;
+                request.connectInMs             = connectInMs;
+                request.sslInMs                 = sslInMs;
+                request.timeToFirstByteInMs     = rr.timeToFirstByteInMs;
+                request.timeToLastByteInMs      = rr.timeToLoadInMs - rr.timeToFirstByteInMs;
+                request.socketId                = rr.socketId;
+                request.bytesOut                = rr.bytesOut;
+                request.bytesIn                 = rr.bytesIn;
+                request.expires                 = rr.expires;
+                request.cacheControl            = rr.cacheControl;
+                request.contentType             = rr.contentType;
+                request.contentENcoding         = rr.contentEncoding;
+                request.cacheScore              = rr.cacheScore;
+                request.staticCDNScore          = rr.staticCDNScore;
+                request.gzipScore               = rr.gzipScore;
+                request.cookieScore             = rr.cookieScore;
+                request.keepAliveScore          = rr.keepAliveScore;
+                request.doctypeScore            = rr.doctypeScore;
+                request.minifyScore             = rr.minifyScore;
+                request.combineScore            = rr.combineScore;
+                request.compressionScore        = rr.compressionScore;
+                request.etagScore               = rr.etagScore;
+                request.cdnProvider             = rr.cdnProvider;
+                request.initiator               = rr.initiator;
+                request.initiatorLine           = rr.initiatorLine;
+                request.initiatorColumn         = rr.initiatorColumn;
+                request.serverCount             = rr.serverCount;
+                request.serverRoundTripTimeInMs = rr.serverRoundTripTimeInMs;
+                return request;
+            }
+            
+            private void GetUtilizations(string testId, out JArray utilization, out JArray cachedUtilization){
+                utilization       = GetUtilization(Browse(CreateUtilizationUri(testId)));
+                cachedUtilization = GetUtilization(Browse(CreateCachedUtilizationUri(testId)));
+            }
+            
+            private JArray GetUtilization(string s){
+                var sv = new SV(s, ",");
+                var utilizationType = typeof(Utilization);
+                
+                var l = new List&lt;Utilization&gt;();
+                
+                foreach (string header in sv.Headers) {
+                    string propertyName = Utilization.GetPropertyName(header);
+                    PropertyInfo pi = utilizationType.GetProperty(propertyName, BindingFlags.Public | BindingFlags.Instance | BindingFlags.IgnoreCase);
+                    if (pi != null) {
+                        string[] values = sv.GetValues(header);
+                        for (int i = 0; i != values.Length; i++) {
+                            if (i == l.Count) l.Add(new Utilization());
+                            var u = l[i];
+                            pi.SetValue(u, Parse(values[i], pi.PropertyType, false));
+                        }
+                    } 
+                }
+                
+                var utilization = new JArray();
+                foreach(var u in l) utilization.Add(JObject.Parse(JsonConvert.SerializeObject(u)));
+                return utilization;
+            }
+            
+            private void GetVideoFrames(JObject info, out JArray videoFrames, out JArray cachedVideoFrames){
+                // JArray videoFrames = (JArray)info["data"]["runs"]["1"]["firstView"]["videoFrames"];
+                //JArray videoFrames = (JArray)info["data"]["runs"]["1"]["repeatView"]["videoFrames"];
+                videoFrames       = GetVideoFrames(info, "firstView");
+                cachedVideoFrames = GetVideoFrames(info, "repeatView");
+            }
+            
+            private JArray GetVideoFrames(JObject info, string view){
+                JArray videoFrames = (JArray)info["data"]["runs"]["1"][view]["videoFrames"];
+                foreach(JObject frame in videoFrames){
+                    frame["image"] = BrowseRaw(new Uri((string)frame["image"]));
+                }
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("Fetched video frames");
+                #endif
+                
+                return videoFrames;
+            }
+            
+            private Uri CreateJsonResultUri(string testId){
+                StringBuilder sb = new StringBuilder(GetConnection());
+                sb.Append("/jsonResult.php?test=");
+                sb.Append(testId);
+                
+                string uri = sb.ToString();
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("Json result request: " + uri);
+                #endif
+                
+                return new Uri(uri);
+            }
+            private Uri CreatePageCsvUri(string testId){
+                StringBuilder sb = new StringBuilder(GetConnection());
+                sb.Append("/result/");
+                sb.Append(testId);
+                sb.Append("/page_data.csv");
+                
+                string uri = sb.ToString();
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("Page data request: " + uri);
+                #endif
+                
+                return new Uri(uri);
+            }
+            private Uri CreateRequestsCsvUri(string testId){
+                StringBuilder sb = new StringBuilder(GetConnection());
+                sb.Append("/result/");
+                sb.Append(testId);
+                sb.Append("/requests.csv");
+                
+                string uri = sb.ToString();
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("Requests request: " + uri);
+                #endif
+                
+                return new Uri(uri);
+            }
+            private Uri CreateHarUri(string testId){
+                StringBuilder sb = new StringBuilder(GetConnection());
+                sb.Append("/export.php?bodies=1&amp;pretty=1&amp;test=");
+                sb.Append(testId);
+                
+                string uri = sb.ToString();
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("Har request: " + uri);
+                #endif
+                
+                return new Uri(uri);
+            }
+            private Uri CreateUtilizationUri(string testId){
+                StringBuilder sb = new StringBuilder(GetConnection());
+                sb.Append("/results/");
+                sb.Append(testId.Substring(0, 2));
+                sb.Append("/");
+                sb.Append(testId.Substring(2, 2));
+                sb.Append("/");                
+                sb.Append(testId.Substring(4, 2));
+                sb.Append("/");
+                sb.Append(testId.Substring(7, 2));
+                sb.Append("/");
+                sb.Append(testId.Substring(10));
+                sb.Append("/1_progress.csv");
+                
+                string uri = sb.ToString();
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("First view utilization request: " + uri);
+                #endif
+                
+                return new Uri(uri);
+            }
+            private Uri CreateCachedUtilizationUri(string testId){
+                StringBuilder sb = new StringBuilder(GetConnection());
+                sb.Append("/results/");
+                sb.Append(testId.Substring(0, 2));
+                sb.Append("/");
+                sb.Append(testId.Substring(2, 2));
+                sb.Append("/");                
+                sb.Append(testId.Substring(4, 2));
+                sb.Append("/");
+                sb.Append(testId.Substring(7, 2));
+                sb.Append("/");
+                sb.Append(testId.Substring(10));
+                sb.Append("/1_Cached_progress.csv");
+                
+                string uri = sb.ToString();
+                
+                #if DEBUGMODE
+                    EventPanel.AddEvent("Repeat view utilization request: " + uri);
+                #endif
+                
+                return new Uri(uri);
+            }
+            
+            /// &lt;summary&gt;
+            /// 
+            /// &lt;/summary&gt;
+            /// &lt;param name="value"&gt;&lt;/param&gt;
+            /// &lt;param name="targetType"&gt;&lt;/param&gt;
+            /// &lt;param name="strict"&gt;
+            /// &lt;para&gt;If false and the value is null or white space a default value is returned.&lt;/para&gt;
+            /// &lt;para&gt;If true, parsing of the value happens and an error is thrown when this is not possible.&lt;/para&gt;
+            /// &lt;/param&gt;
+            /// &lt;returns&gt;&lt;/returns&gt;
+            protected object Parse(string value, Type targetType, bool strict) {
+                try {
+                    if (targetType == typeof(DateTime)) {
+                        if (!strict &amp;&amp; string.IsNullOrWhiteSpace(value)) return DateTime.MinValue;
+                        return DateTime.Parse(value);
+                    }
+                    if (targetType == typeof(bool)) {
+                        if (!strict &amp;&amp; string.IsNullOrWhiteSpace(value)) return false;
+                        if (value == "0") return false;
+                        if (value == "1") return true;
+                        return bool.Parse(value);
+                    }
+                    if (targetType == typeof(int)) {
+                        if (!strict &amp;&amp; string.IsNullOrWhiteSpace(value)) return -1;
+                        return int.Parse(value);
+                    }
+                    if (targetType == typeof(long)) {
+                        if (!strict &amp;&amp; string.IsNullOrWhiteSpace(value)) return -1L;
+                        return long.Parse(value);
+                    }
+                    if (targetType == typeof(double)) {
+                        if (!strict &amp;&amp; string.IsNullOrWhiteSpace(value)) return -1.0;
+                        try{
+                            return double.Parse(value);
+                        } 
+                        catch{
+                            if(value.Contains(".")) return double.Parse(value.Replace(".", ","));
+                            return double.Parse(value.Replace(",", "."));
+                        }
+                    }
+                    return value;
+                }
+                #if DEBUG
+                    catch (Exception ex){
+                        EventPanel.AddEvent("Failed parsing " + value + "\n" + ex.ToString());
+                        throw ex;
+                    }
+                    #else
+                    catch{
+                        throw;
+                    }
+                #endif
+            }
+            
+            
+            internal class RawPage {
+                public long sequenceNumber { get; set; }
+                public string url { get; set; }
+                public long loadTimeInMs { get; set; }
+                public long timeToFirstByteInMs { get; set; }
+                public long bytesOut { get; set; }
+                public long bytesIn{ get; set; }
+                public int dnsLookups { get; set; }
+                public int connections { get; set; }
+                public int requests { get; set; }
+                public int okResponses { get; set; }
+                public int redirects { get; set; }
+                public int notModified { get; set; }
+                public int notFound { get; set; }
+                public int otherResponses { get; set; }
+                public int errorCode { get; set; }
+                public long timeToStartRenderInMs { get; set; }
+                public long activityTimeInMs { get; set; }
+                public long docCompleteTimeInMs { get; set; }
+                public long timeToDOMElementInMs { get; set; }
+                public bool includesObjectData { get; set; }
+                public int cacheScore { get; set; }
+                public int staticCDNScore { get; set; }
+                public int oneCDNScore { get; set; }
+                public int gzipScore { get; set; }
+                public int cookieScore { get; set; }
+                public int keepAliveScore { get; set; }
+                public int doctypeScore { get; set; }
+                public int minifyScore { get; set; }
+                public int combineScore { get; set; }
+                public long bytesOutDoc { get; set; }
+                public long bytesInDoc { get; set; }
+                public int dnsLookupsDoc { get; set; }
+                public int connectionsDoc { get; set; }
+                public int requestsDoc { get; set; }
+                public int okResponsesDoc { get; set; }
+                public int redirectsDoc { get; set; }
+                public int notModifiedDoc { get; set; }
+                public int notFoundDoc { get; set; }
+                public int otherResponsesDoc { get; set; }
+                public int errorCodeDoc { get; set; }
+                public int compressionScore { get; set; }
+                public int etagScore { get; set; }
+                public long timeToBasePageCompleteInMs { get; set; }
+                public int basePageResult { get; set; }
+                public long gzipTotalBytes { get; set; }
+                public long gzipSavings { get; set; }
+                public long minifyTotalBytes { get; set; }
+                public long minifySavings { get; set; }
+                public long imageTotalBytes { get; set; } 
+                public long imageSavings { get; set; }
+                public int basePageRedirects { get; set; }
+                public bool optimizationChecked { get; set; }
+                //Sadly following measurement does not exist anymore.
+                //public long AboveTheFoldRenderTimeInMs;
+                public int domElements { get; set; }
+                
+                //PageSpeed
+                public string pageTitle { get; set; }
+                public long timeToTitleInMs { get; set; }
+                public long loadEventStartInMs { get; set; } 
+                public long loadEventEndInMs { get; set; }
+                public long domContentReadyStartInMs { get; set; } 
+                public long domContentReadyEndInMs { get; set; } 
+                public long visuallyCompleteInMs { get; set; }
+                public string browserName { get; set; }
+                public string browserVersion { get; set; }
+                public int basePageServerCount { get; set; }
+                public long basePageServerRoundTripTimeInMs { get; set; }
+                public string basePageCDN { get; set; }
+                public bool adultSite { get; set; }
+                public int speedIndex { get; set; }
+                
+                
+                public static string GetPropertyName(string svHeader) {
+                    svHeader = svHeader.Replace(" ", string.Empty).ToLowerInvariant().Replace("ms", "inms").Replace("(", string.Empty).Replace(")", string.Empty).Replace("-", string.Empty);
+                    switch (svHeader) {
+                        case "timetotitle":
+                        return "timetotitleinms";
+                        case "loadeventstart":
+                        return "loadeventstartinms";
+                        case "loadeventend":
+                        return "loadeventendinms";
+                        case "domcontentreadystart":
+                        return "domcontentreadystartinms";
+                        case "domcontentreadyend":
+                        return "domcontentreadyendinms";
+                        case "basepageserverrtt":
+                        return "basepageserverroundtriptimeinms";
+                    }
+                    return svHeader;
+                }
+            }
+            
+            internal class RawRequest {
+                public string action { get; set; } 
+                public string host{ get; set; } 
+                public string url{ get; set; }
+                public int responseCode { get; set; }
+                public long timeToLoadInMs { get; set; } 
+                public long timeToFirstByteInMs { get; set; } 
+                public long startTimeInMs { get; set; } 
+                public long bytesOut { get; set; }
+                public long bytesIn { get; set; }
+                public long objectSize { get; set; } 
+                public long cookieSizeOut { get; set; }
+                public int cookieCountOut { get; set; }
+                public string expires { get; set; } 
+                public string cacheControl { get; set; } 
+                public string contentType { get; set; }
+                public string contentEncoding { get; set; }
+                public int transactionType { get; set; } 
+                public int socketId { get; set; } 
+                public int documentId { get; set; }
+                public int sequenceNumber { get; set; }
+                public int cacheScore { get; set; } 
+                public int staticCDNScore { get; set; } 
+                public int gzipScore { get; set; } 
+                public int cookieScore  { get; set; }
+                public int keepAliveScore { get; set; } 
+                public int doctypeScore  { get; set; }
+                public int minifyScore { get; set; }
+                public int combineScore { get; set; } 
+                public int compressionScore { get; set; } 
+                public int etagScore { get; set; }
+                public bool flagged { get; set; } 
+                public bool secure { get; set; }
+                public long gzipTotalBytes { get; set; }
+                public long gzipSavings { get; set; }
+                public long minifyTotalBytes { get; set; }
+                public long minifySavings { get; set; }
+                public long imageTotalBytes { get; set; } 
+                public long imageSavings  { get; set; }
+                public long cacheTimeInSec { get; set; }
+                public bool optimizationChecked { get; set; }
+                public string cdnProvider { get; set; }
+                public long dnsStartInMs { get; set; }
+                public long dnsEndInMs { get; set; }
+                public long connectStartInMs { get; set; }
+                public long connectEndInMs { get; set; } 
+                public long sslNegotiationStartInMs { get; set; } 
+                public long sslNegotiationEndInMs { get; set; }
+                public string initiator {get; set;}
+                public int initiatorLine { get; set; }
+                public int initiatorColumn { get; set; }
+                public int serverCount { get; set; }
+                public long serverRoundTripTimeInMs{ get; set; }
+                
+                public static string GetPropertyName(string svHeader) {
+                    svHeader = svHeader.Replace(" ", string.Empty).ToLowerInvariant().Replace("ms", "inms").Replace("(", string.Empty).Replace(")", string.Empty).Replace("-", string.Empty);
+                    switch (svHeader) {
+                        case "dnsstart":
+                        return "dnsstartinms";
+                        case "dnsend":
+                        return "dnsendinms";
+                        case "connectstart":
+                        return "connectstartinms";
+                        case "connectend":
+                        return "connectendinms";
+                        case "sslnegotiationstart":
+                        return "sslnegotiationstartinms";
+                        case "sslnegotiationend":
+                        return "sslnegotiationendinms";
+                        case "serverrtt":
+                        return "ServerRoundTripTimeInMs";
+                    }
+                    return svHeader;
+                }
+            }
+            
+            internal class Utilization{
+                public long offsetTimeInMs { get; set; } 
+                public long bandwidthInInkbps { get; set; }
+                public double cpuUtilizationInPercent { get; set; }
+                
+                public static string GetPropertyName(string svHeader) {
+                    return svHeader.Replace(" ", string.Empty).ToLowerInvariant().Replace("ms", "inms").Replace("kb", "inkb").Replace("%", "inpercent").Replace("(", string.Empty).Replace(")", string.Empty);
+                }
+            }
+            
+            internal class SV {
+                private List&lt;KeyValuePair&lt;string, List&lt;string&gt;&gt;&gt; _store = new List&lt;KeyValuePair&lt;string, List&lt;string&gt;&gt;&gt;();
+                
+                public string[] Headers {
+                    get {
+                        var headers = new string[_store.Count];
+                        for (int i = 0; i != headers.Length; i++)
+                        headers[i] = _store[i].Key;
+                        
+                        return headers;
+                    }
+                }
+                
+                public SV(string sv, string seperator = "\",") {
+                    foreach (string row in sv.Split(new char[] { 
+                    '\n', '\r' },
+                    StringSplitOptions.RemoveEmptyEntries)) {
+                        string[] cells = row.Split(new string[] { seperator }, StringSplitOptions.None);
+                        if (_store.Count == 0) {
+                            foreach (string header in cells) {
+                                _store.Add(new KeyValuePair&lt;string, List&lt;string&gt;&gt;(header.Trim('\"'), new List&lt;string&gt;()));
+                            }
+                        }
+                        else{
+                            for (int i = 0; i != cells.Length; i++){
+                                if (i != _store.Count) _store[i].Value.Add(cells[i].Trim('\"'));
+                            }
+                        }
+                    }
+                }
+                
+                public string[] GetValues(string column) {
+                    foreach (var kvp in _store) {
+                        if (kvp.Key == column) return kvp.Value.ToArray();
+                    }
+                    return null;
+                }
+            }
+            
+        #endregion // Free Coding
+    } // ConnectionProxy
+    
+} // vApus.Stresstest</Code>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ConnectionProxyCode>
+      </Items>
+      <Label>WebPageTest STABLE-20171109165852</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </ConnectionProxy>
+  </Items>
+</ConnectionProxies>

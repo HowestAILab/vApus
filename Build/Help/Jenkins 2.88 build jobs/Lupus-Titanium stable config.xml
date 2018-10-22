@@ -1,0 +1,61 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description></description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>git@bitbucket.org:howestsslab/lupus-titanium.git</url>
+        <credentialsId>7b3825bd-72f4-4b1e-b4ee-1fe6518e71e8</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>stable</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.WipeWorkspace/>
+      <hudson.plugins.git.extensions.impl.LocalBranch>
+        <localBranch>stable</localBranch>
+      </hudson.plugins.git.extensions.impl.LocalBranch>
+    </extensions>
+  </scm>
+  <assignedNode>winbuilder</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers>
+    <hudson.triggers.SCMTrigger>
+      <spec>@daily</spec>
+      <ignorePostCommitHooks>false</ignorePostCommitHooks>
+    </hudson.triggers.SCMTrigger>
+  </triggers>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.msbuild.MsBuildBuilder plugin="msbuild@1.25">
+      <msBuildName>.NET v4.0.30319 x64</msBuildName>
+      <msBuildFile>Lupus-Titanium.sln</msBuildFile>
+      <cmdLineArgs>/nologo /verbosity:quiet /p:Configuration=DevelopmentBuild /p:Platform=&quot;Any CPU&quot;</cmdLineArgs>
+      <buildVariablesAsProperties>true</buildVariablesAsProperties>
+      <continueOnBuildFailure>false</continueOnBuildFailure>
+      <unstableIfWarnings>false</unstableIfWarnings>
+    </hudson.plugins.msbuild.MsBuildBuilder>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.17">
+      <recipients>someone@sizingservers.be</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

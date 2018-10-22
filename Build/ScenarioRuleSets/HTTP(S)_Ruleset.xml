@@ -1,0 +1,443 @@
+<ScenarioRuleSets>
+  <Items>
+    <ScenarioRuleSet>
+      <Items>
+        <ScenarioSyntaxItem>
+          <Items>
+			<Rule>
+              <Items />
+              <RegExp>^DELETE$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>DELETE</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+            <Rule>
+              <Items />
+              <RegExp>^GET$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>GET</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+            <Rule>
+              <Items />
+              <RegExp>^HEAD$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>HEAD</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>			
+            <Rule>
+              <Items />
+              <RegExp>^OPTIONS$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>OPTIONS</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+			<Rule>
+              <Items />
+              <RegExp>^PATCH$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>PATCH</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+            <Rule>
+              <Items />
+              <RegExp>^POST$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>POST</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+			<Rule>
+              <Items />
+              <RegExp>^PUT$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>PUT</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>			
+            <Rule>
+              <Items />
+              <RegExp>^TRACE$</RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>stringType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>TRACE</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+          </Items>
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>"GET" or "POST"</Description>
+          <Label>Request method</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>http</DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>The protocol (http or https).</Description>
+          <Label>Protocol</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>
+          </Description>
+          <Label>Host</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>80</DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>The destination port.</Description>
+          <Label>Port</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>If for instance the URL in the connection is set to "http://www.foo.com" this could be /index.htm.</Description>
+          <Label>Relative Url</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items>
+            <ScenarioSyntaxItem>
+              <Items>
+                <ScenarioSyntaxItem>
+                  <Items />
+                  <Optional>False</Optional>
+                  <Occurance>1</Occurance>
+                  <DefaultValue>
+                  </DefaultValue>
+                  <ChildDelimiter>
+                  </ChildDelimiter>
+                  <Description>
+                  </Description>
+                  <Label>Key</Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </ScenarioSyntaxItem>
+                <ScenarioSyntaxItem>
+                  <Items />
+                  <Optional>True</Optional>
+                  <Occurance>1</Occurance>
+                  <DefaultValue>
+                  </DefaultValue>
+                  <ChildDelimiter>
+                  </ChildDelimiter>
+                  <Description>
+                  </Description>
+                  <Label>Value</Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </ScenarioSyntaxItem>
+              </Items>
+              <Optional>True</Optional>
+              <Occurance>0</Occurance>
+              <DefaultValue>
+              </DefaultValue>
+              <ChildDelimiter>=</ChildDelimiter>
+              <Description>
+              </Description>
+              <Label>KeyValuePair</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ScenarioSyntaxItem>
+          </Items>
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>&amp;</ChildDelimiter>
+          <Description>e.g.: "backColor=blue&amp;foreColor=red"</Description>
+          <Label>Get data</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>True</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>e.g.: "userName=foo&amp;passwd=&amp;é"^$ùµ"</Description>
+          <Label>Post data (UTF8)</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>True</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>e.g.: "0AB1..."</Description>
+          <Label>Post data (bytes as hex)</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>True</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>e.g.: "text/plain", For post this field is needed!</Description>
+          <Label>Content type</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>text/html, application/xhtml+xml, */*</DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>HTTP accept header</Description>
+          <Label>Accept</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>True</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>HTTP referer header</Description>
+          <Label>Referer</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items>
+            <Rule>
+              <Items />
+              <RegExp>
+              </RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>uintType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>
+              </Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+          </Items>
+          <Optional>True</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>0</DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>Offset in millis, from the last response of previous set op parallel requests, for when a request can be executed.</Description>
+          <Label>Offset</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items>
+            <Rule>
+              <Items />
+              <RegExp>
+              </RegExp>
+              <IgnoreCase>False</IgnoreCase>
+              <ValueType>boolType</ValueType>
+              <DisplayAsPassword>False</DisplayAsPassword>
+              <Description>
+              </Description>
+              <Label>
+              </Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </Rule>
+          </Items>
+          <Optional>True</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>False</DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>
+          </Description>
+          <Label>Redirects</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+        <ScenarioSyntaxItem>
+          <Items>
+            <ScenarioSyntaxItem>
+              <Items>
+                <ScenarioSyntaxItem>
+                  <Items />
+                  <Optional>False</Optional>
+                  <Occurance>1</Occurance>
+                  <DefaultValue>
+                  </DefaultValue>
+                  <ChildDelimiter>
+                  </ChildDelimiter>
+                  <Description>
+                  </Description>
+                  <Label>Key</Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </ScenarioSyntaxItem>
+                <ScenarioSyntaxItem>
+                  <Items />
+                  <Optional>True</Optional>
+                  <Occurance>1</Occurance>
+                  <DefaultValue>
+                  </DefaultValue>
+                  <ChildDelimiter>
+                  </ChildDelimiter>
+                  <Description>
+                  </Description>
+                  <Label>Value</Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </ScenarioSyntaxItem>
+              </Items>
+              <Optional>True</Optional>
+              <Occurance>0</Occurance>
+              <DefaultValue>
+              </DefaultValue>
+              <ChildDelimiter>: </ChildDelimiter>
+              <Description>
+              </Description>
+              <Label>KeyValuePair</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ScenarioSyntaxItem>
+          </Items>
+          <Optional>True</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>&lt;16 0C 02 13$&gt;</ChildDelimiter>
+          <Description>e.g.: "backColor: blue&lt;16 0C 02 13$&gt;foreColor: red"</Description>
+          <Label>Custom headers</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+      </Items>
+      <ChildDelimiter>&lt;16 0C 02 12$&gt;</ChildDelimiter>
+      <SingleLineCommentString>
+      </SingleLineCommentString>
+      <BeginCommentString>&lt;!--</BeginCommentString>
+      <EndCommentString>--&gt;</EndCommentString>
+      <ActionizeOnComment>True</ActionizeOnComment>
+      <HostnameIndex>3</HostnameIndex>
+      <OffsetInMillisIndex>12</OffsetInMillisIndex>
+      <RedirectsIndex>13</RedirectsIndex>
+      <Description>
+      </Description>
+      <Label>HTTP(S) STABLE-20171109165856</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </ScenarioRuleSet>
+  </Items>
+</ScenarioRuleSets>

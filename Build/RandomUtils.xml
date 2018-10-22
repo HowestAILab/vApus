@@ -1,0 +1,2043 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RandomUtils</name>
+    </assembly>
+    <members>
+        <member name="T:RandomUtils.BackgroundWorkQueue">
+            <summary>
+            To offload work to a background thread and keeping that work in a synchronized order.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessed">
+            <summary>
+            Invoked if an enqueued work item (function) was invoked successfully or unsuccessfully.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._processWorkQueueWaitHandle">
+            <summary>
+            If this is set all items in the work queue will be processed, except if this processing is paused.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._continueWaitHandle">
+            <summary>
+            Used for pausing and continuing processing the work queue.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue._idleWaitHandle">
+            <summary>
+            Used for pausing and continuing processing the work queue.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.BackgroundWorkQueue.IsDisposed">
+            <summary> </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.#ctor">
+            <summary>
+            To offload work to a background thread and keeping that work in a synchronized order.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Finalize">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Dispose">
+            <summary>
+            Releases all resources used.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Dispose(System.Int32)">
+            <summary>
+            <para>Releases all resources used.</para>
+            <para>Waits the given timeout before disposing (0 is acceptable, , smaller than 0 is indefinetly), if the work is not done it will be aborted.</para>
+            </summary>
+            <param name="millisecondsTimeout"></param>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.PauseProcessingWorkQueue">
+            <summary>
+            <para>Pauses the processing of the work queue and blocks until the processing is effectively paused.</para>
+            <para>Continue this processing calling 'ContinueProcessingWorkQueue()'.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.ContinueProcessingWorkQueue">
+            <summary>
+            Resumes the processing of the work queue.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.EnqueueWorkItem(System.Delegate,System.Object[])">
+            <summary>
+            <para>Adds a delegate on the work queue, that work queue is processed by a background thread, threadsafe.</para>
+            <para>The delegates on that queue are invoked in a synchronized order.</para>
+            <para></para>
+            <para>Define your delegate like so:</para>
+            <para>  <code>delegate T del(T, out T);</code> (Action or Func is also possible.)</para>
+            <para>then pass your function using this signature:</para>
+            <para>  <code>BackgroundWorkQueue.Send(new del(function), value, value);</code></para>
+            <para>The return type may be void and args are not obligatory.</para>
+            <para>Make sure you provide the right amount of args, even if it are out parameters (yes that is possible too).</para>
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.Flush">
+            <summary>
+            Wait untill all work queue items are processed.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs">
+            <summary>
+            The result of a called function or the exception thrown.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Delegate">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Parameters">
+            <summary>
+                Out parameters are stored here too.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.ReturnValue">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Exception">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.#ctor(System.Delegate,System.Object[],System.Object,System.Exception)">
+            <summary>
+            The result of a called function or the exception thrown.
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+            <param name="returnValue"></param>
+            <param name="exception"></param>
+        </member>
+        <member name="T:RandomUtils.CompilerUnit">
+             <summary>
+            <para>A C# .net v4(.#) compiler unit.</para> 
+            <para>For references there is linked in Application.StartupPath. Additional paths can be configured in the app.config like so:</para> 
+            <para><![CDATA[ <?xml version="1.0"?> ]]></para> 
+            <para><![CDATA[ <configuration> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ <runtime> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> ]]></para> 
+            <para><![CDATA[ <probing privatePath="subfolder1;subfolder2"/> ]]></para> 
+            <para><![CDATA[ </assemblyBinding> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ </runtime> ]]></para> 
+            <para><![CDATA[ </configuration> ]]></para> 
+             </summary>
+        </member>
+        <member name="M:RandomUtils.CompilerUnit.#ctor">
+             <summary>
+            <para>A C# .net v4(.#) compiler unit.</para> 
+            <para>For references there is linked in Application.StartupPath. Additional paths can be configured in the app.config like so:</para> 
+            <para><![CDATA[ <?xml version="1.0"?> ]]></para> 
+            <para><![CDATA[ <configuration> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ <runtime> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> ]]></para> 
+            <para><![CDATA[ <probing privatePath="subfolder1;subfolder2"/> ]]></para> 
+            <para><![CDATA[ </assemblyBinding> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ </runtime> ]]></para> 
+            <para><![CDATA[ </configuration> ]]></para> 
+             </summary>
+        </member>
+        <member name="M:RandomUtils.CompilerUnit.Compile(System.String,System.Boolean,System.CodeDom.Compiler.CompilerResults@)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="source">A piece of code (one or multiple classes) to be compiled into an assembly.</param>
+            <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
+            <param name="compilerResults"></param>
+            <returns>Null if not compiled. FS exceptions are thrown up.</returns>
+        </member>
+        <member name="M:RandomUtils.CompilerUnit.Compile(System.String[],System.Boolean,System.CodeDom.Compiler.CompilerResults@)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="sources">Pieces of code (one or multiple classes) to be compiled into an assembly.</param>
+            <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
+            <param name="compilerResults"></param>
+            <returns>Null if not compiled. FS exceptions are thrown up.</returns>
+        </member>
+        <member name="M:RandomUtils.CompilerUnit.Compile(System.String,System.String,System.Boolean,System.CodeDom.Compiler.CompilerResults@)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="source">A piece of code (one or multiple classes) to be compiled into an assembly.</param>
+            <param name="outputAssembly">If null a random name will be chosen.</param>
+            <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
+            <param name="compilerResults"></param>
+            <returns>Null if not compiled. FS exceptions are thrown up.</returns>
+        </member>
+        <member name="M:RandomUtils.CompilerUnit.Compile(System.String[],System.String,System.Boolean,System.CodeDom.Compiler.CompilerResults@)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="sources">Pieces of code (one or multiple classes) to be compiled into an assembly.</param>
+            <param name="outputAssembly">If null a random name will be chosen.</param>
+            <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
+            <param name="compilerResults"></param>
+            <returns>Null if not compiled. FS exceptions are thrown up.</returns>
+        </member>
+        <member name="M:RandomUtils.CompilerUnit.AddAllReferencedAssemblies(System.String,System.CodeDom.Compiler.CompilerParameters)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="source"></param>
+            <param name="compilerParamaters"></param>
+        </member>
+        <member name="M:RandomUtils.CompilerUnit.DeleteTempFiles">
+            <summary>
+            Delete the tempFiles generated when compiling with the debug flag.
+            This also happens on app exit.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.FindAndReplaceHelperObject">
+            <summary>
+            <para>This class contains extra functionality upon FindAndReplace for searching a given text. For instance: A find next is implemented in it.</para>
+            <para>It caches the found entries in the text (rows, columns, starts, match lengths) and invalidate it's cache when needed. For instance: A new find pattern is given.</para>
+            <para>This also means that, unlike FindAndReplace, the functionality in this class is not thread safe.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceHelperObject.FindNext(System.String,System.String,System.Int32@,System.Int32@,System.Int32@,System.Int32@,System.Boolean,System.Boolean)">
+            <summary>
+            Find the next occurance of a given find pattern. When one of the given arguments is different then the last time this function was called, the find cache is invalidated.
+            </summary>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
+            <param name="inText"></param>
+            <param name="row">The row where a match is found.</param>
+            <param name="column">The column where a match is found.</param>
+            <param name="start">The start index of a find, for making text selections easier.</param>
+            <param name="matchLength">The length of the match</param>
+            <param name="wholeWords"></param>
+            <param name="matchCase"></param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceHelperObject.FindAll(System.String,System.String,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Boolean,System.Boolean)">
+            <summary>
+            Find all occurances of a given find pattern. When one of the given arguments is different then the last time this function was called, the find cache is invalidated.
+            </summary>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
+            <param name="inText"></param>
+            <param name="rows">The rows where a match is found.</param>
+            <param name="columns">The columns where a match is found.</param>
+            <param name="starts">The start index of each find, for making text selections easier.</param>
+            <param name="matchLengths">The lengths of the match</param>
+            <param name="wholeWords"></param>
+            <param name="matchCase"></param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceHelperObject.Replace(System.String,System.Boolean)">
+            <summary>
+            Always call FindNext(...) or FindAll(...) first.
+            </summary>
+            <param name="with"></param>
+            <param name="all">True for replacing all occurances.</param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.ControlComparer">
+            <summary>
+             Compares by text, to string, name, full name or a combination of these.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.ControlComparer.#ctor(RandomUtils.ControlComparer.SortBy,System.Windows.Forms.SortOrder)">
+            <summary>
+             Compares by text, to string, name, full name or a combination of these.
+            </summary>
+            <param name="sortBy"></param>
+            <param name="sortOrder"></param>
+        </member>
+        <member name="M:RandomUtils.ControlComparer.Compare(System.Windows.Forms.Control,System.Windows.Forms.Control)">
+            <summary>
+             Compares by text, to string, name, full name or a combination of these.
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.ControlComparer.SortBy">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.ControlComparer.SortBy.Text">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.ControlComparer.SortBy.ToString">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.ControlComparer.SortBy.Name">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.ControlComparer.SortBy.FullName">
+            <summary></summary>
+        </member>
+        <member name="T:RandomUtils.Countdown">
+            <summary>
+            A countdown class, can report progress and when the countdown has become 0.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.Countdown.Started">
+            <summary>
+            Occurs when started;
+            </summary>
+        </member>
+        <member name="E:RandomUtils.Countdown.Stopped">
+            <summary>
+            Occurs when stopped;
+            </summary>
+        </member>
+        <member name="E:RandomUtils.Countdown.Tick">
+            <summary>
+            Occurs when the time period has elapsed. Get the current countdown from the Countdown field.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Countdown.CountdownTime">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Countdown.ReportProgressTime">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Countdown.IsStarted">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.Countdown.#ctor">
+            <summary>
+            A countdown class, can report progress and when the countdown has become 0.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Countdown.Start(System.Int32,System.Int32)">
+            <summary>
+            Start or restarts the countdown.
+            </summary>
+            <param name="countdownTime">In ms.</param>
+            <param name="reportProgressTime">In ms. Min 100</param>
+        </member>
+        <member name="M:RandomUtils.Countdown.Stop">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.Countdown.Dispose">
+            <summary></summary>
+        </member>
+        <member name="T:RandomUtils.FastObjectCreator">
+            <summary>
+            <para>Use this to create a new instance of a type using an empty public constructor and Intermediate Language. This used to be faster than Activator.CreateInstance(...),but speaking from own experience this is no longer the case with modern .Net.</para>
+            <para>However, the type's constructor is cached when calling CreateInstance, wich makes this faster when creating a lot of the same objects.</para>
+            <para>I'm not at all the inventor of this way of working, check for instance this blog post: https://codingsolution.wordpress.com/2013/07/12/activator-createinstance-is-slow/ </para>
+            <para>You would use this (or Activator) when you know only a class type, e.g.</para>
+            <para>You load a custom text-based save file, if it is a custom type you can cast to an interface in the return type definition:</para>
+            <para><![CDATA[ var compilerUnit = new CompilerUnit(); ]]></para>
+            <para><![CDATA[ CompilerResults compilerResults = null; ]]></para>
+            <para><![CDATA[ Type t = null; ]]></para>
+            <para><![CDATA[ Assembly as = compilerUnit.Compile("<Insert code here>", debug, out compilerResults); ]]></para>
+            <para><![CDATA[ if (!compilerResults.Errors.HasErrors) { ]]></para>
+            <para><![CDATA[ t = _connectionProxyAssembly.GetType("MyNamespace.MyClass"); ]]></para>
+            <para><![CDATA[ var obj = FastObjectCreator<IMyInterface>.CreateInstance(t); ]]></para>
+            <para><![CDATA[ } ]]></para>
+            <para>For primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
+            </summary>  
+        </member>
+        <member name="M:RandomUtils.FastObjectCreator.CreateInstance``1(System.Type)">
+            <summary>
+            <para>Use this to create a new instance of a type using an empty public constructor and Intermediate Language. This used to be faster than Activator.CreateInstance(...),but speaking from own experience this is no longer the case with modern .Net.</para>
+            <para>However, the type's constructor is cached when calling CreateInstance, wich makes this faster when creating a lot of the same objects.</para>
+            <para>I'm not at all the inventor of this way of working, check for instance this blog post: https://codingsolution.wordpress.com/2013/07/12/activator-createinstance-is-slow/ </para>
+            <para>You would use this (or Activator) when you know only a class type, e.g.</para>
+            <para>You load a custom text-based save file, if it is a custom type you can cast to an interface in the return type definition:</para>
+            <para><![CDATA[ var compilerUnit = new CompilerUnit(); ]]></para>
+            <para><![CDATA[ CompilerResults compilerResults = null; ]]></para>
+            <para><![CDATA[ Type t = null; ]]></para>
+            <para><![CDATA[ Assembly as = compilerUnit.Compile("<Insert code here>", debug, out compilerResults); ]]></para>
+            <para><![CDATA[ if (!compilerResults.Errors.HasErrors) { ]]></para>
+            <para><![CDATA[ t = _connectionProxyAssembly.GetType("MyNamespace.MyClass"); ]]></para>
+            <para><![CDATA[ var obj = FastObjectCreator<IMyInterface>.CreateInstance(t); ]]></para>
+            <para><![CDATA[ } ]]></para>
+            <para>For primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.FindAndReplace">
+            <summary>
+            <para>A helper class to easily find and replace in a given piece of text. Multiline find patterns are not supported.</para>
+            <para>Use this class if you want something 'reasonably' fast and thread safe.</para>
+            <para>If you want more practical functionality for real user input, use FindAndReplaceHelperObject.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FindAndReplace.Find(System.String,System.String,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Boolean,System.Boolean)">
+            <summary>
+            </summary>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
+            <param name="inText"></param>
+            <param name="rows">The rows where a match is found.</param>
+            <param name="columns">The columns where a match is found.</param>
+            <param name="starts">The start index of each find, for making text selections easier.</param>
+            <param name="matchLengths">The lengths of the match</param>
+            <param name="wholeWords"></param>
+            <param name="matchCase"></param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplace.Replace(System.Int32,System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            Always call Find(...) first.
+            </summary>
+            <param name="row"></param>
+            <param name="column"></param>
+            <param name="matchLength"></param>
+            <param name="inText"></param>
+            <param name="with"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.FindAndReplace.Replace(System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32},System.String,System.String)">
+            <summary>
+            Always call Find(...) first.
+            </summary>
+            <param name="rows"></param>
+            <param name="columns"></param>
+            <param name="matchLengths"></param>
+            <param name="inText"></param>
+            <param name="with"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.FindAndReplace.DetermineFindRegexes(System.String,System.Boolean,System.String@,System.String@,System.String@)">
+            <summary>
+            
+            </summary>
+            <param name="find"></param>
+            <param name="wholeWords"></param>
+            <param name="mustHaveRegex"></param>
+            <param name="canHaveRegex"></param>
+            <param name="cannotHaveRegex"></param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplace.GetSentences(System.String)">
+            <summary>
+            This takes double quotes into account
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.FunctionOutputCache">
+            <summary>
+            <para>A thread-safe way to cache the calling function's return value / output arguments.</para>
+            <para>This should only be used for output that always stays the same, but takes long to calculate.</para>
+            <para>You can use the instance if you want one general FunctionOutputCache.</para>
+            <para>I made this class before I knew you can do more or less the same with System.Web.Caching.Cache (HttpContext.Current.Cache).</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.IsDisposed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.Size">
+            <summary>
+            The current size of the cache.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.GetInstance">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.GetOrAdd(System.Reflection.MethodBase,System.Object[])">
+            <summary>
+            <para>Returns the entry if it was found in cache. Otherwise a new one is added to the cache and returned.</para>
+            <para>Store the return value and/or output arguments for the calling function in that new entry.</para>
+            <para>This is thread-safe.</para>
+            </summary>
+            <param name="method">e.g. MethodInfo.GetCurrentMethod()</param>
+            <param name="inputArguments">
+            <para>Primitives, objects that are not a collection of any sort, arrays and ILists are supported. Array / IList members are compared for equality.</para>
+            <para>Override InspectArgumentEquality(object, object) if you want to for instance support dictionaries.</para>
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.InspectArgumentEquality(System.Object,System.Object)">
+            <summary>
+            <para>Primitives, objects that are not a collection of any sort, arrays and ILists are supported. Array / IList members are compared for equality.</para>
+            <para>Override this if you want to for instance support dictionaries.</para>
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.Dispose">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:RandomUtils.FunctionOutputCache.CacheEntry">
+            <summary>
+            Holds the MethodBase, de input and output arguments if any and the return value.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.CacheEntry.Method">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.CacheEntry.InputArguments">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.CacheEntry.OutputArguments">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FunctionOutputCache.CacheEntry.ReturnValue">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FunctionOutputCache.CacheEntry.#ctor(System.Reflection.MethodBase,System.Object[])">
+            <summary>
+            </summary>
+            <param name="method"></param>
+            <param name="inputArguments"></param>
+        </member>
+        <member name="T:RandomUtils.KeyValueStore">
+            <summary>
+            <para>A super-simple key value store implementation. Basically a wrapper around ConcurrentDictionary.</para>
+            <para>You can use the instance if you want one general KeyValueStore.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValueStore.Size">
+            <summary>
+            The current size of the store.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValueStore.Keys">
+            <summary>
+            Returns all the keys.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValueStore.Values">
+            <summary>
+            Returns all the values.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValueStore.IsDisposed">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.GetInstance">
+            <summary>
+            You can use the instance if you want one general KeyValueStore.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Add(System.Object)">
+            <summary>
+            Uses a uniquely generated key, based on a random that uses a new guid hash code for a seed.
+            </summary>
+            <param name="value"></param>
+            <returns>The generated key.</returns>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.AddOrUpdate(System.Object,System.Object)">
+            <summary>
+            Adds or updated the key value pair.
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Remove(System.Object)">
+            <summary>
+            Removes a key value pair if the key was found.
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Clear">
+            <summary>
+            Clears the store.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Contains(System.Object)">
+            <summary>
+            Returns if the store contains a key value pair for the given key.
+            </summary>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Get``1(System.Object)">
+            <summary>
+            Returns a value for a given key. If it was not found an exception will be thrown.
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="key"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.KeyValueStore.Dispose">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:RandomUtils.StringTree">
+            <summary>
+            <para>A simple structure for representing a tree of strings (Value).</para>
+            <para>New string trees can be added as nodes of this one.</para>
+            <para>You should only have a string value at the leaf nodes.</para>
+            <para>You can use this as an Abstract Syntax Tree for your own lexing logic.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.StringTree.Value">
+            <summary>
+            Preferably, you only have values for leaf nodes.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.StringTree.ChildDelimiter">
+            <summary>
+            When calling ComineValues() the child delimiter is used at eache node level to combine the leaf node values.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.StringTree.Item(System.Int32)">
+            <summary>
+            Indexer for this StringTree.
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="P:RandomUtils.StringTree.Count">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:RandomUtils.StringTree.#ctor(System.String,System.String,System.Int32)">
+            <summary>
+            <para>A simple structure for representing a tree of strings (Value).</para>
+            <para>New string trees can be added as nodes of this one.</para>
+            <para>You should only have a string value at the leaf nodes.</para>
+            <para>You can use this as an Abstract Syntax Tree for your own lexing logic.</para>
+            </summary>
+            <param name="value"></param>
+            <param name="childDelimiter">Use combine values to return a string representation of the elements in this structure.</param>
+            <param name="count">Set the number of child nodes.</param>
+        </member>
+        <member name="M:RandomUtils.StringTree.CombineValues">
+            <summary>
+            This combines all the leaf node values with all the child delimiters. 
+            </summary>
+            <returns>If this has no childs the plain value is returned.</returns>
+        </member>
+        <member name="M:RandomUtils.StringTree.ToString">
+            <summary>
+            return base.ToString() + (_childs.Length == 0 ? " value: " + _value : " count: " + _childs.Length).
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.DataGridViewImageCellBlank">
+            <summary>
+            Draws a blank image for replacing the ugly, unneeded 'no image' image if no image is set.
+            Put an instance of this in the CellTemplate of a DataGridViewImageColumn.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.DataGridViewImageCellBlank.#ctor">
+            <summary>
+            Draws a blank image for replacing the ugly, unneeded 'no image' image if no image is set.
+            Put an instance of this in the CellTemplate of a DataGridViewImageColumn.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.DataGridViewImageCellBlank.#ctor(System.Boolean)">
+            <summary>
+            Draws a blank image for replacing the ugly, unneeded 'no image' image if no image is set.
+            Put an instance of this in the CellTemplate of a DataGridViewImageColumn.
+            </summary>
+            <param name="valueIsIcon"></param>
+        </member>
+        <member name="P:RandomUtils.DataGridViewImageCellBlank.DefaultNewRowValue">
+            <summary> </summary>
+        </member>
+        <member name="T:RandomUtils.FindAndReplaceControl">
+            <summary>
+            A GUI wrapper for FindAndReplace. 
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.FindTextChanged">
+            <summary>
+            Occures when the find text is changed.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.ReplaceTextChanged">
+            <summary>
+            Occures when the replace text is changed.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.FindClicked">
+            <summary>
+            Occures when the find button is clicked.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.ReplaceClicked">
+            <summary>
+            Occures when the replace button is clicked.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.WholeWordsChanged">
+            <summary>
+            Occures when whole words is (un)checked.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.MatchCaseChanged">
+            <summary>
+            Occures when match case is (un)checked.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.FindAndReplaceControl.ReplaceAllChanged">
+            <summary>
+            Occures when replace all is (un)checked.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceControl.#ctor">
+            <summary>
+            A GUI wrapper for FindAndReplace. 
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.Find">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.FindWholeWords">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.FindMatchCase">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.ReplaceWith">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.FindAndReplaceControl.ReplaceAll">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:RandomUtils.FindAndReplaceControl.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceControl.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.FindAndReplaceControl.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.InputDialog">
+            <summary>
+            An implementation of the old VB6 input dialog.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.InputDialog.MinimumInputLength">
+            <summary>
+            The minimum allowed length in the textbox. Call SetInputLength(...) to set this.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.InputDialog.MaximumInputLength">
+            <summary>
+            The minimum allowed length in the textbox. Call SetInputLength(...) to set this.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.InputDialog.Input">
+            <summary>
+            Set or get the input text.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.InputDialog.MessageBoxButtons">
+            <summary>
+            Default: MessageBoxButtons.OKCancel
+            </summary>
+        </member>
+        <member name="M:RandomUtils.InputDialog.#ctor(System.String,System.String,System.String)">
+            <summary>
+            An implementation of the old VB6 input dialog.
+            </summary>
+            <param name="question">The question asked to the user.</param>
+            <param name="caption"></param>
+            <param name="defaultInput">The default value for the input textbox.</param>
+        </member>
+        <member name="M:RandomUtils.InputDialog.SetInputLength(System.Int32,System.Int32)">
+            <summary>
+            Set the input length for the textbox.
+            </summary>
+            <param name="min"></param>
+            <param name="max"></param>
+        </member>
+        <member name="M:RandomUtils.InputDialog.OnShown(System.EventArgs)">
+            <summary></summary>
+            <param name="e"></param>
+        </member>
+        <member name="F:RandomUtils.InputDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.InputDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.InputDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.InputDialog.lblQuestion">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.InputDialog.txtInput">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.InputDialog.btnCancel">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.InputDialog.btnOK">
+            <summary></summary>
+        </member>
+        <member name="T:RandomUtils.KeyValuePairControl">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValuePairControl.Key">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValuePairControl.Value">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.KeyValuePairControl.Tooltip">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="M:RandomUtils.KeyValuePairControl.#ctor">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+        </member>
+        <member name="M:RandomUtils.KeyValuePairControl.#ctor(System.String,System.String)">
+            <summary>
+            A simple control to vizualize key value pairs. 
+            </summary>
+            <param name="key"></param>
+            <param name="value"></param>
+        </member>
+        <member name="F:RandomUtils.KeyValuePairControl.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.KeyValuePairControl.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.KeyValuePairControl.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Hotkeys">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Hotkeys.None">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.Hotkeys.Ctrl">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.Hotkeys.Shift">
+            <summary></summary>
+        </member>
+        <member name="T:RandomUtils.SizeMode">
+            <summary>
+            The size mode of a control in the LargeList.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.SizeMode.Normal">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SizeMode.Stretch">
+            <summary>
+            Stretch the control horizontal en vertical.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.SizeMode.StretchHorizontal">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SizeMode.StretchVertical">
+            <summary></summary>
+        </member>
+        <member name="T:RandomUtils.LargeList">
+             <summary>
+            <para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
+            <para>Most common functionality is implemented and a few other features.</para>
+             </summary>
+        </member>
+        <member name="E:RandomUtils.LargeList.AfterViewSwitch">
+            <summary>
+            Occurs after a new view / page is loaded in de Gui.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.LargeList.SelectionChanged">
+            <summary>
+            Occurs when the selection of controls changes.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.LargeList.ControlCollectionChanged">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.LargeList._scrollValues">
+            <summary>
+            A list with the scrollvalue to know which value has which view / page.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.LargeList._controls">
+            <summary>
+            A list of lists with all the controls, one list per view.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.LargeList._drawHeight">
+            <summary>
+            The height for drawing the controls.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.LargeList._previousHeight">
+            <summary>
+            The previous height for the resizing, if it is equal, nothing must be done.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.LargeList._selection">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.LargeList._sizeMode">
+            <summary>
+            Sizing the controls
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.ViewCount">
+            <summary>
+            Returns the number of views.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.ControlCount">
+            <summary>
+            Returns the number of controls.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.ActiveControl">
+            <summary>
+            The active control if any.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.LastClickedControl">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.Selection">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.BeginOfSelection">
+            <summary>
+            Gets the view(key) and index(value) of the first control in the selection.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.EndOfSelection">
+            <summary>
+            Gets the view(key) and index(value) of the last control in the selection.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.CurrentView">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.NumberOfControlsInCurrentView">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.Item(System.Int32)">
+            <summary>
+            Sets or gets a view.
+            </summary>
+            <param name="view"></param>
+            <returns></returns>
+        </member>
+        <member name="P:RandomUtils.LargeList.SizeMode">
+            <summary>
+             Gets or Sets the size mode for the controls who aren't autosizing.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.LargeList.AllControls">
+            <summary>
+            To Enumerate all controls over all views.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.#ctor">
+             <summary>
+            <para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
+            <para>Most common functionality is implemented and a few other features.</para>
+             </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.#ctor(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})">
+             <summary>
+            <para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
+            <para>Most common functionality is implemented and a few other features.</para>
+             </summary>
+             <param name="controls"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.#ctor(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}})">
+             <summary>
+            <para>This control is actualy an advanced pager which can contain 134 217 728 controls.</para>
+            <para>Most common functionality is implemented and a few other features.</para>
+             </summary>
+             <param name="controls"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.GetEnumerator">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.System#Collections#IEnumerable#GetEnumerator">
+            <summary>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.Add(System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Add(System.Windows.Forms.Control,System.Boolean)">
+            <summary>
+            </summary>
+            <param name="control"></param>
+            <param name="refresh"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.SizeControl(System.Windows.Forms.Control)">
+            <summary>
+            Size according to the size mode if the AutoSize property == false, do this when adding a control to the flpnl.
+            </summary>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.SizeControls(System.Collections.Generic.List{System.Windows.Forms.Control})">
+            <summary>
+            Size according to the size mode, do this when adding a range of controls to the flpnl.
+            </summary>
+            <param name="controls"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})">
+            <summary>
+            </summary>
+            <param name="controls"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}})">
+            <summary>
+            </summary>
+            <param name="controls"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.AddRange(System.Collections.Generic.IEnumerable{System.Collections.Generic.IEnumerable{System.Windows.Forms.Control}},System.Boolean)">
+            <summary>
+            </summary>
+            <param name="controls"></param>
+            <param name="refresh"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Clear">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.Contains(System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="control"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.ParseFlatIndex(System.Int64)">
+            <summary>
+            Go from a flat index to a usable index for the largelist (handy for inserting / removing controls and all that)
+            </summary>
+            <param name="index"></param>
+            <returns>kvp(-1,-1) if not found.</returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.ParseIndex(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            Go from a usable index to a flat one, you can increment this for instance and parse it to a usable one again.
+            </summary>
+            <param name="index"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.IndexOf(System.Windows.Forms.Control)">
+            <summary>
+            Gets the view(index) and the index(value) in view of the given control. -1 for both if not found.
+            </summary>
+            <param name="control"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.FlatIndexOf(System.Windows.Forms.Control)">
+            <summary>
+            
+            </summary>
+            <param name="control"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.Insert(System.Windows.Forms.Control,System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            Inserts a control in a specified view(key) and at a specified index(value) in the view.
+            </summary>
+            <param name="control"></param>
+            <param name="index"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Insert(System.Windows.Forms.Control,System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Boolean)">
+            <summary>
+            Inserts a control in a specified view(key) and at a specified index(value) in the view.
+            </summary>
+            <param name="control"></param>
+            <param name="index"></param>
+            <param name="refresh"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.InsertRange(System.Collections.Generic.List{System.Windows.Forms.Control},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            Inserts a range of controls in a specified view(key) and at a specified index(value) in the view.
+            </summary>
+            <param name="controls"></param>
+            <param name="index"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PreviousControl(System.Windows.Forms.Control)">
+            <summary>
+            Returns the previous control if any, else null is returned.
+            </summary>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.NextControl(System.Windows.Forms.Control)">
+            <summary>
+            Returns the next control if any, else null is returned.
+            </summary>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PutControl1AboveControl2(System.Windows.Forms.Control,System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="control1"></param>
+            <param name="control2"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PutControl1AboveControl2(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            </summary>
+            <param name="index1"></param>
+            <param name="index2"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PutControl1BelowControl2(System.Windows.Forms.Control,System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="control1"></param>
+            <param name="control2"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PutControl1BelowControl2(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            </summary>
+            <param name="index1"></param>
+            <param name="index2"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PutRangeAboveControl(System.Collections.Generic.List{System.Windows.Forms.Control},System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="range">Can be for instance 'LargeList.Selection'</param>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PutRangeAboveControl(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            </summary>
+            <param name="beginRangeIndex"></param>
+            <param name="endRangeIndex"></param>
+            <param name="controlIndex"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PutRangeBelowControl(System.Collections.Generic.List{System.Windows.Forms.Control},System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="range">Can be for instance 'LargeList.Selection'</param>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PutRangeBelowControl(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            </summary>
+            <param name="beginRangeIndex"></param>
+            <param name="endRangeIndex"></param>
+            <param name="controlIndex"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.GetRange(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            </summary>
+            <param name="beginRangeIndex"></param>
+            <param name="endRangeIndex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.RefreshControls">
+            <summary>
+            Refreshes the GUI. This should be done last.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.Remove(System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Remove(System.Windows.Forms.Control,System.Boolean)">
+            <summary>
+            </summary>
+            <param name="control"></param>
+            <param name="refresh"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.RemoveAll">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.RemoveAt(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            </summary>
+            <param name="index"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.RemoveAt(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Boolean)">
+            <summary>
+            </summary>
+            <param name="index"></param>
+            <param name="refresh"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.RemoveRange(System.Collections.Generic.List{System.Windows.Forms.Control})">
+            <summary>
+            </summary>
+            <param name="range"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.RemoveRange(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            </summary>
+            <param name="beginIndex"></param>
+            <param name="endIndex"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.RemoveSelection">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.ScrollTo(System.Int32)">
+            <summary>
+            </summary>
+            <param name="view"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.ScrollIntoView(System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Sort(RandomUtils.ControlComparer.SortBy)">
+            <summary>
+            </summary>
+            <param name="sortBy">Multiple values can be add up using a binairy OR.</param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Sort(RandomUtils.ControlComparer.SortBy,System.Windows.Forms.SortOrder)">
+            <summary>
+            </summary>
+            <param name="sortBy">Multiple values can be add up using a binairy OR.</param>
+            <param name="sortOrder"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Sort(System.Collections.Generic.IComparer{System.Windows.Forms.Control})">
+            <summary>
+            Sorts all controls using your own comparer. Tip: take a look at ControlComparer.
+            </summary>
+            <param name="comparer"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Swap(System.Windows.Forms.Control,System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="control1"></param>
+            <param name="control2"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Swap(System.Windows.Forms.Control,System.Windows.Forms.Control,System.Boolean)">
+            <summary>
+            </summary>
+            <param name="control1"></param>
+            <param name="control2"></param>
+            <param name="refresh"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Swap(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            </summary>
+            <param name="index1"></param>
+            <param name="index2"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Swap(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Boolean)">
+            <summary>
+            </summary>
+            <param name="index1"></param>
+            <param name="index2"></param>
+            <param name="refresh"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.ClearSelection">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.OrderSelection">
+            <summary>
+            Order the selection like it is in the controls. Begin and end of selection will be stored.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.SelectRange(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},System.Collections.Generic.KeyValuePair{System.Int32,System.Int32})">
+            <summary>
+            Visualization of selection you must do yourself (use the SelectionChanged event).
+            </summary>
+            <param name="beginIndex"></param>
+            <param name="endIndex"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.SelectRange(System.Collections.Generic.IEnumerable{System.Windows.Forms.Control})">
+            <summary>
+            Visualization of selection you must do yourself (use the SelectionChanged event).
+            </summary>
+            <param name="controls"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Select(System.Windows.Forms.Control,RandomUtils.Hotkeys)">
+            <summary>
+            Visualization of selection you must do yourself (use the SelectionChanged event).
+            </summary>
+            <param name="control"></param>
+            <param name="hotkeys"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.Select(System.Collections.Generic.KeyValuePair{System.Int32,System.Int32},RandomUtils.Hotkeys)">
+            <summary>
+            <para>Selects a control by its view(key) and index(value) in view.</para>
+            <para>Visualization of selection you must do yourself (use the SelectionChanged event).</para>
+            </summary>
+            <param name="index"></param>
+            <param name="hotkeys"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.CtrlPressed(System.Windows.Forms.Control)">
+            <summary>
+            Adds to, substract from selection.
+            </summary>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.ShiftPressed(System.Windows.Forms.Control)">
+            <summary>
+            Selects a range of controls.
+            </summary>
+            <param name="control"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.SelectAll">
+            <summary>
+            Visualization of selection you must do yourself (use the SelectionCHanged event).
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.SelectionContains(System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="control"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.OnResize(System.EventArgs)">
+            <summary>
+            Redetermines the views on resize when needed.
+            </summary>
+            <param name="e"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.PerformResize(System.Boolean)">
+            <summary>
+            Used internally for the resizing of this control, usable externally after setting the visibility of controls.
+            </summary>
+            <param name="force">Forces the rebuilding of the views even if the size has not changed.</param>
+        </member>
+        <member name="M:RandomUtils.LargeList.ProcessCmdKey(System.Windows.Forms.Message@,System.Windows.Forms.Keys)">
+            <summary>
+            For using the arrow keys, home and end.
+            </summary>
+            <param name="msg"></param>
+            <param name="keyData"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.LargeList.scrollbar_ValueChanged(System.Object,System.EventArgs)">
+            <summary>
+            Selects the correct view on valuechanged.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.txtView_KeyPress(System.Object,System.Windows.Forms.KeyPressEventArgs)">
+            <summary>
+            Selects the correct view on keypress.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="M:RandomUtils.LargeList.lblTotalViews_TextChanged(System.Object,System.EventArgs)">
+            <summary>
+            To resize the selection controls.
+            </summary>
+            <param name="sender"></param>
+            <param name="e"></param>
+        </member>
+        <member name="F:RandomUtils.LargeList.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.LargeList.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.LargeList.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.AfterSwithViewsEventArgs">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.AfterSwithViewsEventArgs.#ctor(System.Int32,System.Int32)">
+            <summary>
+            </summary>
+            <param name="currentView"></param>
+            <param name="numberOfControlsInCurrentView"></param>
+        </member>
+        <member name="P:RandomUtils.AfterSwithViewsEventArgs.CurrentView">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.AfterSwithViewsEventArgs.NumberOfControlsInCurrentView">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:RandomUtils.SelectionChangedEventArgs">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.SelectionChangedEventArgs._activeControl">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.SelectionChangedEventArgs._lastClickedControl">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.SelectionChangedEventArgs.#ctor(System.Windows.Forms.Control)">
+            <summary>
+            </summary>
+            <param name="activeControl"></param>
+        </member>
+        <member name="M:RandomUtils.SelectionChangedEventArgs.#ctor(System.Windows.Forms.Control,System.Windows.Forms.Control)">
+            <summary>
+            Only used when the user selects a control.
+            </summary>
+            <param name="activeControl"></param>
+            <param name="lastClickedControl">If this is not equal to ActiveControl that means this control has been deselected.</param>
+        </member>
+        <member name="P:RandomUtils.SelectionChangedEventArgs.ActiveControl">
+            <summary>
+            The first control in the selection or the last selected  (LastClickedControl).
+            </summary>
+        </member>
+        <member name="P:RandomUtils.SelectionChangedEventArgs.LastClickedControl">
+            <summary>
+            If this is not equal to ActiveControl that means this control has been deselected.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.PercentileCalculator`1">
+            <summary>
+            To get a percentile for a full population of values. 
+            </summary>
+            <typeparam name="T"></typeparam>
+        </member>
+        <member name="M:RandomUtils.PercentileCalculator`1.Get(System.Collections.Generic.IEnumerable{`0},System.Int32)">
+            <summary>
+            Gets a percentile for a full population of values. 
+            </summary>
+            <param name="values"></param>
+            <param name="nthPercentile">Ranging from one to 99.</param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.PercentileCalculator`1.Get(System.Collections.Generic.IEnumerable{`0},System.Int32,System.Collections.Generic.IEnumerable{`0}@)">
+            <summary>
+            Gets a percentile for a full population of values. 
+            </summary>
+            <param name="values"></param>
+            <param name="nthPercentile">Ranging from one to 99.</param>
+            <param name="orderedValues">Values ordered by descending.</param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.RemoteDesktop">
+            <summary>
+            Uses the default Windows RDP client.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.RemoteDesktop.Show(System.String,System.String,System.String,System.String)">
+             <summary>
+            Stupid credentials workaround. Do not forget to remove the credentials (RemoveCredentials(string ip)). Do not do this too fast, otherwise login will not work.
+             </summary>
+             <param name="host"></param>
+             <param name="username"></param>
+             <param name="password"></param>
+             <param name="domain"></param>
+        </member>
+        <member name="M:RandomUtils.RemoteDesktop.RemoveCredentials(System.String)">
+            <summary>
+            I know, this sucks. Why can't credentials be passed to mstsc.exe as arguments?...
+            </summary>
+            <param name="host"></param>
+        </member>
+        <member name="T:RandomUtils.SerializationHelper">
+            <summary>
+            Helper class for 'serializing / deserializing' strings, objects (gzip and deflate compression included) and structures.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.SerializationHelper.TextEncoding">
+            <summary>
+            Used in the Encode and Decode fx. UTF8 is advised.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.ASCII">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.BigEndianUnicode">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.Default">
+            <summary>
+            Default system encoding, depends on your settings. Use UTF8 instead.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.Unicode">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.UTF32">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.UTF7">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.SerializationHelper.TextEncoding.UTF8">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.Encode(System.String,RandomUtils.SerializationHelper.TextEncoding)">
+            <summary>
+            Encodes a string to a byte[] using the given encoding.
+            </summary>
+            <param name="text"></param>
+            <param name="encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.Decode(System.Byte[],RandomUtils.SerializationHelper.TextEncoding)">
+            <summary>
+            Decodes a byte[] to a string using the given encoding.
+            </summary>
+            <param name="arr"></param>
+            <param name="encoding"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.Serialize(System.Object)">
+            <summary>
+            Converts an object to a byte[] uncompressed.
+            </summary>
+            <param name="obj"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.SerializeDeflate(System.Object,System.IO.Compression.CompressionLevel)">
+            <summary>
+            <para>Converts an object to a byte[] using deflate compression.</para>
+            <para>Use gzip only for text, since it is optimized for that stuff according to wikipedia. Use deflate for everything else.</para>
+            </summary>
+            <param name="obj"></param>
+            <param name="compressionLevel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.SerializeGZip(System.Object,System.IO.Compression.CompressionLevel)">
+            <summary>
+            <para>Converts an object to a byte[] using gzip compression.</para>
+            <para>Use gzip only for text, since it is optimized for that stuff according to wikipedia. Use deflate for everything else.</para>
+            </summary>
+            <param name="obj"></param>
+            <param name="compressionLevel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.Deserialize``1(System.Byte[])">
+            <summary>
+            <para>Converts a byte[] to an object.</para>
+            <para>Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.</para>
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.DeserializeDeflate``1(System.Byte[])">
+            <summary>
+            <para>Converts a byte[] to an object. Decompressed using deflate.</para>
+            <para>Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.</para>
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.DeserializeGzip``1(System.Byte[])">
+            <summary>
+            <para>Converts a byte[] to an object. Decompressed using gzip.</para>
+            <para>Throws an exception if the array could not be deserialized or the deserialized object could not be cast to the given type.</para>
+            </summary>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.MarshalStructToBytes``1(``0)">
+            <summary>
+            <para>Handy for stuff from the clr / interop.</para>
+            <para>Use this only for structs that contains only primitives!</para>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="str"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.MarshalBytesToStruct``1(System.Byte[])">
+            <summary>
+            <para>Handy for stuff from the clr / interop.</para>
+            <para>Use this only for structs that contains only primitives!</para>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.BytesToHex(System.Byte[],System.String)">
+            <summary>
+            Converts a byte array to a hex using the given separator.
+            </summary>
+            <param name="arr"></param>
+            <param name="separator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.SerializationHelper.HexToBytes(System.String,System.String)">
+            <summary>
+            Converts a seperated hex to a byte array using the given seperator.
+            </summary>
+            <param name="s"></param>
+            <param name="separator"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.StringUtil">
+            <summary>String helper class. With this you can generate names and format numeric values.</summary>
+        </member>
+        <member name="M:RandomUtils.StringUtil.GenerateRandomName(System.Int32)">
+            <summary>
+                Generates a random name.
+            </summary>
+            <param name="len"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.GenerateRandomName(System.Int32,System.Int32)">
+            <summary>
+                Generates a random name with a random length.
+            </summary>
+            <param name="min"></param>
+            <param name="max">exclusive</param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.GenerateRandomPattern(System.String)">
+            <summary>
+                generates a random word via the given pattern.
+                0 = 1 numeric char (obligatory)
+                9 = 1 numeric char (optional)
+                A = 1 capital (obligatory)
+                a = 1 non-capital (obligatory)
+                B = 1 capital (optional)
+                b = 1 non)capital (optional)
+                # = 1 random char (obligatory)
+                ? = 1 random char (optional)
+                all other chars are fixed.
+            </summary>
+            <param name="pattern"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.FloatToLongString(System.Single,System.Boolean)">
+            <summary>
+                No Scientific notation ToString().
+            </summary>
+            <param name="f"></param>
+            <param name="thousandSeparator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.DoubleToLongString(System.Double,System.Boolean)">
+            <summary>
+                No Scientific notation ToString().
+            </summary>
+            <param name="d"></param>
+            <param name="thousandSeparator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.NumberToLongString(System.Object,System.Boolean)">
+            <summary>
+                No Scientific notation ToString().
+            </summary>
+            <param name="o"></param>
+            <param name="thousandSeparator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.StringUtil.ReverseString(System.String)">
+            <summary>
+            Reverse a string.
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.SynchronizationContextWrapper">
+            <summary>
+            <para>A wrapper for SynchronizationContext, so SynchronizationContext is available throughout the entire application.</para>
+            <para>A SynchronizationContext is for synchronizing data to another thread, for instance to the main thread.</para>
+            <para>Handy if you want to update a System.Windows.Forms.Label from another thread. It is the most reliable way to do something like that IMHO.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.SynchronizationContextWrapper.SynchronizationContext">
+            <summary>
+            <para>Set this to System.Threading.SynchronizationContext.Current in the constructor below 'InitializeComponent();' of a WPF main form or when the handle is created for a WinForms main form.</para>
+            <para>e.g. If you want to update a System.Windows.Forms.Label form another thread: SynchronizationContextWrapper.SynchronizationContext.Current.Send((state) => { lblFoo.Text = "bar"; }, null)</para>
+            </summary>
+        </member>
+        <member name="T:RandomUtils.TabControlWithAdjustableBorders">
+            <summary>
+            When using multiple (encapsulated) tab controls a form can look very messy. Removing borders makes the form look cleaner.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TabControlWithAdjustableBorders.BottomVisible">
+            <summary> </summary>
+        </member>
+        <member name="P:RandomUtils.TabControlWithAdjustableBorders.LeftVisible">
+            <summary> </summary>
+        </member>
+        <member name="P:RandomUtils.TabControlWithAdjustableBorders.RightVisible">
+            <summary> </summary>
+        </member>
+        <member name="P:RandomUtils.TabControlWithAdjustableBorders.TopVisible">
+            <summary> </summary>
+        </member>
+        <member name="M:RandomUtils.TabControlWithAdjustableBorders.WndProc(System.Windows.Forms.Message@)">
+            <summary></summary>
+        </member>
+        <member name="T:RandomUtils.TimeSeriesStore">
+            <summary>
+            <para>This is a very simple time series store implementation.</para>
+            <para>It is a partioned key value store with a timestamp (DateTime) for a key and an object[] for values.</para>
+            <para>If you do not specify a partition in the different functions, the default is used.</para>
+            <para>You can use the instance if you want one general time series store.</para>
+            <para>If you want something more robust and distributed I suggest that you take a look at OpenTSDB, Redis, etc.</para>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.TimeSeriesStore.DEFAULTPARTITION">
+            <summary>
+            The default partition. This one is used if you do not specify one in the different functions (Except ClearAll()).
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TimeSeriesStore.Partitions">
+            <summary>
+            Returns all the partition ids.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TimeSeriesStore.IsDisposed">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.GetInstance">
+            <summary>
+            You can use the instance if you want one general time series store.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.AddOrUpdate(System.DateTime,System.Object[])">
+            <summary>
+            Adds or updates a time series on the default partition.
+            </summary>
+            <param name="timestamp"></param>
+            <param name="values"></param>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Remove(System.DateTime)">
+            <summary>
+            Removes a time series from the default partition, if found.
+            </summary>
+            <param name="timestamp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Clear">
+            <summary>
+            Clears the default partition.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Get(System.DateTime)">
+            <summary>
+            Returns a time series from the default partition.
+            </summary>
+            <param name="timestamp"></param>
+            <returns>If the time series was not found, null will be returned.</returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.AddOrUpdate(System.String,System.DateTime,System.Object[])">
+            <summary>
+            Adds or updates a time series on a given partition. If the partition does not exist it will be added.
+            </summary>
+            <param name="partition"></param>
+            <param name="timestamp"></param>
+            <param name="values"></param>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Remove(System.String,System.DateTime)">
+            <summary>
+            Removes a time series from a given partition, if found.
+            </summary>
+            <param name="partition"></param>
+            <param name="timestamp"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Clear(System.String)">
+            <summary>
+            Clears a given partition.
+            </summary>
+            <param name="partition"></param>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.ClearAll">
+            <summary>
+            Clears all partitions.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Get(System.String,System.DateTime)">
+            <summary>
+            Returns a time series from the given partition.
+            </summary>
+            <param name="partition"></param>
+            <param name="timestamp"></param>
+            <returns>If the time series was not found, null will be returned.</returns>
+        </member>
+        <member name="M:RandomUtils.TimeSeriesStore.Dispose">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Tracert">
+            <summary>
+            Determines the trace route for a given destination host or IP.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.Tracert.Hop">
+            <summary>
+            </summary>
+        </member>
+        <member name="E:RandomUtils.Tracert.Done">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.IP">
+            <summary>
+            The IP to trace route.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.LastStatus">
+            <summary>
+            The IP status for the last hop.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.MaxHops">
+            <summary>
+            The maximum hops that may occur.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.Timeout">
+            <summary>
+            The ping timeout for a hop in ms.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.Hops">
+            <summary>
+            The numbers of hops done.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Tracert.IsDone">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Tracert.Trace(System.String,System.Int32,System.Int32)">
+            <summary>
+            Determines the trace route for a given destination host or IP.
+            </summary>
+            <param name="hostNameOrIP">The host name or IP to trace route.</param>
+            <param name="maxHops">The maximum hops that may occur.</param>
+            <param name="timeout">The ping timeout for a hop in ms.</param>
+        </member>
+        <member name="M:RandomUtils.Tracert.Dispose">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Tracert.HopEventArgs">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Tracert.HopEventArgs.HostName">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Tracert.HopEventArgs.IP">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Tracert.HopEventArgs.RoundTripTime">
+            <summary>
+            Round trip time in ms
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Tracert.HopEventArgs.Status">
+            <summary>
+            The status of sending an Internet Control Message Protocol (ICMP) echo message to a computer.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Tracert.HopEventArgs.#ctor(System.String,System.String,System.Int64,System.Net.NetworkInformation.IPStatus)">
+            <summary>
+            </summary>
+            <param name="ip"></param>
+            <param name="hostName"></param>
+            <param name="roundTripTime">in ms</param>
+            <param name="status">The status of sending an Internet Control Message Protocol (ICMP) echo message to a computer.</param>
+        </member>
+        <member name="T:RandomUtils.TracertControl">
+            <summary>
+            <para>A control around Tracert --> Determines the trace route for a given destination host or IP.</para>
+            <para>Suscribe to BeforeTrace and call SetToTrace(...).</para>
+            </summary>
+        </member>
+        <member name="E:RandomUtils.TracertControl.BeforeTrace">
+            <summary>
+            You can call SetToTrace here last minute.
+            </summary>
+        </member>
+        <member name="E:RandomUtils.TracertControl.Done">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.HostNameOrIP">
+            <summary>
+            The host name or IP to trace route.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.LastStatus">
+            <summary>
+            The IP status for the last hop.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.MaxHops">
+            <summary>
+            The maximum hops that may occur.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.Timeout">
+            <summary>
+            The ping timeout for a hop in ms.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.Hops">
+            <summary>
+            The numbers of hops done.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.TracertControl.IsDone">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertControl.#ctor">
+            <summary>
+            <para>A control around Tracert --> Determines the trace route for a given destination host or IP.</para>
+            <para>Suscribe to BeforeTrace and call SetToTrace(...).</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertControl.SetToTrace(System.String,System.Int32,System.Int32)">
+            <summary>
+            
+            </summary>
+            <param name="hostNameOrIP"></param>
+            <param name="maxHops"></param>
+            <param name="timeout"></param>
+        </member>
+        <member name="F:RandomUtils.TracertControl.components">
+            <summary> 
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertControl.Dispose(System.Boolean)">
+            <summary> 
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.TracertControl.InitializeComponent">
+            <summary> 
+            Required method for Designer support - do not modify 
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.TracertDialog">
+            <summary>
+            
+            </summary>
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="E:RandomUtils.TracertDialog.TraceRouteCancelled">
+            <summary>
+            Fires when the cancel button is pressed.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.#ctor">
+            <summary>
+            Initiale calling SetStarted(). Finalize calling SetCompleted().
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.SetStarted">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.AddHop(System.String,System.String,System.String)">
+            <summary>
+            Add a hop to the list view.
+            </summary>
+            <param name="ip"></param>
+            <param name="hostName"></param>
+            <param name="roundtripTime">Already formatted</param>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.SetCompleted">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.TracertDialog.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.TracertDialog.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+    </members>
+</doc>

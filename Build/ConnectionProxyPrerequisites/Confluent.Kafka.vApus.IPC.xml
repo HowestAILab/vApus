@@ -1,0 +1,473 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>Confluent.Kafka.vApus.IPC</name>
+    </assembly>
+    <members>
+        <member name="T:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnectionException">
+            <summary>
+            Thrown when could not connect to the epms via EndPointManagerServiceConnection.GetClient();
+            </summary>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnectionException.#ctor(System.String)">
+            <summary>
+            Thrown when could not connect to the epms via EndPointManagerServiceConnection.GetClient();
+            </summary>
+            <param name="message"></param>
+        </member>
+        <member name="T:Confluent.Kafka.vApus.IPC.MessageEventArgs">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.MessageEventArgs.Handle">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.MessageEventArgs.Message">
+            <summary>
+            The sent or received message.
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.MessageEventArgs.RemoteEndPoints">
+            <summary>
+            The local end points of the receivers. Only filled in for Sender events: before message sent - all registred receivers; After message sent - Alle responding receivers.
+            </summary>
+        </member>
+        <member name="T:Confluent.Kafka.vApus.IPC.Receiver">
+            <summary>
+            <para>Add a new Receiver in the code of the process you want to receive messages. Make sure the handles matches the one of the Sender.</para>
+            </summary>
+        </member>
+        <member name="E:Confluent.Kafka.vApus.IPC.Receiver.MessageReceived">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.Receiver.IsDisposed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.Receiver.Handle">
+            <summary>
+            <para>The handle is a value shared by a Sender and its Receivers.</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.Receiver.LocalEndPoint">
+            <summary>
+            The end point this receiver is listening on.
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.Receiver.EndPointManagerServiceConnection">
+            <summary>
+            <para>This is an optional parameter in the constructor.</para>
+            <para>If you don't use it, receiver end points are stored in the Windows registry and IPC communication is only possible for processes running under the current local user.</para>
+            <para>If you do use it, these end points are fetched from a Windows service over tcp, making it a distributed IPC.This however will be slower and implies a security risk since there will be network traffic.</para>
+            </summary>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Receiver.#ctor(System.String,System.Net.IPAddress,System.Int32[],Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection)">
+            <summary>
+            <para>Receives messages of a Sender having the same handle.</para>
+            <para>When using the end point manager service, some security measures are advised.</para>
+            <para>You can use Shared.Encrypt(...) (and Shared.Decrypt(...)) to encrypt your received messages (if they are strings) via the MessageReceived event.</para>
+            <para>Alternatively you can use a ssh tunnel, that will probably be safer and faster</para>
+            </summary>
+            <param name="handle">
+            <para>The handle is a value shared by a Sender and its Receivers.  ; , * + and - cannot be used!</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </param>
+            <param name="ipAddressToRegister">
+            <para>This parameter is only useful if you are using an end point manager service.</para>
+            <para>A receiver listens to all available IPs for connections. The ip that is registered on the end point manager (service) is by default automatically determined.</para>
+            <para>However, this does not take into account that senders, receiver or end point manager services are possibly not on the same network.</para>
+            <para>Therefor you can override this behaviour by supplying your own IP that will be registered to the end point manager service.</para>
+            </param>
+            <param name="allowedPorts">
+            <para>This parameter is only useful if you are using an end point manager service.</para>
+            <para>To make firewall settings easier, you can specify a pool of TCP ports where the receiver can choose one from to listen on. If none of these ports are available, this will fail.</para>
+            <para>If you don't use this parameter, one of the total available ports on the system will be chosen.</para>
+            </param>
+            <param name="endPointManagerServiceConnection">
+            <para>This is an optional parameter.</para>
+            <para>If you don't use it, receiver end points are stored in the Windows registry and IPC communication is only possible for processes running under the current local user.</para>
+            <para>If you do use it, these end points are fetched from a Windows service over tcp, making it a distributed IPC.This however will be slower and implies a security risk since there will be network traffic.</para>
+            </param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Receiver.HandleReceive(System.Net.Sockets.TcpClient)">
+            <summary>
+            <para>Reads handle size, handle, 1 if message is byte array or 0, message size and message from the stream.</para>
+            <para>If the handle in the message is invalid the connection will be closed.</para>
+            </summary>
+            <param name="client"></param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Receiver.Dispose">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Confluent.Kafka.vApus.IPC.Sender">
+            <summary>
+            <para>Add a new Sender in the code of the process you want to send messages. Make sure the handles matches the one of the Receivers.</para>
+            <para>Suscribe to OnSendFailed for error handeling. Please note: Sending will always fail when a Receiver disappears.</para>
+            </summary>
+        </member>
+        <member name="E:Confluent.Kafka.vApus.IPC.Sender.BeforeMessageSent">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="E:Confluent.Kafka.vApus.IPC.Sender.AfterMessageSent">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="E:Confluent.Kafka.vApus.IPC.Sender.OnSendFailed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:Confluent.Kafka.vApus.IPC.Sender._hashcode">
+            <summary>
+            Hashcode of the message. When resending the same data it is not serialized again.
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.Sender.IsDisposed">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.Sender.Handle">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.Sender.Buffered">
+            <summary>
+            <para>When true, a message (+ encapsulation) you send is kept in memory. When you resend the same message it will not be serialized again.</para>
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.Sender.EndPointManagerServiceConnection">
+            <summary>
+            <para>This is an optional parameter in the constructor.</para>
+            <para>If you don't use it, receiver end points are stored in the Windows registry and IPC communication is only possible for processes running under the current local user.</para>
+            <para>If you do use it, these end points are fetched from a Windows service over tcp, making it a distributed IPC.This however will be slower and implies a security risk since there will be network traffic.</para>
+            </summary>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Sender.#ctor(System.String,Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection,System.Boolean)">
+            <summary>
+            <para>Add a new Sender in the code of the process you want to send messages. Make sure the handles matches the one of the Receivers.</para>
+            <para>When using the end point manager service, some security measures are advised.</para>
+            <para>You can use Shared.Encrypt(...) (and Shared.Decrypt(...)) to encrypt messages (if they are strings) before sending them.</para>
+            <para>Alternatively you can use a ssh tunnel, that will probably be safer and faster</para>
+            <para>Suscribe to OnSendFailed for error handeling. Please note: Sending will always fail when a Receiver disappears.</para>
+            </summary>
+            <param name="handle">
+            <para>The handle is a value shared by a Sender and its Receivers.  ; , * + and - cannot be used!</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </param>
+            <param name="endPointManagerServiceConnection">
+            <para>This is an optional parameter.</para>
+            <para>If you don't use it, receiver end points are stored in the Windows registry and IPC communication is only possible for processes running under the current local user.</para>
+            <para>If you do use it, these end points are fetched from a Windows service over tcp, making it a distributed IPC.This however will be slower and implies a security risk since there will be network traffic.</para>
+            </param>
+            <param name="buffered">
+            <para>When true, a message (+ encapsulation) you send is kept in memory. When you resend the same message it will not be serialized again.</para>
+            <para>This buffer can ony hold one message. Using this will make sending messages faster and will take up more memory. Use this wisely for large messages.</para>
+            </param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Sender.Send(System.Object)">
+            <summary>
+            Send a message to the Receivers. This is (partly) a blocking function.
+            </summary>
+            <param name="message">
+            If the given object is a byte array, it will not be serialized. Otherwise, the object will be serialized using a binary formatter.
+            </param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Sender.SerializeMessage(System.Object)">
+            <summary>
+            Writes the handle size, the handle (UTF8 encoding), 1 if message is byte array or 0, the message size and the message to an array.
+            </summary>
+            <param name="message"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Sender.SetTcpSenders">
+            <summary>
+            Clean up the stored tcp clients (_senders) and add new ones if need be.
+            </summary>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Sender.Dispose">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:Confluent.Kafka.vApus.IPC.EndPointManager">
+            <summary>
+            Stores end points (handles and tcp ports) in the Windows Registry for the current user or in an end point manager service for the IPC message receivers.
+            </summary>
+        </member>
+        <member name="F:Confluent.Kafka.vApus.IPC.EndPointManager.WINDOWS_REGISTRY_KEY">
+            <summary>
+            Used for a key in the Windows Registry (current user, volatile) to store the end points when not using an end point manager service.
+            </summary>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.RegisterReceiver(System.String,System.Net.IPAddress,System.Int32[],Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection)">
+            <summary>
+            Add a new tcp port to the endpoints for a receiver.
+            </summary>
+            <param name="handle">
+            <para>The handle is a value shared by a Sender and its Receivers.  ; , * + and - cannot be used!</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </param>
+            <param name="ipAddressToRegister">
+            <para>This parameter is only useful if you are using an end point manager service.</para>
+            <para>A receiver listens to all available IPs for connections. The ip that is registered on the end point manager (service) is by default automatically determined.</para>
+            <para>However, this does not take into account that senders, receiver or end point manager services are possibly not on the same network.</para>
+            <para>Therefor you can override this behaviour by supplying your own IP that will be registered to the end point manager service.</para>
+            </param>
+            <param name="allowedPorts">
+            <para>This parameter is only useful if you are using an end point manager service.</para>
+            <para>To make firewall settings easier, you can specify a pool of TCP ports where the receiver can choose one from to listen on. If none of these ports are available, this will fail.</para>
+            <para>If you don't use this parameter, one of the total available ports on the system will be chosen.</para>
+            </param>
+            <param name="endPointManagerServiceConnection">
+            <para>This is an optional parameter.</para>
+            <para>If you don't use it, receiver end points are stored in the Windows registry and IPC communication is only possible for processes running under the current local user.</para>
+            <para>If you do use it, these end points are fetched from a Windows service over tcp, making it a distributed IPC.This however will be slower and implies a security risk since there will be network traffic.</para>
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.GetReceiverEndPoints(System.String,Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection)">
+            <summary>
+            The sender must use this to be able to send data to the correct receivers.
+            </summary>
+            <param name="handle">
+            <para>The handle is a value shared by a Sender and its Receivers.</para>
+            <para>It links both parties so messages from a Sender get to the right Receivers.</para>
+            <para>Make sure this is a unique value: use a GUID for instance:</para>
+            <para>There is absolutely no checking to see if this handle is used in another Sender - Receivers relation.</para>
+            </param>
+            <param name="endPointManagerServiceConnection"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.GetRegisteredEndPoints(Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection)">
+            <summary>
+            </summary>
+            <param name="endPointManagerServiceConnection"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.GetRegisteredEndPoints">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.CleanupEndPoints(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.HashSet{System.Int32}}},System.Boolean)">
+            <summary>
+            Only used for local IPC. When using the end point manager service, this service handles the cleaning.
+            </summary>
+            <param name="endPoints">All end points that are not used anymore are filtered out.</param>
+            <param name="registerEndpoints">Register the cleaned end point is applicable.</param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.SetRegisteredEndPoints(System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.Dictionary{System.String,System.Collections.Generic.HashSet{System.Int32}}},Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection)">
+            <summary>
+            Set endpoints to the Windows Registry (current user, volatile) or the end point manager service, if any.
+            </summary>
+            <param name="endPoints"></param>
+            <param name="endPointManagerServiceConnection"></param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.SetRegisteredEndPoints(System.String)">
+            <summary>
+            Set endpoints to the Windows Registry (current user, volatile).
+            </summary>
+            <param name="endPoints"></param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.GetAvailableTcpPort(System.Int32[])">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManager.GetUsedTcpPorts">
+            <summary>
+            Only take used tcp ports into accounts. What's been registered in the registry or the epm service does not matter.
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection.EndPointManagerServiceEP">
+            <summary>
+            End point info to connect to the service over tcp.
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection.Password">
+            <summary>
+            [optional] Password for Rijndael encryption for communication with the epm service. Alternatively you can use an ssh tunnel, that will probably be safer and faster.
+            </summary>
+        </member>
+        <member name="P:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection.Salt">
+            <summary>
+            [optional] Salt for Rijndael encryption for communication with the epm service. Example (don't use this): new byte[] { 0x59, 0x06, 0x59, 0x3e, 0x21, 0x4e, 0x55, 0x34, 0x96, 0x15, 0x11, 0x13, 0x72 }
+            </summary>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection.#ctor(System.Net.IPEndPoint)">
+            <summary>
+            </summary>
+            <param name="endPointManagerServiceEP">End point info to connect to the service over tcp.</param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection.#ctor(System.Net.IPEndPoint,System.String,System.Byte[])">
+            <summary>
+            </summary>
+            <param name="endPointManagerServiceEP">End point info to connect to the service over tcp.</param>
+            <param name="password">Password for Rijndael encryption for communication with the epm service. Alternatively you can use an ssh tunnel, that will probably be safer and faster.</param>
+            <param name="salt">Salt for Rijndael encryption for communication with the epm service. Example (don't use this): new byte[] { 0x59, 0x06, 0x59, 0x3e, 0x21, 0x4e, 0x55, 0x34, 0x96, 0x15, 0x11, 0x13, 0x72 }</param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.EndPointManagerServiceConnection.SendAndReceiveEPM(System.String)">
+            <summary>
+            Get the endpoints from the endpoint manager service.
+            </summary>
+            <param name="message">Empty string to get the end points or the end point represeted as a string to set them.</param>
+            <returns></returns>
+        </member>
+        <member name="T:Confluent.Kafka.vApus.IPC.Shared">
+            <summary>
+            Shared functions for internal and external use.
+            </summary>
+        </member>
+        <member name="F:Confluent.Kafka.vApus.IPC.Shared.EPMS_DEFAULT_TCP_PORT">
+            <summary>
+            Default port for the epms service to listen on.
+            </summary>
+        </member>
+        <member name="F:Confluent.Kafka.vApus.IPC.Shared.LONGSIZE">
+            <summary>
+            The amount of memory, in bytes, a 64bit integer takes. (Should be obvious :))
+            </summary>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetBytes(System.String)">
+            <summary>
+            UTF8
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetBytes(System.Int64)">
+            <summary>
+            
+            </summary>
+            <param name="l"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetByte(System.Boolean)">
+            <summary>
+            
+            </summary>
+            <param name="b"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetBytes(System.Object,System.Runtime.Serialization.Formatters.Binary.BinaryFormatter)">
+            <summary>
+            
+            </summary>
+            <param name="o"></param>
+            <param name="bf"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.Gzip(System.Byte[],System.IO.Compression.CompressionLevel)">
+            <summary>
+            </summary>
+            <param name="bytes"></param>
+            <param name="compressionLevel"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetLong(System.Byte[])">
+            <summary>
+            
+            </summary>
+            <param name="bytes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetString(System.Byte[])">
+            <summary>
+            UTF8. '\0' gets automatically trimmed.
+            </summary>
+            <param name="bytes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetBool(System.Byte[])">
+            <summary>
+            
+            </summary>
+            <param name="bytes"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetObject(System.Byte[],System.Runtime.Serialization.Formatters.Binary.BinaryFormatter)">
+            <summary>
+            
+            </summary>
+            <param name="bytes"></param>
+            <param name="bf"></param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.Ungzip(System.Byte[])">
+            <summary>
+            </summary>
+            <param name="bytes"></param>
+            <returns>
+            '\0' at the end of the output is possible. Please take this into account.
+            </returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.ReadBytes(System.IO.Stream,System.Int32,System.Int64)">
+            <summary>
+            Read bytes from a stream.
+            </summary>
+            <param name="str"></param>
+            <param name="bufferSize">The amount of bytes read per go. This could be the receive buffer size of a socket.</param>
+            <param name="length">The total amount of bytes that should be read.</param>
+            <returns></returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.WriteBytes(System.IO.Stream,System.Int32,System.Byte[])">
+            <summary>
+            Write bytes to a stream.
+            </summary>
+            <param name="str"></param>
+            <param name="bufferSize">The amount of bytes to write per go. This could be the send buffer size of a socket.</param>
+            <param name="bytes"></param>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.Encrypt(System.String,System.String,System.Byte[])">
+            <summary>
+            A simple way to encrypt a string. (Rijndael, from utf8 to base 64)
+            /// Example (don't use this password and salt): Encrypt("secret", "password", new byte[] { 0x59, 0x06, 0x59, 0x3e, 0x21, 0x4e, 0x55, 0x34, 0x96, 0x15, 0x11, 0x13, 0x72 });
+            </summary>
+            <param name="toEncrypt"></param>
+            <param name="password"></param>
+            <param name="salt"></param>
+            <returns>The encrypted string. (base 64)</returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.Decrypt(System.String,System.String,System.Byte[])">
+            <summary>
+            A simple way to decrypt a string. (Rijndael, from base 64 to utf8)
+            Example (don't use this password and salt): Decrypt("****", "password", new byte[] { 0x59, 0x06, 0x59, 0x3e, 0x21, 0x4e, 0x55, 0x34, 0x96, 0x15, 0x11, 0x13, 0x72 });
+            </summary>
+            <param name="toDecrypt"></param>
+            <param name="password"></param>
+            <param name="salt"></param>
+            <returns>The decrypted string.</returns>
+        </member>
+        <member name="M:Confluent.Kafka.vApus.IPC.Shared.GetIPs">
+            <summary>
+            Return the v4 and the v6 IPs of the local machine (no loopbacks). Use this instead of Dns.GetHostEntry etc. These Dns fxs do not always work. 
+            </summary>
+        </member>
+    </members>
+</doc>

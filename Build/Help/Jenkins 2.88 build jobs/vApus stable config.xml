@@ -1,0 +1,175 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>One Project to rule them all, One Project to find them,&#xd;
+One Project to bring them all and in the awesomeness bind them.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>git@bitbucket.org:howestsslab/vapus.git</url>
+        <credentialsId>7b3825bd-72f4-4b1e-b4ee-1fe6518e71e8</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>stable2</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.WipeWorkspace/>
+      <hudson.plugins.git.extensions.impl.LocalBranch>
+        <localBranch>stable2</localBranch>
+      </hudson.plugins.git.extensions.impl.LocalBranch>
+    </extensions>
+  </scm>
+  <assignedNode>winbuilder</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>true</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>REM Get Prerequisites to be able to build -----------------------------------------------------------------&#xd;
+REM Copying needed vApus Monitor Sources Data to vApus Prerequisites &#xd;
+md &quot;%WORKSPACE%\Prerequisites\vApus.Monitor.Sources&quot;&#xd;
+copy /y &quot;%WORKSPACE%\..\vApus.Monitor.Sources stable\Build\vApus.Monitor.Sources.Base.dll&quot; &quot;%WORKSPACE%\Prerequisites\vApus.Monitor.Sources&quot; &gt; NUL&#xd;
+copy /y &quot;%WORKSPACE%\..\vApus.Monitor.Sources stable\Build\vApus.Monitor.Sources.Base.pdb&quot; &quot;%WORKSPACE%\Prerequisites\vApus.Monitor.Sources&quot; &gt; NUL&#xd;
+REM -------------------------------------------------------------------------------------------------------&#xd;
+</command>
+    </hudson.tasks.BatchFile>
+    <hudson.plugins.msbuild.MsBuildBuilder plugin="msbuild@1.25">
+      <msBuildName>.NET v4.0.30319 x64</msBuildName>
+      <msBuildFile>vApus.sln</msBuildFile>
+      <cmdLineArgs>/nologo /verbosity:quiet /p:Configuration=DevelopmentBuild /p:Platform=&quot;Any CPU&quot; /p:DefineConstants=&quot;EnableBetaFeature&quot;</cmdLineArgs>
+      <buildVariablesAsProperties>false</buildVariablesAsProperties>
+      <continueOnBuildFailure>false</continueOnBuildFailure>
+      <unstableIfWarnings>false</unstableIfWarnings>
+    </hudson.plugins.msbuild.MsBuildBuilder>
+    <hudson.tasks.BatchFile>
+      <command>REM Set variables -----------------------------------------------------------------------------------------&#xd;
+REM Set the sort order -- faster for adding file refs to the install script&#xd;
+set dircmd=/o:gne&#xd;
+&#xd;
+REM This is the directory where the binaries are put when building&#xd;
+set Build=&quot;%WORKSPACE%\Build&quot;&#xd;
+&#xd;
+REM Inno Setup is used to make the installer&#xd;
+set InnoSetupCompiler=&quot;C:\Program Files (x86)\Inno Setup 5\Compil32.exe&quot;&#xd;
+&#xd;
+REM Get the version from the tags&#xd;
+FOR /F &quot;usebackq&quot; %%t IN (`c:\git\bin\git.exe describe &quot;--abbrev=0&quot; --tags`) DO SET VERSION=%%t&#xd;
+&#xd;
+REM Get the time and set the timestamp&#xd;
+FOR /F &quot;usebackq&quot; %%t IN (`c:\UnxUtils\usr\local\wbin\date.exe +%%Y%%m%%d%%H%%M%%S`) DO SET TM=%%t&#xd;
+&#xd;
+REM Copy prerequisites ------------------------------------------------------------------------------------&#xd;
+&#xd;
+REM Copying vApus Monitor Sources Data to the vApus Build Folder&#xd;
+REM -- Making and populating monitorsources sub dir&#xd;
+REM Switches at the end are for trimming the output &#xd;
+robocopy /mir /mt &quot;%WORKSPACE%\..\vApus.Monitor.Sources stable\Build\MonitorSourceClients&quot; %Build%\MonitorSourceClients /njh /njs /ndl /nc /ns&#xd;
+&#xd;
+REM ElasticSearch monitor uses System.Json available through nuget and .net 5.&#xd;
+REM copy /y &quot;%WORKSPACE%\Prerequisites\System.Json\System.Json.dll&quot; %Build% &gt; NUL&#xd;
+REM copy /y &quot;%WORKSPACE%\Prerequisites\System.Json\System.Json.dll&quot; %Build%\MonitorSourceClients &gt; NUL&#xd;
+&#xd;
+md %Build%\ConnectionProxyPrerequisites&#xd;
+copy /y &quot;%WORKSPACE%\Prerequisites\Providers\MySql.Data.dll&quot; %Build%\ConnectionProxyPrerequisites &gt; NUL&#xd;
+&#xd;
+md %Build%\ConnectionProxies&#xd;
+cd %Build%\ConnectionProxies&#xd;
+c:\Git\usr\bin\scp &quot;user@endpoint:/srv/packages/connection_proxies/stable/*&quot; .&#xd;
+&#xd;
+md %Build%\ScenarioRuleSets&#xd;
+cd %Build%\ScenarioRuleSets&#xd;
+c:\Git\usr\bin\scp &quot;user@endpoint:/srv/packages/scenario_rulesets/stable/*&quot; .&#xd;
+&#xd;
+robocopy /mir /mt &quot;%WORKSPACE%\..\Lupus-Titanium stable\Build&quot; %Build%\Lupus-Titanium /njh /njs /ndl /nc /ns&#xd;
+&#xd;
+robocopy /mir /mt &quot;%WORKSPACE%\..\vApus.DetailedResultsViewer stable\Build&quot; %Build%\DetailedResultsViewer /njh /njs /ndl /nc /ns&#xd;
+&#xd;
+robocopy /mir /mt &quot;%WORKSPACE%\..\vApus.PublishItemsHandler stable\Build&quot; %Build%\PublishItemsHandler /njh /njs /ndl /nc /ns&#xd;
+&#xd;
+REM Copy other&#xd;
+copy /y &quot;%WORKSPACE%\Prerequisites\NDP462-KB3151802-Web.exe&quot; %Build% &gt; NUL&#xd;
+copy /y &quot;%WORKSPACE%\Prerequisites\personal.xlsm&quot; %Build% &gt; NUL&#xd;
+REM -------------------------------------------------------------------------------------------------------&#xd;
+&#xd;
+&#xd;
+REM Commit build to the vapus update server ---------------------------------------------------------------&#xd;
+%Build%\vApus.CommitTool.exe &quot;%WORKSPACE%\history.xml&quot; &quot;%WORKSPACE%&quot; &quot;c:\git\bin\git.exe&quot; %TM% Logs REST *vshost* *Commit* SizingServersLab.ilproj Lock* vApus.UpdateTool.exe.config vApus.DetailedResultsViewer.exe.config &quot;Setup_vApus_v2.exe&quot; Startup.Profile *UpdateToolLoader*&#xd;
+cd %Build%\__UpdateTempFiles__&#xd;
+7z a -tzip UpdateTempFiles.zip *&#xd;
+c:\Git\usr\bin\ssh.exe user@endpoint rm -rf /srv/vApusUpdate/stable&#xd;
+c:\Git\usr\bin\ssh.exe user@endpoint mkdir /srv/vApusUpdate/stable&#xd;
+c:\Git\usr\bin\scp.exe &quot;UpdateTempFiles.zip&quot; user@endpoint:/srv/vApusUpdate/stable&#xd;
+c:\Git\usr\bin\ssh.exe user@endpoint unzip /srv/vApusUpdate/stable/UpdateTempFiles.zip -d /srv/vApusUpdate/stable&#xd;
+c:\Git\usr\bin\ssh.exe user@endpoint rm /srv/vApusUpdate/stable/UpdateTempFiles.zip&#xd;
+c:\Git\usr\bin\ssh.exe user@endpoint chmod -R 707 /srv/vApusUpdate&#xd;
+cd %Build%&#xd;
+rmdir /s /q %Build%\__UpdateTempFiles__&#xd;
+REM --------------------------------------------------------------------------------------------------------&#xd;
+&#xd;
+&#xd;
+REM Make Setup ---------------------------------------------------------------------------------------------&#xd;
+REM Must be this dir for the loops, freaky Windows stuff as usual&#xd;
+cd %Build%&#xd;
+&#xd;
+REM Add the header&#xd;
+type &quot;%WORKSPACE%\SetupHeaderJenkinsStablev2.txt&quot;&gt;&quot;%WORKSPACE%\Make_Setup.iss&quot;&#xd;
+echo.&gt;&gt;&quot;%WORKSPACE%\Make_Setup.iss&quot;&#xd;
+&#xd;
+REM Hiding the files and folder that are excluded in the build... (does not work for .txt files)&#xd;
+for /f &quot;tokens=*&quot; %%a in (&apos;dir /A-H /S /B Logs REST *vshost* *Commit* Lock* vApus.UpdateTool.exe.config vApus.DetailedResultsViewer.exe.config Startup.Profile&apos;) do (&#xd;
+attrib +h &quot;%%a&quot;&#xd;
+)&#xd;
+&#xd;
+REM Adding the folders that are not hidden...&#xd;
+echo [Dirs]&gt;&gt;&quot;%WORKSPACE%\Make_Setup.iss&quot;&#xd;
+&#xd;
+for /f &quot;tokens=*&quot; %%a in (&apos;dir /AD-H /S /B&apos;) do (&#xd;
+set &quot;folder=%%a&quot;&#xd;
+call echo Name: {app}%%folder:%CD%=%%&gt;&gt;&quot;%WORKSPACE%\Make_Setup.iss&quot;&#xd;
+)&#xd;
+&#xd;
+REM Adding the files that are not hidden...&#xd;
+echo [Files]&gt;&gt;&quot;%WORKSPACE%\Make_Setup.iss&quot;&#xd;
+&#xd;
+for /f &quot;tokens=*&quot; %%a in (&apos;dir /A-D-H /S /B&apos;) do (&#xd;
+set &quot;folder=%%~dpa&quot;&#xd;
+call echo Source: %%a; DestDir:{app}%%folder:%CD%=%%&gt;&gt;&quot;%WORKSPACE%\Make_Setup.iss&quot;&#xd;
+)&#xd;
+&#xd;
+REM Add the footer&#xd;
+type &quot;%WORKSPACE%\SetupFooterJenkins.txt&quot;&gt;&gt;&quot;%WORKSPACE%\Make_Setup.iss&quot;&#xd;
+&#xd;
+REM Build the setup using the Inno Setup 5 compiler&#xd;
+%InnoSetupCompiler% /cc &quot;%WORKSPACE%\Make_Setup.iss&quot;&#xd;
+REM --------------------------------------------------------------------------------------------------------&#xd;
+&#xd;
+&#xd;
+REM Scp installer to packages ------------------------------------------------------------------------------&#xd;
+cd &quot;%WORKSPACE%&quot;&#xd;
+ren &quot;Setup_vApus_v2.exe&quot; &quot;Setup_vApus-%VERSION%.exe&quot;&#xd;
+c:\Git\usr\bin\scp.exe &quot;Setup_vApus-%VERSION%.exe&quot; user@endpoint:/srv/software/vApus/stable&#xd;
+REM --------------------------------------------------------------------------------------------------------</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.17">
+      <recipients>someone@sizingservers.be</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

@@ -1,0 +1,18 @@
+1 - Click 'Filter requests: ...' to enable / edit request filtering.
+
+2 - Click 'Capture requests'.
+
+3 - Open a web browser and do typical actions
+     (e.g. logging in, browsing a page) at your awesome web application of choice.
+
+	 All captured requests can be grouped by clicking 'Group'.
+     You can view grouped and ungrouped requests in the lower pane.
+	 It is also possible to remove user actions and change their names and to
+	 inspect and remove requests.
+
+	 You can search requests for text contained in urls, headers and bodies by 
+	 clicking 'Find requests'.
+
+4 - Click 'Stop capturing'.
+
+5 - Save the requests to file.

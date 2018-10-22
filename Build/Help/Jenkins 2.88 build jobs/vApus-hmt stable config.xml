@@ -1,0 +1,83 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>Getting this to compile correctly was a nightmare:&#xd;
+&#xd;
+http://pidome.wordpress.com/2013/09/09/jenkins-netbeans-and-ant-follow-up-missing-libraries-in-manifest-file/&#xd;
+C:\\Program Files\\NetBeans 8.0\\java\\ant\\extra\\org-netbeans-modules-java-j2seproject-copylibstask.jar&#xd;
+&#xd;
+https://ant.apache.org/manual/running.html ant command line options</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>3</daysToKeep>
+        <numToKeep>3</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>git@bitbucket.org:howestsslab/vapus-hmt.git</url>
+        <credentialsId>7b3825bd-72f4-4b1e-b4ee-1fe6518e71e8</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>master</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.WipeWorkspace/>
+      <hudson.plugins.git.extensions.impl.LocalBranch>
+        <localBranch>master</localBranch>
+      </hudson.plugins.git.extensions.impl.LocalBranch>
+    </extensions>
+  </scm>
+  <assignedNode>winbuilder</assignedNode>
+  <canRoam>false</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.tasks.BatchFile>
+      <command>REM Build stuff silently&#xd;
+ant -f &quot;%WORKSPACE%\vApus-hmt&quot; -S -Dplatforms.JDK_1.6.home=&quot;C:\Program Files\Java\jdk1.6.0_45&quot; -Dlibs.CopyLibs.classpath=&quot;C:\\Program Files\\NetBeans 8.0\\java\\ant\\extra\\org-netbeans-modules-java-j2seproject-copylibstask.jar&quot; -Dnb.internal.action.name=rebuild clean jar</command>
+    </hudson.tasks.BatchFile>
+    <hudson.tasks.BatchFile>
+      <command>REM Package the files&#xd;
+cd &quot;%WORKSPACE%\vApus-hmt\dist&#xd;
+REM Get the version from the tags&#xd;
+FOR /F &quot;usebackq&quot; %%t IN (`git describe &quot;--abbrev=0&quot; --tags`) DO SET VERSION=%%t&#xd;
+&#xd;
+REM Correct line endings&#xd;
+c:\crlf2lf config&#xd;
+c:\crlf2lf start-as-daemon.sh&#xd;
+c:\crlf2lf stop-daemon.sh&#xd;
+&#xd;
+md &quot;..\vApus-hmt-%VERSION%&quot;&#xd;
+xcopy * &quot;..\vApus-hmt-%VERSION%&quot; /s /e&#xd;
+cd ..&#xd;
+&#xd;
+7z a -tzip &quot;vApus-hmt-%VERSION%.zip&quot; &quot;vApus-hmt-%VERSION%&quot;&#xd;
+&#xd;
+rd /s /q &quot;vApus-hmt-%VERSION%&quot;&#xd;
+&#xd;
+REM Scp zip to packages&#xd;
+c:\Git\usr\bin\scp.exe &quot;vApus-hmt-%VERSION%.zip&quot; user@endpoint:/srv/software/vApus-hmt/stable&#xd;
+&#xd;
+del &quot;vApus-hmt-%VERSION%.zip&quot;</command>
+    </hudson.tasks.BatchFile>
+  </builders>
+  <publishers/>
+  <buildWrappers/>
+</project>

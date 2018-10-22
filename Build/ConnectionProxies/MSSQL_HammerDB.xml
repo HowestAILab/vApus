@@ -1,0 +1,513 @@
+<ConnectionProxies>
+  <Items>
+    <ConnectionProxy>
+      <Items>
+        <ConnectionProxyRuleSet>
+          <Items>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>
+              </DefaultValue>
+              <Description>IP or computername</Description>
+              <Label>Server</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>intType</ValueType>
+                  <DisplayAsPassword>False</DisplayAsPassword>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>1433</DefaultValue>
+              <Description>Default port = 1433</Description>
+              <Label>Port</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>
+              </DefaultValue>
+              <Description>
+              </Description>
+              <Label>Database</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>sa</DefaultValue>
+              <Description>Default user id = sa</Description>
+              <Label>User ID</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>stringType</ValueType>
+                  <DisplayAsPassword>False</DisplayAsPassword>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>
+              </DefaultValue>
+              <Description>
+              </Description>
+              <Label>Password</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items>
+                <Rule>
+                  <Items />
+                  <RegExp>
+                  </RegExp>
+                  <IgnoreCase>False</IgnoreCase>
+                  <ValueType>boolType</ValueType>
+                  <DisplayAsPassword>False</DisplayAsPassword>
+                  <Description>
+                  </Description>
+                  <Label>
+                  </Label>
+                  <ShowInGui>True</ShowInGui>
+                  <IsDefaultItem>False</IsDefaultItem>
+                  <IsEmpty>False</IsEmpty>
+                </Rule>
+              </Items>
+              <DefaultValue>
+              </DefaultValue>
+              <Description>False (adviced) or True (starts with a capital letter)</Description>
+              <Label>Pooling</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+            <ConnectionProxySyntaxItem>
+              <Items />
+              <DefaultValue>dbmssocn</DefaultValue>
+              <Description>Default = dbmssocn</Description>
+              <Label>Network Library</Label>
+              <ShowInGui>True</ShowInGui>
+              <IsDefaultItem>False</IsDefaultItem>
+              <IsEmpty>False</IsEmpty>
+            </ConnectionProxySyntaxItem>
+          </Items>
+          <Connected>True</Connected>
+          <TracertField>1</TracertField>
+          <ChildDelimiter>;</ChildDelimiter>
+          <Description>
+          </Description>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ConnectionProxyRuleSet>
+        <ConnectionProxyCode>
+          <Items />
+          <Code>/*
+    ConnectionProxy generated by vApus
+    vApus is Copyrighted by Sizing Servers Lab
+    University College of West-Flanders, Department GKG
+    
+    Note: If you want to edit this connection proxy code you need to know what you are doing. You might break your stresstest.
+    
+    VERSION STABLE-20171109165852
+    
+    HammerDB GPLv2 http://www.gnu.org/licenses/gpl-2.0.html
+*/
+
+// The following line is used to add references when compiling, you can edit this here or in the references tab page. Please use the 'Browse...' button for dlls that are not in the GAC.
+// dllreferences:System.dll;System.Data.dll;vApus.Util.dll;vApus.SolutionTree.dll;vApus.Stresstest.dll;System.XML.dll;System.Windows.Forms.dll;
+
+#region Preprocessors
+    // Enable debug mode
+    //#define DEBUGMODE
+#endregion // Preprocessors
+
+#region Usings
+    using System;
+    using System.Data;
+    using System.Diagnostics;
+    using vApus.Util;
+    using System.Data.SqlClient;
+    using System.Threading;
+#endregion // Usings
+
+namespace vApus.StressTest {
+    public class ConnectionProxy : IConnectionProxy {
+        
+        #region Fields
+            Stopwatch _stopwatch = new Stopwatch();
+            bool _isDisposed;
+            // Please do not edit the following lines (RuleSetFields).
+            // -- RuleSetFields --
+            System.String _connectionProxySyntaxItem0 = string.Empty; // Server
+            System.Int32 _connectionProxySyntaxItem1 = 1433; // Port [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem2 = string.Empty; // Database
+            System.String _connectionProxySyntaxItem3 = "sa"; // User ID [The default value for this syntax item is used if no value is provided in the connection.]
+            System.String _connectionProxySyntaxItem4 = string.Empty; // Password
+            System.Boolean _connectionProxySyntaxItem5; // Pooling
+            System.String _connectionProxySyntaxItem6 = "dbmssocn"; // Network Library [The default value for this syntax item is used if no value is provided in the connection.]
+            // -- RuleSetFields --
+            
+            SqlConnection _connection;
+            SqlCommand _command;
+            
+            Random _rand = new Random();
+            static string[] _names = { "BAR", "OUGHT", "ABLE", "PRI", "PRES", "ESE", "ANTI", "CALLY", "ATION", "EING" };
+            
+            static int _w_id_input = -1, _d_id_input = -1; //The maximum warehouse and district id in the database.
+            
+            int _w_id = -1, _stock_level_d_id = -1; //Randomly picked, done at the start of the test to ensure randomness.
+        #endregion // Fields
+        
+        #region Properties
+            public bool IsConnectionOpen { get { return _connection.State == ConnectionState.Open; } }
+            public bool IsDisposed { get { return _isDisposed; } }
+        #endregion // Properties
+        
+        public ConnectionProxy() {
+            _connection = new SqlConnection("Data Source=" + _connectionProxySyntaxItem0 + "," +
+            _connectionProxySyntaxItem1 + ";Initial Catalog=" + _connectionProxySyntaxItem2 + ";User ID=" +
+            _connectionProxySyntaxItem3 + ";Password=" + _connectionProxySyntaxItem4 + ";Pooling=" +
+            _connectionProxySyntaxItem5 + ";Network Library=" + _connectionProxySyntaxItem6);
+            _command = _connection.CreateCommand();
+            _command.CommandType = CommandType.Text;
+            // Set timeout in seconds equal to timeout server side.
+            _command.CommandTimeout = 600;
+        }
+        
+        #region Functions
+            public void TestConnection(out string error) {
+                error = null;
+                try {
+                    OpenConnection();
+                    if (IsConnectionOpen) {
+                        CloseConnection();
+                    }
+                    else {
+                        error = "Could not open the connection.";
+                    }
+                }
+                catch (Exception ex) {
+                    error = ex.ToString();
+                }
+            }
+            public void OpenConnection() {
+                if (!IsConnectionOpen) {
+                    _connection.Open();
+                    
+                    if(_w_id_input == -1) {
+                        _command.CommandText = "Select max(w_id) from dbo.WAREHOUSE";
+                        _w_id_input = (int)_command.ExecuteScalar();
+                    }
+                    
+                    if(_d_id_input == -1) {
+                        _command.CommandText = "Select max(d_id) from dbo.DISTRICT";
+                        _d_id_input = (byte)_command.ExecuteScalar();
+                    }
+                }
+            }
+            public void CloseConnection() {
+                if (IsConnectionOpen) {
+                    _connection.Close();
+                }
+            }
+            public void SendAndReceive(StringTree parameterizedRequest, out DateTime sentAt, out TimeSpan timeToLastByte, out string meta, out Exception exception) {
+                exception = null;
+                meta = null;
+                
+                //
+                // parameterizedRequest is the request parsed to a String Tree using the Scenario Rule Set.
+                // String Tree is a simple class: it can have either a value (string Value { get; }) or childs who are also String Trees (e.g. StringTree foo = parameterizedRequest[n] where n is an integer value).
+                // You can get the combined value of the childs using the function CombineValues() (not shallow, returns a string), this uses the child delimiters in the rule set to glue these values together. 
+                //
+                
+                if(_w_id == -1){
+                    _w_id = _rand.Next(1, _w_id_input + 1);
+                }
+                if(_stock_level_d_id == -1){
+                    _stock_level_d_id = _rand.Next(1, _d_id_input + 1);
+                }
+                
+                sentAt = HighResolutionDateTime.UtcNow;
+                if (_isDisposed) {
+                    timeToLastByte = new TimeSpan();
+                    return;
+                }
+                try {
+                    _stopwatch.Start();
+                    try {
+                        _command.CommandType = CommandType.StoredProcedure;                        
+                        
+                        //Picking based on TPC-C doc.
+                        switch(parameterizedRequest.CombineValues()) {
+                            case "new order":
+                            NewOrder(_w_id, _w_id_input);
+                            break;
+                            case "payment":
+                            Payment(_w_id, _w_id_input);
+                            break;
+                            case "delivery":
+                            Delivery(_w_id);
+                            break;
+                            case "stock level":
+                            StockLevel(_w_id, _stock_level_d_id);
+                            break;
+                            case "order status":
+                            OrderStatus(_w_id);
+                            break;
+                        }
+                    }
+                    catch(SqlException sqlEx) {
+                        exception = sqlEx;
+                        #if DEBUGMODE
+                            EventPanel.AddEvent("SendAndReceive Exception: " + parameterizedRequest.CombineValues() + " " + exception);
+                        #endif
+                    }
+                    catch (Exception ex) {
+                        exception = ex;
+                        #if DEBUGMODE
+                            EventPanel.AddEvent("SendAndReceive Exception: " + parameterizedRequest.CombineValues() + " " + exception);
+                        #endif
+                    }
+                }
+                catch {
+                    //
+                    // Always throw the exception, if any, if 'stuff' cannot be closed.
+                    // vApus will handle it as a connection problem.
+                    //
+                    
+                    throw;
+                }
+                finally {
+                    _stopwatch.Stop();
+                    timeToLastByte = _stopwatch.Elapsed;
+                    _stopwatch.Reset();
+                }
+            }
+            
+            public void Dispose() {
+                if (!_isDisposed) {
+                    _isDisposed = true;
+                    try{
+                        // Timeout asap.
+                        _command.Cancel();
+                    }
+                    catch{
+                    }
+                    try {
+                        if(_connection != null) {
+                            _connection.Dispose();
+                            _connection = null;
+                        }
+                    }
+                    catch {
+                    }
+                    try {
+                        if(_command != null) {
+                            _command.Dispose();
+                            _command = null;
+                        }
+                    }
+                    catch {
+                    }
+                }
+            }
+        #endregion //Functions
+        
+        #region Free Coding
+            //Non-uniform random, see TPC-C doc.
+            private double NURand(int A, int x, int y, int C){
+                return ((((double)(_rand.Next(0, A + 1) | _rand.Next(x, y + 1)) + C)) % (y-x + 1)) + x;
+            }           
+            private string RandomName(double num){
+                return string.Concat(_names[(int)((num / 100) % 10)], _names[(int)((num / 10) % 10)], _names[(int)(num % 10)]);
+            }
+            
+            private void NewOrder(int no_w_id, int w_id_input){
+                //2.4.1.2 select district id randomly from home warehouse where d_w_id = d_id
+                int no_d_id = _rand.Next(1, 11);
+                //2.4.1.2 Customer id randomly selected where c_d_id = d_id and c_w_id = w_id;
+                int no_c_id = _rand.Next(1, 3001);
+                //2.4.1.3 Items in the order randomly selected from 5 to 15
+                int no_o_ol_cnt = _rand.Next(5, 16);
+                
+                _command.CommandText = "dbo.NEWORD";
+                
+                _command.Parameters.Clear();
+                _command.Parameters.AddWithValue("@no_w_id", no_w_id);
+                _command.Parameters.AddWithValue("@no_max_w_id", w_id_input);
+                _command.Parameters.AddWithValue("@no_d_id", no_d_id);
+                _command.Parameters.AddWithValue("@no_c_id", no_c_id);
+                _command.Parameters.AddWithValue("@no_o_ol_cnt", no_o_ol_cnt);
+                //2.4.1.6 order entry date 0_ENTRY_D generated by SUT (SYstem Under Test)
+                _command.Parameters.AddWithValue("@TIMESTAMP", DateTime.Now);
+                
+                int i = _command.ExecuteNonQuery();
+                #if DEBUGMODE
+                    //Affected rows for all statements in the stored procedure, must be &gt; -1
+                    EventPanel.AddEvent("New Order " + i);
+                #endif
+            }
+            private void Payment(int p_w_id, int w_id_input){
+                //2.5.1.1 The home warehouse id remains the same for each terminal
+                //2.5.1.1 select district id randomly from home warehouse where d_w_id = d_id
+                int p_d_id = _rand.Next(1, 11);
+                
+                //2.5.1.2 customer selected 60% of time by name and 40% of time by number
+                //(_rand.Next(1, 101)
+                
+                int p_c_d_id = 0, p_c_w_id = 0;
+                if(_rand.Next(1, 101) &lt; 86){
+                    p_c_d_id = p_d_id;
+                    p_c_w_id = p_w_id;
+                }
+                else {
+                    //use a remote warehouse
+                    p_c_d_id = _rand.Next(1, 11);
+                    p_c_w_id = _rand.Next(1, _w_id_input + 1);
+                    while(p_c_w_id == p_w_id &amp;&amp; _w_id_input != 1) {
+                        Thread.Sleep(1);
+                        p_c_w_id = _rand.Next (1, _w_id_input + 1);
+                    }
+                }
+                
+                string name = string.Empty;
+                int p_c_id = _rand.Next(1, 3001);
+                
+                if(_rand.Next(1, 101) &lt; 61){
+                    //use customer name else use customer number
+                    //C_LAST is generated
+                    name =  RandomName(NURand(255, 0, 999, 123));   
+                }
+                
+                //2.5.1.3 random amount from 1 to 5000
+                decimal p_h_amount = (decimal)(_rand.NextDouble() * 4999) + 1;
+                
+                _command.CommandText = "dbo.PAYMENT";
+                
+                _command.Parameters.Clear();
+                _command.Parameters.AddWithValue("@p_w_id", p_w_id);
+                _command.Parameters.AddWithValue("@p_d_id", p_d_id);
+                _command.Parameters.AddWithValue("@p_c_w_id", p_c_w_id);
+                _command.Parameters.AddWithValue("@p_c_d_id", p_c_d_id);
+                _command.Parameters.AddWithValue("@p_c_id", p_c_id);
+                _command.Parameters.AddWithValue("@byname", name.Length == 0 ? 0 : 1);      
+                _command.Parameters.AddWithValue("@p_h_amount",  p_h_amount);
+                _command.Parameters.AddWithValue("@p_c_last", name);
+                
+                //2.5.1.4 date selected from SUT
+                _command.Parameters.AddWithValue("@TIMESTAMP", DateTime.Now);
+                
+                int i = _command.ExecuteNonQuery();
+                #if DEBUGMODE
+                    //Affected rows for all statements in the stored procedure, must be &gt; -1
+                    EventPanel.AddEvent("Payment " + i);
+                #endif
+            }
+            private void Delivery(int w_id) {
+                int carrier_id = _rand.Next(1, 11);
+                
+                _command.CommandText = "dbo.DELIVERY";
+                
+                _command.Parameters.Clear();
+                _command.Parameters.AddWithValue("@d_w_id", w_id);
+                _command.Parameters.AddWithValue("@d_o_carrier_id", carrier_id);
+                _command.Parameters.AddWithValue("@TIMESTAMP", DateTime.Now);
+                
+                int i = _command.ExecuteNonQuery();
+                #if DEBUGMODE
+                    //Affected rows for all statements in the stored procedure, must be &gt; -1
+                    EventPanel.AddEvent("Delivery " + i);
+                #endif
+            }
+            //Select only
+            private void StockLevel(int w_id, int stock_level_d_id){
+                int threshold = _rand.Next(10, 21);
+                
+                _command.CommandText = "dbo.SLEV";
+                
+                _command.Parameters.Clear();
+                _command.Parameters.AddWithValue("@st_w_id", w_id);
+                _command.Parameters.AddWithValue("@st_d_id", stock_level_d_id);
+                _command.Parameters.AddWithValue("@threshold", threshold);
+                
+                int i = _command.ExecuteNonQuery();
+                #if DEBUGMODE
+                    //Affected rows for all statements in the stored procedure, must be &gt; -1 (select, no affected rows == 0)
+                    EventPanel.AddEvent("Stock Level " + i);
+                #endif
+            }
+            //Select only
+            private void OrderStatus(int w_id){
+                //2.5.1.1 select district id randomly from home warehouse where d_w_id = d_id
+                int d_id = _rand.Next(1, 11);
+                string name = string.Empty; 
+                int c_id = _rand.Next(1, 3001);
+                
+                if(_rand.Next(1, 101) &lt; 61){
+                    //select by name
+                    name = RandomName(NURand(255, 0, 999, 123));
+                }
+                
+                _command.CommandText = "dbo.OSTAT";
+                
+                _command.Parameters.Clear();
+                _command.Parameters.AddWithValue("@os_w_id", w_id);
+                _command.Parameters.AddWithValue("@os_d_id", d_id);
+                _command.Parameters.AddWithValue("@os_c_id", c_id);
+                _command.Parameters.AddWithValue("@byname", name.Length == 0 ? 0 : 1);
+                _command.Parameters.AddWithValue("@os_c_last", name);
+                
+                int i = _command.ExecuteNonQuery();
+                #if DEBUGMODE
+                    //Affected rows for all statements in the stored procedure, must be &gt; -1 (select, no affected rows == 0)
+                    EventPanel.AddEvent("Order Status " + i);
+                #endif
+            }
+            
+        #endregion // Free Coding
+    } // ConnectionProxy
+} // vApus.Stresstest</Code>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ConnectionProxyCode>
+      </Items>
+      <Label>MSSQL HammerDB STABLE-20171109165852</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </ConnectionProxy>
+  </Items>
+</ConnectionProxies>

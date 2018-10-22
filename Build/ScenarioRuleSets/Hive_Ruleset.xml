@@ -1,0 +1,20 @@
+<ScenarioRuleSets>
+  <Items>
+    <ScenarioRuleSet>
+      <Items />
+      <ChildDelimiter>
+      </ChildDelimiter>
+      <SingleLineCommentString>//</SingleLineCommentString>
+      <BeginCommentString>/*</BeginCommentString>
+      <EndCommentString>*/</EndCommentString>
+      <ActionizeOnComment>True</ActionizeOnComment>
+      <BeginTimestampIndex>0</BeginTimestampIndex>
+      <EndTimestampIndex>0</EndTimestampIndex>
+      <Description>A SQL query string.</Description>
+      <Label>Hive STABLE-20171109165856</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </ScenarioRuleSet>
+  </Items>
+</ScenarioRuleSets>

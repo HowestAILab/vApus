@@ -1,0 +1,618 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>SizingServers.Util</name>
+    </assembly>
+    <members>
+        <member name="T:SizingServers.Util.BackgroundWorkQueue">
+            <summary>
+            To offload work to a background thread and keeping that work in a synchronized order.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.BackgroundWorkQueue.OnWorkItemProcessed">
+            <summary>
+            Invoked if an enqueued work item (function) was invoked successfully or unsuccessfully.
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.BackgroundWorkQueue._processWorkQueueWaitHandle">
+            <summary>
+            If this is set all items in the work queue will be processed, except if this processing is paused.
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.BackgroundWorkQueue._continueWaitHandle">
+            <summary>
+            Used for pausing and continuing processing the work queue.
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.BackgroundWorkQueue._idleWaitHandle">
+            <summary>
+            Used for pausing and continuing processing the work queue.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.BackgroundWorkQueue.IsDisposed">
+            <summary> </summary>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.#ctor">
+            <summary>
+            To offload work to a background thread and keeping that work in a synchronized order.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.Finalize">
+            <summary></summary>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.Dispose">
+            <summary>
+            Releases all resources used.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.Dispose(System.Int32)">
+            <summary>
+            <para>Releases all resources used.</para>
+            <para>Waits the given timeout before disposing (0 is acceptable, , smaller than 0 is indefinetly), if the work is not done it will be aborted.</para>
+            </summary>
+            <param name="millisecondsTimeout"></param>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.PauseProcessingWorkQueue">
+            <summary>
+            <para>Pauses the processing of the work queue and blocks until the processing is effectively paused.</para>
+            <para>Continue this processing calling 'ContinueProcessingWorkQueue()'.</para>
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.ContinueProcessingWorkQueue">
+            <summary>
+            Resumes the processing of the work queue.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.EnqueueWorkItem(System.Delegate,System.Object[])">
+            <summary>
+            <para>Adds a delegate on the work queue, that work queue is processed by a background thread, threadsafe.</para>
+            <para>The delegates on that queue are invoked in a synchronized order.</para>
+            <para></para>
+            <para>Define your delegate like so:</para>
+            <para>  <code>delegate T del(T, out T);</code> (Action or Func is also possible.)</para>
+            <para>then pass your function using this signature:</para>
+            <para>  <code>BackgroundWorkQueue.Send(new del(function), value, value);</code></para>
+            <para>The return type may be void and args are not obligatory.</para>
+            <para>Make sure you provide the right amount of args, even if it are out parameters (yes that is possible too).</para>
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.Flush">
+            <summary>
+            Wait untill all work queue items are processed.
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.BackgroundWorkQueue.OnWorkItemProcessedEventArgs">
+            <summary>
+            The result of a called function or the exception thrown.
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Delegate">
+            <summary></summary>
+        </member>
+        <member name="F:SizingServers.Util.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Parameters">
+            <summary>
+                Out parameters are stored here too.
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.ReturnValue">
+            <summary></summary>
+        </member>
+        <member name="F:SizingServers.Util.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.Exception">
+            <summary></summary>
+        </member>
+        <member name="M:SizingServers.Util.BackgroundWorkQueue.OnWorkItemProcessedEventArgs.#ctor(System.Delegate,System.Object[],System.Object,System.Exception)">
+            <summary>
+            The result of a called function or the exception thrown.
+            </summary>
+            <param name="del"></param>
+            <param name="parameters"></param>
+            <param name="returnValue"></param>
+            <param name="exception"></param>
+        </member>
+        <member name="T:SizingServers.Util.CompilerUnit">
+             <summary>
+            <para>A C# .net v4(.#) compiler unit.</para> 
+            <para>For references there is linked in Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location). Additional paths can be configured in the app.config like so:</para> 
+            <para><![CDATA[ <?xml version="1.0"?> ]]></para> 
+            <para><![CDATA[ <configuration> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ <runtime> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> ]]></para> 
+            <para><![CDATA[ <probing privatePath="subfolder1;subfolder2"/> ]]></para> 
+            <para><![CDATA[ </assemblyBinding> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ </runtime> ]]></para> 
+            <para><![CDATA[ </configuration> ]]></para> 
+             </summary>
+        </member>
+        <member name="M:SizingServers.Util.CompilerUnit.#ctor">
+             <summary>
+            <para>A C# .net v4(.#) compiler unit.</para> 
+            <para>For references there is linked in Path.GetDirectoryName(Assembly.GetExecutingAssembly().Location). Additional paths can be configured in the app.config like so:</para> 
+            <para><![CDATA[ <?xml version="1.0"?> ]]></para> 
+            <para><![CDATA[ <configuration> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ <runtime> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ <assemblyBinding xmlns="urn:schemas-microsoft-com:asm.v1"> ]]></para> 
+            <para><![CDATA[ <probing privatePath="subfolder1;subfolder2"/> ]]></para> 
+            <para><![CDATA[ </assemblyBinding> ]]></para> 
+            <para>...</para> 
+            <para><![CDATA[ </runtime> ]]></para> 
+            <para><![CDATA[ </configuration> ]]></para> 
+             </summary>
+        </member>
+        <member name="M:SizingServers.Util.CompilerUnit.Compile(System.String,System.Boolean,System.CodeDom.Compiler.CompilerResults@)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="source">A piece of code (one or multiple classes) to be compiled into an assembly.</param>
+            <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
+            <param name="compilerResults"></param>
+            <returns>Null if not compiled. FS exceptions are thrown up.</returns>
+        </member>
+        <member name="M:SizingServers.Util.CompilerUnit.Compile(System.String[],System.Boolean,System.CodeDom.Compiler.CompilerResults@)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="sources">Pieces of code (one or multiple classes) to be compiled into an assembly.</param>
+            <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
+            <param name="compilerResults"></param>
+            <returns>Null if not compiled. FS exceptions are thrown up.</returns>
+        </member>
+        <member name="M:SizingServers.Util.CompilerUnit.Compile(System.String,System.String,System.Boolean,System.CodeDom.Compiler.CompilerResults@)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="source">A piece of code (one or multiple classes) to be compiled into an assembly.</param>
+            <param name="outputAssembly">If null a random name will be chosen.</param>
+            <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
+            <param name="compilerResults"></param>
+            <returns>Null if not compiled. FS exceptions are thrown up.</returns>
+        </member>
+        <member name="M:SizingServers.Util.CompilerUnit.Compile(System.String[],System.String,System.Boolean,System.CodeDom.Compiler.CompilerResults@)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="sources">Pieces of code (one or multiple classes) to be compiled into an assembly.</param>
+            <param name="outputAssembly">If null a random name will be chosen.</param>
+            <param name="debug">For compiling with an attached debugger. Compile warnings are not threated as errros.</param>
+            <param name="compilerResults"></param>
+            <returns>Null if not compiled. FS exceptions are thrown up.</returns>
+        </member>
+        <member name="M:SizingServers.Util.CompilerUnit.AddAllReferencedAssemblies(System.String,System.CodeDom.Compiler.CompilerParameters)">
+            <summary>
+            A source should have 1 commented line with the dll references sepparated by a semicolon. eg: "// dllreferences: myDll.dll;myOtherDll.dll", empty entries are removed.
+            </summary>
+            <param name="source"></param>
+            <param name="compilerParamaters"></param>
+        </member>
+        <member name="M:SizingServers.Util.CompilerUnit.DeleteTempFiles">
+            <summary>
+            Delete the tempFiles generated when compiling with the debug flag.
+            This also happens on app exit.
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.Countdown">
+            <summary>
+            A countdown class, can report progress and when the countdown has become 0.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.Countdown.Started">
+            <summary>
+            Occurs when started;
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.Countdown.Stopped">
+            <summary>
+            Occurs when stopped;
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.Countdown.Tick">
+            <summary>
+            Occurs when the time period has elapsed. Get the current countdown from the Countdown field.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Countdown.CountdownTime">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Countdown.ReportProgressTime">
+            <summary>
+            In ms.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Countdown.IsStarted">
+            <summary></summary>
+        </member>
+        <member name="M:SizingServers.Util.Countdown.#ctor">
+            <summary>
+            A countdown class, can report progress and when the countdown has become 0.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.Countdown.Start(System.Int32,System.Int32)">
+            <summary>
+            Start or restarts the countdown.
+            </summary>
+            <param name="countdownTime">In ms.</param>
+            <param name="reportProgressTime">In ms. Min 100</param>
+        </member>
+        <member name="M:SizingServers.Util.Countdown.Stop">
+            <summary></summary>
+        </member>
+        <member name="M:SizingServers.Util.Countdown.Dispose">
+            <summary></summary>
+        </member>
+        <member name="T:SizingServers.Util.FastObjectCreator">
+            <summary>
+            <para>Use this to create a new instance of a type using an empty public constructor and Intermediate Language. This used to be faster than Activator.CreateInstance(...),but speaking from own experience this is no longer the case with modern .Net.</para>
+            <para>However, the type's constructor is cached when calling CreateInstance, wich makes this faster when creating a lot of the same objects.</para>
+            <para>I'm not at all the inventor of this way of working, check for instance this blog post: https://codingsolution.wordpress.com/2013/07/12/activator-createinstance-is-slow/ </para>
+            <para>You would use this (or Activator) when you know only a class type, e.g.</para>
+            <para>You load a custom text-based save file, if it is a custom type you can cast to an interface in the return type definition:</para>
+            <para><![CDATA[ var compilerUnit = new CompilerUnit(); ]]></para>
+            <para><![CDATA[ CompilerResults compilerResults = null; ]]></para>
+            <para><![CDATA[ Type t = null; ]]></para>
+            <para><![CDATA[ Assembly as = compilerUnit.Compile("<Insert code here>", debug, out compilerResults); ]]></para>
+            <para><![CDATA[ if (!compilerResults.Errors.HasErrors) { ]]></para>
+            <para><![CDATA[ t = _connectionProxyAssembly.GetType("MyNamespace.MyClass"); ]]></para>
+            <para><![CDATA[ var obj = FastObjectCreator<IMyInterface>.CreateInstance(t); ]]></para>
+            <para><![CDATA[ } ]]></para>
+            <para>For primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
+            </summary>  
+        </member>
+        <member name="M:SizingServers.Util.FastObjectCreator.CreateInstance``1(System.Type)">
+            <summary>
+            <para>Use this to create a new instance of a type using an empty public constructor and Intermediate Language. This used to be faster than Activator.CreateInstance(...),but speaking from own experience this is no longer the case with modern .Net.</para>
+            <para>However, the type's constructor is cached when calling CreateInstance, wich makes this faster when creating a lot of the same objects.</para>
+            <para>I'm not at all the inventor of this way of working, check for instance this blog post: https://codingsolution.wordpress.com/2013/07/12/activator-createinstance-is-slow/ </para>
+            <para>You would use this (or Activator) when you know only a class type, e.g.</para>
+            <para>You load a custom text-based save file, if it is a custom type you can cast to an interface in the return type definition:</para>
+            <para><![CDATA[ var compilerUnit = new CompilerUnit(); ]]></para>
+            <para><![CDATA[ CompilerResults compilerResults = null; ]]></para>
+            <para><![CDATA[ Type t = null; ]]></para>
+            <para><![CDATA[ Assembly as = compilerUnit.Compile("<Insert code here>", debug, out compilerResults); ]]></para>
+            <para><![CDATA[ if (!compilerResults.Errors.HasErrors) { ]]></para>
+            <para><![CDATA[ t = _connectionProxyAssembly.GetType("MyNamespace.MyClass"); ]]></para>
+            <para><![CDATA[ var obj = FastObjectCreator<IMyInterface>.CreateInstance(t); ]]></para>
+            <para><![CDATA[ } ]]></para>
+            <para>For primitives and structs Activator is used since they cannot have an explicit parameterless constructor.</para>
+            </summary>
+            <param name="type"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SizingServers.Util.FindAndReplace">
+            <summary>
+            <para>A helper class to easily find and replace in a given piece of text. Multiline find patterns are not supported.</para>
+            <para>Use this class if you want something 'reasonably' fast and thread safe.</para>
+            <para>If you want more practical functionality for real user input, use FindAndReplaceHelperObject.</para>
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.FindAndReplace.Find(System.String,System.String,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Boolean,System.Boolean)">
+            <summary>
+            </summary>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
+            <param name="inText"></param>
+            <param name="rows">The rows where a match is found.</param>
+            <param name="columns">The columns where a match is found.</param>
+            <param name="starts">The start index of each find, for making text selections easier.</param>
+            <param name="matchLengths">The lengths of the match</param>
+            <param name="wholeWords"></param>
+            <param name="matchCase"></param>
+        </member>
+        <member name="M:SizingServers.Util.FindAndReplace.Replace(System.Int32,System.Int32,System.Int32,System.String,System.String)">
+            <summary>
+            Always call Find(...) first.
+            </summary>
+            <param name="row"></param>
+            <param name="column"></param>
+            <param name="matchLength"></param>
+            <param name="inText"></param>
+            <param name="with"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.Util.FindAndReplace.Replace(System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32},System.Collections.Generic.List{System.Int32},System.String,System.String)">
+            <summary>
+            Always call Find(...) first.
+            </summary>
+            <param name="rows"></param>
+            <param name="columns"></param>
+            <param name="matchLengths"></param>
+            <param name="inText"></param>
+            <param name="with"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.Util.FindAndReplace.DetermineFindRegexes(System.String,System.Boolean,System.String@,System.String@,System.String@)">
+            <summary>
+            
+            </summary>
+            <param name="find"></param>
+            <param name="wholeWords"></param>
+            <param name="mustHaveRegex"></param>
+            <param name="canHaveRegex"></param>
+            <param name="cannotHaveRegex"></param>
+        </member>
+        <member name="M:SizingServers.Util.FindAndReplace.GetSentences(System.String)">
+            <summary>
+            This takes double quotes into account
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SizingServers.Util.FindAndReplaceHelperObject">
+            <summary>
+            <para>This class contains extra functionality upon FindAndReplace for searching a given text. For instance: A find next is implemented in it.</para>
+            <para>It caches the found entries in the text (rows, columns, starts, match lengths) and invalidate it's cache when needed. For instance: A new find pattern is given.</para>
+            <para>This also means that, unlike FindAndReplace, the functionality in this class is not thread safe.</para>
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.FindAndReplaceHelperObject.FindNext(System.String,System.String,System.Int32@,System.Int32@,System.Int32@,System.Int32@,System.Boolean,System.Boolean)">
+            <summary>
+            Find the next occurance of a given find pattern. When one of the given arguments is different then the last time this function was called, the find cache is invalidated.
+            </summary>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
+            <param name="inText"></param>
+            <param name="row">The row where a match is found.</param>
+            <param name="column">The column where a match is found.</param>
+            <param name="start">The start index of a find, for making text selections easier.</param>
+            <param name="matchLength">The length of the match</param>
+            <param name="wholeWords"></param>
+            <param name="matchCase"></param>
+        </member>
+        <member name="M:SizingServers.Util.FindAndReplaceHelperObject.FindAll(System.String,System.String,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Collections.Generic.List{System.Int32}@,System.Boolean,System.Boolean)">
+            <summary>
+            Find all occurances of a given find pattern. When one of the given arguments is different then the last time this function was called, the find cache is invalidated.
+            </summary>
+            <param name="find">You can use *, +, - "" like before in Google. Multiline find patterns are not supported.</param>
+            <param name="inText"></param>
+            <param name="rows">The rows where a match is found.</param>
+            <param name="columns">The columns where a match is found.</param>
+            <param name="starts">The start index of each find, for making text selections easier.</param>
+            <param name="matchLengths">The lengths of the match</param>
+            <param name="wholeWords"></param>
+            <param name="matchCase"></param>
+        </member>
+        <member name="M:SizingServers.Util.FindAndReplaceHelperObject.Replace(System.String,System.Boolean)">
+            <summary>
+            Always call FindNext(...) or FindAll(...) first.
+            </summary>
+            <param name="with"></param>
+            <param name="all">True for replacing all occurances.</param>
+            <returns></returns>
+        </member>
+        <member name="T:SizingServers.Util.FunctionOutputCache">
+            <summary>
+            <para>A thread-safe way to cache the calling function's return value / output arguments.</para>
+            <para>This should only be used for output that always stays the same, but takes long to calculate.</para>
+            <para>You can use the instance if you want one general FunctionOutputCache.</para>
+            <para>I made this class before I knew you can do more or less the same with System.Web.Caching.Cache (HttpContext.Current.Cache).</para>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.FunctionOutputCache.IsDisposed">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.FunctionOutputCache.Size">
+            <summary>
+            The current size of the cache.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.FunctionOutputCache.GetInstance">
+            <summary>
+            
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.Util.FunctionOutputCache.GetOrAdd(System.Reflection.MethodBase,System.Object[])">
+            <summary>
+            <para>Returns the entry if it was found in cache. Otherwise a new one is added to the cache and returned.</para>
+            <para>Store the return value and/or output arguments for the calling function in that new entry.</para>
+            <para>This is thread-safe.</para>
+            </summary>
+            <param name="method">e.g. MethodInfo.GetCurrentMethod()</param>
+            <param name="inputArguments">
+            <para>Primitives, objects that are not a collection of any sort, arrays and ILists are supported. Array / IList members are compared for equality.</para>
+            <para>Override InspectArgumentEquality(object, object) if you want to for instance support dictionaries.</para>
+            </param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.Util.FunctionOutputCache.InspectArgumentEquality(System.Object,System.Object)">
+            <summary>
+            <para>Primitives, objects that are not a collection of any sort, arrays and ILists are supported. Array / IList members are compared for equality.</para>
+            <para>Override this if you want to for instance support dictionaries.</para>
+            </summary>
+            <param name="x"></param>
+            <param name="y"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.Util.FunctionOutputCache.Dispose">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.FunctionOutputCache.CacheEntry">
+            <summary>
+            Holds the MethodBase, de input and output arguments if any and the return value.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.FunctionOutputCache.CacheEntry.Method">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.FunctionOutputCache.CacheEntry.InputArguments">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.FunctionOutputCache.CacheEntry.OutputArguments">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.FunctionOutputCache.CacheEntry.ReturnValue">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.FunctionOutputCache.CacheEntry.#ctor(System.Reflection.MethodBase,System.Object[])">
+            <summary>
+            </summary>
+            <param name="method"></param>
+            <param name="inputArguments"></param>
+        </member>
+        <member name="T:SizingServers.Util.RemoteDesktop">
+            <summary>
+            Uses the default Windows RDP client.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.RemoteDesktop.Show(System.String,System.String,System.String,System.String)">
+             <summary>
+            Stupid credentials workaround. Do not forget to remove the credentials (RemoveCredentials(string ip)). Do not do this too fast, otherwise login will not work.
+             </summary>
+             <param name="host"></param>
+             <param name="username"></param>
+             <param name="password"></param>
+             <param name="domain"></param>
+        </member>
+        <member name="M:SizingServers.Util.RemoteDesktop.RemoveCredentials(System.String)">
+            <summary>
+            I know, this sucks. Why can't credentials be passed to mstsc.exe as arguments?...
+            </summary>
+            <param name="host"></param>
+        </member>
+        <member name="T:SizingServers.Util.StringUtil">
+            <summary>String helper class. With this you can generate names and format numeric values.</summary>
+        </member>
+        <member name="M:SizingServers.Util.StringUtil.FloatToLongString(System.Single,System.Boolean)">
+            <summary>
+            No Scientific notation ToString().
+            </summary>
+            <param name="f"></param>
+            <param name="thousandSeparator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.Util.StringUtil.DoubleToLongString(System.Double,System.Boolean)">
+            <summary>
+            No Scientific notation ToString().
+            </summary>
+            <param name="d"></param>
+            <param name="thousandSeparator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.Util.StringUtil.NumberToLongString(System.Object,System.Boolean)">
+            <summary>
+            No Scientific notation ToString().
+            </summary>
+            <param name="o"></param>
+            <param name="thousandSeparator"></param>
+            <returns></returns>
+        </member>
+        <member name="M:SizingServers.Util.StringUtil.ReverseString(System.String)">
+            <summary>
+            Reverse a string.
+            </summary>
+            <param name="s"></param>
+            <returns></returns>
+        </member>
+        <member name="T:SizingServers.Util.SynchronizationContextWrapper">
+            <summary>
+            <para>A wrapper for SynchronizationContext, so SynchronizationContext is available throughout the entire application.</para>
+            <para>A SynchronizationContext is for synchronizing data to another thread, for instance to the main thread.</para>
+            <para>Handy if you want to update a System.Windows.Forms.Label from another thread. It is the most reliable way to do something like that IMHO.</para>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.SynchronizationContextWrapper.SynchronizationContext">
+            <summary>
+            <para>Set this to System.Threading.SynchronizationContext.Current in the constructor below 'InitializeComponent();' of a WPF main form or when the handle is created for a WinForms main form.</para>
+            <para>e.g. If you want to update a System.Windows.Forms.Label form another thread: SynchronizationContextWrapper.SynchronizationContext.Current.Send((state) => { lblFoo.Text = "bar"; }, null)</para>
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.Tracert">
+            <summary>
+            Determines the trace route for a given destination host or IP.
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.Tracert.Hop">
+            <summary>
+            </summary>
+        </member>
+        <member name="E:SizingServers.Util.Tracert.Done">
+            <summary>
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Tracert.IP">
+            <summary>
+            The IP to trace route.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Tracert.LastStatus">
+            <summary>
+            The IP status for the last hop.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Tracert.MaxHops">
+            <summary>
+            The maximum hops that may occur.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Tracert.Timeout">
+            <summary>
+            The ping timeout for a hop in ms.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Tracert.Hops">
+            <summary>
+            The numbers of hops done.
+            </summary>
+        </member>
+        <member name="P:SizingServers.Util.Tracert.IsDone">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.Tracert.Trace(System.String,System.Int32,System.Int32)">
+            <summary>
+            Determines the trace route for a given destination host or IP.
+            </summary>
+            <param name="hostNameOrIP">The host name or IP to trace route.</param>
+            <param name="maxHops">The maximum hops that may occur.</param>
+            <param name="timeout">The ping timeout for a hop in ms.</param>
+        </member>
+        <member name="M:SizingServers.Util.Tracert.Dispose">
+            <summary>
+            </summary>
+        </member>
+        <member name="T:SizingServers.Util.Tracert.HopEventArgs">
+            <summary>
+            
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.Tracert.HopEventArgs.HostName">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.Tracert.HopEventArgs.IP">
+            <summary>
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.Tracert.HopEventArgs.RoundTripTime">
+            <summary>
+            Round trip time in ms
+            </summary>
+        </member>
+        <member name="F:SizingServers.Util.Tracert.HopEventArgs.Status">
+            <summary>
+            The status of sending an Internet Control Message Protocol (ICMP) echo message to a computer.
+            </summary>
+        </member>
+        <member name="M:SizingServers.Util.Tracert.HopEventArgs.#ctor(System.String,System.String,System.Int64,System.Net.NetworkInformation.IPStatus)">
+            <summary>
+            </summary>
+            <param name="ip"></param>
+            <param name="hostName"></param>
+            <param name="roundTripTime">in ms</param>
+            <param name="status">The status of sending an Internet Control Message Protocol (ICMP) echo message to a computer.</param>
+        </member>
+    </members>
+</doc>

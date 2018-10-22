@@ -1,0 +1,36 @@
+<ScenarioRuleSets>
+  <Items>
+    <ScenarioRuleSet>
+      <Items>
+        <ScenarioSyntaxItem>
+          <Items />
+          <Optional>False</Optional>
+          <Occurance>1</Occurance>
+          <DefaultValue>
+          </DefaultValue>
+          <ChildDelimiter>
+          </ChildDelimiter>
+          <Description>URL to be tested</Description>
+          <Label>Url</Label>
+          <ShowInGui>True</ShowInGui>
+          <IsDefaultItem>False</IsDefaultItem>
+          <IsEmpty>False</IsEmpty>
+        </ScenarioSyntaxItem>
+      </Items>
+      <ChildDelimiter>&lt;16 0C 02 12$&gt;</ChildDelimiter>
+      <SingleLineCommentString>
+      </SingleLineCommentString>
+      <BeginCommentString>&lt;!--</BeginCommentString>
+      <EndCommentString>--&gt;</EndCommentString>
+      <ActionizeOnComment>True</ActionizeOnComment>
+      <HostnameIndex>0</HostnameIndex>
+      <OffsetInMillisIndex>0</OffsetInMillisIndex>
+      <RedirectsIndex>0</RedirectsIndex>
+      <Description>A wrapper around the RESTful API: https://sites.google.com/a/webpagetest.org/docs/advanced-features/webpagetest-restful-apis</Description>
+      <Label>PageSpeedOnline STABLE-20171109165856</Label>
+      <ShowInGui>True</ShowInGui>
+      <IsDefaultItem>False</IsDefaultItem>
+      <IsEmpty>False</IsEmpty>
+    </ScenarioRuleSet>
+  </Items>
+</ScenarioRuleSets>

@@ -1,5 +1,4 @@
 *.suo
-Build/
 bin/
 */bin/
 obj/

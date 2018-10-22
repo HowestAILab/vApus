@@ -1,0 +1,121 @@
+<?xml version='1.0' encoding='UTF-8'?>
+<project>
+  <actions/>
+  <description>This job copies the nightly XML connection proxies to http://vapus.sizingservers.be.</description>
+  <keepDependencies>false</keepDependencies>
+  <properties>
+    <hudson.plugins.disk__usage.DiskUsageProperty plugin="disk-usage@0.28"/>
+    <jenkins.model.BuildDiscarderProperty>
+      <strategy class="hudson.tasks.LogRotator">
+        <daysToKeep>3</daysToKeep>
+        <numToKeep>-1</numToKeep>
+        <artifactDaysToKeep>-1</artifactDaysToKeep>
+        <artifactNumToKeep>-1</artifactNumToKeep>
+      </strategy>
+    </jenkins.model.BuildDiscarderProperty>
+  </properties>
+  <scm class="hudson.plugins.git.GitSCM" plugin="git@2.4.4">
+    <configVersion>2</configVersion>
+    <userRemoteConfigs>
+      <hudson.plugins.git.UserRemoteConfig>
+        <url>git@bitbucket.org:howestsslab/connectionproxies.git</url>
+        <credentialsId>7b3825bd-72f4-4b1e-b4ee-1fe6518e71e8</credentialsId>
+      </hudson.plugins.git.UserRemoteConfig>
+    </userRemoteConfigs>
+    <branches>
+      <hudson.plugins.git.BranchSpec>
+        <name>stable2</name>
+      </hudson.plugins.git.BranchSpec>
+    </branches>
+    <doGenerateSubmoduleConfigurations>false</doGenerateSubmoduleConfigurations>
+    <submoduleCfg class="list"/>
+    <extensions>
+      <hudson.plugins.git.extensions.impl.WipeWorkspace/>
+      <hudson.plugins.git.extensions.impl.LocalBranch>
+        <localBranch>stable2</localBranch>
+      </hudson.plugins.git.extensions.impl.LocalBranch>
+    </extensions>
+  </scm>
+  <canRoam>true</canRoam>
+  <disabled>false</disabled>
+  <blockBuildWhenDownstreamBuilding>false</blockBuildWhenDownstreamBuilding>
+  <blockBuildWhenUpstreamBuilding>false</blockBuildWhenUpstreamBuilding>
+  <triggers/>
+  <concurrentBuild>false</concurrentBuild>
+  <builders>
+    <hudson.plugins.ruby.Ruby plugin="ruby@1.2">
+      <command>require &apos;fileutils&apos;
+
+puts &quot;-------------------------------------------------------------------------&quot;
+
+# Location to put the connection proxies.
+repo = &quot;/srv/packages/connection_proxies&quot;
+
+# Determine the GIT branch.
+branch = &quot;stable&quot;
+puts &quot; &gt; Current branch is #{branch}.&quot;
+
+# Timestamp as version number.
+version = Time.now.strftime(&quot;%Y%m%d%H%M%S&quot;)
+puts &quot; &gt; Version timestamp is #{version}.&quot;
+
+# Get a list of all connection proxies.
+connection_proxies = Dir[&quot;*.xml&quot;]
+puts &quot; &gt; Connection proxies to process: #{connection_proxies.join(&quot;, &quot;)}.&quot;
+
+# Clear out the destination folder
+FileUtils.rm Dir.glob(&quot;#{repo}/#{branch}/*&quot;)
+
+connection_proxies.each do |connection_proxy|
+  # Load the connection proxy file.
+  original_file = File.readlines(connection_proxy)
+
+  # Find &amp; replace the branch/version string.
+  original_file.each do |line|
+    #puts &quot;Changed #{connection_proxy}&quot; if ! line.gsub!(&quot;@BRANCH@-@TM@&quot;, &quot;#{branch.upcase}-#{version}&quot;).nil?
+    line.gsub!(&quot;@BRANCH@-@TM@&quot;, &quot;#{branch.upcase}-#{version}&quot;)
+  end
+
+  # Push the new file to the package repository.
+  new_file_path = &quot;&quot;
+  if branch == &quot;stable&quot;
+    new_file_path = &quot;#{repo}/#{branch}/#{connection_proxy}&quot;
+  else
+    new_file_path = &quot;#{repo}/#{branch}/#{connection_proxy.chomp(&quot;.xml&quot;)}-#{version}.xml&quot;
+  end
+  
+  new_file = File.new(new_file_path, &quot;w&quot;)
+
+  original_file.each do |line|
+    new_file.puts line
+  end
+  new_file.close
+
+if new_file_path != connection_proxy
+  FileUtils.rm(connection_proxy)
+end
+
+  puts &quot; &gt; #{connection_proxy} pushed to the #{branch} package repository!&quot;
+end
+
+# Get a list of all files.
+all_files = Dir[&quot;*.*&quot;]
+puts &quot; &gt; Files to process: #{all_files.join(&quot;, &quot;)}.&quot;
+
+all_files.each do |file|
+  FileUtils.cp file, &quot;#{repo}/#{branch}/#{file}&quot;
+  puts &quot; &gt; #{file} pushed to the #{branch} package repository!&quot;
+end
+
+puts &quot;-------------------------------------------------------------------------&quot;</command>
+    </hudson.plugins.ruby.Ruby>
+  </builders>
+  <publishers>
+    <hudson.tasks.Mailer plugin="mailer@1.17">
+      <recipients>someone@sizingservers.be</recipients>
+      <dontNotifyEveryUnstableBuild>false</dontNotifyEveryUnstableBuild>
+      <sendToIndividuals>false</sendToIndividuals>
+    </hudson.tasks.Mailer>
+  </publishers>
+  <buildWrappers/>
+</project>

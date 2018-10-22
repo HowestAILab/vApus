@@ -1,0 +1,88 @@
+﻿Mapping counters for JMX REST API Jolokia 1.5.0.
+
+One counter per line, json formatted. Lines of text in this file that is not json or starts with // is ommitted when the counters mapping happens internally.
+Like so:
+{ "mbean" : "java.lang:type=Memory", "attribute" : "HeapMemoryUsage", "path" : "used" }
+{ "mbean" : "java.lang:type=Memory", "attribute" : "HeapMemoryUsage", "path" : "committed" }
+
+
+One such counter line MUST lead to EXACTLY ONE value. e.g.
+
+POST the following json (text body, WITHOUT the //s) to http(s)://(<user>:<passwd>@)<ip>:<port>/jolokia/ using a tool like Postman:
+(Notice the "type" : "read" key value pair.)
+
+//[
+//{
+//    "type" : "read",
+//    "mbean" : "java.lang:type=Memory",
+//    "attribute" : "HeapMemoryUsage",
+//    "path" : "used"
+//},
+//{
+//    "type" : "read",
+//    "mbean" : "java.lang:type=Memory",
+//    "attribute" : "HeapMemoryUsage",
+//    "path" : "committed"
+//}
+//]
+
+And you should get a response like so:
+
+//[
+//	{
+//		"request": {
+//			"path": "HeapMemoryUsage/used",
+//			"mbean": "java.lang:type=Memory",
+//			"attribute": "HeapMemoryUsage",
+//			"type": "read"
+//		},
+//		"value": 591475208,
+//		"timestamp": 1527672328,
+//		"status": 200
+//	},
+//	{
+//		"request": {
+//			"path": "HeapMemoryUsage/commited",
+//			"mbean": "java.lang:type=Memory",
+//			"attribute": "HeapMemoryUsage",
+//			"type": "read"
+//		},
+//		"value": 8589934592,
+//		"timestamp": 1527672328,
+//		"status": 200
+//	}
+//]
+
+if "value" : null you've made a typo in one or more counter lines.
+
+
+
+To find all available mbeans you can post (text body, without the //s):
+
+//{
+//    "type" : "search",
+//    "mbean" : "*:*"
+//}
+
+All attributes for the mbean java.lang:type=Memory:
+
+//{
+//    "type" : "read",
+//    "mbean" : "java.lang:type=Memory"
+//}
+
+All paths for the mbean java.lang:type=Memory/HeapMemoryUsage:
+
+//{
+//    "type" : "read",
+//    "mbean" : "java.lang:type=Memory"
+//    "attribute": "HeapMemoryUsage"
+//}
+
+If a path contains multiple values eg path "a" contains "value":"{"b":123,"c":456}" you must define your paths like so in your counter line:
+
+//{ "mbean" : "mbeanA", "attribute" : "attributeA", "path" : "a/b" }
+//{ "mbean" : "mbeanA", "attribute" : "attributeA", "path" : "a/c" }
+ 
+
+More info about the Jolokia protocol: https://jolokia.org/reference/html/protocol.html

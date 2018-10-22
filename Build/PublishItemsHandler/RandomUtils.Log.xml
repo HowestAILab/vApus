@@ -1,0 +1,687 @@
+<?xml version="1.0"?>
+<doc>
+    <assembly>
+        <name>RandomUtils.Log</name>
+    </assembly>
+    <members>
+        <member name="T:RandomUtils.Log.Level">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.Log.Level.Info">
+            <summary></summary>
+        </member>
+        <member name="F:RandomUtils.Log.Level.Warning">
+            <summary>
+            <para>Use this when an error occures (thrown at runtime or self determined), but it is handled within the program and expected to happen.</para>
+            <para>For instance, a connection could not be made to a database server and you inform the user of this.</para>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.Level.Error">
+            <summary>
+            Use this when a runtime exception occures, but the program or parts of it do not break. (You do a retry for instance). Stil it is not expected behaviour.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.Level.Fatal">
+            <summary>
+            <para>Use this when a runtime exception occures. When the program or parts of it break. This should be avoided at all costs.</para>
+            <para>This is handled here in this class for you, if the application breaks, a log entry is written to file.</para>
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Log.Entry">
+            <summary></summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.Timestamp">
+            <summary>
+            Should be a round-trip DateTimeOffset http://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.110).aspx#Roundtrip.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.Level">
+            <summary></summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.Description">
+            <summary></summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.Member">
+            <summary>
+            The name of the member that called 'Logger.Log(...)'.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.SourceFile">
+            <summary>
+            The file where the caller member resides in.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.Line">
+            <summary>
+            The line in the source file where 'Logger.Log(...)' as called.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.Parameters">
+            <summary>
+            The parameters used in the calling member. This can be null.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.Exception">
+            <summary></summary>
+        </member>
+        <member name="P:RandomUtils.Log.Entry.ReadableWatsonBucketParameters">
+            <summary>
+            Only applicable for unhandled exceptions. Somewhat handy for when there is no stacktrace available, or you cannot trace into third-party assemblies.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Log.BucketParameters">
+            <summary>
+            <para>BucketParameters Structure to get watson buckets back from CLR. Applicable to dr. watson (pre-Vista) and WER (Windows Error Reporting, Vista and newer).</para>
+            <para>http://msdn.microsoft.com/en-us/library/ms404466(v=VS.110).aspx</para>
+            <para>http://mrpfister.com/programming/demystifying-clr20r3-error-messages/</para>
+            <para>http://mrpfister.com/programming/opcodes-msil-and-reflecting-net-code/</para>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.fInited">
+            <summary>
+            True if the rest of the structure is valid, otherwise false.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.pszEventTypeName">
+            <summary>
+            Always CLR20r3, I think. Stands for common language runtime 2.0 revision 3?
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p1">
+            <summary>
+            Application filename.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p2">
+            <summary>
+            Application version.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p3">
+            <summary>
+            Time in seconds, since epoch (01/01/1970), when the application was build. Hex
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p4">
+            <summary>
+            Assembly / module name. An assembly can contain multiple modules in theory, however, MSBuild does not support this.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p5">
+            <summary>
+            Assembly / module version.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p6">
+            <summary>
+            Time in seconds, since epoch (01/01/1970), when the assembly / module was build. Hex
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p7">
+            <summary>
+            <para>Method identifier. Method identifiers are usaly prefixed with 0x6000. You should be able to locate the faulty method using Microsoft's IL Dissasembler (part of Visual Studio SDK tools).</para>
+            <para>To find the method where the error occurred:</para>
+            <para>  Go to File > Open and select the .DLL associated with P4 (with version P5)</para>
+            <para>  Go to View > Meta Info > Show!</para>
+            <para>  Go to Find, and type in 06000 and the P7 value.</para>
+            <para>Hex.</para>
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p8">
+            <summary>
+            IL code offset: the offset of the IL code in the compiled module.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p9">
+            <summary>
+            Error message. Hashed if not enough place, this maximum is unknown. Can be the exception name.
+            </summary>
+        </member>
+        <member name="F:RandomUtils.Log.BucketParameters.p10">
+            <summary>
+            No idea what this is, this is always an empty string (please correct me if I am wrong). I guess it was added, back in the day, for when they would ever need an extra entry.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Log.ReadableWatsonBucketParameters">
+            <summary>
+            Readable watson bucket parameters from the clr.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.BucketParameters">
+            <summary>
+            <para>BucketParameters Structure to get watson buckets back from CLR. Applicable to dr. watson (pre-Vista) and WER (Windows Error Reporting, Vista and newer).</para>
+            <para>http://msdn.microsoft.com/en-us/library/ms404466(v=VS.110).aspx</para>
+            <para>http://mrpfister.com/programming/demystifying-clr20r3-error-messages/</para>
+            <para>http://mrpfister.com/programming/opcodes-msil-and-reflecting-net-code/</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.ApplicationFilename">
+            <summary>
+            BucketParameters.p1
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.ApplicationVersion">
+            <summary>
+            BucketParameters.p2
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.ApplicationBuildTimestamp">
+            <summary>
+            <para>BucketParameters.p3</para>
+            <para>Should be a round-trip DateTimeOffset http://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.110).aspx#Roundtrip.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.AssemblyOrModuleName">
+            <summary>
+            BucketParameters.p4
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.AssemblyOrModuleVersion">
+            <summary>
+            BucketParameters.p5
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.AssemblyOrModuleBuildTimestamp">
+            <summary>
+            BucketParameters.p6
+            Should be a round-trip DateTimeOffset http://msdn.microsoft.com/en-us/library/az4se3k1(v=vs.110).aspx#Roundtrip.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.MethodIdentifier">
+            <summary>
+            <para>BucketParameters.p7</para>
+            <para>Method identifiers are usaly prefixed with 0x6000. You should be able to locate the faulty method using Microsoft's IL Dissasembler (part of Visual Studio SDK tools).</para>
+            <para>To find the method where the error occurred:</para>
+            <para>  Go to File > Open and select the .DLL associated with P4 (with version P5)</para>
+            <para>  Go to View > Meta Info > Show!</para>
+            <para>  Go to Find, and type in 06000 and the P7 value.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.ILCodeOffset">
+            <summary>
+            <para>BucketParameters.p8</para>
+            <para>The offset of the IL code in the compiled module.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.ReadableWatsonBucketParameters.ErrorMessage">
+            <summary>
+            <para>BucketParameters.p9</para>
+            <para>Hashed if not enough place, this maximum is unknown. Can be the exception name.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.ReadableWatsonBucketParameters.#ctor">
+            <summary>
+            Use the other constructor to auto-populate all properties.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.ReadableWatsonBucketParameters.#ctor(RandomUtils.Log.BucketParameters)">
+            <summary>
+            
+            </summary>
+            <param name="bucketParameters">Auto-populates the properties.</param>
+        </member>
+        <member name="T:RandomUtils.Log.WriteLogEntryEventArgs">
+            <summary></summary>
+        </member>
+        <member name="P:RandomUtils.Log.WriteLogEntryEventArgs.Entry">
+            <summary></summary>
+        </member>
+        <member name="P:RandomUtils.Log.WriteLogEntryEventArgs.JSON">
+            <summary>The JSON for the given Entry.</summary>
+        </member>
+        <member name="M:RandomUtils.Log.WriteLogEntryEventArgs.#ctor(RandomUtils.Log.Entry,System.String)">
+            <summary></summary>
+            <param name="entry"></param>
+            <param name="json">The JSON for the given Entry.</param>
+        </member>
+        <member name="M:RandomUtils.Log.WriteLogEntryEventArgs.ToString">
+            <summary>
+            JSON included in the ToString().
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.Log.FileLogger">
+            <summary>
+            <para>This is my take on an application logger for any 64 bit .Net 4.5 (and up) Windows desktop (maybe other app types, untested) app. (Yes, I know there is Log4Net, this was a fun little project, and well suited for my needs)</para>
+            <para>It logs entries as JSON to a plain-text file in a folder 'logs' (one log file per day). You can deserialize a log file to an IEnumerable of Logger.Entry's.</para>
+            <para></para>
+            <para>It subscribes to AppDomain.CurrentDomain.UnhandledException, Meaning that unhandled (app breaking) exceptions should always get logged for the current application domain.</para>
+            <para>Corrupted state exceptions are also taken care of. BUT only if this logger is set to used, using the Loggers.SetUseLogger function!</para>
+            <para></para> 
+            <para>Last but not least, read this: http://www.codeproject.com/Articles/9538/Exception-Handling-Best-Practices-in-NET. </para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.FileLogger.LogDir">
+            <summary>
+            Gets the path to the log dir, this cannot be changed.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.FileLogger.CurrentLogFile">
+            <summary>
+            Gets the path to the current log file: one log per day. This cannot be changed.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.FileLogger.GetInstance">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.Log.FileLogger.DeserializeCurrentLogFile">
+            <summary>
+            <para>Yield returns entries if the path exists. This pauses the logging to this file, still queued entries to log will be processed when this is done.</para>
+            <para>If the path does not exist no entries will return and no exception will be thrown.</para>
+            <para>Invalid entries will be ignored.</para>
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.Log.FileLogger.DeserializeLogFile(System.String)">
+            <summary>
+            <para>Yield returns entries if the path exists. If the path does not exist no entries will return and no exception will be thrown.</para>
+            <para>Invalid entries will be ignored.</para>
+            </summary>
+            <param name="path">Path to log file.</param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.Log.FileLoggerPanel">
+            <summary>
+            A winforms panel for displaying file log entries. You can also set the desired log level.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.FileLoggerPanel.SelectedLogEntries">
+            <summary>
+            Return JSON for the selected log entries.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.#ctor">
+            <summary>
+            A winforms panel for displaying file log entries. You can also set the desired log level.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.SelectNewestLog">
+            <summary>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.OnResize(System.EventArgs)">
+            <summary>
+            Refresh the child controls, because they are not drawn well (flat-style) when resized.
+            </summary>
+            <param name="eventargs"></param>
+        </member>
+        <member name="T:RandomUtils.Log.FileLoggerPanel.LogFileComparer">
+            <summary>
+            Z-A comparer
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.LogFileComparer.GetInstance">
+            <summary>
+            Z-A comparer
+            </summary>
+            <returns></returns>
+        </member>
+        <member name="F:RandomUtils.Log.FileLoggerPanel.components">
+            <summary>
+            Required designer variable.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.Dispose(System.Boolean)">
+            <summary>
+            Clean up any resources being used.
+            </summary>
+            <param name="disposing">true if managed resources should be disposed; otherwise, false.</param>
+        </member>
+        <member name="M:RandomUtils.Log.FileLoggerPanel.InitializeComponent">
+            <summary>
+            Required method for Designer support - do not modify
+            the contents of this method with the code editor.
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Log.Logger">
+            <summary>
+            <para>This is my take on an application logger for any 64 bit .Net 4.5 (and up) Windows desktop (maybe other app types, untested) app. (Yes, I know there is Log4Net, this was a fun little project, and well suited for my needs)</para>
+            <para></para>
+            <para>It subscribes to AppDomain.CurrentDomain.UnhandledException, Meaning that unhandled (app breaking) exceptions should always get logged for the current application domain.</para>
+            <para>Corrupted state exceptions are also taken care of. BUT only if this logger is set to used, using the Loggers.SetUseLogger function!</para>
+            <para></para>
+            <para>Last but not least, read this: http://www.codeproject.com/Articles/9538/Exception-Handling-Best-Practices-in-NET. </para>
+            <para>HResult: http://en.wikipedia.org/wiki/HRESULT </para>
+            </summary>
+        </member>
+        <member name="E:RandomUtils.Log.Logger.WriteLogEntry">
+            <summary>
+            <para>You must suscribe to this in your own logger, done like this because all boilerplate code is done here.</para>
+            <para>If I used an abstract function you had to do this yourself.</para>
+            <para>In the handler you do the actual writing of the entry (to file, to mail, to database, ...).</para>
+            </summary>
+        </member>
+        <member name="E:RandomUtils.Log.Logger.LogWriteException">
+            <summary>
+            <para>The logger handles log write exceptions by always writing them to the debug console.</para>
+            <para>This is done like this to not break the program when an error occures in a 'Log Write' member, obviously.</para>
+            <para>Subscribe to this event in the constructor of the upper class to get a notification of such an exception. (This is highly encouraged!)</para>
+            <para>The exceptions occuring in the 'Read' functions will be thrown normally. Since you will do something with the read data, you can as well handle the exception directly.</para>
+            <para>If you want to update the GUI in the handler, do not forget to synchronize to the main thread by using for example RandomUtils.SynchronizationContextWrapper.</para>
+            </summary>
+        </member>
+        <member name="E:RandomUtils.Log.Logger.LogEntryWritten">
+            <summary>
+            <para>Suscribe to this to for instance list the log entries on the GUI.</para>
+            <para>Do not forget to synchronize to the main thread by using for example RandomUtils.SynchronizationContextWrapper.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Logger.CurrentLevel">
+            <summary>
+            <para>Log only entries with the given and higher levels. For instance: CurrentLevel Warning will not log entries with Level Info.</para>
+            <para>But will log everything above that.</para>
+            <para>This is handy to be able to set the level in the gui of the app without having to change the code.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Logger.LogToDebug">
+            <summary>
+            <para>When a entry is written it can also be logged to the Visual Studio debug console when this property is set to true. (category: LOGGER)</para>
+            <para>When the logger cannot write an entry after 3 tries, the log exception will be witten to the Visual Studio debug console.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Logger.LogFirstChanceExceptions">
+            <summary>
+            <para>If this is set to true, the 'CurrentLevel' equals Level.Info and this logger is set to used, using the Loggers.SetUseLogger function, first chance exceptions (also handled exceptions in and by the .Net framework) will be logged.</para>
+            <para>This is handy to find the source of strange behaviour but should typically not be used in production (way to much logging for exceptions that are handled anyway).</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.#ctor">
+            <summary>
+            <para>This is my take on an application logger for any 64 bit .Net 4.5 (and up) Windows desktop (maybe other app types, untested) app. (Yes, I know there is Log4Net, this was a fun little project, and well suited for my needs)</para>
+            <para></para>
+            <para>It subscribes to AppDomain.CurrentDomain.UnhandledException, Meaning that unhandled (app breaking) exceptions should always get logged for the current application domain.</para>
+            <para>Corrupted state exceptions are also taken care of. BUT only if this logger is set to used, using the Loggers.SetUseLogger function!</para>
+            <para></para>
+            <para>Last but not least, read this: http://www.codeproject.com/Articles/9538/Exception-Handling-Best-Practices-in-NET. </para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.MarshalBytesToStruct``1(System.Byte[])">
+            <summary>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <param name="arr"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.GetApplicableFrame(System.Exception)">
+            <summary>
+            Gets the frame that has debugging info or the first (last happened).
+            </summary>
+            <param name="ex"></param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.PauseProcessingWriteLogEntriesWorkQueue">
+            <summary>
+            <para>Pauses the processing of the work queue and blocks until the processing is effectively paused.</para>
+            <para>Continue this processing calling 'ContinueProcessingWorkQueue()'.</para>
+            <para>Handy for instance when you want to read from a file that is being written to.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.ContinueProcessingWriteLogEntriesWorkQueue">
+            <summary>
+            Resumes the processing of the work queue.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.Log(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            <para>Logs using Level.Info. Use another 'Log' function to log exceptions.</para>
+            <para>When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)</para>
+            </summary>
+            <param name="description">A free to choose message.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.Log(System.String,System.Object[],System.String,System.String,System.Int32)">
+            <summary>
+            <para>Logs using Level.Info. Use another 'Log' function to log exceptions.</para>
+            <para>When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)</para>
+            </summary>
+            <param name="description">A free to choose message.</param>
+            <param name="parameters">The parameters used in the calling member. This can be null.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.Log(RandomUtils.Log.Level,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)
+            </summary>
+            <param name="level"></param>
+            <param name="description">A free to choose message.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.Log(RandomUtils.Log.Level,System.String,System.Exception,System.String,System.String,System.Int32)">
+            <summary>
+            When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)
+            </summary>
+            <param name="level"></param>
+            <param name="description">A free to choose message.</param>
+            <param name="exception">Should only be given for a Logger.Lever higher than Info.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.Log(RandomUtils.Log.Level,System.String,System.Exception,System.Object[],System.String,System.String,System.Int32)">
+            <summary>
+            When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)
+            </summary>
+            <param name="level"></param>
+            <param name="description">A free to choose message.</param>
+            <param name="exception">Should only be given for a Logger.Lever higher than Info.</param>
+            <param name="parameters">The parameters used in the calling member. This can be null.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.InvokeWriteLogEntry(RandomUtils.Log.Entry,System.String)">
+            <summary>
+            <para>There are max 3 retries.</para>
+            <para>You should not do your own error handling in the upper class. This is done for you. If you want to do that anyway, throw the exception, so the flow is respected.</para>
+            <para>You should suscribe to LogWriteException.</para>
+            </summary>
+            <param name="entry"></param>
+            <param name="json"></param>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.LogWriteExceptionToDebug(System.String,System.Exception,System.String[],System.String,System.String,System.Int32)">
+            <summary></summary>
+            <param name="json"></param>
+            <param name="exception"></param>
+            <param name="parameters">The parameters used in the calling member. This can be null.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+            <returns>A new entry encapsulating the given json.</returns>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.Flush">
+            <summary>
+            Wait untill all log entries are written. Do this before the application exits (if need be).
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.DeserializeLog(System.String)">
+            <summary>
+            <para>Yield returns entries. If log == null an exception will be thrown.</para>
+            <para>Invalid entries will be ignored.</para>
+            </summary>
+            <param name="log">A string containing one or more log entries.</param>
+            <returns></returns>
+        </member>
+        <member name="M:RandomUtils.Log.Logger.GetEntries(System.String,System.Text.StringBuilder,System.Int32@,System.Int32@)">
+            <summary>
+            <para>Build one or more entries and clears the StringBuilder if appropriate or appends to the StringBuilder if the entry is not complete.</para>
+            <para>Entries can be spread over multiple lines, so the stringbuilder can contain partial entries.</para>
+            <para>Faulty data is ignored.</para>
+            </summary>
+            <param name="text"></param>
+            <param name="entryBuilder"></param>
+            <param name="bracketOpenCount"></param>
+            <param name="bracketClosedCount"></param>
+            <returns></returns>
+        </member>
+        <member name="T:RandomUtils.Log.Loggers">
+            <summary> 
+            <para>This is my take on an application logger for any 64 bit .Net 4.5 (and up) Windows desktop (maybe other app types, untested) app. (Yes, I know there is Log4Net, this was a fun little project, and well suited for my needs)</para>
+            <para></para>
+            <para>All the available loggers are kept here.</para>
+            <para></para>
+            <para>They subscribes to AppDomain.CurrentDomain.UnhandledException, Meaning that unhandled (app breaking) exceptions should always get logged for the current application domain.</para>
+            <para>Corrupted state exceptions are also taken care of.</para>
+            <para></para>
+            <para>Last but not least, read this: http://www.codeproject.com/Articles/9538/Exception-Handling-Best-Practices-in-NET. </para>
+            <para></para>
+            <para>You can choose which loggers you want to use when logging (default only FileLogger), using the SetUseLogger function.</para>
+            <para>For all 'used' loggers the Log function is called when calling a Log function here. (in parallel)</para>
+            <para>You can if you like use a logger directly to write, but via here is the preferred method.</para>
+            <para></para>
+            <para>For read actions and setting properties, get the logger you want using the GetLogger function.</para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Loggers.AvailableLoggers">
+            <summary>
+            Yield returns all available loggers.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.Loggers.UsedLoggers">
+            <summary>
+            Yield returns all used loggers for write actions.
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.SetUseLogger(RandomUtils.Log.Logger,System.Boolean)">
+            <summary>
+            <para>Specify the loggers you want to use.</para>
+            <para>At least one logger should be used!</para>
+            </summary>
+            <param name="logger"></param>
+            <param name="use"></param>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.GetLogger``1">
+            <summary>
+            <para>Get a specific logger. To write, use the functions here and set the loggers you want to use (SetUseLogger).</para>
+            <para>To read, use the functions specified in the logger.</para>
+            </summary>
+            <typeparam name="T"></typeparam>
+            <returns>The logger or null if not found.</returns>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.IsUsed(RandomUtils.Log.Logger)">
+            <summary></summary>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.Log(System.String,System.String,System.String,System.Int32)">
+            <summary>
+            <para>Logs using Level.Info. Use another 'Log' function to log exceptions.</para>
+            <para>When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)</para>
+            </summary>
+            <param name="description">A free to choose message.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.Log(System.String,System.Object[],System.String,System.String,System.Int32)">
+            <summary>
+            <para>Logs using Level.Info. Use another 'Log' function to log exceptions.</para>
+            <para>When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)</para>
+            </summary>
+            <param name="description">A free to choose message.</param>
+            <param name="parameters">The parameters used in the calling member. This can be null.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.Log(RandomUtils.Log.Level,System.String,System.String,System.String,System.Int32)">
+            <summary>
+            When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)
+            </summary>
+            <param name="level"></param>
+            <param name="description">A free to choose message.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.Log(RandomUtils.Log.Level,System.String,System.Exception,System.String,System.String,System.Int32)">
+            <summary>
+            When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)
+            </summary>
+            <param name="level"></param>
+            <param name="description">A free to choose message.</param>
+            <param name="exception">Should only be given for a Logger.Lever higher than Info.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.Log(RandomUtils.Log.Level,System.String,System.Exception,System.Object[],System.String,System.String,System.Int32)">
+            <summary>
+            When the logger cannot write an entry after 3 tries, the log exception will always be witten to the Visual Studio debug console. (category: LOGGER)
+            </summary>
+            <param name="level"></param>
+            <param name="description">A free to choose message.</param>
+            <param name="exception">Should only be given for a Logger.Lever higher than Info.</param>
+            <param name="parameters">The parameters used in the calling member. This can be null.</param>
+            <param name="member">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="sourceFile">Do not fill this in, this will be done automatically at runtime.</param>
+            <param name="line">Do not fill this in, this will be done automatically at runtime.</param>
+        </member>
+        <member name="M:RandomUtils.Log.Loggers.Flush">
+            <summary>
+            Wait untill all log entries are written. Do this before the application exits (if need be).
+            </summary>
+        </member>
+        <member name="T:RandomUtils.Log.MailLogger">
+            <summary>
+            <para>This is my take on an application logger for any 64 bit .Net 4.5 (and up) Windows desktop (maybe other app types, untested) app. (Yes, I know there is Log4Net, this was a fun little project, and well suited for my needs)</para>
+            <para>It logs entries as JSON to mail using a SMTP server and the SMTP delivery network method.</para>
+            <para>Read mail functionality is not provided. I do not think that is a handy feature.</para>
+            <para></para>
+            <para>It subscribes to AppDomain.CurrentDomain.UnhandledException, Meaning that unhandled (app breaking) exceptions should always get logged for the current application domain.</para>
+            <para>Corrupted state exceptions are also taken care of. BUT only if this logger is set to used, using the Loggers.SetUseLogger function!</para>
+            <para></para>
+            <para>Last but not least, read this: http://www.codeproject.com/Articles/9538/Exception-Handling-Best-Practices-in-NET. </para>
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.SMTPServer">
+            <summary>
+            For instance: smtp.gmail.com
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.SMTPServerPort">
+            <summary>
+            For instance: 587 for gmail.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.UseTLS_SSL">
+            <summary>
+            For instance: True for gmail.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.MailSendTimeout">
+            <summary>
+            The timeout in milliseconds, the default is 10 000.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.Username">
+            <summary>
+            In doubt, leave blank, FromEMailAddress will be used.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.Password">
+            <summary></summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.FromEMailAddress">
+            <summary>
+            Can be any e-mail address, ToEMailAddress is the important one.
+            </summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.ToEMailAddress">
+            <summary></summary>
+        </member>
+        <member name="P:RandomUtils.Log.MailLogger.SubjectPrefix">
+            <summary>
+            <para>Default: "Logger"</para>
+            <para>Example: "My fancy feature generating application!"</para>
+            <para>" level " + level is added.</para>
+            </summary>
+        </member>
+        <member name="M:RandomUtils.Log.MailLogger.GetInstance">
+            <summary></summary>
+        </member>
+    </members>
+</doc>
