@@ -3,10 +3,10 @@
 
 <https://www.nmct.be> - <https://www.sizingservers.be> - <https://www.howest.be/en> - <https://www.linkedin.com/in/dietervandroemme>
 
-The vApus stress testing framework is mostly build for testing web services while mimicking real users (a user browses to the homepage, logs in,...).
+The vApus stress testing framework is mostly built for testing web services while mimicking real users (a user browses to the homepage, logs in,...).
 Because vApus is a framework it is possible to test any application that has a server socket (in theory) e.g. MySQL, Elasticsearch, ...
 
-It is comparable to Apache JMeter for web stress testing (but with less efficient http sockets and by far more stress test useful results) and is the result of +/- 8 years active development and +/- 3 years maintenance by one person, Dieter Vandroemme, for the majority of the work.
+It is comparable to Apache JMeter for web stress testing (but with less efficient http sockets and by far more useful stress test results) and is the result of +/- 8 years active development and +/- 3 years maintenance by one person, Dieter Vandroemme, for the majority of the work.
 
 Since the project is finished and that person left, Sizing Servers Lab decided to give away this software and all possible documentation for free.
 
