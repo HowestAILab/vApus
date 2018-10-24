@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+  <html>
+    <head>
+      <title>README</title>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      
+      <link rel="stylesheet" href="file:///C:\Users\dieter\.atom\packages\markdown-preview-enhanced\node_modules\@shd101wyy\mume\dependencies\katex\katex.min.css">
+      
+      
+      
+      
+      
+      
+      
+      
+      
+
+      <style> 
+      pre{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;direction:ltr;text-align:left;white-space:pre;word-spacing:normal;word-break:normal;padding:1em;margin:.5em 0;overflow:auto;line-height:1.5;tab-size:4;hyphens:none;color:#2b3f6a;background-color:#eee9dd !important;border:#ddd3bb;border-radius:3px}pre[class*="language-"]{padding:1em}code[class*="language-"] .token.comment,pre[class*="language-"] .token.comment,code[class*="language-"] .token.prolog,pre[class*="language-"] .token.prolog,code[class*="language-"] .token.doctype,pre[class*="language-"] .token.doctype,code[class*="language-"] .token.cdata,pre[class*="language-"] .token.cdata{color:#9ca3b0;font-style:italic}code[class*="language-"] .token.punctuation,pre[class*="language-"] .token.punctuation{color:#9ca3b0}code[class*="language-"] .namespace,pre[class*="language-"] .namespace{opacity:.7}code[class*="language-"] .token.constant,pre[class*="language-"] .token.constant{color:#c16161}code[class*="language-"] .token.boolean,pre[class*="language-"] .token.boolean,code[class*="language-"] .token.number,pre[class*="language-"] .token.number,code[class*="language-"] .token.function-name,pre[class*="language-"] .token.function-name{color:#c16161}code[class*="language-"] .token.tag,pre[class*="language-"] .token.tag{color:#ac4343}code[class*="language-"] .token.symbol,pre[class*="language-"] .token.symbol{color:#8f932b}code[class*="language-"] .token.selector,pre[class*="language-"] .token.selector{color:#d08e25}code[class*="language-"] .token.attr-name,pre[class*="language-"] .token.attr-name{color:#d08e25}code[class*="language-"] .token.string,pre[class*="language-"] .token.string{background-color:rgba(255,204,0,0.03);color:rgba(106,68,28,0.77)}code[class*="language-"] .token.char,pre[class*="language-"] .token.char{color:#8f932b}code[class*="language-"] .token.url,pre[class*="language-"] .token.url{color:#d08e25}code[class*="language-"] .token.atrule,pre[class*="language-"] .token.atrule,code[class*="language-"] .token.attr-value,pre[class*="language-"] .token.attr-value,code[class*="language-"] .token.keyword,pre[class*="language-"] .token.keyword{color:#8f932b}code[class*="language-"] .token.function,pre[class*="language-"] .token.function{color:#d08e25}code[class*="language-"] .token.class-name,pre[class*="language-"] .token.class-name{color:#2b3f6a}code[class*="language-"] .token.variable,pre[class*="language-"] .token.variable{color:#5e78e1}code[class*="language-"] .token.regex,pre[class*="language-"] .token.regex,code[class*="language-"] .token.important,pre[class*="language-"] .token.important{color:#379566}code[class*="language-"] .token.important,pre[class*="language-"] .token.important,code[class*="language-"] .token.bold,pre[class*="language-"] .token.bold{font-weight:bold}code[class*="language-"] .token.italic,pre[class*="language-"] .token.italic{font-style:italic}code[class*="language-"] .token.entity,pre[class*="language-"] .token.entity{cursor:help}html body{font-family:"Helvetica Neue",Helvetica,"Segoe UI",Arial,freesans,sans-serif;font-size:16px;line-height:1.6;color:#333;background-color:#fff;overflow:initial;box-sizing:border-box;word-wrap:break-word}html body>:first-child{margin-top:0}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{line-height:1.2;margin-top:1em;margin-bottom:16px;color:#000}html body h1{font-size:2.25em;font-weight:300;padding-bottom:.3em}html body h2{font-size:1.75em;font-weight:400;padding-bottom:.3em}html body h3{font-size:1.5em;font-weight:500}html body h4{font-size:1.25em;font-weight:600}html body h5{font-size:1.1em;font-weight:600}html body h6{font-size:1em;font-weight:600}html body h1,html body h2,html body h3,html body h4,html body h5{font-weight:600}html body h5{font-size:1em}html body h6{color:#5c5c5c}html body strong{color:#000}html body del{color:#5c5c5c}html body a:not([href]){color:inherit;text-decoration:none}html body a{color:#08c;text-decoration:none}html body a:hover{color:#00a3f5;text-decoration:none}html body img{max-width:100%}html body>p{margin-top:0;margin-bottom:16px;word-wrap:break-word}html body>ul,html body>ol{margin-bottom:16px}html body ul,html body ol{padding-left:2em}html body ul.no-list,html body ol.no-list{padding:0;list-style-type:none}html body ul ul,html body ul ol,html body ol ol,html body ol ul{margin-top:0;margin-bottom:0}html body li{margin-bottom:0}html body li.task-list-item{list-style:none}html body li>p{margin-top:0;margin-bottom:0}html body .task-list-item-checkbox{margin:0 .2em .25em -1.8em;vertical-align:middle}html body .task-list-item-checkbox:hover{cursor:pointer}html body blockquote{margin:16px 0;font-size:inherit;padding:0 15px;color:#5c5c5c;border-left:4px solid #d6d6d6}html body blockquote>:first-child{margin-top:0}html body blockquote>:last-child{margin-bottom:0}html body hr{height:4px;margin:32px 0;background-color:#d6d6d6;border:0 none}html body table{margin:10px 0 15px 0;border-collapse:collapse;border-spacing:0;display:block;width:100%;overflow:auto;word-break:normal;word-break:keep-all}html body table th{font-weight:bold;color:#000}html body table td,html body table th{border:1px solid #d6d6d6;padding:6px 13px}html body dl{padding:0}html body dl dt{padding:0;margin-top:16px;font-size:1em;font-style:italic;font-weight:bold}html body dl dd{padding:0 16px;margin-bottom:16px}html body code{font-family:Menlo,Monaco,Consolas,'Courier New',monospace;font-size:.85em !important;color:#000;background-color:#f0f0f0;border-radius:3px;padding:.2em 0}html body code::before,html body code::after{letter-spacing:-0.2em;content:"\00a0"}html body pre>code{padding:0;margin:0;font-size:.85em !important;word-break:normal;white-space:pre;background:transparent;border:0}html body .highlight{margin-bottom:16px}html body .highlight pre,html body pre{padding:1em;overflow:auto;font-size:.85em !important;line-height:1.45;border:#d6d6d6;border-radius:3px}html body .highlight pre{margin-bottom:0;word-break:normal}html body pre code,html body pre tt{display:inline;max-width:initial;padding:0;margin:0;overflow:initial;line-height:inherit;word-wrap:normal;background-color:transparent;border:0}html body pre code:before,html body pre tt:before,html body pre code:after,html body pre tt:after{content:normal}html body p,html body blockquote,html body ul,html body ol,html body dl,html body pre{margin-top:0;margin-bottom:16px}html body kbd{color:#000;border:1px solid #d6d6d6;border-bottom:2px solid #c7c7c7;padding:2px 4px;background-color:#f0f0f0;border-radius:3px}@media print{html body{background-color:#fff}html body h1,html body h2,html body h3,html body h4,html body h5,html body h6{color:#000;page-break-after:avoid}html body blockquote{color:#5c5c5c}html body pre{page-break-inside:avoid}html body table{display:table}html body img{display:block;max-width:100%;max-height:100%}html body pre,html body code{word-wrap:break-word;white-space:pre}}.markdown-preview{width:100%;height:100%;box-sizing:border-box}.markdown-preview .pagebreak,.markdown-preview .newpage{page-break-before:always}.markdown-preview pre.line-numbers{position:relative;padding-left:3.8em;counter-reset:linenumber}.markdown-preview pre.line-numbers>code{position:relative}.markdown-preview pre.line-numbers .line-numbers-rows{position:absolute;pointer-events:none;top:1em;font-size:100%;left:0;width:3em;letter-spacing:-1px;border-right:1px solid #999;-webkit-user-select:none;-moz-user-select:none;-ms-user-select:none;user-select:none}.markdown-preview pre.line-numbers .line-numbers-rows>span{pointer-events:none;display:block;counter-increment:linenumber}.markdown-preview pre.line-numbers .line-numbers-rows>span:before{content:counter(linenumber);color:#999;display:block;padding-right:.8em;text-align:right}.markdown-preview .mathjax-exps .MathJax_Display{text-align:center !important}.markdown-preview:not([for="preview"]) .code-chunk .btn-group{display:none}.markdown-preview:not([for="preview"]) .code-chunk .status{display:none}.markdown-preview:not([for="preview"]) .code-chunk .output-div{margin-bottom:16px}.scrollbar-style::-webkit-scrollbar{width:8px}.scrollbar-style::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}.scrollbar-style::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode]){position:relative;width:100%;height:100%;top:0;left:0;margin:0;padding:0;overflow:auto}html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{position:relative;top:0}@media screen and (min-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em calc(50% - 457px)}}@media screen and (max-width:914px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode]) .markdown-preview{font-size:14px !important;padding:1em}}@media print{html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{display:none}}html body[for="html-export"]:not([data-presentation-mode]) #sidebar-toc-btn{position:fixed;bottom:8px;left:8px;font-size:28px;cursor:pointer;color:inherit;z-index:99;width:32px;text-align:center;opacity:.4}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] #sidebar-toc-btn{opacity:1}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc{position:fixed;top:0;left:0;width:300px;height:100%;padding:32px 0 48px 0;font-size:14px;box-shadow:0 0 4px rgba(150,150,150,0.33);box-sizing:border-box;overflow:auto;background-color:inherit}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar{width:8px}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-track{border-radius:10px;background-color:transparent}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc::-webkit-scrollbar-thumb{border-radius:5px;background-color:rgba(150,150,150,0.66);border:4px solid rgba(150,150,150,0.66);background-clip:content-box}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc a{text-decoration:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{padding:0 1.6em;margin-top:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc li{margin-bottom:.8em}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .md-sidebar-toc ul{list-style-type:none}html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{left:300px;width:calc(100% -  300px);padding:2em calc(50% - 457px -  150px);margin:0;box-sizing:border-box}@media screen and (max-width:1274px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{padding:2em}}@media screen and (max-width:450px){html body[for="html-export"]:not([data-presentation-mode])[html-show-sidebar-toc] .markdown-preview{width:100%}}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .markdown-preview{left:50%;transform:translateX(-50%)}html body[for="html-export"]:not([data-presentation-mode]):not([html-show-sidebar-toc]) .md-sidebar-toc{display:none}
+/* Please visit the URL below for more information: */
+/*   https://shd101wyy.github.io/markdown-preview-enhanced/#/customize-css */
+div.mermaid {
+  text-align: center;
+}
+ 
+      </style>
+    </head>
+    <body for="html-export" >
+      <div class="mume markdown-preview   "  >
+      <html><head></head><body><h1 class="mume-header" id="vapus">vApus</h1>
+
+<p><img src="file:///D:\BitBucketRepos\1 - Stress test\vapus\vApusFrontEnd.png" alt="C:\Users\Didjeeh\Sizing Servers Repositories\vapus\vApusFrontEnd.png.png"></p>
+<p><a href="https://www.nmct.be">https://www.nmct.be</a> - <a href="https://www.sizingservers.be">https://www.sizingservers.be</a> - <a href="https://www.howest.be/en">https://www.howest.be/en</a> - <a href="https://www.linkedin.com/in/dietervandroemme">https://www.linkedin.com/in/dietervandroemme</a></p>
+<p>The vApus stress testing framework is mostly built for testing web services while mimicking real users (a user browses to the homepage, logs in,...).<br>
+Because vApus is a framework it is possible to test any application that has a server socket (in theory) e.g. MySQL, Elasticsearch, ...</p>
+<p>It is comparable to Apache JMeter for web stress testing (but with less efficient http sockets and by far more useful stress test results) and is the result of +/- 8 years active development and +/- 3 years maintenance by one person, Dieter Vandroemme, for the majority of the work.</p>
+<p>Since the project is finished and that person left, Sizing Servers Lab decided to give away this software and all possible documentation for free.</p>
+<p>Even though the software starts to show its age -it contains brilliant and also somewhat less brilliant code: <em>OMG, did I wrote that code?</em> can have two interpretations- it is still very usable for web stress testing, amongst others.</p>
+<p>Do read on and enjoy this gift.</p>
+<hr>
+<p>Stress testing is more complex than just pressing the Go button. Therefore some documentation is in place: See the Help folder in Build and / or install vApus using <strong>Setup_vApus-2.4.2.exe</strong>.</p>
+<p>For specific questions, you can try to e-mail <a href="mailto:info@sizingservers.be">info@sizingservers.be</a>. Keep in mind that support is not guaranteed, since active development is halted.</p>
+<p>In the help folder:</p>
+<ul>
+<li><strong>vApus stress testing intro 201802</strong> gives a good basic overview about how to stress test with vApus and analyze the results.</li>
+<li>Sizing Servers Lab builds, in the same folder, for the last stable vApus (and tools) + monitors.</li>
+<li><strong>README</strong> contains a technical overview of the vApus source code.</li>
+<li>An example <strong>version.ini</strong>: a version .ini is generated using a Jenkins build job using history.xml in the sources and listing file hashes for version control.</li>
+<li><strong>Jenkins 2.88 build jobs</strong> for vApus, monitors and others, but only stable git branches, to illustrate how Sizing Servers implemented continuous integration</li>
+</ul>
+<p>The vApus stress testing suite consists out of a few different git repositories. You can find them all here on GitHub.</p>
+<p><img src="file:///D:\BitBucketRepos\1 - Stress test\vapus\vApus%20projects.png" alt="C:\Users\Didjeeh\Sizing Servers Repositories\vapus\vApus projects.png"></p>
+<p>See the installation folder / the Build folder for an example.</p>
+<p>Furthermore, you can do anything you like with the software in respect to the MIT license.</p>
+<p>Hereunder a <strong>technical manual</strong>.</p>
+<h1 class="mume-header" id="technical-manual">Technical manual</h1>
+
+<h2 class="mume-header" id="preface">Preface</h2>
+
+<p>This is a short manual to guide you through the vApus Visual Studio solution.</p>
+<p>It assumes that you know what vApus is (See the Help folder / Help in vApus, not yet available). This manual is not intended to explain each piece of code in detail, it is more of a guide to see the large picture.</p>
+<p>If you want more details, you can look at the code that is fairly well structured and commented. In fact, it is recommended doing this while reading this manual.</p>
+<p>vApus builds using <strong>.Net 4.7/Visual Studio 2017</strong> and runs only on a 64 bit Windows. Builds can be automated using e.g. Jenkins.</p>
+<p>If building yourself, please note that for vApus as a whole to work It needs to have the tools and other builds in its own build folder (ConnectionProxies, DetailedResultsViewer, Lupus-Titanium, MonitorSourceClients, PublishItemsHandler and ScnerioRuleSets).</p>
+<p>Take a look at the folder structure of an installed vApus (Setup_vApus-2.4.2.exe) and the Jenkins build job exports in vApus.Gui/Help.</p>
+<h2 class="mume-header" id="vapus-stress-testing-solution-vass-framework">vApus Stress testing Solution (vass) Framework</h2>
+
+<p>vApus is a stress testing framework for the user (more on that later), but it is also a framework for the developer.<br>
+The vass framework contains all functionality to save, load and displaying vass files and the objects within; Meaning that large parts of the GUI are auto-generated.<br>
+Most of the code that does this can be found in <strong>vApus.SolutionTree</strong>.</p>
+<pre class="language-text">        Solution
+            |
+    SolutionComponent
+    |        |
+BaseProject  |
+             |
+           BaseItem
+             |
+LabeledBaseItem
+</pre>
+<p>The code that glues the load and save functionality sits in the Solution class, that functionality is used in <em>vApus.Gui.MainWindow</em>. A Solution contains projects like <em>vApus.StressTests.StressTestProject</em>; projects contain items where the label can be editted in the treeview at the left, if it is a LabeledBaseItem. StressTestingSolutionExplorer generates nodes for a project or an item and adds them to its tree view, if the ShowInGui property equals true.</p>
+<p>If you activate a node and you&apos;ve added the ContextMenu and/or HotKeys class attribute to a class deep inheriting SolutionComponent a view will be shown for you: either an auto-generated one or a custom one that inherits from BaseSolutionComponentView. Feel free to browse the SolutionComponentView folder.</p>
+<p>Example:</p>
+<pre class="language-text">    [ContextMenu(new[] { &quot;Activate_Click&quot;, &quot;Remove_Click&quot;, &quot;Copy_Click&quot;, &quot;Cut_Click&quot;, &quot;Duplicate_Click&quot; },
+             new[] { &quot;Edit&quot;, &quot;Remove&quot;, &quot;Copy&quot;, &quot;Cut&quot;, &quot;Duplicate&quot; })]
+    [Hotkeys(new[] { &quot;Activate_Click&quot;, &quot;Remove_Click&quot;, &quot;Copy_Click&quot;, &quot;Cut_Click&quot;, &quot;Duplicate_Click&quot; },
+         new[] { Keys.Enter, Keys.Delete, (Keys.Control | Keys.C), (Keys.Control | Keys.X), (Keys.Control | Keys.D) })]
+</pre>
+<p>StressTestingSolutionExplorer and solution component views are displayed using WeifenLuo.WinFormsUI: Mdi childs are displayed as tabs, close to how Visual Studio does it.</p>
+<p>To avoid circular dependencies different visual studio projects are registered in <em>vApus.Linker.Link</em>. SocketListenerLinker does that for a static <em>vApus.DistributedTesting.SocketListener</em>.</p>
+<h2 class="mume-header" id="stress-testing-framework">Stress testing framework</h2>
+
+<h3 class="mume-header" id="stress-test">Stress test</h3>
+
+<p>A stress test brings a connection and a one or more scenarios together; various other settings can be made to the test. At the back-end we have StressTestCore that uses the connection, the scenario(s) and the settings to execute the test.<br>
+For instance: a ConnectionProxyPool is filled, worker threads are added to the StressTestThreadPool (simulated users), the test is executed with action distribution taken into account,... (I chose to make my own -super lightweight, single purpose- ThreadPool because that is one I can control unlike the CLR ThreadPool)</p>
+<p>Various hooks are in the core to be able to handle distributed test settings.</p>
+<p>At the front-end we have a Configure panel, a Stress Test panel and a Detailed Results panel. The Stress Test panel shows the fast results which are metrics coming from <em>vApus.Results</em>, which also holds all results being, at hart, requests + sent at + time to last byte + error if  any + meta if any. Those metrics are cached so they do not need to be recalculated every time.<br>
+Local monitoring comes from <em>vApus.Monitor.LocalMonitor</em> and status messages are added to the <em>vApus.Util.EventPanel</em> using AddEvent.</p>
+<p>You can choose to save the results to a MySQL database. Storing results is completely decoupled: they are published (pushed over a TCP connection) to an instance of vApus.PublishItemsHandler who does the expensive MySQL storing for you. You can implement your own handler if you like (e.g. storing in postgresql, visualizing monitor metrics). The options dialog tells you how published messages look like so you can deserialize them easily (JSON).</p>
+<p>There are also some functions available to get formatted results like User Action Composition, which can be viewed on the Detailed Results tab page / Detailed Results Viewer. Here results can be exported to an Excel file which is styled like a report and contains charts. SpreadsheetLight (<a href="http://spreadsheetlight.com">spreadsheetlight.com</a>) is used to do this: no com calls (way faster and less error prone) and well documented.</p>
+<h4 class="mume-header" id="connection">Connection</h4>
+
+<p>The code for this can be found in <em>vApus.StressTest.Connections</em>. If you create a new vass in vApus you can import a ConnectionProxy that was preinstalled with vApus; if you want to look around in it.</p>
+<p>A connection is a configuration file that uses a ConnectionProxy to be able to format the given connection string (ConnectionProxyRuleSet) and to be able to connect and communicate to the server app (ConnectionProxyCode).<br>
+The most important function in a ConnectionProxyCode is SendAndReceive; this function is used in StressTestCore by simulated users / threads for each request in the used scenario(represented as StringTrees).</p>
+<p>For debugging ConnectionProxyCode you can call EventPanel.AddEvent(string message), this will add an event to all EventPanel instances in vApus. You can use a preprocessor (for instance: #define DEBUGMODE) and encapsulate the call between #if and #endif to easily set the &apos;debug mode&apos;. Note: do not use this in a real test. The main thread/GUI thread will be a bottleneck.</p>
+<p>When starting a test a ConnectionProxyCode is compiled using <em>vApus.Util.CompilerUnit</em> with the v4.0 option (.Net version, this is the same option for 4.6 which is a drop in replacement for 4.0). Note that the ConnectionProxyCode implements IConnectionProxy; the compiled class is casted to this because it is easier and probably more performant to do direct function calls instead of using reflection.</p>
+<p>The main control at the front-end is a FastColoredTextbox, which is fantastic (thanks to Pavel Torgashov <a href="http://www.codeproject.com/Articles/161871/Fast-Colored-TextBox-for-syntax-highlighting">http://www.codeproject.com/Articles/161871/Fast-Colored-TextBox-for-syntax-highlighting</a>). Otherwise no notable controls.</p>
+<h4 class="mume-header" id="scenario">Scenario</h4>
+
+<p>The code for this can be found in <em>vApus.StressTest.Scenarios</em>. If you create a new vass in vApus you can import a ScenarioRuleSet that was preinstalled with vApus; if you want to look around in it.</p>
+<p>A scenario consists out of user actions, those user actions contain requests. If we look at a web app a user action can be seen as a web page load containing all requests associated with that page (html, js, css, banana,...). HTTP(S) requests can be captured from within vApus, Lupus-Titanium is used for that. The lupus-fiddler project can be found in Git.</p>
+<p>How requests should look like is defined in a ScenarioRuleSet, this is important for the ConnectionProxyCode to be able to get and use the different pieces of the requests.</p>
+<p>Requests are lexed to StringTrees (AN abstract syntax tree implementation) when starting a stress tests taking the rule set into account; a StringTree is a representation of that requests and the different parts can be asked by using indexing and the property Value for leaf nodes or the function CombineValues().</p>
+<p>The front-end holds functionality to be able to view and edit requests, add user actions, find and replace, ... various settings can be made also, like pinning user actions or using delay between user actions. Parameter tokens (representation of a parameter) can be placed in requests, a list of all available parameters can be shown if you click the button.</p>
+<h5 class="mume-header" id="parameters">Parameters</h5>
+
+<p>The code for this can be found in <em>vApus.StressTest.Parameters</em>.</p>
+<p>Requests can be parameterized to for instance fill in a unique user name for a simulated user in a stress test. Various flavors are available, the most performant of them is CustomList.<br>
+Parameter values are determined in StressTestCore right before a stress test starts, those values are put in a lexed request (StringTree). A few scopes are available for when a next value for a parameter should be calculated.<br>
+Take a look at <em>vApus.StressTest.Scenarios.Scenario.GetParameterStructure()</em> to see how this works.</p>
+<p>When the build in parameters are not sufficient, for instance when you need a value from a response in a following request, you can use a system that is adopted by the current users of vApus:</p>
+<ul>
+<li>You store the value that you need in a field in the connection proxy (each simulated user has an instance, use a static field if need be).</li>
+<li>In the request you replace the piece of text that you want to parameterize by {_foo} (Foo being a nice label. Note that it is formatted as a regular parameter with the field name between the brackets: most handy way to use ).</li>
+<li>Add code that replaces {_foo} with the needed value when stress testing (a conditional check will probably be needed).</li>
+</ul>
+<h5 class="mume-header" id="value-store">Value store</h5>
+
+<p>The value store enables sharing data in a thread safe manner between threads in a stress test. Useful when doing a test with parallel requests: when simulating a browser static content (js, css, images) is requested in parallel threads <a href="file:///D:\BitBucketRepos\1 - Stress test\vapus\LINK_WEB_BROWSER_STUDY.md">LINK WEB BROWSER STUDY</a>. Since cookies need to be set correctly on all requests (implemented in a default HTTP(S) connection proxy) or we need a value from a javascript for later use or... we can use this Value store.</p>
+<p>Usage instructions in connection proxy code as in vApus:</p>
+<p>Get, or add if it does not yet exists, a ValueStoreValue. Use the label of the ValueStoreValue as variable name.<br>
+Added values from the CP will not be visible on the GUI and are not added to the vApus solution file.</p>
+<pre class="language-text">    ValueStoreValue _myValue = ValueStore.GetOrAdd(Value store value label e.g. &quot;myValue&quot;object defaultValue = null, bool isUniqueForEachConnection = true, bool publish = false);
+</pre>
+<p>If values hold &apos;objects&apos;, an empty default value will be an empty string (not &apos;null&apos;).<br>
+CP added values are always from the type &apos;object&apos; and are always cleared before a test.</p>
+<pre class="language-text">    var defaultValue = _myValue.DefaultValue;
+</pre>
+<p>Respect the chosen type, otherwise setting a value will fail.<br>
+If the value must be unique for each connection, this call will only work in SendAndReceive(...) and sub functions.<br>
+If not, this will work in every function (e.g. TestConnection(out error)).</p>
+<pre class="language-text">    _myValue.Set(&quot;foobar&quot;);
+</pre>
+<p>or (If not unique, the given owner will be ignored. Be careful when using this, dicussed further)</p>
+<pre class="language-text">    _myValue.Set(owner e.g. &quot;vApus Thread Pool Thread #1&quot;, &quot;foobar&quot;);
+</pre>
+<p>You can get the names of the threads who set a value.<br>
+&apos;shared&apos; (without quotes) is returned when not unique for each connection.</p>
+<pre class="language-text">    string[] owners = _myValue.GetOwners();
+</pre>
+<p>Get the &apos;shared&apos; value or the value set for the current connection or for a chosen one (owner).<br>
+This value can be used to replace a token (a piece of text for instance &quot;{myValue}&quot;) in the request, coming through SendAndReceive(...).<br>
+e.g. If Type is String:</p>
+<pre class="language-text">    string foo = _myValue.Get&lt;string&gt;();
+    string bar = _myValue.Get&lt;string&gt;(owner e.g. &quot;vApus Thread Pool Thread #1&quot;);
+</pre>
+<p>e.g. If Type is Object:</p>
+<pre class="language-text">    object foo = _myValue.Get();
+</pre>
+<p>Fetching data from another owner can be very handy when you are using parallel requests in your test.<br>
+e.g. you can set the value in the CP for the &apos;simulated user thread&apos; and request that data in the &apos;parallel request threads&apos; (who have their own CP object):</p>
+<pre class="language-text">    if(Thread.CurrentThread.GetParent() == null) {
+      // I am a &apos;simulated user thread&apos;.
+      _myValue.Set(&quot;foobar&quot;);
+    }
+    string owner = Thread.CurrentThread.GetParent() as string;
+    if (owner == null) {
+      // I am a &apos;simulated user thread&apos;.
+      owner = Thread.CurrentThread.Name;
+    } // else I am a &apos;parallel request thread&apos;.
+    EventPanel.AddEvent(string.Empty + _myValue.Get&lt;object&gt;(owner));
+</pre>
+<h3 class="mume-header" id="distributed-test">Distributed test</h3>
+
+<p>The code for this can be found in <em>vApus.DistributedTesting</em>.</p>
+<pre class="language-text">    DistributedTest
+    |            |
+  Tiles        Clients
+    |            |
+  Tile         Client
+    |            |
+TileStressTest  Slave
+</pre>
+<p>The regular stress tests in a vass serves as building blocks for a distributed test. TileStressTest proprerties are automatically defaulted to a chosen stress test, you can choose to switch this functionality off. You must have regular stress tests before you can make a distributed test. (It is designed like this because it is easier to see if a stress test actually works running it locally and it is easier to wrap your mind around the whole stress testing thing like this. When adding stress tests, connections, r to the vass, keep Tiles in mind (see further).)</p>
+<p>The general idea is that a workload can be offloaded to different clients with vApus slaves, they report back to the vApus master.</p>
+<p>A workload can be defined as different stress tests for the different parts of a (virtual) stack (Tile), for example a database server and two load balanced web servers. This is called many-to-many testing.<br>
+It can also be the load for one stress tests spread over more than one slave, preferably on different clients, if one client is not able to handle the test. This is called many-to-one testing. Both types can be mixed in a distributed test.<br>
+You can assign a TileStressTest to multiple slaves in its configuration panel.</p>
+<p>To keep TileStressTest runs in sync we have two flavours: Break on First Run Finished and Break on Last Run Finished (loops runs for the other tests until then). Look at the code in <em>DistributedTestCore</em> and <em>vApus.StressTest.StressTestCore</em> and search for RunSynchronization to have a better understanding of this.</p>
+<p>Now you understand that TileStressTests run more or less like a regular stress test on a slave, differences are stated above, in fact a TileStressTest is parsed to a StressTest which is sent to a slave. The Gui is stripped (TileStressTestView), results can still be reported to a result db like for a regular test.</p>
+<p>The front-end is much like the front-end for a regular stress test, there are a few notable extras though:</p>
+<ul>
+<li>
+<p>The Wizard (re)builds a distributed test for you and is shown automatically when opening an empty distributed test. It looks at the regular stress tests in the vass to build TileStressTests and order them in a Tile.</p>
+</li>
+<li>
+<p>A Remote Desktop Client: <em>vApus.Jumpstart</em> (see Tools) will only work if a user session (remote or local) is running on a test client. You can choose if you want vApus to connect via remote desktop to the client if you like.</p>
+</li>
+</ul>
+<h3 class="mume-header" id="monitor">Monitor</h3>
+
+<p>The code for this can be found in <em>vApus.Monitor</em>.</p>
+<p>A monitor gathers hardware metrics from a remote server or machine using the vApus Monitor Sources binaries (vApus.Monitor.Sources repo).<br>
+vApus.Monitor.Sources.Base.dll must reside in the ./Prerequisites/vApus.Monitor.Sources folder; those dlls are used as a base for the &apos;monitor sources&apos; that must be found in the MonitorSourceClients folder in the build folder of vApus. The &apos;nightly&apos; or &apos;stable&apos; Jenkins job automate this for you.</p>
+<p>A &apos;monitor source&apos; holds functionality to get the hardware configuration from a machine and the possible counters that can be requested. Different monitor sources are available, for instance: Windows, ESXi, Racktivity, ...</p>
+<p>The Windows monitor source communicates to an agent installed on the server, this is also the case with for instance the dstat agent and others.</p>
+<p>Monitor metrics can run together with a stress test or distributed test.</p>
+<h2 class="mume-header" id="tools">Tools</h2>
+
+<ul>
+<li>
+<p>vApus.CommitTool<br>
+Used in a Jenkins job, sends the binaries to <a href="http://vapusupdate.sizingservers.be">vapusupdate.sizingservers.be</a>.</p>
+</li>
+<li>
+<p>vApus.DetailedResultsViewer<br>
+A seperate tool a user can use to review stress testing results, accessible through the main menu and via a Detailed Results tab.</p>
+</li>
+<li>
+<p>vApus.JumpStart<br>
+Used for jump starting / smart updating slaves for a distributed test.</p>
+</li>
+<li>
+<p>vApus.KillvApusAndTools<br>
+Used when updating / (un)installing vApus. You can use this yourself if you like.</p>
+</li>
+<li>
+<p>vApus.Monitor.Sources<br>
+Part of the monitoring framework. Enables communication with the monitor agents.</p>
+</li>
+<li>
+<p>vApus.PublishItemsHandler<br>
+Enables decoupling stress test result storing to MySQL. You can write your own handler if you like. See the options dialog for instructions.</p>
+</li>
+<li>
+<p>vApus.UpdateTool<br>
+Can be configured trough the options found in the vApus main menu. The user is automatically notified when there is an update available.</p>
+</li>
+<li>
+<p>vApus.Util<br>
+Holds different handy classes that are not vs project specific and thus can be used everywhere in the vs solution.</p>
+</li>
+<li>
+<p>SizingServers.IPC, SizingServers.Log, SizingServers.Util<br>
+Three pet projects donated to SizingServers used in vApus and tools</p>
+</li>
+</ul>
+<h1 class="mume-header" id="know-issues">Know issues</h1>
+
+<p>Following issues/bugs are known, but will most probably not be fixed because of lack of time.</p>
+<ul>
+<li>
+<p>Minor flickering when doing something on the GUI when there are a lot of tabs (Mdi childs) open</p>
+</li>
+<li>
+<p>Do not use parallel requests for web stress tests. Web tests will work just fine without this (only a bit less realistic).</p>
+</li>
+</ul>
+<p>Parallel requests in a single stress test do not work well (simulating web browsers)<br>
+If too many threads are created thread contention will occur. In the current implementation this can be the case quite rapidly: Before each test run the thread pool is initialized for the &apos;Main User threads&apos; and the &apos;Parallel request threads&apos; as well.</p>
+<p>By default, there are 6 static content requests (img, js, css) that are fetched in parallel (the &apos;Main user thread&apos; + 5 &apos;Parallel Request threads&apos;). &apos;Parallel Request threads&apos; are not reused in vApus, meaning that for each group of statics to be fetched in parallel 5 &apos;Parallel Request threads&apos; are created.</p>
+<p>This is highly inefficient since even when idle the OS needs to schedule them. Because of lack of time this approach was chosen, tested, found valid, and bit us in the ass in a stress testing case for a client.</p>
+<p>Possible workaround: Make a homogeneous distributed test with slaves on the same test client. This will work since .Net threads are scheduled per process. Ideally, we should have this built into vApus that it does this automatically.</p>
+<p>Parallel requests in a distributed homogeneous test over different test clients do not work<br>
+Only for tests with parallel requests the time right before sending a request is taken into account to calculate user action response times (how long it takes to get the html and all statics for a certain web page).</p>
+<p>To determine this start time the TSC Invariant kernel function GetSystemTimePreciseAsFileTime is used (<a href="file:///D:\BitBucketRepos\1 - Stress test\vapus\Running_vApus_virtualized.md">Running_vApus_virtualized</a>), which works fine. However, time skew between the different test clients clocks in a homogeneous distributed test is not taken into account. Furthermore, we have to deal with network latency.</p>
+<p>This renders &apos;Parallel Request testing&apos; completely useless in this setup.</p>
+<ul>
+<li>
+<p>When removing a slave that is assigned to a tile stress test from the &apos;Slaves tab page&apos; on the Distributed Test GUI it is not update on the &apos;Configure tab page&apos;</p>
+</li>
+<li>
+<p>Break on first distributed testing fails sometimes<br>
+Is reproducible, but not easily fixed. The master-slaves communication layer should be rewritten.</p>
+</li>
+</ul>
+<h1 class="mume-header" id="running-vapus-virtualized">Running vApus virtualized</h1>
+
+<h2 class="mume-header" id="introduction">Introduction</h2>
+
+<p>Running time-sensitive software virtualized is problematic, since measured time on a VM can skew from the wall-clock time. Especially if the underlying hardware is under heavy load.</p>
+<p>Luckily there is a solution, for a virtualized Windows that is. (I did not research Linux solutions)</p>
+<p>In the first chapter I tell you what you must do to run vApus virtualized without explaining anything. Next I give pointers to proof and to more details<br>
+that this approach works (according to the Internet).</p>
+<p>This, however, is not yet tested. We must run a vApus physical and virtualized and cross-reference stress test results and behavior to check if they are equal to one-another. And this under heavy load, for example ASAP, high concurrency, distributed with a lot of slaves,...</p>
+<p>Documented details are about virtualising using VMware software. Running on Xen or Hyper-V should not be a problem since the TSC Invariant MSR is available through the Hypervisor (<a href="http://xenbits.xen.org/docs/4.3-testing/misc/tscmode.txt" title="Xen 4.3 TSC_MODE HOW-TO by Magenheimer, D. Retrieved on 2015, January, 2">1</a>, <a href="http://www.microsoft.com/en-us/download/details.aspx?id=39289" title="Hypervisor Top-Level Functional Specification 3.0a: Windows Server 2012 by Microsoft (2013, June,19)">2</a>).</p>
+<h1 class="mume-header" id="practical">Practical</h1>
+
+<p>The VM must be a Windows 8.1 or a Windows Server 2012 or newer.</p>
+<p>Download CoreInfo from <a href="http://technet.microsoft.com/en-us/sysinternals/cc835722.aspx" title="CoreInfo v3.31 by Russinovich, M (2014, August, 18)">SysInternals</a> and run it from cmd on the VM (Administrator rights required).</p>
+<p>The Machine Specific Register <a href="http://www.windowstimestamp.com/description" title="Microsecond Resolution Time Services for Windows, v1.80 by Lentfer, A (2014, October)">TSC-INVARIANT</a> must be available (A * means available). Make sure that you&#x2019;ve installed the VM&apos;&apos;...&apos;&apos;tools (vmware tools for example).</p>
+<p>Install vApus and happy testing.</p>
+<h2 class="mume-header" id="in-depth">In depth</h2>
+
+<h3 class="mume-header" id="windows">Windows</h3>
+
+<p>From Microsecond Resolution Time Services for <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dn553408%28v=vs.85%29aspx" title="Acquiring high-resolution time stamps by Briggs, E (Presumed) (2014, September, 30)">Windows</a> and confirmed by <a href="http://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/b0df67d7-8151-4ee3-9c58-343004243c1b/getsystemtimepreciseasfiletime-on-prewindows-8?forum=windowsgeneraldevelopmetissues" title="GetSystemTimePreciseAsFileTime on pre-Windows 8? by Vinschen, C (2012, June, 15).">Microsoft</a>:</p>
+<blockquote>&apos;&apos;Windows 8.1 goes back to the roots; it goes back to 156250. The TSC frequency is calibrated against HPET periods to finally get proper timekeeping.&apos;&apos;
+</blockquote>
+<p>And</p>
+<blockquote>&apos;&apos;Since Windows 7, the operating system runs tests on the underlying hardware to see which hardware is best used for timekeeping. When the processors Time Stamp Counter (TSC) is suitable, the operating system uses the TSC for timekeeping. If the TSC cannot be used for timekeeping the operating system reverts to the High Precision Event Timer (HPET). If that does not exist it reverts to the ACPI PM timer. For performance reasons it shall be noted that HPET and ACPI PM timer cause IPC overhead, while the use of the TSC does not. The evolution of TSC shows a variety of capabilities:
+<ul>
+<li>Constant: The TSC does not change with CPU frequency changes, however it does change on C state transitions.</li>
+<li>Invariant: The TSC increments at a constant rate in all ACPI P-, C- and T-states.</li>
+<li>Nonstop: The TSC has the properties of both Constant and Invariant TSC&apos;&apos;</li>
+</ul>
+</blockquote>
+<p>This means that the Stopwatch class used for time measurements in vApus &#x2019;s Connection Proxies, when vApus runs on Windows 7 / 8 can be correct and on =&gt; Windows 8.1, always work.</p>
+<p>The Stopwatch class uses the QueryPerformanceCounter win32 API function internally. QPC uses TSC if the <a href="http://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/b0df67d7-8151-4ee3-9c58-343004243c1b/getsystemtimepreciseasfiletime-on-prewindows-8?forum=windowsgeneraldevelopmetissues" title="GetSystemTimePreciseAsFileTime on pre-Windows 8? by Vinschen, C (2012, June, 15).">TSC-INVARIANT MSR</a> (Machine Specific Register) is available, or falls back to HPET or PM timer (outdated, slower and not correct on VMs obviously).</p>
+<p>If we need more precision we can use the GetSystemTimePreciseAsFileTime function on <a href="http://msdn.microsoft.com/en-us/library/windows/desktop/dn553408%28v=vs.85%29aspx" title="Acquiring high-resolution time stamps by Briggs, E (Presumed) (2014, September, 30)">Windows 8.1</a>. But I think that the Stopwatch class should be precise enough. This depends on the <a href="http://blogs.vmware.com/vsphere/2013/10/microsoft-operating-system-time-sources-and-virtual-hardware-10.html" title="Microsoft Operating System Time Sources and Virtual Hardware 10 by Achtemichuk, M (2013, October, 18)">hardware</a>.</p>
+<blockquote>&apos;&apos;Windows 8 introduces the function GetSystemTimePreciseAsFileTime() &#x201C;with the highest possible level of precision (&lt;1us)&#x201D;. This seems the counterpart to the linux gettimeofday() function.&apos;&apos;
+</blockquote>
+<h3 class="mume-header" id="virtualized-hardware">(Virtualized) Hardware</h3>
+
+<p>From <a href="http://social.msdn.microsoft.com/Forums/windowsdesktop/en-US/b0df67d7-8151-4ee3-9c58-343004243c1b/getsystemtimepreciseasfiletime-on-prewindows-8?forum=windowsgeneraldevelopmetissues" title="GetSystemTimePreciseAsFileTime on pre-Windows 8? by Vinschen, C (2012, June, 15).">Microsoft</a>:</p>
+<blockquote>&#x2026;you can determine whether your processor has an invariant TSC by using one of these: the Coreinfo.exe utility from Windows Sysinternals checking the values returned by the CPUID instruction pertaining to the TSC characteristics the processor manufacturer&#x2019;s documentation The following shows the **TSC-INVARIANT** info that is provided by the Windows Sysinternals Coreinfo.exe utility (www.sysinternals.com). An asterisk means &#x201C;True&#x201D;.
+</blockquote>
+The TSC-INVARIANT MSR (a hardware counter for CPUs) must be available. This must be supported by the used virualisation software<ref name="GetSystemTimePreciseAsFileTime on pre-Windows 8">. Presumably you must have the VM&apos;&apos;...&apos;&apos;tools installed for correct virtualization.
+<p>Check if TSC-INVARIANT is available using <a href="http://msdn.microsoft.com/en-us/library/system.diagnostics.stopwatch.frequency(v=vs.110).aspx" title="Stopwatch.Frequency Field, .Net Framework 4.5 by Microsoft">CoreInfo</a>.</p>
+<h2 class="mume-header" id="vapus-virtual-vs-vapus-physical-in-numbers">vApus virtual vs vApus physical in numbers</h2>
+
+<h3 class="mume-header" id="introduction-1">Introduction</h3>
+
+<p>Research from a few years back. But still true.</p>
+<p>One physical Windows client / one or more virtual Windows clients where used to run vApus. This to check if the above is actually correct.<br>
+The virtual client(s) run in our own production to simulate hardware usage in the real world (e.g. Amazon), where hardware is shared among a lot of VMs. Or on AWS.</p>
+<h3 class="mume-header" id="local">Local</h3>
+
+<p>Each test was executed twice.</p>
+<h4 class="mume-header" id="test-setup">Test setup</h4>
+
+<p>Virtual client:</p>
+<ul>
+<li>Windows Server 2012 R2 @ [Istanbul (production) (ESXi 5.5)</li>
+<li>2 vCPUs, AMD Istanbul CPUs, TSC-Invariant MSR available</li>
+<li>6 GB RAM</li>
+</ul>
+<p>Physical client:</p>
+<ul>
+<li>Windows Server 2012 R2 @ dell-r815</li>
+<li>2 CPUs, 32 cores AMD Opteron 6276, TSC-Invariant MSR available</li>
+<li>32 GB RAM</li>
+</ul>
+<p>Test 1:</p>
+<ul>
+<li>Tales Anziplast (CMS from a Flemish small business)</li>
+<li>Users: 5, 5, ..., 100 in steps of 5</li>
+<li>2 runs</li>
+<li>Delay: 900 - 1100 ms</li>
+<li>The client is self-monitored to make sure that it is not the bottleneck</li>
+</ul>
+<p>Test 2:</p>
+<ul>
+<li>A Break on First Run Sync Distributed test</li>
+<li>3 tile stress tests: benchdb, phpbb and <a href="http://nieuws.be">nieuws.be</a> (last one is a db from a Flemish small business)</li>
+<li>Users: 5, 5, ..., 100 in steps of 5</li>
+<li>2 runs</li>
+<li>Delay: 900 - 1100 ms</li>
+<li>The client is self-monitored to make sure that it is not the bottleneck</li>
+</ul>
+<p>Test results on their own are irrelevant: The result with the virtual vApus must match (+/-) those with the physical vApus.</p>
+<h4 class="mume-header" id="results">Results</h4>
+
+<h5 class="mume-header" id="test-1">Test 1</h5>
+
+<p>Both tests gave consistent results. Specifically the <strong>throughput</strong> for the concurrency where the server was not yet saturated was compared: Results for a saturated server will fluctuate more.</p>
+<table>
+<tbody><tr>
+<td></td>
+<td>vApus physical</td>
+<td>vApus virtual</td>
+</tr>
+<tr>
+<td>Execution 1 Concurrency 15</td>
+<td>68,87</td>
+<td>67,24</td>
+</tr>
+<tr>
+<td>Execution 2 Concurrency 15</td>
+<td>72,19</td>
+<td>71,4</td>
+</tr>
+</tbody></table>
+<h5 class="mume-header" id="test-2">Test 2</h5>
+
+<p>Both tests gave consistent results. Specifically the <strong>throughput</strong> for the concurrency where the server was not yet saturated was compared: Results for a saturated server will fluctuate more.</p>
+<p>Results of the slowest test:</p>
+<table>
+<tbody><tr>
+<td></td>
+<td>vApus physical</td>
+<td>vApus virtual</td>
+</tr>
+<tr>
+<td>phpbb Execution 1 Concurrency 45</td>
+<td>341,04</td>
+<td>334,17</td>
+</tr>
+<tr>
+<td>phpbb Execution 2 Concurrency 45</td>
+<td>332,31</td>
+<td>340,31</td>
+</tr>
+</tbody></table>
+<h3 class="mume-header" id="aws">AWS</h3>
+
+<h4 class="mume-header" id="test-setup-1">Test setup</h4>
+
+<p>A more simple approach was chosen since there is already enough jitter on AWS: <a href="https://www.sizingservers.be">https://www.sizingservers.be</a> (first version of our website) was tested using only a single vApus instance.</p>
+<p>Test 2 was executed trice to ensure that there are no big differences in the results.</p>
+<p>Virtual client:</p>
+<ul>
+<li>Windows Server 2012 R2 @ AWS c3.large Ireland</li>
+</ul>
+<p>Physical client:</p>
+<ul>
+<li>Windows Server 2012 R2 @ dell-r815</li>
+</ul>
+<p>Test 1:</p>
+<ul>
+<li><a href="http://www.sizingservers.be">www.sizingservers.be</a></li>
+<li>Users: 5, 10, 15</li>
+<li>2 runs</li>
+<li>Delay: 900 - 1100 ms</li>
+<li>The client is self-monitored to make sure that it is not the bottleneck</li>
+</ul>
+<p>Test 2:</p>
+<ul>
+<li><a href="http://www.sizingservers.be">www.sizingservers.be</a></li>
+<li>Users: 5, 10, 15</li>
+<li>2 runs + ACTION DISTRIBUTION (all actions times 10)</li>
+<li>Delay: 900 - 1100 ms</li>
+<li>The client is self-monitored to make sure that it is not the bottleneck</li>
+</ul>
+<p>Test results on their own are irrelevant: The result with the virtual vApus must match (+/-) those with the physical vApus.</p>
+<h4 class="mume-header" id="results-1">Results</h4>
+
+<p>As you can clearly see in the spreadsheets results are as they should be. Testing from AWS is a bit slower because there is a latency of 22 ms to <a href="http://www.sizingservers.be">www.sizingservers.be</a>.</p>
+<p><a href="http://www.sizingservers.be">www.sizingservers.be</a> is located in our own network. You can find this latency back in the average response times.</p>
+<h3 class="mume-header" id="conclusion">Conclusion</h3>
+
+<p>It is safe to say that vApus can be used on VMs and in the cloud.</p>
+<h1 class="mume-header" id="generating-charts-for-proc-and-wmi-net-monitor-metrics">Generating charts for Proc and WMI-net monitor metrics</h1>
+
+<p>Make sure you have Excel &gt;=2016 installed. Copy personal.xlsm from the vApus installation folder to the XLSTART folder (e.g. C:\Program Files (x86)\Microsoft Office\Office15\XLSTART).</p>
+<p>When setting the monitors click the &apos;Use defaults&apos; button in vApus.</p>
+<p>For Proc following counters are chosen:</p>
+<ul>
+<li>cpu.
+<ul>
+<li>user</li>
+<li>nice</li>
+<li>system</li>
+<li>idle</li>
+<li>iowait</li>
+<li>irq</li>
+<li>softirq</li>
+<li>steal</li>
+</ul>
+</li>
+<li>disk.
+<ul>
+<li>read</li>
+<li>write</li>
+<li>average_queue_size</li>
+</ul>
+</li>
+<li>memory</li>
+<li>network.
+<ul>
+<li>rx</li>
+<li>tx</li>
+</ul>
+</li>
+<li>swap</li>
+</ul>
+<p>For WMI-net:</p>
+<ul>
+<li>Memory.
+<ul>
+<li>Available Bytes</li>
+<li>Cache Bytes</li>
+</ul>
+</li>
+<li>Network Interface.
+<ul>
+<li>Bytes Received/sec</li>
+<li>Bytes Sent/sec</li>
+<li>Current Bandwidth</li>
+</ul>
+</li>
+<li>Physical Disk.
+<ul>
+<li>Avg. Disk Queue Length.__Total__</li>
+<li>Disk Read Bytes/sec.__Total__</li>
+<li>Disk Write Bytes/sec.__Total__</li>
+</ul>
+</li>
+<li>Processor Information.
+<ul>
+<li>% Idle Time.__Total__</li>
+<li>% Privileged Time.__Total__</li>
+<li>% User Time.__Total__</li>
+</ul>
+</li>
+</ul>
+<p>Alternatively you can manually select following counters for WMI for a (as in only one) specific process:</p>
+<ul>
+<li>Process.
+<ul>
+<li>% Privileged Time</li>
+<li>% Processor Time</li>
+<li>% User Time</li>
+<li>IO Read Bytes/sec</li>
+<li>IO Write Bytes/sec</li>
+<li>Working Set</li>
+<li>Working Set - Private</li>
+</ul>
+</li>
+</ul>
+<p>Export the monitor metrics for a test using the detailed results viewer and open a monitor spreadsheet.</p>
+<p>Click, in the Ribbon, <em>View</em> &gt; <em>Macros</em>.</p>
+<p>For Proc first run the <em>Proc_charts_make</em> macro.</p>
+<p>For WMI you need to remove all network ups and downs except for one pair and run the <em>Wmi_charts_make</em> macro. Do not forget to fill in the total amount of RAM .</p>
+<p>If you manually selected process counters you have to run <em>WMI_process_charts_make</em> and fill in the number of (v)CPU cores.</p>
+<h1 class="mume-header" id="update-vapus-from-within-vapus">Update vApus from within vApus</h1>
+
+<p>Open vApus. Click &apos;Tools&apos; &gt; &apos;Options...&apos; &gt; &apos;Update notifier&apos;</p>
+<p>Fill in.</p>
+<p>Click &apos;Set&apos;.</p>
+</ref></body></html>
+      </div>
+      
+      
+    </body>
+    
+    
+    
+    
+    
+    
+    
+  </html>

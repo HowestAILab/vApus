@@ -10,7 +10,7 @@ It is comparable to Apache JMeter for web stress testing (but with less efficien
 
 Since the project is finished and that person left, Sizing Servers Lab decided to give away this software and all possible documentation for free.
 
-Even though the software starts to show its age (it contains brilliant and also somewhat less brilliant code) it is still very usable for web stress testing, amongst others.
+Even though the software starts to show its age -it contains brilliant and also somewhat less brilliant code: *OMG, did I wrote that code?* can have two interpretations- it is still very usable for web stress testing, amongst others.
 
 Do read on and enjoy this gift.
 
@@ -35,7 +35,7 @@ See the installation folder / the Build folder for an example.
 
 Furthermore, you can do anything you like with the software in respect to the MIT license.
 
-Hereunder a technical manual.
+Hereunder a **technical manual**.
 
 # Technical manual
 
@@ -46,12 +46,11 @@ It assumes that you know what vApus is (See the Help folder / Help in vApus, not
 
 If you want more details, you can look at the code that is fairly well structured and commented. In fact, it is recommended doing this while reading this manual.
 
-vApus builds using .Net 4.7/Visual Studio 2017 and runs only on a 64 bit Windows. Builds are is automated using Jenkins.
+vApus builds using **.Net 4.7/Visual Studio 2017** and runs only on a 64 bit Windows. Builds can be automated using e.g. Jenkins.
 
 If building yourself, please note that for vApus as a whole to work It needs to have the tools and other builds in its own build folder (ConnectionProxies, DetailedResultsViewer, Lupus-Titanium, MonitorSourceClients, PublishItemsHandler and ScnerioRuleSets).
 
 Take a look at the folder structure of an installed vApus (Setup_vApus-2.4.2.exe) and the Jenkins build job exports in vApus.Gui/Help.
-
 
 ## vApus Stress testing Solution (vass) Framework
 vApus is a stress testing framework for the user (more on that later), but it is also a framework for the developer.
@@ -64,7 +63,7 @@ Most of the code that does this can be found in **vApus.SolutionTree**.
         |        |
     BaseProject  |
                  |
-               BaseItem 
+               BaseItem
                  |
     LabeledBaseItem
 
@@ -83,7 +82,7 @@ StressTestingSolutionExplorer and solution component views are displayed using W
 
 To avoid circular dependencies different visual studio projects are registered in *vApus.Linker.Link*. SocketListenerLinker does that for a static *vApus.DistributedTesting.SocketListener*.
 
-## Stress testing framework 
+## Stress testing framework
 
 ### Stress test
 A stress test brings a connection and a one or more scenarios together; various other settings can be made to the test. At the back-end we have StressTestCore that uses the connection, the scenario(s) and the settings to execute the test.
@@ -121,7 +120,7 @@ Requests are lexed to StringTrees (AN abstract syntax tree implementation) when 
 
 The front-end holds functionality to be able to view and edit requests, add user actions, find and replace, ... various settings can be made also, like pinning user actions or using delay between user actions. Parameter tokens (representation of a parameter) can be placed in requests, a list of all available parameters can be shown if you click the button.
 
-##### Parameters 
+##### Parameters
 The code for this can be found in *vApus.StressTest.Parameters*.
 
 Requests can be parameterized to for instance fill in a unique user name for a simulated user in a stress test. Various flavors are available, the most performant of them is CustomList.
@@ -133,50 +132,50 @@ When the build in parameters are not sufficient, for instance when you need a va
 * In the request you replace the piece of text that you want to parameterize by {_foo} (Foo being a nice label. Note that it is formatted as a regular parameter with the field name between the brackets: most handy way to use ).
 * Add code that replaces {_foo} with the needed value when stress testing (a conditional check will probably be needed).
 
-##### Value store 
+##### Value store
 The value store enables sharing data in a thread safe manner between threads in a stress test. Useful when doing a test with parallel requests: when simulating a browser static content (js, css, images) is requested in parallel threads [[LINK WEB BROWSER STUDY]]. Since cookies need to be set correctly on all requests (implemented in a default HTTP(S) connection proxy) or we need a value from a javascript for later use or... we can use this Value store.
 
 Usage instructions in connection proxy code as in vApus:
 
   Get, or add if it does not yet exists, a ValueStoreValue. Use the label of the ValueStoreValue as variable name.
   Added values from the CP will not be visible on the GUI and are not added to the vApus solution file.
-  
+
         ValueStoreValue _myValue = ValueStore.GetOrAdd(Value store value label e.g. "myValue"object defaultValue = null, bool isUniqueForEachConnection = true, bool publish = false);
-  
+
   If values hold 'objects', an empty default value will be an empty string (not 'null').
   CP added values are always from the type 'object' and are always cleared before a test.
-  
+
         var defaultValue = _myValue.DefaultValue;
-  
+
   Respect the chosen type, otherwise setting a value will fail.
   If the value must be unique for each connection, this call will only work in SendAndReceive(...) and sub functions.
   If not, this will work in every function (e.g. TestConnection(out error)).
-  
+
         _myValue.Set("foobar");
-  
+
   or (If not unique, the given owner will be ignored. Be careful when using this, dicussed further)
-  
+
         _myValue.Set(owner e.g. "vApus Thread Pool Thread #1", "foobar");
-  
+
   You can get the names of the threads who set a value.
   'shared' (without quotes) is returned when not unique for each connection.
-  
+
         string[] owners = _myValue.GetOwners();
-  
+
   Get the 'shared' value or the value set for the current connection or for a chosen one (owner).
   This value can be used to replace a token (a piece of text for instance "{myValue}") in the request, coming through SendAndReceive(...).
   e.g. If Type is String:
-  
+
         string foo = _myValue.Get<string>();
         string bar = _myValue.Get<string>(owner e.g. "vApus Thread Pool Thread #1");
-  
-  e.g. If Type is Object: 
-  
+
+  e.g. If Type is Object:
+
         object foo = _myValue.Get();
-  
+
   Fetching data from another owner can be very handy when you are using parallel requests in your test.
   e.g. you can set the value in the CP for the 'simulated user thread' and request that data in the 'parallel request threads' (who have their own CP object):
-  
+
         if(Thread.CurrentThread.GetParent() == null) {
           // I am a 'simulated user thread'.
           _myValue.Set("foobar");
@@ -193,7 +192,7 @@ The code for this can be found in *vApus.DistributedTesting*.
 
         DistributedTest
         |            |
-      Tiles        Clients 
+      Tiles        Clients
         |            |
       Tile         Client
         |            |
@@ -214,7 +213,7 @@ To keep TileStressTest runs in sync we have two flavours: Break on First Run Fin
 Now you understand that TileStressTests run more or less like a regular stress test on a slave, differences are stated above, in fact a TileStressTest is parsed to a StressTest which is sent to a slave. The Gui is stripped (TileStressTestView), results can still be reported to a result db like for a regular test.
 
 
-The front-end is much like the front-end for a regular stress test, there are a few notable extras though: 
+The front-end is much like the front-end for a regular stress test, there are a few notable extras though:
 * The Wizard (re)builds a distributed test for you and is shown automatically when opening an empty distributed test. It looks at the regular stress tests in the vass to build TileStressTests and order them in a Tile.
 
 * A Remote Desktop Client: *vApus.Jumpstart* (see Tools) will only work if a user session (remote or local) is running on a test client. You can choose if you want vApus to connect via remote desktop to the client if you like.
@@ -261,11 +260,11 @@ Three pet projects donated to SizingServers used in vApus and tools
 # Know issues
 Following issues/bugs are known, but will most probably not be fixed because of lack of time.
 
-* Minor flickering when doing something on the GUI when there are a lot of tabs (Mdi childs) open 
+* Minor flickering when doing something on the GUI when there are a lot of tabs (Mdi childs) open
 
 * Do not use parallel requests for web stress tests. Web tests will work just fine without this (only a bit less realistic).
 
-Parallel requests in a single stress test do not work well (simulating web browsers)  
+Parallel requests in a single stress test do not work well (simulating web browsers)
 If too many threads are created thread contention will occur. In the current implementation this can be the case quite rapidly: Before each test run the thread pool is initialized for the 'Main User threads' and the 'Parallel request threads' as well.
 
 By default, there are 6 static content requests (img, js, css) that are fetched in parallel (the 'Main user thread' + 5 'Parallel Request threads'). 'Parallel Request threads' are not reused in vApus, meaning that for each group of statics to be fetched in parallel 5 'Parallel Request threads' are created.
@@ -274,7 +273,7 @@ This is highly inefficient since even when idle the OS needs to schedule them. B
 
 Possible workaround: Make a homogeneous distributed test with slaves on the same test client. This will work since .Net threads are scheduled per process. Ideally, we should have this built into vApus that it does this automatically.
 
-Parallel requests in a distributed homogeneous test over different test clients do not work   
+Parallel requests in a distributed homogeneous test over different test clients do not work
 Only for tests with parallel requests the time right before sending a request is taken into account to calculate user action response times (how long it takes to get the html and all statics for a certain web page).
 
 To determine this start time the TSC Invariant kernel function GetSystemTimePreciseAsFileTime is used ([[Running_vApus_virtualized]]), which works fine. However, time skew between the different test clients clocks in a homogeneous distributed test is not taken into account. Furthermore, we have to deal with network latency.
@@ -283,7 +282,7 @@ This renders 'Parallel Request testing' completely useless in this setup.
 
 * When removing a slave that is assigned to a tile stress test from the 'Slaves tab page' on the Distributed Test GUI it is not update on the 'Configure tab page'
 
-* Break on first distributed testing fails sometimes  
+* Break on first distributed testing fails sometimes
 Is reproducible, but not easily fixed. The master-slaves communication layer should be rewritten.
 
 # Running vApus virtualized
@@ -358,9 +357,9 @@ Check if TSC-INVARIANT is available using [CoreInfo][8].
 [7]: http://blogs.vmware.com/vsphere/2013/10/microsoft-operating-system-time-sources-and-virtual-hardware-10.html "Microsoft Operating System Time Sources and Virtual Hardware 10 by Achtemichuk, M (2013, October, 18)"
 [8]: http://msdn.microsoft.com/en-us/library/system.diagnostics.stopwatch.frequency(v=vs.110).aspx "Stopwatch.Frequency Field, .Net Framework 4.5 by Microsoft"
 
-## vApus virtual vs vApus physical in numbers 
+## vApus virtual vs vApus physical in numbers
 
-### Introduction 
+### Introduction
 Research from a few years back. But still true.
 
 One physical Windows client / one or more virtual Windows clients where used to run vApus. This to check if the above is actually correct.
@@ -507,7 +506,7 @@ For Proc following counters are chosen:
   * average_queue_size
 * memory
 * network.
-  * rx 
+  * rx
   * tx
 * swap
 
