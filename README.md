@@ -2,7 +2,9 @@
 
 ## Our renowned Stress Testing Suite: vApus went open source (MIT license)
 
-<style>.embed-container { position: relative; padding-bottom: 56.25%; height: 0; overflow: hidden; max-width: 100%; } .embed-container iframe, .embed-container object, .embed-container embed { position: absolute; top: 0; left: 0; width: 100%; height: 100%; }</style><div class='embed-container'><iframe src='https://www.youtube.com/embed/6Xp8wY38VHY?rel=0&amp;showinfo=0' frameborder='0' allowfullscreen></iframe></div>
+[![Click for the promo video](https://img.youtube.com/vi/6Xp8wY38VHY/0.jpg)](https://www.youtube.com/watch?v=6Xp8wY38VHY)
+
+<https://www.youtube.com/watch?v=6Xp8wY38VHY>
 
 <https://www.nmct.be> - <https://www.sizingservers.be> - <https://www.howest.be/en> - <https://www.linkedin.com/in/dietervandroemme>
 
